@@ -1,3 +1,7 @@
+![Static Badge](https://img.shields.io/badge/status-not--ready-red)
+![Static Badge](https://img.shields.io/badge/php-7.1-blue)
+![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
+
 # Prevarisc
 
 Ceci est le dépôt de la nouvelle version technique de [Prevarisc](https://github.com/atos-df-rennes/prevarisc).
