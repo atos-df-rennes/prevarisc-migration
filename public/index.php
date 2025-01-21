@@ -34,7 +34,9 @@ $response = $kernel->handle($request);
 
 // Uses legacy index.php if route is not found in SF app.
 if (true === $response->isNotFound()) {
-    require realpath('/home/prv/current/prevarisc/public/index.php');
+    $prevariscPath = $_SERVER['PREVARISC_PATH'] ?? $_ENV['PREVARISC_PATH'] ?? '/home/prv/current/prevarisc';
+
+    require realpath($prevariscPath.'/public/index.php');
 } else {
     $response->send();
 }
