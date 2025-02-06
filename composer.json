@@ -84,7 +84,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "analyse": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan analyse",
+        "generate-baseline": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan --generate-baseline",
+        "refacto": "/usr/bin/php8.3 ./tools/vendor/bin/rector",
+        "cs-fix": "/usr/bin/php8.3 ./tools/vendor/bin/php-cs-fixer fix"
     },
     "conflict": {
         "symfony/symfony": "*"
