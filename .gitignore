@@ -21,3 +21,4 @@
 ###< phpunit/phpunit ###
 
 /tools/vendor/
+.php-cs-fixer.cache
