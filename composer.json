@@ -9,6 +9,7 @@
         "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-migrations-bundle": "^2.2",
         "doctrine/orm": "^2.14",
+        "michelf/php-markdown": "^1.9",
         "phpdocumentor/reflection-docblock": "^4.3",
         "sensio/framework-extra-bundle": "^5.1",
         "symfony/asset": "4.4.*",
@@ -83,7 +84,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "analyse": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan analyse",
+        "generate-baseline": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan --generate-baseline",
+        "refacto": "/usr/bin/php8.3 ./tools/vendor/bin/rector",
+        "cs-fix": "/usr/bin/php8.3 ./tools/vendor/bin/php-cs-fixer fix"
     },
     "conflict": {
         "symfony/symfony": "*"

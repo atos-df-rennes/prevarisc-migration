@@ -1,0 +1,11 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    phpVersion: 70100
+    level: 10
+    paths:
+        - src
+    excludePaths:
+        analyseAndScan:
+            - src/Kernel.php
