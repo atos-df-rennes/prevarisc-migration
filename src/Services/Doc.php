@@ -2,15 +2,20 @@
 
 namespace App\Services;
 
-use Symfony\Component\Finder\Finder;
+use Psr\Log\LoggerInterface;
 
 class Doc
 {
+    /** @var string */
     private $srcDir;
 
-    public function __construct(string $srcDir)
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(string $srcDir, LoggerInterface $logger)
     {
         $this->srcDir = $srcDir;
+        $this->logger = $logger;
     }
 
     public function get(string $filename): string
@@ -21,6 +26,14 @@ class Doc
             $filename.'.md',
         ]);
 
-        return file_get_contents($path);
+        $contents = file_get_contents($path);
+
+        if (false === $contents) {
+            $this->logger->warning(sprintf("Le contenu du fichier %s n'a pas pu être lu.", $filename));
+
+            return '';
+        }
+
+        return $contents;
     }
 }
