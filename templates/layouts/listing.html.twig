@@ -1,0 +1,16 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block lateral_navigation %}
+    <ul class="nav nav-tabs nav-stacked menu_dashboard">
+        <li>
+            <a href='../etablissement/add'>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter un établissement
+            </a>
+        </li>
+        <li>
+            <a href='../dossier/add'>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter un dossier
+            </a>
+        </li>
+    </ul>
+{% endblock %}

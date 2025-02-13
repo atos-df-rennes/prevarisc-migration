@@ -55,10 +55,12 @@
     </head>
     <body>
         {{ include('_header.html.twig') }}
-
-        <div class="container-fluid main-container-f">
-            {% block body %}{% endblock %}
-        </div>
+        
+        {% block content %}
+            <div class="container-fluid main-container-f">
+                {% block body %}{% endblock %}
+            </div>
+        {% endblock %}
 
         {{ render_esi(controller(
             'App\\Controller\\IndexController::footer'
