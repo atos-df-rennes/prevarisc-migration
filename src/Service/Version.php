@@ -4,6 +4,11 @@ namespace App\Service;
 
 use SebastianBergmann\Git\Git;
 
+/**
+ * @phpstan-type GitRevision array{
+ *   sha1: string,
+ * }
+ */
 final class Version
 {
     /** @var string */
@@ -38,12 +43,16 @@ final class Version
 
         $branch = $git->getCurrentBranch();
 
+        /** @var GitRevision[] */
         $revisions = $git->getRevisions();
         $lastRevision = end($revisions);
+
+        if (false === $lastRevision) {
+            throw new \Exception('Aucune révision trouvée.');
+        }
+
         $revision = $lastRevision['sha1'];
-
         $version = $branch.'@'.substr($revision, 0, 7);
-
         $link = '/commit/'.$revision;
 
         return new self($version, $link); 
@@ -55,12 +64,12 @@ final class Version
         $this->link = $link;
     }
 
-    public function version()
+    public function version(): string
     {
         return $this->version;
     }
 
-    public function link()
+    public function link(): string
     {
         return $this->link;
     }
