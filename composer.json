@@ -11,6 +11,7 @@
         "doctrine/orm": "^2.14",
         "michelf/php-markdown": "^1.9",
         "phpdocumentor/reflection-docblock": "^4.3",
+        "sebastian/git": "^2.1",
         "sensio/framework-extra-bundle": "^5.1",
         "symfony/asset": "4.4.*",
         "symfony/console": "4.4.*",
@@ -42,7 +43,7 @@
         "symfony/css-selector": "4.4.*",
         "symfony/debug-bundle": "4.4.*",
         "symfony/maker-bundle": "^1.0",
-        "symfony/phpunit-bridge": "^6.4",
+        "symfony/phpunit-bridge": "4.4.*",
         "symfony/stopwatch": "4.4.*",
         "symfony/web-profiler-bundle": "4.4.*"
     },
@@ -88,7 +89,8 @@
         "analyse": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan analyse",
         "generate-baseline": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan --generate-baseline",
         "refacto": "/usr/bin/php8.3 ./tools/vendor/bin/rector",
-        "cs-fix": "/usr/bin/php8.3 ./tools/vendor/bin/php-cs-fixer fix"
+        "cs-fix": "/usr/bin/php8.3 ./tools/vendor/bin/php-cs-fixer fix",
+        "test": "SYMFONY_PHPUNIT_VERSION=7.5 php bin/phpunit --testdox"
     },
     "conflict": {
         "symfony/symfony": "*"
