@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Services\Doc;
+use App\Service\Doc;
 use Michelf\Markdown;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

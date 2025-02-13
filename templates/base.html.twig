@@ -60,6 +60,8 @@
             {% block body %}{% endblock %}
         </div>
 
-        {{ include('_footer.html.twig') }}
+        {{ render_esi(controller(
+            'App\\Controller\\IndexController::footer'
+        )) }}
     </body>
 </html>
