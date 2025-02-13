@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Exception;
 use SebastianBergmann\Git\Git;
 
 /**
@@ -48,7 +49,7 @@ final class Version
         $lastRevision = end($revisions);
 
         if (false === $lastRevision) {
-            throw new \Exception('Aucune révision trouvée.');
+            throw new Exception('Aucune révision trouvée.');
         }
 
         $revision = $lastRevision['sha1'];
