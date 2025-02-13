@@ -11,6 +11,8 @@ use SebastianBergmann\Git\Git;
  */
 final class Version
 {
+    private const REPO_URL = 'https://github.com/atos-df-rennes/prevarisc';
+
     /** @var string */
     private $version;
 
@@ -61,7 +63,7 @@ final class Version
     private function __construct(string $version, string $link)
     {
         $this->version = $version;
-        $this->link = $link;
+        $this->link = self::REPO_URL.$link;
     }
 
     public function version(): string
