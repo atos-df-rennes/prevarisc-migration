@@ -29,7 +29,7 @@ class VersionTest extends TestCase
                 '0',
                 [
                     'version' => '3.0.0',
-                    'link' => 'https://github.com/atos-df-rennes/prevarisc/releases/tag/v3.0.0'
+                    'link' => 'https://github.com/atos-df-rennes/prevarisc/releases/tag/v3.0.0',
                 ],
             ],
         ];
