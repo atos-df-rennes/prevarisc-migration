@@ -8,9 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/about", name="about_")
- */
 class AboutController extends AbstractController
 {
     /** @var Doc */
@@ -22,7 +19,7 @@ class AboutController extends AbstractController
     }
 
     /**
-     * @Route("/{doc}", name="index")
+     * @Route("/about/{doc}", name="about")
      */
     public function index(string $doc = 'about'): Response
     {
