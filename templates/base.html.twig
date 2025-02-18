@@ -8,13 +8,11 @@
         {% block stylesheets %}
             {#{{ encore_entry_link_tags('app') }}#}
 
-            <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" />
-            <link href="{{ asset('css/main.css') }}" rel="stylesheet" />
+            <link href="{{ asset('css/bootstrap-3.min.css') }}" rel="stylesheet" />
+            <link href="{{ asset('css/main-bs3.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/tom-select.default.min.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/login.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/utilities.css') }}" rel="stylesheet" />
-            {# @todo: Composant à supprimer une fois la migration effectuée #}
-            <link href="{{ asset('css/components/panel.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/chosen.min.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/jquery/jquery-ui-1.8.11.custom.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/jquery/jquery.tablesorter.css') }}" rel="stylesheet" />
@@ -48,9 +46,9 @@
             <script src="{{ asset('js/jquery-ui.datepicker.fr.js') }}"></script>
             <script src="{{ asset('js/jquery.marquee.min.js') }}"></script>
             <script src="{{ asset('js/jquery.hoverintent.js') }}"></script>
-            <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+            <script src="{{ asset('js/bootstrap-3.min.js') }}"></script>
             <script src="{{ asset('js/tom-select.complete.min.js') }}"></script>
-            <script src="{{ asset('js/main.js') }}"></script>
+            <script src="{{ asset('js/main-bs3.js') }}"></script>
         {% endblock %}
     </head>
     <body>
