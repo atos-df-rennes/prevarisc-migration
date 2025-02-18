@@ -11,9 +11,9 @@ $(document).ready(function() {
 
     $('#add-champ').on('click', function() {
         const form = this.closest('form')
-        const savedFieldsDiv = $('.saved-fields:not(.hidden)')
+        const savedFieldsDiv = $('#saved-fields')
         const idRubrique = $('#rubrique-id').val()
-        const champsDiv = $('.champs')
+        const savedFieldsTitlesDiv = $('.titles')
 
         const currentUrl = window.location.href
         const isParent = currentUrl.includes('edit-champ')
@@ -28,26 +28,28 @@ $(document).ready(function() {
                 const parsedData = Array.isArray(jsonParsedData) ? jsonParsedData[0] : jsonParsedData
 
                 // On crée la table uniquement si elle n'existe pas
-                if (savedFieldsDiv.length === 0) {
+                if (savedFieldsDiv.children().length === 0) {
                     let titleText = 'Liste des champs'
                     if (isParent) {
                         titleText += ' enfants'
                     }
 
-                    champsDiv.append($('#saved-champs-prototype').clone().removeAttr('id').removeClass('hidden'))
-                    $('.champs .panel-title').html(titleText)
+                    savedFieldsTitlesDiv.append(`<div class="span6 offset2">
+                        <h3>${titleText}</h3>
+                    </div>`)
+                    savedFieldsDiv.append(getTableElement())
                 }
                 
-                const table = $('.saved-fields:not(.hidden) #saved-fields-table tbody')
+                const table = savedFieldsDiv.children('table')
                 table.append(getRowElement(parsedData))
 
                 if (parsedData.TYPE === 'Liste') {
-                    const typeRow = table.children().children('#type-'+parsedData.ID_CHAMP)
+                    const typeRow = table.children('tbody').children().children('#type-'+parsedData.ID_CHAMP)
 
                     if (parsedData.VALEUR !== null) {
                         typeRow.append(getListElements(jsonParsedData))
                     } else {
-                        typeRow.append(`<div class="alert alert-warning">
+                        typeRow.append(`<div class="alert">
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
                             <strong>Attention&nbsp;!</strong>&nbsp;La liste ne possède aucune valeur, vous devriez en ajouter.
                         </div>`)
@@ -72,7 +74,7 @@ $(document).ready(function() {
     $('#add-list-value').on('click', function(e) {
         e.preventDefault()
         const date = Date.now()
-        const html = "<div><input class='form-control' type='text' name='valeur-ajout-"+date+"' id='valeur-ajout-"+date+"'></input><button type='button' class='btn btn-link delete-list-value pull-right'>Retirer</button></div>"
+        const html = "<div><input type='text' name='valeur-ajout-"+date+"' id='valeur-ajout-"+date+"'></input><a href='#' class='delete-list-value pull-right'>Retirer</a></div>"
 
         $('#list-value').append(html)
 
@@ -90,35 +92,81 @@ function deleteChamp(element) {
     const idParent = element.getAttribute('data-id-parent')
     const nom = element.getAttribute('data-nom')
 
-    $("#name-champ").html(nom)
-    $("#delete-champ").click(function() {
-        const parentDiv = $(element).parent().parent().parent()
-        const parentTable = $(element).closest('.saved-fields:not(.hidden)')
-        const nbOfRows = parentTable.children('.panel').children('table').children('tbody').children('tr').length
+    $('#dialog-supp').dialog("destroy")
+    $("#dialog-supp").remove()
 
-        $.ajax({
-            url: '/formulaire/delete-champ/rubrique/'+idRubrique+'/champ/'+idChamp,
-            type: 'POST',
-            data: idParent,
-            success: function() {
-                if (nbOfRows === 1) {
-                    parentTable.remove()
-                } else {
-                    parentDiv.remove()
+    const dialog_supp = $("<div id='dialog-supp'></div>").appendTo("body")
+    dialog_supp.html('Vous êtes sur le point de supprimer le champ "' + nom + '".')
+    dialog_supp.dialog({
+        title: "Suppression d'un champ",
+        width: 650,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        buttons: [
+            {
+                text: 'Supprimer',
+                class: 'btn btn-danger',
+                click: function() {
+                    const parentDiv = $(element).parent().parent().parent()
+                    const parentTable = $(element).closest('table')
+                    const nbOfRows = parentTable.children('tbody').children('tr').length
+
+                    const parentDivTitleDiv = $('.titles .span6.offset2')
+
+                    $.ajax({
+                        url: '/formulaire/delete-champ/rubrique/'+idRubrique+'/champ/'+idChamp,
+                        type: 'POST',
+                        data: idParent,
+                        success: function() {
+                            if (nbOfRows === 1) {
+                                parentTable.remove()
+                                parentDivTitleDiv.remove()
+                            } else {
+                                parentDiv.remove()
+                            }
+                        },
+                        error: function() {
+                            return false
+                        }
+                    })
+
+                    dialog_supp.dialog("close")
+                    $("#dialog-supp").html('')
+
+                    return false
                 }
-
-                $("#modal-delete-champ").modal('hide')
             },
-            error: function() {
-                return false
+            {
+                text: 'Annuler',
+                class: 'btn',
+                click: function() {
+                    dialog_supp.dialog("close")
+                    $("#dialog-supp").html('')
+                }
             }
-        })
+        ]
     })
+}
+
+function getTableElement() {
+    return `<table class="table table-bordered table-condensed">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Nom du champ</th>
+                <th>Type du champ</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>`
 }
 
 function getRowElement(parsedData) {
     return `<tr>
-        <td class="tdMove"><span class="glyphicon glyphicon-move" aria-hidden="true"></span></td>
+        <td class="tdMove"><i class="icon-move"></i></td>
         <td>`
         +parsedData.NOM+
         `</td>
@@ -128,10 +176,10 @@ function getRowElement(parsedData) {
         <td id='actions'>
             <div class='text-center'>
                 <a href='/formulaire/edit-champ/rubrique/`+parsedData.ID_RUBRIQUE+`/champ/`+parsedData.ID_CHAMP+`'>
-                    <span title='Modifier' class='glyphicon glyphicon-pencil'></span>
+                    <i title='Modifier' class='icon-pencil'></i>
                 </a>
-                <button data-id='`+parsedData.ID_CHAMP+`' data-rubrique-id='`+parsedData.ID_RUBRIQUE+`' data-nom='`+parsedData.NOM+`' class='btn btn-link delete-champ' onclick='return deleteChamp(this)' data-toggle='modal' data-target='#modal-delete-champ'>
-                    <span title='Supprimer' class='glyphicon glyphicon-trash'></span>
+                <button data-id='`+parsedData.ID_CHAMP+`' data-rubrique-id='`+parsedData.ID_RUBRIQUE+`' data-nom='`+parsedData.NOM+`' class='btn btn-link delete-champ' onclick='return deleteChamp(this)'>
+                    <i title='Supprimer' class='icon-trash'></i>
                 </button>
             </div>
         </td>

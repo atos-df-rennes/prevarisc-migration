@@ -9,7 +9,7 @@ $(document).ready(function() {
         if (mois < 10) mois = '0' + mois;
 
         const dateToday = jour + "/" + mois + "/" + annee;
-        $(this).closest('.input-group-btn').prev().attr('value', dateToday);
+        $(this).prev().attr('value', dateToday);
     });
     
     $('.date').live('click', function() {

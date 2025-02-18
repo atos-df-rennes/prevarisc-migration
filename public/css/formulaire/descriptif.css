@@ -25,13 +25,21 @@
     margin: 0;
 }
 
+#descriptif-personnalise .form-horizontal .control-label {
+    padding-top: 0;
+}
+
 .descriptif-personnalise--header {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.form-horizontal .form-group .controls {
+.form-horizontal .control-group {
+    margin-bottom: 25px;
+}
+
+.form-horizontal .control-group .controls {
     overflow-x: auto;
 }
 
