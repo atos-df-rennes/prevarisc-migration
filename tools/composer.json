@@ -2,6 +2,34 @@
     "require": {
         "phpstan/phpstan": "^2.1",
         "rector/rector": "^2.0",
-        "friendsofphp/php-cs-fixer": "^3.68"
+        "friendsofphp/php-cs-fixer": "^3.68",
+        "ramsey/conventional-commits": "^1.5"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "ramsey/conventional-commits": {
+            "config": {
+                "typeCase": "lower",
+                "types": ["adaptation", "chore", "docs", "test", "style", "refactor", "tech", "migration"],
+                "scopeCase": "kebab",
+                "scopes": [
+                    "deps",
+                    "carto",
+                    "dossier",
+                    "etablissement",
+                    "rapports",
+                    "calendrier",
+                    "platau",
+                    "unitaire",
+                    "fonctionnel",
+                    "dashboard",
+                    "prescriptions",
+                    "effectifs-degagements",
+                    "pieces-jointes",
+                    "formulaires"
+                ]
+            }
+        }
     }
 }
