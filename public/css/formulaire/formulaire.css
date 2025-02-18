@@ -7,9 +7,10 @@ form #save-element {
 }
 .champFusionTable {
     margin: 0;
+    border-color: black;
     word-wrap: anywhere;
 }
-.champFusionTable > tbody > tr > td {
+.champFusionTable td {
     border-color: black;
 }
 
@@ -23,13 +24,24 @@ label.optional {
     vertical-align: middle;
 }
 
+div[id^='saved-rubriques-'] a {
+    display: block;
+}
+
+.infos-rubrique,
+.infos-champ {
+	border: 1px dotted #818183;
+	padding: 20px 20px 20px 20px;
+	margin-bottom: 20px;
+}
+
 .infos-champ #div-list-value {
     display: none;
 }
 
 #default-display,
 #actions,
-.table > tbody > tr > td {
+.table td {
     vertical-align: middle;
 }
 
@@ -37,9 +49,7 @@ td.tdMove {
     text-align: center;
 }
 
-#actions a,
-#actions button {
+#actions a {
     padding: 0.5rem;
     text-decoration: none;
-    color: black;
 }
