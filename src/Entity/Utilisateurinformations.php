@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurinformationsRepository;
-use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,7 +12,7 @@ class Utilisateurinformations
 {
     /**
      * @var int
-     * 
+     *
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -24,126 +23,126 @@ class Utilisateurinformations
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="NOM_UTILISATEURINFORMATIONS", type="string", length=50, nullable=true)
      */
     private $nom;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="PRENOM_UTILISATEURINFORMATIONS", type="string", length=50, nullable=true)
      */
     private $prenom;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="TELFIXE_UTILISATEURINFORMATIONS", type="string", length=20, nullable=true)
      */
     private $telephoneFixe;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="TELPORTABLE_UTILISATEURINFORMATIONS", type="string", length=20, nullable=true)
      */
     private $telephonePortable;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="TELFAX_UTILISATEURINFORMATIONS", type="string", length=20, nullable=true)
      */
     private $telephoneFax;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="MAIL_UTILISATEURINFORMATIONS", type="string", length=50, nullable=true)
      */
     private $mail;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="SOCIETE_UTILISATEURINFORMATIONS", type="string", length=100, nullable=true)
      */
     private $societe;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="NUMEROADRESSE_UTILISATEURINFORMATIONS", type="string", length=10, nullable=true)
      */
     private $numeroAdresse;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="RUEADRESSE_UTILISATEURINFORMATIONS", type="string", length=255, nullable=true)
      */
     private $rueAdresse;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="CPADRESSE_UTILISATEURINFORMATIONS", type="string", length=5, nullable=true)
      */
     private $codePostalAdresse;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="VILLEADRESSE_UTILISATEURINFORMATIONS", type="string", length=255, nullable=true)
      */
     private $villeAdresse;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="WEB_UTILISATEURINFORMATIONS", type="string", length=100, nullable=true)
      */
     private $siteWeb;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="OBS_UTILISATEURINFORMATIONS", type="text", nullable=true)
      */
     private $observations;
 
     /**
-     * @var ?DateTimeInterface
-     * 
+     * @var ?\DateTimeInterface
+     *
      * @ORM\Column(name="DATE_PRV2", type="datetime", nullable=true)
      */
     private $datePrv2;
 
     /**
-     * @var ?DateTimeInterface
-     * 
+     * @var ?\DateTimeInterface
+     *
      * @ORM\Column(name="DATE_RECYCLAGE", type="datetime", nullable=true)
      */
     private $dateRecyclage;
 
     /**
-     * @var ?DateTimeInterface
-     * 
+     * @var ?\DateTimeInterface
+     *
      * @ORM\Column(name="DATE_SID", type="datetime", nullable=true)
      */
     private $dateSid;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(name="GRADE_UTILISATEURINFORMATIONS", type="string", length=255, nullable=true)
      */
     private $grade;
 
     /**
      * @var ?Utilisateurcivilite
-     * 
+     *
      * @ORM\ManyToOne(targetEntity=Utilisateurcivilite::class)
      *
      * @ORM\JoinColumn(name="ID_UTILISATEURCIVILITE", referencedColumnName="ID_UTILISATEURCIVILITE", options={"unsigned":true})
@@ -152,7 +151,7 @@ class Utilisateurinformations
 
     /**
      * @var ?Fonction
-     * 
+     *
      * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="utilisateurInformations")
      *
      * @ORM\JoinColumn(name="ID_FONCTION", referencedColumnName="ID_FONCTION", options={"unsigned":true})

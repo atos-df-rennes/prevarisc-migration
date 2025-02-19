@@ -14,7 +14,7 @@ class Fonction
 {
     /**
      * @var int
-     * 
+     *
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -25,14 +25,14 @@ class Fonction
 
     /**
      * @var string
-     * 
+     *
      * @ORM\Column(name="LIBELLE_FONCTION", type="string", length=50)
      */
     private $libelle;
 
     /**
      * @var Collection<int, Utilisateurinformations>
-     * 
+     *
      * @ORM\OneToMany(targetEntity=UtilisateurInformations::class, mappedBy="fonction")
      */
     private $utilisateurInformations;

@@ -12,7 +12,7 @@ class Utilisateurcivilite
 {
     /**
      * @var int
-     * 
+     *
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -23,7 +23,7 @@ class Utilisateurcivilite
 
     /**
      * @var string
-     * 
+     *
      * @ORM\Column(name="LIBELLE_UTILISATEURCIVILITE", type="string", length=255)
      */
     private $libelle;
