@@ -39,7 +39,11 @@ $ cd prevarisc-migration
 ```sh
 $ composer install --prefer-source --no-dev
 ```
-4. Appliquez les permissions nécessaires :
+4. Jouer les migrations pour avoir un schéma de base de données à jour :
+```sh
+$ php bin/console doctrine:migrations:migrate
+```
+5. Appliquez les permissions nécessaires :
 ```sh
 $ chown –R www-data:www-data *
 $ chmod –R 555 *
