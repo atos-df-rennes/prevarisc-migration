@@ -9,3 +9,6 @@ parameters:
     excludePaths:
         analyseAndScan:
             - src/Kernel.php
+            - src/Repository
+    symfony:
+        containerXmlPath: var/cache/dev/srcApp_KernelDevDebugContainer.xml
