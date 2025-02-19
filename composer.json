@@ -90,7 +90,7 @@
         "generate-baseline": "/usr/bin/php8.3 ./tools/vendor/bin/phpstan --generate-baseline",
         "refacto": "/usr/bin/php8.3 ./tools/vendor/bin/rector",
         "cs-fix": "/usr/bin/php8.3 ./tools/vendor/bin/php-cs-fixer fix",
-        "test": "SYMFONY_PHPUNIT_VERSION=7.5 php bin/phpunit --testdox",
+        "test": "php bin/phpunit --testdox",
         "test-coverage": "@test --coverage-html tests/coverage/ --whitelist application/",
         "changelog": "/usr/bin/php8.3 tools/vendor/bin/conventional-changelog",
         "release": "/usr/bin/php8.3 tools/vendor/bin/conventional-changelog --commit"
