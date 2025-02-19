@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Utilisateurcivilite
 {
     /**
+     * @var int
+     * 
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -20,6 +22,8 @@ class Utilisateurcivilite
     private $id;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(name="LIBELLE_UTILISATEURCIVILITE", type="string", length=255)
      */
     private $libelle;

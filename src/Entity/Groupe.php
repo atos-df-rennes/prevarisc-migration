@@ -13,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Groupe
 {
     /**
+     * @var int
+     * 
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -22,16 +24,22 @@ class Groupe
     private $id;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(name="LIBELLE_GROUPE", type="string", length=255)
      */
     private $libelle;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(name="DESC_GROUPE", type="text")
      */
     private $description;
 
     /**
+     * @var Collection<int, Utilisateur>
+     * 
      * @ORM\OneToMany(targetEntity=Utilisateur::class, mappedBy="groupe")
      */
     private $utilisateurs;

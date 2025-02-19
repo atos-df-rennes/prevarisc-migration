@@ -13,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Fonction
 {
     /**
+     * @var int
+     * 
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -22,11 +24,15 @@ class Fonction
     private $id;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(name="LIBELLE_FONCTION", type="string", length=50)
      */
     private $libelle;
 
     /**
+     * @var Collection<int, Utilisateurinformations>
+     * 
      * @ORM\OneToMany(targetEntity=UtilisateurInformations::class, mappedBy="fonction")
      */
     private $utilisateurInformations;
@@ -54,14 +60,14 @@ class Fonction
     }
 
     /**
-     * @return Collection<int, UtilisateurInformations>
+     * @return Collection<int, Utilisateurinformations>
      */
     public function getUtilisateurInformations(): Collection
     {
         return $this->utilisateurInformations;
     }
 
-    public function addUtilisateurInformation(UtilisateurInformations $utilisateurInformation): self
+    public function addUtilisateurInformation(Utilisateurinformations $utilisateurInformation): self
     {
         if (!$this->utilisateurInformations->contains($utilisateurInformation)) {
             $this->utilisateurInformations[] = $utilisateurInformation;
@@ -71,7 +77,7 @@ class Fonction
         return $this;
     }
 
-    public function removeUtilisateurInformation(UtilisateurInformations $utilisateurInformation): self
+    public function removeUtilisateurInformation(Utilisateurinformations $utilisateurInformation): self
     {
         // set the owning side to null (unless already changed)
         if ($this->utilisateurInformations->removeElement($utilisateurInformation) && $utilisateurInformation->getFonction() === $this) {

@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -12,6 +15,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class Utilisateur implements UserInterface
 {
     /**
+     * @var int
+     * 
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -21,11 +26,15 @@ class Utilisateur implements UserInterface
     private $id;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true)
      */
     private $username;
 
     /**
+     * @var array<Role|string>
+     * 
      * @ORM\Column(type="json")
      */
     private $roles = [];
@@ -38,48 +47,66 @@ class Utilisateur implements UserInterface
     private $password;
 
     /**
+     * @var ?DateTimeInterface
+     * 
      * @ORM\Column(name="LASTACTION_UTILISATEUR", type="datetime", nullable=true)
      */
     private $lastAction;
 
     /**
+     * @var bool
+     * 
      * @ORM\Column(name="ACTIF_UTILISATEUR", type="boolean")
      */
     private $actif;
 
     /**
+     * @var int
+     * 
      * @ORM\Column(name="FAILED_LOGIN_ATTEMPTS_UTILISATEUR", type="smallint")
      */
     private $failedLoginAttempts;
 
     /**
+     * @var ?string
+     * 
      * @ORM\Column(name="IP_UTILISATEUR", type="string", length=45, nullable=true)
      */
     private $ip;
 
     /**
+     * @var ?string
+     * 
      * @ORM\Column(name="NUMINSEE_COMMUNE", type="string", length=5, nullable=true)
      */
     private $numinsee;
 
     /**
+     * @var DateTimeInterface
+     * 
      * @ORM\Column(name="DERNIERE_VISITE_DASHBOARD", type="datetime")
      */
     private $derniereVisiteDashboard;
 
     /**
+     * @var DateTimeInterface
+     * 
      * @ORM\Column(name="DERNIERE_VISITE_PIECES_DOSSIER", type="datetime")
      */
     private $derniereVisitePiecesDossier;
 
     /**
+     * @var ?Groupe
+     * 
      * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="utilisateurs")
      *
-     * @ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", nullable=false, options={"unsigned":true})
+     * @ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})
      */
     private $groupe;
 
     /**
+     * @var Utilisateurinformations
+     * 
      * @ORM\OneToOne(targetEntity=Utilisateurinformations::class, cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false, options={"unsigned":true})
@@ -120,6 +147,9 @@ class Utilisateur implements UserInterface
         return array_unique($roles);
     }
 
+    /**
+     * @param array<Role|string> $roles
+     */
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
@@ -258,7 +288,7 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-    public function getInformations(): ?Utilisateurinformations
+    public function getInformations(): Utilisateurinformations
     {
         return $this->informations;
     }
