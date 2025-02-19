@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,8 +12,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
+/**
+ * @phpstan-type ZendAuth array{
+ *   storage: array{
+ *     USERNAME_UTILISATEUR: string
+ *   }
+ * }
+ */
 class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 {
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning `false` will cause this authenticator
@@ -34,14 +50,25 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         if (!isset($_SESSION['Zend_Auth'])) {
+            $this->logger->notice("L'utilisateur n'est pas connecté");
+
             throw new AuthenticationException();
         }
 
-        return $_SESSION['Zend_Auth']['storage']['USERNAME_UTILISATEUR'];
+        /** @var ZendAuth */
+        $zendAuth = $_SESSION['Zend_Auth'];
+
+        return $zendAuth['storage']['USERNAME_UTILISATEUR'];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
+        if (!is_string($credentials)) {
+            $this->logger->error("Une chaîne contenant le nom d'utilisateur est attendue comme identifiants.");
+
+            throw new AuthenticationException();
+        }
+
         return $userProvider->loadUserByUsername($credentials);
     }
 
