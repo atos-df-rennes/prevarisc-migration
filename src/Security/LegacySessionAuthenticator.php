@@ -17,20 +17,26 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning `false` will cause this authenticator
      * to be skipped.
-     * On n'hydrate pas l'utilisateur via Symfony s'il n'est pas connecté via Zend.
+     * 
+     * On a pas accès à la variable $_SESSION ici.
+     * Pour contourner, on laisse passer et on fait la vérification dans la méthode getCredentials().
+     * Si l'utilisateur n'est pas connecté on throw une AuthenticationException et on redirige dans la méthode onAuthenticationFailure().
      */
     public function supports(Request $request): bool
     {
-        return isset($_SESSION['Zend_Auth']) ? true : false;
+        return true;
     }
 
     /**
      * Called on every request. Return whatever credentials you want to
      * be passed to getUser() as $credentials.
-     * A ce stade il y a forcément une valeur dans la session suite à la vérification de la méthode supports().
      */
     public function getCredentials(Request $request)
     {
+        if (!isset($_SESSION['Zend_Auth'])) {
+            throw new AuthenticationException();
+        }
+
         return $_SESSION['Zend_Auth']['storage']['USERNAME_UTILISATEUR'];
     }
 
@@ -52,16 +58,18 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * L'authentification est gérée via Zend.
-     * On ne devrait donc jamais appeler cette méthode.
+     * Si l'authentification ne fonctionne pas, c'est que l'utilisateur n'est pas connecté.
+     * On le redirige vers le formulaire de login Zend.
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return null;
+        return new RedirectResponse('/session/login');
     }
 
     /**
      * Called when authentication is needed, but it's not sent.
      * Redirige vers le formulaire de login Zend.
+     * Non appelé pour le moment, la redirection est fait par la méthode onAuthenticationFailure().
      */
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
