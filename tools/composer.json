@@ -4,7 +4,9 @@
         "rector/rector": "^2.0",
         "friendsofphp/php-cs-fixer": "^3.68",
         "ramsey/conventional-commits": "^1.5",
-        "marcocesarato/php-conventional-changelog": "^1.17"
+        "marcocesarato/php-conventional-changelog": "^1.17",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-symfony": "^2.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -31,6 +33,11 @@
                     "formulaires"
                 ]
             }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
         }
     }
 }
