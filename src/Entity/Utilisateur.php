@@ -253,12 +253,12 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-    public function getInformations(): ?UtilisateurInformations
+    public function getInformations(): ?Utilisateurinformations
     {
         return $this->informations;
     }
 
-    public function setInformations(UtilisateurInformations $informations): self
+    public function setInformations(Utilisateurinformations $informations): self
     {
         $this->informations = $informations;
 
