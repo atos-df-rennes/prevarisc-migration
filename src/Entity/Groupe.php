@@ -14,7 +14,9 @@ class Groupe
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_GROUPE", type="bigint", options={"unsigned":true})
      */
     private $id;

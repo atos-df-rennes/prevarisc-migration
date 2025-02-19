@@ -13,7 +13,9 @@ class Utilisateur implements UserInterface
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_UTILISATEUR", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -30,6 +32,7 @@ class Utilisateur implements UserInterface
 
     /**
      * @var string The hashed password
+     *
      * @ORM\Column(name="PASSWD_UTILISATEUR", type="string", length=32)
      */
     private $password;
@@ -71,12 +74,14 @@ class Utilisateur implements UserInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="utilisateurs")
+     *
      * @ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", nullable=false, options={"unsigned":true})
      */
     private $groupe;
 
     /**
      * @ORM\OneToOne(targetEntity=Utilisateurinformations::class, cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false, options={"unsigned":true})
      */
     private $informations;

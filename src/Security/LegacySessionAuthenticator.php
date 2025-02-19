@@ -33,7 +33,7 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning `false` will cause this authenticator
      * to be skipped.
-     * 
+     *
      * On a pas accès à la variable $_SESSION ici.
      * Pour contourner, on laisse passer et on fait la vérification dans la méthode getCredentials().
      * Si l'utilisateur n'est pas connecté on throw une AuthenticationException et on redirige dans la méthode onAuthenticationFailure().
@@ -98,7 +98,7 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * Redirige vers le formulaire de login Zend.
      * Non appelé pour le moment, la redirection est fait par la méthode onAuthenticationFailure().
      */
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return new RedirectResponse('/session/login');
     }

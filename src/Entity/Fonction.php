@@ -14,7 +14,9 @@ class Fonction
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_FONCTION", type="bigint", options={"unsigned":true})
      */
     private $id;

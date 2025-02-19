@@ -12,7 +12,9 @@ class Utilisateurinformations
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_UTILISATEURINFORMATIONS", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -104,12 +106,14 @@ class Utilisateurinformations
 
     /**
      * @ORM\ManyToOne(targetEntity=Utilisateurcivilite::class)
+     *
      * @ORM\JoinColumn(name="ID_UTILISATEURCIVILITE", referencedColumnName="ID_UTILISATEURCIVILITE", options={"unsigned":true})
      */
     private $civilite;
 
     /**
      * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="utilisateurInformations")
+     *
      * @ORM\JoinColumn(name="ID_FONCTION", referencedColumnName="ID_FONCTION", options={"unsigned":true})
      */
     private $fonction;

@@ -12,7 +12,9 @@ class Utilisateurcivilite
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_UTILISATEURCIVILITE", type="integer", options={"unsigned":true})
      */
     private $id;
