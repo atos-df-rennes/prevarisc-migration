@@ -71,11 +71,9 @@ class Fonction
 
     public function removeUtilisateurInformation(UtilisateurInformations $utilisateurInformation): self
     {
-        if ($this->utilisateurInformations->removeElement($utilisateurInformation)) {
-            // set the owning side to null (unless already changed)
-            if ($utilisateurInformation->getFonction() === $this) {
-                $utilisateurInformation->setFonction(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->utilisateurInformations->removeElement($utilisateurInformation) && $utilisateurInformation->getFonction() === $this) {
+            $utilisateurInformation->setFonction(null);
         }
 
         return $this;

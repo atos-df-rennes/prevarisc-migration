@@ -88,11 +88,9 @@ class Groupe
 
     public function removeUtilisateur(Utilisateur $utilisateur): self
     {
-        if ($this->utilisateurs->removeElement($utilisateur)) {
-            // set the owning side to null (unless already changed)
-            if ($utilisateur->getGroupe() === $this) {
-                $utilisateur->setGroupe(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->utilisateurs->removeElement($utilisateur) && $utilisateur->getGroupe() === $this) {
+            $utilisateur->setGroupe(null);
         }
 
         return $this;
