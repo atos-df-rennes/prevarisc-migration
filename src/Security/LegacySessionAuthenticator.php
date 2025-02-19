@@ -2,8 +2,7 @@
 
 namespace App\Security;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -14,17 +13,11 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 {
-    private $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
-    }
-
     /**
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning `false` will cause this authenticator
      * to be skipped.
+     * On n'hydrate pas l'utilisateur via Symfony s'il n'est pas connecté via Zend.
      */
     public function supports(Request $request): bool
     {
@@ -34,10 +27,11 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
     /**
      * Called on every request. Return whatever credentials you want to
      * be passed to getUser() as $credentials.
+     * A ce stade il y a forcément une valeur dans la session suite à la vérification de la méthode supports().
      */
     public function getCredentials(Request $request)
     {
-        return isset($_SESSION['Zend_Auth']) ? $_SESSION['Zend_Auth']['storage']['USERNAME_UTILISATEUR'] : null;
+        return $_SESSION['Zend_Auth']['storage']['USERNAME_UTILISATEUR'];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
@@ -56,30 +50,22 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
         return null;
     }
 
+    /**
+     * L'authentification est gérée via Zend.
+     * On ne devrait donc jamais appeler cette méthode.
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $data = [
-            // you may want to customize or obfuscate the message first
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-
-            // or to translate this message
-            // $this->translator->trans($exception->getMessageKey(), $exception->getMessageData())
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return null;
     }
 
     /**
-     * Called when authentication is needed, but it's not sent
+     * Called when authentication is needed, but it's not sent.
+     * Redirige vers le formulaire de login Zend.
      */
     public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        $data = [
-            // you might translate this message
-            'message' => 'Authentication Required'
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return new RedirectResponse('/session/login');
     }
 
     public function supportsRememberMe(): bool
