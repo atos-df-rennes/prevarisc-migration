@@ -4,8 +4,11 @@ use PhpCsFixer\Finder;
 use PhpCsFixer\Config;
 
 $finder = Finder::create()
-    ->in(__DIR__.'/src')
-    ->in(__DIR__.'/tests')
+    ->in([
+        __DIR__.'/src',
+        __DIR__.'/migrations',
+        __DIR__.'/tests',
+    ])
 ;
 
 $config = new Config();
