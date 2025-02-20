@@ -4,7 +4,7 @@ return [
     'headerDescription' => '',
     'sortBy' => 'date',
     'preset' => [
-        'feat' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="2" height="20"> Évolutions', 'description' => 'Nouvelles fonctionnalités'],
+        'feat' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions', 'description' => 'Nouvelles fonctionnalités'],
         'perf' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances', 'description' => 'Améliorations des performances'],
         'fix' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections', 'description' => 'Corrections de bug'],
         'migration' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="25" height="25"> Migration', 'description' => 'Changements liés à la migration vers Symfony'],
