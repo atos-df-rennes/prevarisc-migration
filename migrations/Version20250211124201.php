@@ -17,57 +17,10 @@ final class Version20250211124201 extends AbstractMigration
         return 'Met à jour le schéma vers la dernière version Atos depuis la dernière version SDIS 62.';
     }
 
-    // @todo: Vérifier si on peut pas mettre des steps pour indiquer où on en est (et faciliter en cas de rollback)
     public function up(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-        
-        // 2.5-02
-        if (!$schema->getTable('dossier')->hasColumn('DATESUPPRESSION_DOSSIER')) {
-            $this->addSql("INSERT INTO `resources` (`id_resource`, `name`, `text`) VALUES (60, 'suppression', 'Suppression')");
-            $this->addSql("INSERT INTO `privileges` (`id_privilege`, `name`, `text`, `id_resource`) VALUES
-                (70, 'delete_dossier', 'Suppression des dossiers', 60),
-                (71, 'delete_etablissement', 'Suppression des établissements', 60)
-            ");
-            $this->addSql("ALTER TABLE `dossier` ADD `DATESUPPRESSION_DOSSIER` DATE");
-            $this->addSql("ALTER TABLE `etablissement` ADD `DATESUPPRESSION_ETABLISSEMENT` DATE");
-        }
-
-        // 2.5-32
-        if (!$schema->hasTable('changement')) {
-            $this->addSql("INSERT INTO `resources`(`id_resource`,`name`, `text`) VALUES (56,'alerte_email','Alertes')");
-            $this->addSql("INSERT INTO `privileges`(`id_privilege`,`name`, `text`,`id_resource`) VALUES 
-                (60,'alerte_statut','Changement de statut',56),
-                (61,'alerte_avis','Changement d''avis',56),
-                (62,'alerte_classement','Changement de classement',56)
-            ");
-
-            $this->addSql('CREATE TABLE changement (ID_CHANGEMENT INT UNSIGNED AUTO_INCREMENT NOT NULL, LIBELLE_CHANGEMENT VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, MESSAGE_CHANGEMENT TEXT CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(ID_CHANGEMENT)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
-            $this->addSql("INSERT INTO `changement` VALUES
-                (1,'Changement de statut','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est pass&eacute; au statut {etablissementStatut}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>'),
-                (2,'Changement d\'avis','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est maintenant sous avis {etablissementAvis}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>'),
-                (3,'Changement de classement','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est maintenant de cat&eacute;gorie {categorieEtablissement}, de type {typePrincipalEtablissement} - {activitePrincipaleEtablissement}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>')
-            ");
-        }
-
-        // 2.5-34
-        if (!$schema->getTable('utilisateur')->hasColumn('FAILED_LOGIN_ATTEMPTS_UTILISATEUR')) {
-            $this->addSql("ALTER TABLE `utilisateur` ADD `FAILED_LOGIN_ATTEMPTS_UTILISATEUR` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `ACTIF_UTILISATEUR`");
-            $this->addSql("ALTER TABLE `utilisateur` ADD `IP_UTILISATEUR` VARCHAR(45) DEFAULT NULL AFTER `FAILED_LOGIN_ATTEMPTS_UTILISATEUR`");
-        }
-
-        // 2.5-37
-        $this->addSql("INSERT IGNORE INTO `resources`(`id_resource`,`name`, `text`) VALUES (57,'search','Recherche')");
-        $this->addSql("INSERT IGNORE INTO `privileges`(`id_privilege`,`name`, `text`,`id_resource`) VALUES 
-            (63,'search_ets','Etablissements',57),
-            (64,'search_dossiers','Dossiers',57)
-        ");
-        $this->addSql("INSERT IGNORE INTO `groupe-privileges`(`ID_GROUPE`, `id_privilege`) select id_groupe,63 from groupe");
-        $this->addSql("INSERT IGNORE INTO `groupe-privileges`(`ID_GROUPE`, `id_privilege`) select id_groupe,64 from groupe");
-
-        // 2.5-38
-        $this->addSql("INSERT IGNORE INTO `privileges` (`id_privilege`, `name`, `text`, `id_resource`) VALUES (80, 'calendar_view_all', 'Voir tous les dossiers et commissions', 2)");
 
         // 2.5-39
         $this->addSql("INSERT IGNORE INTO `resources`(`id_resource`,`name`, `text`) VALUES(200,'export', 'Export Calc')");
@@ -455,36 +408,6 @@ final class Version20250211124201 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-
-        // 2.5-02
-        if ($schema->getTable('dossier')->hasColumn('DATESUPPRESSION_DOSSIER')) {
-            $this->addSql("ALTER TABLE `etablissement` DROP COLUMN `DATESUPPRESSION_ETABLISSEMENT`");
-            $this->addSql("ALTER TABLE `dossier` DROP COLUMN `DATESUPPRESSION_DOSSIER`");
-            $this->addSql("DELETE FROM `privileges` WHERE `id_privilege` IN (70, 71)");
-            $this->addSql("DELETE FROM `resources` WHERE `id_resource` = 60");
-        }
-
-        // 2.5-32
-        if ($schema->hasTable('changement')) {
-            $this->addSql("DROP TABLE `changement`");
-
-            $this->addSql("DELETE FROM `privileges` WHERE `id_privilege` IN (60, 61, 62)");
-            $this->addSql("DELETE FROM `resources` WHERE `id_resource` = 56");
-        }
-
-        // 2.5-34
-        if ($schema->getTable('utilisateur')->hasColumn('FAILED_LOGIN_ATTEMPTS_UTILISATEUR')) {
-            $this->addSql("ALTER TABLE `utilisateur` DROP COLUMN `IP_UTILISATEUR`");
-            $this->addSql("ALTER TABLE `utilisateur` DROP COLUMN `FAILED_LOGIN_ATTEMPTS_UTILISATEUR`");
-        }
-
-        // 2.5-37
-        $this->addSql("DELETE FROM `groupe-privileges` WHERE `id_privilege` IN (63, 64)");
-        $this->addSql("DELETE FROM `privileges` WHERE `id_privilege` IN (63, 64)");
-        $this->addSql("DELETE FROM `resources` WHERE `id_resource` = 57");
-
-        // 2.5-38
-        $this->addSql("DELETE FROM `privileges` WHERE `id_privilege` = 80");
 
         // 2.5-39
         $this->addSql("DELETE FROM `privileges` WHERE `id_privilege` = 200");
