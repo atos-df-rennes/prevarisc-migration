@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250220142015 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return "Création d'un utilisateur Plat'AU.";
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -36,7 +36,7 @@ final class Version20250220142015 extends AbstractMigration
         $this->addSql("INSERT INTO `utilisateurpreferences`(`ID_UTILISATEUR`, `DASHBOARD_BLOCS`) VALUES ((SELECT `ID_UTILISATEUR` from `utilisateur` where `USERNAME_UTILISATEUR` = 'platau'), NULL)");
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $queryBuilder = $this->connection->createQueryBuilder();

@@ -12,20 +12,20 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250220145231 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'Modification de la taille du titre pour les avis et dérogations.';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql("ALTER TABLE `avisderogations` MODIFY `TITRE` VARCHAR(100)");
+        $this->addSql('ALTER TABLE `avisderogations` MODIFY `TITRE` VARCHAR(100)');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql("ALTER TABLE `avisderogations` MODIFY `TITRE` VARCHAR(50)");
+        $this->addSql('ALTER TABLE `avisderogations` MODIFY `TITRE` VARCHAR(50)');
     }
 }

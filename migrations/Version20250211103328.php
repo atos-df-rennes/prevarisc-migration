@@ -447,7 +447,7 @@ final class Version20250211103328 extends AbstractMigration
             (5, 'Autre')
         ");
 
-        $this->addSql("INSERT INTO `utilisateurpreferences` VALUES (1,1,NULL)");
+        $this->addSql('INSERT INTO `utilisateurpreferences` VALUES (1,1,NULL)');
 
         $this->addSql("INSERT INTO `adresseruetype` (`ID_RUETYPE`, `LIBELLE_RUETYPE`, `ABREVIATION_RUETYPE`) VALUES
             (1, 'ABBAYE', 'ABE'),
@@ -2322,7 +2322,7 @@ final class Version20250211103328 extends AbstractMigration
             (8, 2, 'Les constructeurs, installateurs et exploitants sont tenus, chacun en ce qui le concerne, de s''assurer que les installations ou équipements sont établis, maintenus et entretenus en conformité avec les dispositions de la présente réglementation. A cet effet, ils font respectivement procéder pendant la construction et périodiquement en cours d''exploitation aux vérifications nécessaires par les organismes ou personnes agréés dans les conditions fixées par arrêté du Ministre de l''Intérieur. Le contrôle exercé par l''administration ou par les commissions de sécurité ne les dégage pas des responsabilités qui leur incombent personnellement.', 1),
             (9, 2, 'Tenir à jour le registre de sécurité sur lequel sont reportés les renseignements indispensables à la bonne marche du service de sécurité et, en particulier :\r\n- l''état du personnel chargé du service d''incendie ;\r\n- les diverses consignes, générales et particulières, établies en cas d''incendie, y compris les consignes d''évacuation prenant en compte les différents types de handicap ; \r\n- les dates des divers contrôles et vérifications ainsi que les observations auxquelles ceux-ci ont donné lieu ;\r\n- les dates des travaux d''aménagement et de transformation, leur nature, les noms du ou des entrepreneurs et, s''il y a lieu, de l''architecte ou du technicien chargé de surveiller les travaux', 1)
         ");
-        $this->addSql("INSERT INTO `prescriptionreglassoc` (`ID_PRESCRIPTIONREGL`, `NUM_PRESCRIPTIONASSOC`, `ID_TEXTE`, `ID_ARTICLE`) VALUES
+        $this->addSql('INSERT INTO `prescriptionreglassoc` (`ID_PRESCRIPTIONREGL`, `NUM_PRESCRIPTIONASSOC`, `ID_TEXTE`, `ID_ARTICLE`) VALUES
             (1, 1, 71, 2),
             (2, 1, 71, 29),
             (3, 1, 73, 31),
@@ -2331,7 +2331,7 @@ final class Version20250211103328 extends AbstractMigration
             (7, 1, 71, 2),
             (8, 1, 71, 12),
             (9, 1, 71, 4)
-        ");
+        ');
         $this->addSql("INSERT INTO `prescriptiontexte` (`ID_PRESCRIPTIONTEXTE`, `LIBELLE_PRESCRIPTIONTEXTE`, `NUM_PRESCRIPTIONTEXTE`, `ID_PRESCRIPTIONCAT`) VALUES
             (1, 'ERP', 1, 1),
             (2, 'IGH', 2, 1),
@@ -2483,7 +2483,7 @@ final class Version20250211103328 extends AbstractMigration
             (96, 1, 1, 83, 'Avant toute réouverture de la cellule, il y aura lieu de fournir un dossier d''autorisation de travaux conformément à l''article R 123-22 du code de la construction et de l''habitation. Ces travaux ne peuvent être exécutés qu''après autorisation délivrée par l''autorité administrative. \r\nRappel: ne procéder à aucun stockage dans la cellule.', 999),
             (97, 5, 15, 84, 'Afficher un plan schématique, sous forme de pancarte inaltérable, à chaque entrée de bâtiment de l''établissement pour faciliter l''intervention des sapeurs-pompiers.\r\nLe plan doit avoir les caractéristiques des plans d''intervention définies à la norme NF S 60-303 (Arrêté du 24 septembre 2009) « du 20 septembre 1987 » relative aux plans et consignes de protection contre l''incendie.\r\nIl doit représenter au minimum le sous-sol, le rez-de-chaussée, chaque étage ou l''étage courant de l''établissement.\r\nDoivent y figurer, outre les dégagements, (Arrêté du 24 septembre 2009) « les espaces d''attente sécurisés » et les cloisonnements principaux, l''emplacement :\r\n    - des divers locaux techniques et autres locaux à risques particuliers ;\r\n    - des dispositifs et commandes de sécurité ;\r\n    - des organes de coupure des fluides ;\r\n    - des organes de coupure des sources d''énergie ;\r\n    - des moyens d''extinction fixes et d''alarme. ', 999)
         ");
-        $this->addSql("INSERT INTO `prescriptiontypeassoc` (`ID_PRESCRIPTIONTYPE`, `NUM_PRESCRIPTIONASSOC`, `ID_TEXTE`, `ID_ARTICLE`) VALUES
+        $this->addSql('INSERT INTO `prescriptiontypeassoc` (`ID_PRESCRIPTIONTYPE`, `NUM_PRESCRIPTIONASSOC`, `ID_TEXTE`, `ID_ARTICLE`) VALUES
             (1, 1, 3, 41),
             (4, 1, 3, 236),
             (5, 1, 45, 37),
@@ -2573,8 +2573,8 @@ final class Version20250211103328 extends AbstractMigration
             (95, 1, 96, 544),
             (96, 1, 71, 18),
             (97, 1, 73, 36)
-        ");
-        $this->addSql("ALTER TABLE `prescriptionreglassoc` ADD CONSTRAINT `fk_prescriptionreglassoc_prescriptionregl1` FOREIGN KEY (`ID_PRESCRIPTIONREGL`) REFERENCES `prescriptionregl` (`ID_PRESCRIPTIONREGL`) ON DELETE CASCADE ON UPDATE CASCADE");
+        ');
+        $this->addSql('ALTER TABLE `prescriptionreglassoc` ADD CONSTRAINT `fk_prescriptionreglassoc_prescriptionregl1` FOREIGN KEY (`ID_PRESCRIPTIONREGL`) REFERENCES `prescriptionregl` (`ID_PRESCRIPTIONREGL`) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 
     public function down(Schema $schema): void

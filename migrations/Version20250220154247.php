@@ -12,25 +12,25 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250220154247 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'Rafraichissement des vues.';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql("DROP VIEW IF EXISTS `etablissementinformationsactuel`");
-        $this->addSql("CREATE VIEW `etablissementinformationsactuel` AS 
+        $this->addSql('DROP VIEW IF EXISTS `etablissementinformationsactuel`');
+        $this->addSql('CREATE VIEW `etablissementinformationsactuel` AS 
             SELECT * FROM `etablissementinformations` ei WHERE ei.DATE_ETABLISSEMENTINFORMATIONS = 
             ( 
                 SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations 
                 WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT 
             )
-        ");
+        ');
 
-        $this->addSql("DROP VIEW IF EXISTS `dossierdernierevisite`");
-        $this->addSql("CREATE VIEW `dossierdernierevisite` AS 
+        $this->addSql('DROP VIEW IF EXISTS `dossierdernierevisite`');
+        $this->addSql('CREATE VIEW `dossierdernierevisite` AS 
             SELECT 
                 ed.ID_ETABLISSEMENT,
                 MAX(d.DATEVISITE_DOSSIER) as DATEVISITE_DOSSIER,
@@ -45,10 +45,10 @@ final class Version20250220154247 extends AbstractMigration
                 AND d.AVIS_DOSSIER_COMMISSION > 0
                 AND d.DATESUPPRESSION_DOSSIER IS NULL
             GROUP BY ed.ID_ETABLISSEMENT
-        ");
+        ');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
     }

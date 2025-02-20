@@ -12,15 +12,15 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250220150019 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'Mauvais affichage de la catégorie des cellules.';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql("update `etablissementinformations` as `dest`,
+        $this->addSql('update `etablissementinformations` as `dest`,
             (
                 select
                     eia.ID_ETABLISSEMENTINFORMATIONS as ID_ETAB_CELLULE,
@@ -34,10 +34,10 @@ final class Version20250220150019 extends AbstractMigration
             ) as `src`
             set dest.ID_CATEGORIE = src.CATEGORIE_ETAB
             where dest.ID_ETABLISSEMENTINFORMATIONS = src.ID_ETAB_CELLULE
-        ");
+        ');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
     }

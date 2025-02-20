@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250220154139 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'Modification du genre EIC par BUP.';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql("UPDATE `genre` SET `LIBELLE_GENRE` = 'BUP' WHERE `LIBELLE_GENRE` = 'EIC'");
@@ -27,7 +27,7 @@ final class Version20250220154139 extends AbstractMigration
         ");
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql("UPDATE `genre` SET `LIBELLE_GENRE` = 'EIC' WHERE `LIBELLE_GENRE` = 'BUP'");

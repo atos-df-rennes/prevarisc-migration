@@ -12,24 +12,24 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250220141023 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return "Ajout de l'identifiant Plat'AU.";
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->skipIf($schema->getTable('dossier')->hasColumn('ID_PLATAU'), "Identifiant Plat'AU déjà existant.");
 
-        $this->addSql("ALTER TABLE `dossier` ADD `ID_PLATAU` CHAR(11) NULL DEFAULT NULL");
+        $this->addSql('ALTER TABLE `dossier` ADD `ID_PLATAU` CHAR(11) NULL DEFAULT NULL');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->skipIf(!$schema->getTable('dossier')->hasColumn('ID_PLATAU'), "Identifiant Plat'AU non existant.");
 
-        $this->addSql("ALTER TABLE `dossier` DROP COLUMN `ID_PLATAU`");
+        $this->addSql('ALTER TABLE `dossier` DROP COLUMN `ID_PLATAU`');
     }
 }

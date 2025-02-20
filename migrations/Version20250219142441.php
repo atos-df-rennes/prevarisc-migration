@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250219142441 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'Alerte mail sur les changements.';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->skipIf($schema->hasTable('changement'), 'Alerte sur les changements déjà existante.');
@@ -37,14 +37,14 @@ final class Version20250219142441 extends AbstractMigration
         ");
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->skipIf(!$schema->hasTable('changement'), 'Alerte sur les changements non existante.');
 
-        $this->addSql("DROP TABLE `changement`");
+        $this->addSql('DROP TABLE `changement`');
 
-        $this->addSql("DELETE FROM `privileges` WHERE `id_privilege` IN (60, 61, 62)");
-        $this->addSql("DELETE FROM `resources` WHERE `id_resource` = 56");
+        $this->addSql('DELETE FROM `privileges` WHERE `id_privilege` IN (60, 61, 62)');
+        $this->addSql('DELETE FROM `resources` WHERE `id_resource` = 56');
     }
 }
