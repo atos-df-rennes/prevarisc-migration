@@ -7,6 +7,7 @@ $finder = Finder::create()
     ->in([
         __DIR__.'/src',
         __DIR__.'/migrations',
+        __DIR__.'/tests',
     ])
 ;
 

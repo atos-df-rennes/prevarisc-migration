@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Service;
 
 use Psr\Log\LoggerInterface;
 
-class Doc
+final class Doc
 {
     /** @var string */
     private $srcDir;
