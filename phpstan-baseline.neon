@@ -1,2 +1,31 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^Property App\\Entity\\Fonction\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Fonction.php
+
+		-
+			message: '#^Property App\\Entity\\Groupe\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Groupe.php
+
+		-
+			message: '#^Property App\\Entity\\Utilisateur\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Utilisateur.php
+
+		-
+			message: '#^Property App\\Entity\\Utilisateurcivilite\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Utilisateurcivilite.php
+
+		-
+			message: '#^Property App\\Entity\\Utilisateurinformations\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Utilisateurinformations.php
