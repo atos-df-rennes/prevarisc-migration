@@ -96,11 +96,9 @@ class Resources
 
     public function removePrivilege(Privileges $privilege): self
     {
-        if ($this->privileges->removeElement($privilege)) {
-            // set the owning side to null (unless already changed)
-            if ($privilege->getResource() === $this) {
-                $privilege->setResource(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->privileges->removeElement($privilege) && $privilege->getResource() === $this) {
+            $privilege->setResource(null);
         }
 
         return $this;
