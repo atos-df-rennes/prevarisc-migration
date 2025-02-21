@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ResourcesRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -33,6 +35,18 @@ class Resources
      */
     private $text;
 
+    /**
+     * @var Collection<int, Privileges>
+     * 
+     * @ORM\OneToMany(targetEntity=Privileges::class, mappedBy="resource", orphanRemoval=true)
+     */
+    private $privileges;
+
+    public function __construct()
+    {
+        $this->privileges = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -58,6 +72,36 @@ class Resources
     public function setText(?string $text): self
     {
         $this->text = $text;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Privileges>
+     */
+    public function getPrivileges(): Collection
+    {
+        return $this->privileges;
+    }
+
+    public function addPrivilege(Privileges $privilege): self
+    {
+        if (!$this->privileges->contains($privilege)) {
+            $this->privileges[] = $privilege;
+            $privilege->setResource($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrivilege(Privileges $privilege): self
+    {
+        if ($this->privileges->removeElement($privilege)) {
+            // set the owning side to null (unless already changed)
+            if ($privilege->getResource() === $this) {
+                $privilege->setResource(null);
+            }
+        }
 
         return $this;
     }

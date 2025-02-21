@@ -44,9 +44,21 @@ class Groupe
      */
     private $utilisateurs;
 
+    /**
+     * @var Collection<int, Privileges>
+     * 
+     * @ORM\JoinTable(name="`groupe-privileges`",
+     *   joinColumns={@ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="id_privilege", referencedColumnName="id_privilege", options={"unsigned":true})}
+     * )
+     * @ORM\ManyToMany(targetEntity=Privileges::class)
+     */
+    private $privileges;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
+        $this->privileges = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -102,6 +114,30 @@ class Groupe
         if ($this->utilisateurs->removeElement($utilisateur) && $utilisateur->getGroupe() === $this) {
             $utilisateur->setGroupe(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Privileges>
+     */
+    public function getPrivileges(): Collection
+    {
+        return $this->privileges;
+    }
+
+    public function addPrivilege(Privileges $privilege): self
+    {
+        if (!$this->privileges->contains($privilege)) {
+            $this->privileges[] = $privilege;
+        }
+
+        return $this;
+    }
+
+    public function removePrivilege(Privileges $privilege): self
+    {
+        $this->privileges->removeElement($privilege);
 
         return $this;
     }
