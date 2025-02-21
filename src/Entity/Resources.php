@@ -14,30 +14,32 @@ class Resources
 {
     /**
      * @var int
-     * 
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="id_resource", type="bigint", options={"unsigned":true})
      */
     private $id;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $name;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(type="text", nullable=true)
      */
     private $text;
 
     /**
      * @var Collection<int, Privileges>
-     * 
+     *
      * @ORM\OneToMany(targetEntity=Privileges::class, mappedBy="resource", orphanRemoval=true)
      */
     private $privileges;

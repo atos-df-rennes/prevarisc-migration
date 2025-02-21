@@ -26,7 +26,7 @@ class PrivilegeVoter implements VoterInterface
         /** @var PrivilegesRepository */
         $privilegesRepository = $this->entityManager->getRepository(Privileges::class);
         $privilege = $privilegesRepository->findOneBy(['name' => $attribute]);
-        
+
         if (null === $privilege) {
             return self::ACCESS_ABSTAIN;
         }

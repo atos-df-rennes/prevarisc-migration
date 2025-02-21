@@ -12,31 +12,34 @@ class Privileges
 {
     /**
      * @var int
-     * 
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="id_privilege", type="bigint", options={"unsigned":true})
      */
     private $id;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(type="string", length=45, nullable=true)
      */
     private $name;
 
     /**
      * @var ?string
-     * 
+     *
      * @ORM\Column(type="string", length=45, nullable=true)
      */
     private $text;
 
     /**
      * @var ?Resources
-     * 
+     *
      * @ORM\ManyToOne(targetEntity=Resources::class, inversedBy="privileges")
+     *
      * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", options={"unsigned":true})
      */
     private $resource;

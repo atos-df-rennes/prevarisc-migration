@@ -46,11 +46,12 @@ class Groupe
 
     /**
      * @var Collection<int, Privileges>
-     * 
+     *
      * @ORM\JoinTable(name="`groupe-privileges`",
      *   joinColumns={@ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})},
      *   inverseJoinColumns={@ORM\JoinColumn(name="id_privilege", referencedColumnName="id_privilege", options={"unsigned":true})}
      * )
+     *
      * @ORM\ManyToMany(targetEntity=Privileges::class)
      */
     private $privileges;
