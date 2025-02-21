@@ -1,0 +1,28 @@
+{% extends 'layouts/error.html.twig' %}
+
+{% block body %}
+    <h1>
+        Aie !
+        <small>Une erreur "{{ status_text }}" est survenue ...</small>
+    </h1>
+
+    <p class="lead">
+        <strong>Contactez votre service informatique !</strong>
+    </p>
+
+    {# @todo: Afficher l'exception si le debug est activé #}
+    {# @todo: Voir pour ajouter les request parameters #}
+    {# <div class="well">
+        <h3>Exception information:</h3>
+        <p>
+            <b>Message:</b> {{ exception.message }}
+        </p>
+
+        <h3>Stack trace:</h3>
+        <pre>{{ exception.traceAsString }}</pre>
+    </div> #}
+
+    <p class='text-center'>
+        <a class='btn btn-default' href='/'>Revenir sur l'accueil</a>
+    </p>
+{% endblock %}
