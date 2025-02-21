@@ -20,24 +20,24 @@ class Privileges
     private $id;
 
     /**
-     * @var string
+     * @var ?string
      * 
      * @ORM\Column(type="string", length=45, nullable=true)
      */
     private $name;
 
     /**
-     * @var string
+     * @var ?string
      * 
      * @ORM\Column(type="string", length=45, nullable=true)
      */
     private $text;
 
     /**
-     * @var Resources
+     * @var ?Resources
      * 
      * @ORM\ManyToOne(targetEntity=Resources::class, inversedBy="privileges")
-     * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", nullable=false, options={"unsigned":true})
+     * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", options={"unsigned":true})
      */
     private $resource;
 

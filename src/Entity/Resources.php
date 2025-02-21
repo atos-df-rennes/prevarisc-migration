@@ -22,14 +22,14 @@ class Resources
     private $id;
 
     /**
-     * @var string
+     * @var ?string
      * 
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $name;
 
     /**
-     * @var string
+     * @var ?string
      * 
      * @ORM\Column(type="text", nullable=true)
      */
