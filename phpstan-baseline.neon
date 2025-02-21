@@ -13,6 +13,18 @@ parameters:
 			path: src/Entity/Groupe.php
 
 		-
+			message: '#^Property App\\Entity\\Privileges\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Privileges.php
+
+		-
+			message: '#^Property App\\Entity\\Resources\:\:\$id is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Entity/Resources.php
+
+		-
 			message: '#^Property App\\Entity\\Utilisateur\:\:\$id is never written, only read\.$#'
 			identifier: property.onlyRead
 			count: 1
