@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\Ldap;
+use App\Service\Informations;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,8 +18,49 @@ class AdminController extends AbstractController
      */
     public function index(): Response
     {
+        // @todo: Récupérer la version + appel Git si nécessaire
+        $dbUrl = $this->getParameter('app.db_host').':'.$this->getParameter('app.db_port');
+        $cacheUrl = $this->getParameter('app.cache_host');
+
+        if ('' !== $cacheUrl && '' !== ($cachePort = $this->getParameter('app.cache_port'))) {
+            $cacheUrl .= ':'.$cachePort;
+        }
+
+        $ignKeys = array_filter(explode(',', $this->getParameter('app.ign_key')));
+
         return $this->render('admin/index.html.twig', [
             'controller_name' => 'AdminController',
+            'db_name' => $this->getParameter('app.db_name'),
+            'db_url' => $dbUrl,
+            'files_path' => $this->getParameter('app.files_path'),
+            'cache_enabled' => $this->getParameter('app.cache_lifetime') > 0,
+            'cache_adapter' => $this->getParameter('app.cache_adapter'),
+            'cache_url' => $cacheUrl,
+            'cache_lifetime' => $this->getParameter('app.cache_lifetime'),
+            'ign_keys' => $ignKeys,
+            'google_map_key' => $this->getParameter('app.google_map_key'),
+            'geoconcept_infos' => [
+                'URL' => $this->getParameter('app.geoconcept_url'),
+                'Layer' => $this->getParameter('app.geoconcept_layer'),
+                'App ID' => $this->getParameter('app.geoconcept_app_id'),
+                'Projection' => $this->getParameter('app.geoconcept_projection'),
+                'Token' => $this->getParameter('app.geoconcept_token'),
+                'Geocoder URL' => $this->getParameter('app.geoconcept_geocoder'),
+            ],
+            'api_enabled' => '' !== $this->getParameter('app.security_key'),
+            'proxy_enabled' => $this->getParameter('app.proxy_enabled'),
+            'third_party_plugins' => Informations::thirdPartyPlugins($this->getParameter('app.third_party_plugins')),
+            'authentification' => Informations::authentification(
+                $this->getParameter('app.cas_enabled'),
+                $this->getParameter('app.ntlm_enabled'),
+                new Ldap(
+                    $this->getParameter('app.ldap_enabled'),
+                    $this->getParameter('app.ldap_host'),
+                    $this->getParameter('app.ldap_port'),
+                    $this->getParameter('app.ldap_basedn')
+                )
+            ),
+            'enforce_security' => $this->getParameter('app.enforce_security')
         ]);
     }
 }

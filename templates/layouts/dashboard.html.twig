@@ -4,6 +4,13 @@
     <div class='container-fluid'>
         <div class='row'>
             <div class='col-xs-2 sidebar mainsidebar' style="margin-top: 20px; padding-top: 40px;">
+                {# @todo: Mettre l'image #}
+                <p style="line-height:15px">
+                    <strong>Bonjour {{ app.user.informations.prenom }}</strong><br />
+                    <a class="deconnexion" href="/session/logout">Déconnexion</a><br /><br />
+                    <small class="label label-success" style="font-size: .8em">En ligne</small>
+                </p>
+
                 {% block lateral_navigation %}
                 {% endblock %}
             </div>

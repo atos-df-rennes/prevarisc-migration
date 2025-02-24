@@ -5,9 +5,141 @@
 {% block body %}
     <h3 class='page-header'>Panneau d'administration</h3>
 
-    <div class="panel panel-default" style="width: 100%; margin-bottom: 20px;">
+    <div class="panel panel-default">
         <div class="panel-heading">Informations générales</div>
             <div class="panel-body">
+                <dl class='dl-horizontal'>
+                    <dt>Version</dt>
+                    <dd>
+                        <p>
+                        </p>
+                    </dd>
+
+                    <dt>Authentification</dt>
+                    <dd>
+                        <p>
+                            {{ authentification }}
+                        </p>
+                        <p>
+                            Renforcement de la sécurité :
+                            {% if enforce_security %}
+                                Activé
+                            {% else %}
+                                Désactivé
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <dt>Base utilisée</dt>
+                    <dd>
+                        <p>
+                            <i>{{ db_name }}</i> sur <i>{{ db_url }}</i>
+                        </p>
+                    </dd>
+
+                    <dt>Chemin des fichiers</dt>
+                    <dd>
+                        <p>
+                            <i>{{ files_path }}</i>
+                        </p>
+                    </dd>
+
+                    <dt>Cache</dt>
+                    <dd>
+                        {% if cache_enabled %}
+                            <ul class="list-unstyled">
+                                <li>{{ cache_adapter }}</li>
+                                
+                                {% if cache_url %}
+                                    <li>{{ cache_url }}</li>
+                                {% endif %}
+                                
+                                <li>{{ cache_lifetime }} sec de durée de vie</li>
+                            </ul>
+                        {% else %}
+                            <p>Désactivé</p>
+                        {% endif %}
+                    </dd>
+
+                    <dt>Clé(s) IGN</dt>
+                    <dd>
+                        {% if ign_keys|length > 0 %}
+                            <ul class="list-unstyled">
+                                {% for ign_key in ign_keys %}
+                                    <li>{{ ign_key }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>Aucune clé</p>
+                        {% endif %}
+                    </dd>
+
+                    <dt>Clé Google MAP</dt>
+                    <dd>
+                        <p>
+                            {% if not google_map_key is empty %}
+                                {{ google_map_key }}
+                            {% else %}
+                                Aucune clé
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <dt>Carte Geoconcept</dt>
+                    <dd>
+                        {% if not geoconcept_infos.URL is empty %}
+                            <ul class="list-unstyled">
+                                {% for key, info in geoconcept_infos %}
+                                    <li>{{ key ~ " : " ~ info }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>Désactivé</p>
+                        {% endif %}
+                    </dd>
+
+                    <dt>HTTP API</dt>
+                    <dd>
+                        <p>
+                            {% if api_enabled %}
+                                Activé
+                            {% else %}
+                                Désactivé
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <dt>Proxy HTTP</dt>
+                    <dd>
+                        <p>
+                            {% if proxy_enabled %}
+                                Activé
+                            {% else %}
+                                Désactivé
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <dt>Plugins Tiers</dt>
+                    <dd>
+                        <p>
+                            {% if third_party_plugins %}
+                                {{ third_party_plugins }}
+                            {% else %}
+                                Aucun
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <hr />
+
+                    <dt>Relance périodicité</dt>
+                    <dd>
+                        <p>
+
+                        </p>
+                    </dd>
+                </dl>
             </div>
         </div>
     </div>
