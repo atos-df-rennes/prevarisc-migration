@@ -6,6 +6,29 @@ use App\Dto\Ldap;
 
 final class Informations
 {
+    public static function dbUrl(string $dbHost, int $dbPort): string
+    {
+        return $dbHost.':'.$dbPort;
+    }
+
+    public static function cacheUrl(string $cacheHost, int $cachePort): string
+    {
+        if ('' === $cacheHost) {
+            return '';
+        }
+
+        if (0 === $cachePort) {
+            return $cacheHost;
+        }
+
+        return $cacheHost.':'.$cachePort;
+    }
+
+    public static function ignKeys(string $ignKeys): array
+    {
+        return array_filter(explode(',', $ignKeys));
+    }
+
     public static function thirdPartyPlugins(string $thirdPartyPlugins): string
     {
         return implode(', ', explode(';', $thirdPartyPlugins));

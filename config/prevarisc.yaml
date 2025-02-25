@@ -44,7 +44,7 @@ parameters:
     env(PREVARISC_CACHE_HOST): ''
     app.cache_host: '%env(string:PREVARISC_CACHE_HOST)%'
 
-    env(PREVARISC_CACHE_PORT): ''
+    env(PREVARISC_CACHE_PORT): 0
     app.cache_port: '%env(int:PREVARISC_CACHE_PORT)%'
 
     env(PREVARISC_LDAP_ENABLED): 0
@@ -107,7 +107,7 @@ parameters:
     env(PREVARISC_CAS_HOST): ''
     app.cas_host: '%env(string:PREVARISC_CAS_HOST)%'
 
-    env(PREVARISC_CAS_PORT): ''
+    env(PREVARISC_CAS_PORT): 0
     app.cas_port: '%env(int:PREVARISC_CAS_PORT)%'
 
     env(PREVARISC_CAS_CONTEXT): ''
@@ -128,7 +128,7 @@ parameters:
     env(PREVARISC_PROXY_PROTOCOL): ''
     app.proxy_protocol: '%env(string:PREVARISC_PROXY_PROTOCOL)%'
 
-    env(PREVARISC_PROXY_PORT): ''
+    env(PREVARISC_PROXY_PORT): 0
     app.proxy_port: '%env(int:PREVARISC_PROXY_PORT)%'
 
     env(PREVARISC_PROXY_HOST): ''

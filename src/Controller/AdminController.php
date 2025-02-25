@@ -19,25 +19,16 @@ class AdminController extends AbstractController
     public function index(): Response
     {
         // @todo: Récupérer la version + appel Git si nécessaire
-        $dbUrl = $this->getParameter('app.db_host').':'.$this->getParameter('app.db_port');
-        $cacheUrl = $this->getParameter('app.cache_host');
-
-        if ('' !== $cacheUrl && '' !== ($cachePort = $this->getParameter('app.cache_port'))) {
-            $cacheUrl .= ':'.$cachePort;
-        }
-
-        $ignKeys = array_filter(explode(',', $this->getParameter('app.ign_key')));
-
         return $this->render('admin/index.html.twig', [
             'controller_name' => 'AdminController',
             'db_name' => $this->getParameter('app.db_name'),
-            'db_url' => $dbUrl,
+            'db_url' => Informations::dbUrl($this->getParameter('app.db_host'), $this->getParameter('app.db_port')),
             'files_path' => $this->getParameter('app.files_path'),
             'cache_enabled' => $this->getParameter('app.cache_lifetime') > 0,
             'cache_adapter' => $this->getParameter('app.cache_adapter'),
-            'cache_url' => $cacheUrl,
+            'cache_url' => Informations::cacheUrl($this->getParameter('app.cache_host'), $this->getParameter('app.cache_port')),
             'cache_lifetime' => $this->getParameter('app.cache_lifetime'),
-            'ign_keys' => $ignKeys,
+            'ign_keys' => Informations::ignKeys($this->getParameter('app.ign_key')),
             'google_map_key' => $this->getParameter('app.google_map_key'),
             'geoconcept_infos' => [
                 'URL' => $this->getParameter('app.geoconcept_url'),

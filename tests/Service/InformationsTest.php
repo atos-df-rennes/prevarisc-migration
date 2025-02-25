@@ -8,6 +8,79 @@ use PHPUnit\Framework\TestCase;
 
 final class InformationsTest extends TestCase
 {
+    /** @dataProvider dbProvider */
+    public function testDbUrl(string $dbHost, int $dbPort, string $expected): void
+    {
+        $this->assertSame($expected, Informations::dbUrl($dbHost, $dbPort));
+    }
+
+    public function dbProvider(): array
+    {
+        return [
+            [
+                'localhost',
+                3306,
+                'localhost:3306'
+            ]
+        ];
+    }
+
+    /** @dataProvider cacheProvider */
+    public function testCacheUrl(string $cacheHost, int $cachePort, string $expected): void
+    {
+        $this->assertSame($expected, Informations::cacheUrl($cacheHost, $cachePort));
+    }
+
+    public function cacheProvider(): array
+    {
+        return [
+            'no cache' => [
+                '',
+                0,
+                ''
+            ],
+            'cache host' => [
+                'localhost',
+                0,
+                'localhost'
+            ],
+            'cache port' => [
+                '',
+                350,
+                ''
+            ],
+            'cache host and port' => [
+                'localhost',
+                350,
+                'localhost:350'
+            ]
+        ];
+    }
+
+    /** @dataProvider ignKeysProvider */
+    public function testIgnKeys(string $ignKeys, array $expected): void
+    {
+        $this->assertSame($expected, Informations::ignKeys($ignKeys));
+    }
+
+    public function ignKeysProvider(): array
+    {
+        return [
+            'no ign key' => [
+                '',
+                []
+            ],
+            'one ign key' =>  [
+                'essentiels',
+                ['essentiels']
+            ],
+            'multiple ign keys' => [
+                'essentiels,adresse',
+                ['essentiels', 'adresse']
+            ]
+        ];
+    }
+
     /** @dataProvider thirdPartyPluginsProvider */
     public function testThirdPartyPlugins(string $thirdPartyPlugins, string $expected): void
     {
