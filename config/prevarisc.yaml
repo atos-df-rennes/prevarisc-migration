@@ -136,3 +136,15 @@ parameters:
 
     env(PREVARISC_PROXY_USERNAME): ''
     app.proxy_username: '%env(string:PREVARISC_PROXY_USERNAME)%'
+
+    env(PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE): 0
+    app.relance_periodicite_commission: '%env(bool:PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE)%'
+
+    env(PREVARISC_UNITE_PERIODICITE_ANNEES): 0
+    app.periodicite_annees: '%env(bool:PREVARISC_UNITE_PERIODICITE_ANNEES)%'
+
+    env(PREVARISC_DEACTIVATE_PLATAU): 0
+    app.deactivate_platau: '%env(bool:PREVARISC_DEACTIVATE_PLATAU)%'
+
+    env(PREVARISC_DOSSIERS_MAX_A_AFFICHER): 5
+    app.nb_dossiers_a_afficher: '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%'

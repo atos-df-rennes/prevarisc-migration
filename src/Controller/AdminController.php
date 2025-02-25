@@ -51,7 +51,11 @@ class AdminController extends AbstractController
                     $this->getParameter('app.ldap_basedn')
                 )
             ),
-            'enforce_security' => $this->getParameter('app.enforce_security')
+            'enforce_security' => $this->getParameter('app.enforce_security'),
+            'relance_periodicite_commission' => $this->getParameter('app.relance_periodicite_commission'),
+            'periodicite_annees' => $this->getParameter('app.periodicite_annees'),
+            'deactivate_platau' => $this->getParameter('app.deactivate_platau'),
+            'nb_dossiers_a_afficher' => $this->getParameter('app.nb_dossiers_a_afficher')
         ]);
     }
 }

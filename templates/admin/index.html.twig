@@ -136,8 +136,39 @@
                     <dt>Relance périodicité</dt>
                     <dd>
                         <p>
-
+                            {% if relance_periodicite_commission %}
+                                Date de commission
+                            {% else %}
+                                Date de visite
+                            {% endif %}
                         </p>
+                    </dd>
+
+                    <dt>Unité periodicité</dt>
+                    <dd>
+                        <p>
+                            {% if periodicite_annees %}
+                                Années
+                            {% else %}
+                                Mois
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <dt>Connexion à Plat'AU</dt>
+                    <dd>
+                        <p>
+                            {% if deactivate_platau %}
+                                Désactivée
+                            {% else %}
+                                Activée
+                            {% endif %}
+                        </p>
+                    </dd>
+
+                    <dt>Nb dossiers affichés</dt>
+                    <dd>
+                        <p>{{ nb_dossiers_a_afficher }}</p>
                     </dd>
                 </dl>
             </div>
