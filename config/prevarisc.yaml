@@ -121,7 +121,7 @@ parameters:
 
     env(PREVARISC_NTLM_ENABLED): 0
     app.ntlm_enabled: '%env(bool:PREVARISC_NTLM_ENABLED)%'
-    
+
     env(PREVARISC_PROXY_ENABLED): 0
     app.proxy_enabled: '%env(bool:PREVARISC_PROXY_ENABLED)%'
 
