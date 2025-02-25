@@ -2,7 +2,12 @@
 
 namespace App\Service;
 
+use App\Dto\GithubApi;
 use SebastianBergmann\Git\Git;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @phpstan-type GitRevision array{
@@ -18,6 +23,9 @@ final class Version
 
     /** @var string */
     private $link;
+
+    /** @var bool */
+    private $isUpToDate;
 
     public static function create(): self
     {
@@ -35,13 +43,14 @@ final class Version
         $version = $branch.'.'.$revision;
         $link = '/releases/tag/v'.$version;
 
-        return new self($version, $link);
+        return new self($version, $link, true);
     }
 
     private static function fromGit(): self
     {
-        $srcDir = dirname(__FILE__, 3);
-        $git = new Git($srcDir);
+        // @todo: Utiliser le paramètre défini globalement
+        $srcDir = dirname(__FILE__, 4);
+        $git = new Git($srcDir.'/prevarisc');
 
         $branch = $git->getCurrentBranch();
 
@@ -57,13 +66,20 @@ final class Version
         $version = $branch.'@'.substr($revision, 0, 7);
         $link = '/commit/'.$revision;
 
-        return new self($version, $link);
+        // @todo: Faire ça mieux
+        $client = HttpClient::create();
+        $response = $client->request('GET', 'https://api.github.com/repos/atos-df-rennes/prevarisc/git/refs/heads/'.$branch)->getContent();
+        $serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
+        $githubResponse = $serializer->deserialize($response, GithubApi::class, 'json');
+
+        return new self($version, $link, $revision === $githubResponse->object()->sha());
     }
 
-    private function __construct(string $version, string $link)
+    private function __construct(string $version, string $link, bool $isUpToDate)
     {
         $this->version = $version;
         $this->link = self::REPO_URL.$link;
+        $this->isUpToDate = $isUpToDate;
     }
 
     public function version(): string
@@ -74,5 +90,10 @@ final class Version
     public function link(): string
     {
         return $this->link;
+    }
+
+    public function isUpToDate(): bool
+    {
+        return $this->isUpToDate;
     }
 }

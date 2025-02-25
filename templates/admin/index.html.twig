@@ -13,6 +13,12 @@
                 <dt>Version</dt>
                 <dd>
                     <p>
+                        {{ version }}
+                        {% if not is_up_to_date %}
+                            <span class="label label-success">
+                                Mise à jour disponible sur <a href="https://github.com/atos-df-rennes/prevarisc">atos-df-rennes/prevarisc</a>
+                            </span>
+                        {% endif %}
                     </p>
                 </dd>
 

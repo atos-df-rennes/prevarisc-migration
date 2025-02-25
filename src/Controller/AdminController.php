@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\Ldap;
 use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
+use App\Service\Version;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,8 +20,11 @@ class AdminController extends AbstractController
      */
     public function index(UtilisateurRepository $utilisateurRepository): Response
     {
-        // @todo: Récupérer la version + appel Git si nécessaire
+        $versionService = Version::create();
+
         return $this->render('admin/index.html.twig', [
+            'version' => $versionService->version(),
+            'is_up_to_date' => $versionService->isUpToDate(),
             'controller_name' => 'AdminController',
             'db_name' => $this->getParameter('app.db_name'),
             'db_url' => Informations::dbUrl($this->getParameter('app.db_host'), $this->getParameter('app.db_port')),
