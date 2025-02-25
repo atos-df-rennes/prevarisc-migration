@@ -5,7 +5,7 @@ namespace App\Tests\Service;
 use App\Service\Version;
 use PHPUnit\Framework\TestCase;
 
-class VersionTest extends TestCase
+final class VersionTest extends TestCase
 {
     /**
      * @dataProvider envProvider
@@ -17,8 +17,8 @@ class VersionTest extends TestCase
 
         $version = Version::create();
 
-        $this->assertSame($version->version(), $expected['version']);
-        $this->assertSame($version->link(), $expected['link']);
+        $this->assertSame($expected['version'], $version->version());
+        $this->assertSame($expected['link'], $version->link());
     }
 
     public function envProvider(): array
