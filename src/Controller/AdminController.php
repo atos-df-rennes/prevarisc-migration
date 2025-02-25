@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\Ldap;
+use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +17,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/", name="index")
      */
-    public function index(): Response
+    public function index(UtilisateurRepository $utilisateurRepository): Response
     {
         // @todo: Récupérer la version + appel Git si nécessaire
         return $this->render('admin/index.html.twig', [
@@ -55,7 +56,8 @@ class AdminController extends AbstractController
             'relance_periodicite_commission' => $this->getParameter('app.relance_periodicite_commission'),
             'periodicite_annees' => $this->getParameter('app.periodicite_annees'),
             'deactivate_platau' => $this->getParameter('app.deactivate_platau'),
-            'nb_dossiers_a_afficher' => $this->getParameter('app.nb_dossiers_a_afficher')
+            'nb_dossiers_a_afficher' => $this->getParameter('app.nb_dossiers_a_afficher'),
+            'utilisateurs' => $utilisateurRepository->findConnected()
         ]);
     }
 }

@@ -63,4 +63,27 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         $this->_em->persist($user);
         $this->_em->flush();
     }
+
+    /**
+     * Renvoie les utilisateurs actifs dont la dernière action date de moins d'un jour.
+     */
+    public function findConnected(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $query = $queryBuilder
+            ->select('u.username', 'ui.nom', 'ui.prenom', 'g.libelle as libelleGroupe', 'f.libelle as libelleFonction')
+            ->join('u.informations', 'ui')
+            ->join('ui.fonction', 'f')
+            ->join('u.groupe', 'g')
+            ->where('u.actif = :actif')
+            ->andWhere($queryBuilder->expr()->gt('u.lastAction', ':session'))
+            ->setParameter('actif', 1)
+            ->setParameter('session', date('Y-m-d H:i:s', time() - ini_get('session.gc_maxlifetime')))
+            ->groupBy('u.id')
+            ->orderBy('ui.nom', 'ASC')
+            ->getQuery()
+        ;
+
+        return $query->getResult();
+    }
 }
