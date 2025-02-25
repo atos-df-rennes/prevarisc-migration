@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
+use App\Builder\Version;
+use App\Builder\VersionBuilder;
 use App\Dto\Ldap;
 use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
-use App\Service\Version;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,9 +19,9 @@ class AdminController extends AbstractController
     /**
      * @Route("/", name="index")
      */
-    public function index(UtilisateurRepository $utilisateurRepository): Response
+    public function index(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder): Response
     {
-        $versionService = Version::create();
+        $versionService = $versionBuilder->make();
 
         return $this->render('admin/index.html.twig', [
             'version' => $versionService->version(),
