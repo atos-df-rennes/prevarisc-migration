@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -302,17 +301,13 @@ class Utilisateur implements UserInterface
     public function isConnected(): bool
     {
         // L'utilisateur ne s'est jamais connecté.
-        if ($this->getLastAction() === null) {
+        if (null === $this->getLastAction()) {
             return false;
         }
 
-        $diff = $this->getLastAction()->diff(new DateTime(date('Y-m-d H:i:s', time() - ini_get('session.gc_maxlifetime'))));
+        $maxLifetime = filter_var(ini_get('session.gc_maxlifetime'), FILTER_VALIDATE_INT);
+        $diff = $this->getLastAction()->diff(new \DateTime(date('Y-m-d H:i:s', time() - $maxLifetime)));
 
-        // La date de dernière action est plus ancienne.
-        if ($diff->invert === 0) {
-            return false;
-        }
-
-        return true;
+        return 0 !== $diff->invert;
     }
 }
