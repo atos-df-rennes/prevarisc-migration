@@ -21,8 +21,7 @@ final class Ldap
         string $host,
         int $port,
         string $baseDn
-    )
-    {
+    ) {
         $this->enabled = $enabled;
         $this->host = $host;
         $this->port = $port;

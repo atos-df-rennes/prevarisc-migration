@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Builder\Version;
 use App\Builder\VersionBuilder;
 use App\Dto\Ldap;
 use App\Repository\UtilisateurRepository;
@@ -62,7 +61,7 @@ class AdminController extends AbstractController
             'periodicite_annees' => $this->getParameter('app.periodicite_annees'),
             'deactivate_platau' => $this->getParameter('app.deactivate_platau'),
             'nb_dossiers_a_afficher' => $this->getParameter('app.nb_dossiers_a_afficher'),
-            'utilisateurs' => $utilisateurRepository->findConnected()
+            'utilisateurs' => $utilisateurRepository->findConnected(),
         ]);
     }
 }

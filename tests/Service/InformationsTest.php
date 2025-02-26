@@ -20,8 +20,8 @@ final class InformationsTest extends TestCase
             [
                 'localhost',
                 3306,
-                'localhost:3306'
-            ]
+                'localhost:3306',
+            ],
         ];
     }
 
@@ -37,23 +37,23 @@ final class InformationsTest extends TestCase
             'no cache' => [
                 '',
                 0,
-                ''
+                '',
             ],
             'cache host' => [
                 'localhost',
                 0,
-                'localhost'
+                'localhost',
             ],
             'cache port' => [
                 '',
                 350,
-                ''
+                '',
             ],
             'cache host and port' => [
                 'localhost',
                 350,
-                'localhost:350'
-            ]
+                'localhost:350',
+            ],
         ];
     }
 
@@ -68,16 +68,16 @@ final class InformationsTest extends TestCase
         return [
             'no ign key' => [
                 '',
-                []
+                [],
             ],
-            'one ign key' =>  [
+            'one ign key' => [
                 'essentiels',
-                ['essentiels']
+                ['essentiels'],
             ],
             'multiple ign keys' => [
                 'essentiels,adresse',
-                ['essentiels', 'adresse']
-            ]
+                ['essentiels', 'adresse'],
+            ],
         ];
     }
 
@@ -92,16 +92,16 @@ final class InformationsTest extends TestCase
         return [
             'no third party plugin' => [
                 '',
-                ''
+                '',
             ],
             'one third party plugin' => [
                 'toto',
-                'toto'
+                'toto',
             ],
             'multiple third party plugins' => [
                 'toto;test',
-                'toto, test'
-            ]
+                'toto, test',
+            ],
         ];
     }
 
@@ -118,44 +118,44 @@ final class InformationsTest extends TestCase
                 true,
                 false,
                 new Ldap(false, '', 389, ''),
-                'CAS'
+                'CAS',
             ],
             'CAS enabled with NTLM enabled' => [
                 true,
                 true,
                 new Ldap(false, '', 389, ''),
-                'CAS'
+                'CAS',
             ],
             'CAS enabled with LDAP enabled' => [
                 true,
                 false,
                 new Ldap(true, '', 389, ''),
-                'CAS'
+                'CAS',
             ],
             'NTLM enabled' => [
                 false,
                 true,
                 new Ldap(false, '', 389, ''),
-                'NTLM + BDD'
+                'NTLM + BDD',
             ],
             'NTLM enabled with LDAP enabled' => [
                 false,
                 true,
                 new Ldap(true, '', 389, ''),
-                'NTLM + BDD'
+                'NTLM + BDD',
             ],
             'LDAP enabled' => [
                 false,
                 false,
                 new Ldap(true, 'ldap://prevarisc.test', 389, 'user={username}'),
-                'LDAP + BDD : ldap://prevarisc.test:389/user={username}'
+                'LDAP + BDD : ldap://prevarisc.test:389/user={username}',
             ],
             'BDD enabled' => [
                 false,
                 false,
                 new Ldap(false, '', 389, ''),
-                'BDD'
-            ]
+                'BDD',
+            ],
         ];
     }
 }
