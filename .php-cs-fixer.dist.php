@@ -14,6 +14,7 @@ $finder = Finder::create()
 $config = new Config();
 return $config->setRules([
         '@Symfony' => true,
+        'trailing_comma_in_multiline' => ['elements' => []]
     ])
     ->setFinder($finder)
 ;

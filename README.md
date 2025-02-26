@@ -37,7 +37,7 @@ $ cd prevarisc-migration
 ```
 3. Installez les dépendances :
 ```sh
-$ composer install --prefer-source --no-dev
+$ composer install --prefer-source --no-dev --optimize-autoloader
 ```
 4. Jouer les migrations pour avoir un schéma de base de données à jour :
 ```sh

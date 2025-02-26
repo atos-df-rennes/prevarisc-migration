@@ -2,19 +2,19 @@
 
 namespace App\Controller;
 
-use App\Service\Version;
+use App\Builder\VersionBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 class IndexController extends AbstractController
 {
-    public function footer(): Response
+    public function footer(VersionBuilder $versionBuilder): Response
     {
-        $version = Version::create();
+        $versionService = $versionBuilder->build();
 
         $response = $this->render('_footer.html.twig', [
-            'link' => $version->link(),
-            'version' => $version->version(),
+            'link' => $versionService->link(),
+            'version' => $versionService->version(),
         ]);
         $response->setPublic();
         // Une semaine
