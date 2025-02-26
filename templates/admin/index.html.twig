@@ -199,9 +199,9 @@
                         {% for utilisateur in utilisateurs %}
                             <tr>
                                 <td><i>{{ utilisateur.username }}</i></td>
-                                <td>{{ utilisateur.nom ~ ' ' ~ utilisateur.prenom }}</td>
-                                <td>{{ utilisateur.libelleGroupe }}</td>
-                                <td>{{ utilisateur.libelleFonction }}</td>
+                                <td>{{ utilisateur.informations.nom ~ ' ' ~ utilisateur.informations.prenom }}</td>
+                                <td>{{ utilisateur.groupe.libelle }}</td>
+                                <td>{{ utilisateur.informations.fonction.libelle }}</td>
                                 <td><span class='label label-success'>En ligne</span></td>
                             </tr>
                         {% endfor %}

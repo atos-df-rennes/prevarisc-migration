@@ -71,7 +71,9 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     {
         $queryBuilder = $this->createQueryBuilder('u');
         $query = $queryBuilder
-            ->select('u.username', 'ui.nom', 'ui.prenom', 'g.libelle as libelleGroupe', 'f.libelle as libelleFonction')
+            ->addSelect('ui')
+            ->addSelect('f')
+            ->addSelect('g')
             ->join('u.informations', 'ui')
             ->join('ui.fonction', 'f')
             ->join('u.groupe', 'g')
@@ -79,6 +81,52 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->andWhere($queryBuilder->expr()->gt('u.lastAction', ':session'))
             ->setParameter('actif', 1)
             ->setParameter('session', date('Y-m-d H:i:s', time() - ini_get('session.gc_maxlifetime')))
+            ->groupBy('u.id')
+            ->orderBy('ui.nom', 'ASC')
+            ->getQuery()
+        ;
+
+        return $query->getResult();
+    }
+
+    /**
+     * Renvoie les utilisateurs actifs.
+     */
+    public function findActives(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $query = $queryBuilder
+            ->addSelect('ui')
+            ->addSelect('f')
+            ->addSelect('g')
+            ->join('u.informations', 'ui')
+            ->join('ui.fonction', 'f')
+            ->join('u.groupe', 'g')
+            ->where('u.actif = :actif')
+            ->setParameter('actif', 1)
+            ->groupBy('u.id')
+            ->orderBy('ui.nom', 'ASC')
+            ->getQuery()
+        ;
+
+        return $query->getResult();
+    }
+
+    /**
+     * Renvoie les utilisateurs inactifs.
+     */
+    public function findInactives(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $query = $queryBuilder
+            ->addSelect('ui')
+            ->addSelect('f')
+            ->addSelect('g')
+            ->join('u.informations', 'ui')
+            ->join('ui.fonction', 'f')
+            ->join('u.groupe', 'g')
+            ->where('u.actif = :actif')
+            ->setParameter('actif', 0)
             ->groupBy('u.id')
             ->orderBy('ui.nom', 'ASC')
             ->getQuery()
