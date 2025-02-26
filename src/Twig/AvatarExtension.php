@@ -37,12 +37,12 @@ final class AvatarExtension extends AbstractExtension
      */
     public function avatar(int $id, string $size = 'small', ?string $styleAttributes = null): void
     {
-        $src = $this->dataPath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, [
+        $src = $this->dataPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, [
             'uploads',
             'avatars',
             $size
         ]);
-        $filePath = $this->realDataPath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, [
+        $filePath = $this->realDataPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, [
             'uploads',
             'avatars',
             $size,
@@ -59,17 +59,17 @@ final class AvatarExtension extends AbstractExtension
 
     private function addSrc(string $src, string $filePath, int $id): void
     {
-        $this->imageTag .= ' src="' . $src;
+        $this->imageTag .= ' src="'.$src;
 
         $imgId = file_exists($filePath) ? $id : 'default';
 
-        $this->imageTag .= DIRECTORY_SEPARATOR . $imgId . '.jpg"';
+        $this->imageTag .= DIRECTORY_SEPARATOR.$imgId.'.jpg"';
     }
 
-    private function addStyle(string $styleAttributes): void
+    private function addStyle(?string $styleAttributes): void
     {
         if (null !== $styleAttributes) {
-            $this->imageTag .= ' style="' . $styleAttributes . '"';
+            $this->imageTag .= ' style="'.$styleAttributes.'"';
         }
     }
 }
