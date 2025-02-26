@@ -3,8 +3,9 @@
 {% block content %}
     <div class='container-fluid'>
         <div class='row'>
-            <div class='col-xs-2 sidebar mainsidebar' style="margin-top: 20px; padding-top: 40px;">
-                {# @todo: Mettre l'image #}
+            <div class='col-xs-2 sidebar mainsidebar' style="padding-top: 70px;">
+                {{ avatar(app.user.id, 'medium', 'float: left; width: 50px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px;') }}
+
                 <p style="line-height:15px">
                     <strong>Bonjour {{ app.user.informations.prenom }}</strong><br />
                     <a class="deconnexion" href="/session/logout">Déconnexion</a><br /><br />

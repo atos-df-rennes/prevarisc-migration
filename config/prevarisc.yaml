@@ -71,6 +71,9 @@ parameters:
     env(PREVARISC_MAIL_ENABLED): 0
     app.mail_enabled: '%env(bool:PREVARISC_MAIL_ENABLED)%'
 
+    env(PREVARISC_DATA_PATH): '/data'
+    app.data_path: '%env(string:PREVARISC_DATA_PATH)%'
+
     env(PREVARISC_REAL_DATA_PATH): ''
     app.files_path: '%env(string:PREVARISC_REAL_DATA_PATH)%'
 
