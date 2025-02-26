@@ -21,7 +21,7 @@ class AdminController extends AbstractController
      */
     public function index(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder): Response
     {
-        $versionService = $versionBuilder->make();
+        $versionService = $versionBuilder->build();
 
         return $this->render('admin/index.html.twig', [
             'version' => $versionService->version(),

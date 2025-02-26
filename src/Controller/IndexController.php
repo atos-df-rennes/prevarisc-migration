@@ -10,7 +10,7 @@ class IndexController extends AbstractController
 {
     public function footer(VersionBuilder $versionBuilder): Response
     {
-        $versionService = $versionBuilder->make();
+        $versionService = $versionBuilder->build();
 
         $response = $this->render('_footer.html.twig', [
             'link' => $versionService->link(),

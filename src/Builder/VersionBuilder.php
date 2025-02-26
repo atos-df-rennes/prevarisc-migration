@@ -28,7 +28,7 @@ final class VersionBuilder
         $this->serializer = $serializer;
     }
 
-    public function make(): VersionType
+    public function build(): VersionType
     {
         if (false !== getenv('PREVARISC_BRANCH')) {
             return new EnvironmentType();
