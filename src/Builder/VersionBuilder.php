@@ -20,6 +20,7 @@ final class VersionBuilder
     private $serializer;
 
     public const REPO_URL = 'https://github.com/atos-df-rennes/prevarisc';
+    public const REPO_API_URL = 'https://api.github.com/repos/atos-df-rennes/prevarisc';
 
     public function __construct(string $srcDir, HttpClientInterface $client, SerializerInterface $serializer)
     {
@@ -31,7 +32,7 @@ final class VersionBuilder
     public function build(): VersionType
     {
         if (false !== getenv('PREVARISC_BRANCH')) {
-            return new EnvironmentType();
+            return new EnvironmentType($this->client, $this->serializer);
         }
 
         return new GithubType($this->srcDir, $this->client, $this->serializer);

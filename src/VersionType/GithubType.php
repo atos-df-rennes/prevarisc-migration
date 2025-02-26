@@ -53,7 +53,7 @@ final class GithubType implements VersionType
 
     public function isUpToDate(): bool
     {
-        $githubApiResponse = $this->client->request('GET', 'https://api.github.com/repos/atos-df-rennes/prevarisc/git/refs/heads/'.$this->branch)->getContent();
+        $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/heads/2.5')->getContent();
         $githubApiResponseToDto = $this->serializer->deserialize($githubApiResponse, GithubApi::class, 'json');
 
         return $this->revision === $githubApiResponseToDto->object()->sha();
