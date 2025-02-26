@@ -8,6 +8,11 @@ use SebastianBergmann\Git\Git;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * @phpstan-type GitRevision array{
+ *   sha1: string,
+ * }
+ */
 final class GithubType implements VersionType
 {
     /** @var string */
@@ -31,6 +36,7 @@ final class GithubType implements VersionType
 
         $this->branch = $git->getCurrentBranch();
 
+        /** @var GitRevision[] */
         $revisions = $git->getRevisions();
         $lastRevision = end($revisions);
 

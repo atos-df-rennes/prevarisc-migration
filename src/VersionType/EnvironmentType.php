@@ -44,6 +44,11 @@ final class EnvironmentType implements VersionType
             return $tag->ref();
         }, $githubApiResponseToDto);
         $latestTagRef = end($tagRefs);
+
+        if (false === $latestTagRef) {
+            throw new \Exception('Aucune référence trouvée.');
+        }
+
         $latestTag = explode('/', $latestTagRef);
         $latestTag = end($latestTag);
 

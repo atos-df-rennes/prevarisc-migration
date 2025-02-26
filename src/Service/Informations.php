@@ -24,6 +24,9 @@ final class Informations
         return $cacheHost.':'.$cachePort;
     }
 
+    /**
+     * @return string[]
+     */
     public static function ignKeys(string $ignKeys): array
     {
         return array_filter(explode(',', $ignKeys));
