@@ -93,9 +93,6 @@
   .navbar-fixed-top .navbar-right {
       margin-right: 0;
   }
-  .navbar-right {
-      margin-top: 10px;
-  }
   
   #nav-main-search-field:focus {
       width: 300px;
