@@ -89,10 +89,11 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         return $query->getResult();
     }
 
+    // @fixme: A voir pour faire une requête commune et ajouter un paramètre pour le statut actif ?
     /**
      * Renvoie les utilisateurs actifs.
      */
-    public function findActives(): array
+    public function findActives(?int $groupeId = null): array
     {
         $queryBuilder = $this->createQueryBuilder('u');
         $query = $queryBuilder
@@ -106,16 +107,20 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->setParameter('actif', 1)
             ->groupBy('u.id')
             ->orderBy('ui.nom', 'ASC')
-            ->getQuery()
         ;
 
-        return $query->getResult();
+        if (null !== $groupeId) {
+            $query->andWhere('g.id = :groupe')
+                ->setParameter('groupe', $groupeId);
+        }
+
+        return $query->getQuery()->getResult();
     }
 
     /**
      * Renvoie les utilisateurs inactifs.
      */
-    public function findInactives(): array
+    public function findInactives(?int $groupeId = null): array
     {
         $queryBuilder = $this->createQueryBuilder('u');
         $query = $queryBuilder
@@ -129,9 +134,13 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->setParameter('actif', 0)
             ->groupBy('u.id')
             ->orderBy('ui.nom', 'ASC')
-            ->getQuery()
         ;
 
-        return $query->getResult();
+        if (null !== $groupeId) {
+            $query->andWhere('g.id = :groupe')
+                ->setParameter('groupe', $groupeId);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

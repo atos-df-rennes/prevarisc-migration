@@ -64,15 +64,4 @@ class AdminController extends AbstractController
             'utilisateurs' => $utilisateurRepository->findConnected(),
         ]);
     }
-
-    /**
-     * @Route("/utilisateurs", name="utilisateurs")
-     */
-    public function utilisateurs(UtilisateurRepository $utilisateurRepository): Response
-    {
-        return $this->render('admin/utilisateurs/index.html.twig', [
-            'utilisateurs_actifs' => $utilisateurRepository->findActives(),
-            'utilisateurs_inactifs' => $utilisateurRepository->findInactives(),
-        ]);
-    }
 }
