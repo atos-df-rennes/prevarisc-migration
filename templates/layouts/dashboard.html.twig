@@ -17,6 +17,22 @@
             </div>
 
             <div class='col-xs-10' style="margin-top: 70px;">
+                {# @todo: Eventuellement à mettre dans un template partiel #}
+                <noscript>
+                    <ul class="list-unstyled" >
+                        <li class="alert alert-danger"><strong class="alert-danger">Javascript desactivé</strong> Javascript n'est pas activé sur votre navigateur. Prevarisc ne peut fonctionner correctement sans l'activation du Javascript.</li>
+                    </ul>
+                </noscript>
+
+                <ul class="list-unstyled">
+                    {% for message in app.flashes('success') %}
+                        <li class="alert alert-success">
+                            <button data-dismiss="alert" class="close">&times;</button>
+                            {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
                 {% block body_structure %}{% endblock %}
             </div>
         </div>
