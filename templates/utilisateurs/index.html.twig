@@ -10,14 +10,14 @@
             <li {% if not groupe_id %}class='active'{% endif %}><a href="{{ path('admin_utilisateurs_index') }}">Tous les utilisateurs</a></li>
             {% for groupe in groupes %}
                 <li {% if groupe_id and groupe_id == groupe.id %}class='active'{% endif %}>
-                    <a href="{{ path('admin_utilisateurs_index', {gid: groupe.id}) }}">{{ groupe.libelle }}</a>
+                    <a href="{{ path('admin_groupe_index', {id: groupe.id}) }}">{{ groupe.libelle }}</a>
                 </li>
             {% endfor %}
         </ul>
 
         <div class='col-md-10'>
             {% if groupe_id %}
-                <a href="{{ path('admin_utilisateurs_edit_group', {gid: groupe_id}) }}" class='btn btn-default pull-right'>Modifier le groupe</a>
+                <a href="{{ path('admin_groupe_edit', {id: groupe_id}) }}" class='btn btn-default pull-right'>Modifier le groupe</a>
             {% endif %}
 
             {{ include('utilisateurs/_liste.html.twig', {
