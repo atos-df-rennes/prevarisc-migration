@@ -40,6 +40,10 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request): bool
     {
+        if (null !== $request->getSession()->get('username')) {
+            return false;
+        }
+
         return true;
     }
 
@@ -57,6 +61,8 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 
         /** @var ZendAuth */
         $zendAuth = $_SESSION['Zend_Auth'];
+
+        $request->getSession()->set('username', $zendAuth['storage']['USERNAME_UTILISATEUR']);
 
         return $zendAuth['storage']['USERNAME_UTILISATEUR'];
     }
