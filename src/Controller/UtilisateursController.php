@@ -56,4 +56,31 @@ class UtilisateursController extends AbstractController
             'errors' => $form->getErrors(),
         ]);
     }
+
+    /**
+     * @Route("/modification-groupe", name="edit_group")
+     */
+    public function modificationGroupe(Request $request, GroupeRepository $groupeRepository): Response
+    {
+        $groupeId = $request->query->get('gid');
+        $groupe = $groupeRepository->find($groupeId);
+
+        $form = $this->createForm(GroupeType::class, $groupe);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Le groupe a bien été modifié.');
+
+            return $this->redirectToRoute('admin_utilisateurs_index');
+        }
+
+        return $this->render('utilisateurs/modification_groupe.html.twig', [
+            'form' => $form->createView(),
+            'errors' => $form->getErrors(),
+            'groupe_id' => $groupeId,
+        ]);
+    }
 }

@@ -3,11 +3,11 @@
 {% block title %}Administration / Gestion des utilisateurs / Liste des utilisateurs{% endblock %}
 
 {% block body %}
-    {{ include('utilisateurs/_sidebar.html.twig') }}
+    {{ include('utilisateurs/_topbar.html.twig') }}
 
     <div class='mt-4'>
         <ul class="col-md-2 nav nav-pills nav-stacked">
-            <li {% if groupe_id is not defined or not groupe_id %}class='active'{% endif %}><a href="{{ path('admin_utilisateurs_index') }}">Tous les utilisateurs</a></li>
+            <li {% if not groupe_id %}class='active'{% endif %}><a href="{{ path('admin_utilisateurs_index') }}">Tous les utilisateurs</a></li>
             {% for groupe in groupes %}
                 <li {% if groupe_id and groupe_id == groupe.id %}class='active'{% endif %}>
                     <a href="{{ path('admin_utilisateurs_index', {gid: groupe.id}) }}">{{ groupe.libelle }}</a>
@@ -16,8 +16,8 @@
         </ul>
 
         <div class='col-md-10'>
-            {% if groupe_id is defined %}
-                <a href="{{ '/users/edit-group?gid=' ~ groupe_id }}" class='btn btn-default pull-right'>Modifier le groupe</a>
+            {% if groupe_id %}
+                <a href="{{ path('admin_utilisateurs_edit_group', {gid: groupe_id}) }}" class='btn btn-default pull-right'>Modifier le groupe</a>
             {% endif %}
 
             {{ include('utilisateurs/_liste.html.twig', {
