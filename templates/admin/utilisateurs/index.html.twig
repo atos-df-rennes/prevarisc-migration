@@ -5,70 +5,13 @@
 {% block body %}
     <h3 class='page-header'>Gestion des utilisateurs</h3>
 
-    {# @todo: Faire un template partiel pour ça #}
-    <h4>Utilisateurs actifs <small>({{ utilisateurs_actifs|length }})</small></h4>
-    {% if utilisateurs_actifs|length > 0 %}
-        <table class='table table-condensed table-striped'>
-            <thead>
-                <tr>
-                    <th>Identifiant</th>
-                    <th>Nom et prénom</th>
-                    <th>Groupe</th>
-                    <th>Fonction</th>
-                    <th>Etat</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for utilisateur_actif in utilisateurs_actifs %}
-                    <tr>
-                        <td><i>{{ utilisateur_actif.username }}</i></td>
-                        <td>{{ utilisateur_actif.informations.grade ~ ' ' ~ utilisateur_actif.informations.nom ~ ' ' ~ utilisateur_actif.informations.prenom }}</td>
-                        <td>{{ utilisateur_actif.groupe.libelle }}</td>
-                        <td>{{ utilisateur_actif.informations.fonction.libelle }}</td>
-                        <td>
-                            {% if utilisateur_actif.isConnected %}
-                                <span class='label label-success'>En ligne</span>
-                            {% else %}
-                                <span class='label label-default'>Hors ligne</span>
-                            {% endif %}
-                        </td>
-                        <td><a href="{{ '/users/edit/uid/' ~ utilisateur_actif.id }}">Modifier</a></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class='lead'><b>Aucun résultat.</b></p>
-    {% endif %}
+    {{ include('admin/utilisateurs/_liste.html.twig', {
+        type: 'actifs',
+        utilisateurs: utilisateurs_actifs
+    }) }}
 
-    <h4>Utilisateurs inactifs <small>({{ utilisateurs_inactifs|length }} utilisateurs)</small></h4>
-    {% if utilisateurs_inactifs|length > 0 %}
-        <table class='table table-condensed table-striped'>
-            <thead>
-                <tr>
-                    <th>Identifiant</th>
-                    <th>Nom et prénom</th>
-                    <th>Groupe</th>
-                    <th>Fonction</th>
-                    <th>Etat</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for utilisateur_inactif in utilisateurs_inactifs %}
-                    <tr>
-                        <td><i>{{ utilisateur_inactif.username }}</i></td>
-                        <td>{{ utilisateur_inactif.informations.grade ~ ' ' ~ utilisateur_inactif.informations.nom ~ ' ' ~ utilisateur_inactif.informations.prenom }}</td>
-                        <td>{{ utilisateur_inactif.groupe.libelle }}</td>
-                        <td>{{ utilisateur_inactif.informations.fonction.libelle }}</td>
-                        <td><span class='label label-default'>Inactif</span></td>
-                        <td><a href="{{ '/users/edit/uid/' ~ utilisateur_inactif.id }}">Modifier</a></td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class='lead'><b>Aucun résultat.</b></p>
-    {% endif %}
+    {{ include('admin/utilisateurs/_liste.html.twig', {
+        type: 'inactifs',
+        utilisateurs: utilisateurs_inactifs
+    }) }}
 {% endblock %}
