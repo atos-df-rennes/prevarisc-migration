@@ -24,15 +24,16 @@
                 <dt>{{ form_label(form.username) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.username) }}</div>
-                    {{ form_errors(form.username) }}
+                    <div class="col-xs-12">{{ form_errors(form.username) }}</div>
                 </dd>
             </div>
 
+            {# @todo: Ajouter les contraintes LDAP/NTLM/CAS/Password #}
             <div class="form-group">
-                <dt>{{ form_label(form.password) }}</dt>
+                <dt>{{ form_label(form.plainPassword) }}</dt>
                 <dd>
-                    <div class="col-md-3">{{ form_widget(form.password) }}</div>
-                    {{ form_errors(form.password) }}
+                    <div class="col-md-3">{{ form_widget(form.plainPassword) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.plainPassword) }}</div>
                 </dd>
             </div>
 
@@ -40,7 +41,7 @@
                 <dt>{{ form_label(form.groupe) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.groupe) }}</div>
-                    {{ form_errors(form.groupe) }}
+                    <div class="col-xs-12">{{ form_errors(form.groupe) }}</div>
                 </dd>
             </div>
 
@@ -48,15 +49,16 @@
                 <dt>{{ form_label(form.ip) }}</dt>
                 <dd>
                     <div class="col-md-2">{{ form_widget(form.ip) }}</div>
-                    {{ form_errors(form.ip) }}
+                    <div class="col-xs-12">{{ form_errors(form.ip) }}</div>
                 </dd>
             </div>
 
+            {# @todo: Ajouter déblocage de l'IP #}
             <div class="form-group">
                 <dt>{{ form_label(form.failedLoginAttempts) }}</dt>
                 <dd>
                     <div class="col-md-1">{{ form_widget(form.failedLoginAttempts) }}</div>
-                    {{ form_errors(form.failedLoginAttempts) }}
+                    <div class="col-xs-12">{{ form_errors(form.failedLoginAttempts) }}</div>
                 </dd>
             </div>
 
@@ -76,7 +78,7 @@
                 <dt>{{ form_label(form.informations.prenom) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.informations.prenom) }}</div>
-                    {{ form_errors(form.informations.prenom) }}
+                    <div class="col-xs-12">{{ form_errors(form.informations.prenom) }}</div>
                 </dd>
             </div>
 
@@ -84,7 +86,7 @@
                 <dt>{{ form_label(form.informations.nom) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.informations.nom) }}</div>
-                    {{ form_errors(form.informations.nom) }}
+                    <div class="col-xs-12">{{ form_errors(form.informations.nom) }}</div>
                 </dd>
             </div>
 
@@ -92,7 +94,7 @@
                 <dt>{{ form_label(form.informations.fonction) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.informations.fonction) }}</div>
-                    {{ form_errors(form.informations.fonction) }}
+                    <div class="col-xs-12">{{ form_errors(form.informations.fonction) }}</div>
                 </dd>
             </div>
 
@@ -100,7 +102,7 @@
                 <dt>{{ form_label(form.informations.grade) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.informations.grade) }}</div>
-                    {{ form_errors(form.informations.grade) }}
+                    <div class="col-xs-12">{{ form_errors(form.informations.grade) }}</div>
                 </dd>
             </div>
 
@@ -109,15 +111,15 @@
                 <dd>
                     <div class="row row-no-gutters">
                         <div class="form-group col-md-3">{{ form_widget(form.informations.telephoneFixe) }}</div>
-                        {{ form_errors(form.informations.telephoneFixe) }}
+                        <div class="col-xs-12">{{ form_errors(form.informations.telephoneFixe) }}</div>
                     </div>
 
                     <div class="row row-no-gutters">
                         <div class="col-md-3">{{ form_widget(form.informations.telephonePortable) }}</div>
-                        {{ form_errors(form.informations.telephonePortable) }}
-
                         <div class="col-md-3 ml-3">{{ form_widget(form.informations.telephoneFax) }}</div>
-                        {{ form_errors(form.informations.telephoneFax) }}
+
+                        <div class="col-xs-12">{{ form_errors(form.informations.telephonePortable) }}</div>
+                        <div class="col-xs-12">{{ form_errors(form.informations.telephoneFax) }}</div>
                     </div>
                 </dd>
             </div>
@@ -126,7 +128,7 @@
                 <dt>{{ form_label(form.informations.mail) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.informations.mail) }}</div>
-                    {{ form_errors(form.informations.mail) }}
+                    <div class="col-xs-12">{{ form_errors(form.informations.mail) }}</div>
                 </dd>
             </div>
 
@@ -134,7 +136,7 @@
                 <dt>{{ form_label(form.informations.siteWeb) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.informations.siteWeb) }}</div>
-                    {{ form_errors(form.informations.siteWeb) }}
+                    <div class="col-xs-12">{{ form_errors(form.informations.siteWeb) }}</div>
                 </dd>
             </div>
 

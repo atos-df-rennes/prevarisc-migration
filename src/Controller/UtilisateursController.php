@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
+use App\Entity\UtilisateurPreferences;
 use App\Form\UtilisateurType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
@@ -10,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @Route("/admin/utilisateurs", name="admin_utilisateurs_")
@@ -32,7 +34,7 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/ajouter", name="add")
      */
-    public function ajouter(Request $request): Response
+    public function ajouter(Request $request, UserPasswordEncoderInterface $userPasswordEncoder): Response
     {
         $utilisateur = new Utilisateur();
 
@@ -41,6 +43,16 @@ class UtilisateursController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
+
+            $preferences = new UtilisateurPreferences();
+            $preferences->setUtilisateur($utilisateur);
+            $utilisateur->setPreferences($preferences);
+            // @fixme: Utiliser l'algorithme de hashage de l'appli Zend
+            // $utilisateur->setPassword($userPasswordEncoder->encodePassword($utilisateur, $utilisateur->getPlainPassword()));
+
+            // @todo: Gérer l'upload de l'avatar
+
+            $entityManager->persist($preferences);
             $entityManager->persist($utilisateur);
             $entityManager->flush();
 

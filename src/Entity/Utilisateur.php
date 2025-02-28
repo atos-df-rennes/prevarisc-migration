@@ -4,11 +4,15 @@ namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
+ *
+ * @UniqueEntity(fields="username", message="Nom d'utilisateur déjà enregistré. Veuillez en choisir un autre.")
  */
 class Utilisateur implements UserInterface
 {
@@ -27,6 +31,8 @@ class Utilisateur implements UserInterface
      * @var string
      *
      * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true)
+     *
+     * @Assert\NotBlank
      */
     private $username;
 
@@ -37,10 +43,14 @@ class Utilisateur implements UserInterface
      */
     private $roles = [];
 
+    /** @var string */
+    private $plainPassword;
+
+    // @todo: Ajouter la règle de validation si enforce_security est à true
     /**
-     * @var string The hashed password
+     * @var ?string The hashed password
      *
-     * @ORM\Column(name="PASSWD_UTILISATEUR", type="string", length=32)
+     * @ORM\Column(name="PASSWD_UTILISATEUR", type="string", length=255, nullable=true)
      */
     private $password;
 
@@ -63,7 +73,7 @@ class Utilisateur implements UserInterface
      *
      * @ORM\Column(name="FAILED_LOGIN_ATTEMPTS_UTILISATEUR", type="smallint")
      */
-    private $failedLoginAttempts;
+    private $failedLoginAttempts = 0;
 
     /**
      * @var ?string
@@ -111,6 +121,13 @@ class Utilisateur implements UserInterface
      */
     private $informations;
 
+    /**
+     * @var UtilisateurPreferences
+     *
+     * @ORM\OneToOne(targetEntity=UtilisateurPreferences::class, mappedBy="utilisateur", cascade={"persist", "remove"})
+     */
+    private $preferences;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -155,6 +172,18 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
     /**
      * @see UserInterface
      */
@@ -163,7 +192,7 @@ class Utilisateur implements UserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -187,7 +216,7 @@ class Utilisateur implements UserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getLastAction(): ?\DateTimeInterface
@@ -309,5 +338,22 @@ class Utilisateur implements UserInterface
         $diff = $this->getLastAction()->diff(new \DateTime(date('Y-m-d H:i:s', time() - $maxLifetime)));
 
         return 0 !== $diff->invert;
+    }
+
+    public function getPreferences(): ?UtilisateurPreferences
+    {
+        return $this->preferences;
+    }
+
+    public function setPreferences(UtilisateurPreferences $preferences): self
+    {
+        // set the owning side of the relation if necessary
+        if ($preferences->getUtilisateur() !== $this) {
+            $preferences->setUtilisateur($this);
+        }
+
+        $this->preferences = $preferences;
+
+        return $this;
     }
 }
