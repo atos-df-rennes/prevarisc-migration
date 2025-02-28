@@ -81,5 +81,30 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    // @todo: Suppression d'un groupe
+    /**
+     * @Route("/{id}/supprimer", name="delete")
+     */
+    public function supprimer(Groupe $groupe, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
+    {
+        $groupeId = $groupe->getId();
+
+        // On ne supprime pas le groupe par défaut
+        if (1 === $groupeId) {
+            return $this->redirectToRoute('admin_utilisateurs_index');
+        }
+
+        $utilisateurs = $utilisateurRepository->findBy(['groupe' => $groupeId]);
+        $groupeParDefaut = $groupeRepository->find(1);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        foreach ($utilisateurs as $utilisateur) {
+            $utilisateur->setGroupe($groupeParDefaut);
+            $entityManager->flush();
+        }
+
+        $groupeRepository->remove($groupe);
+        $this->addFlash('success', 'Le groupe a bien été supprimé.');
+
+        return $this->redirectToRoute('admin_utilisateurs_index');
+    }
 }

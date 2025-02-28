@@ -30,7 +30,9 @@
         <div class='pull-right'>
             <a class='btn btn-default' href="{{ path('admin_utilisateurs_index') }}">Annuler la modification</a>
             <div class="btn-group">
-                <a class='btn btn-danger' href="{{ '/users/delete-group?gid=' ~ groupe_id }}">Supprimer le groupe</a>
+                {% if groupe_id != 1 %}
+                    <a class='btn btn-danger' href="{{ path('admin_groupe_delete', {id: groupe_id}) }}">Supprimer le groupe</a>
+                {% endif %}
                 <input type='submit' class="btn btn-success" value="Modifier le groupe">
             </div>
         </div>
