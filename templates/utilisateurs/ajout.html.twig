@@ -1,0 +1,168 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des utilisateurs / Ajouter un utilisateur{% endblock %}
+
+{% block body %}
+    {{ include('utilisateurs/_topbar.html.twig') }}
+
+    <h4>Ajout d'un utilisateur</h4>
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        <dl class='dl-horizontal row row-no-gutters well'>
+            {# @todo: Afficher la preview #}
+            <div class="form-group">
+                <dt>{{ form_label(form.photo) }}</dt>
+                <dd>
+                    {{ form_widget(form.photo) }}
+                    {{ form_errors(form.photo) }}
+                </dd>
+            </div>
+
+		    <div class="form-group">
+                <dt>{{ form_label(form.username) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.username) }}</div>
+                    {{ form_errors(form.username) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.password) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.password) }}</div>
+                    {{ form_errors(form.password) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.groupe) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.groupe) }}</div>
+                    {{ form_errors(form.groupe) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.ip) }}</dt>
+                <dd>
+                    <div class="col-md-2">{{ form_widget(form.ip) }}</div>
+                    {{ form_errors(form.ip) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.failedLoginAttempts) }}</dt>
+                <dd>
+                    <div class="col-md-1">{{ form_widget(form.failedLoginAttempts) }}</div>
+                    {{ form_errors(form.failedLoginAttempts) }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>{{ form_label(form.actif) }}</dt>
+                <dd>
+                    {{ form_widget(form.actif) }}
+                    {{ form_errors(form.actif) }}
+                </dd>
+            </div>
+        </dl>
+
+        <h4>{{ form_label(form.informations) }}</h4>
+
+        <dl class='dl-horizontal row row-no-gutters'>
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.prenom) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.prenom) }}</div>
+                    {{ form_errors(form.informations.prenom) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.nom) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.nom) }}</div>
+                    {{ form_errors(form.informations.nom) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.fonction) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.fonction) }}</div>
+                    {{ form_errors(form.informations.fonction) }}
+                </dd>
+            </div>
+
+            <div id='grade' class="form-group">
+                <dt>{{ form_label(form.informations.grade) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.grade) }}</div>
+                    {{ form_errors(form.informations.grade) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>Téléphones</dt>
+                <dd>
+                    <div class="row row-no-gutters">
+                        <div class="form-group col-md-3">{{ form_widget(form.informations.telephoneFixe) }}</div>
+                        {{ form_errors(form.informations.telephoneFixe) }}
+                    </div>
+
+                    <div class="row row-no-gutters">
+                        <div class="col-md-3">{{ form_widget(form.informations.telephonePortable) }}</div>
+                        {{ form_errors(form.informations.telephonePortable) }}
+
+                        <div class="col-md-3 ml-3">{{ form_widget(form.informations.telephoneFax) }}</div>
+                        {{ form_errors(form.informations.telephoneFax) }}
+                    </div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.mail) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.mail) }}</div>
+                    {{ form_errors(form.informations.mail) }}
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.siteWeb) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.siteWeb) }}</div>
+                    {{ form_errors(form.informations.siteWeb) }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>{{ form_label(form.informations.observations) }}</dt>
+                <dd>
+                    {{ form_widget(form.informations.observations) }}
+                    {{ form_errors(form.informations.observations) }}
+                </dd>
+            </div>
+        </dl>
+
+        <div class='pull-right'>
+            <input type='submit' class="btn btn-success" value="Ajouter l'utilisateur">
+        </div>
+    {{ form_end(form) }}
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $("#utilisateur_informations_fonction").change(function() {
+                if($(this).find('option:selected').val() == "13") {
+                    $('#grade').show();
+                }
+                else {
+                    $('#grade').hide();
+                    $('#grade').find('input').val(null);
+                }
+            }).change();
+        })
+    </script>
+{% endblock %}

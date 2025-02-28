@@ -80,16 +80,16 @@ class Utilisateur implements UserInterface
     private $numinsee;
 
     /**
-     * @var \DateTimeInterface
+     * @var ?\DateTimeInterface
      *
-     * @ORM\Column(name="DERNIERE_VISITE_DASHBOARD", type="datetime")
+     * @ORM\Column(name="DERNIERE_VISITE_DASHBOARD", type="datetime", nullable=true)
      */
     private $derniereVisiteDashboard;
 
     /**
-     * @var \DateTimeInterface
+     * @var ?\DateTimeInterface
      *
-     * @ORM\Column(name="DERNIERE_VISITE_PIECES_DOSSIER", type="datetime")
+     * @ORM\Column(name="DERNIERE_VISITE_PIECES_DOSSIER", type="datetime", nullable=true)
      */
     private $derniereVisitePiecesDossier;
 
@@ -103,7 +103,7 @@ class Utilisateur implements UserInterface
     private $groupe;
 
     /**
-     * @var Utilisateurinformations
+     * @var ?Utilisateurinformations
      *
      * @ORM\OneToOne(targetEntity=Utilisateurinformations::class, cascade={"persist", "remove"})
      *
@@ -158,7 +158,7 @@ class Utilisateur implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -255,7 +255,7 @@ class Utilisateur implements UserInterface
         return $this->derniereVisiteDashboard;
     }
 
-    public function setDerniereVisiteDashboard(\DateTimeInterface $derniereVisiteDashboard): self
+    public function setDerniereVisiteDashboard(?\DateTimeInterface $derniereVisiteDashboard): self
     {
         $this->derniereVisiteDashboard = $derniereVisiteDashboard;
 
@@ -267,7 +267,7 @@ class Utilisateur implements UserInterface
         return $this->derniereVisitePiecesDossier;
     }
 
-    public function setDerniereVisitePiecesDossier(\DateTimeInterface $derniereVisitePiecesDossier): self
+    public function setDerniereVisitePiecesDossier(?\DateTimeInterface $derniereVisitePiecesDossier): self
     {
         $this->derniereVisitePiecesDossier = $derniereVisitePiecesDossier;
 
@@ -286,7 +286,7 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-    public function getInformations(): Utilisateurinformations
+    public function getInformations(): ?Utilisateurinformations
     {
         return $this->informations;
     }
