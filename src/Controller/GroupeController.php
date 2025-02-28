@@ -6,6 +6,7 @@ use App\Entity\Groupe;
 use App\Form\GroupeType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin/groupe", name="admin_groupe_", requirements={"id"="\d+"})
+ * @IsGranted("admin")
  */
 class GroupeController extends AbstractController
 {
