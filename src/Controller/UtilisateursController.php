@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @Route("/admin/utilisateurs", name="admin_utilisateurs_")
@@ -34,7 +33,7 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/ajouter", name="add")
      */
-    public function ajouter(Request $request, UserPasswordEncoderInterface $userPasswordEncoder): Response
+    public function ajouter(Request $request): Response
     {
         $utilisateur = new Utilisateur();
 
@@ -47,8 +46,8 @@ class UtilisateursController extends AbstractController
             $preferences = new UtilisateurPreferences();
             $preferences->setUtilisateur($utilisateur);
             $utilisateur->setPreferences($preferences);
-            // @fixme: Utiliser l'algorithme de hashage de l'appli Zend
-            // $utilisateur->setPassword($userPasswordEncoder->encodePassword($utilisateur, $utilisateur->getPlainPassword()));
+            // @fixme: Utiliser l'encodage de Symfony + ré-encoder les mots de passe existants
+            $utilisateur->setPassword(md5($utilisateur->getUsername().$this->getParameter('app.security_salt').$utilisateur->getPlainPassword()));
 
             // @todo: Gérer l'upload de l'avatar
 
