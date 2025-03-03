@@ -70,7 +70,7 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         if (!is_string($credentials)) {
-            $this->logger->error("Une chaîne contenant le nom d'utilisateur est attendue comme identifiants.");
+            $this->logger->error("Une chaîne contenant le nom d'utilisateur est attendue comme identifiant.");
 
             throw new AuthenticationException();
         }
