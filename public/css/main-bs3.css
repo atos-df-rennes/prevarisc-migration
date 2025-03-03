@@ -1231,4 +1231,8 @@
       margin-left: .5rem;
       cursor: pointer;
   }
+
+  input[type="file"].avatar-utilisateur {
+    display: inline-block;
+  }
   

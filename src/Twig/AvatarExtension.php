@@ -36,7 +36,7 @@ final class AvatarExtension extends AbstractExtension
     /**
      * Retourne l'avatar d'un utilisateur.
      */
-    public function avatar(int $id, string $size = Avatar::SMALL_DIRECTORY, ?string $styleAttributes = null): void
+    public function avatar(?int $id = null, string $size = Avatar::SMALL_DIRECTORY, ?string $styleAttributes = null): void
     {
         $src = $this->dataPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, [
             'uploads',
@@ -58,7 +58,7 @@ final class AvatarExtension extends AbstractExtension
         echo $this->imageTag;
     }
 
-    private function addSrc(string $src, string $filePath, int $id): void
+    private function addSrc(string $src, string $filePath, ?int $id): void
     {
         $this->imageTag .= ' src="'.$src;
 

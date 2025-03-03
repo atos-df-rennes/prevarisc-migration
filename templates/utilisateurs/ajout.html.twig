@@ -11,11 +11,11 @@
         {{ form_errors(form) }}
 
         <dl class='dl-horizontal row row-no-gutters well'>
-            {# @todo: Afficher la preview #}
             <div class="form-group">
                 <dt>{{ form_label(form.photo) }}</dt>
                 <dd>
-                    {{ form_widget(form.photo) }}
+                    {{ avatar() }}
+                    {{ form_widget(form.photo, {'attr': {'class': 'avatar-utilisateur'}}) }}
                     {{ form_errors(form.photo) }}
                 </dd>
             </div>
