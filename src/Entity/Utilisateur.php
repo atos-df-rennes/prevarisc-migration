@@ -128,6 +128,15 @@ class Utilisateur implements UserInterface
      */
     private $preferences;
 
+    /**
+     * @var ?Commune
+     *
+     * @ORM\ManyToOne(targetEntity=Commune::class, inversedBy="utilisateurs")
+     *
+     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=true)
+     */
+    private $commune;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -353,6 +362,18 @@ class Utilisateur implements UserInterface
         }
 
         $this->preferences = $preferences;
+
+        return $this;
+    }
+
+    public function getCommune(): ?Commune
+    {
+        return $this->commune;
+    }
+
+    public function setCommune(?Commune $commune): self
+    {
+        $this->commune = $commune;
 
         return $this;
     }

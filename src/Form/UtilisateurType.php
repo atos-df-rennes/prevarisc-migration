@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Commune;
 use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -58,6 +59,12 @@ class UtilisateurType extends AbstractType
             ->add('informations', UtilisateurInformationsType::class, [
                 'label' => "Informations de l'utilisateur",
                 'required' => false,
+            ])
+            ->add('commune', EntityType::class, [
+                'class' => Commune::class,
+                'choice_label' => 'libelle',
+                'required' => false,
+                'placeholder' => 'Définir une commune ...',
             ])
         ;
     }

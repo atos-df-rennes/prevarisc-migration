@@ -149,6 +149,20 @@
             </div>
         </dl>
 
+        {# @todo: Manque les domaines de compétences #}
+        <h4>
+            <label class="label-control">Domaines de compétences</label>
+        </h4>
+        <dl class='dl-horizontal row row-no-gutters'>
+            <div class="form-group">
+                <dt>{{ form_label(form.commune) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.commune) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.commune) }}</div>
+                </dd>
+            </div>
+        </dl>
+
         <div class='pull-right'>
             <input type='submit' class="btn btn-success" value="Ajouter l'utilisateur">
         </div>
