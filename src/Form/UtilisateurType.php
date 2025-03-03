@@ -20,6 +20,7 @@ class UtilisateurType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            // @todo: Mettre des validations sur cet upload ?
             ->add('photo', FileType::class, [
                 'mapped' => false,
                 'required' => false,

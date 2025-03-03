@@ -7,8 +7,11 @@ use App\Entity\UtilisateurPreferences;
 use App\Form\UtilisateurType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\Avatar;
+use App\Service\Image;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,7 +38,7 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/ajouter", name="add")
      */
-    public function ajouter(Request $request): Response
+    public function ajouter(Request $request, Avatar $avatar, Image $image): Response
     {
         $utilisateur = new Utilisateur();
 
@@ -51,11 +54,20 @@ class UtilisateursController extends AbstractController
             // @fixme: Utiliser l'encodage de Symfony + ré-encoder les mots de passe existants
             $utilisateur->setPassword(md5($utilisateur->getUsername().$this->getParameter('app.security_salt').$utilisateur->getPlainPassword()));
 
-            // @todo: Gérer l'upload de l'avatar
-
             $entityManager->persist($preferences);
             $entityManager->persist($utilisateur);
             $entityManager->flush();
+
+            $photo = $form->get('photo')->getData();
+
+            if ($photo && $photo instanceof UploadedFile) {
+                $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
+                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $utilisateur->getId()));
+                $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
+                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $utilisateur->getId()));
+                $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
+                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $utilisateur->getId()));
+            }
 
             return $this->redirectToRoute('admin_utilisateurs_index');
         }

@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Service;
+
+use Imagine\Gd\Imagine;
+use Imagine\Image\Box;
+use Imagine\Image\ImageInterface;
+
+final class Image
+{
+    /** @var Imagine */
+    private $imagine;
+
+    public function __construct()
+    {
+        $this->imagine = new Imagine();
+    }
+
+    public function resize(string $filename, int $width, ?int $height = null): ImageInterface
+    {
+        $image = $this->imagine->open($filename);
+
+        if (null === $height) {
+            $height = $this->calculateHeightFromWidth($image, $width);
+        }
+
+        return $image->resize(new Box($width, $height));
+    }
+
+    private function calculateHeightFromWidth(ImageInterface $image, int $desiredWidth): int
+    {
+        $initialWidth = $image->getSize()->getWidth();
+        $initialHeight = $image->getSize()->getHeight();
+
+        return (int) (($initialHeight / $initialWidth) * $desiredWidth);
+    }
+}
