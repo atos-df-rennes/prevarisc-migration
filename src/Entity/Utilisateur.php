@@ -113,9 +113,9 @@ class Utilisateur implements UserInterface
     private $groupe;
 
     /**
-     * @var ?Utilisateurinformations
+     * @var ?UtilisateurInformations
      *
-     * @ORM\OneToOne(targetEntity=Utilisateurinformations::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false, options={"unsigned":true})
      */
@@ -324,12 +324,12 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-    public function getInformations(): ?Utilisateurinformations
+    public function getInformations(): ?UtilisateurInformations
     {
         return $this->informations;
     }
 
-    public function setInformations(Utilisateurinformations $informations): self
+    public function setInformations(UtilisateurInformations $informations): self
     {
         $this->informations = $informations;
 

@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Utilisateurinformations;
+use App\Entity\UtilisateurInformations;
 use App\Entity\Fonction;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -70,7 +70,7 @@ class UtilisateurInformationsType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Utilisateurinformations::class,
+            'data_class' => UtilisateurInformations::class,
         ]);
     }
 }
