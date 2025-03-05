@@ -7,6 +7,7 @@ use App\Entity\Commune;
 use App\Entity\Groupe;
 use App\Entity\Groupement;
 use App\Entity\Utilisateur;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -82,6 +83,13 @@ class UtilisateurType extends AbstractType
                 'choice_label' => 'libelle',
                 'required' => false,
                 'multiple' => true,
+                'query_builder' => function (EntityRepository $entityRepository) {
+                    return $entityRepository->createQueryBuilder('g')
+                        ->addSelect('gt')
+                        ->join('g.type', 'gt')
+                        ->orderBy('gt.id, g.libelle')
+                    ;
+                },
                 'group_by' => function (Groupement $choice) {
                     return $choice->getType()->getLibelle();
                 },
