@@ -7,6 +7,7 @@ use App\Entity\Commune;
 use App\Entity\Groupe;
 use App\Entity\Groupement;
 use App\Entity\Utilisateur;
+use App\Validator\EnforcedSecurityPassword;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -21,8 +22,22 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UtilisateurType extends AbstractType
 {
+    /** @var bool */
+    private $enforceSecurity;
+
+    public function __construct(bool $enforceSecurity)
+    {
+        $this->enforceSecurity = $enforceSecurity;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $passwordConstraints = [new NotBlank()];
+
+        if ($this->enforceSecurity) {
+            $passwordConstraints[] = new EnforcedSecurityPassword();
+        }
+
         $builder
             // @todo: Mettre des validations sur cet upload ?
             ->add('photo', FileType::class, [
@@ -40,7 +55,7 @@ class UtilisateurType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Mot de passe',
                 ],
-                'constraints' => [new NotBlank()],
+                'constraints' => $passwordConstraints,
             ])
             ->add('groupe', EntityType::class, [
                 'class' => Groupe::class,

@@ -48,7 +48,6 @@ class Utilisateur implements UserInterface
     /** @var string */
     private $plainPassword;
 
-    // @todo: Ajouter la règle de validation si enforce_security est à true
     /**
      * @var ?string The hashed password
      *
