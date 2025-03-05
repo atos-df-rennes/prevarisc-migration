@@ -16,7 +16,9 @@ class Groupement
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_GROUPEMENT", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -32,6 +34,7 @@ class Groupement
      * @var ?UtilisateurInformations
      *
      * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})
      */
     private $informations;
@@ -40,6 +43,7 @@ class Groupement
      * @var ?GroupementType
      *
      * @ORM\ManyToOne(targetEntity=GroupementType::class, inversedBy="groupements")
+     *
      * @ORM\JoinColumn(name="ID_GROUPEMENTTYPE", referencedColumnName="ID_GROUPEMENTTYPE", nullable=false)
      */
     private $type;

@@ -16,7 +16,9 @@ class Commission
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_COMMISSION", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -39,6 +41,7 @@ class Commission
      * @var ?CommissionType
      *
      * @ORM\ManyToOne(targetEntity=CommissionType::class, inversedBy="commissions")
+     *
      * @ORM\JoinColumn(name="ID_COMMISSIONTYPE", referencedColumnName="ID_COMMISSIONTYPE", nullable=false, options={"unsigned":true})
      */
     private $type;

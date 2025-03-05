@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250305100354 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return '';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE commission DROP FOREIGN KEY fk_commission_commissiontype1');
         $this->addSql('ALTER TABLE commission CHANGE LIBELLE_COMMISSION LIBELLE_COMMISSION VARCHAR(80) NOT NULL');
@@ -48,7 +48,7 @@ final class Version20250305100354 extends AbstractMigration
         $this->addSql('ALTER TABLE utilisateur ADD sso TINYINT(1) DEFAULT NULL');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE commission DROP FOREIGN KEY FK_1C65015860FC5742');
         $this->addSql('ALTER TABLE commission CHANGE LIBELLE_COMMISSION LIBELLE_COMMISSION VARCHAR(50) CHARACTER SET utf8 DEFAULT \'Nom de la commission\' NOT NULL COLLATE `utf8_general_ci`');

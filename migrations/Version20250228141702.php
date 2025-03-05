@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250228141702 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return '';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE utilisateurpreferences DROP INDEX fk_utilisateurpreferences_utilisateur1_idx, ADD UNIQUE INDEX UNIQ_B8C2949BF6170F81 (ID_UTILISATEUR)');
         $this->addSql('ALTER TABLE utilisateurpreferences DROP FOREIGN KEY fk_utilisateurpreferences_utilisateur1');
@@ -25,7 +25,7 @@ final class Version20250228141702 extends AbstractMigration
         $this->addSql('ALTER TABLE utilisateurpreferences ADD CONSTRAINT FK_B8C2949BF6170F81 FOREIGN KEY (ID_UTILISATEUR) REFERENCES utilisateur (ID_UTILISATEUR)');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE utilisateurpreferences DROP INDEX UNIQ_B8C2949BF6170F81, ADD INDEX fk_utilisateurpreferences_utilisateur1_idx (ID_UTILISATEUR)');
         $this->addSql('ALTER TABLE utilisateurpreferences DROP FOREIGN KEY FK_B8C2949BF6170F81');

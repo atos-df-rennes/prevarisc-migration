@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin", name="admin_")
+ *
  * @IsGranted("admin")
  */
 class AdminController extends AbstractController

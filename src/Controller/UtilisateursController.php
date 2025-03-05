@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin/utilisateurs", name="admin_utilisateurs_")
+ *
  * @IsGranted("admin")
  */
 class UtilisateursController extends AbstractController

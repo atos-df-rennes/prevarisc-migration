@@ -18,7 +18,9 @@ class CommissionType
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_COMMISSIONTYPE", type="integer", length=2, options={"unsigned":true})
      */
     private $id;

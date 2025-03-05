@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=GroupementTypeRepository::class)
+ *
  * @ORM\Table(name="groupementtype")
  */
 class GroupementType
@@ -17,7 +18,9 @@ class GroupementType
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_GROUPEMENTTYPE", type="bigint", options={"unsigned":true})
      */
     private $id;

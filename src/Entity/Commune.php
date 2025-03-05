@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CommuneRepository::class)
+ *
  * @ORM\Table(name="adressecommune")
  */
 class Commune
@@ -17,6 +18,7 @@ class Commune
      * @var string
      *
      * @ORM\Id
+     *
      * @ORM\Column(name="NUMINSEE_COMMUNE", type="string", length=5, options={"fixed":true})
      */
     private $id;
@@ -39,6 +41,7 @@ class Commune
      * @var UtilisateurInformations
      *
      * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false)
      */
     private $utilisateurInformations;

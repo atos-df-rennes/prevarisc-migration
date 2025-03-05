@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurPreferencesRepository::class)
+ *
  * @ORM\Table(name="utilisateurpreferences")
  */
 class UtilisateurPreferences
@@ -15,7 +16,9 @@ class UtilisateurPreferences
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_UTILISATEURPREFERENCES", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -31,6 +34,7 @@ class UtilisateurPreferences
      * @var Utilisateur
      *
      * @ORM\OneToOne(targetEntity=Utilisateur::class, inversedBy="preferences", cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", nullable=false, options={"unsigned":true})
      */
     private $utilisateur;

@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin/groupe", name="admin_groupe_", requirements={"id"="\d+"})
+ *
  * @IsGranted("admin")
  */
 class GroupeController extends AbstractController
