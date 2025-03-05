@@ -1,0 +1,41 @@
+<h4>{{ 'Utilisateurs ' ~ type }} <small>({{ utilisateurs|length }} utilisateurs)</small></h4>
+
+{% if utilisateurs|length > 0 %}
+    <table class='table table-condensed table-striped'>
+        <thead>
+            <tr>
+                <th>Identifiant</th>
+                <th>Nom et prénom</th>
+                <th>Groupe</th>
+                <th>Fonction</th>
+                <th>Etat</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for utilisateur in utilisateurs %}
+                <tr>
+                    <td><i>{{ utilisateur.username }}</i></td>
+                    <td>{{ utilisateur.informations.grade ~ ' ' ~ utilisateur.informations.nom ~ ' ' ~ utilisateur.informations.prenom }}</td>
+                    <td>{{ utilisateur.groupe.libelle }}</td>
+                    <td>{{ utilisateur.informations.fonction.libelle }}</td>
+                    <td>
+                        {% if type == 'actifs' %}
+                            {% if utilisateur.isConnected %}
+                                <span class='label label-success'>En ligne</span>
+                            {% else %}
+                                <span class='label label-default'>Hors ligne</span>
+                            {% endif %}
+                        {% endif %}
+                        {% if type == 'inactifs' %}
+                            <span class='label label-default'>Inactif</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="{{ '/users/edit/uid/' ~ utilisateur.id }}">Modifier</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class='lead'><b>Aucun résultat.</b></p>
+{% endif %}

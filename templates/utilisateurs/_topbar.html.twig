@@ -1,0 +1,20 @@
+<h3 class='page-header'>Gestion des utilisateurs</h3>
+
+<ul class="nav nav-pills">
+    <li {% if app.request.get('_route') is same as('admin_utilisateurs_index')
+            or app.request.get('_route') is same as('admin_groupe_index')
+            or app.request.get('_route') is same as('admin_groupe_edit')
+        %}class="active"{% endif %}
+    >
+        <a href="{{ path('admin_utilisateurs_index') }}">Général</a>
+    </li>
+    <li {% if app.request.get('_route') is same as('admin_utilisateurs_add') %}class="active"{% endif %}>
+        <a href="{{ path('admin_utilisateurs_add') }}">Ajouter un utilisateur</a>
+    </li>
+    <li {% if app.request.get('_route') is same as('admin_groupe_add') %}class="active"{% endif %}>
+        <a href="{{ path('admin_groupe_add') }}">Créer un groupe</a>
+    </li>
+    <li>
+        <a href="/users/matrice-des-droits">Gérer les droits des groupes</a>
+    </li>
+</ul>

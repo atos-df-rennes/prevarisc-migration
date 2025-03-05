@@ -40,7 +40,7 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request): bool
     {
-        return true;
+        return null === $request->getSession()->get('username');
     }
 
     /**
@@ -58,13 +58,15 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
         /** @var ZendAuth */
         $zendAuth = $_SESSION['Zend_Auth'];
 
+        $request->getSession()->set('username', $zendAuth['storage']['USERNAME_UTILISATEUR']);
+
         return $zendAuth['storage']['USERNAME_UTILISATEUR'];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         if (!is_string($credentials)) {
-            $this->logger->error("Une chaîne contenant le nom d'utilisateur est attendue comme identifiants.");
+            $this->logger->error("Une chaîne contenant le nom d'utilisateur est attendue comme identifiant.");
 
             throw new AuthenticationException();
         }

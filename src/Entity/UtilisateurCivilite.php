@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\UtilisateurciviliteRepository;
+use App\Repository\UtilisateurCiviliteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=UtilisateurciviliteRepository::class)
+ * @ORM\Entity(repositoryClass=UtilisateurCiviliteRepository::class)
+ *
+ * @ORM\Table(name="utilisateurcivilite")
  */
-class Utilisateurcivilite
+class UtilisateurCivilite
 {
     /**
      * @var int

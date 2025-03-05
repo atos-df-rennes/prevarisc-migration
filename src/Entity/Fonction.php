@@ -31,7 +31,7 @@ class Fonction
     private $libelle;
 
     /**
-     * @var Collection<int, Utilisateurinformations>
+     * @var Collection<int, UtilisateurInformations>
      *
      * @ORM\OneToMany(targetEntity=UtilisateurInformations::class, mappedBy="fonction")
      */
@@ -60,14 +60,14 @@ class Fonction
     }
 
     /**
-     * @return Collection<int, Utilisateurinformations>
+     * @return Collection<int, UtilisateurInformations>
      */
     public function getUtilisateurInformations(): Collection
     {
         return $this->utilisateurInformations;
     }
 
-    public function addUtilisateurInformation(Utilisateurinformations $utilisateurInformation): self
+    public function addUtilisateurInformation(UtilisateurInformations $utilisateurInformation): self
     {
         if (!$this->utilisateurInformations->contains($utilisateurInformation)) {
             $this->utilisateurInformations[] = $utilisateurInformation;
@@ -77,7 +77,7 @@ class Fonction
         return $this;
     }
 
-    public function removeUtilisateurInformation(Utilisateurinformations $utilisateurInformation): self
+    public function removeUtilisateurInformation(UtilisateurInformations $utilisateurInformation): self
     {
         // set the owning side to null (unless already changed)
         if ($this->utilisateurInformations->removeElement($utilisateurInformation) && $utilisateurInformation->getFonction() === $this) {

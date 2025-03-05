@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\UtilisateurinformationsRepository;
+use App\Repository\UtilisateurInformationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=UtilisateurinformationsRepository::class)
+ * @ORM\Entity(repositoryClass=UtilisateurInformationsRepository::class)
+ *
+ * @ORM\Table(name="utilisateurinformations")
  */
-class Utilisateurinformations
+class UtilisateurInformations
 {
     /**
      * @var int
@@ -141,9 +143,9 @@ class Utilisateurinformations
     private $grade;
 
     /**
-     * @var ?Utilisateurcivilite
+     * @var ?UtilisateurCivilite
      *
-     * @ORM\ManyToOne(targetEntity=Utilisateurcivilite::class)
+     * @ORM\ManyToOne(targetEntity=UtilisateurCivilite::class)
      *
      * @ORM\JoinColumn(name="ID_UTILISATEURCIVILITE", referencedColumnName="ID_UTILISATEURCIVILITE", options={"unsigned":true})
      */
@@ -367,12 +369,12 @@ class Utilisateurinformations
         return $this;
     }
 
-    public function getCivilite(): ?Utilisateurcivilite
+    public function getCivilite(): ?UtilisateurCivilite
     {
         return $this->civilite;
     }
 
-    public function setCivilite(?Utilisateurcivilite $civilite): self
+    public function setCivilite(?UtilisateurCivilite $civilite): self
     {
         $this->civilite = $civilite;
 

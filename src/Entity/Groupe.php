@@ -6,6 +6,7 @@ use App\Repository\GroupeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=GroupeRepository::class)
@@ -26,14 +27,16 @@ class Groupe
     /**
      * @var string
      *
+     * @Assert\NotBlank(message="Cette valeur ne doit pas être vide.")
+     *
      * @ORM\Column(name="LIBELLE_GROUPE", type="string", length=255)
      */
     private $libelle;
 
     /**
-     * @var string
+     * @var ?string
      *
-     * @ORM\Column(name="DESC_GROUPE", type="text")
+     * @ORM\Column(name="DESC_GROUPE", type="text", nullable=true)
      */
     private $description;
 
@@ -84,7 +87,7 @@ class Groupe
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
 

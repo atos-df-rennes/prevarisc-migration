@@ -71,7 +71,9 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     {
         $queryBuilder = $this->createQueryBuilder('u');
         $query = $queryBuilder
-            ->select('u.username', 'ui.nom', 'ui.prenom', 'g.libelle as libelleGroupe', 'f.libelle as libelleFonction')
+            ->addSelect('ui')
+            ->addSelect('f')
+            ->addSelect('g')
             ->join('u.informations', 'ui')
             ->join('ui.fonction', 'f')
             ->join('u.groupe', 'g')
@@ -85,5 +87,64 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         ;
 
         return $query->getResult();
+    }
+
+    // @fixme: A voir pour faire une requête commune et ajouter un paramètre pour le statut actif ?
+    /**
+     * Renvoie les utilisateurs actifs.
+     */
+    public function findActives(?int $groupeId = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $query = $queryBuilder
+            ->addSelect('ui')
+            ->addSelect('f')
+            ->addSelect('g')
+            ->addSelect('up')
+            ->join('u.informations', 'ui')
+            ->join('ui.fonction', 'f')
+            ->join('u.groupe', 'g')
+            ->join('u.preferences', 'up')
+            ->where('u.actif = :actif')
+            ->setParameter('actif', 1)
+            ->groupBy('u.id')
+            ->orderBy('ui.nom', 'ASC')
+        ;
+
+        if (null !== $groupeId) {
+            $query->andWhere('g.id = :groupe')
+                ->setParameter('groupe', $groupeId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * Renvoie les utilisateurs inactifs.
+     */
+    public function findInactives(?int $groupeId = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $query = $queryBuilder
+            ->addSelect('ui')
+            ->addSelect('f')
+            ->addSelect('g')
+            ->addSelect('up')
+            ->join('u.informations', 'ui')
+            ->join('ui.fonction', 'f')
+            ->join('u.groupe', 'g')
+            ->join('u.preferences', 'up')
+            ->where('u.actif = :actif')
+            ->setParameter('actif', 0)
+            ->groupBy('u.id')
+            ->orderBy('ui.nom', 'ASC')
+        ;
+
+        if (null !== $groupeId) {
+            $query->andWhere('g.id = :groupe')
+                ->setParameter('groupe', $groupeId);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

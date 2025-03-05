@@ -1,0 +1,221 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des utilisateurs / Ajouter un utilisateur{% endblock %}
+
+{% block body %}
+    {{ include('utilisateurs/_topbar.html.twig') }}
+
+    <h4>Ajout d'un utilisateur</h4>
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        <dl class='dl-horizontal row row-no-gutters well'>
+            <div class="form-group">
+                <dt>{{ form_label(form.photo) }}</dt>
+                <dd>
+                    {{ avatar() }}
+                    {{ form_widget(form.photo, {'attr': {'class': 'avatar-utilisateur'}}) }}
+                    {{ form_errors(form.photo) }}
+                </dd>
+            </div>
+
+		    <div class="form-group">
+                <dt>{{ form_label(form.username) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.username) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.username) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.plainPassword) }}</dt>
+                <dd>
+                    <div id="password_input" class="col-md-3">{{ form_widget(form.plainPassword) }}</div>
+
+                    {% if form.sso is defined %}
+                        <div class="col-md-3 ml-3">{{ form_widget(form.sso) }}</div>
+                    {% endif %}
+
+                    <div id="password_instructions" class="col-xs-12">{{ form_help(form.plainPassword) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.plainPassword) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.groupe) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.groupe) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.groupe) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.ip) }}</dt>
+                <dd>
+                    <div class="col-md-2">{{ form_widget(form.ip) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.ip) }}</div>
+                </dd>
+            </div>
+
+            {# @todo: Ajouter déblocage de l'IP #}
+            <div class="form-group">
+                <dt>{{ form_label(form.failedLoginAttempts) }}</dt>
+                <dd>
+                    <div class="col-md-1">{{ form_widget(form.failedLoginAttempts) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.failedLoginAttempts) }}</div>
+                </dd>
+            </div>
+
+            <div>
+                <dt>{{ form_label(form.actif) }}</dt>
+                <dd>
+                    {{ form_widget(form.actif) }}
+                    {{ form_errors(form.actif) }}
+                </dd>
+            </div>
+        </dl>
+
+        <h4>{{ form_label(form.informations) }}</h4>
+
+        <dl class='dl-horizontal row row-no-gutters'>
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.prenom) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.prenom) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.informations.prenom) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.nom) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.nom) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.informations.nom) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.fonction) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.fonction) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.informations.fonction) }}</div>
+                </dd>
+            </div>
+
+            <div id='grade' class="form-group">
+                <dt>{{ form_label(form.informations.grade) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.grade) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.informations.grade) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>Téléphones</dt>
+                <dd>
+                    <div class="row row-no-gutters">
+                        <div class="form-group col-md-3">{{ form_widget(form.informations.telephoneFixe) }}</div>
+                        <div class="col-xs-12">{{ form_errors(form.informations.telephoneFixe) }}</div>
+                    </div>
+
+                    <div class="row row-no-gutters">
+                        <div class="col-md-3">{{ form_widget(form.informations.telephonePortable) }}</div>
+                        <div class="col-md-3 ml-3">{{ form_widget(form.informations.telephoneFax) }}</div>
+
+                        <div class="col-xs-12">{{ form_errors(form.informations.telephonePortable) }}</div>
+                        <div class="col-xs-12">{{ form_errors(form.informations.telephoneFax) }}</div>
+                    </div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.mail) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.mail) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.informations.mail) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.informations.siteWeb) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.informations.siteWeb) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.informations.siteWeb) }}</div>
+                </dd>
+            </div>
+
+            <div>
+                <dt>{{ form_label(form.informations.observations) }}</dt>
+                <dd>
+                    {{ form_widget(form.informations.observations) }}
+                    {{ form_errors(form.informations.observations) }}
+                </dd>
+            </div>
+        </dl>
+
+        <h4>
+            <label class="label-control">Domaines de compétences</label>
+        </h4>
+        <dl class='dl-horizontal row row-no-gutters'>
+            <div class="form-group">
+                <dt>{{ form_label(form.commune) }}</dt>
+                <dd>
+                    <div class="col-md-3">{{ form_widget(form.commune) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.commune) }}</div>
+                </dd>
+            </div>
+
+            <div class="form-group">
+                <dt>{{ form_label(form.commissions) }}</dt>
+                <dd>
+                    <div class="col-md-6">{{ form_widget(form.commissions, {'attr': {'class': 'chosen', 'data-placeholder': 'Commissions'}}) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.commissions) }}</div>
+                </dd>
+            </div>
+
+            <div>
+                <dt>{{ form_label(form.groupements) }}</dt>
+                <dd>
+                    <div class="col-md-6">{{ form_widget(form.groupements, {'attr': {'class': 'chosen', 'data-placeholder': 'Groupements'}}) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.groupements) }}</div>
+                </dd>
+            </div>
+        </dl>
+
+        <div class='pull-right'>
+            <input type='submit' class="btn btn-success" value="Ajouter l'utilisateur">
+        </div>
+    {{ form_end(form) }}
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $("#utilisateur_informations_fonction").change(function() {
+                if($(this).find('option:selected').val() == "13") {
+                    $('#grade').show();
+                }
+                else {
+                    $('#grade').hide();
+                    $('#grade').find('input').val(null);
+                }
+            }).change();
+
+            $('#utilisateur_sso').change(function(e) {
+                if ($(this).attr('checked')) {
+                    $('#utilisateur_plainPassword').attr('required', false).val('')
+                    $('#password_input').hide();
+                    $('#password_instructions').hide();
+                } else {
+                    $('#utilisateur_plainPassword').attr('required', true)
+                    $('#password_input').show();
+                    $('#password_instructions').show();
+                }
+            }).change();
+
+            // Gestion des select et multiselect
+            $(".chosen").chosen({
+                search_contains : true
+            });
+        })
+    </script>
+{% endblock %}

@@ -3,12 +3,21 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use App\Validator as PrevariscAssert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
+ *
+ * @UniqueEntity(fields="username", message="Nom d'utilisateur déjà enregistré. Veuillez en choisir un autre.")
+ *
+ * @PrevariscAssert\Password
  */
 class Utilisateur implements UserInterface
 {
@@ -27,6 +36,8 @@ class Utilisateur implements UserInterface
      * @var string
      *
      * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true)
+     *
+     * @Assert\NotBlank(message="Le nom d'utilisateur ne doit pas être vide.")
      */
     private $username;
 
@@ -37,10 +48,13 @@ class Utilisateur implements UserInterface
      */
     private $roles = [];
 
+    /** @var ?string */
+    private $plainPassword;
+
     /**
-     * @var string The hashed password
+     * @var ?string The hashed password
      *
-     * @ORM\Column(name="PASSWD_UTILISATEUR", type="string", length=32)
+     * @ORM\Column(name="PASSWD_UTILISATEUR", type="string", length=255, nullable=true)
      */
     private $password;
 
@@ -63,7 +77,7 @@ class Utilisateur implements UserInterface
      *
      * @ORM\Column(name="FAILED_LOGIN_ATTEMPTS_UTILISATEUR", type="smallint")
      */
-    private $failedLoginAttempts;
+    private $failedLoginAttempts = 0;
 
     /**
      * @var ?string
@@ -80,16 +94,16 @@ class Utilisateur implements UserInterface
     private $numinsee;
 
     /**
-     * @var \DateTimeInterface
+     * @var ?\DateTimeInterface
      *
-     * @ORM\Column(name="DERNIERE_VISITE_DASHBOARD", type="datetime")
+     * @ORM\Column(name="DERNIERE_VISITE_DASHBOARD", type="datetime", nullable=true)
      */
     private $derniereVisiteDashboard;
 
     /**
-     * @var \DateTimeInterface
+     * @var ?\DateTimeInterface
      *
-     * @ORM\Column(name="DERNIERE_VISITE_PIECES_DOSSIER", type="datetime")
+     * @ORM\Column(name="DERNIERE_VISITE_PIECES_DOSSIER", type="datetime", nullable=true)
      */
     private $derniereVisitePiecesDossier;
 
@@ -103,13 +117,66 @@ class Utilisateur implements UserInterface
     private $groupe;
 
     /**
-     * @var Utilisateurinformations
+     * @var ?UtilisateurInformations
      *
-     * @ORM\OneToOne(targetEntity=Utilisateurinformations::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist", "remove"})
      *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false, options={"unsigned":true})
      */
     private $informations;
+
+    /**
+     * @var UtilisateurPreferences
+     *
+     * @ORM\OneToOne(targetEntity=UtilisateurPreferences::class, mappedBy="utilisateur", cascade={"persist", "remove"})
+     */
+    private $preferences;
+
+    /**
+     * @var ?Commune
+     *
+     * @ORM\ManyToOne(targetEntity=Commune::class, inversedBy="utilisateurs")
+     *
+     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=true)
+     */
+    private $commune;
+
+    /**
+     * @var Collection<int, Commission>
+     *
+     * @ORM\JoinTable(name="utilisateurcommission",
+     *   joinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Commission::class, inversedBy="utilisateurs")
+     */
+    private $commissions;
+
+    /**
+     * @var Collection<int, Groupement>
+     *
+     * @ORM\JoinTable(name="utilisateurgroupement",
+     *   joinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Groupement::class, inversedBy="utilisateurs")
+     */
+    private $groupements;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $sso;
+
+    public function __construct()
+    {
+        $this->commissions = new ArrayCollection();
+        $this->groupements = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -155,15 +222,27 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
     /**
      * @see UserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -187,7 +266,7 @@ class Utilisateur implements UserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getLastAction(): ?\DateTimeInterface
@@ -255,7 +334,7 @@ class Utilisateur implements UserInterface
         return $this->derniereVisiteDashboard;
     }
 
-    public function setDerniereVisiteDashboard(\DateTimeInterface $derniereVisiteDashboard): self
+    public function setDerniereVisiteDashboard(?\DateTimeInterface $derniereVisiteDashboard): self
     {
         $this->derniereVisiteDashboard = $derniereVisiteDashboard;
 
@@ -267,7 +346,7 @@ class Utilisateur implements UserInterface
         return $this->derniereVisitePiecesDossier;
     }
 
-    public function setDerniereVisitePiecesDossier(\DateTimeInterface $derniereVisitePiecesDossier): self
+    public function setDerniereVisitePiecesDossier(?\DateTimeInterface $derniereVisitePiecesDossier): self
     {
         $this->derniereVisitePiecesDossier = $derniereVisitePiecesDossier;
 
@@ -286,14 +365,116 @@ class Utilisateur implements UserInterface
         return $this;
     }
 
-    public function getInformations(): Utilisateurinformations
+    public function getInformations(): ?UtilisateurInformations
     {
         return $this->informations;
     }
 
-    public function setInformations(Utilisateurinformations $informations): self
+    public function setInformations(UtilisateurInformations $informations): self
     {
         $this->informations = $informations;
+
+        return $this;
+    }
+
+    public function isConnected(): bool
+    {
+        // L'utilisateur ne s'est jamais connecté.
+        if (null === $this->getLastAction()) {
+            return false;
+        }
+
+        $maxLifetime = filter_var(ini_get('session.gc_maxlifetime'), FILTER_VALIDATE_INT);
+        $diff = $this->getLastAction()->diff(new \DateTime(date('Y-m-d H:i:s', time() - $maxLifetime)));
+
+        return 0 !== $diff->invert;
+    }
+
+    public function getPreferences(): ?UtilisateurPreferences
+    {
+        return $this->preferences;
+    }
+
+    public function setPreferences(UtilisateurPreferences $preferences): self
+    {
+        // set the owning side of the relation if necessary
+        if ($preferences->getUtilisateur() !== $this) {
+            $preferences->setUtilisateur($this);
+        }
+
+        $this->preferences = $preferences;
+
+        return $this;
+    }
+
+    public function getCommune(): ?Commune
+    {
+        return $this->commune;
+    }
+
+    public function setCommune(?Commune $commune): self
+    {
+        $this->commune = $commune;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commission>
+     */
+    public function getCommissions(): Collection
+    {
+        return $this->commissions;
+    }
+
+    public function addCommission(Commission $commission): self
+    {
+        if (!$this->commissions->contains($commission)) {
+            $this->commissions[] = $commission;
+        }
+
+        return $this;
+    }
+
+    public function removeCommission(Commission $commission): self
+    {
+        $this->commissions->removeElement($commission);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groupement>
+     */
+    public function getGroupements(): Collection
+    {
+        return $this->groupements;
+    }
+
+    public function addGroupement(Groupement $groupement): self
+    {
+        if (!$this->groupements->contains($groupement)) {
+            $this->groupements[] = $groupement;
+        }
+
+        return $this;
+    }
+
+    public function removeGroupement(Groupement $groupement): self
+    {
+        $this->groupements->removeElement($groupement);
+
+        return $this;
+    }
+
+    public function getSso(): ?bool
+    {
+        return $this->sso;
+    }
+
+    public function setSso(?bool $sso): self
+    {
+        $this->sso = $sso;
 
         return $this;
     }
