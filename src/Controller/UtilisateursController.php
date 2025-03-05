@@ -58,15 +58,21 @@ class UtilisateursController extends AbstractController
             $entityManager->persist($utilisateur);
             $entityManager->flush();
 
+            $userId = $utilisateur->getId();
+
+            if (null === $userId) {
+                throw new \Exception("L'utilisateur n'a pas pu être créé correctement.");
+            }
+
             $photo = $form->get('photo')->getData();
 
             if ($photo && $photo instanceof UploadedFile) {
                 $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
-                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $utilisateur->getId()));
+                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $userId));
                 $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
-                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $utilisateur->getId()));
+                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $userId));
                 $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
-                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $utilisateur->getId()));
+                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
             }
 
             return $this->redirectToRoute('admin_utilisateurs_index');

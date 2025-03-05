@@ -29,14 +29,14 @@ class Commission
     private $libelle;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="DOCUMENT_CR", type="string", length=255, nullable=true)
      */
     private $documentCr;
 
     /**
-     * @var CommissionType
+     * @var ?CommissionType
      *
      * @ORM\ManyToOne(targetEntity=CommissionType::class, inversedBy="commissions")
      * @ORM\JoinColumn(name="ID_COMMISSIONTYPE", referencedColumnName="ID_COMMISSIONTYPE", nullable=false, options={"unsigned":true})

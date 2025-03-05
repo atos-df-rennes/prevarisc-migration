@@ -48,7 +48,7 @@ class Utilisateur implements UserInterface
      */
     private $roles = [];
 
-    /** @var string */
+    /** @var ?string */
     private $plainPassword;
 
     /**

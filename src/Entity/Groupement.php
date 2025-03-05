@@ -22,6 +22,8 @@ class Groupement
     private $id;
 
     /**
+     * @var string
+     *
      * @ORM\Column(name="LIBELLE_GROUPEMENT", type="string", length=255)
      */
     private $libelle;
@@ -35,7 +37,7 @@ class Groupement
     private $informations;
 
     /**
-     * @var GroupementType
+     * @var ?GroupementType
      *
      * @ORM\ManyToOne(targetEntity=GroupementType::class, inversedBy="groupements")
      * @ORM\JoinColumn(name="ID_GROUPEMENTTYPE", referencedColumnName="ID_GROUPEMENTTYPE", nullable=false)

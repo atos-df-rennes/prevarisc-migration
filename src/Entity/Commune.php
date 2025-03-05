@@ -55,7 +55,7 @@ class Commune
         $this->utilisateurs = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): string
     {
         return $this->id;
     }

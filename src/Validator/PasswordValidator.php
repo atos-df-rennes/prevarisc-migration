@@ -33,7 +33,9 @@ final class PasswordValidator extends ConstraintValidator
             return;
         }
 
-        if ('' === $value->getPlainPassword()) {
+        $password = $value->getPlainPassword();
+
+        if ('' === $password) {
             $this->context
                 ->buildViolation($constraint->vide)
                 ->atPath('utilisateur.plainPassword')
@@ -43,7 +45,8 @@ final class PasswordValidator extends ConstraintValidator
 
         if (
             $this->enforceSecurity
-            && !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,}$/', $value->getPlainPassword())
+            && null !== $password
+            && !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,}$/', $password)
         ) {
             $this->context
                 ->buildViolation($constraint->securite)

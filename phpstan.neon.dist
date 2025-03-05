@@ -12,3 +12,12 @@ parameters:
             - src/Repository
     symfony:
         containerXmlPath: var/cache/dev/srcApp_KernelDevDebugContainer.xml
+    ignoreErrors:
+        -
+            identifier: property.onlyRead
+            paths:
+                - src/Entity
+        -
+            identifier: missingType.generics
+            paths:
+                - src/Form

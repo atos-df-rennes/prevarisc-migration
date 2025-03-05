@@ -87,7 +87,13 @@ class UtilisateurType extends AbstractType
                 'required' => false,
                 'multiple' => true,
                 'group_by' => function (Commission $choice) {
-                    return $choice->getType()->getLibelle();
+                    $typeCommission = $choice->getType();
+
+                    if (null === $typeCommission) {
+                        return '';
+                    }
+
+                    return $typeCommission->getLibelle();
                 },
             ])
             ->add('groupements', EntityType::class, [
@@ -103,7 +109,13 @@ class UtilisateurType extends AbstractType
                     ;
                 },
                 'group_by' => function (Groupement $choice) {
-                    return $choice->getType()->getLibelle();
+                    $typeGroupement = $choice->getType();
+
+                    if (null === $typeGroupement) {
+                        return '';
+                    }
+
+                    return $typeGroupement->getLibelle();
                 },
             ])
         ;
