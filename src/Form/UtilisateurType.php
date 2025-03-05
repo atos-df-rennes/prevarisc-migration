@@ -73,14 +73,18 @@ class UtilisateurType extends AbstractType
                 'choice_label' => 'libelle',
                 'required' => false,
                 'multiple' => true,
-                'placeholder' => 'Commissions',
+                'group_by' => function (Commission $choice) {
+                    return $choice->getType()->getLibelle();
+                },
             ])
             ->add('groupements', EntityType::class, [
                 'class' => Groupement::class,
                 'choice_label' => 'libelle',
                 'required' => false,
                 'multiple' => true,
-                'placeholder' => 'Groupements',
+                'group_by' => function (Groupement $choice) {
+                    return $choice->getType()->getLibelle();
+                },
             ])
         ;
     }
