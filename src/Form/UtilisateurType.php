@@ -86,7 +86,7 @@ class UtilisateurType extends AbstractType
                 'choice_label' => 'libelle',
                 'required' => false,
                 'multiple' => true,
-                'group_by' => function (Commission $choice) {
+                'group_by' => function (Commission $choice): ?string {
                     $typeCommission = $choice->getType();
 
                     if (null === $typeCommission) {
@@ -108,7 +108,7 @@ class UtilisateurType extends AbstractType
                         ->orderBy('gt.id, g.libelle')
                     ;
                 },
-                'group_by' => function (Groupement $choice) {
+                'group_by' => function (Groupement $choice): ?string {
                     $typeGroupement = $choice->getType();
 
                     if (null === $typeGroupement) {

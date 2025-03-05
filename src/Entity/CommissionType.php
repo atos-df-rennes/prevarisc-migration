@@ -79,11 +79,9 @@ class CommissionType
 
     public function removeCommission(Commission $commission): self
     {
-        if ($this->commissions->removeElement($commission)) {
-            // set the owning side to null (unless already changed)
-            if ($commission->getType() === $this) {
-                $commission->setType(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->commissions->removeElement($commission) && $commission->getType() === $this) {
+            $commission->setType(null);
         }
 
         return $this;

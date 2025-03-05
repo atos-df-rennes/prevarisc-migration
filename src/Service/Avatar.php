@@ -8,10 +8,15 @@ final class Avatar
     private $basePath;
 
     public const SMALL_DIRECTORY = 'small';
+
     public const SMALL_WIDTH = 25;
+
     public const MEDIUM_DIRECTORY = 'medium';
+
     public const MEDIUM_WIDTH = 150;
+
     public const LARGE_DIRECTORY = 'large';
+
     public const LARGE_WIDTH = 224;
 
     public function __construct(string $realDataPath)

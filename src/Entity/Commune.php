@@ -116,11 +116,9 @@ class Commune
 
     public function removeUtilisateur(Utilisateur $utilisateur): self
     {
-        if ($this->utilisateurs->removeElement($utilisateur)) {
-            // set the owning side to null (unless already changed)
-            if ($utilisateur->getCommune() === $this) {
-                $utilisateur->setCommune(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->utilisateurs->removeElement($utilisateur) && $utilisateur->getCommune() === $this) {
+            $utilisateur->setCommune(null);
         }
 
         return $this;

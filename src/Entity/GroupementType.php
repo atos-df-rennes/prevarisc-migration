@@ -78,11 +78,9 @@ class GroupementType
 
     public function removeGroupement(Groupement $groupement): self
     {
-        if ($this->groupements->removeElement($groupement)) {
-            // set the owning side to null (unless already changed)
-            if ($groupement->getType() === $this) {
-                $groupement->setType(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->groupements->removeElement($groupement) && $groupement->getType() === $this) {
+            $groupement->setType(null);
         }
 
         return $this;

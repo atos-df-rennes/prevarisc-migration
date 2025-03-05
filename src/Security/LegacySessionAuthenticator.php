@@ -40,11 +40,7 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request): bool
     {
-        if (null !== $request->getSession()->get('username')) {
-            return false;
-        }
-
-        return true;
+        return null === $request->getSession()->get('username');
     }
 
     /**
