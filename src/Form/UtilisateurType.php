@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Groupe;
 use App\Entity\Utilisateur;
@@ -65,6 +66,13 @@ class UtilisateurType extends AbstractType
                 'choice_label' => 'libelle',
                 'required' => false,
                 'placeholder' => 'Définir une commune ...',
+            ])
+            ->add('commissions', EntityType::class, [
+                'class' => Commission::class,
+                'choice_label' => 'libelle',
+                'required' => false,
+                'multiple' => true,
+                'placeholder' => 'Commissions',
             ])
         ;
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Role\Role;
@@ -136,6 +138,23 @@ class Utilisateur implements UserInterface
      * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=true)
      */
     private $commune;
+
+    /**
+     * @var Collection<int, Commission>
+     *
+     * @ORM\JoinTable(name="utilisateurcommission",
+     *   joinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Commission::class, inversedBy="utilisateurs")
+     */
+    private $commissions;
+
+    public function __construct()
+    {
+        $this->commissions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -374,6 +393,30 @@ class Utilisateur implements UserInterface
     public function setCommune(?Commune $commune): self
     {
         $this->commune = $commune;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commission>
+     */
+    public function getCommissions(): Collection
+    {
+        return $this->commissions;
+    }
+
+    public function addCommission(Commission $commission): self
+    {
+        if (!$this->commissions->contains($commission)) {
+            $this->commissions[] = $commission;
+        }
+
+        return $this;
+    }
+
+    public function removeCommission(Commission $commission): self
+    {
+        $this->commissions->removeElement($commission);
 
         return $this;
     }
