@@ -24,7 +24,7 @@ class Commission
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_COMMISSION", type="string", length=50)
+     * @ORM\Column(name="LIBELLE_COMMISSION", type="string", length=80)
      */
     private $libelle;
 

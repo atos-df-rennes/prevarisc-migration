@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Groupe;
+use App\Entity\Groupement;
 use App\Entity\Utilisateur;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -73,6 +74,13 @@ class UtilisateurType extends AbstractType
                 'required' => false,
                 'multiple' => true,
                 'placeholder' => 'Commissions',
+            ])
+            ->add('groupements', EntityType::class, [
+                'class' => Groupement::class,
+                'choice_label' => 'libelle',
+                'required' => false,
+                'multiple' => true,
+                'placeholder' => 'Groupements',
             ])
         ;
     }

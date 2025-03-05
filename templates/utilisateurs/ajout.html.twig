@@ -162,11 +162,19 @@
                 </dd>
             </div>
 
-            <div class="form-row">
+            <div class="form-group">
                 <dt>{{ form_label(form.commissions) }}</dt>
                 <dd>
                     <div class="col-md-6">{{ form_widget(form.commissions) }}</div>
                     <div class="col-xs-12">{{ form_errors(form.commissions) }}</div>
+                </dd>
+            </div>
+
+            <div>
+                <dt>{{ form_label(form.groupements) }}</dt>
+                <dd>
+                    <div class="col-md-6">{{ form_widget(form.groupements) }}</div>
+                    <div class="col-xs-12">{{ form_errors(form.groupements) }}</div>
                 </dd>
             </div>
         </dl>

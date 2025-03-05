@@ -151,9 +151,22 @@ class Utilisateur implements UserInterface
      */
     private $commissions;
 
+    /**
+     * @var Collection<int, Groupement>
+     *
+     * @ORM\JoinTable(name="utilisateurgroupement",
+     *   joinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Groupement::class, inversedBy="utilisateurs")
+     */
+    private $groupements;
+
     public function __construct()
     {
         $this->commissions = new ArrayCollection();
+        $this->groupements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -417,6 +430,30 @@ class Utilisateur implements UserInterface
     public function removeCommission(Commission $commission): self
     {
         $this->commissions->removeElement($commission);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groupement>
+     */
+    public function getGroupements(): Collection
+    {
+        return $this->groupements;
+    }
+
+    public function addGroupement(Groupement $groupement): self
+    {
+        if (!$this->groupements->contains($groupement)) {
+            $this->groupements[] = $groupement;
+        }
+
+        return $this;
+    }
+
+    public function removeGroupement(Groupement $groupement): self
+    {
+        $this->groupements->removeElement($groupement);
 
         return $this;
     }

@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\GroupementTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass=GroupementTypeRepository::class)
+ * @ORM\Table(name="groupementtype")
+ */
+class GroupementType
+{
+    /**
+     * @var int
+     *
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(name="ID_GROUPEMENTTYPE", type="bigint", options={"unsigned":true})
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="LIBELLE_GROUPEMENTTYPE", type="string", length=255)
+     */
+    private $libelle;
+
+    /**
+     * @var Collection<int, Groupement>
+     *
+     * @ORM\OneToMany(targetEntity=Groupement::class, mappedBy="type")
+     */
+    private $groupements;
+
+    public function __construct()
+    {
+        $this->groupements = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getLibelle(): ?string
+    {
+        return $this->libelle;
+    }
+
+    public function setLibelle(string $libelle): self
+    {
+        $this->libelle = $libelle;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groupement>
+     */
+    public function getGroupements(): Collection
+    {
+        return $this->groupements;
+    }
+
+    public function addGroupement(Groupement $groupement): self
+    {
+        if (!$this->groupements->contains($groupement)) {
+            $this->groupements[] = $groupement;
+            $groupement->setType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupement(Groupement $groupement): self
+    {
+        if ($this->groupements->removeElement($groupement)) {
+            // set the owning side to null (unless already changed)
+            if ($groupement->getType() === $this) {
+                $groupement->setType(null);
+            }
+        }
+
+        return $this;
+    }
+}
