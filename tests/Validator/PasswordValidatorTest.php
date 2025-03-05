@@ -33,7 +33,6 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
         $this->validator->validate($utilisateur, new Password());
 
         $this->assertNoViolation();
-        ;
     }
 
     /**
