@@ -37,3 +37,13 @@ services:
     App\Form\UtilisateurType:
         arguments:
             $enforceSecurity: '%app.enforce_security%'
+
+    App\Validator\PasswordValidator:
+        arguments:
+            $enforceSecurity: '%app.enforce_security%'
+
+    App\Service\Authentification:
+        arguments:
+            $casEnabled: '%app.cas_enabled%'
+            $ntlmEnabled: '%app.ntlm_enabled%'
+            $ldapEnabled: '%app.ldap_enabled%'

@@ -45,6 +45,7 @@ final class Version20250305100354 extends AbstractMigration
         $this->addSql('DROP INDEX fk_utilisateurgroupement_utilisateur1_idx ON utilisateurgroupement');
         $this->addSql('CREATE INDEX IDX_E5FBA563F6170F81 ON utilisateurgroupement (ID_UTILISATEUR)');
         $this->addSql('CREATE INDEX IDX_E5FBA563CD93FCB7 ON utilisateurgroupement (ID_GROUPEMENT)');
+        $this->addSql('ALTER TABLE utilisateur ADD sso TINYINT(1) DEFAULT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -76,5 +77,6 @@ final class Version20250305100354 extends AbstractMigration
         $this->addSql('DROP INDEX idx_e5fba563cd93fcb7 ON utilisateurgroupement');
         $this->addSql('DROP INDEX idx_e5fba563f6170f81 ON utilisateurgroupement');
         $this->addSql('CREATE INDEX fk_utilisateurgroupement_utilisateur1_idx ON utilisateurgroupement (ID_UTILISATEUR)');
+        $this->addSql('ALTER TABLE utilisateur DROP sso');
     }
 }

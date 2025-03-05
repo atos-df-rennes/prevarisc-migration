@@ -28,12 +28,16 @@
                 </dd>
             </div>
 
-            {# @todo: Ajouter les contraintes LDAP/NTLM/CAS/Password #}
             <div class="form-group">
                 <dt>{{ form_label(form.plainPassword) }}</dt>
                 <dd>
-                    <div class="col-md-3">{{ form_widget(form.plainPassword) }}</div>
-                    <div class="col-xs-12">{{ form_help(form.plainPassword) }}</div>
+                    <div id="password_input" class="col-md-3">{{ form_widget(form.plainPassword) }}</div>
+
+                    {% if form.sso is defined %}
+                        <div class="col-md-3 ml-3">{{ form_widget(form.sso) }}</div>
+                    {% endif %}
+
+                    <div id="password_instructions" class="col-xs-12">{{ form_help(form.plainPassword) }}</div>
                     <div class="col-xs-12">{{ form_errors(form.plainPassword) }}</div>
                 </dd>
             </div>
@@ -193,6 +197,18 @@
                 else {
                     $('#grade').hide();
                     $('#grade').find('input').val(null);
+                }
+            }).change();
+
+            $('#utilisateur_sso').change(function(e) {
+                if ($(this).attr('checked')) {
+                    $('#utilisateur_plainPassword').attr('required', false).val('')
+                    $('#password_input').hide();
+                    $('#password_instructions').hide();
+                } else {
+                    $('#utilisateur_plainPassword').attr('required', true)
+                    $('#password_input').show();
+                    $('#password_instructions').show();
                 }
             }).change();
         })

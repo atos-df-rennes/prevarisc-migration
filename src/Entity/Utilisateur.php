@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use App\Validator as PrevariscAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
  *
  * @UniqueEntity(fields="username", message="Nom d'utilisateur déjà enregistré. Veuillez en choisir un autre.")
+ *
+ * @PrevariscAssert\Password
  */
 class Utilisateur implements UserInterface
 {
@@ -34,7 +37,7 @@ class Utilisateur implements UserInterface
      *
      * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true)
      *
-     * @Assert\NotBlank
+     * @Assert\NotBlank(message="Le nom d'utilisateur ne doit pas être vide.")
      */
     private $username;
 
@@ -161,6 +164,13 @@ class Utilisateur implements UserInterface
      * @ORM\ManyToMany(targetEntity=Groupement::class, inversedBy="utilisateurs")
      */
     private $groupements;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $sso;
 
     public function __construct()
     {
@@ -453,6 +463,18 @@ class Utilisateur implements UserInterface
     public function removeGroupement(Groupement $groupement): self
     {
         $this->groupements->removeElement($groupement);
+
+        return $this;
+    }
+
+    public function getSso(): ?bool
+    {
+        return $this->sso;
+    }
+
+    public function setSso(?bool $sso): self
+    {
+        $this->sso = $sso;
 
         return $this;
     }

@@ -7,7 +7,7 @@ use App\Entity\Commune;
 use App\Entity\Groupe;
 use App\Entity\Groupement;
 use App\Entity\Utilisateur;
-use App\Validator\EnforcedSecurityPassword;
+use App\Service\Authentification;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -18,26 +18,23 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UtilisateurType extends AbstractType
 {
     /** @var bool */
     private $enforceSecurity;
 
-    public function __construct(bool $enforceSecurity)
+    /** @var Authentification */
+    private $authentification;
+
+    public function __construct(bool $enforceSecurity, Authentification $authentification)
     {
         $this->enforceSecurity = $enforceSecurity;
+        $this->authentification = $authentification;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $passwordConstraints = [new NotBlank()];
-
-        if ($this->enforceSecurity) {
-            $passwordConstraints[] = new EnforcedSecurityPassword();
-        }
-
         $builder
             // @todo: Mettre des validations sur cet upload ?
             ->add('photo', FileType::class, [
@@ -55,7 +52,6 @@ class UtilisateurType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Mot de passe',
                 ],
-                'constraints' => $passwordConstraints,
                 'help' => $this->enforceSecurity ? 'Le mot de passe doit contenir au moins 8 caractères dont 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial.' : null,
             ])
             ->add('groupe', EntityType::class, [
@@ -111,6 +107,13 @@ class UtilisateurType extends AbstractType
                 },
             ])
         ;
+
+        if ($this->authentification->ssoEnabled()) {
+            $builder->add('sso', CheckboxType::class, [
+                'label' => 'Connexion via LDAP/CAS/NTLM ?',
+                'required' => false,
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
