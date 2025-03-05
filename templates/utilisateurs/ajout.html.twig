@@ -33,6 +33,7 @@
                 <dt>{{ form_label(form.plainPassword) }}</dt>
                 <dd>
                     <div class="col-md-3">{{ form_widget(form.plainPassword) }}</div>
+                    <div class="col-xs-12">{{ form_help(form.plainPassword) }}</div>
                     <div class="col-xs-12">{{ form_errors(form.plainPassword) }}</div>
                 </dd>
             </div>
@@ -149,7 +150,6 @@
             </div>
         </dl>
 
-        {# @todo: Manque les domaines de compétences #}
         <h4>
             <label class="label-control">Domaines de compétences</label>
         </h4>

@@ -56,6 +56,7 @@ class UtilisateurType extends AbstractType
                     'placeholder' => 'Mot de passe',
                 ],
                 'constraints' => $passwordConstraints,
+                'help' => $this->enforceSecurity ? 'Le mot de passe doit contenir au moins 8 caractères dont 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial.' : null,
             ])
             ->add('groupe', EntityType::class, [
                 'class' => Groupe::class,
