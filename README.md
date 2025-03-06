@@ -8,9 +8,15 @@ Ceci est le dépôt de la nouvelle version technique de [Prevarisc](https://gith
 
 ## Table des matières
 
+- [Guide](#guide)
 - [Technologies utilisées](#technologies-utilisées)
 - [Installation](#installation)
+- [Exploitation](#exploitation)
 - [Licence](#licence)
+
+## Guide
+
+Consultez la [documentation dédiée](docs/guide.md).
 
 ## Technologies utilisées
 
@@ -39,11 +45,31 @@ $ cd prevarisc-migration
 ```sh
 $ composer install --prefer-source --no-dev --optimize-autoloader
 ```
-4. Jouer les migrations pour avoir un schéma de base de données à jour :
+4. Renseignez les variables d'environnement nécessaires :
+```
+SetEnv APP_ENV prod
+```
+```
+SetEnv APP_SECRET <chaine_de_caractere>
+
+(cf. pour générer un secret : http://nux.net/secret)
+```
+```
+SetEnv DATABASE_URL mysql://<user>:<password>@<host>:<port>/<database_name>?serverVersion=5.6&charset=utf8mb4
+
+(e.g. mysql://root:root@localhost:3306/PRV_prevarisc_v2?serverVersion=5.6&charset=utf8mb4)
+```
+(Optionnel, si valeur différente de l'exemple)
+```
+SetEnv PREVARISC_PATH /chemin/absolu/vers/Prevarisc
+
+(e.g. /home/prv/current/prevarisc)
+```
+5. Jouez les migrations pour avoir un schéma de base de données à jour :
 ```sh
 $ php bin/console doctrine:migrations:migrate
 ```
-5. Appliquez les permissions nécessaires :
+6. Appliquez les permissions nécessaires :
 ```sh
 $ chown –R www-data:www-data *
 $ chmod –R 555 *
@@ -85,6 +111,9 @@ Pour cela, configurer le VirtualHost comme suit :\
 </VirtualHost>
 ```
 
+## Exploitation
+
+Consultez la [documentation dédiée](docs/exploitation.md).
 
 ## Licence
 
