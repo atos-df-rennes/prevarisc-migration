@@ -1,0 +1,29 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des utilisateurs / Modifier un utilisateur{% endblock %}
+
+{% block body %}
+    {{ include('utilisateurs/_topbar.html.twig') }}
+
+    <h4>Modification de l'utilisateur {{ utilisateur.informations.prenom ~ ' ' ~ utilisateur.informations.nom }}</h4>
+
+    {{ include('utilisateurs/_form.html.twig', {form: form, userId: utilisateur.id, can_edit_password: true, can_unlock_ip: can_unlock_ip}) }}
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            const isPasswordDisabled = $('#utilisateur_plainPassword').prop('disabled')
+            if (isPasswordDisabled) {
+                $('#utilisateur_plainPassword').val('*****')
+            }
+
+            $('#change_passwd').click(function(e) {
+                $('#utilisateur_plainPassword').attr('disabled', false).val('').focus();
+                $('#password_instructions').show();
+            });
+
+            $('#unlock').click(function(e) {
+                $('#utilisateur_failedLoginAttempts').val(0);
+            });
+        })
+    </script>
+{% endblock %}

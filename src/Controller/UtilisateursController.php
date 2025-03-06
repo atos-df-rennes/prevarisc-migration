@@ -76,12 +76,67 @@ class UtilisateursController extends AbstractController
                     ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
             }
 
+            $this->addFlash('success', "L'utilisateur a bien été ajouté.");
+
             return $this->redirectToRoute('admin_utilisateurs_index');
         }
 
         return $this->render('utilisateurs/ajout.html.twig', [
             'form' => $form->createView(),
             'errors' => $form->getErrors(),
+        ]);
+    }
+
+    /**
+     * @Route("/{id}/modifier", name="edit")
+     */
+    public function modifier(Request $request, Avatar $avatar, Image $image, Utilisateur $utilisateur): Response
+    {
+        $form = $this->createForm(UtilisateurType::class, $utilisateur);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+
+            // On ne re-set pas le password s'il n'a pas été modifié
+            // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
+            if (null !== $utilisateur->getPlainPassword()) {
+                // @fixme: Utiliser l'encodage de Symfony + ré-encoder les mots de passe existants
+                $utilisateur->setPassword(md5($utilisateur->getUsername().$this->getParameter('app.security_salt').$utilisateur->getPlainPassword()));
+            } elseif (null !== $utilisateur->getPassword() && $utilisateur->getSso()) {
+                $utilisateur->setPassword(null);
+            }
+
+            $entityManager->persist($utilisateur);
+            $entityManager->flush();
+
+            $userId = $utilisateur->getId();
+
+            if (null === $userId) {
+                throw new \Exception("L'utilisateur n'a pas pu être modifié correctement.");
+            }
+
+            $photo = $form->get('photo')->getData();
+
+            if ($photo && $photo instanceof UploadedFile) {
+                $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
+                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $userId));
+                $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
+                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $userId));
+                $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
+                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
+            }
+
+            $this->addFlash('success', "L'utilisateur a bien été modifié.");
+
+            return $this->redirectToRoute('admin_utilisateurs_index');
+        }
+
+        return $this->render('utilisateurs/modification.html.twig', [
+            'form' => $form->createView(),
+            'errors' => $form->getErrors(),
+            'utilisateur' => $utilisateur,
+            'can_unlock_ip' => $this->getParameter('app.enforce_security') && $utilisateur->getFailedLoginAttempts() >= 2,
         ]);
     }
 }
