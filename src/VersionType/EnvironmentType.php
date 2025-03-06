@@ -5,6 +5,7 @@ namespace App\VersionType;
 use App\Builder\VersionBuilder;
 use App\Dto\GithubApi;
 use Composer\Semver\Comparator;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -16,10 +17,14 @@ final class EnvironmentType implements VersionType
     /** @var SerializerInterface */
     private $serializer;
 
-    public function __construct(HttpClientInterface $client, SerializerInterface $serializer)
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
     {
         $this->client = $client;
         $this->serializer = $serializer;
+        $this->logger = $logger;
     }
 
     public function version(): string
@@ -37,7 +42,14 @@ final class EnvironmentType implements VersionType
 
     public function isUpToDate(): bool
     {
-        $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/tags')->getContent();
+        try {
+            $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/tags')->getContent();
+        } catch (\Exception $exception) {
+            $this->logger->notice("La vérification des tags sur le dépôt n'a pas pu être effectuée : ".$exception->getMessage());
+
+            return true;
+        }
+
         $githubApiResponseToDto = $this->serializer->deserialize($githubApiResponse, GithubApi::class.'[]', 'json');
 
         $tagRefs = array_map(function ($tag) {
