@@ -99,14 +99,12 @@ class UtilisateursController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
 
             // On ne re-set pas le password s'il n'a pas été modifié
+            // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
             if (null !== $utilisateur->getPlainPassword()) {
                 // @fixme: Utiliser l'encodage de Symfony + ré-encoder les mots de passe existants
                 $utilisateur->setPassword(md5($utilisateur->getUsername().$this->getParameter('app.security_salt').$utilisateur->getPlainPassword()));
-            } else {
-                // Si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
-                if (null !== $utilisateur->getPassword() && $utilisateur->getSso()) {
-                    $utilisateur->setPassword(null);
-                }
+            } elseif (null !== $utilisateur->getPassword() && $utilisateur->getSso()) {
+                $utilisateur->setPassword(null);
             }
 
             $entityManager->persist($utilisateur);
