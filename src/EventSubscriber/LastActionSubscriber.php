@@ -22,7 +22,7 @@ class LastActionSubscriber implements EventSubscriberInterface
         $this->entityManager = $entityManager;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $utilisateur = $this->security->getUser();
 
