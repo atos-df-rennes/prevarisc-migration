@@ -35,7 +35,7 @@ final class PasswordValidator extends ConstraintValidator
 
         $password = $value->getPlainPassword();
 
-        if (null === $password || '' === $password) {
+        if ('' === $password) {
             $this->context
                 ->buildViolation($constraint->vide)
                 ->atPath('utilisateur.plainPassword')

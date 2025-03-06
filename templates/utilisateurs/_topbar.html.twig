@@ -2,6 +2,7 @@
 
 <ul class="nav nav-pills">
     <li {% if app.request.get('_route') is same as('admin_utilisateurs_index')
+            or app.request.get('_route') is same as('admin_utilisateurs_edit')
             or app.request.get('_route') is same as('admin_groupe_index')
             or app.request.get('_route') is same as('admin_groupe_edit')
         %}class="active"{% endif %}
