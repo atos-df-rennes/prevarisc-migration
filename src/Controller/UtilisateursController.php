@@ -138,6 +138,7 @@ class UtilisateursController extends AbstractController
             'form' => $form->createView(),
             'errors' => $form->getErrors(),
             'utilisateur' => $utilisateur,
+            'can_unlock_ip' => $this->getParameter('app.enforce_security') && $utilisateur->getFailedLoginAttempts() >= 2,
         ]);
     }
 }

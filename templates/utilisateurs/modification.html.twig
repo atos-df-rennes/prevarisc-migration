@@ -70,6 +70,11 @@
                 <dt>{{ form_label(form.failedLoginAttempts) }}</dt>
                 <dd>
                     <div class="col-md-1">{{ form_widget(form.failedLoginAttempts) }}</div>
+
+                    {% if can_unlock_ip %}
+                        <btn type="button" id="unlock" class="btn btn-link">Débloquer les connexions autres qu'avec l'IP ci-dessus.</btn>
+                    {% endif %}
+
                     <div class="col-xs-12">{{ form_errors(form.failedLoginAttempts) }}</div>
                 </dd>
             </div>
@@ -233,6 +238,10 @@
                     $('#password_instructions').show();
                 }
             }).change();
+
+            $('#unlock').click(function(e) {
+                $('#utilisateur_failedLoginAttempts').val(0);
+            });
 
             $(".chosen").chosen({
                 search_contains : true
