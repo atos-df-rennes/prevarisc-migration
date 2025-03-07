@@ -1,0 +1,8 @@
+<ul class="nav nav-tabs">
+    <li {% if app.request.get('_route') is same as('admin_groupe_manage_privileges') %}class="active"{% endif %}>
+        <a href="{{ path('admin_groupe_manage_privileges') }}">Matrice des droits</a>
+    </li>
+    <li class='pull-right'>
+        <a href="/users/ressources-specialisees">Gestion des ressources spécialisées</a>
+    </li>
+</ul>

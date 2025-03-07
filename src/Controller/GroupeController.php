@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Groupe;
+use App\Form\GroupePrivilegesType;
 use App\Form\GroupeType;
+use App\Form\PrivilegesType;
 use App\Repository\GroupeRepository;
+use App\Repository\PrivilegesRepository;
+use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,6 +61,18 @@ class GroupeController extends AbstractController
         return $this->render('groupe/ajout.html.twig', [
             'form' => $form->createView(),
             'errors' => $form->getErrors(),
+        ]);
+    }
+
+    /**
+     * @Route("/matrice-des-droits", name="manage_privileges")
+     */
+    public function matriceDesDroits(GroupeRepository $groupeRepository, ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository): Response
+    {
+        return $this->render('groupe/matrice_droits.html.twig', [
+            'groupes' => $groupeRepository->findAll(),
+            'resources' => $resourcesRepository->findAll(),
+            'privileges' => $privilegesRepository->findAll(),
         ]);
     }
 

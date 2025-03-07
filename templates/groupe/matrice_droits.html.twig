@@ -1,0 +1,44 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des groupes / Gérer les droits{% endblock %}
+
+{% block body %}
+    {{ include('utilisateurs/_topbar.html.twig') }}
+
+    {{ include('groupe/_menu_droits.html.twig') }}
+
+    <form method='post' action="{{ path('admin_groupe_manage_privileges') }}">
+        <div class="panel-group" id="accordion">
+            {% for groupe in groupes %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a data-toggle="collapse" data-parent="#accordion" href="{{ '#collapse' ~ groupe.id }}">
+                            {{ groupe.libelle }}
+                        </a>
+                    </div>
+                    <div id="{{ 'collapse' ~ groupe.id }}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table table-condensed table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Ressources</th>
+                                        <th>Privilèges</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for resource in resources %}
+                                        <tr>
+                                            <td>{{ resource.text }} ({{ resource.name }})</td>
+                                            <td></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </form>
+{% endblock %}

@@ -20,6 +20,7 @@
                 or app.request.get('_route') is same as('admin_groupe_index')
                 or app.request.get('_route') is same as('admin_groupe_add')
                 or app.request.get('_route') is same as('admin_groupe_edit')
+                or app.request.get('_route') is same as('admin_groupe_manage_privileges')
             %}class="active"{% endif %}
         >
             <a href="{{ path('admin_utilisateurs_index') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Gestion des utilisateurs</a>

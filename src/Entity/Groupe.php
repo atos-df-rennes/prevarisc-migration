@@ -55,7 +55,7 @@ class Groupe
      *   inverseJoinColumns={@ORM\JoinColumn(name="id_privilege", referencedColumnName="id_privilege", options={"unsigned":true})}
      * )
      *
-     * @ORM\ManyToMany(targetEntity=Privileges::class)
+     * @ORM\ManyToMany(targetEntity=Privileges::class, inversedBy="groupes")
      */
     private $privileges;
 
