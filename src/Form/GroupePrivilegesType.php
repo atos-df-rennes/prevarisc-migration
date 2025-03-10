@@ -17,28 +17,28 @@ class GroupePrivilegesType extends AbstractType
             ->add('privileges', EntityType::class, [
                 'class' => Privileges::class,
                 'label' => 'Privilèges',
-                'choice_attr' => function (Privileges $privileges) {
+                'choice_attr' => function (Privileges $privileges): ?array {
                     $resource = $privileges->getResource();
 
                     if (null === $resource) {
                         return null;
                     }
 
-                    return ['data-resource' => $resource->getText() . ' (' . $resource->getName() . ')'];
+                    return ['data-resource' => $resource->getText().' ('.$resource->getName().')'];
                 },
-                'choice_label' => function (Privileges $privilege) {
-                    return $privilege->getText() . ' (' . $privilege->getName() . ')';
+                'choice_label' => function (Privileges $privilege): string {
+                    return $privilege->getText().' ('.$privilege->getName().')';
                 },
                 'expanded' => true,
                 'multiple' => true,
-                'group_by' => function (Privileges $privilege) {
+                'group_by' => function (Privileges $privilege): ?string {
                     $resource = $privilege->getResource();
 
                     if (null === $resource) {
                         return null;
                     }
 
-                    return $resource->getText() . ' (' . $resource->getName() . ')';
+                    return $resource->getText().' ('.$resource->getName().')';
                 }
             ])
         ;
