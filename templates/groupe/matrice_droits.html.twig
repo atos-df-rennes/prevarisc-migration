@@ -1,0 +1,77 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% form_theme form _self %}
+
+{% block title %}Administration / Gestion des groupes / Gérer les droits{% endblock %}
+
+{% block body %}
+    {{ include('utilisateurs/_topbar.html.twig') }}
+
+    {{ include('groupe/_menu_droits.html.twig') }}
+
+    {{ form_start(form) }}
+        <div class="panel-group" id="accordion">
+            {% for groupe in form.groupes %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a data-toggle="collapse" data-parent="#accordion" href="{{ '#collapse' ~ groupe.vars.data.id }}">
+                            {{ groupe.vars.data.libelle }}
+                        </a>
+                    </div>
+
+                    <div id="{{ 'collapse' ~ groupe.vars.data.id }}" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            {{ form_widget(groupe.privileges) }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <input type='submit' value='Sauvegarder' class='btn btn-success' />
+    {{ form_end(form) }}
+
+    {% block choice_widget_expanded -%}
+        {% set resource = null %}
+
+        {# Si on est bien dans un groupe #}
+        {% if label_attr is defined %}
+            <table class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Ressources</th>
+                        <th>Privilèges</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {# Pour chaque privilège #}
+                    {%- for child in form %}
+                        {% if child.vars.attr %}
+                            {# Si la ressource n'a pas la même que le privilège précédent, on crée une nouvelle ligne #}
+                            {% if child.vars.attr['data-resource'] is not same as(resource) %}
+                                {% set resource = child.vars.attr['data-resource'] %}
+
+                                {# On ferme les balises si ce n'est pas le premier privilège #}
+                                {% if not loop.first %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                    <td>{{ resource }}</td>
+                                    <td>
+                            {% endif %}
+                        {% endif %}
+
+                        {{- form_widget(child, {
+                            parent_label_class: label_attr.class|default(''),
+                        }) -}}
+                    {%- endfor -%}
+                        {# On ferme les balises pour le dernier privilège #}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endif %}
+    {%- endblock choice_widget_expanded %}
+{% endblock %}

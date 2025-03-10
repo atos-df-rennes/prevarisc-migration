@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Groupe;
 use App\Form\GroupeType;
+use App\Form\MatriceDesDroitsType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -57,6 +58,35 @@ class GroupeController extends AbstractController
         return $this->render('groupe/ajout.html.twig', [
             'form' => $form->createView(),
             'errors' => $form->getErrors(),
+        ]);
+    }
+
+    /**
+     * @Route("/matrice-des-droits", name="manage_privileges")
+     */
+    public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
+    {
+        $groupes = $groupeRepository->findAll();
+
+        $form = $this->createForm(MatriceDesDroitsType::class, ['groupes' => $groupes]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+
+            foreach ($groupes as $groupe) {
+                $entityManager->persist($groupe);
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
+
+            return $this->redirectToRoute('admin_groupe_manage_privileges');
+        }
+
+        return $this->render('groupe/matrice_droits.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 

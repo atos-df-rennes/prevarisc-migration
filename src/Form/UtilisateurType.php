@@ -90,7 +90,7 @@ class UtilisateurType extends AbstractType
                     $typeCommission = $choice->getType();
 
                     if (null === $typeCommission) {
-                        return '';
+                        return null;
                     }
 
                     return $typeCommission->getLibelle();
@@ -112,7 +112,7 @@ class UtilisateurType extends AbstractType
                     $typeGroupement = $choice->getType();
 
                     if (null === $typeGroupement) {
-                        return '';
+                        return null;
                     }
 
                     return $typeGroupement->getLibelle();
