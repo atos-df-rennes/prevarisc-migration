@@ -41,6 +41,9 @@ final class Changement {
         ],
     ];
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     public function getBalises(): array
     {
         return self::BALISES;
