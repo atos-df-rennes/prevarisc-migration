@@ -13,7 +13,7 @@ class ChangementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('message', TextAreaType::class, [
+            ->add('message', TextareaType::class, [
                 'label' => false,
                 'required' => false,
                 'attr' => ['class' => 'tinyarea'],

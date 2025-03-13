@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-final class Changement {
+final class Changement
+{
     public const BALISES = [
         '{activitePrincipaleEtablissement}' => [
             'description' => "L'activité principale de l'établissement",

@@ -14,7 +14,9 @@ class Changement
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_CHANGEMENT", type="integer", options={"unsigned":true})
      */
     private $id;
