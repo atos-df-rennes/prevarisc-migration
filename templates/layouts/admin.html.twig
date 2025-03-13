@@ -11,7 +11,7 @@
         <li class="nav-header">Gestion des entités</li>
 
         <li {% if app.request.get('_route') is same as('retablir') %}class="active"{% endif %}>
-            <a href='/retablir' ><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Gestion des éléments supprimés</a>
+            <a href='/retablir'><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Gestion des éléments supprimés</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('admin_utilisateurs_index')
@@ -27,49 +27,49 @@
         </li>
 
         <li {% if app.request.get('_route') is same as('gestion-des-communes') %}class="active"{% endif %}>
-            <a href='/gestion-des-communes' ><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Gestion des communes</a>
+            <a href='/gestion-des-communes'><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Gestion des communes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('fusion-des-communes') %}class="active"{% endif %}>
-            <a href='/fusion-des-communes' ><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Fusion des communes</a>
+            <a href='/fusion-des-communes'><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Fusion des communes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('couches-cartographiques') %}class="active"{% endif %}>
-            <a href='/couches-cartographiques/list' ><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Gestion des couches cartographiques</a>
+            <a href='/couches-cartographiques/list'><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Gestion des couches cartographiques</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('gestion-des-commissions') %}class="active"{% endif %}>
-            <a href='/gestion-des-commissions' ><span class="glyphicon glyphicon-certificate" aria-hidden="true"></span> Gestion des commissions</a>
+            <a href='/gestion-des-commissions'><span class="glyphicon glyphicon-certificate" aria-hidden="true"></span> Gestion des commissions</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('gestion-des-documents') %}class="active"{% endif %}>
-            <a href='/gestion-des-documents' ><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Gestion des documents</a>
+            <a href='/gestion-des-documents'><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Gestion des documents</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('gestion-prescriptions') %}class="active"{% endif %}>
-            <a href='/gestion-prescriptions' ><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Gestion des prescriptions</a>
+            <a href='/gestion-prescriptions'><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Gestion des prescriptions</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('gestion-textes-applicables') %}class="active"{% endif %}>
-            <a href='/gestion-textes-applicables' ><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
+            <a href='/gestion-textes-applicables'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
         </li>
 
         <li class="nav-header">Paramétrage du logiciel</li>
 
         <li {% if app.request.get('_route') is same as('tableau-des-periodicites') %}class="active"{% endif %}>
-            <a href='/tableau-des-periodicites' ><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Tableau des périodicités</a>
+            <a href='/tableau-des-periodicites'><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Tableau des périodicités</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('groupement') %}class="active"{% endif %}>
-            <a href='/groupement' ><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
+            <a href='/groupement'><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('changement') %}class="active"{% endif %}>
-            <a href='/changement' ><span class="glyphicon glyphicon-bell" aria-hidden="true"></span> Messages des alertes</a>
+        <li {% if app.request.get('_route') is same as('admin_changement') %}class="active"{% endif %}>
+            <a href="{{ path('admin_changement') }}"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span> Messages des alertes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('formulaire') %}class="active"{% endif %}>
-            <a href='/formulaire' ><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Formulaires</a>
+            <a href='/formulaire'><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Formulaires</a>
         </li>
     </ul>
 {% endblock %}
