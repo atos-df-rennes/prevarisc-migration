@@ -3,19 +3,9 @@
 {% block title %}Administration / Gestion des messages d'alerte{% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('js/tinymce.min.js') }}"></script>
-
     {{ parent() }}
-{% endblock %}
 
-{% block body %}
-    {{ form_start(form) }}
-        {% for message in form.messages %}
-            <h3>Message de {{ message.vars.data.libelle|lower }}</h3>
-
-            {{ form_row(message) }}
-        {% endfor %}
-    {{ form_end(form) }}
+    <script src="{{ asset('js/tinymce.min.js') }}"></script>
 
     <script type='text/javascript'>
       tinymce.init({
@@ -36,44 +26,50 @@
         ]
       });
 
-      // $(document).ready(function() {
-      //   $(".see-balises").click(function() {
-      //     var idEts = "<?php echo $this->etablissement['general']['ID_ETABLISSEMENT'] ?>";
-      //     var changement = $(this).attr("data-value");
-      //     var dialogAlerte = $('<div style="display:none;"></div>').appendTo('body');
-      //
-      //     dialogAlerte.dialog({
-      //       title: "Liste des balises disponibles",
-      //       modal: true,
-      //       autoOpen: false,
-      //       width: 600,
-      //       height: 'auto',
-      //       buttons: [
-      //         {
-      //           text: 'Fermer',
-      //           class: 'btn',
-      //           click: function() {
-      //             dialogAlerte.html("");
-      //             dialogAlerte.dialog("close");
-      //           }
-      //         }
-      //       ],
-      //       close: function(event, ui){
-      //         dialogAlerte.html("");
-      //         dialogAlerte.dialog("close");
-      //       }
-      //     });
-      //     $.ajax({
-      //       type: "POST",
-      //       url: "/changement/balises",
-      //       data: { "id_etablissement": idEts, "changement": changement },
-      //       success: function(msg){
-      //         dialogAlerte.html(msg);
-      //         dialogAlerte.dialog("open");
-      //       },
-      //     });
-      //     return false;
-      //   });
-      // });
+      $(document).ready(function() {
+        $(".see-balises").click(function() {
+          $.ajax({
+            type: "GET",
+            url: "/changement/balises",
+            success: function(msg){
+              $('#liste-balises .modal-body').html(msg);
+            },
+          });
+        });
+      });
     </script>
+{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {% for message in form.messages %}
+            <h3>Message de {{ message.vars.data.libelle|lower }}</h3>
+
+            {{ form_row(message) }}
+        {% endfor %}
+
+        <div class='pull-right'>
+            <button type='button' class="btn btn-default see-balises" data-toggle="modal" data-target="#liste-balises">Voir les balises disponibles</button>
+            <input type='submit' class="btn btn-success" value="Modifier les messages">
+        </div>
+    {{ form_end(form) }}
+
+    <div id="liste-balises" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3 class="modal-title">Liste des balises disponibles</h3>
+                </div>
+
+                <div class="modal-body"></div>
+
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" class="btn btn-default">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
