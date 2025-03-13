@@ -1,0 +1,20 @@
+<table class="table-balises">
+    <tr>
+        <th>
+            Balise
+        </th>
+        <th>
+            Description
+        </th>
+    </tr>
+    {% for balise, contenu in balises %}
+        <tr>
+            <td class="td-balise">
+                {{ balise }}
+            </td>
+            <td>
+                {{ contenu.description }}
+            </td>
+        </tr>
+    {% endfor %}
+</table>

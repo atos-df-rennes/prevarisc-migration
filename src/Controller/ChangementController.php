@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Form\MessagesAlerteType;
 use App\Repository\ChangementRepository;
+use App\Service\Changement;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +42,16 @@ class ChangementController extends AbstractController
 
         return $this->render('changement/index.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/changement/balises", name="changement_balises")
+     */
+    public function balises(Changement $changement): Response
+    {
+        return $this->render('changement/balises.html.twig', [
+            'balises' => $changement->getBalises(),
         ]);
     }
 }
