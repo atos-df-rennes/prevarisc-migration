@@ -24,7 +24,8 @@ class DocumentsController extends AbstractController
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger) {
+    public function __construct(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -83,6 +84,17 @@ class DocumentsController extends AbstractController
         ];
 
         foreach ($commissions as $commission) {
+            if (
+                null === $commission->getId()
+                || null === $commission->getLibelle()
+                || null === $commission->getType()
+                || null === $commission->getType()->getLibelle()
+            ) {
+                $this->logger->error("La commission n'a pas été trouvée.");
+
+                continue;
+            }
+
             $commissionsAsArray[] = new FormDocument($commission->getId(), $commission->getLibelle(), $commission->getType()->getLibelle());
         }
 
@@ -104,7 +116,7 @@ class DocumentsController extends AbstractController
             }
 
             try {
-                $fichier->move($documentsRealDataPath . $commission->id(), $fichier->getClientOriginalName());
+                $fichier->move($documentsRealDataPath.$commission->id(), $fichier->getClientOriginalName());
             } catch (FileException $fileException) {
                 $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
 
@@ -113,7 +125,7 @@ class DocumentsController extends AbstractController
 
             $this->addFlash('success', 'Le document a bien été ajouté.');
 
-            return $this->redirectToRoute("admin_documents");
+            return $this->redirectToRoute('admin_documents');
         }
 
         return $this->render('documents/ajout.html.twig', [

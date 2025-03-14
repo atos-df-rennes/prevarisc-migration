@@ -18,13 +18,13 @@ class DocumentType extends AbstractType
         $builder
             ->add('commission', ChoiceType::class, [
                 'choices' => $builder->getData(),
-                'choice_label' => function (FormDocument $commission) {
+                'choice_label' => function (FormDocument $commission): string {
                     return $commission->nom();
                 },
                 'choice_value' => function (?FormDocument $commission) {
-                    return $commission ? $commission->id() : '';
+                    return null !== $commission ? $commission->id() : '';
                 },
-                'group_by' => function (FormDocument $commission) {
+                'group_by' => function (FormDocument $commission): ?string {
                     return $commission->type();
                 }
             ])
