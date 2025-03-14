@@ -13,13 +13,10 @@ final class Documents
     /** @var string */
     private $realDataPath;
 
-    /** @var string */
-    private $path = DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'documents'.DIRECTORY_SEPARATOR;
-
-    public function __construct(string $dataPath, string $realDataPath)
+    public function __construct(string $documentsDataPath, string $documentsRealDataPath)
     {
-        $this->dataPath = $dataPath.$this->path;
-        $this->realDataPath = $realDataPath.$this->path;
+        $this->dataPath = $documentsDataPath;
+        $this->realDataPath = $documentsRealDataPath;
     }
 
     /**

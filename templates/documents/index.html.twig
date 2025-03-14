@@ -2,7 +2,26 @@
 
 {% block title %}Administration / Gestion des documents{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".ajouter-document").click(function() {
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/documents/ajouter",
+                    success: function(msg){
+                        $('#ajout-document .modal-body').html(msg);
+                    },
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block body %}
+    <button type="button" class="btn btn-default pull-right ajouter-document" data-toggle="modal" data-target="#ajout-document">Ajouter un document</button>
     <h3 class='page-header'>Gestion des documents</h3>
 
     <h4>Visbles après verrouillage <span class="badge">{{ visibles_apres_verrouillage|length }}</span></h4>
@@ -42,7 +61,7 @@
 
             {% if informations_commission.documents is not null %}
                 {% if informations_commission.documents|length > 0 %}
-                    <table id="file_0" class="table table-bordered">
+                    <table id="{{ 'file_' ~ id_commission }}" class="table table-bordered">
                         <thead>
                         <tr>
                             <th>Nom du fichier</th>
@@ -67,4 +86,6 @@
             {% endif %}
         </div>
     {% endfor %}
+
+    {{ include('documents/_modal_ajout.html.twig') }}
 {% endblock %}
