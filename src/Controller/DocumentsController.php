@@ -9,6 +9,8 @@ use App\Service\Documents;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -144,5 +146,28 @@ class DocumentsController extends AbstractController
         return $this->render('documents/ajout.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/admin/documents/supprimer", name="admin_documents_delete")
+     */
+    public function supprimer(Request $request, Filesystem $filesystem, string $documentsRealDataPath): Response
+    {
+        $nomFichier = filter_var($request->request->get('nomFichier'), FILTER_SANITIZE_STRING);
+        $idCommission = filter_var($request->request->get('idCommission'), FILTER_VALIDATE_INT);
+
+        try {
+            $filesystem->remove($documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier);
+        } catch (IOException $ioException) {
+            $this->logger->error($ioException->getMessage());
+
+            $this->addFlash('danger', 'Erreur lors de la suppression du document.');
+
+            $this->json([], 500);
+        }
+
+        $this->addFlash('success', 'Le document a bien été supprimé.');
+
+        return $this->json([]);
     }
 }
