@@ -26,10 +26,10 @@ class DocumentsController extends AbstractController
 
         foreach ($commissions as $commission) {
             if (
-                $commission->getId() === null
-                || $commission->getLibelle() === null
-                || $commission->getType() === null
-                || $commission->getType()->getLibelle() === null
+                null === $commission->getId()
+                || null === $commission->getLibelle()
+                || null === $commission->getType()
+                || null === $commission->getType()->getLibelle()
             ) {
                 $logger->error("La commission n'a pas été trouvée.");
 

@@ -5,7 +5,8 @@ namespace App\Service;
 use App\Dto\Document;
 use Symfony\Component\Finder\Finder;
 
-final class Documents {
+final class Documents
+{
     /** @var string */
     private $dataPath;
 
@@ -15,7 +16,8 @@ final class Documents {
     /** @var string */
     private $path = DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'documents'.DIRECTORY_SEPARATOR;
 
-    public function __construct(string $dataPath, string $realDataPath) {
+    public function __construct(string $dataPath, string $realDataPath)
+    {
         $this->dataPath = $dataPath.$this->path;
         $this->realDataPath = $realDataPath.$this->path;
     }
@@ -30,7 +32,7 @@ final class Documents {
 
         $finder
             ->files()
-            ->in($this->realDataPath . $idCommission)
+            ->in($this->realDataPath.$idCommission)
             ->ignoreVCS(true)
             ->sortByName();
 
