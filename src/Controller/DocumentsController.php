@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -103,27 +104,39 @@ class DocumentsController extends AbstractController
         ]);
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $commission = $form->get('commission')->getData();
-            $fichier = $form->get('file')->getData();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $commission = $form->get('commission')->getData();
+                $fichier = $form->get('file')->getData();
 
-            if (!$commission instanceof FormDocument) {
-                throw new \Exception("La commission n'est pas correcte.");
+                if (!$commission instanceof FormDocument) {
+                    throw new \Exception("La commission n'est pas correcte.");
+                }
+
+                if (!$fichier instanceof UploadedFile) {
+                    throw new \Exception("Le fichier n'est pas correct.");
+                }
+
+                try {
+                    $fichier->move($documentsRealDataPath.$commission->id(), $fichier->getClientOriginalName());
+                } catch (FileException $fileException) {
+                    $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
+
+                    $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                }
+
+                $this->addFlash('success', 'Le document a bien été ajouté.');
+
+                return $this->redirectToRoute('admin_documents');
             }
 
-            if (!$fichier instanceof UploadedFile) {
-                throw new \Exception("Le fichier n'est pas correct.");
+            foreach ($form->getErrors(true) as $error) {
+                if (!$error instanceof FormError) {
+                    continue;
+                }
+
+                $this->addFlash('danger', $error->getMessage());
             }
-
-            try {
-                $fichier->move($documentsRealDataPath.$commission->id(), $fichier->getClientOriginalName());
-            } catch (FileException $fileException) {
-                $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
-
-                $this->addFlash('danger', "Erreur lors de l'ajout du document.");
-            }
-
-            $this->addFlash('success', 'Le document a bien été ajouté.');
 
             return $this->redirectToRoute('admin_documents');
         }

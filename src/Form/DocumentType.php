@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class DocumentType extends AbstractType
 {
@@ -30,6 +31,14 @@ class DocumentType extends AbstractType
             ])
             ->add('file', FileType::class, [
                 'label' => 'Fichier à envoyer',
+                'constraints' => [
+                    new File([
+                        'mimeTypes' => [
+                            'application/vnd.oasis.opendocument.text',
+                        ],
+                        'mimeTypesMessage' => "Le document n'est pas un document ODT.",
+                    ])
+                ],
             ])
             ->add('close', ButtonType::class, [
                 'label' => 'Fermer',

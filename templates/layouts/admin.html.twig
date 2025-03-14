@@ -42,8 +42,8 @@
             <a href='/gestion-des-commissions'><span class="glyphicon glyphicon-certificate" aria-hidden="true"></span> Gestion des commissions</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('gestion-des-documents') %}class="active"{% endif %}>
-            <a href='/gestion-des-documents'><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Gestion des documents</a>
+        <li {% if app.request.get('_route') is same as('admin_documents') %}class="active"{% endif %}>
+            <a href="{{ path('admin_documents') }}"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Gestion des documents</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('gestion-prescriptions') %}class="active"{% endif %}>
