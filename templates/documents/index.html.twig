@@ -5,10 +5,10 @@
 {% block body %}
     <h3 class='page-header'>Gestion des documents</h3>
 
-    <h4>Visibles après verrouillage <span class="badge">{{ visiblesApresVerrouillage|length }}</span></h4>
+    <h4>Visbles après verrouillage <span class="badge">{{ visibles_apres_verrouillage|length }}</span></h4>
     <div class="col-xs-12">
-        {% if visiblesApresVerrouillage|length > 0 %}
-            <table id='file_0' class='table table-bordered' >
+        {% if visibles_apres_verrouillage|length > 0 %}
+            <table id="file_0" class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Nom du fichier</th>
@@ -16,10 +16,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for name, path in visiblesApresVerrouillage %}
+                    {% for document in visibles_apres_verrouillage %}
                         <tr>
-                            <td><a href="{{ path }}">{{ name }}</a></td>
-                            <td><button type="button" class='btn btn-link btn-xs supp' id="{{ name }}" data-toggle="modal" data-target="#dialog-supp">Suppression du document</button></td>
+                            <td><a href="{{ document.filepath }}">{{ document.filename }}</a></td>
+                            <td><button type="button" class="btn btn-link btn-xs supp" id="{{ document.filename }}" data-toggle="modal" data-target="#dialog-supp">Suppression du document</button></td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -28,4 +28,43 @@
             <p>Aucun fichier.</p>
         {% endif %}
     </div>
+
+    {% set type_commission = null %}
+    {% for id_commission, informations_commission in commissions %}
+        {% if informations_commission.type is not same as(type_commission) %}
+            <h4>{{ informations_commission.type }}</h4>
+
+            {% set type_commission = informations_commission.type %}
+        {% endif %}
+
+        <div class="col-xs-12">
+            <h5>{{ informations_commission.nom }} {% if informations_commission.documents is not null %}<span class="badge">{{ informations_commission.documents|length }}</span>{% endif %}</h5>
+
+            {% if informations_commission.documents is not null %}
+                {% if informations_commission.documents|length > 0 %}
+                    <table id="file_0" class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Nom du fichier</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for document in informations_commission.documents %}
+                            <tr>
+                                <td><a href="{{ document.filepath }}">{{ document.filename }}</a></td>
+                                <td><button type="button" class="btn btn-link btn-xs supp" id="{{ document.filename }}" data-toggle="modal" data-target="#dialog-supp">Suppression du document</button></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <strong>Erreur d'accès !</strong> Le répertoire de cette commission n'existe pas ou n'est pas accessible.
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
 {% endblock %}

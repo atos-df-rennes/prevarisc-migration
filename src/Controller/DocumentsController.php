@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Repository\CommissionRepository;
+use App\Service\Documents;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -16,27 +19,43 @@ class DocumentsController extends AbstractController
     /**
      * @Route("/admin/documents", name="admin_documents")
      */
-    public function index(string $dataPath, string $realDataPath): Response
+    public function index(Documents $documents, CommissionRepository $commissionRepository, LoggerInterface $logger): Response
     {
-        $finder = new Finder();
+        $commissions = $commissionRepository->findAll();
+        $commissionsAsArray = [];
 
-        $visiblesApresVerrouillage = [];
+        foreach ($commissions as $commission) {
+            if (
+                $commission->getId() === null
+                || $commission->getLibelle() === null
+                || $commission->getType() === null
+                || $commission->getType()->getLibelle() === null
+            ) {
+                $logger->error("La commission n'a pas été trouvée.");
 
-        $finder
-            ->files()
-            ->in($realDataPath.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'documents'.DIRECTORY_SEPARATOR.'0')
-            ->ignoreVCS(true)
-            ->sortByName()
-        ;
+                continue;
+            }
 
-        if ($finder->hasResults()) {
-            foreach ($finder as $file) {
-                $visiblesApresVerrouillage[$file->getFilename()] = $dataPath.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'documents'.DIRECTORY_SEPARATOR.'0'.DIRECTORY_SEPARATOR.$file->getFilename();
+            try {
+                $commissionsAsArray[$commission->getId()] = [
+                    'nom' => $commission->getLibelle(),
+                    'type' => $commission->getType()->getLibelle(),
+                    'documents' => $documents->findForCommission($commission->getId())
+                ];
+            } catch (DirectoryNotFoundException $directoryNotFoundException) {
+                $logger->error($directoryNotFoundException->getMessage());
+
+                $commissionsAsArray[$commission->getId()] = [
+                    'nom' => $commission->getLibelle(),
+                    'type' => $commission->getType()->getLibelle(),
+                    'documents' => null,
+                ];
             }
         }
 
         return $this->render('documents/index.html.twig', [
-            'visiblesApresVerrouillage' => $visiblesApresVerrouillage,
+            'visibles_apres_verrouillage' => $documents->findForCommission(0),
+            'commissions' => $commissionsAsArray,
         ]);
     }
 }
