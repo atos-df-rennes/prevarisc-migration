@@ -11,6 +11,7 @@ thead {
     position: sticky;
     top: 0;
     background-color: lightgrey;
+    z-index: 1;
 }
 
 .deleted-element__name {
