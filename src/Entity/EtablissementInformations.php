@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=EtablissementInformationsRepository::class)
+ *
  * @ORM\Table(name="etablissementinformations")
  */
 class EtablissementInformations
@@ -15,7 +16,9 @@ class EtablissementInformations
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONS", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -38,6 +41,7 @@ class EtablissementInformations
      * @var ?Etablissement
      *
      * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="informations")
+     *
      * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
      */
     private $etablissement;

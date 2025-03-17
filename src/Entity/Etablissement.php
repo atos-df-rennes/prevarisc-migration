@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=EtablissementRepository::class)
+ *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_ETABLISSEMENT"})})
  */
 class Etablissement
@@ -16,7 +17,9 @@ class Etablissement
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_ETABLISSEMENT", type="bigint", options={"unsigned":true})
      */
     private $id;

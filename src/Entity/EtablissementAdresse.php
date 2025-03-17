@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=EtablissementAdresseRepository::class)
+ *
  * @ORM\Table(name="etablissementadresse")
  */
 class EtablissementAdresse
@@ -15,7 +16,9 @@ class EtablissementAdresse
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_ADRESSE", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -52,6 +55,7 @@ class EtablissementAdresse
      * @var Etablissement
      *
      * @ORM\OneToOne(targetEntity=Etablissement::class, cascade={"persist", "remove"}, inversedBy="adresse")
+     *
      * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
      */
     private $etablissement;
@@ -60,6 +64,7 @@ class EtablissementAdresse
      * @var ?Commune
      *
      * @ORM\ManyToOne(targetEntity=Commune::class)
+     *
      * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=false, options={"fixed":true})
      */
     private $commune;
