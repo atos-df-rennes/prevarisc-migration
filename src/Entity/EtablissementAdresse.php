@@ -21,28 +21,28 @@ class EtablissementAdresse
     private $id;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="NUMERO_ADRESSE", type="string", length=255, nullable=true)
      */
     private $numero;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="COMPLEMENT_ADRESSE", type="string", length=255, nullable=true)
      */
     private $complement;
 
     /**
-     * @var float
+     * @var ?float
      *
      * @ORM\Column(name="LON_ETABLISSEMENTADRESSE", type="float", nullable=true)
      */
     private $longitude;
 
     /**
-     * @var float
+     * @var ?float
      *
      * @ORM\Column(name="LAT_ETABLISSEMENTADRESSE", type="float", nullable=true)
      */
@@ -57,6 +57,8 @@ class EtablissementAdresse
     private $etablissement;
 
     /**
+     * @var ?Commune
+     *
      * @ORM\ManyToOne(targetEntity=Commune::class)
      * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=false, options={"fixed":true})
      */

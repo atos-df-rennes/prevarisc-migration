@@ -35,7 +35,7 @@ class EtablissementInformations
     private $date;
 
     /**
-     * @var Etablissement
+     * @var ?Etablissement
      *
      * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="informations")
      * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
