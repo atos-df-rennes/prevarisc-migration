@@ -14,14 +14,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/admin/groupe", name="admin_groupe_", requirements={"id"="\d+"})
+ * @Route(requirements={"id"="\d+"})
  *
  * @IsGranted("admin")
  */
 class GroupeController extends AbstractController
 {
     /**
-     * @Route("/{id}/utilisateurs", name="index")
+     * @Route("/admin/groupe/{id}/utilisateurs", name="admin_groupe_index")
      */
     public function index(Groupe $groupe, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository): Response
     {
@@ -36,7 +36,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/ajouter", name="add")
+     * @Route("/admin/groupe/ajouter", name="admin_groupe_add")
      */
     public function ajouter(Request $request): Response
     {
@@ -62,7 +62,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/matrice-des-droits", name="manage_privileges")
+     * @Route("/admin/groupe/matrice-des-droits", name="admin_groupe_manage_privileges")
      */
     public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
     {
@@ -91,7 +91,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/modifier", name="edit")
+     * @Route("/admin/groupe/{id}/modifier", name="admin_groupe_edit")
      */
     public function modifier(Request $request, Groupe $groupe): Response
     {
@@ -115,7 +115,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/supprimer", name="delete")
+     * @Route("/admin/groupe/{id}/supprimer", name="admin_groupe_delete")
      */
     public function supprimer(Groupe $groupe, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
     {

@@ -17,14 +17,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/admin/utilisateurs", name="admin_utilisateurs_")
+ * @Route(requirements={"id"="\d+"})
  *
  * @IsGranted("admin")
  */
 class UtilisateursController extends AbstractController
 {
     /**
-     * @Route("/", name="index")
+     * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
      */
     public function utilisateurs(UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
     {
@@ -37,7 +37,7 @@ class UtilisateursController extends AbstractController
     }
 
     /**
-     * @Route("/ajouter", name="add")
+     * @Route("/admin/utilisateurs/ajouter", name="admin_utilisateurs_add")
      */
     public function ajouter(Request $request, Avatar $avatar, Image $image): Response
     {
@@ -88,7 +88,7 @@ class UtilisateursController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/modifier", name="edit")
+     * @Route("/admin/utilisateurs/{id}/modifier", name="admin_utilisateurs_edit")
      */
     public function modifier(Request $request, Avatar $avatar, Image $image, Utilisateur $utilisateur): Response
     {

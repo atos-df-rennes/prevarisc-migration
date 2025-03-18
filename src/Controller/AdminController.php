@@ -12,14 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/admin", name="admin_")
- *
  * @IsGranted("admin")
  */
 class AdminController extends AbstractController
 {
     /**
-     * @Route("/", name="index")
+     * @Route("/admin/", name="admin_index")
      */
     public function index(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder): Response
     {
