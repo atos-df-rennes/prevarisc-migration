@@ -18,7 +18,9 @@ class Dossier
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_DOSSIER", type="bigint")
      */
     private $id;
@@ -50,6 +52,7 @@ class Dossier
      * @var DossierType
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
+     *
      * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false)
      */
     private $type;

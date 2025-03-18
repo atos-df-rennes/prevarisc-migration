@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DossierNatureListeRepository::class)
+ *
  * @ORM\Table(name="dossiernatureliste")
  */
 class DossierNatureListe
@@ -15,7 +16,9 @@ class DossierNatureListe
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_DOSSIERNATURE", type="bigint")
      */
     private $id;
@@ -31,6 +34,7 @@ class DossierNatureListe
      * @var DossierType
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
+     *
      * @ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", nullable=false)
      */
     private $type;
