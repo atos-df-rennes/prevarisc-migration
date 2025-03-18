@@ -14,8 +14,8 @@
                 <td class="whitespace-nowrap">
                     <div class="deleted-element__deleted-by">
                         <div class="deleted-element__deleted-by_informations">
-                            {{ etablissement.deletedBy.username }}
-                            {{ avatar(etablissement.deletedBy.id, constant('App\\Service\\Avatar::SMALL_DIRECTORY'), 'border-radius: 50%;') }}
+                            {{ etablissement.deletedBy.username|default('Inconnu') }}
+                            {{ avatar(etablissement.deletedBy.id|default(null), constant('App\\Service\\Avatar::SMALL_DIRECTORY'), 'border-radius: 50%;') }}
                         </div>
 
                         <small class="text-muted">
