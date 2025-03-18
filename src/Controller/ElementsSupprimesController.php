@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,12 +17,14 @@ class ElementsSupprimesController extends AbstractController
     /**
      * @Route("/admin/elements-supprimes", name="admin_elements_supprimes")
      */
-    public function index(EtablissementRepository $etablissementRepository): Response
+    public function index(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository): Response
     {
         $etablissementsSupprimes = $etablissementRepository->findDeleted();
+        $dossiersSupprimes = $dossierRepository->findDeleted();
 
         return $this->render('elements_supprimes/index.html.twig', [
             'etablissements_supprimes' => $etablissementsSupprimes,
+            'dossiers_supprimes' => $dossiersSupprimes,
         ]);
     }
 }

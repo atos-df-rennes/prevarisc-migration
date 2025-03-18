@@ -55,13 +55,14 @@ class EtablissementRepository extends ServiceEntityRepository
             ->addSelect('ei')
             ->addSelect('ea')
             ->addSelect('ac')
-            ->join('e.deletedBy', 'u')
+            ->leftJoin('e.deletedBy', 'u')
             ->join('e.informations', 'ei')
             ->join('e.adresse', 'ea')
             ->join('ea.commune', 'ac')
             ->where($queryBuilder->expr()->isNotNull('e.dateSuppression'))
             ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e.id)')
             ->groupBy('e.id')
+            ->orderBy('e.dateSuppression', 'DESC')
             ->getQuery()
         ;
 

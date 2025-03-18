@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -53,6 +54,18 @@ class Etablissement
      * @ORM\OneToMany(targetEntity=EtablissementInformations::class, mappedBy="etablissement")
      */
     private $informations;
+
+    /**
+     * @var Collection<int, Dossier>
+     *
+     * @ORM\ManyToMany(targetEntity=Dossier::class, mappedBy="etablissements")
+     */
+    private $dossiers;
+
+    public function __construct()
+    {
+        $this->dossiers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -119,6 +132,33 @@ class Etablissement
     public function setAdresse(?EtablissementAdresse $adresse): self
     {
         $this->adresse = $adresse;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Dossier>
+     */
+    public function getDossiers(): Collection
+    {
+        return $this->dossiers;
+    }
+
+    public function addDossier(Dossier $dossier): self
+    {
+        if (!$this->dossiers->contains($dossier)) {
+            $this->dossiers[] = $dossier;
+            $dossier->addEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDossier(Dossier $dossier): self
+    {
+        if ($this->dossiers->removeElement($dossier)) {
+            $dossier->removeEtablissement($this);
+        }
 
         return $this;
     }
