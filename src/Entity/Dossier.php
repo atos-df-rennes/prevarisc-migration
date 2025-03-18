@@ -55,7 +55,7 @@ class Dossier
     private $type;
 
     /**
-     * @var DossierNatureListe
+     * @var Collection<int, DossierNatureListe>
      *
      * @ORM\JoinTable(name="dossiernature",
      *    joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
@@ -130,7 +130,7 @@ class Dossier
         return $this->type;
     }
 
-    public function setType(?DossierType $type): self
+    public function setType(DossierType $type): self
     {
         $this->type = $type;
 

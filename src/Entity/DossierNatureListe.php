@@ -64,7 +64,7 @@ class DossierNatureListe
         return $this->type;
     }
 
-    public function setType(?DossierType $type): self
+    public function setType(DossierType $type): self
     {
         $this->type = $type;
 
