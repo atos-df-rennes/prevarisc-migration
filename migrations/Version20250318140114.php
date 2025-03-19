@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250318140114 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return "Adaptation pour la suppression d'élément.";
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE changement CHANGE LIBELLE_CHANGEMENT LIBELLE_CHANGEMENT VARCHAR(255) NOT NULL');
         $this->addSql('DROP INDEX fk_commission_commissiontype1_idx ON commission');
@@ -55,7 +55,7 @@ final class Version20250318140114 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_161D94DB2763CF4F ON etablissementinformations (ID_ETABLISSEMENT)');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE changement CHANGE LIBELLE_CHANGEMENT LIBELLE_CHANGEMENT VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`');
         $this->addSql('CREATE INDEX fk_commission_commissiontype1_idx ON commission (ID_COMMISSIONTYPE)');
