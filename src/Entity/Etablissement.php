@@ -56,6 +56,8 @@ class Etablissement
     private $dossiers;
 
     /**
+     * @var Collection<int, EtablissementAdresse>
+     *
      * @ORM\OneToMany(targetEntity=EtablissementAdresse::class, mappedBy="etablissement", orphanRemoval=true)
      */
     private $adresses;
