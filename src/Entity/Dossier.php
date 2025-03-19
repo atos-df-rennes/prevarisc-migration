@@ -140,11 +140,20 @@ class Dossier
         return $this;
     }
 
+    /*
+     * On a une liste de natures associées car il y a une table de jointure `dossiernature`.
+     * Cependant un dossier ne peut être associé qu'à une seule nature.
+     * On récupère donc toujours le premier élément de la collection.
+     */
     public function getNature(): ?DossierNatureListe
     {
         return $this->nature->first() ?: null;
     }
 
+    /*
+     * Même raisonnement que pour le getter.
+     * Comme on a qu'une seule nature, on reset la collection à chaque fois.
+     */
     public function setNature(DossierNatureListe $nature): self
     {
         $this->nature = new ArrayCollection();

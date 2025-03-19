@@ -35,20 +35,21 @@
 
                         <div class="deleted-element__name">
                             <div class="deleted-element__name_informations">
+                                <a
+                                        href="{{ '/dossier/index/id/' ~ dossier.id }}"
+                                        {% if dossier.objet|length > 70 %}
+                                            title="{{ dossier.objet }}"
+                                        {% endif %}
+                                >
+                                    {{ libelle_complet|join(' - ') }}
+                                </a>
+
                                 {% for etablissement in dossier.etablissements %}
                                     <span class="label label-primary">
                                         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
                                         {{ etablissement.informations|first.libelle }}
                                     </span>
                                 {% endfor %}
-                                <a
-                                    href="{{ '/dossier/index/id/' ~ dossier.id }}"
-                                    {% if dossier.objet|length > 70 %}
-                                        title="{{ dossier.objet }}"
-                                    {% endif %}
-                                >
-                                    {{ libelle_complet|join(' - ') }}
-                                </a>
                             </div>
 
                             <a

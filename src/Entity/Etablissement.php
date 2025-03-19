@@ -42,13 +42,6 @@ class Etablissement
     private $deletedBy;
 
     /**
-     * @var ?EtablissementAdresse
-     *
-     * @ORM\OneToOne(targetEntity=EtablissementAdresse::class, mappedBy="etablissement")
-     */
-    private $adresse;
-
-    /**
      * @var Collection<int, EtablissementInformations>
      *
      * @ORM\OneToMany(targetEntity=EtablissementInformations::class, mappedBy="etablissement")
@@ -62,9 +55,15 @@ class Etablissement
      */
     private $dossiers;
 
+    /**
+     * @ORM\OneToMany(targetEntity=EtablissementAdresse::class, mappedBy="etablissement", orphanRemoval=true)
+     */
+    private $adresses;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
+        $this->adresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -124,18 +123,6 @@ class Etablissement
         return $this;
     }
 
-    public function getAdresse(): ?EtablissementAdresse
-    {
-        return $this->adresse;
-    }
-
-    public function setAdresse(?EtablissementAdresse $adresse): self
-    {
-        $this->adresse = $adresse;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Dossier>
      */
@@ -158,6 +145,36 @@ class Etablissement
     {
         if ($this->dossiers->removeElement($dossier)) {
             $dossier->removeEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementAdresse>
+     */
+    public function getAdresses(): Collection
+    {
+        return $this->adresses;
+    }
+
+    public function addAdress(EtablissementAdresse $adress): self
+    {
+        if (!$this->adresses->contains($adress)) {
+            $this->adresses[] = $adress;
+            $adress->setEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAdress(EtablissementAdresse $adress): self
+    {
+        if ($this->adresses->removeElement($adress)) {
+            // set the owning side to null (unless already changed)
+            if ($adress->getEtablissement() === $this) {
+                $adress->setEtablissement(null);
+            }
         }
 
         return $this;

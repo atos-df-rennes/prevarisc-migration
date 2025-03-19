@@ -52,22 +52,22 @@ class EtablissementAdresse
     private $latitude;
 
     /**
-     * @var Etablissement
-     *
-     * @ORM\OneToOne(targetEntity=Etablissement::class, cascade={"persist", "remove"}, inversedBy="adresse")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
-     */
-    private $etablissement;
-
-    /**
-     * @var ?Commune
+     * @var Commune
      *
      * @ORM\ManyToOne(targetEntity=Commune::class)
      *
      * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=false, options={"fixed":true})
      */
     private $commune;
+
+    /**
+     * @var ?Etablissement
+     *
+     * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="adresses")
+     *
+     * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
+     */
+    private $etablissement;
 
     public function getId(): ?int
     {
@@ -122,26 +122,26 @@ class EtablissementAdresse
         return $this;
     }
 
-    public function getEtablissement(): ?Etablissement
-    {
-        return $this->etablissement;
-    }
-
-    public function setEtablissement(Etablissement $etablissement): self
-    {
-        $this->etablissement = $etablissement;
-
-        return $this;
-    }
-
     public function getCommune(): ?Commune
     {
         return $this->commune;
     }
 
-    public function setCommune(?Commune $commune): self
+    public function setCommune(Commune $commune): self
     {
         $this->commune = $commune;
+
+        return $this;
+    }
+
+    public function getEtablissement(): ?Etablissement
+    {
+        return $this->etablissement;
+    }
+
+    public function setEtablissement(?Etablissement $etablissement): self
+    {
+        $this->etablissement = $etablissement;
 
         return $this;
     }

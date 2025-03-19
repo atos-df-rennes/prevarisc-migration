@@ -10,42 +10,43 @@
         </thead>
         <tbody>
             {% for etablissement in etablissements %}
-            <tr>
-                <td class="whitespace-nowrap">
-                    <div class="deleted-element__deleted-by">
-                        <div class="deleted-element__deleted-by_informations">
-                            {{ etablissement.deletedBy.username|default('Inconnu') }}
-                            {{ avatar(etablissement.deletedBy.id|default(null), constant('App\\Service\\Avatar::SMALL_DIRECTORY'), 'border-radius: 50%;') }}
+                <tr>
+                    <td class="whitespace-nowrap">
+                        <div class="deleted-element__deleted-by">
+                            <div class="deleted-element__deleted-by_informations">
+                                {{ etablissement.deletedBy.username|default('Inconnu') }}
+                                {{ avatar(etablissement.deletedBy.id|default(null), constant('App\\Service\\Avatar::SMALL_DIRECTORY'), 'border-radius: 50%;') }}
+                            </div>
+
+                            <small class="text-muted">
+                                Le {{ etablissement.dateSuppression|format_date('full', locale='fr') }}
+                            </small>
                         </div>
+                    </td>
 
-                        <small class="text-muted">
-                            Le {{ etablissement.dateSuppression|format_date('full', locale='fr') }}
-                        </small>
-                    </div>
-                </td>
+                    <td>
+                        <div class="deleted-element__name">
+                            <div class="deleted-element__name_informations">
+                                {{ etablissement.informations|first.libelle }}
 
-                <td>
-                    <div class="deleted-element__name">
-                        <div>
-                            <p>{{ etablissement.informations|first.libelle }}</p>
+                                {% for adresse in etablissement.adresses %}
+                                    <span class="label label-primary">
+                                        <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+                                        {{ adresse.commune.libelle }}
+                                    </span>
+                                {% endfor %}
+                            </div>
 
-                            {% if etablissement.adresse.commune.libelle %}
-                                <span class="label label-primary">
-                                    <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
-                                    {{ etablissement.adresse.commune.libelle }}
-                                </span>
-                            {% endif %}
+                            <a
+                                class='btn btn-default btn-sm deleted-element__restore-button'
+                                href="{{ '/etablissement/retablir-etablissement/idEtablissement/' ~ etablissement.id }}"
+                            >
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                Rétablir l'établissement
+                            </a>
                         </div>
-
-                        <a
-                            class='btn btn-default btn-sm deleted-element__restore-button'
-                            href="{{ '/etablissement/retablir-etablissement/idEtablissement/' ~ etablissement.id }}"
-                        >
-                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                            Rétablir l'établissement
-                        </a>
-                    </div>
-                </td>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
