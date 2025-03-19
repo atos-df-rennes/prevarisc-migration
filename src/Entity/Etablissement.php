@@ -172,11 +172,9 @@ class Etablissement
 
     public function removeAdress(EtablissementAdresse $adress): self
     {
-        if ($this->adresses->removeElement($adress)) {
-            // set the owning side to null (unless already changed)
-            if ($adress->getEtablissement() === $this) {
-                $adress->setEtablissement(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->adresses->removeElement($adress) && $adress->getEtablissement() === $this) {
+            $adress->setEtablissement(null);
         }
 
         return $this;
