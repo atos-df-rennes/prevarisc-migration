@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class GroupeController extends AbstractController
 {
     /**
-     * @Route("/admin/groupe/{id}/utilisateurs", name="admin_groupe_index")
+     * @Route("/admin/groupes/{id}/utilisateurs", name="admin_groupe_index")
      */
     public function index(Groupe $groupe, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository): Response
     {
@@ -36,7 +36,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupe/ajouter", name="admin_groupe_add")
+     * @Route("/admin/groupes/ajouter", name="admin_groupe_add")
      */
     public function ajouter(Request $request): Response
     {
@@ -62,7 +62,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupe/matrice-des-droits", name="admin_groupe_manage_privileges")
+     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
      */
     public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
     {
@@ -91,7 +91,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupe/{id}/modifier", name="admin_groupe_edit")
+     * @Route("/admin/groupes/{id}/modifier", name="admin_groupe_edit")
      */
     public function modifier(Request $request, Groupe $groupe): Response
     {
@@ -115,7 +115,7 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupe/{id}/supprimer", name="admin_groupe_delete")
+     * @Route("/admin/groupes/{id}/supprimer", name="admin_groupe_delete")
      */
     public function supprimer(Groupe $groupe, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
     {
