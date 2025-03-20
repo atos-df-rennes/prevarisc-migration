@@ -26,8 +26,8 @@
             <a href="{{ path('admin_utilisateurs_index') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Gestion des utilisateurs</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('gestion-des-communes') %}class="active"{% endif %}>
-            <a href='/gestion-des-communes'><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Gestion des communes</a>
+        <li {% if app.request.get('_route') is same as('admin_communes') %}class="active"{% endif %}>
+            <a href="{{ path('admin_communes') }}"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Gestion des communes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('fusion-des-communes') %}class="active"{% endif %}>
