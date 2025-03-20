@@ -1,0 +1,36 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des communes{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("select#choix_commune").change(function() {
+                $("#informations_commune").load("/admin/communes/" + $(this).val())
+            }).change()
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h3 class="page-header">Gestion des communes</h3>
+
+    {% if communes|length == 0 %}
+        <p>
+            <b>Il n'y a pas de communes dans la base de données.</b>
+        </p>
+    {% else %}
+        <label for="choix_commune" class="col-xs-12">Commune</label>
+        <div class="col-md-3">
+            <select id="choix_commune" class="form-control">
+                {% for commune in communes %}
+                    <option value="{{ commune.id }}">{{ commune.libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="informations_commune" class="col-xs-12 mt-4"></div>
+    {% endif %}
+{% endblock %}
