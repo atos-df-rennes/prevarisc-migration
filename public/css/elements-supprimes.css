@@ -11,12 +11,23 @@ thead {
     position: sticky;
     top: 0;
     background-color: lightgrey;
+    z-index: 1;
 }
 
 .deleted-element__name {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+.deleted-element__name_informations {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.deleted-element__name_informations .label.label-primary {
+    width: fit-content;
 }
 
 .deleted-element__deleted-by {
