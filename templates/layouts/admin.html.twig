@@ -56,8 +56,8 @@
 
         <li class="nav-header">Paramétrage du logiciel</li>
 
-        <li {% if app.request.get('_route') is same as('tableau-des-periodicites') %}class="active"{% endif %}>
-            <a href='/tableau-des-periodicites'><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Tableau des périodicités</a>
+        <li {% if app.request.get('_route') is same as('admin_tableau_des_periodicites') %}class="active"{% endif %}>
+            <a href="{{ path('admin_tableau_des_periodicites') }}"><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Tableau des périodicités</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('groupement') %}class="active"{% endif %}>
