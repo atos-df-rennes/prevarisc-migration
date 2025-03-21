@@ -1,0 +1,13 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Fusion des communes{% endblock %}
+
+{% block body %}
+    <h3 class="page-header">Fusion des communes</h3>
+
+    {{ form_start(form) }}
+        {{ form_row(form.fichier) }}
+
+        <input type="submit" class="btn btn-primary" value="Fusionner les communes" />
+    {{ form_end(form) }}
+{% endblock %}
