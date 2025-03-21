@@ -1,0 +1,99 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Tableau des périodicités{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("input[type=text]").change(function () {
+                if ($(this).val() === "0") {
+                    $(this).css("opacity", .5);
+                } else {
+                    $(this).css("opacity", 1);
+                }
+            }).change();
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h3 class="page-header">Tableau des périodicités <small>(Les valeurs sont affichées et à saisir en mois)</small></h3>
+
+    <h4>ERP</h4>
+
+    <form action='/tableau-des-periodicites/save' method='post'>
+        {% for chunked_types in types|batch(7) %}
+            <table class='table table-bordered table-condensed'>
+                <thead>
+                    <tr>
+                        <th rowspan="2"></th>
+                        {% for type in chunked_types %}
+                            <th colspan='2'>{{ type.libelle }}</th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for i in 1..chunked_types|length %}
+                            <th style='height: 20px; background: url(/css/images/avec_sans_local.gif) center -14px no-repeat'></th>
+                            <th style='height: 20px; background: url(/css/images/avec_sans_local.gif) center 2px no-repeat'></th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categorie in categories %}
+                        <tr>
+                            <td style='width: 150px;'>{{ categorie.libelle }}</td>
+
+                            {% for type in chunked_types %}
+                                {% set periodicite = tableau[categorie.id][type.id] %}
+
+                                <td style='text-align: center'>
+                                    {% if type.id in local_sommeil_types %}
+                                        <input type='text' size='3' class="invisible" />
+                                    {% else %}
+                                        <input class="form-control" type='text' size='3' maxlength='3' value="{{ periodicite.0 ?: 0 }}" name="{{ categorie.id ~ '_' ~ type.id ~ '_0' }}" />
+                                    {% endif %}
+                                </td>
+
+                                <td style='text-align: center'>
+                                    <input class="form-control" type='text' size='3' maxlength='3' value="{{ periodicite.1 ?: 0 }}" name="{{ categorie.id ~ '_' ~ type.id ~ '_1' }}" />
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+
+        <h4>IGH</h4>
+
+        <table class="table table-bordered table-condensed">
+            <thead>
+                <tr>
+                    {% for classe in classes %}
+                        <th>{{ classe.libelle }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for classe in classes %}
+                        {% set periodicite = tableau[0][classe.id] %}
+
+                        <td style="text-align: center">
+                            <input class="form-control" type="text" size="3" maxlength="3" value="{{ periodicite.0 ?: 0 }}" name="{{ '0_' ~ classe.id ~ '_0' }}" />
+                        </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <input id="submit" type="submit" value="Sauvegarder" class="btn btn-success" />
+            <a href="/tableau-des-periodicites/apply" onclick="return confirm('Etes-vous sûr de vouloir appliquer ces paramètres à l\'ensemble des établissements ?');" class="btn btn-primary">
+                Appliquer sur TOUS les établissements
+            </a>
+        </div>
+    </form>
+{% endblock %}
