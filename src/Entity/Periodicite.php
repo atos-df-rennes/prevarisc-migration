@@ -14,6 +14,7 @@ class Periodicite
      * @var bool
      *
      * @ORM\Id
+     *
      * @ORM\Column(name="LOCALSOMMEIL_PERIODICITE", type="boolean")
      */
     private $localSommeil;
@@ -29,6 +30,7 @@ class Periodicite
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\Column(name="ID_CATEGORIE", type="integer", options={"unsigned":true})
      */
     private $categorie;
@@ -37,6 +39,7 @@ class Periodicite
      * @var string
      *
      * @ORM\Id
+     *
      * @ORM\Column(name="ID_TYPE", type="string", length=10)
      */
     private $type;

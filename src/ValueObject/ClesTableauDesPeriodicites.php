@@ -2,7 +2,8 @@
 
 namespace App\ValueObject;
 
-final class ClesTableauDesPeriodicites {
+final class ClesTableauDesPeriodicites
+{
     /** @var int */
     private $categorie;
 
@@ -12,7 +13,8 @@ final class ClesTableauDesPeriodicites {
     /** @var bool */
     private $localSommeil;
 
-    private function __construct(string $categorie, string $type, string $localSommeil) {
+    private function __construct(string $categorie, string $type, string $localSommeil)
+    {
         if (false === ($validatedCategorie = filter_var($categorie, FILTER_VALIDATE_INT))) {
             throw new \InvalidArgumentException("Le type de la catégorie n'est pas correct. Type attendu : entier.");
         }

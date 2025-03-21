@@ -23,8 +23,7 @@ class TableauDesPeriodicitesController extends AbstractController
         EtablissementTypeRepository $etablissementTypeRepository,
         EtablissementCategorieRepository $etablissementCategorieRepository,
         IghClasseRepository $ighClasseRepository
-    ): Response
-    {
+    ): Response {
         $periodicites = $periodiciteRepository->findAll();
         $types = $etablissementTypeRepository->findAll();
         $categories = $etablissementCategorieRepository->findAll();

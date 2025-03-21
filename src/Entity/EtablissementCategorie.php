@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=EtablissementCategorieRepository::class)
+ *
  * @ORM\Table(name="categorie")
  */
 class EtablissementCategorie
@@ -15,7 +16,9 @@ class EtablissementCategorie
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_CATEGORIE", type="integer", options={"unsigned":true})
      */
     private $id;
