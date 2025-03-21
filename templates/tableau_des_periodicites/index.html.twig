@@ -23,7 +23,7 @@
 
     <h4>ERP</h4>
 
-    <form action='/tableau-des-periodicites/save' method='post'>
+    <form action="{{ path('admin_tableau_des_periodicites_save') }}" method='post'>
         {% for chunked_types in types|batch(7) %}
             <table class='table table-bordered table-condensed'>
                 <thead>
