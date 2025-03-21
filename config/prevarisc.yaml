@@ -125,6 +125,9 @@ parameters:
     env(PREVARISC_NTLM_ENABLED): 0
     app.ntlm_enabled: '%env(bool:PREVARISC_NTLM_ENABLED)%'
 
+    env(PREVARISC_LOCAL_SOMMEIL_TYPES): '7;11'
+    app.local_sommeil_types: '%env(PREVARISC_LOCAL_SOMMEIL_TYPES)%'
+
     env(PREVARISC_PROXY_ENABLED): 0
     app.proxy_enabled: '%env(bool:PREVARISC_PROXY_ENABLED)%'
 
