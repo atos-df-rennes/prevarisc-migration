@@ -7,6 +7,7 @@ use App\Repository\EtablissementCategorieRepository;
 use App\Repository\EtablissementTypeRepository;
 use App\Repository\IghClasseRepository;
 use App\Repository\PeriodiciteRepository;
+use App\ValueObject\ClesTableauDesPeriodicites;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,28 +55,32 @@ class TableauDesPeriodicitesController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
 
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
-            [$categorie, $type, $localSommeil] = explode('_', $periodiciteKey);
+            $clesTableauDesPeriodicites = ClesTableauDesPeriodicites::fromRequest($periodiciteKey);
 
             $periodiciteEntity = $periodiciteRepository->findOneBy([
-                'categorie' => $categorie,
-                'type' => $type,
-                'localSommeil' => $localSommeil
+                'categorie' => $clesTableauDesPeriodicites->categorie(),
+                'type' => $clesTableauDesPeriodicites->type(),
+                'localSommeil' => $clesTableauDesPeriodicites->localSommeil(),
             ]);
+            $periodicite = filter_var($periodicite, FILTER_VALIDATE_INT);
+
+            if (false === $periodicite) {
+                throw new \InvalidArgumentException("Le type de la périodicité n'est pas correct. Type attendu : entier.");
+            }
 
             if (null !== $periodiciteEntity) {
-                if ((int) $periodicite === $periodiciteEntity->getPeriodicite()) {
+                if ($periodicite === $periodiciteEntity->getPeriodicite()) {
                     continue;
                 }
-
-                $periodiciteEntity->setPeriodicite($periodicite);
             } else {
                 $periodiciteEntity = new Periodicite();
 
-                $periodiciteEntity->setCategorie($categorie);
-                $periodiciteEntity->setType($type);
-                $periodiciteEntity->setLocalSommeil($localSommeil);
-                $periodiciteEntity->setPeriodicite($periodicite);
+                $periodiciteEntity->setCategorie($clesTableauDesPeriodicites->categorie());
+                $periodiciteEntity->setType($clesTableauDesPeriodicites->type());
+                $periodiciteEntity->setLocalSommeil($clesTableauDesPeriodicites->localSommeil());
             }
+
+            $periodiciteEntity->setPeriodicite($periodicite);
 
             $entityManager->persist($periodiciteEntity);
         }

@@ -28,7 +28,7 @@ class EtablissementCategorie
     private $libelle;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="COMMENTAIRE_CATEGORIE", type="string", length=35, nullable=true)
      */

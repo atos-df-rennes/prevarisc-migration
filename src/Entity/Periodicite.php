@@ -41,11 +41,6 @@ class Periodicite
      */
     private $type;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getLocalSommeil(): ?bool
     {
         return $this->localSommeil;
