@@ -137,11 +137,16 @@ final class FusionDesCommunes {
     private function deleteCommunes(array $communes): void
     {
         foreach ($communes as $commune) {
-            $communeEntity = $this->communeRepository->find($commune->numinsee());
-            $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);
-            $utilisateurInformations = $communeEntity->getUtilisateurInformations();
-
             try {
+                $communeEntity = $this->communeRepository->find($commune->numinsee());
+
+                if (null === $communeEntity) {
+                    throw new \Exception("La commune n'existe pas en base de données.");
+                }
+
+                $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);
+                $utilisateurInformations = $communeEntity->getUtilisateurInformations();
+
                 $this->utilisateurRepository->remove($utilisateur);
                 $this->communeRepository->remove($communeEntity);
                 $this->utilisateurInformationsRepository->remove($utilisateurInformations);
