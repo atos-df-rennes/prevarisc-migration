@@ -154,11 +154,9 @@ class Commission
 
     public function removeRegle(CommissionRegle $regle): self
     {
-        if ($this->regles->removeElement($regle)) {
-            // set the owning side to null (unless already changed)
-            if ($regle->getCommission() === $this) {
-                $regle->setCommission(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->regles->removeElement($regle) && $regle->getCommission() === $this) {
+            $regle->setCommission(null);
         }
 
         return $this;

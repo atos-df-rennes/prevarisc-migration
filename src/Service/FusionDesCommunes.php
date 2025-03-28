@@ -180,7 +180,7 @@ final class FusionDesCommunes {
             } catch (\Exception $e) {
                 $this->logger->error(\sprintf('Erreur lors de la suppression de la commune %s (%s) : %s', $commune->nom(), $commune->numinsee(), $e->getMessage()));
 
-                throw new \Exception(\sprintf('Erreur lors de la suppression de la commune %s (%s)', $commune->nom(), $commune->numinsee()));
+                throw new \Exception(\sprintf('Erreur lors de la suppression de la commune %s (%s)', $commune->nom(), $commune->numinsee()), $e->getCode(), $e);
             }
         }
     }

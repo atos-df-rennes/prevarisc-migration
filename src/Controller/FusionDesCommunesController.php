@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Form\FusionDesCommunesType;
 use App\Service\FusionDesCommunes;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -25,7 +26,7 @@ class FusionDesCommunesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $fichier */
+            /** @var UploadedFile $fichier */
             $fichier = $form->get('fichier')->getData();
 
             try {
