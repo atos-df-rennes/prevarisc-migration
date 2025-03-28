@@ -15,3 +15,6 @@ framework:
     fragments: { path: /_fragment }
     php_errors:
         log: true
+        # Option à supprimer une fois la migration effectuée
+        # Permet de ne pas créer d'ErrorException qui arrête l'exécution des scripts legacy (e.g. génération des documents de commission)
+        throw: false
