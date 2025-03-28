@@ -34,7 +34,7 @@ class CommissionRegle
      *
      * @ORM\ManyToOne(targetEntity=Commission::class, inversedBy="regles")
      *
-     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=false, options={"unsigned":true})
+     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=false, options={"unsigned":true}, onDelete="CASCADE")
      */
     private $commission;
 
@@ -43,7 +43,7 @@ class CommissionRegle
      *
      * @ORM\ManyToOne(targetEntity=Commune::class)
      *
-     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE")
+     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", onDelete="CASCADE")
      */
     private $commune;
 

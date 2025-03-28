@@ -30,7 +30,7 @@ class AdresseRueType
     /**
      * @var string
      *
-     * @ORM\Column(name="ABBREVIATION_RUETYPE", type="string", length=16)
+     * @ORM\Column(name="ABREVIATION_RUETYPE", type="string", length=16)
      */
     private $abbreviation;
 
