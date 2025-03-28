@@ -30,8 +30,8 @@
             <a href="{{ path('admin_communes') }}"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Gestion des communes</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('fusion-des-communes') %}class="active"{% endif %}>
-            <a href='/fusion-des-communes'><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Fusion des communes</a>
+        <li {% if app.request.get('_route') is same as('admin_fusion_des_communes') %}class="active"{% endif %}>
+            <a href="{{ path('admin_fusion_des_communes') }}"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Fusion des communes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('couches-cartographiques') %}class="active"{% endif %}>

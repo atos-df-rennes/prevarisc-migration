@@ -119,7 +119,7 @@ class Utilisateur implements UserInterface
     /**
      * @var ?UtilisateurInformations
      *
-     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist"})
      *
      * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false, options={"unsigned":true})
      */
