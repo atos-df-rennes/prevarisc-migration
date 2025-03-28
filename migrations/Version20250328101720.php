@@ -12,12 +12,12 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20250328101720 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return '';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE adresserue DROP FOREIGN KEY fk_adresserue_adressecommune1');
         $this->addSql('ALTER TABLE adresserue DROP FOREIGN KEY fk_adresserue_adresseruetype');
@@ -34,7 +34,7 @@ final class Version20250328101720 extends AbstractMigration
         $this->addSql('ALTER TABLE commissionregle ADD CONSTRAINT FK_E87498A38B5749D3 FOREIGN KEY (NUMINSEE_COMMUNE) REFERENCES adressecommune (NUMINSEE_COMMUNE) ON DELETE CASCADE');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE adresserue DROP FOREIGN KEY FK_EC0264246D48241F');
         $this->addSql('ALTER TABLE adresserue DROP FOREIGN KEY FK_EC0264248B5749D3');

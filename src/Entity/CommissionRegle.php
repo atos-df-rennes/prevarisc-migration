@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CommissionRegleRepository::class)
+ *
  * @ORM\Table(name="commissionregle")
  */
 class CommissionRegle
@@ -15,7 +16,9 @@ class CommissionRegle
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_REGLE", type="bigint", options={"unsigned":true})
      */
     private $id;

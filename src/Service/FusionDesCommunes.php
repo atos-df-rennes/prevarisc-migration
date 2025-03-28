@@ -13,7 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-final class FusionDesCommunes {
+final class FusionDesCommunes
+{
     /** @var SerializerInterface */
     private $serializer;
 
@@ -95,9 +96,9 @@ final class FusionDesCommunes {
         }
 
         if (null === $commune->getLibelle()) {
-           $this->logger->error(\sprintf("La commune d'identifiant %s a été trouvée mais ne comporte pas de libellé.", $fusionCommune->numinsee()));
+            $this->logger->error(\sprintf("La commune d'identifiant %s a été trouvée mais ne comporte pas de libellé.", $fusionCommune->numinsee()));
 
-           return false;
+            return false;
         }
 
         if (0 !== strcmp($fusionCommune->nom(), $commune->getLibelle())) {
@@ -117,7 +118,7 @@ final class FusionDesCommunes {
             if (null === $newCommune) {
                 $this->logger->error(\sprintf("La commune d'identifiant %s n'existe pas en base de données.", $fusionCommune->numinsee()));
 
-                throw new \Exception("Impossible de fusionner dans la nouvelle commune. Veuillez consulter les logs.");
+                throw new \Exception('Impossible de fusionner dans la nouvelle commune. Veuillez consulter les logs.');
             }
 
             $addressesToUpdate = $this->etablissementAdresseRepository->findBy(['commune' => $commune->numinsee()]);
@@ -164,11 +165,11 @@ final class FusionDesCommunes {
 
                 if (null === $utilisateur || null === $utilisateurInformations) {
                     if (null === $utilisateur) {
-                        $this->logger->error(\sprintf("Aucun utilisateur associé à la commune %s (%s).", $communeEntity->getLibelle(), $communeEntity->getId()));
+                        $this->logger->error(\sprintf('Aucun utilisateur associé à la commune %s (%s).', $communeEntity->getLibelle(), $communeEntity->getId()));
                     }
 
                     if (null === $utilisateurInformations) {
-                        $this->logger->error(\sprintf("Aucune information utilisateur associée à la commune %s (%s).", $communeEntity->getLibelle(), $communeEntity->getId()));
+                        $this->logger->error(\sprintf('Aucune information utilisateur associée à la commune %s (%s).', $communeEntity->getLibelle(), $communeEntity->getId()));
                     }
 
                     throw new \Exception("Des éléments d'informations sont manquants. Veuillez consulter les logs.");
