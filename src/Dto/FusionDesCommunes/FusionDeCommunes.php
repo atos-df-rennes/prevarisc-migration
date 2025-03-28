@@ -12,6 +12,9 @@ final class FusionDeCommunes {
     /** @var Commune[] */
     private $listeCommunes;
 
+    /**
+     * @param Commune[] $listeCommunes
+     */
     public function __construct(string $nom, string $numinsee, array $listeCommunes) {
         $this->nom = $nom;
         $this->numinsee = $numinsee;

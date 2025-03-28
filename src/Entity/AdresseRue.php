@@ -28,7 +28,7 @@ class AdresseRue
     private $libelle;
 
     /**
-     * @var AdresseRueType
+     * @var ?AdresseRueType
      *
      * @ORM\ManyToOne(targetEntity=AdresseRueType::class)
      * @ORM\JoinColumn(name="ID_RUETYPE", referencedColumnName="ID_RUETYPE", nullable=false)
@@ -36,7 +36,7 @@ class AdresseRue
     private $type;
 
     /**
-     * @var Commune
+     * @var ?Commune
      *
      * @ORM\ManyToOne(targetEntity=Commune::class)
      * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=false)

@@ -30,7 +30,7 @@ class CommissionRegle
     private $groupement;
 
     /**
-     * @var Commission
+     * @var ?Commission
      *
      * @ORM\ManyToOne(targetEntity=Commission::class, inversedBy="regles")
      *

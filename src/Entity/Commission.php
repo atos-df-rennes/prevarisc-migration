@@ -54,6 +54,8 @@ class Commission
     private $utilisateurs;
 
     /**
+     * @var Collection<int, CommissionRegle>
+     *
      * @ORM\OneToMany(targetEntity=CommissionRegle::class, mappedBy="commission", orphanRemoval=true)
      */
     private $regles;

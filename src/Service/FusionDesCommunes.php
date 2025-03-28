@@ -59,9 +59,11 @@ final class FusionDesCommunes {
     }
 
     /**
+     * @param false|string $fileContent
+     *
      * @throws \Exception
      */
-    public function fusionner(?string $fileContent): void
+    public function fusionner($fileContent): void
     {
         if (false === $fileContent) {
             throw new \Exception('Le contenu du fichier est incorrect.');
@@ -92,6 +94,12 @@ final class FusionDesCommunes {
             return false;
         }
 
+        if (null === $commune->getLibelle()) {
+           $this->logger->error(\sprintf("La commune d'identifiant %s a été trouvée mais ne comporte pas de libellé.", $fusionCommune->numinsee()));
+
+           return false;
+        }
+
         if (0 !== strcmp($fusionCommune->nom(), $commune->getLibelle())) {
             $this->logger->error(\sprintf("La commune ayant pour code INSEE %s n'a pas pour libellé %s dans la base de données. Libellé en base de données : %s", $fusionCommune->numinsee(), $fusionCommune->nom(), $commune->getLibelle()));
 
@@ -105,6 +113,13 @@ final class FusionDesCommunes {
     {
         foreach ($fusionCommune->listeCommunes() as $commune) {
             $newCommune = $this->communeRepository->find($fusionCommune->numinsee());
+
+            if (null === $newCommune) {
+                $this->logger->error(\sprintf("La commune d'identifiant %s n'existe pas en base de données.", $fusionCommune->numinsee()));
+
+                throw new \Exception("Impossible de fusionner dans la nouvelle commune. Veuillez consulter les logs.");
+            }
+
             $addressesToUpdate = $this->etablissementAdresseRepository->findBy(['commune' => $commune->numinsee()]);
 
             foreach ($addressesToUpdate as $addressToUpdate) {
@@ -146,6 +161,18 @@ final class FusionDesCommunes {
 
                 $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);
                 $utilisateurInformations = $communeEntity->getUtilisateurInformations();
+
+                if (null === $utilisateur || null === $utilisateurInformations) {
+                    if (null === $utilisateur) {
+                        $this->logger->error(\sprintf("Aucun utilisateur associé à la commune %s (%s).", $communeEntity->getLibelle(), $communeEntity->getId()));
+                    }
+
+                    if (null === $utilisateurInformations) {
+                        $this->logger->error(\sprintf("Aucune information utilisateur associée à la commune %s (%s).", $communeEntity->getLibelle(), $communeEntity->getId()));
+                    }
+
+                    throw new \Exception("Des éléments d'informations sont manquants. Veuillez consulter les logs.");
+                }
 
                 $this->utilisateurRepository->remove($utilisateur);
                 $this->communeRepository->remove($communeEntity);
