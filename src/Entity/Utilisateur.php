@@ -172,10 +172,20 @@ class Utilisateur implements UserInterface
      */
     private $sso;
 
+    /**
+     * @var Collection<int, Dossier>
+     * 
+     * @ORM\ManyToMany(targetEntity=Dossier::class, mappedBy="preventionnisteDossier")
+     */
+    private $dossiersPrevention;
+
+  
+
     public function __construct()
     {
         $this->commissions = new ArrayCollection();
         $this->groupements = new ArrayCollection();
+        $this->dossiersPrevention = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -478,4 +488,32 @@ class Utilisateur implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Dossier>
+     */
+    public function getDossiersPrevention(): Collection
+    {
+        return $this->dossiersPrevention;
+    }
+
+    public function addDossiersPrevention(Dossier $dossiersPrevention): self
+    {
+        if (!$this->dossiersPrevention->contains($dossiersPrevention)) {
+            $this->dossiersPrevention[] = $dossiersPrevention;
+            $dossiersPrevention->addPreventionnisteDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDossiersPrevention(Dossier $dossiersPrevention): self
+    {
+        if ($this->dossiersPrevention->removeElement($dossiersPrevention)) {
+            $dossiersPrevention->removePreventionnisteDossier($this);
+        }
+
+        return $this;
+    }
+
 }

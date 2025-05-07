@@ -60,10 +60,18 @@ class Commission
      */
     private $regles;
 
+    /**
+     * @var Collection<int, DateCommission>
+     * 
+     * @ORM\OneToMany(targetEntity=DateCommission::class, mappedBy="commissionConcerne")
+     */
+    private $dateCommissions;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
         $this->regles = new ArrayCollection();
+        $this->dateCommissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -157,6 +165,36 @@ class Commission
         // set the owning side to null (unless already changed)
         if ($this->regles->removeElement($regle) && $regle->getCommission() === $this) {
             $regle->setCommission(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DateCommission>
+     */
+    public function getDateCommissions(): Collection
+    {
+        return $this->dateCommissions;
+    }
+
+    public function addDateCommission(DateCommission $dateCommission): self
+    {
+        if (!$this->dateCommissions->contains($dateCommission)) {
+            $this->dateCommissions[] = $dateCommission;
+            $dateCommission->setCommissionConcerne($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDateCommission(DateCommission $dateCommission): self
+    {
+        if ($this->dateCommissions->removeElement($dateCommission)) {
+            // set the owning side to null (unless already changed)
+            if ($dateCommission->getCommissionConcerne() === $this) {
+                $dateCommission->setCommissionConcerne(null);
+            }
         }
 
         return $this;
