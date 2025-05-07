@@ -1,0 +1,6 @@
+<a href="#" class="thumbnail text-center" style="width: 75px; font-size: .7em; float: left; overflow: hidden;">
+    {{ avatar(preventionniste.id, 'medium') }}
+    <div class="caption" style="padding: 1px;">
+        {{ preventionniste.informations.grade|upper }} {{ preventionniste.informations.nom|upper }} {{ preventionniste.informations.prenom }}
+    </div>
+</a>

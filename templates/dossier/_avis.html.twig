@@ -1,0 +1,18 @@
+<span class="label {{ avis.libelleAvis == 'Favorable' ? 'label-success' : 'label-danger' }}">
+    {{ avis.libelleAvis }}
+    {% if idType is not null and natureId is not null %}
+        {% if idType == 1 %}
+            {% if natureId in [7, 16, 17, 19] %}
+                à l'exploitation
+            {% else %}
+                à l'étude
+            {% endif %}
+        {% elseif idType in [2, 3] %}
+            {% if natureId in [20, 25] %}
+                à la réception des travaux
+            {% else %}
+                à l'exploitation
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</span>
