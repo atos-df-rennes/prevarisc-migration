@@ -319,6 +319,10 @@ ul#onglets_horizontaux .selection_onglets_hor a {
 	margin-bottom: 15px;
 }
 
+.text-bold {
+    font-weight: bold;
+}
+
 /* Recherche */
 .avis {
     display: inline-block;
