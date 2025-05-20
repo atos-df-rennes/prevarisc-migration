@@ -62,10 +62,42 @@ class Etablissement
      */
     private $adresses;
 
+    /**
+     * @var ?string
+     * 
+     * @ORM\Column(name="NUMEROID_ETABLISSEMENT", type="string", length=50, nullable=true)
+     */
+    private $numeroIdEtablissement;
+
+    /**
+     * @var ?Dossier
+     * 
+     * @ORM\OneToOne(targetEntity=Dossier::class, cascade={"persist", "remove"})
+     * 
+     * @ORM\JoinColumn(name="ID_DOSSIER_DONNANT_AVIS", referencedColumnName="ID_DOSSIER", nullable=true)
+     */
+    private $idDossierDonnantAvis;
+
+    /**
+     * @var Collection<int, EtablissementLie>
+     * 
+     * @ORM\OneToMany(targetEntity=EtablissementLie::class, mappedBy="etablissement", cascade={"persist", "remove"})
+     */
+    private $etablissementsFilsLiees;
+
+    /**
+     * @var Collection<int, EtablissementLie>
+     * 
+     * @ORM\OneToMany(targetEntity=EtablissementLie::class, mappedBy="filsEtablissement", cascade={"persist", "remove"})
+     */
+    private $etablissementsParentsLiees;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
         $this->adresses = new ArrayCollection();
+        $this->etablissementsFilsLiees = new ArrayCollection();
+        $this->etablissementsParentsLiees = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,4 +211,39 @@ class Etablissement
 
         return $this;
     }
+
+    public function getNumeroIdEtablissement(): ?string
+    {
+        return $this->numeroIdEtablissement;
+    }
+
+    public function setNumeroIdEtablissement(?string $numeroIdEtablissement): self
+    {
+        $this->numeroIdEtablissement = $numeroIdEtablissement;
+
+        return $this;
+    }
+
+    public function getIdDossierDonnantAvis(): ?Dossier
+    {
+        return $this->idDossierDonnantAvis;
+    }
+
+    public function setIdDossierDonnantAvis(?Dossier $idDossierDonnantAvis): self
+    {
+        $this->idDossierDonnantAvis = $idDossierDonnantAvis;
+
+        return $this;
+    }
+      
+    public function getEtablissementsFilsLiees(): Collection
+    {
+        return $this->etablissementsFilsLiees;
+    }
+
+    public function getEtablissementsParentsLiees(): Collection
+    {
+        return $this->etablissementsParentsLiees;
+    }
+
 }

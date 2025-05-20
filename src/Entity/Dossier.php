@@ -86,7 +86,7 @@ class Dossier
      *
      * @ORM\ManyToMany(targetEntity=Etablissement::class, inversedBy="dossiers")
      */
-    private $etablissements;
+    private $etablissements;  
 
     /**
      * @var ?string
@@ -451,9 +451,25 @@ class Dossier
      * @var ?Utilisateur
      * 
      * @ORM\ManyToOne(targetEntity=Utilisateur::class)
+     * 
      * @ORM\JoinColumn(name="VERROU_USER_DOSSIER", referencedColumnName="ID_UTILISATEUR", nullable=true)
      */
     private $verrouUserDossier;
+
+    /**
+     * @var Collection<int, AvisDerogations>
+     * 
+     * @ORM\OneToMany(targetEntity=AvisDerogations::class, mappedBy="idDossier", orphanRemoval=true)
+     */
+    private $avisDerogations;
+
+    /**
+     * @var Collection<int, DossierAffectation>
+     * 
+     * @ORM\OneToMany(targetEntity=DossierAffectation::class, mappedBy="idDossierAffect")
+     */
+    private $dossierAffectation;
+
 
     
     
@@ -464,6 +480,9 @@ class Dossier
         $this->numDossierDocurba = new ArrayCollection();
         $this->preventionnisteDossier = new ArrayCollection();
         $this->dossierDocManquants = new ArrayCollection();
+        $this->avisDerogations = new ArrayCollection();
+        $this->dossierAffectation = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -1237,6 +1256,62 @@ class Dossier
        return $this;
    }
 
+   /**
+    * @return Collection<int, AvisDerogations>
+    */
+   public function getAvisDerogations(): Collection
+   {
+       return $this->avisDerogations;
+   }
 
+   public function addAvisDerogation(AvisDerogations $avisDerogation): self
+   {
+       if (!$this->avisDerogations->contains($avisDerogation)) {
+           $this->avisDerogations[] = $avisDerogation;
+           $avisDerogation->setIdDossier($this);
+       }
+
+       return $this;
+   }
+
+   public function removeAvisDerogation(AvisDerogations $avisDerogation): self
+   {
+       if ($this->avisDerogations->removeElement($avisDerogation)) {
+           if ($avisDerogation->getIdDossier() === $this) {
+               $avisDerogation->setIdDossier(null);
+           }
+       }
+
+       return $this;
+   }
+
+   /**
+    * @return Collection<int, DossierAffectation>
+    */
+   public function getDossierAffectation(): Collection
+   {
+       return $this->dossierAffectation;
+   }
+
+   public function addDossierAffectation(DossierAffectation $dossierAffectation): self
+   {
+       if (!$this->dossierAffectation->contains($dossierAffectation)) {
+           $this->dossierAffectation[] = $dossierAffectation;
+           $dossierAffectation->setIdDossierAffect($this);
+       }
+
+       return $this;
+   }
+
+   public function removeDossierAffectation(DossierAffectation $dossierAffectation): self
+   {
+       if ($this->dossierAffectation->removeElement($dossierAffectation)) {
+           if ($dossierAffectation->getIdDossierAffect() === $this) {
+               $dossierAffectation->setIdDossierAffect(null);
+           }
+       }
+
+       return $this;
+   }
 
 }

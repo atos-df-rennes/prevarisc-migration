@@ -7,21 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DossierAffectationRepository::class)
+ * 
  * @ORM\Table(name="dossieraffectation")
  */
 class DossierAffectation
 {
-    /**
-     * @var int
-     * 
-     * @ORM\Id
-     * 
-     * @ORM\GeneratedValue
-     * 
-     * @ORM\Column( type="integer")
-     */
-    private $id;
-
     /**
      * @var ?\DateTimeInterface
      * 
@@ -46,6 +36,8 @@ class DossierAffectation
     /**
      * @var ?Dossier
      * 
+     * @ORM\Id
+     * 
      * @ORM\ManyToOne(targetEntity=Dossier::class)
      * 
      * @ORM\JoinColumn(name="ID_DOSSIER_AFFECT", referencedColumnName= "ID_DOSSIER", nullable=false)
@@ -55,16 +47,14 @@ class DossierAffectation
     /**
      * @var ?DateCommission
      * 
+     * @ORM\Id
+     * 
      * @ORM\ManyToOne(targetEntity=DateCommission::class)
      * 
      * @ORM\JoinColumn(name="ID_DATECOMMISSION_AFFECT", referencedColumnName= "ID_DATECOMMISSION", nullable=false)
      */
     private $idDateCommissionAffect;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getHeureDebAffect(): ?\DateTimeInterface
     {
