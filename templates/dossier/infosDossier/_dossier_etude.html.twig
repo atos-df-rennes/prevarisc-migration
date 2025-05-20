@@ -1,0 +1,124 @@
+    {% if numDocurba is not empty %}
+        <li class="row" style="margin-bottom: 20px;" id="NUMDOCURBA">
+        <div class="col-sm-3" style='float:left;'>Numéro document d'urbanisme</div>
+        <div class="col-sm-9">
+            <div id="listeDocUrba">
+                {% for docurba in numDocurba %}
+                    <div class="docurba">
+                        {{ docurba.numDocurba }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateSecretariat is not null  %}
+    <li class="row" style="margin-bottom: 20px;"  id="DATESECRETARIAT">
+        <div class="col-sm-3" style='float:left;'>Date réception secrétariat commission</div>
+        <div class="col-sm-9">
+            {{dateSecretariat|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if serviceInstructeur is not empty and serviceInstructeur != '0'  %}
+    <li class="row" style="margin-bottom: 20px;" id="SERVICEINSTRUC">
+        <div class="col-sm-3" style='float:left;'>Service instructeur</div>
+        <div class="col-sm-9">
+            {{ serviceInstructeur }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if etatDossier != 0 %}
+        <li class="row" style="margin-bottom: 20px;" id="INCOMPLET">
+            <div class="col-sm-3" style='float:left;'>Etat dossier</div>
+            <div class="col-sm-9">
+                <div style="font-weight:bolder;">
+                    {% if etatDossier == 0 %}
+                        Complet
+                    {% else %}
+                        Incomplet
+                    {% endif %}
+                    </div>
+                {% if dossierDocManquant is not empty %}
+                    <div style="margin-top:10px;">
+                        {% for ue in dossierDocManquant %}
+                            <div style="margin-bottom: 10px;">
+                                <strong>Incomplet le {{ ue.dateDocsManquant|date("d/m/Y") }}</strong>
+                                <p>{{ ue.docManquant }}</p>
+                                {% if ue.dateReceptionDoc %}
+                                    <span style="color:green;">Réception document(s) le {{ ue.dateReceptionDoc|date("d/m/Y") }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </li>
+    {% endif %}
+
+    {% if horsDelai != 0 %}
+    <li class="row" style="margin-bottom: 20px;" id="HORSDELAI">
+        <div class="col-sm-3" style='float:left;'>Hors délai</div>
+        <div class="col-sm-9">
+            <input type="checkbox" name="HORSDELAI_DOSSIER" {% if horsDelai == 1 %}checked{% endif %} disabled>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if mesuresCompensatoires is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="MESURESCOMPENS">
+        <div class="col-sm-3" style='float:left;'>Mesures compensatoires proposées</div>
+        <div class="col-sm-9">
+            {{ mesuresCompensatoires }}
+        </div>
+    </li>
+    {% endif %}
+
+
+    {% if mesuresComplementaires is not empty %}
+        <li class="row" style="margin-bottom: 20px;" id="MESURESCOMPLE">
+        <div class="col-sm-3" style='float:left;'>Mesures complémentaires à respecter</div>
+        <div class="col-sm-9">
+            {{ mesuresComplementaires }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if reglesADeroger is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="REGLEDEROG">
+        <div class="col-sm-3" style='float:left;'>Règles auxquelles il est demandé de déroger</div>
+        <div class="col-sm-9">
+            {{ reglesADeroger | nl2br }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if justificatifDerogation is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="JUSTIFDEROG">
+        <div class="col-sm-3" style='float:left;'>Justification de la dérogation</div>
+        <div class="col-sm-9">
+            {{ justificatifDerogation }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if datePrefecture is not null %}
+    <li class="row" style="margin-bottom: 20px;" id="DATEPREF">
+        <div class="col-sm-3" style='float:left;'>Date réception préfecture</div>
+        <div class="col-sm-9">
+            {{datePrefecture|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if chargeSecurite is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="CHARGESEC">
+        <div class="col-sm-3" style='float:left;'>Chargé de sécurité (T)</div>
+        <div class="col-sm-9">
+            {{ chargeSecurite }}
+        </div>
+    </li>
+    {% endif %}

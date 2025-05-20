@@ -1,0 +1,223 @@
+<h4  class="text-bold h4_subtitle">Informations sur le dossier</h4>
+<ul id="InfosDossier" class="list-unstyled" >
+
+    <li  class="row" style="margin-bottom: 20px;" id="DATEINSERT">
+        <div class="col-sm-3" style='float:left;' >Date de création du dossier</div>
+        <div class="col-sm-9">
+            {{dateCreation|format_date('full', locale='fr')}} 
+            {% if createurDossier is not null and createurDossier.informations is not null %}
+                par : {{ createurDossier.informations.prenom }} {{ createurDossier.informations.nom }}
+            {% endif %}
+            {% if verrouDossier and verrouUserDossier is not null and verrouUserDossier != ''  and verrouUserDossier.informations is not null %}
+                - Verrouillé par : {{ verrouUserDossier.informations.prenom }} {{ verrouUserDossier.informations.nom }}
+            {% endif %}
+        </div>
+    </li>
+
+    {% if objet != '' %}
+    <li class="row" style="margin-bottom: 20px;" id="OBJET">
+        <div class="col-sm-3" style='float:left;'>Objet</div>
+        <div class="col-sm-9">
+            {{ objet  | nl2br }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if demandeur != '' %}
+    <li class="row" style="margin-bottom: 20px;" id="DEMANDEUR">
+        <div class="col-sm-3" style='float:left;'>Demandeur</div>
+            <div class="col-sm-9">
+            {{ demandeur }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateMairie is not null  %}
+    <li class="row" style="margin-bottom: 20px;"  id="DATEMAIRIE">
+        <div class="col-sm-3" style='float:left;'>Date réception mairie</div>
+        <div class="col-sm-9">
+            {{dateMairie|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateSDIS is not null  %}
+    <li class="row" style="margin-bottom: 20px;"  id="DATESDIS">
+        <div class="col-sm-3" style='float:left;'>Date de réception SDIS</div>
+        <div class="col-sm-9">
+            {{dateSDIS|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if commissionDossier is not null and commissionDossier.id != 0 %}
+    <li class="row" style="margin-bottom: 20px;" id="COMMISSION">
+        <div class="col-sm-3" style="float:left;">Commission concernée</div>
+        <div class="col-sm-9">
+            {{ commissionDossier.libelle }} {% if typeCommissionDossier is not null  %} ({{ typeCommissionDossier.libelle}}) {% endif %}
+
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateCommission is not null and horsDelai == 0 %}
+    <li class="row" style="margin-bottom: 20px;" id="DATECOMM">
+        <div class="col-sm-3" style='float:left;'>Date de commission en salle</div>
+        <div class="col-sm-9">
+            {{dateCommission|format_date('full', locale='fr')}}
+            {% if dateCommissionDossier != "" %}
+                &nbsp;&nbsp;
+                <a href="/calendrier-des-commissions/gestionodj/dateCommId/{{ dateCommissionDossier }}" title="Afficher ordre du jour">
+                    <span class="glyphicon glyphicon-calendar" style="color: black;" aria-hidden="true"></span>
+                </a>
+            {% endif %}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if descriptifAnalyseRisque is not null %}
+    <li class="row" style="margin-bottom: 20px;" id="DESCANAL">
+        <div class="col-sm-3" style='float:left;'>Descriptif analyse de risque</div>
+        <div class="col-sm-9">
+            {{ descriptifAnalyseRisque }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if absenceQuorum != 0 %}
+    <li class="row" style="margin-bottom: 20px;" id="ABSQUORUM">
+        <div class="col-sm-3" style='float:left;'>Absence de quorum</div>
+            <div class="col-sm-9">
+            <input type="checkbox" name="ABSQUORUM_DOSSIER" {% if absenceQuorum == 1 %}checked{% endif %} disabled>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if celluleNonExploitée != 0 %}
+    <li class="row" style="margin-bottom: 20px;" id="CNE">
+        <div class="col-sm-3" style='float:left;'>Cellule non exploitée</div>
+        <div class="col-sm-9">
+            <input type="checkbox" name="CNE_DOSSIER" {% if celluleNonExploitée == 1 %}checked{% endif %} disabled>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if facteurDanger is not null and ((isSignalement and avisDossier.id == 2) or facteurDanger > 0)  %}
+    <li class="row" style="margin-bottom: 20px;" id="FACTDANGE">
+        <div class="col-sm-3" style='float:left;'>Facteur de criticité</div>
+        <div class="col-sm-9">
+            <span class="factDange">
+                {% if isSignalement %}
+                    {% if facteurDanger == 0 %}
+                        Non
+                    {% else %}
+                        Oui
+                    {% endif %}
+                {% else %}
+                    {{ facteurDanger }}
+                {% endif %}
+            </span>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if echeancierTravaux is not null %}
+    <li class="row" style="margin-bottom: 20px;"  id="ECHEANCIERTRAV">
+        <div class="col-sm-3" style='float:left;'>Echéancier de travaux / Schéma de mise en sécurité</div>
+        <div class="col-sm-9">
+            {{ echeancierTravaux }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if idType == 1 %}
+        {{ include('dossier/infosDossier/_dossier_etude.html.twig') }}
+    {% elseif idType == 2 or idType == 3 %} 
+        {{ include('dossier/infosDossier/_dossier_visiteCommission_groupeVisite.html.twig') }}
+    {% elseif idType == 4 %} 
+        {{ include('dossier/infosDossier/_dossier_reunion.html.twig') }}
+    {% elseif idType == 5 %}
+        {{ include('dossier/infosDossier/_dossier_courrier_courriel.html.twig') }}
+    {% elseif idType == 6 %}
+        {{ include('dossier/infosDossier/_dossier_intervention.html.twig') }}
+    {% elseif idType == 7 %} 
+        {{ include('dossier/infosDossier/_dossier_arrete.html.twig') }}
+    {% endif %} 
+
+    {% if avisDossier is not null and avisDossier != 0 and horsDelai != 1 %}
+    <li class="row" style="margin-bottom: 20px;" id="AVIS">
+        <div class="col-sm-3" style='float:left;'>
+            {% if idType in [1, 2] %}  Avis du rapporteur {% elseif idType == 3 %} Avis du groupe de visite {% endif %}
+        </div>
+        <div class="col-sm-9">
+            {% include 'dossier/_avis.html.twig' with {'avis': avisDossier, 'idType': idType, 'natureId': natureId} %}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if avisDossierCommission is not null and avisDossierCommission.id != 0 and affichageAvis == 0 %}
+    <li class="row" style="margin-bottom: 20px;"  id="AVIS_COMMISSION">
+        <div class="col-sm-3" style='float:left;'>Avis de la commission</div>
+        <div class="col-sm-9">
+            {% include 'dossier/_avis.html.twig' with {'avis': avisDossierCommission, 'idType': idType, 'natureId': natureId} %}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if anomalie is not null %}
+    <li class="row" style="margin-bottom: 20px;" id="ANOMALIE">
+        <div class="col-sm-3" style='float:left;'>Analyse de risque</div>
+        <div class="col-sm-9">
+            {{ anomalie | nl2br }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if observations is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="OBSERVATION">
+        <div class="col-sm-3" style='float:left;'>Observations</div>
+        <div class="col-sm-9">
+            {{observations | nl2br }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateReponse is not null %}
+    <li class="row" style="margin-bottom: 20px;"  id="DATEREP">
+        <div class="col-sm-3" style='float:left;'>Date de réponse</div>
+        <div class="col-sm-9">
+            {{dateReponse|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dureeDeplacement is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="DUREEDEPL">
+        <div class="col-sm-3" style='float:left;'>Durée de déplacement</div>
+        <div class="col-sm-9">
+            {{dureeDeplacement}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if gravitePrescription is not empty %}            
+    <li class="row" style="margin-bottom: 20px;" id="GRAVPRESC">
+        <div class="col-sm-3" style='float:left;'>Gravité prescription</div>
+        <div class="col-sm-9">
+            {{ gravitePrescription }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if preventionnisteDossier is not empty %}
+    <li class="row" style="margin-bottom: 20px;"id="PREVENTIONNISTE">
+        <div class="col-sm-3" style='float:left;'>Préventionniste(s) du dossier</div>
+        <div class="col-sm-9">
+            {% for preventionniste in preventionnisteDossier %}
+                {% include 'utilisateurs/_user.html.twig' with { preventionniste: preventionniste } %}
+            {% endfor %}
+        </div>   
+    </li>
+    {% endif %}     
+
+</ul>  

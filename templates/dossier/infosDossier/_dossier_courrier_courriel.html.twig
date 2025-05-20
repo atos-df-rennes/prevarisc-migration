@@ -1,0 +1,26 @@
+    {% if dateEnvoiTransit is not null  %}
+    <li class="row" style="margin-bottom: 20px;" id="DATEENVTRANSIT">
+        <div class="col-sm-3" style='float:left;'>Date d'envoi/transit</div>
+        <div class="col-sm-9">
+            {{dateEnvoiTransit|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+    
+    {% if dateTransfertCommission is not null %}
+    <li class="row" style="margin-bottom: 20px;" id="DATETRANSFERTCOMM">
+        <div class="col-sm-3" style='float:left;'>Date de transfert à la commissions compétente</div>
+        <div class="col-sm-9">
+            {{dateTransfertCommission|format_date('full', locale='fr')}}
+    </li>
+    {% endif %}
+
+    {% if dateReceptionCommission is not null %}
+    <li class="row" style="margin-bottom: 20px;" id="DATERECEPTIONCOMM">
+        <div class="col-sm-3" style='float:left;'>Date de réception à la commissions compétente</div>
+        <div class="col-sm-9">
+            {{dateReceptionCommission|format_date('full', locale='fr')}}
+        </div>
+
+    </li>
+    {% endif %}

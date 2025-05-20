@@ -1,0 +1,54 @@
+<h4 class="text-bold h4_subtitle">Informations sur Plat'AU</h4>
+    <ul class="list-unstyled">
+        <li class="row" style="margin-bottom: 20px;" id="type">
+            <div class="col-sm-3" style='float:left;'> Identifiant de la consultation </div>
+            <div class="col-sm-9">
+                {{ platauConsultation.id }}
+            </div>
+        </li>
+
+        {% if ( platauConsultation.dateReponseAttendue is not null) %}
+        <li class="row" style="margin-bottom: 20px;" id="type">
+            <div class="col-sm-3" style='float:left;'> Temps restant pour une réponse </div>
+            <div class="col-sm-9">
+                    <span class="{{couleurTempsRestant}}">{{ tempsRestant }}</span>
+            </div>
+        </li>
+        {% endif %}
+
+        <li class="row" style="margin-bottom: 20px;" id="type">
+            <div class="col-sm-3" style='float:left;'> Prise en compte métier </div>
+            <div class="col-sm-9">
+                {% if statutPec == pecEnErreur %}
+                    <i class="glyphicon glyphicon-warning-sign"></i>                    
+                {% endif %}
+                <span id="statut-pec" class="{{ classPec }}">{{ statutLabelPec}}</span>
+                    {% if platauConsultation.datePec %}
+                        le {{platauConsultation.datePec|format_date('full', locale='fr')}}
+                    {% endif %}
+                {% if pecEnPriseEncompte == statutPec and platauConsultation.dateAvis == null %}
+                    <a id="retry-export-pec" href="#" title="Renvoyer la prise en compte métier" data-id="{{platauConsultation.id}}">
+                        <i class='glyphicon glyphicon-repeat'></i>
+                    </a>
+                {% endif %}
+            </div>
+        </li>
+        
+        <li class="row" style="margin-bottom: 20px;" id="type">
+            <div class="col-sm-3" style='float:left;'> Avis </div>
+            <div class="col-sm-9">
+                {% if statutAvis == avisEnErreur %}
+                    <i class="glyphicon glyphicon-warning-sign"></i>                    
+                {% endif %}
+                <span id="statut-avis" class="{{ classAvis }}">{{ statutLabelAvis}}</span>
+                {% if platauConsultation.dateAvis  %}
+                    le {{platauConsultation.dateAvis|format_date('full', locale='fr')}}
+                {% endif %}
+                {% if avisTraite == statutAvis %}
+                    <a id="retry-export-avis" href="#" title="Renvoyer l'avis" data-id="{{platauConsultation.id}}">
+                        <i class='glyphicon glyphicon-repeat'></i>
+                    </a>
+                {% endif %}                        
+            </div>
+        </li>
+    </ul>

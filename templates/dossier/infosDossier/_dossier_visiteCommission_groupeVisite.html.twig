@@ -1,0 +1,43 @@
+    {% if differeAvis != 0 %}
+    <li class="row" style="margin-bottom: 20px;" id="DIFFEREAVIS">
+        <div class="col-sm-3" style='float:left;'>Differe l'avis</div>
+        <div class="col-sm-9">
+            <input type="checkbox" name="DIFFEREAVIS_DOSSIER" {% if differeAvis == 1 %}checked{% endif %} disabled>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateVisite is not null  %}
+    <li class="row" style="margin-bottom: 20px;"  id="DATEVISITE">
+        <div class="col-sm-3" style='float:left;'>Date de visite</div>
+        <div class="col-sm-9">
+            {{dateVisite|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateRVRAT is not null  %}
+    <li class="row" style="margin-bottom: 20px;" id="DATERVRAT">
+        <div class="col-sm-3" style='float:left;'>Date de réception du RVRAT et attestation solidité et MO</div>
+        <div class="col-sm-9">
+            {{dateRVRAT|format_date('full', locale='fr')}}
+    </li>
+    {% endif %}
+
+    {% if delaiPrescription is not null %}
+    <li class="row" style="margin-bottom: 20px;"  id="DELAIPRESC">
+        <div class="col-sm-3" style='float:left;'>Date avant laquelle les prescriptions doivent être levées</div>
+        <div class="col-sm-9">
+            {{delaiPrescription|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if nonPrononce != 0 %}
+    <li class="row" style="margin-bottom: 20px;"id="NPSP">
+        <div class="col-sm-3" style='float:left;'>Ne peut se prononcer</div>
+        <div class="col-sm-9">
+            <input type="checkbox" name="NPSP_DOSSIER" {% if nonPrononce == 1 %}checked{% endif %} disabled>
+        </div>
+    </li>
+    {% endif %}

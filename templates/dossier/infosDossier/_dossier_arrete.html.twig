@@ -1,0 +1,8 @@
+    {% if dateSignature is not null %}
+    <li class="row" style="margin-bottom: 20px;"id="DATESIGN">
+        <div class="col-sm-3" style='float:left;'>Date de signature</div>
+        <div class="col-sm-9">
+            {{dateSignature|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}

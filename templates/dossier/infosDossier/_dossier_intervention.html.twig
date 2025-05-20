@@ -1,0 +1,64 @@
+    {% if operationSDIS is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="OPERSDIS">
+        <div class="col-sm-3" style='float:left;'>Opération (intervention) SDIS</div>
+        <div class="col-sm-9">
+            {% if operationSDIS == 1 %}
+                oui
+            {% elseif operationSDIS == 0 %}
+                non
+            {% endif %}
+        </div>
+    </li>
+    {% endif %}
+    
+    {% if RCCI is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="RCCI">
+        <div class="col-sm-3" style='float:left;'>RCCI (oui/non) lien rapport</div>
+        <div class="col-sm-9">
+            {% if RCCI == 1 %}
+                oui
+            {% elseif RCCI == 0 %}
+                non
+            {% endif %}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if REX is not empty %}
+    <li class="row" style="margin-bottom: 20px;" id="REX">
+        <div class="col-sm-3" style='float:left;'>REX</div>
+        <div class="col-sm-9">
+            {{ REX }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if numIntervention is not empty %}            
+    <li class="row" style="margin-bottom: 20px;" id="NUMINTERV">
+        <div class="col-sm-3" style='float:left;'>Numéro d'intervention</div>
+        <div class="col-sm-9">
+            {{ numIntervention }}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dateIntervention is not null %}
+    <li class="row" style="margin-bottom: 20px;"id="DATEINTERV">
+        <div class="col-sm-3" style='float:left;'>Date et heure d'intervention</div>
+        <div class="col-sm-9">
+            {{dateIntervention|format_date('full', locale='fr')}}
+            {% if heureIntervention is not null %}
+                {{ heureIntervention }}
+            {% endif %}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if dureeIntervention is not null %}
+    <li class="row" style="margin-bottom: 20px;"id="DUREEINTERV">
+        <div class="col-sm-3" style='float:left;'>Durée intervention</div>
+        <div class="col-sm-9">
+            {{dureeIntervention|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}

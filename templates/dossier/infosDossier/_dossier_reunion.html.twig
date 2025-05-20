@@ -1,0 +1,17 @@
+    {% if dateReunion is not null %}
+    <li class="row" style="margin-bottom: 20px;" id="DATEREUN">
+        <div class="col-sm-3" style='float:left;'>Date réunion</div>
+        <div class="col-sm-9">
+            {{dateReunion|format_date('full', locale='fr')}}
+        </div>
+    </li>
+    {% endif %}
+
+    {% if lieuReunion != '' %}
+    <li class="row" style="margin-bottom: 20px;" id="LIEUREUNION">
+        <div class="col-sm-3" style='float:left;'>Lieu réunion</div>
+        <div class="col-sm-9">
+            {{ lieuReunion | nl2br }}
+        </div>
+    </li>
+    {% endif %}
