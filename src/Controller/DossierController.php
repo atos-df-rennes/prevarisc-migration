@@ -1,17 +1,19 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Dossier;
-use App\Entity\PlatauConsultation;
 use App\Enum\PlatauStatutAvis;
+use App\Repository\UtilisateurRepository;
+use App\Repository\CapsuleRubriqueRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\DossierRepository;
 use App\Service\TempsRestant;
 use App\Enum\PlatauStatutPec;
-
+use App\Service\DossierService;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 /**
@@ -20,17 +22,25 @@ use App\Enum\PlatauStatutPec;
 class DossierController extends AbstractController
 {
     /**
-     * @Route("/dossier/{id}", name="dossier_infos")
+     * @Route("/dossier/{id}", name="dossier_index")
      */
-    public function index(Dossier $dossier, TempsRestant $tempsRestant): Response
+    public function index(Dossier $dossier, TempsRestant $tempsRestant, CapsuleRubriqueRepository $capsuleRubriqueRepository,
+    DossierService $dossierService): Response
     {
+        //Type et nature de dossier 
+        $idDossier = $dossier->getId();
         $typeDossier = $dossier->getType();
         $libelleType = $typeDossier->getLibelle();
-        $idType = $typeDossier->getId();        
+        $idType = $typeDossier->getId(); 
         $natureDossier = $dossier->getNature();
-        $nature = $natureDossier->getLibelle();
-        $natureId = $natureDossier->getId();
-      
+        if($natureDossier !== null){
+            $nature = $natureDossier->getLibelle();
+            $natureId = $natureDossier->getId();
+        }
+
+        //Infos de dossier
+        $user = $this->getUser()->getId();
+        $dossierAffectation= $dossier->getDossierAffectation();
         $objetDossier = $dossier->getObjet();
         $demandeurDossier = $dossier->getDemandeur();
         $lieuReunion = $dossier->getLieuReunion();
@@ -44,6 +54,45 @@ class DossierController extends AbstractController
         $horsDelai = $dossier->getHorsDelai();
         $differeAvis = $dossier->getDiffereAvis();
         $nonPrononce = $dossier->getNonPrononce();
+        $absenceQuorum = $dossier->getAbsenceQuorum();
+        $celluleNonExploitée = $dossier->getCelluleNonExploitée();
+        $facteurDanger = $dossier->getFacteurDanger();
+        $echeancierTravaux = $dossier->getEcheancierTravaux();
+        $anomalie = $dossier->getAnomalie();
+        $operationSDIS = $dossier->getOperationSDIS();
+        $RCCI = $dossier->getRCCI();
+        $REX = $dossier->getREX();
+        $chargeSecurite = $dossier->getChargeSecurite();
+        $gravitePrescription = $dossier->getGravitePrescription();
+        $numIntervention = $dossier->getNumIntervention();
+        $numDocurba = $dossier->getNumDossierDocurba();
+        $commissionDossier = $dossier->getCommissionDossier();
+        if($commissionDossier !== null){
+            $dateCommissionDossier = $commissionDossier->getDateCommissions()->last()->getId();
+            $typeCommissionDossier = $commissionDossier->getType();
+        }
+
+        $preventionnisteDossier = $dossier->getPreventionnisteDossier();
+        $dossierDocManquant = $dossier->getDossierDocManquants();
+        $observations = $dossier->getObservations();
+        $affichageAvis = $absenceQuorum || $horsDelai || $etatDossier || $nonPrononce || $differeAvis;
+
+        //Createur et verrouUser
+        $createurDossier = $dossier->getCreateurDossier();
+        if($createurDossier != null){
+            $idCreateurDossier = $createurDossier->getInformations()->getId();
+        }
+        $verrouDossier = $dossier->getVerrouDossier();
+        $verrouUserDossier = $dossier->getVerrouUserDossier();
+        if (!$verrouUserDossier || $verrouUserDossier->getId() === 0) {
+            $verrouUserDossier = null;
+        }
+
+        //Avis
+        $avisDossier = $dossier->getAvisDossier();
+        $avisDossierCommission = $dossier->getAvisDossierCommission();
+
+        //Dates
         $dateCreation = $dossier->getDateCreation();
         $dateReunion = $dossier->getDateReunion();
         $dateMairie = $dossier->getDateMairie();
@@ -63,40 +112,9 @@ class DossierController extends AbstractController
         $dateIntervention = $dossier->getDateIntervention();
         if($dateIntervention !== null){
             $heureIntervention = $dateIntervention->format('H:i');
-        }
+        }        
         $DureeIntervention = $dossier->getDureeIntervention();
         $dureeDeplacement = $dossier->getDureeDeplacement();
-        $absenceQuorum = $dossier->getAbsenceQuorum();
-        $celluleNonExploitée = $dossier->getCelluleNonExploitée();
-        $facteurDanger = $dossier->getFacteurDanger();
-        $echeancierTravaux = $dossier->getEcheancierTravaux();
-        $anomalie = $dossier->getAnomalie();
-        $operationSDIS = $dossier->getOperationSDIS();
-        $RCCI = $dossier->getRCCI();
-        $REX = $dossier->getREX();
-        $chargeSecurite = $dossier->getChargeSecurite();
-        $gravitePrescription = $dossier->getGravitePrescription();
-        $numIntervention = $dossier->getNumIntervention();
-        $numDocurba = $dossier->getNumDossierDocurba();
-        $commissionDossier = $dossier->getCommissionDossier();
-        if($commissionDossier !== null && $commissionDossier->getId() != 0 ){
-            $dateCommissionDossier = $commissionDossier->getDateCommissions()->last()->getId();
-            $typeCommissionDossier = $commissionDossier->getType();
-
-        }
-        $avisDossier = $dossier->getAvisDossier();
-        $avisDossierCommission = $dossier->getAvisDossierCommission();
-        $affichageAvis = $absenceQuorum || $horsDelai || $etatDossier || $nonPrononce || $differeAvis; 
-        $preventionnisteDossier = $dossier->getPreventionnisteDossier();
-        $dossierDocManquant = $dossier->getDossierDocManquants();
-        $observations = $dossier->getObservations();
-        $createurDossier = $dossier->getCreateurDossier();
-        $verrouDossier = $dossier->getVerrouDossier();
-        $verrouUserDossier = $dossier->getVerrouUserDossier();
-        $thirdPartyPlugins = explode(';', getenv('PREVARISC_THIRDPARTY_PLUGINS'));
-        $isSignalement = in_array('Plugin_FacteurCriticite', $thirdPartyPlugins, true);
-       
-
         //Partie concernant Information Plat'AU 
         $platauConsultation = $dossier->getPlatauConsultation();
         if($platauConsultation != null ){
@@ -122,8 +140,24 @@ class DossierController extends AbstractController
         $avisTraite = $enumStatutAvis::TRAITE;
         $statutLabelAvis = $enumStatutAvis::getLabel($statutAvis);
         $classAvis = $enumStatutAvis::getCssClass($statutAvis); 
+       
+        //Verification technique , effectifsDegagement, AvisDerogation
+        $verificationsRubrique = $capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifVerificationsTechniques']);
+        $effectifsRubrique = $capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsDossier']);
+        $nomOngletVerificationsTechniques = $verificationsRubrique ? $verificationsRubrique->getNom() : null;
+        $nomOngletEffectifsDegagements = $effectifsRubrique ? $effectifsRubrique->getNom() : null;
+        $avisDerogation =$dossier->getAvisDerogations();
+        if($avisDerogation !=null ){
+            $hasAvisDerogation =true;
+        };
+
+        $etabData = $dossierService->getEtabInfos($dossier, null);
+        $thirdPartyPlugins = explode(';', getenv('PREVARISC_THIRDPARTY_PLUGINS'));
+        $isSignalement = in_array('Plugin_FacteurCriticite', $thirdPartyPlugins, true);
 
         return $this->render('dossier/index.html.twig', [
+            'idUser' =>$user,
+            'idDossier' => $idDossier,
             'libelleType' => $libelleType,
             'idType' => $idType,
             'nature' => $nature,
@@ -206,8 +240,77 @@ class DossierController extends AbstractController
             'avisARenvoyer' => $avisARenvoyer,
             'avisEnCours' => $avisenCours,
             'classAvis' => $classAvis,
-            'statutLabelAvis' => $statutLabelAvis  
+            'etabData' =>$etabData,
+            'dossierAffectation' =>$dossierAffectation,
+            'idCreateurDossier' =>$idCreateurDossier,
+            'statutLabelAvis' => $statutLabelAvis,
+            'nomOngletVerificationsTechniques' => $nomOngletVerificationsTechniques,
+            'nomOngletEffectifsDegagements' => $nomOngletEffectifsDegagements,
+            'hasAvisDerogation' => $hasAvisDerogation,
+ 
         ]);
     }
 
+    /**
+     * @Route("/dossier/{id}/delete", name="dossier_delete", methods={"GET"})
+     */
+    public function delete(int $id, DossierRepository $dossierRepository, EntityManagerInterface $em): RedirectResponse{
+        try {
+            $dossier = $dossierRepository->find($id);
+            if (!$dossier) {
+                throw $this->createNotFoundException('Dossier introuvable');
+            }
+            // Vérifie combien d'établissements sont liés à ce dossier
+            $etablissements = $dossier->getEtablissements();
+            $deleteDossier = true;
+            if ($deleteDossier) {
+                $dateSuppression = new \DateTime();
+                $dossier->setDateSuppression($dateSuppression);
+                $user = $this->getUser();
+                if ($user) {
+                    $dossier->setDeletedBy($user);
+                }
+                foreach ($dossier->getDossierAffectation() as $affect) {
+                    $em->remove($affect);
+                }
+                $em->flush();
+                // Mise à jour du dernier dossier donnant avis pour chaque établissement
+                foreach ($etablissements as $etab) {
+                    $dernierDossier = $dossierRepository->findDernierDossierDonnantAvisParEtablissement($etab->getId());
+                    if ($dernierDossier) {
+                        $etab->setIdDossierDonnantAvis($dernierDossier);
+                        $em->persist($etab);
+                        $em->flush();
+                    }
+                }
+                $this->addFlash('success', 'Le dossier a bien été supprimé.');
+            } else {
+                $this->addFlash('warning', 'Le dossier est lié à plusieurs établissements et n\'a pas été supprimé.');
+            }
+
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Erreur lors de la suppression du dossier : ' . $e->getMessage());
+        }
+        return $this->redirect('/search/dossier?objet=&page=1');
+    }
+
+    /**
+     * @Route("/dossier/{id}/retablir", name="retablir_dossier", methods={"GET"})
+     */
+    public function retablir(int $id, DossierRepository $dossierRepository, EntityManagerInterface $em): RedirectResponse {
+        try {
+            $dossier = $dossierRepository->find($id);
+            if (!$dossier) {
+                throw $this->createNotFoundException('Dossier introuvable');
+            }
+            $dossier->setDateSuppression(null);
+            $dossier->setDeletedBy(null);
+            $em->flush();
+
+            $this->addFlash('success', 'Le dossier a bien été rétabli.');
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Erreur lors du rétablissement du dossier : ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('dossier_index', ['id' => $id]);
+    }
 }

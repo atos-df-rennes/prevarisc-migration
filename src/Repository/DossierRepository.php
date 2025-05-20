@@ -69,4 +69,23 @@ class DossierRepository extends ServiceEntityRepository
 
         return $query->getResult();
     }
+
+    public function findDernierDossierDonnantAvisParEtablissement(int $idEtab): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->innerJoin('d.etablissements', 'e')
+            ->innerJoin('d.avisDossierCommission', 'adc')
+            ->innerJoin('d.nature', 'n') 
+            ->where('e.id = :idEtab')
+            ->andWhere('n.id IN (:natureIds)')
+            ->andWhere('adc.id IN (1,2)')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->setParameter('idEtab', $idEtab)
+            ->setParameter('natureIds', [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48])
+            ->orderBy('d.dateCommission', 'DESC') 
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
 }
