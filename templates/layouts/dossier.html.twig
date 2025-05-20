@@ -1,0 +1,267 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block lateral_navigation %}
+    <ul class="nav nav-tabs nav-stacked menu_dashboard">
+
+        <input type="hidden" name="ID_USER" id="ID_USER" value="{{idUser }}" />
+        <input type="hidden" name="ID_DOSSIER" id="ID_DOSSIER" value="{{idDossier }}" />
+
+
+        <li {% if app.request.get('_route') is same as('dossier_index') %}class="active"{% endif %}>
+            <a href="{{ path('dossier_index', {'id': idDossier})  }}"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Informations générales </a>
+        </li>
+
+        {% if idType == 1 and nature != 3 and nature != 9 %}
+            <li {% if app.request.get('_route') == 'dossier_descriptif' %}class="active"{% endif %}>
+                <a href="/dossier/descriptif/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                    Descriptif{% if nature == 1 or nature == 2 %} des travaux{% endif %}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if idType in [1, 2, 3]%}
+            <li {% if app.request.get('_route') == 'dossier_texteApplicable' %} class="active"{% endif %}>
+                <a href="/dossier/textes-applicables/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
+                    Textes applicables
+                </a>
+            </li>
+        {% endif %}
+
+        {% if idType != 5 %}
+            <li {% if app.request.get('_route') == 'dossier_docconsulte' %}class="active"{% endif %}>
+                <a href="/dossier/docconsulte/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                    Documents consultés
+                </a>
+            </li>
+        {% endif %}
+
+        {% if idType in [2, 3] and is_granted('verifications_techniques') %}
+            <li {% if app.request.get('_route') == 'dossier_verificationsTechniques' %} class="active"{% endif %}>
+                <a href="/dossier/verifications-techniques/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {{ nomOngletVerificationsTechniques }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if idType == 1 and is_granted('effectifs_degagements_doss') %}
+            <li {% if app.request.get('_route') == 'dossier_effectifsDegagements' %} class="active"{% endif %}>
+                <a href="/dossier/effectifs-degagements-dossier/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {{ nomOngletEffectifsDegagements }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if idType == 1 and is_granted('avis_derogations') %}
+            <li {% if app.request.get('_route') == 'dossier_avisDerogations' %} class="active"{% endif %}>
+                <a href="/dossier/avis-et-derogations/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                    Avis et dérogations
+                    {% if hasAvisDerogation %}
+                        <div class="greenCircle pull-right"></div>
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if nature not in [3, 5, 31, 32, 40, 41, 42, 44] %}
+            <li {% if app.request.get('_route') == 'dossier_prescription' %}class="active"{% endif %}>
+                <a href="/dossier/prescription/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+                    Prescriptions
+                </a>
+            </li>
+        {% endif %}
+
+        <li {% if app.request.get('_route') == 'dossier_liees' %}class="active"{% endif %}>
+            <a href="/dossier/liees/id/{{ idDossier }}">
+                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                Établissements et dossiers liés
+            </a>
+        </li>
+
+        {% if nature not in [40, 41, 42, 44] %}
+            <li {% if app.request.get('_route') == 'dossier_contact' %}class="active"{% endif %}>
+                <a href="/dossier/contact/id/{{ idDossier }}">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                    Contacts
+                </a>
+            </li>
+        {% endif %}
+        
+        <li {% if app.request.get('_route') == 'dossier_pieceJointe' %}class="active"{% endif %}>
+            <a href="/dossier/piece-jointe/id/{{ idDossier }}">
+                <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
+                Pièces jointes
+            </a>
+        </li>
+
+        <li class="nav-header">Actions</li>
+
+        {% set verrou = true %}
+        {% if verrouDossier == 1 %}
+            {% set label = 'Déverrouiller' %}
+            {% set idLink = 'DEVERROU' %}
+        {% else %}
+            {% set label = 'Verrouiller' %}
+            {% set idLink = 'VERROU' %}
+            {% set verrou = false %}
+        {% endif %}
+
+        <li>
+            <a class="sep" id="{{ idLink }}" style="cursor: pointer;">
+                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> {{ label }}
+            </a>
+        </li>
+
+        <li {% if app.request.get('_route') == 'dossier_rapport' %}class="active"{% endif %}>
+            <a href="/dossier/rapport/id/{{ idDossier }}">
+                <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                Rapport
+            </a>
+        </li>
+
+        {% if not verrouDossier and (dossierAffectation|first != null and dossierAffectation|first.idDateCommissionAffect != null) %}
+            <li>
+                <a class="sep" href="/calendrier-des-commissions/gestionodj/dateCommId/{{ dossierAffectation|first.idDateCommissionAffect.id }}">
+                    <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                Afficher ordre du jour
+                </a>
+            </li>
+        {% endif %}
+
+        {% if not verrouDossier and is_granted('delete_dossier') %}
+            <li>
+                {% if dateSupprime != null %}
+                    <a id="retablissementDossier"
+                        href="{{ path('retablir_dossier', { id: idDossier }) }}">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            Rétablir le dossier
+                    </a>
+
+                {% else %}
+                
+                    <a id="suppressionDossier" href="#">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        Supprimer le dossier
+                    </a>
+                {% endif %}
+            </li>
+        {% endif %}
+    </ul>
+
+    <!-- Boîte de confirmation de la suppression  -->
+<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="confirmModalLabel">Confirmation de la suppression</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le dossier&nbsp;?</p>
+            </div>
+
+            <div class="modal-footer">
+            <a href="{{ path('dossier_delete', { id: idDossier }) }}" class="btn btn-success">
+                Supprimer
+            </a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block body_structure %}
+    {% include 'dossier/_header.html.twig' %}
+    <div class="row">
+        <div class="col-xs-12"> 
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+    
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+    $(document).ready(function(){
+       $("#VERROU").click(function(event){
+            event.preventDefault();    
+            $.ajax({
+                url: "/dossier/verrou",
+                data: {
+                    idDossier: $("#ID_DOSSIER").val(),
+                    ID_CREATEUR: $("#ID_USER").val()
+                },                
+                type: "POST",
+                beforeSend: function(){
+                    $("#chargement").html("<img src='/images/load.gif' />");
+                },
+                success: function(affichageResultat){
+                    window.location = "/dossier/" + affichageResultat;
+                },
+                statusCode: {
+                    401:function(){
+                        alert("Vous n'êtes pas autorisé à effectuer cette action");
+                        $("#chargement").html("");
+                    },
+                },
+                error: function(){
+                    return false;
+
+                }
+
+            });
+        });
+
+        $("#DEVERROU").click(function(){
+            $.ajax({
+                url: "/dossier/deverrou", 
+                data: { idDossier: "{{ idDossier }}" },
+                type: "POST",
+                beforeSend: function(){
+                    $("#chargement").html("<img src='/images/load.gif' />");
+                },
+                success: function(affichageResultat){
+                    window.location = affichageResultat;
+                },
+                statusCode: {
+                    401: function(){
+                        alert("Vous n'êtes pas autorisé à effectuer cette action");
+                        $("#chargement").html("");
+                    }
+                },
+                error: function(){
+                    return false;
+                }
+            });
+
+            return false;
+        });
+
+        $("#suppressionDossier").click(function() {
+            $('#confirm-modal').modal({
+                show: true
+            });
+        });
+    });
+   
+    
+</script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/etiquetteAvisDerogations/greenCircle.css') }}" />
+{% endblock %}
+

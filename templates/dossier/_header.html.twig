@@ -1,0 +1,156 @@
+<h2 class="page-header" style="font-weight: bold;">
+    <span style="color: #333333;">{{ libelleType }}</span>
+        {% if dateSupprime != null %}
+            <span class='label label-danger'style="font-size: 12px;">
+                DOSSIER SUPPRIME
+            </span>
+        {% endif %}
+
+        <small><br/> {{ objet |nl2br }} </small>
+
+        {% if platauConsultation is not null and platauConsultation.id is not null %}
+            <p style='font-size: small;' class='dossier__identifiant-platau label label-info'><strong>CONSULTATION PLATAU : {{platauConsultation.id}}</strong></p>
+        {% endif %}
+        
+        <div style="margin: 10px; line-height: 20px;" id="infosEtabs">
+            {% set etabCount = etabData|length %}
+            {% set firstEtab = etabData|first %}
+            {% set sortedEtabs = etabData|sort((a, b) => a.etablissementInfo.libelle <=> b.etablissementInfo.libelle) %}
+            
+            {% if etabCount > 0 %}
+                {% if etabCount == 1 and firstEtab.etablissementInfo.idGenre.libelleGenre == "Site"  %}
+                    Site concerné :
+                    <a href='/etablissement/index/id/'.{{firstEtab.etablissementInfo.etablissement.id}} class='etab'>
+                        {{firstEtab.etablissementInfo|first.libelle }} 
+                    </a>
+                    <span style='font-size:10px'>{{firstEtab.etablissement.numeroIdEtablissement }}</span>
+                {% else %}
+
+                    Etablissement(s) concerné(s) :
+                    
+                    {% for etab in sortedEtabs %}
+                        {% if sortedEtabs|length != 1 %}
+                            <br/>
+                        {% endif %}                  
+                    
+                        {% set nbAdresse = etab.etablissement.adresses|length %}
+                        <button
+                            type="button"
+                            class="btn btn-link"
+                            id="descEtab"
+                            title="Afficher le descriptif"
+                            data-toggle="modal"
+                            data-target="#modal-desc"
+                            data-id="{{ etab.etablissement.id }}"
+                            style="padding: 0; vertical-align: middle; outline: none;">
+                            <i class="glyphicon glyphicon-list-alt" style="color: black; font-size: 12px; vertical-align: middle;"></i>
+                        </button>
+
+                        <a
+                            href="/etablissement/dossiers/id/{{etab.etablissement.id}}"
+                            title='Se rendre à la liste des dossiers' >
+                            <i class="glyphicon glyphicon-folder-open" style="color: black; font-size: 12px;">
+                            </i>
+                        </a>
+                        <a
+                            href="/etablissement/index/id/{{etab.etablissement.id}}"
+                            class='etab'
+                        >   
+                        {{etab.etablissementInfo.libelle }} 
+
+                        {% if nbAdresse != 0 %}
+                            {% for adresse in etab.etablissement.adresses %}
+                                ({{adresse.commune.libelle }})
+                                {% if nbAdresse > 1 %}
+                                    {% set nbAdresse = nbAdresse - 1 %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            (adresse non renseignée)
+                        {% endif %}
+
+                    {# L'établissement parent #}
+                    {% if etab.etablissement.EtablissementsParentsLiees|first and etab.etablissement.EtablissementsParentsLiees|first.Etablissement and etab.etablissement.EtablissementsParentsLiees|first.Etablissement.informations|first %}
+                        [{{ etab.etablissement.EtablissementsParentsLiees|first.Etablissement.informations|first.libelle }}]
+                    {% endif %}
+
+
+                    </a>
+                    {# Avis #}
+                    {% if etab.etablissement.idDossierDonnantAvis is not null %}
+                        {% if etab.avisExploitation is not null%}
+                            {% if etab.avisExploitation.libelleAvis == 'Favorable' %}
+                                <span class="label label-success"  style="font-size: 12px;">{{ etab.avisExploitation.libelleAvis }}</span>&nbsp;
+                            {% elseif etab.avisExploitation.libelleAvis == 'Défavorable' %}
+                                <span class="label label-danger" style="font-size: 12px;">{{ etab.avisExploitation.libelleAvis }}</span>&nbsp;
+                            {% elseif differeAvis %}
+                                <span class="label label-info" style="font-size: 12px;">Avis différé</span>&nbsp;
+                            {% else %}
+                                <span class="label label-default" style="font-size: 12px;">Avis indisponible</span>&nbsp;
+                            {% endif %}
+                        {% endif %}     
+                    {% else %}
+                            <span class="label label-default" style="font-size: 12px;">Avis indisponible</span>&nbsp;
+                    {% endif %}
+
+                    {# Les preventionnistes #}
+                    {% set preventionnistes = etab.etablissementInfo.preventionnistes %}
+                    {% if preventionnistes is not empty %}
+                        <span style="font-size:10px">
+                            (
+                            {% for preventionniste in preventionnistes %}
+                                {{ preventionniste.idUtilisateur.informations.nom }} {{ preventionniste.idUtilisateur.informations.prenom }}
+                                {% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                            )
+                        </span>
+                    {% endif %}
+                     <span style='font-size:10px'>#{{etab.etablissement.numeroIdEtablissement }}</span>
+                    
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </h2>
+
+
+<div class="modal fade" id="modal-desc" tabindex="-1" role="dialog" >
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Descriptif de l'établissement</h4>
+      </div>
+      <div class="modal-body">
+        <p>Chargement des éléments...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    $(document).on('click', 'button#descEtab', function () {
+        var etabId = $(this).data('id');
+        var url = "/etablissement/descriptif/id/" + etabId + "?hideButton=true";
+        $('#modal-desc .modal-body').html('<p>Chargement des éléments...</p>');
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (data) {
+                $('#modal-desc .modal-body').html(data);
+            },
+            error: function () {
+                $('#modal-desc .modal-body').html('<p class="text-danger">Erreur lors du chargement du descriptif.</p>');
+            }
+        });
+    });
+    $('#modal-desc').on('shown.bs.modal', function () {
+        var windowHeight = $(window).height();
+        $('#modal-desc .modal-body').css('max-height', windowHeight * 0.6); 
+    });
+});
+</script>
