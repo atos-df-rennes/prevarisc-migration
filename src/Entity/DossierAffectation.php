@@ -49,7 +49,7 @@ class DossierAffectation
      * 
      * @ORM\Id
      * 
-     * @ORM\ManyToOne(targetEntity=DateCommission::class)
+     * @ORM\ManyToOne(targetEntity=DateCommission::class,  inversedBy="dossierAffectations")
      * 
      * @ORM\JoinColumn(name="ID_DATECOMMISSION_AFFECT", referencedColumnName= "ID_DATECOMMISSION", nullable=false)
      */

@@ -112,6 +112,13 @@ class Dossier
     /**
      * @var ?string
      * 
+     * @ORM\Column(name="TYPESERVINSTRUC_DOSSIER", type="string", length=15, nullable=true)
+     */
+    private $typeServiceInstructeur;
+
+    /**
+     * @var ?string
+     * 
      * @ORM\Column(name="DESCANAL_DOSSIER", type="text", nullable=true)
      */
     private $descriptifAnalyseRisque;
@@ -469,6 +476,7 @@ class Dossier
      * @ORM\OneToMany(targetEntity=DossierAffectation::class, mappedBy="idDossierAffect")
      */
     private $dossierAffectation;
+
 
 
     
@@ -1310,6 +1318,18 @@ class Dossier
                $dossierAffectation->setIdDossierAffect(null);
            }
        }
+
+       return $this;
+   }
+
+   public function getTypeServiceInstructeur(): ?string
+   {
+       return $this->typeServiceInstructeur;
+   }
+
+   public function setTypeServiceInstructeur(?string $typeServiceInstructeur): self
+   {
+       $this->typeServiceInstructeur = $typeServiceInstructeur;
 
        return $this;
    }

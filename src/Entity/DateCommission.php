@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\DateCommissionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -58,7 +60,7 @@ class DateCommission
     /**
      * @var ?bool
      * 
-     * @ORM\Column(name= "DATECOMMISSION_LIEES", type="boolean", nullable=true)
+     * @ORM\Column(name= "DATECOMMISSION_LIEES", type="bigint", nullable=true)
      */
     private $dateCommissionLiees;
 
@@ -69,6 +71,18 @@ class DateCommission
      * @ORM\JoinColumn(name= "COMMISSION_CONCERNE",  referencedColumnName= "ID_COMMISSION", nullable=false)
      */
     private $commissionConcerne;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity=DossierAffectation::class, mappedBy="idDateCommissionAffect")
+     */
+    private $dossierAffectations;
+
+    public function __construct()
+    {
+        $this->dossierAffectations = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -135,12 +149,12 @@ class DateCommission
         return $this;
     }
 
-    public function getDateCommissionLiees(): ?bool
+    public function getDateCommissionLiees(): ?int
     {
         return $this->dateCommissionLiees;
     }
 
-    public function setDateCommissionLiees(?bool $dateCommissionLiees): self
+    public function setDateCommissionLiees(?int $dateCommissionLiees): self
     {
         $this->dateCommissionLiees = $dateCommissionLiees;
 
@@ -158,4 +172,9 @@ class DateCommission
 
         return $this;
     }
+
+    public function getDossierAffectations(): Collection
+{
+    return $this->dossierAffectations;
+}
 }
