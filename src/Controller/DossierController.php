@@ -3,18 +3,26 @@ namespace App\Controller;
 
 use App\Entity\Dossier;
 use App\Enum\PlatauStatutAvis;
-use App\Repository\UtilisateurRepository;
+use App\Repository\DossierTypeRepository;
+use App\Repository\DossierNatureListeRepository;
 use App\Repository\CapsuleRubriqueRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\DossierRepository;
 use App\Service\TempsRestant;
+use Symfony\Component\HttpFoundation\Request;
 use App\Enum\PlatauStatutPec;
+use App\Repository\CommissionTypeRepository;
+use App\Repository\DateCommissionRepository;
+use App\Repository\DossierAffectationRepository;
+use App\Repository\GroupementTypeRepository;
 use App\Service\DossierService;
+use App\Service\UtilsDate;
+use Composer\Plugin\Capable;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Doctrine\ORM\EntityManagerInterface;
-
+use Proxies\__CG__\App\Entity\DateCommission;
 
 /**
  * @Route(requirements={"id"="\d+"})
@@ -25,7 +33,7 @@ class DossierController extends AbstractController
      * @Route("/dossier/{id}", name="dossier_index")
      */
     public function index(Dossier $dossier, TempsRestant $tempsRestant, CapsuleRubriqueRepository $capsuleRubriqueRepository,
-    DossierService $dossierService): Response
+    DossierService $dossierService ): Response
     {
         //Type et nature de dossier 
         $idDossier = $dossier->getId();
@@ -67,6 +75,7 @@ class DossierController extends AbstractController
         $numIntervention = $dossier->getNumIntervention();
         $numDocurba = $dossier->getNumDossierDocurba();
         $commissionDossier = $dossier->getCommissionDossier();
+
         if($commissionDossier !== null){
             $dateCommissionDossier = $commissionDossier->getDateCommissions()->last()->getId();
             $typeCommissionDossier = $commissionDossier->getType();
@@ -313,4 +322,238 @@ class DossierController extends AbstractController
         }
         return $this->redirectToRoute('dossier_index', ['id' => $id]);
     }
+
+    /**
+     * @Route("/dossier/edit/{id}", name="dossier_edit")
+     */
+public function edit(int $id, DossierRepository $repo, CapsuleRubriqueRepository $capsuleRubriqueRepository, DossierService $dossierService, DossierTypeRepository $dossierTypeRepository, DossierNatureListeRepository $dossierNatureListe
+        , DateCommissionRepository $dateCommissionRepository,DossierAffectationRepository $dossierAffectationRepository, UtilsDate $utilsDate
+        , CommissionTypeRepository $commissionTypeRepository, GroupementTypeRepository $groupementTypeRepository ): Response
+    {
+        $dossier = $repo->find($id);
+        $idDossier = $dossier->getId();
+        $user = $this->getUser()->getId();
+        $dossierType = $dossier->getType();
+        $dossierNature = $dossier->getNature();
+        if($dossierNature !== null){
+            $natureId = $dossierNature->getId();
+        }
+        $typesDossier = $dossierTypeRepository->findAll();
+        $dossierNatureListe = $dossierNatureListe->findByTypeOrdered($dossierType);
+
+        $horsDelai = $dossier->getHorsDelai();
+        $commissionDossier = $dossier->getCommissionDossier();
+        $serviceInstructeur = $dossier->getServiceInstructeur();
+
+        $typeServiceInstructeur = $dossier->getTypeServiceInstructeur();
+        $etabData = $dossierService->getEtabInfos($dossier, null);
+        $differeAvis = $dossier->getDiffereAvis();
+        $groupementTypes = $groupementTypeRepository->findAllGroupementTypes() ;
+        $dossierDocManquant = $dossier->getDossierDocManquants();
+        $celluleNonExploitée = $dossier->getCelluleNonExploitée();
+
+        $thirdPartyPlugins = explode(';', getenv('PREVARISC_THIRDPARTY_PLUGINS'));
+        $isSignalement = in_array('Plugin_FacteurCriticite', $thirdPartyPlugins, true);
+
+
+
+        //Verification technique , effectifsDegagement, AvisDerogation
+        $verificationsRubrique = $capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifVerificationsTechniques']);
+        $effectifsRubrique = $capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsDossier']);
+        $nomOngletVerificationsTechniques = $verificationsRubrique ? $verificationsRubrique->getNom() : null;
+        $nomOngletEffectifsDegagements = $effectifsRubrique ? $effectifsRubrique->getNom() : null;
+        $avisDerogation =$dossier->getAvisDerogations();
+            if($avisDerogation !=null ){
+                $hasAvisDerogation =true;
+            };
+        //dates
+        $dateCreation = $dossier->getDateCreation();
+        $dateReunion = $dossier->getDateReunion();
+        $dateMairie = $dossier->getDateMairie();
+        $dateSecretariat = $dossier->getDateSecretariat();
+        $dateEnvoiTransit = $dossier->getDateEnvTransit();
+        $dateSDIS = $dossier->getDateSDIS();
+        $dateRVRAT = $dossier->getDateRVRAT();
+        $datePrefecture = $dossier->getDatePrefecture();
+        $dateReponse = $dossier->getDateReponse();
+        $dateTransfertCommission = $dossier->getDateTransfertCommission();
+        $dateReceptionCommission = $dossier->getDateReceptionCommission();
+        $delaiPrescription = $dossier->getDelaiPrescription();
+        $dateSignature = $dossier->getDateSignature();
+        $dateIntervention = $dossier->getDateIntervention();
+        if($dateIntervention !== null){
+            $heureIntervention = $dateIntervention->format('H:i');
+        }        
+        $mesuresCompensatoires=$dossier->getMesuresCompensatoires();
+        $mesuresComplementaires=$dossier->getMesuresComplementaires();
+        $reglesADeroger = $dossier->getReglesADeroger();
+        $justificatifDerogation = $dossier->getJustificatifDerogation();
+        $dateVisite = $dossier->getDateVisite();
+        $dateCommission = $dossier->getDateCommission();
+        $operationSDIS  = $dossier->getOperationSDIS();
+        $etatDossier = $dossier->getEtatDossier();
+        $numIntervention = $dossier->getNumIntervention();
+        $DureeIntervention = $dossier->getDureeIntervention();
+        $facteurDanger = $dossier->getFacteurDanger();
+
+        $descriptifAnalyseRisque =$dossier->getDescriptifAnalyseRisque();
+
+        $absenceQuorum = $dossier->getAbsenceQuorum();
+
+        if ($dateVisite) {
+            $dateVisiteInfos = $dateCommissionRepository->findInfosVisite($idDossier);
+            $dateLiee = $dateCommissionRepository->getDateLieesV2($dateVisiteInfos["ID_DATECOMMISSION"]);
+
+            $nbDates = count($dateLiee);
+            $listeDateValue = '';
+            $listeDateInput = '';
+
+            foreach ($dateLiee as $ue) {
+                if($ue->getDateCommission()) {
+                $listeDateValue .= $utilsDate->formatDateWithDayName($ue->getDateCommission());
+                $listeDateInput .= $utilsDate->convertFromMySQL($ue->getDateCommission());
+                }
+                if ($nbDates > 1) {
+                    $listeDateValue .= ', ';
+                    $listeDateInput .= ', ';
+                }
+
+                --$nbDates;
+            }
+
+        }
+        $commissionTypes = $commissionTypeRepository->findAll();
+        $arrayCommissions = [];
+        foreach ($commissionTypes as $type) {
+            $arrayCommissions[] = [
+                'LIBELLE' => $type->getLibelle(),
+                'ARRAY' => $type->getCommissions(), // Collection d'entités Commission
+            ];
+        }
+        
+
+      
+        $listeDateAffectDossier = $dossierAffectationRepository->findByDossierOrderByDateCommission($idDossier);
+        
+    foreach ($listeDateAffectDossier as $ue) {
+            $commission = $ue->getIdDateCommissionAffect();
+
+            if ($commission ) {
+                // COMMISSION EN SALLE
+
+                $date = $commission->getDateCommission();
+                if($date){
+                $formatter = new \IntlDateFormatter(
+                    'fr_FR',
+                    \IntlDateFormatter::FULL,
+                    \IntlDateFormatter::NONE,
+                    'Europe/Paris',
+                    \IntlDateFormatter::GREGORIAN,
+                    'EEEE dd MMM yyyy'
+                );
+
+                $dateCommValue = $formatter->format($date);
+                $dateCommInput = $date->format('d/m/Y');
+                $idDateCommissionAffect = $commission->getId(); 
+                break; 
+            }
+            }
+
+        }
+           
+        return $this->render('dossier/edit.html.twig', [
+            'dossier' => $dossier,
+            'idDossier' => $dossier->getId(),
+            'operationSDIS' => $operationSDIS,
+            'RCCI' => $dossier->getRCCI(),
+            'REX' => $dossier->getREX(),
+            'idType' => $dossier->getType()->getId(),
+            'libelleType' => $dossier->getType()->getLibelle(),
+            'nature' => $dossier->getNature() ? $dossier->getNature()->getLibelle() : null,
+            'natureId' => $natureId,
+            'nomOngletVerificationsTechniques' => $nomOngletVerificationsTechniques,
+            'nomOngletEffectifsDegagements' => $nomOngletEffectifsDegagements,
+            'hasAvisDerogation' => $hasAvisDerogation,
+            'verrouDossier' => $dossier->getVerrouDossier(),
+            'differeAvis' => $dossier->getDiffereAvis(),
+            'dossierAffectation' => $dossier->getDossierAffectation(),
+            'dateSupprime' => $dossier->getDateSuppression(),
+            'dateReunion' => $dateReunion,
+            'dateMairie' => $dateMairie,
+            'dateCreation' => $dateCreation,
+            'dateSecretariat' => $dateSecretariat,
+            'dateEnvoiTransit' => $dateEnvoiTransit,
+            'dateSDIS' => $dateSDIS,
+            'dateVisite' => $dateVisite,
+            'idDateVisiteAffect' => $dateVisiteInfos["ID_DATECOMMISSION_AFFECT"],
+            'dateVisiteValue' => $listeDateValue,
+            'dateVisiteInput' => $listeDateInput,
+            'dateRVRAT' => $dateRVRAT,
+            'dateCommission' => $dateCommission,
+            'datePrefecture' => $datePrefecture,
+            'dateReponse' => $dateReponse,
+            'dateTransfertCommission' => $dateTransfertCommission,
+            'dateReceptionCommission' => $dateReceptionCommission,
+            'dateIntervention' => $dateIntervention,
+            'heureIntervention' => $heureIntervention,
+            'delaiPrescription' => $delaiPrescription,
+            'dateSignature' => $dateSignature,
+            'commissionInfos' => $commissionDossier,
+            'serviceInstructeur' =>$serviceInstructeur,
+            'typeServiceInstructeur' => $typeServiceInstructeur,
+            'arrayCommissions' => $arrayCommissions,
+            'dateCommValue' => $dateCommValue,
+            'dateCommInput' => $dateCommInput,
+            'idDateCommissionAffect' => $idDateCommissionAffect,
+            'horsDelai' => $horsDelai,
+            'nonPrononce' =>$dossier->getNonPrononce(),
+            'mesuresCompensatoires' => $mesuresCompensatoires,
+            'mesuresComplementaires' => $mesuresComplementaires,
+            'reglesADeroger' => $reglesADeroger,
+            'justificatifDerogation' => $justificatifDerogation,
+            'chargeSecurite' => $dossier->getChargeSecurite(),
+            'groupementTypes' => $groupementTypes,
+            'dossierDocManquant' => $dossierDocManquant,
+            'etatDossier' => $etatDossier,
+            'numIntervention' => $numIntervention,
+            'dureeIntervention' => $DureeIntervention,
+            'descriptifAnalyseRisque' => $descriptifAnalyseRisque,
+            'absenceQuorum' => $absenceQuorum,
+            'celluleNonExploitée' => $celluleNonExploitée,
+            'moisList' => ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin','Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+            'moisActuel' => (int) date('m'),
+            'annéeActuelle' => (int) date('Y'),
+            'objet' => $dossier->getObjet(),
+            'demandeur' => $dossier->getDemandeur(),
+            'lieuReunion' => $dossier->getLieuReunion(),
+            'numDocurba' => $dossier->getNumDossierDocurba(),
+            'platauConsultation' => $dossier->getPlatauConsultation(),
+            'etabData' => $etabData,
+            'idUser' =>$user,
+            'dossierType' => $dossierType,
+            'typesDossier' => $typesDossier,
+            'dossierNature' => $dossierNature,
+            'dossierNatureListe' => $dossierNatureListe,
+            'isSignalement' => $isSignalement,
+            'facteurDanger' => $facteurDanger,
+
+        ]);
+    }
+    /**
+     * @Route("/dossier/shownature", name="dossier_show_nature", methods={"POST"})
+     */
+    public function showNature(Request $request, DossierNatureListeRepository $dossierNatureListeRepository): Response
+    {
+        $idType = (int) $request->request->get('idType');
+
+        $dossierNatureListe = $dossierNatureListeRepository->findBy(
+            ['type' => $idType],
+            ['ordre' => 'ASC']
+        );
+
+        return $this->render('dossier/_nature_select.html.twig', [
+            'dossierNatureListe' => $dossierNatureListe,
+        ]);
+    }
+
 }
