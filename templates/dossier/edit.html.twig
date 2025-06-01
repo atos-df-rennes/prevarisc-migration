@@ -1,0 +1,179 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}Dossier / Édition{% endblock %}
+
+{% block body %}
+    <div>
+        <div class='pull-right'>
+            <div class="btn-group">
+                <a class="btn btn-primary" href="{{ path('dossier_index', {'id': idDossier}) }}">Annuler la modification</a>  {# A voir mettre un id de button pour le javascript #}
+                <button id='validModification' type='submit' class="btn btn-success" >Sauvegarder</button>
+            </div>
+        </div>
+        <div>
+            <h3 class="text-bold">Informations générales</h3>
+            <h4 class="text-bold h4_subtitle">Type et nature du dossier</h4>
+            <ul class="list-unstyled">
+                <li class="row" style="margin-bottom: 20px;" id="type">
+                    <div class="col-sm-3" style="float: left;">Type</div>
+                    <div class="col-sm-3">
+                        <select name="TYPE_DOSSIER" id="TYPE_DOSSIER"  class="form-control">
+                            <option value="0">Sélectionnez un type</option>
+                            {% for value in typesDossier %}
+                                <option value="{{ value.id}}"
+                                    {% if dossierType.id == value.id %}selected{% endif %}>
+                                    {{ value.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </li>
+                <li class="row" style="margin-bottom: 20px;" id="nature">
+                    <div class="col-sm-3 libelle">Nature</div>
+                    <div class="col-sm-3 form">
+                        <select name="selectNature" id="selectNature" class="form-control">
+                            <option value="0">Sélectionnez une nature</option>
+
+                            {% for nature in dossierNatureListe %}
+                                <option value="{{ nature.id }}"
+                                    {% if nature.id == dossierNature.id %}selected{% endif %}>
+                                    {{ nature.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="loading" class="col-sm-1" style="display: none;">
+                        <img src="/images/load.gif" alt="loading">
+                    </div>
+                </li>
+            </ul>
+            {% include 'dossier/_infos_dossier_edit.html.twig' %}
+        </div>
+
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/calendrier/afficheCalendar.js') }}"></script>
+    <script src="{{ asset('js/calendrier/gestionCalendar.js') }}"></script>
+    <script>
+        function isDossierPlatau() {
+            return false;
+        }
+        function gestionAffichageInfosPlatau() {
+            console.log("Afficher infos Platau");
+        }
+
+        function gestionMasquageInfosPlatau() {
+            console.log("Masquer infos Platau");
+        }
+
+        function majAvisSelect() {
+            console.log("Mise à jour de l'avis");
+        }
+
+        $(document).ready(function() {
+            // Gestion du changement de type de dossier
+            $("#TYPE_DOSSIER").change(function() {
+                const idType = $(this).val();
+                $("#InfosDossier > li").hide();
+                $("#creationDossier").hide();
+                $(".docurba").remove();
+
+                if (idType == 0) {
+                    $("#nature").hide();
+                } else {
+                    const labelText = (idType == 3) ? "Avis du groupe de visite" : "Avis du rapporteur";
+                    $("#AVIS_DOSSIER").closest('div.form-group').find('label').text(labelText);
+
+                    if (isDossierPlatau()) {
+                        (idType == 1) ? gestionAffichageInfosPlatau() : gestionMasquageInfosPlatau();
+                    }
+
+                    $.ajax({
+                        url: "/dossier/shownature",
+                        data: { idType: idType },
+                        type: "POST",
+                        beforeSend: function() {
+                            $("#chargement").html("<img src='/images/load.gif' />");
+                        },
+                        success: function(response) {
+                            $("#nature > .form").html(response);
+                            $("#nature").show();
+                            $("#chargement").html("");
+                        },
+                        error: function() {
+                            alert("Erreur lors du chargement des natures");
+                        }
+                    });
+
+                    majAvisSelect();
+                }
+            });
+
+            // Affichage/Masquage du formulaire délai prescription
+            $(document).on('click', '.delaipresc', function() {
+                if ($(this).is(':checked')) {
+                    $("#delaipresc_form").show();
+                } else {
+                    $("#delaipresc_form").val('').hide();
+                }
+            });
+
+            $("#commissionSelect").live('change', function() {
+                $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
+                $("#ID_AFFECTATION_DOSSIER_VISITE").val('');
+                if ($(this).val()) {
+                    $("#COMMISSION_DOSSIER").val($(this).val());
+                    $("#showCommission").hide();
+                    if ($("#TYPE_DOSSIER").val() == 2 || $("#TYPE_DOSSIER").val() == 3) {
+                        $("#showVisite").show();
+                        $("#showCommission").show();
+                    } else {
+                        $("#showCommission").show();
+                    }
+                    $(".changeCommission").click();
+                } else {
+                    $(".showCalendar").hide();
+                    $(".changeCommission").click();
+                }
+                return false;
+            });
+            $(".changeCommission").live('click', function() {
+                //ICI SUPPRIMER TOUTES LES LIGNES CORRESPONDANT AU DOSSIER DANS  dossieraffectation ou dans le save...
+                $("#DATEVISITE_INPUT").val('');
+                $("#ID_AFFECTATION_DOSSIER_VISITE").val('');
+                $("#DATECOMM_INPUT").val('');
+                $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
+
+                $(".hideCalendar").hide();
+
+                //a verifier
+                $("#calendar").hide();
+                $("#calendar").parent().hide();
+                $("#calendar").html('');
+
+                $("#calendarVisite").hide();
+                $("#calendarVisite").parent().hide();
+                $("#calendarVisite").html('');
+
+                $("#commissionSelect").removeAttr('disabled');
+
+                $(this).hide();
+                return false;
+            });
+
+
+        gestionCalendrier("showVisite", "hideVisite", "calendarVisiteAffichage", "month_visite", "year_visite");
+        gestionCalendrier("showCommission", "hideCommission", "calendarCommission", "month_comm", "year_comm");
+
+
+        
+ });
+    </script>
+{% endblock %}
+
+
+

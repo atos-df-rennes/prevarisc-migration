@@ -1,0 +1,44 @@
+<li class="row" style="margin-bottom: 20px;" id="DATEENVTRANSIT">
+    <div class="col-sm-3" style="float: left;">Date d'envoi/transit</div>
+    <div class="col-sm-3">
+        <div class="input-group">
+            <input type="text" class="form-control date" name="DATEENVTRANSIT_DOSSIER" id="DATEENVTRANSIT_INPUT"
+                value="{{ dateEnvoiTransit is not null ? dateEnvoiTransit|date('d/m/Y') : '' }}" />
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default today">
+                    <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                </button>
+            </span>
+        </div>
+    </div>
+</li>
+
+<li class="row" style="margin-bottom: 20px;" id="DATETRANSFERTCOMM">
+    <div class="col-sm-3" style="float:left;">Date de transfert à la commissions compétente</div>
+    <div class="col-sm-3">
+        <div class="input-group">
+            <input type="text" class="form-control date" id="DATETRANSFERTCOMM_DOSSIER" name="DATETRANSFERTCOMM_DOSSIER"
+                value="{{ dateTransfertCommission is not null ? dateTransfertCommission|date('d/m/Y') : '' }}" />
+            <span class="input-group-btn">
+                <button type="button" class="today btn btn-default">
+                    <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                </button>
+            </span>
+        </div>
+    </div>
+</li>
+
+<li class="row" style="margin-bottom: 20px;" id="DATERECEPTIONCOMM">
+    <div class="col-sm-3" style="float:left;">Date de réception à la commissions compétente</div>
+    <div class="col-sm-3">
+        <div class="input-group">
+            <input type="text" class="form-control date" id="DATERECEPTIONCOMM_DOSSIER" name="DATERECEPTIONCOMM_DOSSIER"
+                value="{{ dateReceptionCommission is not null ? dateReceptionCommission|date('d/m/Y') : '' }}" />
+            <span class="input-group-btn">
+                <button type="button" class="today btn btn-default">
+                    <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                </button>
+            </span>
+        </div>
+    </div>
+</li>

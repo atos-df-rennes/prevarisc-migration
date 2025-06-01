@@ -1,0 +1,14 @@
+<li class="row" style="margin-bottom: 20px;" id="DATESIGN">
+    <div class="col-sm-3" style="float:left;">Date de signature</div>
+    <div class="col-sm-3">
+        <div class="input-group">
+            <input type="text" class="form-control date" id="DATESIGN_INPUT" name="DATESIGN_DOSSIER"
+                value="{{ dateSignature is not null ? dateSignature|date('d/m/Y') : '' }}" />
+            <span class="input-group-btn">
+                <button type="button" class="today btn btn-default">
+                    <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                </button>
+            </span>
+        </div>
+    </div>
+</li> 

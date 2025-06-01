@@ -1,0 +1,24 @@
+<li class="row" style="margin-bottom: 20px;" id="DATEREUN">
+    <div class="col-sm-3" style="float:left;">Date réunion</div>
+    <div class="col-sm-3">
+        <div class="input-group">
+            <input type="text" class="form-control date" id="DATEREUN_DOSSIER" name="DATEREUN_DOSSIER"
+                value="{{ dateReunion is not null ? dateReunion|date('d/m/Y') : '' }}" />
+            <span class="input-group-btn">
+                <button type="button" class="today btn btn-default">
+                    <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                </button>
+            </span>
+        </div>
+    </div>
+ </li>
+
+
+{% if natureId == 32 %}
+    <li class="row" style="margin-bottom: 20px;" id="LIEUREUNION">
+        <div class="col-sm-3" style="float:left;">Lieu réunion</div>
+        <div class="col-sm-9">
+                <textarea name="LIEUREUNION_DOSSIER" id="LIEUREUNION_DOSSIER" rows="3" cols='100' class="form-control">{{ lieuReunion|e('html') }}</textarea>
+        </div>
+    </li>
+{% endif %}

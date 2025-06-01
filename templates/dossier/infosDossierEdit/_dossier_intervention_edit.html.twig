@@ -1,0 +1,95 @@
+<li class="row" style="margin-bottom: 20px;" id="OPERSDIS">
+    <div class="col-sm-3" style='float:left;'>Opération (intervention) SDIS</div>
+    <div class="col-sm-9" id="operationsdis_infos">
+        <div class="radio">
+            <label>
+                <input type="radio" name="OPERSDIS_DOSSIER" value="1"
+                    {% if operationSDIS == 1 %}checked{% endif %}>
+                Oui
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" name="OPERSDIS_DOSSIER" value="0"
+                    {% if operationSDIS == 0 %}checked{% endif %}>
+                Non
+            </label>
+        </div>
+    </div>
+</li>
+{#  A voir pour les if et tout #}
+
+<li class="row" style="margin-bottom: 20px;" id="NUMINTERV">
+    <div class="col-sm-3" style="float: left;">Numéro d'intervention</div>
+    <div class="col-sm-9">
+        <input type="text"
+            id="NUMINTERV_DOSSIER"
+            name="NUMINTERV_DOSSIER"
+            class="form-control"
+            value="{{ numIntervention is not empty ? numIntervention : '' }}"
+        >
+    </div>
+</li>
+
+{% if natureId == 37 %}
+    <li class="row" style="margin-bottom: 20px;" id="RCCI">
+        <div class="col-sm-3" style='float:left;'>RCCI (oui/non) lien rapport</div>
+        <div class="col-sm-9" id="rrci_infos">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="RCCI_DOSSIER" value="1"
+                        {% if RCCI == 1 %}checked{% endif %}>
+                    Oui
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="RCCI_DOSSIER" value="0"
+                        {% if RCCI == 0 %}checked{% endif %}>
+                    Non
+                </label>
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+<li class="row" style="margin-bottom: 20px;" id="REX">
+    <div class="col-sm-3" style='float:left;'>REX</div>
+    <div class="col-sm-3">
+        <input 
+            type="text" 
+            id="REX_DOSSIER" 
+            name="REX_DOSSIER" 
+            class="form-control" 
+            value="{{ REX is defined and REX is not null ? REX : '' }}">        
+    </div>
+</li> 
+
+<li class="row" style="margin-bottom: 20px;" id="DATEINTERV">
+    <div class="col-sm-3" style="float:left;">Date et heure d'intervention</div>
+    <div class="col-sm-9">
+        <div class="row">
+            <div class="col-sm-6">
+                <input  type="text" class="form-control date" name="DATEINTERV_DOSSIER"
+                       value="{{ dateIntervention is not null ? dateIntervention|date('d/m/Y') : '' }}">
+            </div>
+            <div class="col-sm-2">
+                <input type='text' class='form-control time' name="HEUREINTERV_DOSSIER"
+                       value="{{ heureIntervention is not null ? heureIntervention|date('H:i') : '' }}">
+            </div>
+        </div>
+    </div>
+    
+</li>
+
+<li class="row" style="margin-bottom: 20px;" id="DUREEINTERV">
+    <div class="col-sm-3" style="float: left;">Durée intervention</div>
+    <div class="col-sm-9">
+        <input type="text"
+               class="form-control time"
+               id="DUREEINTERV_DOSSIER"
+               name="DUREEINTERV_DOSSIER"
+               value="{{ dureeIntervention is not empty ? dureeIntervention|date('H:i') : '' }}"
+               placeholder="HH:mm">
+    </div>
+</li>

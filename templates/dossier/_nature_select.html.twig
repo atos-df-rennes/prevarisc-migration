@@ -1,0 +1,8 @@
+<div id="listeNature">			
+<select name="selectNature" id="selectNature" class="form-control">
+    <option value="0">Sélectionnez une nature</option>
+    {% for nature in dossierNatureListe %}
+        <option value="{{ nature.id }}">{{ nature.libelle }}</option>
+    {% endfor %}
+</select>
+</div>

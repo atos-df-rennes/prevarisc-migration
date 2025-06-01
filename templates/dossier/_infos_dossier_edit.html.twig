@@ -1,0 +1,252 @@
+<h4 class="text-bold h4_subtitle">Informations sur le dossier</h4>
+<ul  class="list-unstyled">
+    <li class="row" style="margin-bottom: 20px;" id="DATEINSERT" >
+        <div class="col-sm-3 " style="float: left;">Date de création du dossier</div>
+        <div class="col-sm-3">
+                <div class="input-group">
+                <input type="text" class="form-control date" name="DATEINSERT_DOSSIER" id="DATEINSERT_INPUT"
+                    value="{{ dateCreation|date('d/m/Y') }}" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default today">
+                        <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                    </button>
+                </span>
+            </div>
+        </div>
+    </li>
+
+    {% if natureId not in [21, 26, 40] %}
+        <li class="row" style="margin-bottom: 20px;" id="OBJET">
+            <div class="col-sm-3" style="float:left;">Objet</div>
+            <div class="col-sm-9">
+                <textarea name="OBJET_DOSSIER" id="OBJET_DOSSIER" rows="3" class="form-control">{{ objet|e('html') }}</textarea>
+            </div>
+        </li>
+    {% endif %}
+
+    {% if idType not in [2, 3, 6, 7] %}
+    <li class="row" style="margin-bottom: 20px;" id="DEMANDEUR">
+        <div class="col-sm-3" style="float:left;">Demandeur</div>
+        <div class="col-sm-9">
+            <input type="text" id="DEMANDEUR_DOSSIER"  name="DEMANDEUR_DOSSIER"  value="{{ demandeur is defined and demandeur ? demandeur|e : '' }}" style="width:650px" />
+        </div>
+    </li>
+    {% endif %}
+    
+    {% if idType in [1, 5] and natureId not in [10, 11, 16] %}
+    <li class="row" style="margin-bottom: 20px;" id="DATEMAIRIE">
+        <div class="col-sm-3" style="float: left;">Date réception mairie</div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control date" name="DATEMAIRIE_DOSSIER" id="DATEMAIRIE_INPUT"
+                    value="{{ dateMairie|date('d/m/Y') }}"/>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default today" >
+                        <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                    </button>
+                </span>
+            </div>
+        </div>
+    </li>
+    {% endif %}
+
+    {% if idType in [1, 5] %}
+        <li class="row" style="margin-bottom: 20px;" id="DATESDIS">
+            <div class="col-sm-3" style="float: left;">Date de réception SDIS</div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <input type="text" class="form-control date" name="DATESDIS_DOSSIER" id="DATESDIS_INPUT"
+                        value="{{ dateSDIS|date('d/m/Y') }}" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default today">
+                            <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </li>
+    {% endif %}
+
+    {% if  natureId != 10 and idType not in [4,5,6,7]%}
+        <li class="row" style="margin-bottom: 20px;" id="COMMISSION">
+            <div class="col-sm-3 control-label" style="padding-top: 7px;">Commission concernée</div>
+            <div class="col-sm-9">
+                <input type="hidden" name="COMMISSION_DOSSIER" id="COMMISSION_DOSSIER" value="{{ commissionInfos.id }}" />
+
+                <div class="form-inline">
+                    <select name="commissionSelect" id="commissionSelect" class="form-control"  style="width: 210px;" {{ commissionInfos is not null and commissionInfos.libelle is not empty ? 'disabled' : '' }}>
+                        <option value="0">Aucune commission</option>
+                        {% for group in arrayCommissions %}
+                            <optgroup label="{{ group.LIBELLE }}">
+                                {% for commission in group.ARRAY %}
+                                    <option value="{{ commission.id }}"
+                                        {% if commissionInfos.id == commission.id %}selected{% endif %}>
+                                        {{ commission.libelle }} ({{ group.LIBELLE }})
+                                    </option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+
+                    <button type="button" class="btn btn-default changeCommission" style="margin-left: 10px;">
+                        <i class="glyphicon glyphicon-remove" aria-hidden="true"></i> Choisir une autre commission
+                    </button>
+                </div>
+            </div>
+        </li>
+    {% endif %}
+
+    {% if  dateCommission is not null and horsDelai == 0 and idType in [1, 3] and natureId not in [10,27] %}
+        <li class="row" style="margin-bottom: 20px;" id="DATECOMM">
+            <div class="col-sm-3" style="float:left;">Date de commission en salle</div>
+            <div class="col-sm-9">
+                <div class="form-inline">
+                    <input type="text" class="form-control" name="DATECOMM_DOSSIER" id="DATECOMM_INPUT"
+                        value="{{ dateCommission is defined ? dateCommission|date('d/m/Y') : '' }}" readonly="readonly" />
+
+                    <input type="hidden" name="ID_AFFECTATION_DOSSIER_COMMISSION" id="ID_AFFECTATION_DOSSIER_COMMISSION"
+                        value="{{ idDateCommissionAffect is defined ? idDateCommissionAffect|date('d/m/Y') : '' }}" />
+
+                    <input type="hidden" name="DATEVISITE_PERIODIQUE" id="DATEVISITE_PERIODIQUE"
+                            value="{{ dateCommInput is defined ? dateCommInput: '' }}" readonly="readonly" />
+
+
+                    {% if commissionInfos.id is not empty %}
+                        <button id="showCommission" type="button" class="btn btn-default showCalendar">
+                            <i class="glyphicon glyphicon-chevron-down" aria-hidden="true"></i>&nbsp;Afficher le calendrier
+                        </button>
+                        <button id="hideCommission" type="button" class="btn btn-default hideCalendar" style="display:none;">
+                            <i class="glyphicon glyphicon-chevron-up" aria-hidden="true"></i>&nbsp;Cacher le calendrier
+                        </button>
+                        <span style="margin-left: 10px;">Afficher</span>
+                        <select id="month_comm" class="form-control" style="width: 110px;">
+                            {% for i, mois in moisList %}
+                                <option value="{{ i }}" {% if i == moisActuel - 1 %}selected{% endif %}>{{ mois }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="year_comm" class="form-control" style="width: 80px;">
+                            {% for year in range(annéeActuelle + 2, 1990, -1) %}
+                                <option value="{{ year }}" {% if annéeActuelle == year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                </div>
+            </div>
+        </li>
+    {% endif %}
+
+    <div class="row" style="display: none;">
+        <h1 style="margin-left: 15px"> Choisir une date de commission</h1>
+        <div id="calendarCommission" class="col-sm-12 calendar" style="display: none;"></div>
+        <hr class="clearfix" />
+    </div>
+
+    {# A voir pour le descriptif il est dans aucune nature#}
+    <li class="row" style="margin-bottom: 20px;" id="DESCANAL">
+        <div class="col-sm-3" style='float:left;'>Descriptif analyse de risque</div>
+        <div class="col-sm-9">
+            <input type="text"
+                id="DESCANAL_DOSSIER"
+                name="DESCANAL_DOSSIER"
+                class="form-control"
+                value="{{ descriptifAnalyseRisque is not null ? descriptifAnalyseRisque : '' }}">            
+        </div>
+    </li>
+
+    {% if natureId not in [46, 30, 61, 62, 22, 64, 27 ]  and idType not in [4, 5, 6, 7] %}
+        <li class="row" style="margin-bottom: 20px;" id="ABSQUORUM">
+            <div class="col-sm-3" style='float:left;'>Absence de quorum</div>
+                <div class="col-sm-9">
+                    <input type="checkbox" class="absquorum hideavis" name="ABSQUORUM_DOSSIER" {% if absenceQuorum == 1 %}checked{% endif %}>
+                </div>       
+        </li>
+    {% endif %}
+
+    {# A voir pour le cne, fatdange il est dans aucune nature#}
+    <li class="row" style="margin-bottom: 20px;" id="CNE">
+        <div class="col-sm-3" style='float:left;'>Cellule non exploitée</div>
+            <div class="col-sm-9">
+                <input type="checkbox" class="cne hideavis" name="CNE_DOSSIER" {% if celluleNonExploitée == 1 %}checked{% endif %}>
+            </div>       
+    </li>
+
+    <li class="row" style="margin-bottom: 20px;" id="FACTDANGE">
+        <div class="col-sm-3" style="float:left; padding-top: 7px;">
+            Facteur de criticité
+        </div>
+        <div class="col-sm-9">
+            <select name="FACTDANGE_DOSSIER" id="FACTDANGE_DOSSIER" class="form-control" style="width: 200px;">
+                {% if isSignalement %}
+                    <option value="0" {% if facteurDanger == 0 %}selected{% endif %}>Non</option>
+                    <option value="1" {% if facteurDanger > 0 %}selected{% endif %}>Oui</option>
+                {% else %}
+                    <option value="0" {% if facteurDanger == 0 %}selected{% endif %}>-</option>
+                    {% for i in 1..5 %}
+                        <option value="{{ i }}" {% if facteurDanger == i %}selected{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+    </li>
+
+    <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV">
+        <div class="col-sm-3" style="float:left; padding-top: 7px;">Échéancier de travaux / Schéma de mise en sécurité </div>
+        <div class="col-sm-9">
+            <div class="checkbox" style="margin-bottom: 10px;">
+                    <input type="checkbox" id="echeanciertrav_check"{% if echeancierTravaux is not null %}checked{% endif %}>
+            </div>
+            <input type="text" class="form-control date" id="ECHEANCIERTRAV_DOSSIER" name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux }}"
+                {% if echeancierTravaux is null %}style="display: none;"{% endif %}>
+        </div>
+    </li>
+
+
+
+    {% if idType == 1 %}
+        {{ include('dossier/infosDossierEdit/_dossier_etude_edit.html.twig') }}
+    {% elseif idType == 2 or idType == 3 %} 
+        {{ include('dossier/infosDossierEdit/_dossier_visiteCommission_groupeVisite_edit.html.twig') }}
+    {% elseif idType == 4 %} 
+        {{ include('dossier/infosDossierEdit/_dossier_reunion_edit.html.twig') }}
+    {% elseif idType == 5 %}
+        {{ include('dossier/infosDossierEdit/_dossier_courrier_courriel_edit.html.twig') }}
+    {% elseif idType == 6 %}
+        {{ include('dossier/infosDossierEdit/_dossier_intervention_edit.html.twig') }}
+    {% elseif idType == 7 %} 
+        {{ include('dossier/infosDossierEdit/_dossier_arrete_edit.html.twig') }}
+    {% endif %} 
+    
+    <li class="row" style="margin-bottom: 20px;" id="ANOMALIE">
+        <div class="col-sm-3" style="float:left;">Analyse de risque</div>
+        <div class="col-sm-9">
+            <textarea name="ANOMALIE_DOSSIER" id="ANOMALIE_DOSSIER" class="form-control" rows="3" cols="100">{{ anomalie|e('html') }}</textarea>
+        </div>
+    </li>
+
+    <li class="row" style="margin-bottom: 20px;" id="OBSERVATION">
+        <div class="col-sm-3" style="float:left;">Observations</div>
+        <div class="col-sm-9">
+            <textarea name="OBSERVATION_DOSSIER" id="OBSERVATION_DOSSIER" class="form-control" rows="3" cols="100">{{ observations|e('html') }}</textarea>
+        </div>
+    </li>
+
+
+    {% if dateReponse is not null %}
+        <li class="row" style="margin-bottom: 20px;" id="DATEREP">
+            <div class="col-sm-3" style="float:left;">Date de réponse</div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <input type="text" class="form-control date" id="DATEREP_DOSSIER" name="DATEREP_DOSSIER"
+                        value="{{ dateReponse|date('d/m/Y') }}" />
+                    <span class="input-group-btn">
+                        <button type="button" class="today btn btn-default">
+                            <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </li>
+    {% endif %}
+
+</ul>
+    <div id='dialogComm' style='display:none;'>

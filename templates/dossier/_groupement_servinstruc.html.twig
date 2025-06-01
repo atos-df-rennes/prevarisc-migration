@@ -1,0 +1,18 @@
+<select name="servInstGrp" id="servInstGrp" style="font-size: 15px; width: 200px;"
+    {% if typeSelected == 'servInstCommune' %}disabled="disabled"{% endif %}>
+    <option value="0">Sélectionnez le service instructeur</option>
+
+    {% for type in groupementTypes %}
+        {% if idTypeGroupement is null or idTypeGroupement == type.id %}
+            <optgroup id="gpt_{{ type.id }}" label="{{ type.libelle }}">
+                {% for groupement in type.groupements %}
+                    <option value="{{ groupement.id }}"
+                        {% if groupement.libelle == selected %}selected{% endif %}>
+                        {{ groupement.libelle }}
+                </option>
+
+                {% endfor %}
+            </optgroup>
+        {% endif %}
+    {% endfor %}
+</select>

@@ -1,0 +1,120 @@
+{% if natureId in [21, 23, 24, 26, 28, 29] %}
+    {# il faut utiliset l'historique de l'etablissement pour avoir le lastAvisEtab #}
+    <li class="row" style="margin-bottom: 20px;" id="DIFFEREAVIS">
+        <div class="col-sm-3" style='float:left;'>Differe l'avis</div>
+        <div class="col-sm-9">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"
+                        name="DIFFEREAVIS_DOSSIER"
+                        class="differeavis"
+                        {% if differeAvis == 1 %}checked{% endif %}
+                    {#    {% if lastAvisEtab is not empty and lastAvisEtab != 'Favorable' %}disabled{% endif %}>
+                    {% if lastAvisEtab is not empty and lastAvisEtab != 'Favorable' %}
+                        <span style="font-size: smaller;">
+                            (Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)
+                        </span>
+                    {% endif %}#}
+                </label>
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+{# dateVisite regarder le javasript a faire ca bug 49850 #}
+<li class="row" style="margin-bottom: 20px;" id="DATEVISITE">
+    <div class="col-sm-3" style="float: left;">Date de visite</div>
+    <div class="col-sm-9">
+        <div class="form-inline">
+            <input type="text" class="form-control"  name="DATEVISITE_DOSSIER" id="DATEVISITE_INPUT"
+                value="{{ dateVisiteInput is not null ? dateVisiteInput|date('d/m/Y') : '' }}" readonly="readonly" />
+
+            <input type="hidden" name="ID_AFFECTATION_DOSSIER_VISITE" id="ID_AFFECTATION_DOSSIER_VISITE"
+                value="{{ idDateVisiteAffect is not null ? idDateVisiteAffect : '' }}" />
+
+            <button id="showVisite" class="btn btn-default showCalendar"
+                {% if commissionInfos.id is empty %}style="display: none;"{% endif %}>
+                <i class="glyphicon glyphicon-chevron-down" aria-hidden="true"></i>&nbsp;Afficher le calendrier
+            </button>
+
+            <button id="hideVisite" class="btn btn-default hideCalendar" style="display: none;">
+                <i class="glyphicon glyphicon-chevron-up" aria-hidden="true"></i>&nbsp;Cacher le calendrier
+            </button>
+
+            <span style="margin-left: 10px;">Afficher</span>
+            <select id="month_visite" class="form-control" style="width: 110px;">
+                {% for i, mois in moisList %}
+                    <option value="{{ i }}" {% if i == moisActuel - 1 %}selected{% endif %}>{{ mois }}</option>
+                {% endfor %}
+            </select>
+            <select id="year_visite" class="form-control" style="width: 80px;">
+                {% for i in range(annéeActuelle + 2, 1990, -1) %}
+                    <option value="{{ i }}" {% if i == annéeActuelle %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</li>
+
+<div class="row" style="display: none;">
+    <h1 style="margin-left: 15px"> Choisir une date de visite</h1>
+    <div id="calendarVisiteAffichage" class="col-sm-12 calendar" style="display: none;"></div>
+    <hr class="clearfix" />
+</div>
+
+    
+<li class="row" style="margin-bottom: 20px;" id="DELAIPRESC">
+    <div class="col-sm-3" style="float:left;">
+        Date avant laquelle les prescriptions doivent être levées
+    </div>
+    <div class="col-sm-9">
+        <div class="form-inline">
+            <label style="margin-right: 10px;">
+                <input type="checkbox" class="delaipresc"
+                    {% if delaiPrescription is defined and delaiPrescription is not null %}checked{% endif %}>
+            </label>
+            <span id="delaipresc_form"
+                style="{% if delaiPrescription is not defined or delaiPrescription is null %}display:none;{% endif %}">
+                <div class="input-group">
+                    <input type="text" class="form-control date" name="DELAIPRESC_DOSSIER" id="DELAIPRESC_INPUT"
+                        value="{{ delaiPrescription is defined and delaiPrescription is not null ? delaiPrescription|date('d/m/Y') : '' }}" />
+                    <span class="input-group-btn">
+                        <button type="button" class="today btn btn-default">
+                            <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                        </button>
+                    </span>
+                </div>
+            </span>
+        </div>
+    </div>
+</li>
+
+            
+
+{% if natureId in [20, 47, 25, 48] %}
+    <li class="row" style="margin-bottom: 20px;" id="DATERVRAT">
+        <div class="col-sm-3" style="float:left;">
+            Date de réception du RVRAT et attestation solidité et MO
+        </div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control date" name="DATERVRAT_DOSSIER" id="DATERVRAT_INPUT"
+                    value="{{ dateRVRAT|date('d/m/Y') }}" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default today">
+                        <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                    </button>
+                </span>
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId in [20, 47, 25, 48] %}
+    <li class="row" style="margin-bottom: 20px;"id="NPSP">
+        <div class="col-sm-3" style='float:left;'>Ne peut se prononcer</div>
+        <div class="col-sm-9">
+            <input type="checkbox" class="npsp hideavis" name="NPSP_DOSSIER" {% if nonPrononce == 1 %}checked{% endif %}>
+        </div>       
+    </li>
+{% endif %}

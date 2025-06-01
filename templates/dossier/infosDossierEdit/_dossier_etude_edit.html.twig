@@ -1,0 +1,371 @@
+{% if natureId in [1, 2, 3, 14, 15, 30, 62]%}
+    <li class="row" style="margin-bottom: 20px;" id="NUMDOCURBA">
+        <div class="col-sm-3" style="float:left;">Numéro document d'urbanisme</div>
+        <div class="col-sm-6">
+            <div id="listeDocUrba">
+                <div class="docurba-form form-inline" style="margin-top: 10px;">
+                    <span id='docurbaVal'></span>
+                    <input type="text" name="NUM_DOCURBA" id="NUM_DOCURBA" class="form-control" />
+                    <button id="addNumDoc" class="btn btn-primary" type="button">  
+                        <i class="glyphicon glyphicon-plus"></i>&nbsp;Ajouter le numéro de document d'urbanisme
+                    </button>
+                </div>
+                {% for docurba in numDocurba %}
+                    <div class="docurba">
+                        <input 
+                            type="hidden" 
+                            name="docUrba[]" 
+                            value="{{ docurba.numDocurba }}" 
+                            id="urba_{{ docurba.id }}"
+                        />
+                        {{ docurba.numDocurba }}
+                        <a href="#" 
+                        class="suppDocUrba" 
+                        idDocUrba="{{ docurba.id }}"
+                        >&times;</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId in [1, 2, 3, 14, 30, 61, 62, 63]  %}
+    <li class="row" style="margin-bottom: 20px;" id="SERVICEINSTRUC">
+        <div class="col-sm-3" style='float:left;'>Service instructeur</div>
+        <div class="col-sm-9">
+            <div class="form-inline" style="display: flex; gap: 10px; align-items: center;">
+
+                    <label >
+                        <input type="radio" name="servInst" value="servInstGrp" 
+                            {% if typeServiceInstructeur == 'servInstGrp' or typeServiceInstructeur is null %}
+                                checked="checked"
+                            {% endif %}>
+                    </label>
+                    
+                        {{ include('dossier/_groupement_servinstruc.html.twig', {
+                            selected: serviceInstructeur,
+                            typeSelected: typeServiceInstructeur,
+                            idTypeGroupement: 10,
+                        }) }}
+
+                    <label style="font-size: 3px;">
+                        <input type="radio" name="servInst" value="servInstCommune"
+                            {% if typeServiceInstructeur == 'servInstCommune' %}
+                                checked="checked"
+                            {% endif %}>
+                    </label>
+
+                    <input type="text" name="servInstVille" id="servInstVille"
+                        class="form-control"
+                        {% if typeServiceInstructeur != 'servInstCommune' %}
+                            disabled="disabled"
+                        {% endif %}
+                        value="{{ typeServiceInstructeur == 'servInstCommune' ? ServiceInstructeur : '' }}">
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+
+
+{% if natureId != 19 %}
+    <li class="row" style="margin-bottom: 20px;" id="INCOMPLET">
+        <div class="col-sm-3" style="float:left;">Etat dossier</div>
+
+        <div class="col-sm-9">
+            <div id="dossierIncomplet" >
+                {% for ue in dossierDocManquant %}
+                    <div style="margin-bottom: 15px;">
+                        Dossier incomplet le
+                        <input 
+                            type="text" 
+                            name="dateDocManquant[]" 
+                            id="dateDocManquant_{{ ue.numDocsManquant }}" 
+                            value="{{ ue.dateDocsManquant is not empty ? ue.dateDocsManquant|date('d/m/Y') : '' }}" 
+                            {{ ue.dateReceptionDoc is not empty ? 'readonly' : 'class="date"' }}
+                        />
+
+                        <textarea 
+                            name="docManquant[]" 
+                            id="docManquant_{{ ue.numDocsManquant }}" 
+                            class="docManquant" 
+                            rows="5" 
+                            cols="100" 
+                            style="margin-top: 10px;" 
+                            {{ ue.dateReceptionDoc is not empty ? 'readonly' : '' }}>
+                            {{ ue.docManquant|trim }}
+                        </textarea>
+
+                        Document(s) réceptionné(s) le
+                        <input 
+                            type="text" 
+                            name="dateReceptionDocManquant[]"
+                            style="margin-top: 10px;"  
+                            id="dateReceptionDocManquant_{{ ue.numDocsManquant }}" 
+                            value="{{ ue.dateReceptionDoc is not empty ? ue.dateReceptionDoc|date('d/m/Y') : '' }}" 
+                            {{ ue.dateReceptionDoc is not empty ? 'readonly' : 'class="date"' }}
+                        />
+
+                        {% if ue.dateReceptionDoc is empty %}
+                            <button class="today btn" type="button">
+                                <i class="icon-calendar"></i> Aujourd'hui
+                            </button>
+
+                            <button class="btn validDocManquant" type="button">
+                                <i class="icon-lock"></i> Valider la réception de document
+                            </button>
+                        {% else %}
+                            <span>
+                                <button class="cancelDateRecep btn" type="button">
+                                    <i class="icon-remove"></i> Modifier
+                                </button>
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="inputComplet" {{ etatDossier == 1 ? '' : 'style="display:none;"' }}>
+                <label>
+                    <input type="radio" class="incomplet" name="INCOMPLET_DOSSIER" value="0"
+                        {{ etatDossier == 0 ? 'checked' : '' }}> Complet
+                </label>
+                <label>
+                    <input type="radio" class="incomplet" name="INCOMPLET_DOSSIER" value="1"
+                        {{ etatDossier == 1 ? 'checked' : '' }}> Incomplet
+                </label>
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId != 10 %}
+    <li class="row" style="margin-bottom: 20px;" id="DATESECRETARIAT">
+        <div class="col-sm-3" style="float: left;">Date réception secrétariat commission</div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control date" name="DATESECRETARIAT_DOSSIER" id="DATESECRETARIAT_INPUT"
+                    value="{{ dateSecretariat|date('d/m/Y') }}" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default today">
+                        <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                    </button>
+                </span>
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId != 19 %}
+    <li class="row" style="margin-bottom: 20px;" id="HORSDELAI">
+        <div class="col-sm-3" style='float:left;'>Hors délai</div>
+        <div class="col-sm-9">
+            <input type="checkbox" class="horsdelai hideavis" name="HORSDELAI_DOSSIER"
+            {% if horsDelai %}checked{% endif %}>
+        </div>
+    </li>
+{% endif %}
+
+
+{% if natureId == 3 %}
+    <li class="row" style="margin-bottom: 20px;" id="MESURESCOMPENS">
+        <div class="col-sm-3" style='float:left;'>Mesures compensatoires proposées</div>
+        <div class="col-sm-9">
+            <textarea name="MESURESCOMPENS_DOSSIER"
+                id="MESURESCOMPENS_DOSSIER"
+                rows="3"
+                cols="100">{{ mesuresCompensatoires|e }}
+            </textarea>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId == 3 %}
+    <li class="row" style="margin-bottom: 20px;" id="MESURESCOMPLE">
+        <div class="col-sm-3" style='float:left;'>Mesures complémentaires à respecter</div>
+        <div class="col-sm-9">
+            <textarea name="MESURESCOMPLE_DOSSIER"
+                id="MESURESCOMPLE_DOSSIER"
+                rows="3"
+                cols="100">{{ mesuresComplementaires|e }}
+            </textarea>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId == 3 %}
+    <li class="row" style="margin-bottom: 20px;" id="REGLEDEROG">
+        <div class="col-sm-3" style='float:left;'>Règles auxquelles il est demandé de déroger</div>
+        <div class="col-sm-9">
+            <textarea name="REGLEDEROG_DOSSIER"
+                id="REGLEDEROG_DOSSIER"
+                rows="3"
+                cols="100">{{ reglesADeroger|e }}
+            </textarea>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId == 3 %}
+    <li class="row" style="margin-bottom: 20px;" id="JUSTIFDEROG">
+        <div class="col-sm-3" style='float:left;'>Justification de la dérogation</div>
+        <div class="col-sm-9">
+            <textarea name="JUSTIFDEROG_DOSSIER"
+                id="JUSTIFDEROG_DOSSIER"
+                rows="3"
+                cols="100">{{ justificatifDerogation|e }}
+            </textarea>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId in [8, 10, 11, 16] %}
+    <li class="row" style="margin-bottom: 20px;" id="DATEPREF">
+        <div class="col-sm-3" style="float:left;">Date réception préfecture</div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control date" id="DATEPREF_DOSSIER" name="DATEPREF_DOSSIER"
+                    value="{{ datePrefecture|date('d/m/Y')}}" />
+                <span class="input-group-btn">
+                    <button type="button" class="today btn btn-default">
+                        <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                    </button>
+                </span>
+            </div>
+        </div>
+    </li>
+{% endif %}
+
+{% if natureId == 6 %}
+    <li class="row" style="margin-bottom: 20px;" id="CHARGESEC">
+        <div class="col-sm-3" style='float:left;'>Chargé de sécurité (T)</div>
+        <div class="col-sm-9">
+        <input type="text" id="CHARGESEC_DOSSIER" name="CHARGESEC_DOSSIER"
+                value="{{ chargeSecurite }}">
+        </div>
+    </li>
+{% endif %}
+
+
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            var listeDoc = {
+                1: "PC",
+                2: "AT",
+                14: "PA",
+                30: "DP",
+                62: "CU"
+            };
+
+            function updateDocurbaLabel() {
+                const selected = $("#selectNature").val();
+                if (listeDoc[selected]) {
+                    $("#docurbaVal").html('');
+                    var docurbaVal = listeDoc[selected];
+                    $("#docurbaVal").prepend(docurbaVal);
+                } else {
+                    $("#docurbaVal").html('');
+                }
+            }
+
+            updateDocurbaLabel();
+
+            $("#selectNature").on('change', function () {
+                updateDocurbaLabel();
+            });
+
+        $("input[name=servInst]:radio").live('click', function() {
+            if ($(this).val() == 'servInstCommune') {
+                $("#servInstVille").removeAttr('disabled');
+                $("#servInstGrp").attr('disabled', 'disabled');
+            } else if ($(this).val() == 'servInstGrp') {
+                $("#servInstGrp").removeAttr('disabled');
+                $("#servInstVille").attr('disabled', 'disabled');
+            }
+         });
+          // Auto complétion de la ville pour le service instructeur
+    $("#servInstVille").autocomplete("/api/1.0/adresse/get_communes", {
+        minChars: 3,
+        cacheLength: 0,
+        parse: function(data) {
+            return $.map(data["response"], function(row) {
+                return {
+                    data: row,
+                    value: row.LIBELLE_COMMUNE,
+                    result: row.LIBELLE_COMMUNE
+                }
+            });
+        },
+        formatItem: function(item) {
+            return item.LIBELLE_COMMUNE + " (" + item.NUMINSEE_COMMUNE + ")";
+        }
+    });
+        var incomplet = $("input[name=INCOMPLET_DOSSIER]:checked").val();
+
+        $(".incomplet").click(function() {
+            if ($(this).val() == 1) {
+                //incomplet on cache l'avis et on le met sur null
+                $(this).addClass('hideavis');
+                afficherCacherAvis();
+
+                $("#HORSDELAI").hide();
+                console.log("test");
+                $("#inputComplet").hide();
+                //On compte combien de div ayant la class notre page comporte
+                var numDivDocManquant = $('.docManquant').length;
+                numDivDocManquant++;
+                //On affiche la liste des documents manquants
+                $.ajax({
+                    url: "/dossier/formdocmanquant",
+                    data: "numDoc=" + numDivDocManquant + "&idDossier=" + $("#idDossier").val(),
+                    type: "POST",
+                    beforeSend: function() {},
+                    success: function(msg) {
+                        $("#dossierIncomplet").append(msg);
+                    }
+                });
+            } else {
+                //complet on affiche l'avis
+                $(this).removeClass('hideavis');
+                afficherCacherAvis();
+            }
+        });
+        });
+
+        afficherCacherAvis = function() {
+    var typeDossier = $("#TYPE_DOSSIER").val();
+    var $hideAvis = $(".hideavis:checked");
+
+    if ($hideAvis.length == 0) {
+        //act = 0 on affiche
+        if (typeDossier == 1) {
+            $("#AVIS").show();
+            $("#AVIS_COMMISSION").show();
+            $("#DATECOMM").show();
+        } else if (typeDossier == 2) {
+            $("#AVIS_COMMISSION").show();
+        } else if (typeDossier == 3) {
+            $("#AVIS").show();
+            $("#AVIS_COMMISSION").show();
+            $("#DATECOMM").show();
+        }
+    } else {
+        if ($hideAvis.not('.absquorum').not('.npsp').length > 0) {
+            /* On ne cache pas l'avis du rapporteur pour certains types de dossiers*/
+            $("#AVIS").hide();
+            $("#AVIS_DOSSIER option[value='0']").attr('selected', true);
+        } else {
+            $("#AVIS").show();
+        }
+        $("#AVIS_COMMISSION").hide();
+        $("#AVIS_DOSSIER_COMMISSION option[value='0']").attr('selected', true);
+        $("#DATECOMM").hide();
+        $("#DATECOMM_INPUT").val('');
+        $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
+    }
+};
+    </script>
+{% endblock %}
