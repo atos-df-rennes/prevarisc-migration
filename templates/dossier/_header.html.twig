@@ -78,16 +78,16 @@
                     </a>
                     {# Avis #}
                     {% if etab.etablissement.idDossierDonnantAvis is not null %}
-                        {% if etab.avisExploitation is not null%}
-                            {% if etab.avisExploitation.libelleAvis == 'Favorable' %}
+                        {% if etab.avisExploitation is not null and etab.avisExploitation.id != 0 %}
+                            {% if  etab.avisExploitation.libelleAvis == 'Favorable' %}
                                 <span class="label label-success"  style="font-size: 12px;">{{ etab.avisExploitation.libelleAvis }}</span>&nbsp;
                             {% elseif etab.avisExploitation.libelleAvis == 'Défavorable' %}
                                 <span class="label label-danger" style="font-size: 12px;">{{ etab.avisExploitation.libelleAvis }}</span>&nbsp;
-                            {% elseif differeAvis %}
-                                <span class="label label-info" style="font-size: 12px;">Avis différé</span>&nbsp;
                             {% else %}
                                 <span class="label label-default" style="font-size: 12px;">Avis indisponible</span>&nbsp;
-                            {% endif %}
+                            {% endif %}     
+                        {% elseif differeAvis %}
+                            <span class="label label-info" style="font-size: 12px;">Avis différé</span>&nbsp;
                         {% endif %}     
                     {% else %}
                             <span class="label label-default" style="font-size: 12px;">Avis indisponible</span>&nbsp;

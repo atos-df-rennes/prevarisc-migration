@@ -227,7 +227,7 @@
         $("#DEVERROU").click(function(){
             $.ajax({
                 url: "/dossier/deverrou", 
-                data: { idDossier: "{{ idDossier }}" },
+                data: { idDossier: $("#ID_DOSSIER").val() },
                 type: "POST",
                 beforeSend: function(){
                     $("#chargement").html("<img src='/images/load.gif' />");

@@ -5,8 +5,11 @@
 {% block body %}
     <div>
         {% if verrouDossier != 1 %}
-            <a class="btn btn-default pull-right" id="modifierDossier" >Modifier le dossier</a>
-        {% endif %}
+            <div class="pull-right">
+                <a class="btn btn-primary" href="{{ path('dossier_edit', {'id': idDossier}) }}">Modifier le dossier</a>
+            </div>
+        {% endif %} {# A voir mettre un button#}
+
         <h3 class="text-bold">Informations générales</h3>
         {% if platauConsultation is not null and platauConsultation.id is not null %}
                 {% include 'dossier/_platau_infos.html.twig' %}
@@ -21,12 +24,13 @@
                 </div>
             </li>
 
-            <li class="row" style="margin-bottom: 20px;" id="nature" >
-                <div class="col-sm-3" style='float:left;'>Nature</div>
-                <div class="col-sm-9">
-                        {{ nature}}
+            <li class="row" style="margin-bottom: 20px;" id="nature">
+                <div class="col-sm-3" style="float:left;">Nature</div>
+                <div class="col-sm-3">
+                    <select class="form-control" disabled>
+                        <option selected>{{ nature }}</option>
+                    </select>
                 </div>
-                
                 <div id="loading" class="left span1" style="display:none;">
                     <img src="/images/load.gif" alt="loading" />
                 </div>

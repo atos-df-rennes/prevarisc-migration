@@ -48,7 +48,7 @@
         <div class="col-sm-9">
             {{dateIntervention|format_date('full', locale='fr')}}
             {% if heureIntervention is not null %}
-                {{ heureIntervention }}
+                {{ heureIntervention|date('H:i') }}
             {% endif %}
         </div>
     </li>
@@ -58,7 +58,7 @@
     <li class="row" style="margin-bottom: 20px;"id="DUREEINTERV">
         <div class="col-sm-3" style='float:left;'>Durée intervention</div>
         <div class="col-sm-9">
-            {{dureeIntervention|format_date('full', locale='fr')}}
+            {{ dureeIntervention|date('H:i') }}
         </div>
     </li>
     {% endif %}

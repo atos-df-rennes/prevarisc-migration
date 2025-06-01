@@ -71,10 +71,8 @@ class DossierService
             $avisExploitation = null;
             if ($etablissement && $etablissement->getIdDossierDonnantAvis() != null) {
                 $avisExploitation = $this->getAvisDossier($etablissement->getIdDossierDonnantAvis());
-            // dd($etablissement->getIdDossierDonnantAvis());
 
             }
-           // dd($avisExploitation);
 
             // Ajouter à la liste des résultats
             $resultat[] = [
