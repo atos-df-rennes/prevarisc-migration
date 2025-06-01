@@ -47,6 +47,19 @@ class DossierAffectationRepository extends ServiceEntityRepository
         }
     }
 
+    public function findByDossierOrderByDateCommission($idDossier): array
+    {
+        return $this->createQueryBuilder('da')
+            ->join('da.idDateCommissionAffect', 'dc')
+            ->addSelect('dc')
+            ->where('da.idDossierAffect = :idDossier')
+            ->setParameter('idDossier', $idDossier)
+            ->orderBy('dc.dateCommission', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
     // /**
     //  * @return DossierAffectation[] Returns an array of DossierAffectation objects
     //  */

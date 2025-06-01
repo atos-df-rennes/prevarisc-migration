@@ -47,6 +47,19 @@ class GroupementTypeRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Retourne tous les types de groupement, triés par libellé.
+     *
+     * @return GroupementType[]
+     */
+    public function findAllGroupementTypes(): array
+    {
+        return $this->createQueryBuilder('g')
+            ->orderBy('g.libelle', 'ASC') 
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return GroupementType[] Returns an array of GroupementType objects
     //  */

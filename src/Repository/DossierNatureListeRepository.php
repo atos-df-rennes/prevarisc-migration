@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType;
+
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -46,6 +48,18 @@ class DossierNatureListeRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    public function findByTypeOrdered(DossierType $type): array
+    {
+        return $this->createQueryBuilder('dnl')
+            ->where('dnl.type = :type')
+            ->andWhere('dnl.ordre IS NOT NULL')
+            ->setParameter('type', $type)
+            ->orderBy('dnl.ordre', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 
     // /**
     //  * @return DossierNatureListe[] Returns an array of DossierNatureListe objects
