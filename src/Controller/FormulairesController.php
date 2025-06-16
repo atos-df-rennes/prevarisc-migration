@@ -17,10 +17,11 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @IsGranted("admin")
+ * @IsGranted("gestion_formulaires")
  */
 class FormulairesController extends AbstractController
 {
+    // @todo: Permettre de pouvoir choisir entre supprimer ou non la configuration existante
     /**
      * @Route("/admin/formulaires/export", name="admin_formulaires_export")
      */
