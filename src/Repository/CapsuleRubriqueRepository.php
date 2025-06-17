@@ -46,19 +46,4 @@ class CapsuleRubriqueRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
-
-    /**
-     * @return CapsuleRubrique[]
-     */
-    public function findAllElements(): array
-    {
-        return $this->createQueryBuilder('cr')
-            ->join('cr.rubriques', 'r')
-            ->join('r.champs', 'c')
-            ->join('c.type', 't')
-            ->join('c.valeursListe', 'vl')
-            ->getQuery()
-            ->getResult()
-        ;
-    }
 }
