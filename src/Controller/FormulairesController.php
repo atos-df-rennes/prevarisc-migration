@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,31 +51,30 @@ class FormulairesController extends AbstractController
         return $this->json($capsuleRubriqueRepository->findAll(), 200, ['Content-Disposition' => $dispositions], $context);
     }
 
-  /**
-   * @Route("/admin/formulaires/import", name="admin_formulaires_import")
-   */
+    /**
+     * @Route("/admin/formulaires/import", name="admin_formulaires_import")
+     */
     public function import(
         Request $request,
         SerializerInterface $serializer,
         FormulairesImporter $formulairesImporter,
         EntityManagerInterface $entityManager,
         LoggerInterface $logger
-    ): Response
-    {
+    ): Response {
         // @todo: Message de succès/échec
-        /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $configurationFile */
+        /** @var UploadedFile $configurationFile */
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
 
         try {
-            $entityManager->wrapInTransaction(function(EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter) {
+            $entityManager->wrapInTransaction(function (EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter): void {
                 if ($deleteExistingConfiguration) {
                     $formulairesImporter->deleteExistingConfiguration($entityManager);
                 }
 
                 $configurationFileJsonContent = file_get_contents($configurationFile->getPathname());
                 /** @var CapsuleRubrique[] $capsulesRubriques */
-                $capsulesRubriques = $serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class . '[]', 'json');
+                $capsulesRubriques = $serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class.'[]', 'json');
 
                 $formulairesImporter->importConfiguration($entityManager, $capsulesRubriques);
             });

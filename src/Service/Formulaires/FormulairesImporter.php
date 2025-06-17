@@ -48,10 +48,10 @@ final class FormulairesImporter
     }
 
     /**
-     * @param \App\Entity\CapsuleRubrique[] $capsulesRubriques
+     * @param CapsuleRubrique[] $capsulesRubriques
      *
      * Importe une configuration complète de formulaires personnalisés
-     * depuis un fichier JSON (généré via l'export de la configuration).
+     * depuis un fichier JSON (généré via l'export de la configuration)
      */
     public function importConfiguration(EntityManagerInterface $entityManager, array $capsulesRubriques): void
     {
@@ -171,6 +171,7 @@ final class FormulairesImporter
 
             $champ->addValeursListe($valeurListe);
         }
+
         $entityManager->flush();
 
         return $champ;
