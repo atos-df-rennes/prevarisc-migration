@@ -35,7 +35,7 @@ final class FormulairesImporter
      * Supprime complètement une configuration existante de formulaires personnalisés.
      * Seules les capsules rubriques statiques sont conservées.
      */
-    public function deleteExistingConfiguration(): void
+    public function deleteExistingConfiguration(EntityManagerInterface $entityManager): void
     {
         $existingCapsulesRubriques = $this->capsuleRubriqueRepository->findAll();
 
@@ -43,7 +43,7 @@ final class FormulairesImporter
             $existingCapsuleRubrique->getRubriques()->clear();
         }
 
-        $this->entityManager->flush();
+        $entityManager->flush();
     }
 
     /**
@@ -52,7 +52,7 @@ final class FormulairesImporter
      * Importe une configuration complète de formulaires personnalisés
      * depuis un fichier JSON (généré via l'export de la configuration).
      */
-    public function importConfiguration(array $capsulesRubriques): void
+    public function importConfiguration(EntityManagerInterface $entityManager, array $capsulesRubriques): void
     {
         foreach ($capsulesRubriques as $capsuleRubrique) {
             // Récupère les capsules rubriques statiques
@@ -60,7 +60,7 @@ final class FormulairesImporter
 
             foreach ($capsuleRubrique->getRubriques() as $rubrique) {
                 // Crée la nouvelle rubrique
-                $newRubrique = $this->createRubrique($rubrique, $managedCapsuleRubrique);
+                $newRubrique = $this->createRubrique($entityManager, $rubrique, $managedCapsuleRubrique);
 
                 foreach ($rubrique->getChamps() as $champ) {
                     if ($champ->getParent() instanceof Champ) {
@@ -68,24 +68,24 @@ final class FormulairesImporter
                     }
 
                     // Crée le nouveau champ, les champs enfants sont exclus
-                    $newChamp = $this->createChamp($champ, $newRubrique);
+                    $newChamp = $this->createChamp($entityManager, $champ, $newRubrique);
 
                     if (!$champ->getEnfants()->isEmpty()) {
                         foreach ($champ->getEnfants() as $enfant) {
                             // Crée le nouveau champ enfant depuis le champ parent créé au préalable
-                            $enfantNewChamp = $this->createChamp($enfant, $newRubrique, $newChamp);
+                            $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp);
 
                             $newChamp->addEnfant($enfantNewChamp);
                         }
                     }
 
-                    $this->entityManager->flush();
+                    $entityManager->flush();
                 }
             }
         }
     }
 
-    private function createRubrique(Rubrique $exportedRubrique, CapsuleRubrique $capsuleRubrique): Rubrique
+    private function createRubrique(EntityManagerInterface $entityManager, Rubrique $exportedRubrique, CapsuleRubrique $capsuleRubrique): Rubrique
     {
         $rubrique = new Rubrique();
         $rubrique->setNom($exportedRubrique->getNom());
@@ -93,13 +93,13 @@ final class FormulairesImporter
         $rubrique->setIdx($exportedRubrique->getIdx());
         $rubrique->setCapsuleRubrique($capsuleRubrique);
 
-        $this->entityManager->persist($rubrique);
-        $this->entityManager->flush();
+        $entityManager->persist($rubrique);
+        $entityManager->flush();
 
         return $rubrique;
     }
 
-    private function createChamp(Champ $exportedChamp, Rubrique $rubrique, ?Champ $parent = null): Champ
+    private function createChamp(EntityManagerInterface $entityManager, Champ $exportedChamp, Rubrique $rubrique, ?Champ $parent = null): Champ
     {
         $managedType = $this->typeChampRepository->findOneBy(['type' => $exportedChamp->getType()->getType()]);
 
@@ -114,20 +114,20 @@ final class FormulairesImporter
             $champ->setParent($parent);
         }
 
-        $this->entityManager->persist($champ);
-        $this->entityManager->flush();
+        $entityManager->persist($champ);
+        $entityManager->flush();
 
         foreach ($exportedChamp->getValeursListe() as $exportedValeurListe) {
             $valeurListe = new ChampValeurListe();
             $valeurListe->setValeur($exportedValeurListe->getValeur());
             $valeurListe->setChamp($champ);
 
-            $this->entityManager->persist($valeurListe);
-            $this->entityManager->flush();
+            $entityManager->persist($valeurListe);
+            $entityManager->flush();
 
             $champ->addValeursListe($valeurListe);
         }
-        $this->entityManager->flush();
+        $entityManager->flush();
 
         return $champ;
     }

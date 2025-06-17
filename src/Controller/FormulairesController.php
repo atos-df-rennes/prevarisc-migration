@@ -7,6 +7,8 @@ use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Service\Formulaires\FormulairesImporter;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -51,24 +53,39 @@ class FormulairesController extends AbstractController
   /**
    * @Route("/admin/formulaires/import", name="admin_formulaires_import")
    */
-    public function import(Request $request, SerializerInterface $serializer, FormulairesImporter $formulairesImporter): Response
+    public function import(
+        Request $request,
+        SerializerInterface $serializer,
+        FormulairesImporter $formulairesImporter,
+        EntityManagerInterface $entityManager,
+        LoggerInterface $logger
+    ): Response
     {
         // @todo: Message de succès/échec
         /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $configurationFile */
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
 
-        // @todo: Mettre le tout dans une transaction pour pouvoir rollback si l'ajout ne fonctionne pas ?
-        if ($deleteExistingConfiguration) {
-            $formulairesImporter->deleteExistingConfiguration();
+        try {
+            $entityManager->wrapInTransaction(function($entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter) {
+                if ($deleteExistingConfiguration) {
+                    $formulairesImporter->deleteExistingConfiguration($entityManager);
+                }
+
+                $configurationFileJsonContent = file_get_contents($configurationFile->getPathname());
+                /** @var CapsuleRubrique[] $capsulesRubriques */
+                $capsulesRubriques = $serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class . '[]', 'json');
+
+                $formulairesImporter->importConfiguration($entityManager, $capsulesRubriques);
+            });
+
+            $importStatus = 'success';
+        } catch (\Exception $exception) {
+            $logger->error($exception->getMessage(), ['service' => 'Importeur de configuration de formulaires']);
+            $importStatus = 'error';
         }
 
-        $configurationFileJsonContent = file_get_contents($configurationFile->getPathname());
-        /** @var CapsuleRubrique[] $capsulesRubriques */
-        $capsulesRubriques = $serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class.'[]', 'json');
-
-        $formulairesImporter->importConfiguration($capsulesRubriques);
-
-        return $this->redirect('/formulaire');
+        // @todo: Lorsque la page des formulaires sera migrée, faire le $importStatus avec un flashMessage
+        return $this->redirect('/formulaire?importStatus='.$importStatus);
     }
 }
