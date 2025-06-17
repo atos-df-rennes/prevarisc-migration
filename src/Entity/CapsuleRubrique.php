@@ -21,7 +21,7 @@ class CapsuleRubrique
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_CAPSULERUBRIQUE", type="bigint")
+     * @ORM\Column(name="ID_CAPSULERUBRIQUE", type="integer")
      */
     private $id;
 

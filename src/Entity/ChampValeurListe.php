@@ -19,7 +19,7 @@ class ChampValeurListe
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_VALEURLISTE", type="bigint")
+     * @ORM\Column(name="ID_VALEURLISTE", type="integer")
      */
     private $id;
 

@@ -20,7 +20,7 @@ class Champ
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_CHAMP", type="bigint")
+     * @ORM\Column(name="ID_CHAMP", type="integer")
      */
     private $id;
 

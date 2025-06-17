@@ -19,7 +19,7 @@ class Rubrique
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_RUBRIQUE", type="bigint")
+     * @ORM\Column(name="ID_RUBRIQUE", type="integer")
      */
     private $id;
 

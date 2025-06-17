@@ -19,7 +19,7 @@ class TypeChamp
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_TYPECHAMP", type="bigint")
+     * @ORM\Column(name="ID_TYPECHAMP", type="integer")
      */
     private $id;
 
