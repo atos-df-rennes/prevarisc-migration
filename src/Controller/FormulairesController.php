@@ -61,6 +61,19 @@ class FormulairesController extends AbstractController
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
 
+        // @todo: Mettre le tout dans une transaction pour pouvoir rollback si l'ajout ne fonctionne pas ?
+        if ($deleteExistingConfiguration) {
+            $existingCapsulesRubriques = $capsuleRubriqueRepository->findAll();
+
+            foreach ($existingCapsulesRubriques as $existingCapsuleRubrique) {
+                $existingCapsuleRubrique->getRubriques()->clear();
+
+                $entityManager->persist($existingCapsuleRubrique);
+            }
+
+            $entityManager->flush();
+        }
+
         $configurationFileJsonContent = file_get_contents($configurationFile->getPathname());
         /** @var CapsuleRubrique[] $capsulesRubriques */
         $capsulesRubriques = $serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class.'[]', 'json');
