@@ -67,7 +67,7 @@ class FormulairesController extends AbstractController
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
 
         try {
-            $entityManager->wrapInTransaction(function($entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter) {
+            $entityManager->wrapInTransaction(function(EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter) {
                 if ($deleteExistingConfiguration) {
                     $formulairesImporter->deleteExistingConfiguration($entityManager);
                 }
