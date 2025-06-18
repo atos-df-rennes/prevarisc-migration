@@ -1,4 +1,9 @@
-function my_dialog(url, data, callback) {
+function convertDateAngToFr(dateAng) {
+    var tabDate = dateAng.split("-");
+    return tabDate[2] + "/" + tabDate[1] + "/" + tabDate[0];
+}
+ 
+function my_dialog(url, data, callback) { 
     // Récupération du contenu de la boite de dialogue
         $.ajax({
             data: data,
@@ -28,7 +33,6 @@ function my_dialog(url, data, callback) {
     }
 
 $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar, mois, annee) {
-    console.log({idComm, emplacement, type, divInfo, infoCalendar, mois, annee});
 
     var calendar = $("#" + divInfo).fullCalendar({
         buttonIcons:{
@@ -87,18 +91,20 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
             }
 
             $.ajax({
-                url: '/calendrier-des-commissions/recupevenement?start=' + start.getTime() +
-                    "&end=" + end.getTime() + "&type=" + type,
+                url: '/evenements',
+                type: 'GET',
                 data: {
-                    format: 'json',
+                    start: start.toISOString(),
+                    end: end.toISOString(),
+                    type: type,
                     idComm: idComm,
+                    format: 'json',
                 },
                 success: function(result) {
                     var events = [];
-                    for (var x in result["items"]) {
-
+                    for (var x in result) {
                         var colorCal;
-                        switch (result["items"][x]["className"]) {
+                        switch (result[x]["className"]) {
                             case "display-1":
                                 colorCal = "#3A87AD";
                                 break;
@@ -112,11 +118,11 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
                                 break;
                         }
                         events.push({
-                            id: result["items"][x]["id"],
-                            title: result["items"][x]["title"],
-                            start: result["items"][x]["start"],
-                            end: result["items"][x]["end"],
-                            allDay: result["items"][x]["allDay"],
+                            id: result[x]["id"],
+                            title: result[x]["title"],
+                            start: result[x]["start"],
+                            end: result[x]["end"],
+                            allDay: result[x]["allDay"],
                             color: colorCal
                         });
                     }
@@ -159,35 +165,36 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
                     type = 1;
                 }
             }
-        
+            my_dialog( 
+                '/dialogcomm',  // c’est maintenant l’URL Symfony
+                'do=newComm&idComm=' + idComm +
+                '&dateD=' + start.toISOString().split('T')[0] +
+                '&dateF=' + end.toISOString().split('T')[0]+
+                '&libelleCom=' + nomCom +
+                '&type=' + type,
+                function () {
 
-
-
-
-
-
-            my_dialog("/calendrier-des-commissions/dialogcomm", "do=newComm&idComm=" + idComm +
-                "&dateD=" + start + "&dateF=" + end + "&libelleCom=" + nomCom + "&type=" + type,
-                function() {
                     $("#dialogComm").dialog("option", "buttons", [
                         {
-
                             text: 'Enregistrer dans le calendrier',
                             class: 'btn btn-success',
                             click: function() {
-
                                 // Lors de la validation de la boite de dialogue
                                 $.ajax({
                                     data: $("#formDateComm").serialize() +
-                                        "&idComm=" + idComm,
-                                    url: "/calendrier-des-commissions/adddates",
+                                        "&idComm=" + idComm+
+                                        "&repeat=" + ($("#repeat").is(":checked") ? "on" : "")+
+                                        "&periodicite=" + $("#periodicite").val() +
+                                        "&dateFin=" + $("#dateFin").val().replace(/\//g, "."),
+                                    url: "/adddates",
+                                    dataType: 'json',
                                     type: "POST",
                                     success: function(affichageResultat) {
-
                                         //En cas de succes il faut inserer tous les évenements dans le calendrier et la BD
-                                        //Récupération du Json et affichage de celui-ci
-                                        var rez = eval("(" + affichageResultat +
-                                            ")");
+                                        //Récupération du Json et affichage de ce
+                                        // lui-ci
+                                       
+                                        var rez =  affichageResultat 
                                         for (var i in rez) {
                                             calendar.fullCalendar(
                                             'renderEvent', {
@@ -265,7 +272,7 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
         eventClick: function(event, jsEvent, view) {
             // Boite de dialogue
             if (emplacement == 'calendrierComm') {
-                my_dialog("/calendrier-des-commissions/dialogcomm", "idComm=" + idComm +
+                my_dialog("/dialogcomm", "idComm=" + idComm +
                     "&idDateComm=" + event.id + "&do=edit");
             } else if (emplacement == 'dossier') {
                 //Lorsque l'on clique sur une commission la date s'ajoute automatiquement dans l'input en dessous
@@ -307,7 +314,7 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
                     if (dateSelect == "DATEVISITE") {
                         $.ajax({
                             data: "idDate=" + event.id,
-                            url: "/calendrier-des-commissions/recupdateliee",
+                            url: "/recupdateliee",
                             type: "GET",
                             success: function(affichageResultat) {
                                 //On récupere toutes les dates liées et on les affiche
