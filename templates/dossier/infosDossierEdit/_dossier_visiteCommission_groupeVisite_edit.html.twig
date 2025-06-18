@@ -27,7 +27,7 @@
     <div class="col-sm-9">
         <div class="form-inline">
             <input type="text" class="form-control"  name="DATEVISITE_DOSSIER" id="DATEVISITE_INPUT"
-                value="{{ dateVisiteInput is not null ? dateVisiteInput|date('d/m/Y') : '' }}" readonly="readonly" />
+                value="{{ dateVisiteInput ? dateVisiteInput|date('d/m/Y') : '' }}" readonly="readonly" />
 
             <input type="hidden" name="ID_AFFECTATION_DOSSIER_VISITE" id="ID_AFFECTATION_DOSSIER_VISITE"
                 value="{{ idDateVisiteAffect is not null ? idDateVisiteAffect : '' }}" />
@@ -118,3 +118,17 @@
         </div>       
     </li>
 {% endif %}
+
+{% block javascripts %}
+    <script>
+        // Affichage et Masquage du formulaire délai prescription
+        $(document).on('click', '.delaipresc', function() {
+            if ($(this).is(':checked')) {
+                $("#delaipresc_form").show();
+            } else {
+                $("#delaipresc_form").val('').hide();
+            }
+        });
+
+    </script>
+{% endblock %}
