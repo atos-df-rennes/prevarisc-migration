@@ -78,6 +78,14 @@ class DateCommission
      */
     private $dossierAffectations;
 
+    /**
+     * @var ?CommissionTypeEvenement
+     * 
+     * @ORM\ManyToOne(targetEntity=CommissionTypeEvenement::class)
+     * @ORM\JoinColumn(name="ID_COMMISSIONTYPEEVENEMENT", referencedColumnName="ID_COMMISSIONTYPEEVENEMENT", nullable=true)
+     */
+    private $commissionTypeEvenement;
+
     public function __construct()
     {
         $this->dossierAffectations = new ArrayCollection();
@@ -177,4 +185,16 @@ class DateCommission
 {
     return $this->dossierAffectations;
 }
+
+    public function getCommissionTypeEvenement(): ?CommissionTypeEvenement
+    {
+        return $this->commissionTypeEvenement;
+    }
+
+    public function setCommissionTypeEvenement(?CommissionTypeEvenement $commissionTypeEvenement): self
+    {
+        $this->commissionTypeEvenement = $commissionTypeEvenement;
+
+        return $this;
+    }
 }
