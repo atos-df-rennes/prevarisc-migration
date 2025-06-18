@@ -144,7 +144,7 @@
         {{ include('dossier/infosDossier/_dossier_arrete.html.twig') }}
     {% endif %} 
 
-    {% if avisDossier is not null and avisDossier != 0 and horsDelai != 1 and natureId not in [20, 47, 22, 23, 24, 64, 27] and idType not in [4,5,6,7] %}
+    {% if avisDossier is not null and avisDossier != 0 and horsDelai != 1 and natureId not in [20, 47, 22, 23, 24, 64, 27] and idType in [1, 2, 3 ] %}
     <li class="row" style="margin-bottom: 20px;" id="AVIS">
         <div class="col-sm-3" style='float:left;'>
             {% if idType in [1, 2] %}  Avis du rapporteur {% elseif idType == 3 %} Avis du groupe de visite {% endif %}
@@ -187,24 +187,6 @@
         <div class="col-sm-3" style='float:left;'>Date de réponse</div>
         <div class="col-sm-9">
             {{dateReponse|format_date('full', locale='fr')}}
-        </div>
-    </li>
-    {% endif %}
-
-    {% if dureeDeplacement is not empty %}
-    <li class="row" style="margin-bottom: 20px;" id="DUREEDEPL">
-        <div class="col-sm-3" style='float:left;'>Durée de déplacement</div>
-        <div class="col-sm-9">
-            {{dureeDeplacement}}
-        </div>
-    </li>
-    {% endif %}
-
-    {% if gravitePrescription is not empty %}            
-    <li class="row" style="margin-bottom: 20px;" id="GRAVPRESC">
-        <div class="col-sm-3" style='float:left;'>Gravité prescription</div>
-        <div class="col-sm-9">
-            {{ gravitePrescription }}
         </div>
     </li>
     {% endif %}

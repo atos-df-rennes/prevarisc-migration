@@ -1,13 +1,13 @@
 <h4 class="text-bold h4_subtitle">Informations sur le dossier</h4>
-<ul  class="list-unstyled">
+<ul id='InfosDossier' class="list-unstyled">
     <li class="row" style="margin-bottom: 20px;" id="DATEINSERT" >
         <div class="col-sm-3 " style="float: left;">Date de création du dossier</div>
         <div class="col-sm-3">
                 <div class="input-group">
                 <input type="text" class="form-control date" name="DATEINSERT_DOSSIER" id="DATEINSERT_INPUT"
-                    value="{{ dateCreation|date('d/m/Y') }}" />
+                    value="{{  dateCreation ? dateCreation|date('d/m/Y') : ''  }}" />
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default today">
+                    <button type="button" class="today btn btn-default">
                         <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
                     </button>
                 </span>
@@ -39,9 +39,9 @@
         <div class="col-sm-3">
             <div class="input-group">
                 <input type="text" class="form-control date" name="DATEMAIRIE_DOSSIER" id="DATEMAIRIE_INPUT"
-                    value="{{ dateMairie|date('d/m/Y') }}"/>
+                    value="{{  dateMairie ? dateMairie|date('d/m/Y') : ''}}"/>
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default today" >
+                    <button type="button" class="today btn btn-default " >
                         <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
                     </button>
                 </span>
@@ -56,7 +56,7 @@
             <div class="col-sm-3">
                 <div class="input-group">
                     <input type="text" class="form-control date" name="DATESDIS_DOSSIER" id="DATESDIS_INPUT"
-                        value="{{ dateSDIS|date('d/m/Y') }}" />
+                        value="{{ dateSDIS ? dateSDIS|date('d/m/Y') : ''  }}" />
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default today">
                             <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
@@ -67,7 +67,7 @@
         </li>
     {% endif %}
 
-    {% if  natureId != 10 and idType not in [4,5,6,7]%}
+    {% if  natureId != 10 and idType not in [4,5,6,7] and commissionInfos is not null%}
         <li class="row" style="margin-bottom: 20px;" id="COMMISSION">
             <div class="col-sm-3 control-label" style="padding-top: 7px;">Commission concernée</div>
             <div class="col-sm-9">
@@ -96,13 +96,13 @@
         </li>
     {% endif %}
 
-    {% if  dateCommission is not null and horsDelai == 0 and idType in [1, 3] and natureId not in [10,27] %}
+    {% if not horsDelai and idType in [1, 3] and natureId not in [10,27] %}
         <li class="row" style="margin-bottom: 20px;" id="DATECOMM">
             <div class="col-sm-3" style="float:left;">Date de commission en salle</div>
             <div class="col-sm-9">
                 <div class="form-inline">
                     <input type="text" class="form-control" name="DATECOMM_DOSSIER" id="DATECOMM_INPUT"
-                        value="{{ dateCommission is defined ? dateCommission|date('d/m/Y') : '' }}" readonly="readonly" />
+                        value="{{ dateCommission  ? dateCommission|date('d/m/Y') : '' }}" readonly="readonly" />
 
                     <input type="hidden" name="ID_AFFECTATION_DOSSIER_COMMISSION" id="ID_AFFECTATION_DOSSIER_COMMISSION"
                         value="{{ idDateCommissionAffect is defined ? idDateCommissionAffect|date('d/m/Y') : '' }}" />
@@ -140,18 +140,9 @@
         <div id="calendarCommission" class="col-sm-12 calendar" style="display: none;"></div>
         <hr class="clearfix" />
     </div>
+    <div id='dialogComm' style='display:none;'></div>
 
-    {# A voir pour le descriptif il est dans aucune nature#}
-    <li class="row" style="margin-bottom: 20px;" id="DESCANAL">
-        <div class="col-sm-3" style='float:left;'>Descriptif analyse de risque</div>
-        <div class="col-sm-9">
-            <input type="text"
-                id="DESCANAL_DOSSIER"
-                name="DESCANAL_DOSSIER"
-                class="form-control"
-                value="{{ descriptifAnalyseRisque is not null ? descriptifAnalyseRisque : '' }}">            
-        </div>
-    </li>
+
 
     {% if natureId not in [46, 30, 61, 62, 22, 64, 27 ]  and idType not in [4, 5, 6, 7] %}
         <li class="row" style="margin-bottom: 20px;" id="ABSQUORUM">
@@ -162,45 +153,41 @@
         </li>
     {% endif %}
 
-    {# A voir pour le cne, fatdange il est dans aucune nature#}
-    <li class="row" style="margin-bottom: 20px;" id="CNE">
-        <div class="col-sm-3" style='float:left;'>Cellule non exploitée</div>
-            <div class="col-sm-9">
-                <input type="checkbox" class="cne hideavis" name="CNE_DOSSIER" {% if celluleNonExploitée == 1 %}checked{% endif %}>
-            </div>       
-    </li>
 
-    <li class="row" style="margin-bottom: 20px;" id="FACTDANGE">
-        <div class="col-sm-3" style="float:left; padding-top: 7px;">
-            Facteur de criticité
-        </div>
-        <div class="col-sm-9">
-            <select name="FACTDANGE_DOSSIER" id="FACTDANGE_DOSSIER" class="form-control" style="width: 200px;">
-                {% if isSignalement %}
-                    <option value="0" {% if facteurDanger == 0 %}selected{% endif %}>Non</option>
-                    <option value="1" {% if facteurDanger > 0 %}selected{% endif %}>Oui</option>
-                {% else %}
-                    <option value="0" {% if facteurDanger == 0 %}selected{% endif %}>-</option>
-                    {% for i in 1..5 %}
-                        <option value="{{ i }}" {% if facteurDanger == i %}selected{% endif %}>{{ i }}</option>
-                    {% endfor %}
-                {% endif %}
-            </select>
-        </div>
-    </li>
 
-    <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV">
-        <div class="col-sm-3" style="float:left; padding-top: 7px;">Échéancier de travaux / Schéma de mise en sécurité </div>
-        <div class="col-sm-9">
-            <div class="checkbox" style="margin-bottom: 10px;">
-                    <input type="checkbox" id="echeanciertrav_check"{% if echeancierTravaux is not null %}checked{% endif %}>
+    {% if facteurDanger is not null and ((isSignalement and avisDossier.id == 2) or facteurDanger > 0)  %}
+        <li class="row" style="margin-bottom: 20px;" id="FACTDANGE">
+            <div class="col-sm-3" style="float:left; padding-top: 7px;">
+                Facteur de criticité
             </div>
-            <input type="text" class="form-control date" id="ECHEANCIERTRAV_DOSSIER" name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux }}"
-                {% if echeancierTravaux is null %}style="display: none;"{% endif %}>
-        </div>
-    </li>
+            <div class="col-sm-9">
+                <select name="FACTDANGE_DOSSIER" id="FACTDANGE_DOSSIER" class="form-control" style="width: 200px;">
+                    {% if isSignalement %}
+                        <option value="0" {% if facteurDanger == 0 %}selected{% endif %}>Non</option>
+                        <option value="1" {% if facteurDanger > 0 %}selected{% endif %}>Oui</option>
+                    {% else %}
+                        <option value="0" {% if facteurDanger == 0 %}selected{% endif %}>-</option>
+                        {% for i in 1..5 %}
+                            <option value="{{ i }}" {% if facteurDanger == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+        </li>
+    {% endif %} 
 
-
+    {% if echeancierTravaux is not null %}
+        <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV">
+            <div class="col-sm-3" style="float:left; padding-top: 7px;">Échéancier de travaux / Schéma de mise en sécurité </div>
+            <div class="col-sm-9">
+                <div class="checkbox" style="margin-bottom: 10px;">
+                        <input type="checkbox" id="echeanciertrav_check"{% if echeancierTravaux is not null %}checked{% endif %}>
+                </div>
+                <input type="text" class="form-control date" id="ECHEANCIERTRAV_DOSSIER" name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux }}"
+                    {% if echeancierTravaux is null %}style="display: none;"{% endif %}>
+            </div>
+        </li>
+    {% endif %} 
 
     {% if idType == 1 %}
         {{ include('dossier/infosDossierEdit/_dossier_etude_edit.html.twig') }}
@@ -216,6 +203,48 @@
         {{ include('dossier/infosDossierEdit/_dossier_arrete_edit.html.twig') }}
     {% endif %} 
     
+    {% if natureId not in [20, 47, 22, 23, 24, 64, 27] and idType in [1, 2, 3]  and not horsDelai and avisDossier is not null %}
+        <li class="row" style="margin-bottom: 20px;" id="AVIS">
+            <div class="col-sm-3" style="float:left;">
+                {% if idType in [1, 2] %}Avis du rapporteur{% elseif idType == 3 %}Avis du groupe de visite{% endif %}
+            </div>
+            <div class="col-sm-9">
+                <select name="AVIS_DOSSIER" id="AVIS_DOSSIER">
+                    <option value="0"></option>
+                    {% for avis in listeAvis %}
+                        <option value="{{ avis.id }}"
+                            {% if avisDossier is not null and avisDossier.id == avis.id %}selected{% endif %}>
+                            {{ avis.libelleAvis }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </li>
+    {% endif %}
+
+    {% if natureId not in [22, 64, 27] and idType in [1, 2, 3] and affichageAvis == 0 %}
+        <li class="row" style="margin-bottom: 20px;" id="AVIS_COMMISSION">
+            <div class="col-sm-3" style="float:left;">Avis de la commission</div>
+            <div class="col-sm-9">
+                <select name="AVIS_DOSSIER_COMMISSION" id="AVIS_DOSSIER_COMMISSION"
+                    {% if not is_granted('edit_avis_com') or dateAvis is not null %}disabled{% endif %}>
+                    <option value="0"></option>
+                    {% for avis in listeAvis %}
+                        <option value="{{ avis.id }}"
+                            {% if avisDossierCommission and avisDossierCommission.id == avis.id %}selected{% endif %}>
+                            {{ avis.libelleAvis }}
+                        </option>
+                    {% endfor %}
+                </select>
+                &nbsp;&nbsp;&nbsp;
+                <input type="checkbox" name="repercuterAvis" id="repercuterAvis"
+                    {% if not is_granted('edit_avis_com') or dateAvis is not null %}disabled{% endif %} />
+                Répercuter l'avis sur les établissements enfants
+            </div>
+        </li>
+    {% endif %}
+
+
     <li class="row" style="margin-bottom: 20px;" id="ANOMALIE">
         <div class="col-sm-3" style="float:left;">Analyse de risque</div>
         <div class="col-sm-9">
@@ -231,22 +260,178 @@
     </li>
 
 
-    {% if dateReponse is not null %}
-        <li class="row" style="margin-bottom: 20px;" id="DATEREP">
-            <div class="col-sm-3" style="float:left;">Date de réponse</div>
-            <div class="col-sm-3">
-                <div class="input-group">
-                    <input type="text" class="form-control date" id="DATEREP_DOSSIER" name="DATEREP_DOSSIER"
-                        value="{{ dateReponse|date('d/m/Y') }}" />
-                    <span class="input-group-btn">
-                        <button type="button" class="today btn btn-default">
-                            <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
-                        </button>
-                    </span>
-                </div>
+    <li class="row" style="margin-bottom: 20px;" id="DATEREP">
+        <div class="col-sm-3" style="float:left;">Date de réponse</div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <input type="text" class="form-control date" id="DATEREP_DOSSIER" name="DATEREP_DOSSIER"
+                    value="{{  dateReponse ? dateReponse|date('d/m/Y') : ''  }}" />
+                <span class="input-group-btn">
+                    <button type="button" class="today btn btn-default">
+                        <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
+                    </button>
+                </span>
             </div>
-        </li>
-    {% endif %}
+        </div>
+    </li>
+
+
+    <li class="row" style="margin-bottom: 20px;" id="PREVENTIONNISTE">
+        <div class="col-sm-3" style="float:left;">Préventionniste(s) du dossier</div>
+        <div class="col-sm-9">
+            <ul class="list-unstyled">
+                <li style="list-style-type:none" id="liste_prev">
+                    {% for preventionniste in preventionnisteDossier %}
+                        <span class="ui-state-highlight"
+                            style="float: left; padding: 2px; margin: 0 2px 1em 0; display: block;">
+                            <input type="hidden" name="preventionniste[]" value="{{ preventionniste.id }}">
+                            <span>{{ preventionniste.informations.nom}} {{ preventionniste.informations.prenom }}</span>
+                            <a href="#" class="remove-preventionniste" style="text-decoration: none;">×</a>
+                        </span>
+                    {% endfor %}
+                </li>
+            </ul>
+            <div style="display: block;">
+                <input type="text" value="" id="preventionnistes-autocomplete" style="width:200px;">
+            </div>
+        </div>
+    </li>
+
+
 
 </ul>
-    <div id='dialogComm' style='display:none;'>
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('click', function (e) {
+            //Preventionniste
+            if (e.target.classList.contains('remove-preventionniste')) {
+                e.preventDefault();
+                e.target.parentElement.remove();
+            }
+        });
+
+        // Gestion commissionSelect change event
+            $("#commissionSelect").live('change', function() {
+                $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
+                $("#ID_AFFECTATION_DOSSIER_VISITE").val('');
+                if ($(this).val()) {
+                    $("#COMMISSION_DOSSIER").val($(this).val());
+                    $("#showCommission").hide();
+                    if ($("#TYPE_DOSSIER").val() == 2 || $("#TYPE_DOSSIER").val() == 3) {
+                        $("#showVisite").show();
+                        $("#showCommission").show();
+                    } else {
+                        $("#showCommission").show();
+                    }
+                    $(".changeCommission").click();
+                } else {
+                    $(".showCalendar").hide();
+                    $(".changeCommission").click();
+                }
+                return false;
+            });
+
+            // Gestion click changement commission
+            $(".changeCommission").live('click', function() {
+                // ICI SUPPRIMER TOUTES LES LIGNES CORRESPONDANT AU DOSSIER DANS dossieraffectation ou dans le save...
+                $("#DATEVISITE_INPUT").val('');
+                $("#ID_AFFECTATION_DOSSIER_VISITE").val('');
+                $("#DATECOMM_INPUT").val('');
+                $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
+
+                $(".hideCalendar").hide();
+
+                // a verifier
+                $("#calendar").hide();
+                $("#calendar").parent().hide();
+                $("#calendar").html('');
+
+                $("#calendarVisite").hide();
+                $("#calendarVisite").parent().hide();
+                $("#calendarVisite").html('');
+
+                $("#commissionSelect").removeAttr('disabled');
+
+                $(this).hide();
+                return false;
+            });
+        // Initialisation du tomselect  pour preventionnistes 
+         new TomSelect("#preventionnistes-autocomplete", {
+            valueField: 'uid',
+            labelField: 'nomComplet',
+            searchField: 'nomComplet',
+            create: false,
+            load: function(query, callback) {
+                if (!query.length) return callback();
+
+                $.ajax({
+                    url: "/api/1.0/search/users",
+                    type: 'POST',
+                    data: {
+                        name: query,
+                        fonctions: 13,
+                        limit: 100
+                    },
+                    success: function(result) {
+                        const users = result.response.results.map(user => ({
+                            uid: user.uid,
+                            nomComplet: user.NOM_UTILISATEURINFORMATIONS + ' ' + user.PRENOM_UTILISATEURINFORMATIONS
+                        }));
+                        callback(users);
+                    },
+                    error: function() {
+                        callback();
+                    }
+                });
+            },
+            onItemAdd: function(value, item) {
+                const nom = item.textContent;
+
+                const html = `
+                    <span class='ui-state-highlight' style='float: left; padding: 2px; margin: 0pt 2px 1em 0pt; display: block;'>
+                        <input type='hidden' name='preventionniste[]' value='${value}' />
+                        <span>${nom}</span>
+                        <a onclick='$(this).parent().remove(); return false;' style='text-decoration: none;' href=''>×</a>
+                    </span>
+                `;
+                $("#liste_prev").append(html);
+
+                // Réinitialise TomSelect
+                this.clear(true);
+            }
+        });
+
+
+        $("#AVIS_DOSSIER_COMMISSION").on('change', function() {
+            var type = $("#TYPE_DOSSIER").val();
+            if (type == 2 || type == 3) {
+                if ($(this).val() == 2) {
+                    $("#FACTDANGE").show();
+                    $("#ECHEANCIERTRAV").show();
+                } else {
+                    $("#FACTDANGE").hide();
+                    $("#ECHEANCIERTRAV").hide();
+                }
+            }
+            if (type == 1 && $("#selectNature").val() == 19) {
+                if ($(this).val() == 2) {
+                    $("#FACTDANGE").show();
+                } else {
+                    $("#FACTDANGE").hide();
+                }
+            }
+        });
+
+        $("#echeanciertrav_check").on('click', function() {
+            if ($(this).is(':checked')) {
+                $("#ECHEANCIERTRAV_DOSSIER").show();
+            } else {
+                $("#ECHEANCIERTRAV_DOSSIER").val('');
+                $("#ECHEANCIERTRAV_DOSSIER").hide();
+            }
+        });
+
+    </script>
+{% endblock %}
+
