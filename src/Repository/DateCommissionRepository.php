@@ -80,6 +80,111 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
 
+    public function findEventsBetween(\DateTime $start, \DateTime $end, ?int $idComm = null, ?int $type = null): array
+    {
+        $qb = $this->createQueryBuilder('dc')
+            ->andWhere('dc.dateCommission BETWEEN :start AND :end')
+            ->setParameter('start', $start->format('Y-m-d'))
+            ->setParameter('end', $end->format('Y-m-d'));
+
+        if ($idComm) {
+            $qb->andWhere('dc.commissionConcerne = :idComm')
+            ->setParameter('idComm', $idComm);
+        }
+
+        if ($type) {
+            $qb->andWhere('dc.commissionTypeEvenement = :type')
+            ->setParameter('type', $type);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    // Méthode pour récupérer les dates liées
+    public function getCommissionsQtypListing(int $idDateComm): array
+    {
+        // Exemple : récupérer toutes les dates liées au master idDateComm ou lui-même
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.dateCommissionLiees = :id OR d.id = :id')
+            ->setParameter('id', $idDateComm)
+            ->orderBy('d.dateCommission', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    // Met à jour le libellé de la date commission
+    public function dateCommUpdateLibelle(int $idDateComm, string $libelle): void
+    {
+        $em = $this->getEntityManager();
+        $comm = $this->find($idDateComm);
+        if ($comm) {
+            $comm->setLibelleDateCommission($libelle);
+            $em->flush();
+        }
+    }
+
+
+
+    public function getCommissionsDateLieesMaster($idComm): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            SELECT *
+            FROM datecommission
+            WHERE ID_DATECOMMISSION = :idComm
+            OR DATECOMMISSION_LIEES = :idComm
+            ORDER BY DATE_COMMISSION
+        ";
+
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->executeQuery(['idComm' => $idComm]);
+
+        return $result->fetchAllAssociative();
+    }
+
+
+    // Met à jour le type commission
+    public function dateCommUpdateType(int $idDateComm, int $typeId): void
+    {
+        $em = $this->getEntityManager();
+        $comm = $this->find($idDateComm);
+        $commissionType = $em->getRepository(\App\Entity\CommissionTypeEvenement::class)->find($typeId);
+
+        if ($comm && $commissionType) {
+            $comm->setCommissionTypeEvenement($commissionType);
+            $em->flush();
+        }
+    }
+
+    // Sauvegarde un objet DateCommission (insert ou update)
+    public function save(DateCommission $entity): void
+    {
+        $em = $this->getEntityManager();
+        $em->persist($entity);
+        $em->flush();
+    }
+
+    public function createDateCommissionLiee(DateCommission $masterComm, \DateTime $date): DateCommission
+    {
+        $em = $this->getEntityManager();
+        $newDateComm = new DateCommission();
+        $newDateComm->setDateCommission($date);
+        $newDateComm->setDateCommissionLiees($masterComm->getId());
+        $newDateComm->setCommissionTypeEvenement($masterComm->getCommissionTypeEvenement());
+        // Copier d'autres champs si nécessaire
+
+        $em->persist($newDateComm);
+        $em->flush();
+
+        return $newDateComm;
+    }
+
+    public function updateDependingDossierDates(DateCommission $dateComm): void
+    {
+    }
+
+
 
     // /**
     //  * @return DateCommission[] Returns an array of DateCommission objects
