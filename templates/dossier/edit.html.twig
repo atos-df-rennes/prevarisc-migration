@@ -1,6 +1,6 @@
 {% extends 'layouts/dossier.html.twig' %}
 
-{% block title %}Dossier / Édition{% endblock %}
+{% block title %}Dossier / Édition{% endblock %} 
 
 {% block body %}
     <div>
@@ -11,7 +11,15 @@
             </div>
         </div>
         <div>
+            <input type='hidden' name='idDossier' id='idDossier' value='{{idDossier}}' />
+            <input type='hidden' name='genreInfo' id='genreInfo' value='{{genre}}' />
+            <input type="hidden" id="dateToday" value="{{ "now"|date("d/m/Y") }}">
+
+
             <h3 class="text-bold">Informations générales</h3>
+            {% if platauConsultation is not null and platauConsultation.id is not null %}
+                {% include 'dossier/_platau_infos.html.twig' %}
+            {% endif %}
             <h4 class="text-bold h4_subtitle">Type et nature du dossier</h4>
             <ul class="list-unstyled">
                 <li class="row" style="margin-bottom: 20px;" id="type">
@@ -59,22 +67,328 @@
     <script src="{{ asset('js/calendrier/afficheCalendar.js') }}"></script>
     <script src="{{ asset('js/calendrier/gestionCalendar.js') }}"></script>
     <script>
-        function isDossierPlatau() {
+
+        // Fonctions
+        function showCalendar() {
+            if ($('#COMMISSION_DOSSIER').val() != '') {
+                $('.showCalendar').show();
+            }
+        };
+        function ValidateDate(dateValue) {
+            var date_temp = dateValue.split('/');
+            if (date_temp[2] && date_temp[1] > 0 && date_temp[1] <= 12 && date_temp[0] > 0 && date_temp[0] <= 31) {
+                return true;
+            }
+
             return false;
         }
+
+        function verifDossier() {
+            // On ne vérifie pas l'objet dans les cas suivants :
+            // visite périodique (21 et 26)
+            // arrêté > ouverture (40)
+            var nature = $("#selectNature").val();
+            console.log("Nature du dossier : " + nature);
+            if (nature != 21 && nature != 26 && nature != 40 && nature != 41 && nature != 42 && nature != 44) {
+                if ($("#OBJET_DOSSIER").val() == '') {
+                    $("#OBJET_DOSSIER").focus();
+                    $("#OBJET_DOSSIER").css("border-color", "red");
+                    return false;
+                }
+            }
+
+            if ($(".docManquant").val() == '') {
+                $(".docManquant").focus();
+                $(".docManquant").css("border-color", "red");
+                return false;
+            }
+
+            if ($("#dateDocManquant_1").val() == '') {
+                $("#dateDocManquant_1").focus();
+                $("#dateDocManquant_1").css("border-color", "red");
+                return false;
+            }
+
+            if ($("#DATEINSERT_INPUT").val() == '') {
+                $("#DATEINSERT_INPUT").next(".today").click();
+                return true;
+            } else {
+                var valeurDATE = ValidateDate($("#DATEINSERT_INPUT").val());
+                if (!valeurDATE) {
+                    $("#DATEINSERT_INPUT").focus();
+                    $("#DATEINSERT_INPUT").css("border-color", "red");
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        function isDossierPlatau() {
+            return $('.dossier__identifiant-platau').length === 1
+        }
+
+        function afficheInfosPlatau(parentRow) {
+            $.ajax({
+                url: Routing.generate('display_pj_platau'), // Symfony route
+                method: 'POST',
+                data: {
+                    idDossier: $('#idDossier').val()
+                },
+                success: function(data) {
+                    console.log("Données reçues :", data); 
+
+                    if (data.trim() !== '') {
+                        parentRow.after(data);
+                        $('.label.label-warning').removeClass('ui-helper-hidden');
+                    }
+                },
+                error: function() {
+                    console.error('Erreur lors du chargement des pièces jointes.');
+                }
+            });
+        }
+
+
+        function masqueInfosPlatau() {
+            $('#PIECESJOINTES').remove();
+            $('.label.label-warning').addClass('ui-helper-hidden');
+        }
+
         function gestionAffichageInfosPlatau() {
-            console.log("Afficher infos Platau");
+            $('.incomplet').live('click.platau', function() {
+                afficheInfosPlatau($('#INCOMPLET'));
+            });
+            $('.cancelIncomplet').live('click.platau', function() {
+                masqueInfosPlatau();
+            });
+            $('#AVIS_DOSSIER_COMMISSION').on('change.platau', function() {
+                const avis = $('#AVIS_DOSSIER_COMMISSION').val();
+                const infosPlatauExists = !!document.getElementById('PIECESJOINTES');
+
+                if (avis !== '0') {
+                    if (!infosPlatauExists) {
+                        afficheInfosPlatau($('#AVIS_COMMISSION'));
+                    }
+                } else {
+                    masqueInfosPlatau();
+                }
+            });
+            $('#select-platau').live('click.platau', function(e) {
+                e.preventDefault();
+                document.getElementById('PIECESJOINTES').scrollIntoView();
+                $('#PIECESJOINTES').focus();
+            });
+
+            if ($('#statut-pec').hasClass('text-warning')) {
+                afficheInfosPlatau($('#INCOMPLET'));
+            }
+            if ($('#statut-avis').hasClass('text-warning')) {
+                afficheInfosPlatau($('#AVIS_COMMISSION'));
+            }
         }
 
         function gestionMasquageInfosPlatau() {
-            console.log("Masquer infos Platau");
+            $('.incomplet').die('click.platau');
+            $('.cancelIncomplet').die('click.platau');
+            $('#AVIS_DOSSIER_COMMISSION').die('change.platau');
+            $('#select-platau').die('click.platau');
         }
 
         function majAvisSelect() {
-            console.log("Mise à jour de l'avis");
+            var genre = $('#genreInfo').val();
+            //etablissement
+            var typeDossier = $("#TYPE_DOSSIER").val();
+            var natureDossier = $("#selectNature").val();
+            var addText = "";
+
+            if (typeDossier == 1) {
+                //etude
+                if (natureDossier == 19 || natureDossier == 7 || natureDossier == 17 || natureDossier == 16) {
+                    //levée reserve et avis différé
+                    addText = " à l'exploitation";
+                } else {
+                    addText = " à l'étude";
+                }
+            } else if (typeDossier == 2 || typeDossier == 3) {
+                if (natureDossier == 20 || natureDossier == 25) {
+                    addText = " à la réception des travaux";
+                } else if (natureDossier == 21 || natureDossier == 23 || natureDossier == 24 || natureDossier == 26 ||
+                    natureDossier == 28 || natureDossier == 29) {
+                    if (genre == '2') {
+                        addText = " à l'exploitation";
+                    }
+                } else {
+                    addText = " à l'exploitation";
+                }
+            }
+
+            $("#AVIS_DOSSIER option").each(function() {
+                if ($(this).val() != 0) {
+                    if ($(this).val() == 1) {
+                        var text = "Favorable";
+                    } else {
+                        var text = "Défavorable";
+                    }
+                    $(this).text(text + addText);
+                }
+            });
+
+            $("#AVIS_DOSSIER_COMMISSION option").each(function() {
+                if ($(this).val() != 0) {
+                    if ($(this).val() == 1) {
+                        var text = "Favorable";
+                    } else {
+                        var text = "Défavorable";
+                    }
+                    $(this).text(text + addText);
+                }
+            });       
         }
 
+
+        // Document ready : initialisations et événements
         $(document).ready(function() {
+            showCalendar();
+            majAvisSelect();
+
+            //Fonction qui retourne la liste des natures sélectionnées ((((Attention ??))))
+            $.fn.recupNatures = function() {
+                var listeIdNature = "";
+                var compteur = 1;
+                var idNature;
+                $("#listeNature > .nature  input[name='natureId[]']").each(function() {
+                    var idSplit = $(this).attr('id').split('_');
+                    if (compteur == 1) {
+                        listeIdNature += idSplit[1];
+                    } else {
+                        listeIdNature += "_" + idSplit[1];
+                    }
+                    compteur++;
+                });
+                return listeIdNature;
+            };
+
+            //Cache les natures de la liste          ((((Attention ??))))
+            $.fn.cacherNatureDuSelect = function(listeNatures) {
+                //Dans le cas d'une édition on cache dans le select des natures ceux qui sont déjà présentes
+                var tabNature = listeNatures.split('_');
+                if (tabNature.length > 0) {
+                    $("#selectNature [value=0]").text("Ajouter une nature supplémentaire");
+                }
+                for (var i = 0; i < tabNature.length; i++) {
+                    $("#selectNature [value=" + tabNature[i] + "]").hide();
+                }
+            };
+
+
+/*
+            //Affichage des champs en fonction des natures
+            /*$.fn.afficheChamps = function(listeNature) {
+                $("#InfosDossier > li").hide();
+                $.ajax({
+                    url: "/dossier/showchamps",
+                    data: "listeNature=" + listeNature,
+                    type: "POST",
+                    beforeSend: function() {
+                        $('#loading').show();
+                    },
+                    success: function(affichageResultat) {
+                        //On affiche tous les champs
+                        if (affichageResultat != '') {
+                            var rez = eval("(" + affichageResultat + ")");
+                            for (var i in rez) {
+                                $("#InfosDossier > #" + rez[i]).show();
+                                $("#type > .value").hide();
+                                $("#type > .form").show();
+                            }
+                        }
+
+                        var incomplet = $("input[name=INCOMPLET_DOSSIER]:checked").val();
+                        var horsdelai = $(".horsdelai").is(':checked');
+                        var absquorum = $(".absquorum").is(':checked');
+                        var differeavis = $(".differeavis").is(':checked');
+                        var npsp = $(".npsp").is(':checked');
+                        console.log(incomplet);
+                        if (incomplet == 1) {
+                            $("#AVIS").hide();
+                            $("#AVIS_COMMISSION").hide();
+                            $("#HORSDELAI").hide();
+                            $("#DATECOMM").hide();
+                        } else if (horsdelai) {
+                            $("#AVIS").hide();
+                            $("#AVIS_COMMISSION").hide();
+                            $("#DATECOMM").hide();
+                        } else if (absquorum || npsp) {
+                            $("#AVIS_COMMISSION").hide();
+                            $("#DATECOMM").hide();
+                        }
+                        if (type == 2 || type == 3) {
+                            if ($("#AVIS_DOSSIER_COMMISSION").val() == 2) {
+                                $("#FACTDANGE").show();
+                                $("#ECHEANCIERTRAV").show();
+                            }
+                            $("#ANOMALIE").show();
+                        } else if (type == 1) {
+                            if ($("#selectNature").val() == 19 && $("#AVIS_DOSSIER_COMMISSION").val() == 2) {
+                                $("#FACTDANGE").show();
+                            }
+                            $("#ANOMALIE").show();
+                        }
+
+                        var listeDoc = {
+                            1: "PC",
+                            2: "AT",
+                            14: "PA",
+                            30: "DP",
+                            62: "CU"
+                        };
+                        if (listeDoc[$("#selectNature").val()]) {
+                            $("#docurbaVal").html('');
+                            var docurbaVal = listeDoc[$("#selectNature").val()];
+
+                            $("#docurbaVal").prepend(docurbaVal);
+                        } else {
+                            $("#docurbaVal").html('');
+                        }
+                        $("#chargement").html('');
+
+                        $('#loading').hide();
+                    },
+                    error: function() {
+                        return false;
+                    }
+                });
+            };
+*/
+           $(".cancelIncomplet").on('click', function() {
+                $(this).parent().remove();
+                $("#inputComplet").show();
+                $(".incomplet").val(['0']);
+                $(".incomplet").removeClass('hideavis');
+                afficherCacherAvis(0);
+                return false;
+            });
+
+            $(".hideavis").click(function() {
+                afficherCacherAvis();
+            });
+
+            //Selection d'une nature et affichage des champs en fonction de la ou des natures
+            $(document).on('change', '#selectNature', function() {
+                var idNature = $(this).val();
+                console.log("Nature sélectionnée : " + idNature);
+                $(".docurba").remove();
+                if (idNature != 0) {
+                    var listeNature = $("#listeNature").recupNatures();
+//                    $("#InfosDossier").afficheChamps(idNature);
+                    $("#selectNature option[value='0']").remove();
+                    majAvisSelect();
+                }
+            });
+                const idType = $(this).val();
+
+
             // Gestion du changement de type de dossier
             $("#TYPE_DOSSIER").change(function() {
                 const idType = $(this).val();
@@ -113,67 +427,127 @@
                 }
             });
 
-            // Affichage/Masquage du formulaire délai prescription
-            $(document).on('click', '.delaipresc', function() {
-                if ($(this).is(':checked')) {
-                    $("#delaipresc_form").show();
-                } else {
-                    $("#delaipresc_form").val('').hide();
-                }
-            });
-
-            $("#commissionSelect").live('change', function() {
-                $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
-                $("#ID_AFFECTATION_DOSSIER_VISITE").val('');
-                if ($(this).val()) {
-                    $("#COMMISSION_DOSSIER").val($(this).val());
-                    $("#showCommission").hide();
-                    if ($("#TYPE_DOSSIER").val() == 2 || $("#TYPE_DOSSIER").val() == 3) {
-                        $("#showVisite").show();
-                        $("#showCommission").show();
-                    } else {
-                        $("#showCommission").show();
-                    }
-                    $(".changeCommission").click();
-                } else {
-                    $(".showCalendar").hide();
-                    $(".changeCommission").click();
-                }
+           
+            $(document).on('click', '.today', function() {
+                var objetDate = new Date();
+                $(this).closest('.input-group').find('input[type="text"]').val($("#dateToday").val());
                 return false;
             });
-            $(".changeCommission").live('click', function() {
-                //ICI SUPPRIMER TOUTES LES LIGNES CORRESPONDANT AU DOSSIER DANS  dossieraffectation ou dans le save...
-                $("#DATEVISITE_INPUT").val('');
-                $("#ID_AFFECTATION_DOSSIER_VISITE").val('');
-                $("#DATECOMM_INPUT").val('');
-                $("#ID_AFFECTATION_DOSSIER_COMMISSION").val('');
 
+            //Permet dans le cas d'édition d'empécher la suppression de toutes les natures. Cache les .suppNature quand il n'en reste qu'une
+            $.fn.gestionSuppNature = function() {
+                if ($("#listeNature > .nature").length == 1) {
+                    $(".suppNature").hide();
+                } else {
+                    $(".suppNature").show();
+                }
+            };
+
+            //Action lorsque l'on appuie sur le bouton modifier MODE EDITION
+            $('#modificationDossier').on('click', function() {
+                console.log("test");
+                $(this).hide();
+                $("#save_div").hide();
+
+                $("#InfosDossier > li").hide();
+                $("#TYPE_DOSSIER option[value='0']").remove();
+
+                $("#rapport").hide();
+                $("#VERROU").hide();
+                $("#validModification").show();
+                $("#annulModification").show().button().off('click').on('click', function() {
+                    window.location.reload();
+                });
+
+                $("#InfosDossier > li > .value").hide();
+                $("#InfosDossier > li > .form").show();
+
+                // On fait apparaître la liste des natures puis on réactive le select
+                $("#selectNature").removeAttr('disabled');
+
+                $("#NUM_DOCURBA").show();
+                $("#addNumDoc").show();
+
+                $(".suppDocUrba").show();
+                if ($("#do").val() == 'edit') {
+                    $("#listeNature").gestionSuppNature();
+                }
+
+                $("#InfosDossier").afficheChamps($("#selectNature").val());
+
+                // Gestion des cas calendrier commission / visite en fonction du type de dossier
                 $(".hideCalendar").hide();
 
-                //a verifier
-                $("#calendar").hide();
-                $("#calendar").parent().hide();
-                $("#calendar").html('');
+                if (isDossierPlatau() && $('#TYPE_DOSSIER').val() === '1') {
+                    gestionAffichageInfosPlatau();
+                }
 
-                $("#calendarVisite").hide();
-                $("#calendarVisite").parent().hide();
-                $("#calendarVisite").html('');
+                return false;
+            });
 
-                $("#commissionSelect").removeAttr('disabled');
+            //Action lorsque l'on valide les modifications apportées à un dossier
+           $("#validModification").on('click', function() {
+                if (!verifDossier()) {
+                    return false;
+                }
 
-                $(this).hide();
+                if ($("#NUM_DOCURBA").val() != '') {
+                    $("#addNumDoc").click();
+                }
+
+                var data = $("#editDossier").serialize();
+                $.ajax({
+                    url: "/dossier/save",
+                    data: data,
+                    type: "POST",
+                    dataType: "json",
+                    beforeSend: function() {
+                        $("#annulModification").hide();
+                        $("#validModification").hide();
+                        $("#modificationDossier").show();
+                        $("#chargement").html("<img src='/images/load.gif' />");
+                    },
+                    success: function(affichageResultat) {
+                        try {
+                            window.location = '/dossier/' + affichageResultat.id;
+                        } catch (e) {
+                            window.location.reload();
+                        }
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status + " - " + thrownError);
+                        return false;
+                    }
+                });
                 return false;
             });
 
 
-        gestionCalendrier("showVisite", "hideVisite", "calendarVisiteAffichage", "month_visite", "year_visite");
-        gestionCalendrier("showCommission", "hideCommission", "calendarCommission", "month_comm", "year_comm");
+            $(".validDocManquant").live('click', function() {
+                if ($(this).prev().prev().val() == '') {
+                    $(this).prev().click();
+                    $(this).click();
+                    return false;
+                } else {
+                    $(this).prev().prev().removeClass('date').attr('readonly', 'readonly');
+                    $(this).prev().prev().prev().prev().prev().removeClass('date').attr('readonly', 'readonly');
+                    $(this).prev().prev().prev().attr('readonly', 'readonly');
+                    $(this).hide();
+                    $(this).next().show();
+                    $(".incomplet").removeClass('hideavis');
+                    afficherCacherAvis();
+                    $(".incomplet").val(['0']);
+                    $("#inputComplet").show();
+                }
+                return false;
+            });
 
 
-        
- });
+
+            // Initialisation des calendriers
+            gestionCalendrier("showVisite", "hideVisite", "calendarVisiteAffichage", "month_visite", "year_visite");
+            gestionCalendrier("showCommission", "hideCommission", "calendarCommission", "month_comm", "year_comm");
+
+       });
     </script>
 {% endblock %}
-
-
-

@@ -6,7 +6,7 @@
     <div>
         {% if verrouDossier != 1 %}
             <div class="pull-right">
-                <a class="btn btn-primary" href="{{ path('dossier_edit', {'id': idDossier}) }}">Modifier le dossier</a>
+                <a class="btn btn-primary"id="modificationDossier" href="{{ path('dossier_edit', {'id': idDossier}) }}">Modifier le dossier</a>
             </div>
         {% endif %} {# A voir mettre un button#}
 
@@ -39,3 +39,11 @@
         {% include 'dossier/_infos_dossier.html.twig' %}
     </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+<script>
+</script>
+{% endblock %}
+
+

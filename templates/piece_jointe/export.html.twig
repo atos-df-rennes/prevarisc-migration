@@ -1,0 +1,24 @@
+<li id="PIECESJOINTES" class="row-fluid" style="margin-bottom: 20px;" tabindex="0">
+    <div class="span3 pull-left">
+        <i class="icon-warning-sign"></i>
+        Liste des pièces jointes pouvant être envoyées vers Plat'AU
+    </div>
+    <div class="span9">
+        {% for pieceJointe in piecesJointes %}
+            <div class="row-fluid">
+                <div class="span10">
+                    {{ pieceJointe.nom ~ pieceJointe.extension }}
+                </div>
+                <div class="span2">
+                    <input type="checkbox" name="export-pj-platau[{{ pieceJointe.id }}]" />
+                </div>
+            </div>
+        {% else %}
+            <div class="row-fluid">
+                <div class="span12">
+                    Aucune pièce jointe à exporter.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</li>
