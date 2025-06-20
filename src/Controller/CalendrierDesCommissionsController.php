@@ -142,7 +142,7 @@ class CalendrierDesCommissionsController extends AbstractController{
 
 
     /**
-     * @Route("/calendrier-des-commissions/deplacecommissiondate", name="calendrier_deplace_commission_date", methods={"POST"})
+     * @Route("/deplaceCommissionDate", name="deplaceCommissionDate", methods={"POST"})
      */
     public function deplaceCommissionDate( Request $request, DateCommissionRepository $dateCommissionRepository, EntityManagerInterface $em): JsonResponse {
         try {
@@ -150,11 +150,10 @@ class CalendrierDesCommissionsController extends AbstractController{
             $debut = $request->request->get('debut');
             $fin = $request->request->get('fin');
 
-            if (!$idComm || !$debut) {
+            if (!$idComm || !$debut ||  !$fin) {
                 return new JsonResponse(['error' => 'Paramètres manquants'], 400);
             }
 
-            /** @var DateCommission|null $commUpdate */
             $commUpdate = $dateCommissionRepository->find($idComm);
 
             if (!$commUpdate) {
@@ -173,14 +172,45 @@ class CalendrierDesCommissionsController extends AbstractController{
 
             $em->flush();
 
-            // Appel à ta méthode métier personnalisée
             $dateCommissionRepository->updateDependingDossierDates($commUpdate);
 
             return new JsonResponse(['success' => 'Événement déplacé avec succès']);
         } catch (\Exception $e) {
             return new JsonResponse([
-                'error' => 'Erreur lors du déplacement de l\'événement',
-                'message' => $e->getMessage(),
+                'error'=>'Erreur mouvement',
+                'message'=> $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ],500);
+        }
+    }
+
+    /**
+     * @Route("/resizeCommissionDate", name="resizeCommissionDate", methods={"POST"})
+     */
+    public function resizeCommissionDate(Request $request, EntityManagerInterface $em, DateCommissionRepository $dateCommissionRepository): JsonResponse
+    {
+        try {
+            $idComm = $request->request->get('idComm');
+            $fin = $request->request->get('fin'); 
+            if (!$idComm || !$fin) {
+                return new JsonResponse(['error' => 'Paramètres manquants'], 400);
+            }
+
+            $commResize = $dateCommissionRepository->find($idComm);
+            if (!$commResize) { 
+                return new JsonResponse([ 'error' => 'Commission non trouvée'], 404);
+            }
+
+            $dateFin = new \DateTime($fin, new \DateTimeZone('Europe/Paris'));
+            $commResize->setHeureFinCommission($dateFin);
+            $em->flush();
+
+            return new JsonResponse(['success' => 'Heure de fin modifiée avec succès.']);
+
+        } catch (\Exception $exception) {
+            return new JsonResponse([
+                'error' => 'Erreur lors de la modification de l\'événement',
+                'message' => $exception->getMessage()
             ], 500);
         }
     }

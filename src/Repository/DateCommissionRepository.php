@@ -182,6 +182,35 @@ class DateCommissionRepository extends ServiceEntityRepository
 
     public function updateDependingDossierDates(DateCommission $dateComm): void
     {
+        $em = $this->getEntityManager();
+
+        // Récupérer toutes les affectations liées à cette date commission
+        $dossierAffectations = $em->getRepository(\App\Entity\DossierAffectation::class)->findBy(['idDateCommissionAffect' => $dateComm]);
+        if (empty($dossierAffectations)) {
+            return;
+        }
+        // Identifier le champ à mettre à jour en fonction du type de commission
+        if($dateComm->getCommissionTypeEvenement() != null){
+            $typeId = $dateComm->getCommissionTypeEvenement()->getId();
+        }
+
+        if (!in_array($typeId, [1, 2, 3])) {
+            return;
+        }
+        foreach ($dossierAffectations as $affectation) {
+            $dossier = $affectation->getDossierAffect();
+            if (!$dossier) {
+                continue;
+            }
+            if ($typeId === 1) {
+                $dossier->setDateCommission($dateComm->getDateCommission());
+            } elseif (in_array($typeId, [2, 3])) {
+                $dossier->setDateVisite($dateComm->getDateCommission());
+            }
+
+            $em->persist($dossier);
+        }
+        $em->flush();
     }
 
 

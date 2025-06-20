@@ -408,8 +408,8 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
                 $("#" + divInfo).fullCalendar('refetchEvents');
             } else {
                 $.ajax({
-                    data: "idComm=" + event.id + "&debut=" + event.start + "&fin=" + event.end,
-                    url: "/calendrier-des-commissions/deplacecommissiondate",
+                    data: "idComm=" + event.id + "&debut=" + event.start.toISOString() + "&fin=" + event.end.toISOString(),
+                    url: "/deplaceCommissionDate",
                     type: "POST",
                     success: function(affichageResultat) {},
                 });
@@ -425,10 +425,18 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
                 $("#" + divInfo).fullCalendar('refetchEvents');
                 return false;
             }
+            var finLocal = event.end.getFullYear() + '-' +
+                String(event.end.getMonth() + 1).padStart(2, '0') + '-' +
+                String(event.end.getDate()).padStart(2, '0') + 'T' +
+                String(event.end.getHours()).padStart(2, '0') + ':' +
+                String(event.end.getMinutes()).padStart(2, '0') + ':00';
             $.ajax({
-                data: "idComm=" + event.id + "&fin=" + event.end,
-                url: "/calendrier-des-commissions/resizecommissiondate",
-                type: "POST",
+            data: {
+                    idComm: event.id,
+                    fin: finLocal,
+                },                
+            url: "/resizeCommissionDate",
+            type: "POST",
             });
         }
     });
