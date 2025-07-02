@@ -1,0 +1,60 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / {% if couche_id is defined %}Modification{% else %}Ajout{% endif %} d'une couche cartographique{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        <div class='pull-right btn-group'>
+            <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
+            <input type='submit' class="btn btn-success" value="{% if couche_id is defined %}Modifier{% else %}Ajouter{% endif %} la couche" />
+        </div>
+        <h3>{% if couche_id is defined %}Modification{% else %}Ajout{% endif %} d'une couche cartographique</h3>
+
+        <dl class='dl-horizontal row row-no-gutters'>
+            <dt>{{ form_label(form.type, 'Type de la couche') }}</dt>
+            <dd>
+                {{ form_widget(form.type) }}
+                {{ form_errors(form.type) }}
+            </dd>
+
+            <dt>{{ form_label(form.nom, 'Nom de la couche') }}</dt>
+            <dd>
+                {{ form_widget(form.nom) }}
+                {{ form_errors(form.nom) }}
+            </dd>
+
+            <dt>{{ form_label(form.url, 'URL du flux') }}</dt>
+            <dd>
+                {{ form_widget(form.url) }}
+                {{ form_errors(form.url) }}
+            </dd>
+
+            <dt>{{ form_label(form.isBaseLayer, 'Couche de base ?') }}</dt>
+            <dd>
+                {{ form_widget(form.isBaseLayer) }}
+                {{ form_errors(form.isBaseLayer) }}
+            </dd>
+
+            <dt>{{ form_label(form.layers, 'Nom de la couche dans le flux') }}</dt>
+            <dd>
+                {{ form_widget(form.layers) }}
+                {{ form_errors(form.layers) }}
+            </dd>
+
+            <dt>{{ form_label(form.format, "Format de l'image de la couche") }}</dt>
+            <dd>
+                {{ form_widget(form.format) }}
+                {{ form_errors(form.format) }}
+            </dd>
+
+            <dt>{{ form_label(form.transparent, 'Couche masquée ?') }}</dt>
+            <dd>
+                {{ form_widget(form.transparent) }}
+                {{ form_errors(form.transparent) }}
+            </dd>
+        </dl>
+
+    {{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Ajout d'une couche IGN{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
+    <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+    <div class='pull-right btn-group'>
+        <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
+    </div>
+
+    <h3>Ajout d'une couche cartographique IGN</h3>
+
+    <div class="accordion panel-group" id="ign-accordion">
+        {% for format, couches in couchesIGN %}
+            <div class="accordion-group panel panel-default">
+                <div class="accordion-heading panel-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#ign-accordion" href="#{{ format | replace({' ':'-'}) }}">
+                        {{ format | upper }}
+                    </a>
+                </div>
+                <div id="{{ format | replace({' ':'-'}) }}" class="accordion-body panel-collapse collapse {% if loop.first %}in{% else %}''{% endif %}">
+                    <div class="accordion-inner">
+                        <table class="table table-hover table-condensed">
+                            <thead>
+                            <tr>
+                                <th scope="col">Nom de la couche</th>
+                                <th scope="col">Nom de la couche dans le flux</th>
+                                <th scope="col">Format de l'image dans le flux</th>
+                                <th scope="col">Couche masquée ?</th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                                {% for couche in couches %}
+                                    <tr >
+                                        <td>
+                                            <form method="post" action="{{ path('couches_cartographiques_add_IGN') }}" id="form-{{ couche.layers }}-{{ format }}">
+                                                <input type="hidden" name="token" value="{{ csrf_token('ajouter-IGN-' ~ couche.nom ) }}">
+                                                <input type="hidden" name="nom" value="{{ couche.nom }}">
+                                                <input type="hidden" name="type" value="{{ couche.type }}">
+                                                <input type="hidden" name="layers" value="{{ couche.layers }}">
+                                                <input type="hidden" name="url" value="{{ couche.url }}">
+                                                <input type="hidden" name="format" value="{{ couche.format }}">
+                                            </form>
+                                            {{ couche.nom }}
+                                        </td>
+                                        <td>
+                                            {{ couche.layers }}
+                                        </td>
+                                        <td>
+                                            {{ couche.format }}
+                                        </td>
+                                        <td>
+                                            <input form="form-{{ couche.layers }}-{{ format }}" name="transparent" type="checkbox" />
+                                        </td>
+                                        <td ><input form="form-{{ couche.layers }}-{{ format }}" type="submit" class="btn btn-success" value="Ajouter"></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
