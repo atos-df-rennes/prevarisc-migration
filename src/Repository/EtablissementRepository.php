@@ -67,4 +67,23 @@ class EtablissementRepository extends ServiceEntityRepository
 
         return $query->getResult();
     }
+
+    public function getHistorique(int $id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('ei')
+            ->join('e.informations', 'ei')
+            ->leftJoin('ei.statut', 'es')
+            ->leftJoin('ei.type', 'et')
+            ->leftJoin('ei.categorie', 'ec')
+            ->leftJoin('ei.classe', 'ecl')
+            ->leftJoin('ei.famille', 'ef')
+            ->where('e.id = :id')
+            ->orderBy('ei.date', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }

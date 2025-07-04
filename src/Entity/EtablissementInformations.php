@@ -46,6 +46,26 @@ class EtablissementInformations
      */
     private $etablissement;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=EtablissementStatut::class,)
+     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=false)
+     */
+    private $statut;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=EtablissementType::class)
+     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=false)
+     */
+    private $type;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
+     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE" ,nullable=false)
+     */
+    private $categorie;
+
+    // TODO recuperation de la classe et de la famille si existant
+
     public function getId(): ?int
     {
         return $this->id;
@@ -83,6 +103,42 @@ class EtablissementInformations
     public function setEtablissement(?Etablissement $etablissement): self
     {
         $this->etablissement = $etablissement;
+
+        return $this;
+    }
+
+    public function getStatut(): ?EtablissementStatut
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?EtablissementStatut $statut): self
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getType(): ?EtablissementType
+    {
+        return $this->type;
+    }
+
+    public function setType(?EtablissementType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getCategorie(): ?EtablissementCategorie
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(?EtablissementCategorie $categorie): self
+    {
+        $this->categorie = $categorie;
 
         return $this;
     }

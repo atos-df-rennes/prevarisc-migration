@@ -1,0 +1,104 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block lateral_navigation %}
+    <ul class='nav nav-tabs nav-stacked menu_dashboard'>
+        <li {% if app.request.get('_route') is same as('etablissement_index') %}class="active"{% endif %}>
+            <a href='{{ path('etablissement_index', {id: 10}) }}'>
+                <i class="icon-info-sign icon-black"></i>
+                Général
+            </a>
+        </li>
+
+{#        <?php if ($this->etablissement['informations']['LIBELLE_GENRE'] != 'Site') : ?>#}
+{#        {% if %}#}
+{#        <li>#}
+{#            <a href=''>#}
+{#                <i class="icon-align-center icon-black"></i>#}
+{#                Textes applicables#}
+{#            </a>#}
+{#        </li>#}
+{#        <li >#}
+{#            <a href=''>#}
+{#                <i class="icon-book icon-black"></i>#}
+{#                <?= $this->nomOngletDescriptif ?>#}
+{#            </a>#}
+{#        </li>#}
+{#        {% endif %}#}
+
+{#        <?php if ($this->isAllowedEffectifsDegagements): ?>#}
+{#        {% if %}#}
+{#        <li >#}
+{#            <a class='sep' href=''>#}
+{#                <i class="icon-th-list icon-black"></i>#}
+{#                <?= $this->nomOngletEffectifsDegagements ?>#}
+{#            </a>#}
+{#        </li>#}
+{#        {% endif %}#}
+
+{#        <?php if ($this->isAllowedAvisDerogations): ?>#}
+{#        {% if %}#}
+{#        <li >#}
+{#            <a class='sep' href=''>#}
+{#                <i class="icon-pencil icon-black"></i>#}
+{#                Avis et dérogations#}
+
+{#                <?php if($this->hasAvisDerogations): ?>#}
+{#                <div class="greenCircle pull-right"></div>#}
+{#                <?php endif ?>#}
+{#            </a>#}
+{#        </li>#}
+{#        {% endif %}#}
+
+        <li >
+            <a href=''>
+                <i class="icon-share icon-black"></i>
+                Pièces jointes
+            </a>
+        </li>
+        <li >
+            <a href=''>
+                <i class="icon-user icon-black"></i>
+                Contacts
+            </a>
+        </li>
+        <li >
+            <a href=''>
+                <i class="icon-folder-open icon-black"></i>
+                Dossiers
+            </a>
+        </li>
+        <li {% if app.request.get('_route') is same as('etablissement_historique') %}class="active"{% endif %}>
+            <a class='sep' href='{{ path("etablissement_historique", {id: 10}) }}'>
+                <i class="icon-repeat icon-black"></i>
+                Afficher l'historique
+            </a>
+        </li>
+        <li class="nav-header">Actions</li>
+        <li>
+{#            <a href='<?= $this->url(array('controller' => 'dossier', 'action' => 'add', 'id_etablissement' => $this->etablissement['general']['ID_ETABLISSEMENT']), null, true)?> '>#}
+            <a href="">
+            <i class="icon-plus icon-black"></i>
+            Ajouter un dossier
+            </a>
+        </li>
+
+{#        <?php if ($this->is_allowed_delete_etablissement): ?>#}
+{#        <li>#}
+{#            <a id="suppressionEtablissement" href="#">#}
+{#                <i class="icon-remove icon-black"></i>#}
+{#                Supprimer l'établissement#}
+{#            </a>#}
+{#        </li>#}
+{#        <?php endif ?>#}
+    </ul>
+{% endblock %}
+
+{% block body_structure %}
+    <h2 class='page-header'>Etablissement</h2>
+
+    <div class="row">
+        <div class="col-xs-12">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
