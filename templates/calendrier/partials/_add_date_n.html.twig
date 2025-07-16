@@ -1,0 +1,28 @@
+<div class="row date-ligne" style="margin-top: 10px; margin-bottom: 10px;">
+    <div class="col-xs-6">
+        {{ dateAjoutee|format_date('full', locale='fr')  }}
+    </div>
+    <div class="col-xs-2">
+        <input type="text" size="8" class="time form-control input" id="D_{{ dateAjouteeInput }}" name="D_{{ dateAjouteeInput }}" value="09:00" />
+    </div>
+    <div class="col-xs-2">
+        <input type="text" size="8" class="time form-control input" id="F_{{ dateAjouteeInput }}" name="F_{{ dateAjouteeInput }}" value="18:00" />
+    </div>
+    <div class="col-xs-2">
+        <button type="button" class="btn btn-danger btn suppression">
+            <i class="glyphicon glyphicon-trash"></i>
+        </button>
+    </div>
+</div>
+
+{% block javascripts %}
+    <script>
+
+$(document).on('click', '.suppression', function() {
+    $(this).closest('div.date-ligne').remove();
+    $("#listeDates").countLigne('supp', 'new');
+});
+
+
+    </script>
+{% endblock %}
