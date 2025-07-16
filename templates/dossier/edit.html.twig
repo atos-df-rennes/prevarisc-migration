@@ -88,7 +88,6 @@
             // visite périodique (21 et 26)
             // arrêté > ouverture (40)
             var nature = $("#selectNature").val();
-            console.log("Nature du dossier : " + nature);
             if (nature != 21 && nature != 26 && nature != 40 && nature != 41 && nature != 42 && nature != 44) {
                 if ($("#OBJET_DOSSIER").val() == '') {
                     $("#OBJET_DOSSIER").focus();
@@ -136,8 +135,6 @@
                     idDossier: $('#idDossier').val()
                 },
                 success: function(data) {
-                    console.log("Données reçues :", data); 
-
                     if (data.trim() !== '') {
                         parentRow.after(data);
                         $('.label.label-warning').removeClass('ui-helper-hidden');
@@ -281,7 +278,6 @@
                 }
             };
 
-
 /*
             //Affichage des champs en fonction des natures
             /*$.fn.afficheChamps = function(listeNature) {
@@ -377,11 +373,10 @@
             //Selection d'une nature et affichage des champs en fonction de la ou des natures
             $(document).on('change', '#selectNature', function() {
                 var idNature = $(this).val();
-                console.log("Nature sélectionnée : " + idNature);
                 $(".docurba").remove();
                 if (idNature != 0) {
                     var listeNature = $("#listeNature").recupNatures();
-//                    $("#InfosDossier").afficheChamps(idNature);
+                //    $("#InfosDossier").afficheChamps(idNature);
                     $("#selectNature option[value='0']").remove();
                     majAvisSelect();
                 }
@@ -393,7 +388,6 @@
             $("#TYPE_DOSSIER").change(function() {
                 const idType = $(this).val();
                 $("#InfosDossier > li").hide();
-                $("#creationDossier").hide();
                 $(".docurba").remove();
 
                 if (idType == 0) {
@@ -445,7 +439,6 @@
 
             //Action lorsque l'on appuie sur le bouton modifier MODE EDITION
             $('#modificationDossier').on('click', function() {
-                console.log("test");
                 $(this).hide();
                 $("#save_div").hide();
 
@@ -473,7 +466,7 @@
                     $("#listeNature").gestionSuppNature();
                 }
 
-                $("#InfosDossier").afficheChamps($("#selectNature").val());
+            //    $("#InfosDossier").afficheChamps($("#selectNature").val());
 
                 // Gestion des cas calendrier commission / visite en fonction du type de dossier
                 $(".hideCalendar").hide();
