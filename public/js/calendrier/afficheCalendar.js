@@ -2,15 +2,150 @@ function convertDateAngToFr(dateAng) {
     var tabDate = dateAng.split("-");
     return tabDate[2] + "/" + tabDate[1] + "/" + tabDate[0];
 }
- 
+
+function openModalComm(url, data = {}) {
+    const infoCalendar = data.infoCalendar || '';
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: data,
+        success: function (response) {
+            $('#modalComm .modal-content').html(response);
+            $('#modalComm').modal('show');
+            initModalCommButtons(infoCalendar); 
+        },
+        error: function (xhr, status, error) {
+            console.error("Erreur :", xhr);
+            alert("Erreur lors du chargement de la modale : " + (xhr.responseText || error));
+        }
+
+    });
+}
+
+function initModalCommButtons(infoCalendar) {
+    $('#btnSaveComm').off('click').on('click', function () {
+        const formArray = $("#formDateComm").serializeArray();
+        const formData = {};
+
+        formArray.forEach(field => {
+            formData[field.name] = field.value;
+        });
+
+        formData.idComm = $("#idComm").val();
+        formData.repeat = $("#repeat").is(":checked") ? "on" : "";
+        formData.periodicite = $("#periodicite").val() || '';
+        formData.dateFin = ($("#dateFin").val() || '').replace(/\//g, '.');
+
+        if (formData.repeat === "on" && !formData.dateFin) {
+            alert("Veuillez renseigner une date de fin.");
+            return;
+        }
+
+            $.ajax({
+                url: "/adddates",
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (typeof response === "string") {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            console.error("Erreur JSON parse:", e);
+                            alert("Erreur serveur : réponse non valide.");
+                            return;
+                        }
+                    }
+
+                if (!response || !Array.isArray(response.dates) || response.dates.length === 0) {
+                    alert("Aucune date reçue du serveur.");
+                    return;
+                }
+                
+                // Ajout des événements dans le calendrier
+                response.dates.forEach(date => {
+                    if(infoCalendar == 'showCommission'){
+                        $('#calendarCommission').fullCalendar('renderEvent', {
+                            id: date.id,
+                            title: date.title,
+                            className: date.className,
+                            start: date.start,
+                            end: date.end,
+                            allDay: false,
+                            url: "/commission/id/" + date.id
+                        }, true)
+                    }else{
+                        $('#calendarVisiteAffichage').fullCalendar('renderEvent', {
+                            id: date.id,
+                            title: date.title,
+                            className: date.className,
+                            start: date.start,
+                            end: date.end,
+                            allDay: false,
+                            url: "/commission/id/" + date.id
+                        }, true)   
+                    }   
+                });
+
+                // Rafraîchir les événements
+                $('#calendarCommission').fullCalendar('refetchEvents');
+                $('#calendarVisiteAffichage').fullCalendar('refetchEvents');
+
+                // Fermer et vider la modale
+                $('#modalComm').modal('hide');
+                $('#modalComm .modal-content').html('');
+
+                // Mise à jour des champs de formulaire
+                const firstEvent = response.dates[0];
+                const startDate = new Date(firstEvent.start);
+            
+                const dd = String(startDate.getDate()).padStart(2, '0');
+                const mm = String(startDate.getMonth() + 1).padStart(2, '0');
+                const yyyy = startDate.getFullYear();
+                const formattedDate = `${dd}/${mm}/${yyyy}`;
+
+                const eventId = firstEvent.id;
+                const typeDossier = parseInt($("#TYPE_DOSSIER").val());
+
+                if (typeDossier === 1 || infoCalendar === 'showCommission') {
+                    $("#DATECOMM_INPUT").val(formattedDate);
+                    $("#ID_AFFECTATION_DOSSIER_COMMISSION").val(eventId);
+                    $("#hideCommission").click();
+                } else if (typeDossier === 2 || typeDossier === 3 || infoCalendar === 'showVisite') {
+                    $("#DATEVISITE_INPUT").val(formattedDate);
+                    $("#ID_AFFECTATION_DOSSIER_VISITE").val(eventId);
+                    $("#hideVisite").click();
+                }
+
+                // Masquage du calendrier après insertion
+                if(infoCalendar === 'showCommission'){
+                    $("#calendarCommission").hide();
+                    $("#calendarRow").hide();
+                    $("#showCommission").show();
+                    $("#hideCommission").hide();
+                }else{
+                    $("#calendarVisiteAffichage").hide();
+                    $("#calendarRowVisite").hide();
+                    $("#showVisite").show();
+                    $("#hideVisite").hide();
+                }
+                
+            },
+            error: function (xhr, status, error) {
+                console.error("Erreur AJAX :", xhr);
+                alert("Erreur lors de l'enregistrement : " + (xhr.responseText || error));
+            }
+        });
+    });
+}
 function my_dialog(url, data, callback) { 
     // Récupération du contenu de la boite de dialogue
         $.ajax({
             data: data,
             url: url,
             type: "POST",
-            success: function(result) {
-                $("#dialogComm").html(result);
+            success(result) {
+                $("#dialogComm").html(result); 
                 // On créé la boite de dialogue
                 $("#dialogComm").dialog({
                     resizable: false,
@@ -132,148 +267,44 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
             });
         },
         // Lorsque l'on selectionne une ou plusieurs dates on ouvre la boite de dialogue correspondante
-        select: function(start, end, allDay) {
-            var dateSelected = new Date(start);
-            // On empêche la selection d'un samedi ou d'un dimanche
-            // Boite de dialogue en ajoutant en callback le traitement du formulaire
-            var nomEtab = "";
+        select: function(start, end) {
+            var nomEtab = '';
             if ($("#infosEtabs > .etab").length > 0) {
-                nomEtab = document.querySelector('#infosEtabs > .etab').innerText.trim();
+                nomEtab = $("#infosEtabs > .etab").text().trim();
             } else if ($("#infosEtablissement > .etab").length > 0) {
-                nomEtab = document.querySelector('#infosEtablissement > .etab').innerText.trim();
+                nomEtab = $("#infosEtablissement > .etab").text().trim();
             }
-            nomEtab = nomEtab.replace('&nbsp;', ' ');
-            nomEtab = nomEtab.replace("'", " ");
+            nomEtab = nomEtab.replace('&nbsp;', ' ').replace("'", " ");
 
             var nomNature = $("#selectNature option:selected").text().trim();
             var nomCom = nomNature + " - " + nomEtab;
+
             var type;
             if ($("#TYPE_DOSSIER").val() == 1) {
-                //cas type dossier étude. On affiche alors que les commissions de type En Salle
                 type = 1;
-            } else if ($("#TYPE_DOSSIER").val() == 2) {
-                //cas type de dossier visite ou groupe de visite suivant le champ infoCalendar on choisi ce que l'on affiche
-                if (infoCalendar == 'showVisite') {
-                    type = $("#TYPE_DOSSIER").val();
-                } else if (infoCalendar == 'showCommission') {
-                    type = 1;
-                }
-            } else if ($("#TYPE_DOSSIER").val() == 3) {
+            } else if ($("#TYPE_DOSSIER").val() == 2 || $("#TYPE_DOSSIER").val() == 3) {
                 if (infoCalendar == 'showVisite') {
                     type = $("#TYPE_DOSSIER").val();
                 } else if (infoCalendar == 'showCommission') {
                     type = 1;
                 }
             }
-            my_dialog( 
-                '/dialogcomm',  // c’est maintenant l’URL Symfony
-                'do=newComm&idComm=' + idComm +
-                '&dateD=' + start.toISOString().split('T')[0] +
-                '&dateF=' + end.toISOString().split('T')[0]+
-                '&libelleCom=' + nomCom +
-                '&type=' + type,
-                function () {
 
-                    $("#dialogComm").dialog("option", "buttons", [
-                        {
-                            text: 'Enregistrer dans le calendrier',
-                            class: 'btn btn-success',
-                            click: function() {
-                                // Lors de la validation de la boite de dialogue
-                                $.ajax({
-                                    data: $("#formDateComm").serialize() +
-                                        "&idComm=" + idComm+
-                                        "&repeat=" + ($("#repeat").is(":checked") ? "on" : "")+
-                                        "&periodicite=" + $("#periodicite").val() +
-                                        "&dateFin=" + $("#dateFin").val().replace(/\//g, "."),
-                                    url: "/adddates",
-                                    dataType: 'json',
-                                    type: "POST",
-                                    success: function(affichageResultat) {
-                                        //En cas de succes il faut inserer tous les évenements dans le calendrier et la BD
-                                        //Récupération du Json et affichage de ce
-                                        // lui-ci
-                                       
-                                        var rez =  affichageResultat 
-                                        for (var i in rez) {
-                                            calendar.fullCalendar(
-                                            'renderEvent', {
-                                                id: rez[i]['id'],
-                                                title: rez[i]['title'],
-                                                className: rez[i][
-                                                    'className'
-                                                ],
-                                                start: rez[i]['start'],
-                                                end: rez[i]['end'],
-                                                allDay: false,
-                                                url: "/commission/id/" +
-                                                    rez[i]['id']
-                                            });
-                                        }
-                                        $("#" + divInfo).fullCalendar(
-                                            'refetchEvents');
-                                        $("#dialogComm").dialog('close').html(
-                                            '');
-
-                                        // Permet d'affecter la date de commission au champ du dossier en un seul clic
-                                        var eventId = rez[0]['id'];
-
-                                        // Calcul de la date
-                                        var dateEnd = new Date(end);
-                                        var dateStart = new Date(start);
-                                        var date = dateEnd;
-
-                                        if( date < dateStart){
-                                            date = dateStart;
-                                        }
-
-                                        dd = date.getDate();
-                                        mm = date.getUTCMonth() + 1;
-                                        aa = date.getUTCFullYear();
-
-                                        if (dd < 10) {
-                                            dd = '0' + dd;
-                                        }
-                                        if (mm < 10) {
-                                            mm = '0' + mm;
-                                        }
-
-                                        /*
-                                        Remplissage du champ concerné
-                                        Pour groupe de visite :
-                                            - type = 1 pour le champ "Date de commission en salle"
-                                            - type = 3 pour le champ "Date de visite"
-                                        */
-
-                                        if (type == 1) {
-                                            $("#DATECOMM_INPUT").val(dd + "/" + mm + "/" + aa);
-                                            $("#ID_AFFECTATION_DOSSIER_COMMISSION").val(eventId);
-                                            $("#hideCommission").click();
-                                        } else if (type == 2 || type == 3 ) {
-                                            $("#DATEVISITE_INPUT").val(dd + "/" + mm + "/" + aa);
-                                            $("#ID_AFFECTATION_DOSSIER_VISITE").val(eventId);
-                                            $("#hideVisite").click();
-                                        }
-                                    }
-                                });
-                            }
-                        },
-                                        
-                        {
-                            text: "Fermer la fenêtre d'édition",
-                            class: 'btn',
-                            click: function() {
-                                $("#dialogComm").dialog('close').html('');
-                            }
-                        }
-                    ]);
-                });
+            openModalComm('/dialogcomm', {
+                do: 'newComm',
+                idComm: "",
+                dateD: start.toISOString().split('T')[0],
+                dateF: end.toISOString().split('T')[0],
+                libelleCom: nomCom,
+                type: type,
+                infoCalendar: infoCalendar
+            });
         },
+
         eventClick: function(event, jsEvent, view) {
             // Boite de dialogue
             if (emplacement == 'calendrierComm') {
-                my_dialog("/dialogcomm", "idComm=" + idComm +
-                    "&idDateComm=" + event.id + "&do=edit");
+                my_dialog("/dialogcomm", "idComm=" + idComm +"&idDateComm=" + event.id + "&do=edit");
             } else if (emplacement == 'dossier') {
                 //Lorsque l'on clique sur une commission la date s'ajoute automatiquement dans l'input en dessous
                 //Faire vérification du nombre de date liée
@@ -318,7 +349,7 @@ $.fn.afficheCalendar = function(idComm, emplacement, type, divInfo, infoCalendar
                             type: "GET",
                             success: function(affichageResultat) {
                                 //On récupere toutes les dates liées et on les affiche
-                                var rez = eval("(" + affichageResultat + ")");
+                                var rez =  affichageResultat ;
                                 if (rez.length == 1) {
                                     //Si une seule date on la renseinge aussi dans l'input date de passage en commission
                                     var dateEnd = new Date(event.end);
