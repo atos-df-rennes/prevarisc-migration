@@ -9,7 +9,7 @@
                         name="DIFFEREAVIS_DOSSIER"
                         class="differeavis"
                         {% if differeAvis == 1 %}checked{% endif %}
-                    {#    {% if lastAvisEtab is not empty and lastAvisEtab != 'Favorable' %}disabled{% endif %}>
+                    {#    
                     {% if lastAvisEtab is not empty and lastAvisEtab != 'Favorable' %}
                         <span style="font-size: smaller;">
                             (Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)
@@ -21,7 +21,6 @@
     </li>
 {% endif %}
 
-{# dateVisite regarder le javasript a faire ca bug 49850 #}
 <li class="row" style="margin-bottom: 20px;" id="DATEVISITE">
     <div class="col-sm-3" style="float: left;">Date de visite</div>
     <div class="col-sm-9">
@@ -56,10 +55,16 @@
     </div>
 </li>
 
-<div class="row" style="display: none;">
+<div  id="calendarRowVisite" class="row" style="display: none;">
     <h1 style="margin-left: 15px"> Choisir une date de visite</h1>
     <div id="calendarVisiteAffichage" class="col-sm-12 calendar" style="display: none;"></div>
     <hr class="clearfix" />
+</div>
+<div class="modal fade" id="modalComm" tabindex="-1" role="dialog" aria-labelledby="dialogCommLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
 </div>
 
     
@@ -114,7 +119,7 @@
     <li class="row" style="margin-bottom: 20px;"id="NPSP">
         <div class="col-sm-3" style='float:left;'>Ne peut se prononcer</div>
         <div class="col-sm-9">
-            <input type="checkbox" class="npsp hideavis" name="NPSP_DOSSIER" {% if nonPrononce == 1 %}checked{% endif %}>
+            <input type="checkbox" class="npsp" name="NPSP_DOSSIER" {% if nonPrononce == 1 %}checked{% endif %}>
         </div>       
     </li>
 {% endif %}

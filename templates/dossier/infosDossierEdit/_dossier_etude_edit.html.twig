@@ -71,62 +71,61 @@
 
 {% if natureId != 19 %}
     <li class="row" style="margin-bottom: 20px;" id="INCOMPLET">
-        <div class="col-sm-3" style="float:left;">Etat dossier</div>
+        <div class="col-sm-3" style="float:left;">Etat dossier</div> 
 
         <div class="col-sm-9">
-            <div id="dossierIncomplet" >
+            <div id="dossierIncomplet">
+                {% set cptDocManquant = dossierDocManquant|length %}
+
                 {% for ue in dossierDocManquant %}
+                    {% set cptDocManquant = cptDocManquant - 1 %}
+                    {% set dateDocManquant = ue.dateDocsManquant is not empty ? ue.dateDocsManquant|date('d/m/Y') : '' %}
+                    {% set dateReceptionDoc = ue.dateReceptionDoc is not empty ? ue.dateReceptionDoc|date('d/m/Y') : '' %}
+                    {% set readonlyTextArea = ue.dateReceptionDoc is not empty ? 'readonly' : '' %}
+                    {% set readonlyInput = ue.dateReceptionDoc is not empty ? 'readonly' : 'class="date"' %}
+
                     <div style="margin-bottom: 15px;">
                         Dossier incomplet le
-                        <input 
-                            type="text" 
-                            name="dateDocManquant[]" 
-                            id="dateDocManquant_{{ ue.numDocsManquant }}" 
-                            value="{{ ue.dateDocsManquant is not empty ? ue.dateDocsManquant|date('d/m/Y') : '' }}" 
-                            {{ue.dateReceptionDoc is not empty ? 'readonly' : 'class="date"' }}
-                        />
-
-                        <textarea 
-                            name="docManquant[]" 
-                            id="docManquant_{{ ue.numDocsManquant }}" 
-                            class="docManquant" 
-                            rows="5" 
-                            cols="100" 
-                            style="margin-top: 10px;" 
-                            {{ ue.dateReceptionDoc is not empty ? 'readonly' : '' }}>
-                            {{ue.docManquant|trim}}
-                        </textarea>
-
-                        Document(s) réceptionné(s) le
-                        <input 
-                            type="text" 
-                            name="dateReceptionDocManquant[]"
-                            style="margin-top: 10px;"  
-                            id="dateReceptionDocManquant_{{ ue.numDocsManquant }}" 
-                            value="{{ ue.dateReceptionDoc is not empty ? ue.dateReceptionDoc|date('d/m/Y') : '' }}" 
+                        <input type="text" name="dateDocManquant[]" id="dateDocManquant_{{ ue.numDocsManquant }}"
+                            value="{{ dateDocManquant }}"
                             {{ ue.dateReceptionDoc is not empty ? 'readonly' : 'class="date"' }}
                         />
 
-                        {% if ue.dateReceptionDoc is empty %}
+                        {% if cptDocManquant == 0 and ue.dateReceptionDoc is empty %}
                             <button class="today btn" type="button">
                                 <i class="glyphicon glyphicon-calendar"></i> Aujourd'hui
                             </button>
-
-                            <button class="btn validDocManquant" type="button">
-                                <i class="glyphicon glyphicon-lock"></i> Valider la réception de document
-                            </button>
-                        {% else %}
-                            <span>
-                                <button class="cancelDateRecep btn" type="button">
-                                    <i class="glyphicon glyphicon-remove"></i> Modifier
-                                </button>
-                            </span>
                         {% endif %}
+
+                        <textarea name="docManquant[]" id="docManquant_{{ ue.numDocsManquant }}" class="docManquant" rows="5" cols="100" style="margin-top: 10px;" {{ readonlyTextArea }}>
+                            {{ ue.docManquant|trim }}
+                        </textarea>
+
+                        Document(s) réceptionné(s) le
+                        <input type="text" name="dateReceptionDocManquant[]" id="dateReceptionDocManquant_{{ ue.numDocsManquant }}"
+                            value="{{ dateReceptionDoc }}"
+                            {{ readonlyInput }}
+                            style="margin-top: 10px;"
+                        />
+
+                        <button class="today btn" type="button" style="{{ ue.dateReceptionDoc is not empty ? 'display:none;' : '' }}">
+                            <i class="glyphicon glyphicon-calendar"></i> Aujourd'hui
+                        </button>
+
+                        <button class="btn validDocManquant" type="button" style="{{ ue.dateReceptionDoc is not empty ? 'display:none;' : '' }}">
+                            <i class="glyphicon glyphicon-lock"></i> Valider la réception de document
+                        </button>
+
+                        <span style="{{ (ue.dateReceptionDoc is empty or cptDocManquant != 0) ? 'display:none;' : '' }}">
+                            <button class="cancelDateRecep btn" type="button">
+                                <i class="glyphicon glyphicon-remove"></i> Modifier
+                            </button>
+                        </span>
                     </div>
                 {% endfor %}
             </div>
 
-            <div id="inputComplet" {{ etatDossier == 1 ? 'style="display:none;"' : '' }}>
+            <div id="inputComplet" {% if etatDossier == 1 %}style="display:none;"{% endif %}>
                 <label>
                     <input type="radio" class="incomplet" name="INCOMPLET_DOSSIER" value="0"
                         {{ etatDossier == 0 ? 'checked' : '' }}> Complet
@@ -137,6 +136,7 @@
                 </label>
             </div>
         </div>
+
     </li>
 {% endif %}
 
@@ -226,7 +226,7 @@
         <div class="col-sm-3">
             <div class="input-group">
                 <input type="text" class="form-control date" id="DATEPREF_DOSSIER" name="DATEPREF_DOSSIER"
-                    value="{{ datePrefecture|date('d/m/Y')}}" />
+                    value="{{ datePrefecture ? datePrefecture|date('d/m/Y') : '' }}" />
                 <span class="input-group-btn">
                     <button type="button" class="today btn btn-default">
                         <i class="glyphicon glyphicon-calendar" aria-hidden="true"></i>&nbsp;Aujourd'hui
@@ -298,7 +298,6 @@
 
         // Événements
         $("#selectNature").on('change', function () {
-            console.log("Nature changed");
             updateDocurbaLabel();
         });
 
@@ -316,7 +315,6 @@
 
 
         $(document).on('click', "input[name=servInst]:radio", function() {
-            console.log("radio servInst clicked");
             if ($(this).val() == 'servInstCommune') {
                 $("#servInstVille").removeAttr('disabled');
                 $("#servInstGrp").attr('disabled', 'disabled');
