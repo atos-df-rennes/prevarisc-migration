@@ -135,12 +135,17 @@
         </li>
     {% endif %}
 
-    <div class="row" style="display: none;">
+    <div  id="calendarRow" class="row" style="display: none;">
         <h1 style="margin-left: 15px"> Choisir une date de commission</h1>
         <div id="calendarCommission" class="col-sm-12 calendar" style="display: none;"></div>
         <hr class="clearfix" />
     </div>
-    <div id='dialogComm' style='display:none;'></div>
+    <div class="modal fade" id="modalComm" tabindex="-1" role="dialog" aria-labelledby="dialogCommLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
 
 
 
@@ -148,7 +153,7 @@
         <li class="row" style="margin-bottom: 20px;" id="ABSQUORUM">
             <div class="col-sm-3" style='float:left;'>Absence de quorum</div>
                 <div class="col-sm-9">
-                    <input type="checkbox" class="absquorum hideavis" name="ABSQUORUM_DOSSIER" {% if absenceQuorum == 1 %}checked{% endif %}>
+                    <input type="checkbox" class="absquorum" name="ABSQUORUM_DOSSIER" {% if absenceQuorum == 1 %}checked{% endif %}>
                 </div>       
         </li>
     {% endif %}
@@ -176,18 +181,26 @@
         </li>
     {% endif %} 
 
-    {% if echeancierTravaux is not null %}
-        <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV">
-            <div class="col-sm-3" style="float:left; padding-top: 7px;">Échéancier de travaux / Schéma de mise en sécurité </div>
-            <div class="col-sm-9">
-                <div class="checkbox" style="margin-bottom: 10px;">
-                        <input type="checkbox" id="echeanciertrav_check"{% if echeancierTravaux is not null %}checked{% endif %}>
-                </div>
-                <input type="text" class="form-control date" id="ECHEANCIERTRAV_DOSSIER" name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux }}"
-                    {% if echeancierTravaux is null %}style="display: none;"{% endif %}>
+{% if echeancierTravaux is not null %} 
+    <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV">
+        <div class="col-sm-3" style="float:left;">
+            Échéancier de travaux / Schéma de mise en sécurité
+        </div>
+        <div class="col-sm-9">
+            <div class="form-inline">
+                <label style="margin-right:10px;">
+                    <input type="checkbox" id="echeanciertrav_check"
+                        {% if echeancierTravaux is not null %}checked{% endif %}>
+                </label>
+                <input type="text" class="form-control date" id="ECHEANCIERTRAV_DOSSIER"
+                    name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux }}"
+                    {% if echeancierTravaux is null %}style="display: none;"{% endif %} >
             </div>
-        </li>
-    {% endif %} 
+        </div>
+    </li>
+{% endif %} 
+        
+   
 
     {% if idType == 1 %}
         {{ include('dossier/infosDossierEdit/_dossier_etude_edit.html.twig') }}
@@ -203,7 +216,7 @@
         {{ include('dossier/infosDossierEdit/_dossier_arrete_edit.html.twig') }}
     {% endif %} 
     
-    {% if natureId not in [20, 47, 22, 23, 24, 64, 27] and idType in [1, 2, 3]  and not horsDelai and avisDossier is not null %}
+    {% if natureId not in [20, 47, 22, 23, 24, 64, 27] and idType in [1, 2, 3]  and not horsDelai %}
         <li class="row" style="margin-bottom: 20px;" id="AVIS">
             <div class="col-sm-3" style="float:left;">
                 {% if idType in [1, 2] %}Avis du rapporteur{% elseif idType == 3 %}Avis du groupe de visite{% endif %}
@@ -303,6 +316,13 @@
 
 {% block javascripts %}
     <script>
+        $(document).ready(function() {
+            // Appliquer le datepicker à tous les inputs ayant la classe 'date'
+            $('input.date').datepicker({
+                dateFormat: 'dd/mm/yy'
+            });
+        });
+
         document.addEventListener('click', function (e) {
             //Preventionniste
             if (e.target.classList.contains('remove-preventionniste')) {

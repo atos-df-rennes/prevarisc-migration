@@ -1,142 +1,165 @@
 
 {% block body %}
-<form name="formDateComm" id="formDateComm" method="post">
 
-    <div class="form-group row">
-        <label for="libelle_comm" class="col-sm-6 control-label">Saisissez le libellé de la commission</label>
-        <div class="col-sm-6">
-            <input type="text" class="form-control" name="libelle_comm" id="libelle_comm" value="{{ libelleCom }}">
-        </div>
-    </div>
+        <div class="modal-content">
 
-    <div class="form-group row">
-        <label for="typeCom" class="col-sm-6 control-label">Veuillez selectionner le type de la commission : </label>
-        <div class="col-sm-6">
-            <select class="form-control" name="typeCom" id="typeCom">
-                {% for type in listeCommType %}
-                    <option value="{{ type.id }}" {% if typeDoss == type.id %}selected{% endif %}>{{ type.libelle }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-
-    <br/>
-
-    <div class="container-fluid" id="listeDates">
-        <div class="row font-weight-bold" style="padding-bottom: 5px;">
-            <div class="col-sm-6">Date</div>
-            <div class="col-sm-2">Heure début</div>
-            <div class="col-sm-2">Heure fin</div>
-            <div class="col-sm-2">
-                <button type="button" class="btn btn-success addDate">
-                    <i class="glyphicon glyphicon-plus"></i>
-                </button>
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="dialogCommLabel">Nouvelle commission</h4>
             </div>
-        </div>
 
-        {% set pasPremier = false %}
-        {% for date in listeDates %}
-            {% set heureD = (date.heureD == '00:00') ? '09:00' : date.heureD %}
-            {% set heureF = (date.heureF == '00:00') ? '18:00' : date.heureF %}
+            <div class="modal-body">
 
-            <div class="row" style="margin-top: 10px; margin-bottom: 15px;">
-                <div class="col-sm-6">{{ date.date|format_date('full', locale='fr') }}</div>
-                <div class="col-sm-2">
-                    <input type="text" class="form-control time" id="D_{{ date.inputH }}" name="D_{{ date.inputH }}" value="{{ heureD }}">
+                <form name="formDateComm" id="formDateComm" method="post">
+                    <div class="form-group row">
+                        <label for="libelle_comm" class="col-sm-6 control-label">Saisissez le libellé de la commission</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="libelle_comm" id="libelle_comm" value="{{ libelleCom }}">
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="idComm" name="idComm" value="1">
+
+                    <div class="form-group row">
+                        <label for="typeCom" class="col-sm-6 control-label">Veuillez selectionner le type de la commission : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control" name="typeCom" id="typeCom">
+                                {% for type in listeCommType %}
+                                    <option value="{{ type.id }}" {% if typeDoss == type.id %}selected{% endif %}>{{ type.libelle }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="container-fluid" id="listeDates">
+                        <div class="row font-weight-bold" style="padding-bottom: 5px;">
+                            <div class="col-sm-6">Date</div>
+                            <div class="col-sm-2">Heure début</div>
+                            <div class="col-sm-2">Heure fin</div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-success addDate">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {% set pasPremier = false %}
+                        {% for date in listeDates %}
+                            {% set heureD = (date.heureD == '00:00') ? '09:00' : date.heureD %}
+                            {% set heureF = (date.heureF == '00:00') ? '18:00' : date.heureF %}
+
+
+                            <div  class="row date-ligne" style="margin-top: 10px; margin-bottom: 15px;">
+                            
+                                <div class="col-sm-6">{{ date.date|format_date('full', locale='fr') }}</div>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control time" id="D_{{ date.inputH }}" name="D_{{ date.inputH }}" value="{{ heureD }}">
+                                </div>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control time" id="F_{{ date.inputH }}" name="F_{{ date.inputH }}" value="{{ heureF }}">
+                                </div>
+                            </div>
+
+                            {% set pasPremier = true %}
+                        {% endfor %}
+                    </div>
+
+                    <div id="div_add_date_placeholder"></div>
+                    <div id="div_periodicite_placeholder"></div>
+
+                </form>
+                
+                <div id="divAddDate" style="display: none;" class="form-group">
+                    <div class="row" style="text-align: center; font-weight: bold; margin-top: 10px;">
+                        <div class="col-sm-9">
+                            Sélectionnez la date :
+                            <input type="text" class="date" id="addDate" style="display: inline-block; width: auto;" />
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-success validAddDate">
+                                <i class="glyphicon glyphicon-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-default cancelAddDate">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-2">
-                    <input type="text" class="form-control time" id="F_{{ date.inputH }}" name="F_{{ date.inputH }}" value="{{ heureF }}">
+
+                {# Affichage de la case à cocher de répétition si une seule date #}
+                <div class="form-group" id="addReapeat" >
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="repeat" id="repeat" value="1" />
+                            Souhaitez-vous planifier cette commission sur une période donnée ?
+                        </label>
+                    </div>
                 </div>
-                <div class="col-sm-2">
-                    {% if pasPremier %}
-                        <button type="button" class="btn btn-danger suppression">
-                            <i class="glyphicon glyphicon-trash"></i>
+
+                <div id="planification" style="display: none;" class="well">
+                    <div class="form-group">
+                        <label for="dateFin">Saisissez la date jusqu'à laquelle vous souhaitez planifier cette commission :</label>
+                        <input type="text" class="form-control-sm date" name="dateFin" id="dateFin" autocomplete="off"  />
+                        <span id="erreurDateFin" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="periodicite">La commission a lieu toutes les :</label>
+                        <select name="periodicite" id="periodicite" class="form-control" style="width: auto; display: inline-block;">
+                            {% for i in 1..4 %}
+                                <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                        semaines
+                    </div>
+
+                    {% if do == 'edit' %}
+                        <button type="button" class="btn btn-success validPeriodicite">
+                            <i class="glyphicon glyphicon-plus"></i>
                         </button>
                     {% endif %}
                 </div>
+
+
             </div>
 
-            {% set pasPremier = true %}
-        {% endfor %}
-    </div>
-
-    <div id="div_add_date_placeholder"></div>
-    <div id="div_periodicite_placeholder"></div>
-
-</form>
-
-<div id="divAddDate" style="display: none;" class="form-group">
-    <div class="row" style="text-align: center; font-weight: bold; margin-top: 10px;">
-        <div class="col-sm-9">
-            Sélectionnez la date :
-            <input type="text" class="date" id="addDate" style="display: inline-block; width: auto;" />
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="btnCloseComm">Fermer</button>
+                <button type="button" class="btn btn-success" id="btnSaveComm">Enregistrer</button>
+            </div>
         </div>
-        <div class="col-sm-3">
-            <button type="button" class="btn btn-success validAddDate">
-                <i class="glyphicon glyphicon-plus"></i>
-            </button>
-            <button type="button" class="btn btn-default cancelAddDate">
-                <i class="glyphicon glyphicon-remove"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-{# Affichage de la case à cocher de répétition si une seule date #}
-{% set displayPeriodicite = listeDates|length > 1 ? 'none' : 'block' %}
-
-<div class="form-group" id="addReapeat" style="display: {{ displayPeriodicite }};">
-    <div class="checkbox">
-        <label>
-            <input type="checkbox" name="repeat" id="repeat" value="1" />
-            Souhaitez-vous planifier cette commission sur une période donnée ?
-        </label>
-    </div>
-</div>
-
-<div id="planification" style="display: none;" class="well">
-    <div class="form-group">
-        <label for="dateFin">Saisissez la date jusqu'à laquelle vous souhaitez planifier cette commission :</label>
-        <input type="text" class="form-control-sm date" name="dateFin" id="dateFin" autocomplete="off"  />
-        <span id="erreurDateFin" style="color:red;"></span>
-    </div>
-
-    <div class="form-group">
-        <label for="periodicite">La commission a lieu toutes les :</label>
-        <select name="periodicite" id="periodicite" class="form-control" style="width: auto; display: inline-block;">
-            {% for i in 1..4 %}
-                <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-        </select>
-        semaines
-    </div>
-
-    {% if do == 'edit' %}
-        <button type="button" class="btn btn-success validPeriodicite">
-            <i class="glyphicon glyphicon-plus"></i>
-        </button>
-    {% endif %}
-</div>
 
 {% endblock %}
 
+
 {% block javascripts %}
+<script src="{{ asset('js/jquery.timeentry.js') }}"></script>
+
 <script>
-    $.fn.countLigne = function(action,type){
+    $.fn.countLigne = function(action,type){    
+    var divCount = $("#listeDates div.date-ligne").length;
         if(action == 'add'){
             $("#addReapeat").hide();
             $("#planification").hide();
-        }else if(action == 'supp'){
-            if(type == 'edit'){
-                if($("#listeDates ul").length == 3)
-                    $("#addReapeat").show();
-            }else if(type == 'new'){
-                console.log("hellllo");
-                if($("#listeDates ul").length == 1)
-                    $("#addReapeat").show();
+		}else if(action == 'supp'){
+            if(type == 'new'){
+				if(divCount ===  2){
+	    		    $("#addReapeat").show();
+                }
             }
         }
     };
+	
+    $(function () {
+        $('.time').timeEntry({
+        show24Hours: true,
+        spinnerImage: '',
+        defaultTime: '09:00',
+        minTime: '00:00',
+        maxTime: '23:59'
+        });
+    });
+
     $.fn.buttonHide = function(){
         $(".edition").hide();
         $(".suppression").hide();
@@ -149,28 +172,27 @@
         $(".dateDefaut").show();
         $(".addDate").show();
     };
-    $(".addDate").on('click', function(){
+    $(".addDate").live('click', function(){
         $("#divAddDate").show();
         $("#dialogComm").buttonHide();
         return false;
     });
-    	$('.date').live('click', function() {
+
+    $('.date').live('click', function() {
 		$(this).datepicker({showOn:'focus', dateFormat: 'dd/mm/yy', firstDay: 1}).focus();
 	});
 
 
 	/**GESTION DE L'AJOUT DE DATE DANS LA BOITE DE DIALOGUE
 	**/
-    $('.validAddDate').on('click',function(){
+    $('.validAddDate').live('click',function(){
 		var dateSelect = $("#addDate").val();
 		$("#addDate").attr('value','');
 		if(dateSelect != ''){
 			//Dans le cas d'une édition on fait l'insertion toute suite sur le calendrier et on le raffraichi
-			if($("#dateCommission").val()){
-
-                console.log("Asmaatest")
+           if($("#dateCommission").val()){
 				$.ajax({
-					data: "do=addDateS&date="+dateSelect.toISOString().split('T')[0]+"&idDateCommLiee="+$("#dateCommission").val(),
+					data: "do=addDateS&date="+dateSelect+"&idDateCommLiee="+$("#dateCommission").val(),
 					type:"POST",
 					url:"/dialogcomm",
 					beforeSend: function(){
@@ -185,7 +207,6 @@
 					}
 				});
 			}else{
-                
 				//Dans le cas d'une création on ajoute simplement la ligne
 				$.ajax({
 					data: "do=addDateN&date="+dateSelect,
@@ -210,7 +231,7 @@
 			}
 		}
 		$("#dialogComm").buttonShow();
-		$("#listeDates").countLigne('add','edit');
+		$("#listeDates").countLigne('add');
 		return false;
 	});
 
@@ -246,7 +267,6 @@
 		$("#dialogComm").reapeatHide();
 	});
 
-
     $(".cancelAddDate").on('click',function(){
 		//Annulation de l'ajout de date
 		$("#addDate").attr('value','');
@@ -254,42 +274,6 @@
 		$("#dialogComm").buttonShow();
 		return false;
 	});
-
-  $(document).on('click', '.suppression', function () {
-            console.log("Suppression déclenchée");
-            if ($("#dateCommission").val()) {
-                // Edition (supprimer côté serveur + UI)
-                var tabDo = $(this).attr('id').split('_');
-                let data = "do=supp_dateCom&idDateComm=" + tabDo[2];
-
-                $.ajax({
-                    data: data,
-                    url: "/dialogcomm",
-                    type: "POST",
-                    success: function (affichageResultat) {
-                        if (affichageResultat === '') {
-                            alert(
-                                "Il est impossible de supprimer cette date. D'autres dates sont liées à celle-ci.\nUtilisez le bouton prévu à cet effet afin d'affecter une autre date principale à la commission."
-                            );
-                        } else {
-                            $("#listeDates").countLigne('supp', 'edit');
-                            $("#ligne_" + tabDo[2]).fadeOut().remove();
-                            $("#calendar").fullCalendar('refetchEvents');
-                        }
-                    },
-                    error: function () {
-                        console.error("Erreur lors de la suppression.");
-                    }
-                });
-            } else {
-                    console.log("testik");
-                    $(this).closest("ul").fadeOut(function () {
-                    $(this).remove();
-                });
-                $("#listeDates").countLigne('supp', 'new');
-            }
-            return false;
-        });
 
 
 </script>
