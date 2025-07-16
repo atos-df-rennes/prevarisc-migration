@@ -295,7 +295,7 @@ class DossierController extends AbstractController
         $dossierNatureListe = $dossierNatureListe->findByTypeOrdered($dossierType);
         $typeServiceInstructeur = $dossier->getTypeServiceInstructeur();
         $etabData = $dossierService->getEtabInfos($dossier, null);
-        if( $etabData === null ) {
+        if( $etabData !== null ) {
             $genre = $etabData[0]['etablissement']->getInformations()->toArray()[0]->getIdGenre()->getId();
         }
         $groupementTypes = $groupementTypeRepository->findAllGroupementTypes();

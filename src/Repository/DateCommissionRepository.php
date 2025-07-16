@@ -75,8 +75,9 @@ class DateCommissionRepository extends ServiceEntityRepository
 
         $stmt = $conn->prepare($sql);
         $result = $stmt->executeQuery(['idDossier' => $idDossier]);
+        $data = $result->fetchAssociative();
+        return $data !== false ? $data : null;
 
-        return $result->fetchAssociative();
     }
 
 

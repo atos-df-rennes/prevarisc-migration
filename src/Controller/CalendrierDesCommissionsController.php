@@ -64,27 +64,15 @@ class CalendrierDesCommissionsController extends AbstractController{
     }
 
     /**
-     * @Route("/dialogcomm", name="calendrier_dialogcomm", methods={"GET", "POST"})
+     * @Route("/dialogcomm", name="dialogcomm", methods={"GET", "POST"})
      */
-    public function dialogcomm(Request $request, DateCommissionRepository $dateCommissionRepo, CommissionTypeEvenementRepository $commTypeEventRepo): Response
+    public function dialogcomm(Request $request, CommissionTypeEvenementRepository $commTypeEventRepo): Response
     {
         $do = $request->request->get('do');
 
         switch ($do) { 
-            case 'edit': return $this->handleEdit($request, $dateCommissionRepo, $commTypeEventRepo);
             case 'newComm': return $this->handleNewComm($request, $commTypeEventRepo);
             case 'addDateN': return $this->handleAddDateN($request);
-            case 'libelleCom':
-            case 'annule_libelleCom': return $this->handleLibelleCom($request, $dateCommissionRepo);
-            case 'valid_libelleCom': return $this->handleValidLibelleCom($request, $dateCommissionRepo);
-            case 'typeCom': return $this->handleTypeCom($request, $dateCommissionRepo, $commTypeEventRepo);
-            case 'valid_typeCom': return $this->handleValidTypeCom($request, $dateCommissionRepo, $commTypeEventRepo);
-            case 'annule_typeCom': return $this->handleAnnuleTypeCom($request, $dateCommissionRepo, $commTypeEventRepo);
-            case 'dateComm':
-            case 'annule_dateCom': return $this->handleDateComm($request, $dateCommissionRepo);
-            case 'valid_dateCom': return $this->handleValidDateComm($request, $dateCommissionRepo);
-            case 'supp_dateCom': return $this->handleSuppDateComm($request, $dateCommissionRepo);
-            case 'addDateS': return $this->handleAddDateS($request, $dateCommissionRepo);
             default: return new JsonResponse(['error' => 'Action non prise en charge'], 400);
         }
     }
@@ -116,30 +104,6 @@ class CalendrierDesCommissionsController extends AbstractController{
 
         return new JsonResponse($recupCommLiees);
     }
-
-    private function handleEdit(Request $request, DateCommissionRepository $repo, CommissionTypeEvenementRepository $typeRepo): Response
-    {
-        $id = $request->query->get('idDateComm');
-        $comm = $repo->find($id);
-        if (!$comm) throw $this->createNotFoundException("Date commission non trouvée");
-
-        $typeCom = $typeRepo->find($comm->getCommissionTypeEvenement());
-        $liee = $comm->getDateCommissionLiees();
-        $listeDates = $liee ? $repo->getCommissionsQtypListing($liee) : $repo->getCommissionsQtypListing($id);
-        $dateCommission = $liee ? $repo->find($liee)->getId() : $id;
-
-        return $this->render('calendrier/dialogcomm_edit.html.twig', [
-            'do' => 'edit',
-            'dateClick' => $id,
-            'typeComLibelle' => $typeCom ? $typeCom->getLibelle() : null,
-            'idParam' => $request->query->get('idComm'),
-            'idTypeSelect' => $comm->getCommissionTypeEvenement(),
-            'listeDates' => $listeDates,
-            'dateCommission' => $dateCommission,
-            'libelleDateComm' => $comm->getLibelleDateCommission(),
-        ]);
-    }
-
 
     /**
      * @Route("/deplaceCommissionDate", name="deplaceCommissionDate", methods={"POST"})
@@ -218,7 +182,8 @@ class CalendrierDesCommissionsController extends AbstractController{
     /**
      * @Route("/adddates", name="add_dates", methods={"POST"})
      */
-    public function addDates(Request $request, EntityManagerInterface $em,  CommissionTypeEvenementRepository $typeRepo,  CommissionRepository $commissionRepo): JsonResponse
+
+    public function addDates(Request $request, EntityManagerInterface $em, CommissionTypeEvenementRepository $typeRepo, CommissionRepository $commissionRepo): JsonResponse
     {
         try {
             $libelle = $request->get('libelle_comm');
@@ -242,11 +207,9 @@ class CalendrierDesCommissionsController extends AbstractController{
                     $heureDebut = \DateTime::createFromFormat('H:i', $value);
                     $heureFin = \DateTime::createFromFormat('H:i', $request->get("F_$dateStr"));
 
-                    $dateDebut = clone $date;
-
-                    while ($dateDebut <= $dateFin) {
+                    while ($date <= $dateFin) {
                         $dateCommission = new DateCommission();
-                        $dateCommission->setDateCommission(clone $dateDebut)
+                        $dateCommission->setDateCommission(clone $date)
                             ->setHeureDebutCommission($heureDebut)
                             ->setHeureFinCommission($heureFin)
                             ->setLibelleDateCommission($libelle)
@@ -260,13 +223,13 @@ class CalendrierDesCommissionsController extends AbstractController{
                         $listeDates[] = [
                             'id' => $dateCommission->getId(),
                             'title' => $libelle,
-                            'start' => $dateDebut->format('Y-m-d') . ' ' . $heureDebut->format('H:i'),
-                            'end' => $dateDebut->format('Y-m-d') . ' ' . $heureFin->format('H:i'),
+                            'start' => $date->format('Y-m-d') . ' ' . $heureDebut->format('H:i'),
+                            'end' => $date->format('Y-m-d') . ' ' . $heureFin->format('H:i'),
                             'url' => 'calendrier-des-commissions/id/' . $dateCommission->getId(),
                             'className' => 'display-' . $typeCom,
                         ];
 
-                        $dateDebut->modify('+'.(7 * $periodicite).' days');
+                        $date->modify('+'.(7 * $periodicite).' days');
                     }
                 }
             }
@@ -302,15 +265,11 @@ class CalendrierDesCommissionsController extends AbstractController{
                 }
             }
         }
-            return new JsonResponse($listeDates);
-           /*return new JsonResponse([
+            return new JsonResponse([
+                'success' => true,
                 'dates' => $listeDates,
-                'repeat' => $request->request->get('repeat'),
-                'periodicite' => $request->get('periodicite'),
-                'dateFin' =>  $request->get('dateFin') ,
-                'all' => $request->request->all(),
-            ]);*/
-
+                'datesLength' => count($listeDates)
+            ]);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => 'Erreur lors de l\'enregistrement : ' . $e->getMessage(),
@@ -355,66 +314,10 @@ class CalendrierDesCommissionsController extends AbstractController{
     private function handleAddDateN(Request $request): Response
     {   
         $date = \DateTime::createFromFormat('d/m/Y', $request->request->get('date'));
-        return $this->render('calendrier/add_date_n.html.twig', [
+        return $this->render('calendrier/partials/_add_date_n.html.twig', [
             'dateAjoutee' => $date->format('l d M Y'),
             'dateAjouteeInput' => $date->format('Y-m-d'),
         ]);
     }
 
-    private function handleLibelleCom(Request $request, DateCommissionRepository $repo): Response
-    {
-        $id = $request->query->get('idDateComm');
-        $comm = $repo->find($id);
-        if (!$comm) throw $this->createNotFoundException("Date commission non trouvée");
-        return $this->render('calendrier/libelle_comm.html.twig', [
-            'libelleDateComm' => $comm->getLibelleDateCommission(),
-        ]);
-    }
-
-    private function handleValidLibelleCom(Request $request): Response
-    {
-        return $this->render('calendrier/libelle_comm_valid.html.twig', [
-            'libelleDateComm' => "test",
-        ]);
-    }
-    private function handleTypeCom(Request $request): Response
-    {
-        return $this->render('calendrier/type_comm.html.twig', [
-            'listeCommType' => "test",
-        ]);
-    }
-    private function handleValidTypeCom(Request $request): Response
-    {
-        return $this->render('calendrier/type_comm_valid.html.twig', [
-            'libelleType' => "test",
-        ]);
-    }
-    private function handleAnnuleTypeCom(Request $request): Response
-    {
-        return $this->render('calendrier/type_comm_valid.html.twig', [
-            'libelleType' => "test",
-        ]);
-    }
-    private function handleDateComm(Request $request): Response
-    {
-        return $this->render('calendrier/date_comm.html.twig', [
-            'dateCommDetail' => "test",
-        ]);
-    }
-    private function handleValidDateComm(Request $request): Response
-    {
-        return $this->render('calendrier/date_comm_valid.html.twig', [
-            'updateDateComm' => "test",
-        ]);
-    }
-    private function handleSuppDateComm(Request $request): Response
-    {
-        return new JsonResponse(['error' => 'Suppression impossible sur cette date'], 400);
-    }
-    private function handleAddDateS(Request $request): Response
-    {
-        return $this->render('calendrier/add_date_s.html.twig', [
-            'newDateComm' => "test",
-        ]);
-    }
 }
