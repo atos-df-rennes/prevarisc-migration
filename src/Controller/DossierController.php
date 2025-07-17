@@ -35,9 +35,6 @@ class DossierController extends AbstractController
     /**
      * @Route("/dossier/{id}", name="dossier_index")
      */
-    /*public function index(Dossier $dossier, TempsRestant $tempsRestant, CapsuleRubriqueRepository $capsuleRubriqueRepository,
-    DossierService $dossierService ): Response
-    {*/
     public function index(Dossier $dossier, Security $security, TempsRestant $tempsRestant, CapsuleRubriqueRepository $capsuleRubriqueRepository,
     DossierService $dossierService)
     {
@@ -295,8 +292,11 @@ class DossierController extends AbstractController
         $dossierNatureListe = $dossierNatureListe->findByTypeOrdered($dossierType);
         $typeServiceInstructeur = $dossier->getTypeServiceInstructeur();
         $etabData = $dossierService->getEtabInfos($dossier, null);
-        if( $etabData !== null ) {
-            $genre = $etabData[0]['etablissement']->getInformations()->toArray()[0]->getIdGenre()->getId();
+        if (!empty($etabData) && isset($etabData[0]['etablissement']) && $etabData[0]['etablissement'] !== null) {
+            $informations = $etabData[0]['etablissement']->getInformations();
+            if ($informations && count($informations->toArray()) > 0) {
+                $genre = $informations->toArray()[0]->getIdGenre()->getId();
+            }
         }
         $groupementTypes = $groupementTypeRepository->findAllGroupementTypes();
 
@@ -335,7 +335,6 @@ class DossierController extends AbstractController
         $statutLabelAvis = $enumStatutAvis::getLabel($statutAvis);
         $classAvis = $enumStatutAvis::getCssClass($statutAvis); 
         $affichageAvis = $dto->absenceQuorum() || $dto->horsDelai() || $dto->etatDossier() || $dto->nonPrononce() || $dto->differeAvis();
-        //dd($dto->absenceQuorum());
 
         $dateVisite = $dossier->getDateVisite();
         
@@ -400,7 +399,6 @@ class DossierController extends AbstractController
             }
 
         }
-        //dd($dto->horsDelai());
 
         return $this->render('dossier/edit.html.twig', [
             'idUser' => $user,

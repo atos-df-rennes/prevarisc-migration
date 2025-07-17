@@ -32,7 +32,7 @@
                 value="{{ idDateVisiteAffect is not null ? idDateVisiteAffect : '' }}" />
 
             <button id="showVisite" class="btn btn-default showCalendar"
-                {% if commissionInfos.id is empty %}style="display: none;"{% endif %}>
+                {% if commissionInfos is not null and commissionInfos.id is empty %} style="display: none;"{% endif %}>
                 <i class="glyphicon glyphicon-chevron-down" aria-hidden="true"></i>&nbsp;Afficher le calendrier
             </button>
 
