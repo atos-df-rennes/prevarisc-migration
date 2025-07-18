@@ -28,7 +28,7 @@ Consultez la [documentation dédiée](docs/guide.md).
 
 Cette version est destinée à co-exister avec la version actuelle de Prevarisc. Pour l'installer, suivez les étapes ci-dessous :
 
-1. Clonez le dépôt à côté de du dépôt existant :
+1. Clonez le dépôt à côté du dépôt existant :
 ```sh
 $ git clone https://github.com/atos-df-rennes/prevarisc-migration.git
 ```
@@ -77,13 +77,13 @@ $ chmod –R 755 public/
 ```
 
 Vous devez ensuite modifier le Virtualhost pour définir ce dossier comme étant le principale avec le dossier *prevarisc/* celui de secours.\
-Pour cela, configurer le VirtualHost comme suit :\
+Pour cela, configurer le VirtualHost comme suit :
 ```
 <VirtualHost *:80>
     ServerName prevarisc.sdisxx.fr
-    DocumentRoot /var/www/prevarisc-migration/public
+    DocumentRoot /var/www/html/prevarisc-migration/public
     SetEnv [CLE DE CONFIGURATION] [VALEUR]
-    <Directory /var/www/prevarisc-migration/public>
+    <Directory /var/www/html/prevarisc-migration/public>
         DirectoryIndex index.php
         AllowOverride all
         Order allow,deny
