@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Etablissement;
-use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\Etablissement as EtablissementService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,7 +17,6 @@ class EtablissementController extends AbstractController
      */
     public function index(Etablissement $etablissement): Response
     {
-        $etablissementId = $etablissement->getId();
         return $this->render('etablissement/index.html.twig', [
             'etablissement' => $etablissement,
         ]);
@@ -26,10 +25,14 @@ class EtablissementController extends AbstractController
     /**
      * @Route("/etablissement/{id}/historique", name="etablissement_historique")
      */
-    public function historique(Etablissement $etablissement, \App\Service\Etablissement $etablissementService, UtilisateurRepository $utilisateurRepository, UtilisateurInformationsRepository $utilisateurInformationsRepository): Response
+    public function historique(Etablissement $etablissement, EtablissementService $etablissementService, UtilisateurRepository $utilisateurRepository, UtilisateurInformationsRepository $utilisateurInformationsRepository): Response
     {
-        $historique = [];
-//        $historique = $etablissementService->getHistorique($etablissement->getId());
+        if ($etablissement != null) {
+            $historique = $etablissementService->getHistorique($etablissement->getId());
+        }
+        else {
+            $historique = [];
+        }
 
         return $this->render('etablissement/historique.html.twig', [
             'etablissement' => $etablissement,

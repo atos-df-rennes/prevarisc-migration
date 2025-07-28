@@ -81,6 +81,38 @@ class Dossier
      */
     private $etablissements;
 
+    /**
+     * @var ?Avis
+     *
+     * @ORM\ManyToOne(targetEntity=Avis::class)
+     *
+     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS")
+     */
+    private $avisCommission;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(type="string", length=10, nullable=true, name="DATECOMM_DOSSIER")
+     */
+    private $dateCommission;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
+     */
+    private $dateVisite;
+
+    /**
+     * @var ?UtilisateurInformations
+     *
+     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     *
+     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS")
+     */
+    private $createur;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -182,6 +214,54 @@ class Dossier
     public function removeEtablissement(Etablissement $etablissement): self
     {
         $this->etablissements->removeElement($etablissement);
+
+        return $this;
+    }
+
+    public function getAvisCommission(): ?Avis
+    {
+        return $this->avisCommission;
+    }
+
+    public function setAvisCommission(?Avis $avisCommission): self
+    {
+        $this->avisCommission = $avisCommission;
+
+        return $this;
+    }
+
+    public function getDateCommission(): ?string
+    {
+        return $this->dateCommission;
+    }
+
+    public function setDateCommission(?string $dateCommission): self
+    {
+        $this->dateCommission = $dateCommission;
+
+        return $this;
+    }
+
+    public function getDateVisite(): ?\DateTimeInterface
+    {
+        return $this->dateVisite;
+    }
+
+    public function setDateVisite(?\DateTimeInterface $dateVisite): self
+    {
+        $this->dateVisite = $dateVisite;
+
+        return $this;
+    }
+
+    public function getCreateur(): ?UtilisateurInformations
+    {
+        return $this->createur;
+    }
+
+    public function setCreateur(?UtilisateurInformations $createur): self
+    {
+        $this->createur = $createur;
 
         return $this;
     }

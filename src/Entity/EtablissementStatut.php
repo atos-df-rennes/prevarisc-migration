@@ -16,7 +16,9 @@ class EtablissementStatut
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_STATUT", type="integer", options={"unsigned":true})
      */
     private $id;

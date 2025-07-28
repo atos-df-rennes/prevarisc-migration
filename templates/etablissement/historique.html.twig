@@ -2,72 +2,53 @@
 
 {% block title %}Historique{% endblock %}
 
-{% block javascripts %}
-{% endblock %}
-
 {% block body %}
-    {{ dump(etablissement) }}
-    <h4>Historique des avis d'exploitation</h4>
-{#    <?php#}
-{#    if(isset($this->historique["avis"]))#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml", array(#}
-{#    "array" => $this->historique["avis"]#}
-{#    ));#}
-{#    else#}
-{#    echo "Pas d'historique disponible.";#}
-{#    ?>#}
-{#    <?php endif ?>#}
+    <h3>Historique</h3>
+    {% if historique.avis is defined %}
+        <h4>Historique des avis d'exploitation</h4>
+        {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.avis}) }}
+    {% endif %}
 
     <h4>Historique du libellé</h4>
-{#    <?php#}
-{#    if(isset($this->historique["LIBELLE_ETABLISSEMENTINFORMATIONS"]))#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml", array(#}
-{#    "array" => $this->historique["LIBELLE_ETABLISSEMENTINFORMATIONS"]#}
-{#    ));#}
-{#    else#}
-{#    echo "Pas d'historique disponible.";#}
-{#    ?>#}
+        {% if historique.libelle is defined %}
+            {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.libelle}) }}
+        {% else %}
+            <p class='muted'>Pas d'historique disponible.</p>
+        {% endif %}
 
     <h4>Historique du statut</h4>
-{#    <?php#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml", array(#}
-{#    "array" => $this->historique["ID_STATUT"]#}
-{#    ));#}
-{#    ?>#}
+        {% if historique.statut is defined %}
+            {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.statut}) }}
+        {% else %}
+            <p class='muted'>Pas d'historique disponible.</p>
+        {% endif %}
 
     <h4>Historique de la catégorie</h4>
-{#    <?php#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml",array(#}
-{#    "array" => $this->historique["ID_CATEGORIE"]#}
-{#    ));#}
-{#    ?>#}
+        {% if historique.categorie is defined %}
+            {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.categorie}) }}
+        {% else %}
+            <p class='muted'>Pas d'historique disponible.</p>
+        {% endif %}
 
     <h4>Historique de la classe</h4>
-{#    <?php#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml", array(#}
-{#    "array" => $this->historique["ID_CLASSE"]#}
-{#    ));#}
-{#    ?>#}
+        {% if historique.classe is defined %}
+            {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.classe}) }}
+        {% else %}
+            <p class='muted'>Pas d'historique disponible.</p>
+        {% endif %}
 
 
     <h4>Historique de la famille</h4>
-{#    <?php#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml", array(#}
-{#    "array" => $this->historique["ID_FAMILLE"]#}
-{#    ));#}
-{#    ?>#}
+        {% if historique.famille is defined %}
+            {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.famille}) }}
+        {% else %}
+            <p class='muted'>Pas d'historique disponible.</p>
+        {% endif %}
 
     <h4>Historique du type d'activité</h4>
-{#    <?php#}
-{#    TODO utilisation d'include with#}
-{#    echo $this->partial("etablissement/partials/partial-historique.phtml", array(#}
-{#    "array" => $this->historique["ID_TYPE"]#}
-{#    ));#}
-{#    ?>#}
+        {% if historique.type is defined %}
+            {{ include('etablissement/sectionHistorique.html.twig', {datas: historique.type}) }}
+        {% else %}
+            <p class='muted'>Pas d'historique disponible.</p>
+        {% endif %}
 {% endblock %}

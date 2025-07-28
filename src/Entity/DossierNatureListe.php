@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DossierNatureListe
 {
+    public const NATUREDOSSIERDONNANTAVIS = [7, 16, 17, 19, 21, 23, 24, 47, 26, 28, 29, 48];
+
     /**
      * @var int
      *

@@ -47,24 +47,52 @@ class EtablissementInformations
     private $etablissement;
 
     /**
+     * @var ?EtablissementStatut
      * @ORM\ManyToOne(targetEntity=EtablissementStatut::class,)
-     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=false)
+     *
+     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=true)
      */
     private $statut;
 
     /**
+     * @var ?EtablissementType
      * @ORM\ManyToOne(targetEntity=EtablissementType::class)
-     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=false)
+     *
+     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=true)
      */
     private $type;
 
     /**
+     * @var ?EtablissementCategorie
      * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
-     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE" ,nullable=false)
+     *
+     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE" ,nullable=true)
      */
     private $categorie;
 
-    // TODO recuperation de la classe et de la famille si existant
+    /**
+     * @var ?IghClasse
+     * @ORM\ManyToOne(targetEntity=IghClasse::class)
+     *
+     * @ORM\JoinColumn(nullable=true, name="ID_CLASSE", referencedColumnName="ID_CLASSE")
+     */
+    private $classe;
+
+    /**
+     * @var ?Famille
+     * @ORM\ManyToOne(targetEntity=Famille::class)
+     *
+     * @ORM\JoinColumn(nullable=true, name="ID_FAMILLE", referencedColumnName="ID_FAMILLE")
+     */
+    private $famille;
+
+    /**
+     * @var ?UtilisateurInformations
+     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     *
+     * @ORM\JoinColumn(nullable=true, name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS")
+     */
+    private $utilisateur;
 
     public function getId(): ?int
     {
@@ -139,6 +167,42 @@ class EtablissementInformations
     public function setCategorie(?EtablissementCategorie $categorie): self
     {
         $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getClasse(): ?IghClasse
+    {
+        return $this->classe;
+    }
+
+    public function setClasse(?IghClasse $classe): self
+    {
+        $this->classe = $classe;
+
+        return $this;
+    }
+
+    public function getFamille(): ?Famille
+    {
+        return $this->famille;
+    }
+
+    public function setFamille(?Famille $famille): self
+    {
+        $this->famille = $famille;
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?UtilisateurInformations
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(?UtilisateurInformations $utilisateur): self
+    {
+        $this->utilisateur = $utilisateur;
 
         return $this;
     }

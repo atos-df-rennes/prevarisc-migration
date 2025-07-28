@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\DossierNatureListe;
 use App\Entity\Etablissement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -68,7 +69,7 @@ class EtablissementRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
-    public function getHistorique(int $id): array
+    public function getHistoriqueInformationsData(int $id): Etablissement
     {
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
@@ -79,11 +80,33 @@ class EtablissementRepository extends ServiceEntityRepository
             ->leftJoin('ei.categorie', 'ec')
             ->leftJoin('ei.classe', 'ecl')
             ->leftJoin('ei.famille', 'ef')
+            ->leftJoin('ei.utilisateur', 'eu')
             ->where('e.id = :id')
             ->orderBy('ei.date', 'ASC')
             ->setParameter('id', $id)
             ->getQuery();
 
-        return $query->getResult();
+        return $query->getSingleResult();
+    }
+
+    public function getHistoriqueDossiersData(int $id): ?Etablissement
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('d')
+            ->addSelect('COALESCE(d.dateCommission, d.dateVisite) as hidden columnOrder')
+            ->join('e.dossiers', 'd')
+            ->join('d.nature', 'dn')
+            ->join('d.avisCommission', 'da')
+            ->where('e.id = :id')
+            ->andWhere('dn.id in (:nature)')
+            ->andWhere('da.id in (1,2)')
+            ->andWhere('d.dateCommission is not null OR d.dateVisite is not null')
+            ->orderBy('columnOrder', 'ASC')
+            ->setParameter('id', $id)
+            ->setParameter('nature', DossierNatureListe::NATUREDOSSIERDONNANTAVIS)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
     }
 }

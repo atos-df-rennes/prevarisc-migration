@@ -1,6 +1,7 @@
 {% extends 'layouts/dashboard.html.twig' %}
 
 {% block lateral_navigation %}
+{#  TODO: fichier a completer / remplacer / adapter pour le reste de la gestion des etablissements #}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
         <li {% if app.request.get('_route') is same as('etablissement_index') %}class="active"{% endif %}>
             <a href='{{ path('etablissement_index', {id: 10}) }}'>
@@ -8,47 +9,6 @@
                 Général
             </a>
         </li>
-
-{#        <?php if ($this->etablissement['informations']['LIBELLE_GENRE'] != 'Site') : ?>#}
-{#        {% if %}#}
-{#        <li>#}
-{#            <a href=''>#}
-{#                <i class="icon-align-center icon-black"></i>#}
-{#                Textes applicables#}
-{#            </a>#}
-{#        </li>#}
-{#        <li >#}
-{#            <a href=''>#}
-{#                <i class="icon-book icon-black"></i>#}
-{#                <?= $this->nomOngletDescriptif ?>#}
-{#            </a>#}
-{#        </li>#}
-{#        {% endif %}#}
-
-{#        <?php if ($this->isAllowedEffectifsDegagements): ?>#}
-{#        {% if %}#}
-{#        <li >#}
-{#            <a class='sep' href=''>#}
-{#                <i class="icon-th-list icon-black"></i>#}
-{#                <?= $this->nomOngletEffectifsDegagements ?>#}
-{#            </a>#}
-{#        </li>#}
-{#        {% endif %}#}
-
-{#        <?php if ($this->isAllowedAvisDerogations): ?>#}
-{#        {% if %}#}
-{#        <li >#}
-{#            <a class='sep' href=''>#}
-{#                <i class="icon-pencil icon-black"></i>#}
-{#                Avis et dérogations#}
-
-{#                <?php if($this->hasAvisDerogations): ?>#}
-{#                <div class="greenCircle pull-right"></div>#}
-{#                <?php endif ?>#}
-{#            </a>#}
-{#        </li>#}
-{#        {% endif %}#}
-
         <li >
             <a href=''>
                 <i class="icon-share icon-black"></i>
@@ -75,21 +35,12 @@
         </li>
         <li class="nav-header">Actions</li>
         <li>
-{#            <a href='<?= $this->url(array('controller' => 'dossier', 'action' => 'add', 'id_etablissement' => $this->etablissement['general']['ID_ETABLISSEMENT']), null, true)?> '>#}
             <a href="">
             <i class="icon-plus icon-black"></i>
             Ajouter un dossier
             </a>
         </li>
 
-{#        <?php if ($this->is_allowed_delete_etablissement): ?>#}
-{#        <li>#}
-{#            <a id="suppressionEtablissement" href="#">#}
-{#                <i class="icon-remove icon-black"></i>#}
-{#                Supprimer l'établissement#}
-{#            </a>#}
-{#        </li>#}
-{#        <?php endif ?>#}
     </ul>
 {% endblock %}
 
