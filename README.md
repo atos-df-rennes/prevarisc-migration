@@ -44,6 +44,7 @@ $ cp .env.example .env
 ```
 ```
 APP_ENV=prod
+APP_DEBUG=false
 APP_SECRET=<chaine_de_caractere>
 (cf. pour générer un secret : http://nux.net/secret)
 DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database_name>?serverVersion=5.6&charset=utf8mb4"
