@@ -26,14 +26,14 @@ class EtablissementInformations
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_ETABLISSEMENTINFORMATIONS", type="string", length=255)
+     * @ORM\Column(nullable=false, name="LIBELLE_ETABLISSEMENTINFORMATIONS", type="string", length=255)
      */
     private $libelle;
 
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="DATE_ETABLISSEMENTINFORMATIONS", type="date")
+     * @ORM\Column(nullable=false, name="DATE_ETABLISSEMENTINFORMATIONS", type="date")
      */
     private $date;
 
@@ -48,9 +48,9 @@ class EtablissementInformations
 
     /**
      * @var ?EtablissementStatut
-     * @ORM\ManyToOne(targetEntity=EtablissementStatut::class,)
+     * @ORM\ManyToOne(targetEntity=EtablissementStatut::class)
      *
-     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=true)
+     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=true, options={"unsigned":true})
      */
     private $statut;
 
@@ -58,7 +58,7 @@ class EtablissementInformations
      * @var ?EtablissementType
      * @ORM\ManyToOne(targetEntity=EtablissementType::class)
      *
-     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=true)
+     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=true, options={"unsigned":true})
      */
     private $type;
 
@@ -66,7 +66,7 @@ class EtablissementInformations
      * @var ?EtablissementCategorie
      * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
      *
-     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE" ,nullable=true)
+     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE", nullable=true, options={"unsigned":true})
      */
     private $categorie;
 
@@ -74,7 +74,7 @@ class EtablissementInformations
      * @var ?IghClasse
      * @ORM\ManyToOne(targetEntity=IghClasse::class)
      *
-     * @ORM\JoinColumn(nullable=true, name="ID_CLASSE", referencedColumnName="ID_CLASSE")
+     * @ORM\JoinColumn(nullable=true, name="ID_CLASSE", referencedColumnName="ID_CLASSE", options={"unsigned":true})
      */
     private $classe;
 
@@ -90,9 +90,16 @@ class EtablissementInformations
      * @var ?UtilisateurInformations
      * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
      *
-     * @ORM\JoinColumn(nullable=true, name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS")
+     * @ORM\JoinColumn(nullable=true, name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})
      */
     private $utilisateur;
+
+    /**
+     * @var Genre
+     * @ORM\ManyToOne(targetEntity=Genre::class)
+     * @ORM\JoinColumn(nullable=false, name="ID_GENRE", referencedColumnName="ID_GENRE", options={"unsigned":true})
+     */
+    private $genre;
 
     public function getId(): ?int
     {
@@ -203,6 +210,18 @@ class EtablissementInformations
     public function setUtilisateur(?UtilisateurInformations $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getGenre(): ?Genre
+    {
+        return $this->genre;
+    }
+
+    public function setGenre(?Genre $genre): self
+    {
+        $this->genre = $genre;
 
         return $this;
     }

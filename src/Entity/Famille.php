@@ -7,8 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=FamilleRepository::class)
- *
- * @ORM\Table(name="famille")
  */
 class Famille
 {
@@ -19,14 +17,14 @@ class Famille
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(type="integer", name="ID_FAMILLE", options={"unsigned":true})
+     * @ORM\Column(type="integer", name="ID_FAMILLE")
      */
     private $id;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="string", length=100, nullable=true, name="LIBELLE_FAMILLE")
+     * @ORM\Column(type="string", length=100, name="LIBELLE_FAMILLE")
      */
     private $libelle;
 
