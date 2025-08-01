@@ -33,20 +33,30 @@ final class PasswordValidator extends ConstraintValidator
             return;
         }
 
-        $password = $value->getPlainPassword();
+        $plainPassword = $value->getPlainPassword();
+        $password = $value->getPassword();
 
-        if ('' === $password) {
+        /*
+         * S'il y a actuellement un mot de passe et que le nouveau mot de passe est null,
+         * c'est qu'il n'a pas été modifié, on n'émet pas d'erreur dans ce cas.
+         */
+        if (
+            '' === $plainPassword
+            || (null === $plainPassword && null === $password)
+        ) {
             $this->context
                 ->buildViolation($constraint->vide)
                 ->atPath('utilisateur.plainPassword')
                 ->addViolation()
             ;
+
+            return;
         }
 
         if (
             $this->enforceSecurity
-            && null !== $password
-            && !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,}$/', $password)
+            && null !== $plainPassword
+            && !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,}$/', $plainPassword)
         ) {
             $this->context
                 ->buildViolation($constraint->securite)
