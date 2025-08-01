@@ -1,10 +1,10 @@
 {% extends 'layouts/dashboard.html.twig' %}
 
 {% block lateral_navigation %}
-{#  TODO: fichier a completer / remplacer / adapter pour le reste de la gestion des etablissements #}
+    {# @todo: Avoir le même affichage que l'application Zend. Ajouter les URLs pour qu'on puisse aller sur les onglets. #}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
         <li {% if app.request.get('_route') is same as('etablissement_index') %}class="active"{% endif %}>
-            <a href='{{ path('etablissement_index', {id: 10}) }}'>
+            <a href='{{ path('etablissement_index') }}'>
                 <i class="icon-info-sign icon-black"></i>
                 Général
             </a>
@@ -45,6 +45,7 @@
 {% endblock %}
 
 {% block body_structure %}
+    {# @todo: Mettre le header avec l'établissement parent + nom établissement + code établissement + avis + statut #}
     <h2 class='page-header'>Etablissement</h2>
 
     <div class="row">

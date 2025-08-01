@@ -13,16 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class EtablissementController extends AbstractController
 {
     /**
-     * @Route("/etablissement/{id}", name="etablissement_index")
-     */
-    public function index(Etablissement $etablissement): Response
-    {
-        return $this->render('etablissement/index.html.twig', [
-            'etablissement' => $etablissement,
-        ]);
-    }
-
-    /**
      * @Route("/etablissement/{id}/historique", name="etablissement_historique")
      */
     public function historique(Etablissement $etablissement, EtablissementService $etablissementService, UtilisateurRepository $utilisateurRepository, UtilisateurInformationsRepository $utilisateurInformationsRepository): Response
