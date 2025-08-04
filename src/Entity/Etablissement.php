@@ -62,6 +62,13 @@ class Etablissement
      */
     private $adresses;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="NUMEROID_ETABLISSEMENT", type="string", length=50, nullable=true)
+     */
+    private $numero;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
@@ -176,6 +183,18 @@ class Etablissement
         if ($this->adresses->removeElement($adress) && $adress->getEtablissement() === $this) {
             $adress->setEtablissement(null);
         }
+
+        return $this;
+    }
+
+    public function getNumero(): ?string
+    {
+        return $this->numero;
+    }
+
+    public function setNumero(?string $numero): self
+    {
+        $this->numero = $numero;
 
         return $this;
     }
