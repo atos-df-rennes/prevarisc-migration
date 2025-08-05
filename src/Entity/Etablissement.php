@@ -94,6 +94,15 @@ class Etablissement
      */
     private $parents;
 
+    /**
+     * @var ?Dossier
+     *
+     * @ORM\OneToOne(targetEntity=Dossier::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinColumn(name="ID_DOSSIER_DONNANT_AVIS", referencedColumnName="ID_DOSSIER", nullable=true)
+     */
+    private $dossierDonnantAvis;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
@@ -282,6 +291,18 @@ class Etablissement
         if ($this->parents->removeElement($parent)) {
             $parent->removeFils($this);
         }
+
+        return $this;
+    }
+
+    public function getDossierDonnantAvis(): ?Dossier
+    {
+        return $this->dossierDonnantAvis;
+    }
+
+    public function setDossierDonnantAvis(?Dossier $dossierDonnantAvis): self
+    {
+        $this->dossierDonnantAvis = $dossierDonnantAvis;
 
         return $this;
     }

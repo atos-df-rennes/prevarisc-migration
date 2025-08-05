@@ -100,7 +100,7 @@
     <div id="ligne_informations">
         {# @todo: Mettre le header avec l'avis #}
         <h2 class='page-header'>
-            {% if not parents_etablissement is empty %}
+            {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
                     {# @todo: Faire la popup au survol du lien #}
                     <a href="{{ '/etablissement/index/id/' ~ parent.id }}">
@@ -128,7 +128,30 @@
             {% endif %}
         </h2>
 
-        <p>Statut : {{ etablissement.informations|last.statut.libelle }}</p>
+        {# @todo: Avis différé #}
+        {% if etablissement.dossierDonnantAvis.avisCommission.id in [1, 2] %}
+            {% set label_color = 'default' %}
+            {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
+                {% set label_color = 'success' %}
+            {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                {% set label_color = 'danger' %}
+            {% endif %}
+
+            <span class="{{ 'label label-' ~ label_color }}">
+                {{ etablissement.dossierDonnantAvis.avisCommission.libelle }}
+
+                {% if etablissement.informations|last.genre.id is not same as(3) %}
+                    à l'exploitation
+                {% endif %}
+            </span>
+        {% else %}
+            <span class="label label-default">Avis d'exploitation indisponible</span>
+        {% endif %}
+        {# @todo: Avis indisponible #}
+
+        {# @todo: Risques + échéancier #}
+
+        <span class="ml-3">Statut : {{ etablissement.informations|last.statut.libelle }}</span>
     </div>
 
     <div class="row">
