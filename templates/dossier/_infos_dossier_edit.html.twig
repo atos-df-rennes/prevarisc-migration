@@ -104,20 +104,19 @@
         </li>
     {% endif %}
 
-    {% if not horsDelai and idType in [1, 3] and natureId not in [10,27] %}
+    {% if not horsDelai and not nonPrononce and not absenceQuorum and not etatDossier and idType in [1, 3] and natureId not in [10,27] %}
         <li class="row" style="margin-bottom: 20px;" id="DATECOMM">
             <div class="col-sm-3" style="float:left;">Date de commission en salle</div>
             <div class="col-sm-9">
                 <div class="form-inline">
                     <input type="text" class="form-control" name="DATECOMM_DOSSIER" id="DATECOMM_INPUT"
-                        value="{{ dateCommission  ? dateCommission|date('d/m/Y') : '' }}" readonly="readonly" />
+                        value="{{ dateCommission  ? dateCommission : '' }}" readonly="readonly" />
 
                     <input type="hidden" name="ID_AFFECTATION_DOSSIER_COMMISSION" id="ID_AFFECTATION_DOSSIER_COMMISSION"
                         value="{{ idDateCommissionAffect is defined ? idDateCommissionAffect|date('d/m/Y') : '' }}" />
 
                     <input type="hidden" name="DATEVISITE_PERIODIQUE" id="DATEVISITE_PERIODIQUE"
-                            value="{{ dateCommInput is defined ? dateCommInput: '' }}" readonly="readonly" />
-
+                        value="{{ dateCommInput is defined ? dateCommInput: '' }}" readonly="readonly" />
 
                         <button id="showCommission" type="button" class="btn btn-default showCalendar">
                             <i class="glyphicon glyphicon-chevron-down" aria-hidden="true"></i>&nbsp;Afficher le calendrier
@@ -165,7 +164,7 @@
     {% endif %}
 
 
-    {% set showfactdange = (idType in [2,3] and avisDossierCommission.id == 2) %}
+    {% set showfactdange = (idType in [2,3] and avisDossierCommission is not null and  avisDossierCommission.id == 2 ) %}
     {% if (facteurDanger is not null and ((isSignalement and avisDossier.id == 2) or facteurDanger > 0)) or (showfactdange)  %}
         <li class="row" style="margin-bottom: 20px;" id="FACTDANGE">
             <div class="col-sm-3" style="float:left; padding-top: 7px;">
@@ -187,9 +186,9 @@
         </li>
     {% endif %} 
 
-    {% set showEcheancier = (idType in [2,3] and avisDossierCommission.id == 2) %}
+    {% set showEcheancier = (idType in [2,3] and avisDossierCommission is not empty and avisDossierCommission.id == 2) %}
     {% if showEcheancier %} 
-        <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV">
+        <li class="row" style="margin-bottom: 20px;" id="ECHEANCIERTRAV" >
             <div class="col-sm-3" style="float:left;">
                 Échéancier de travaux / Schéma de mise en sécurité
             </div>
@@ -200,7 +199,7 @@
                             {% if echeancierTravaux is not null %}checked{% endif %}>
                     </label>
                     <input type="text" class="form-control date" id="ECHEANCIERTRAV_DOSSIER"
-                        name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux }}"
+                        name="ECHEANCIERTRAV_DOSSIER" value="{{ echeancierTravaux ? echeancierTravaux|date('d/m/Y') : '' }}"
                         {% if echeancierTravaux is null %}style="display: none;"{% endif %} >
                 </div>
             </div>
@@ -223,7 +222,7 @@
         {{ include('dossier/infosDossierEdit/_dossier_arrete_edit.html.twig') }}
     {% endif %} 
     
-    {% if natureId not in [20, 47, 22, 23, 24, 64, 27] and idType in [1, 2, 3]  and not horsDelai %}
+    {% if natureId not in [20, 47, 22, 23, 24, 64, 27] and idType in [1, 2, 3]  and not horsDelai and not etatDossier  %}
         <li class="row" style="margin-bottom: 20px;" id="AVIS">
             <div class="col-sm-3" style="float:left;">
                 {% if idType in [1, 2] %}Avis du rapporteur{% elseif idType == 3 %}Avis du groupe de visite{% endif %}
@@ -243,7 +242,7 @@
     {% endif %}
 
     {% set showAvisCommissionDateComm = not (absenceQuorum or nonPrononce )%}
-    {% if (natureId not in [22, 64, 27] and idType in [1, 2, 3] and affichageAvis == 0) or showAvisCommissionDateComm %}
+    {% if (avisDossierCommission is not null and avisDossierCommission.id != 0 ) and showAvisCommissionDateComm and (idType in [1, 2, 3]  and natureId not in [22, 64, 27] ) and affichageAvis == 0 %}
         <li class="row" style="margin-bottom: 20px;" id="AVIS_COMMISSION">
             <div class="col-sm-3" style="float:left;">Avis de la commission</div>
             <div class="col-sm-9">
@@ -265,13 +264,14 @@
         </li>
     {% endif %}
 
-
-    <li class="row" style="margin-bottom: 20px;" id="ANOMALIE">
+    {% if  idType in [1, 2, 3] %}
+    <li class="row" style="margin-bottom: 20px;" id="ANOMALIE" >
         <div class="col-sm-3" style="float:left;">Analyse de risque</div>
         <div class="col-sm-9">
-            <textarea name="ANOMALIE_DOSSIER" id="ANOMALIE_DOSSIER" class="form-control" rows="3" cols="100">{{ anomalie|e('html') }}</textarea>
+            <textarea name="ANOMALIE_DOSSIER" id="ANOMALIE_DOSSIER" class="form-control" rows="3" cols="100" >{{ anomalie|e('html') }}</textarea>
         </div>
     </li>
+    {% endif %}
 
     <li class="row" style="margin-bottom: 20px;" id="OBSERVATION">
         <div class="col-sm-3" style="float:left;">Observations</div>
@@ -280,7 +280,7 @@
         </div>
     </li>
 
-
+    {% if natureId != 7 %}
     <li class="row" style="margin-bottom: 20px;" id="DATEREP">
         <div class="col-sm-3" style="float:left;">Date de réponse</div>
         <div class="col-sm-3">
@@ -295,6 +295,7 @@
             </div>
         </div>
     </li>
+    {% endif %}
 
 
     <li class="row" style="margin-bottom: 20px;" id="PREVENTIONNISTE">
@@ -324,11 +325,19 @@
 
 {% block javascripts %}
     <script>
+
+        $(document).on('refresh-autocomplete', function () {
+            initialiserTomSelectPreventionniste();
+        });
+
         $(document).ready(function() {
             // Appliquer le datepicker à tous les inputs ayant la classe 'date'
             $('input.date').datepicker({
                 dateFormat: 'dd/mm/yy'
             });
+            // Déclenche l’autocomplétion préventionnistes
+            $(document).trigger('refresh-autocomplete');
+
         });
 
         document.addEventListener('click', function (e) {
@@ -339,11 +348,14 @@
             }
         });
 
+        // Affiche ou masque les blocs selon la valeur de commissionSelect
         $(document).ready(function() {
             if ($("#commissionSelect").val() && $("#commissionSelect").val() !== "0") {
                 $("#showCommission").show();
+                $("#showVisite").show();
             } else {
-                $("#showCommission").hide();
+                $("#showCommission").hide(); 
+                $("#showVisite").hide();                
             }
         });
 
@@ -392,52 +404,62 @@
                 $(this).hide();
                 return false;
             });
-        // Initialisation du tomselect  pour preventionnistes 
-         new TomSelect("#preventionnistes-autocomplete", {
-            valueField: 'uid',
-            labelField: 'nomComplet',
-            searchField: 'nomComplet',
-            create: false,
-            load: function(query, callback) {
-                if (!query.length) return callback();
+            
+            function initialiserTomSelectPreventionniste() {
+                const selectInput = document.getElementById("preventionnistes-autocomplete");
 
-                $.ajax({
-                    url: "/api/1.0/search/users",
-                    type: 'POST',
-                    data: {
-                        name: query,
-                        fonctions: 13,
-                        limit: 100
+                if (!selectInput) return;
+
+                // Détruire l’ancienne instance s’il y en a une (évite les doublons)
+                if (selectInput.tomselect) {
+                    selectInput.tomselect.destroy();
+                }
+
+                new TomSelect(selectInput, {
+                    valueField: 'uid',
+                    labelField: 'nomComplet',
+                    searchField: 'nomComplet',
+                    create: false,
+                    load: function(query, callback) {
+                        if (!query.length) return callback();
+
+                        $.ajax({
+                            url: "/api/1.0/search/users",
+                            type: 'POST',
+                            data: {
+                                name: query,
+                                fonctions: 13,
+                                limit: 100
+                            },
+                            success: function(result) {
+                                const users = result.response.results.map(user => ({
+                                    uid: user.uid,
+                                    nomComplet: user.NOM_UTILISATEURINFORMATIONS + ' ' + user.PRENOM_UTILISATEURINFORMATIONS
+                                }));
+                                callback(users);
+                            },
+                            error: function() {
+                                callback();
+                            }
+                        });
                     },
-                    success: function(result) {
-                        const users = result.response.results.map(user => ({
-                            uid: user.uid,
-                            nomComplet: user.NOM_UTILISATEURINFORMATIONS + ' ' + user.PRENOM_UTILISATEURINFORMATIONS
-                        }));
-                        callback(users);
-                    },
-                    error: function() {
-                        callback();
+                    onItemAdd: function(value, item) {
+                        const nom = item.textContent;
+
+                        const html = `
+                            <span class='ui-state-highlight' style='float: left; padding: 2px; margin: 0pt 2px 1em 0pt; display: block;'>
+                                <input type='hidden' name='preventionniste[]' value='${value}' />
+                                <span>${nom}</span>
+                                <a onclick='$(this).parent().remove(); return false;' style='text-decoration: none;' href=''>×</a>
+                            </span>
+                        `;
+                        $("#liste_prev").append(html);
+                        this.clear(true);
                     }
                 });
-            },
-            onItemAdd: function(value, item) {
-                const nom = item.textContent;
-
-                const html = `
-                    <span class='ui-state-highlight' style='float: left; padding: 2px; margin: 0pt 2px 1em 0pt; display: block;'>
-                        <input type='hidden' name='preventionniste[]' value='${value}' />
-                        <span>${nom}</span>
-                        <a onclick='$(this).parent().remove(); return false;' style='text-decoration: none;' href=''>×</a>
-                    </span>
-                `;
-                $("#liste_prev").append(html);
-
-                // Réinitialise TomSelect
-                this.clear(true);
             }
-        });
 
+  
         $(".absquorum, .npsp").on('change', function () {
             var absquorum = $(".absquorum").is(':checked');
             var npsp = $(".npsp").is(':checked');
@@ -449,7 +471,6 @@
                 $("#DATECOMM").show();
             }
         });
-
 
 
         $("#AVIS_DOSSIER_COMMISSION").on('change', function() {

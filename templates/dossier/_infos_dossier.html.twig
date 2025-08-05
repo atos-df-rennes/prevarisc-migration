@@ -14,7 +14,7 @@
         </div>
     </li>
 
-    {% if objet != '' %}
+    {% if objet != '' and natureId not in [21, 26, 40] %}
     <li class="row" style="margin-bottom: 20px;" id="OBJET">
         <div class="col-sm-3" style='float:left;'>Objet</div>
         <div class="col-sm-9">
@@ -23,7 +23,7 @@
     </li>
     {% endif %}
 
-    {% if demandeur != '' %}
+    {% if demandeur != '' and idType not in [2, 3, 6, 7] %}
     <li class="row" style="margin-bottom: 20px;" id="DEMANDEUR">
         <div class="col-sm-3" style='float:left;'>Demandeur</div>
             <div class="col-sm-9">
@@ -32,7 +32,7 @@
     </li>
     {% endif %}
 
-    {% if dateMairie is not null  %}
+    {% if dateMairie is not null and idType in [1, 5] and natureId not in [10, 11, 16]  %}
     <li class="row" style="margin-bottom: 20px;"  id="DATEMAIRIE">
         <div class="col-sm-3" style='float:left;'>Date réception mairie</div>
         <div class="col-sm-9">
@@ -41,7 +41,7 @@
     </li>
     {% endif %}
 
-    {% if dateSDIS is not null  %}
+    {% if dateSDIS is not null and idType in [1, 5]   %}
     <li class="row" style="margin-bottom: 20px;"  id="DATESDIS">
         <div class="col-sm-3" style='float:left;'>Date de réception SDIS</div>
         <div class="col-sm-9">
@@ -60,11 +60,11 @@
     </li>
     {% endif %}
 
-    {% if  dateCommission is not null and horsDelai == 0 and idType in [1, 3] and natureId not in [10,27] %}
+    {% if  dateCommission is not null and not horsDelai and idType in [1, 3] and natureId not in [10,27] %}
     <li class="row" style="margin-bottom: 20px;" id="DATECOMM">
         <div class="col-sm-3" style='float:left;'>Date de commission en salle</div>
         <div class="col-sm-9">
-            {{dateCommission|format_date('full', locale='fr')}}
+            {{dateCommission}}
             {% if dateCommissionDossier != "" %}
                 &nbsp;&nbsp;
                 <a href="/calendrier-des-commissions/gestionodj/dateCommId/{{ dateCommissionDossier }}" title="Afficher ordre du jour">
@@ -125,7 +125,7 @@
     <li class="row" style="margin-bottom: 20px;"  id="ECHEANCIERTRAV">
         <div class="col-sm-3" style='float:left;'>Echéancier de travaux / Schéma de mise en sécurité</div>
         <div class="col-sm-9">
-            {{ echeancierTravaux }}
+            {{ echeancierTravaux|format_date('full', locale='fr') }}
         </div>
     </li>
     {% endif %}
@@ -155,7 +155,7 @@
     </li>
     {% endif %}
 
-    {% if avisDossierCommission is not null and avisDossierCommission.id != 0 and affichageAvis == 0 %}
+    {% if (avisDossierCommission is not null and avisDossierCommission.id != 0) and affichageAvis == 0 and (natureId not in [22, 64, 27] and idType in [1, 2, 3]) %}
     <li class="row" style="margin-bottom: 20px;"  id="AVIS_COMMISSION">
         <div class="col-sm-3" style='float:left;'>Avis de la commission</div>
         <div class="col-sm-9">
@@ -164,7 +164,7 @@
     </li>
     {% endif %}
 
-    {% if anomalie is not null %}
+    {% if anomalie is not empty %}
     <li class="row" style="margin-bottom: 20px;" id="ANOMALIE">
         <div class="col-sm-3" style='float:left;'>Analyse de risque</div>
         <div class="col-sm-9">
@@ -182,7 +182,7 @@
     </li>
     {% endif %}
 
-    {% if dateReponse is not null %}
+    {% if dateReponse is not null and natureId != 7 %}
     <li class="row" style="margin-bottom: 20px;"  id="DATEREP">
         <div class="col-sm-3" style='float:left;'>Date de réponse</div>
         <div class="col-sm-9">
