@@ -76,7 +76,6 @@
         <div class="col-sm-9">
             <div id="dossierIncomplet">
                 {% set cptDocManquant = dossierDocManquant|length %}
-
                 {% for ue in dossierDocManquant %}
                     {% set cptDocManquant = cptDocManquant - 1 %}
                     {% set dateDocManquant = ue.dateDocsManquant is not empty ? ue.dateDocsManquant|date('d/m/Y') : '' %}
@@ -101,27 +100,51 @@
                             {{ ue.docManquant|trim }}
                         </textarea>
 
-                        Document(s) réceptionné(s) le
-                        <input type="text" name="dateReceptionDocManquant[]" id="dateReceptionDocManquant_{{ ue.numDocsManquant }}"
-                            value="{{ dateReceptionDoc }}"
-                            {{ readonlyInput }}
-                            style="margin-top: 10px;"
-                        />
+                        <div class="form-inline" style="margin-bottom: 10px;">
+                            <label>Document(s) réceptionné(s) le</label>
+    
+                            <div class="input-group" style="margin-top: 10px;">
+                                <input 
+                                    class="date form-control" 
+                                    type="text" 
+                                    name="dateReceptionDocManquant[]" 
+                                    id="dateReceptionDocManquant_{{ ue.numDocsManquant }}" 
+                                    value="{{ dateReceptionDoc }}"
+                                    {{ readonlyInput }}
+                                        readonly
+                                    style="pointer-events: none; background-color: #eee;"
+                                />
+                                <span class="input-group-btn">
+                                    <button 
+                                        type="button" 
+                                        class="today btn btn-default"
+                                        style="{{ ue.dateReceptionDoc is not empty ? 'display:none;' : '' }}"
+                                    >
+                                        <em class="glyphicon glyphicon-calendar"></em>&nbsp;Aujourd'hui
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
 
-                        <button class="today btn" type="button" style="{{ ue.dateReceptionDoc is not empty ? 'display:none;' : '' }}">
-                            <i class="glyphicon glyphicon-calendar"></i> Aujourd'hui
+                    <button 
+                        type="button" 
+                        class="btn btn-success validDocManquant"
+                        style="{{ ue.dateReceptionDoc is not empty ? 'display:none;' : '' }}"
+                    >
+                        <em class="glyphicon glyphicon-lock"></em>&nbsp;Valider la réception de document
+                    </button>
+
+                    <span 
+                        style="{{ (ue.dateReceptionDoc is empty or cptDocManquant != 0) ? 'display:none;' : '' }}"
+                    >
+                        <button 
+                            type="button" 
+                            class=" cancelDateRecep btn"
+                        >
+                            <i class="glyphicon glyphicon-remove"></i>&nbsp;Modifier
                         </button>
+                    </span>
 
-                        <button class="btn validDocManquant" type="button" style="{{ ue.dateReceptionDoc is not empty ? 'display:none;' : '' }}">
-                            <i class="glyphicon glyphicon-lock"></i> Valider la réception de document
-                        </button>
-
-                        <span style="{{ (ue.dateReceptionDoc is empty or cptDocManquant != 0) ? 'display:none;' : '' }}">
-                            <button class="cancelDateRecep btn" type="button">
-                                <i class="glyphicon glyphicon-remove"></i> Modifier
-                            </button>
-                        </span>
-                    </div>
                 {% endfor %}
             </div>
 
@@ -157,7 +180,7 @@
     </li>
 {% endif %}
 
-{% if natureId != 19 %}
+{% if natureId != 19 and not etatDossier %}
     <li class="row" style="margin-bottom: 20px;" id="HORSDELAI">
         <div class="col-sm-3" style='float:left;'>Hors délai</div>
         <div class="col-sm-9">
@@ -301,18 +324,31 @@
             updateDocurbaLabel();
         });
 
-         $(".cancelDateRecep").on('click', function() {
-                $(this).parent().prev().prev().prev().removeAttr('readonly').addClass('date');
-                $(this).parent().hide();
-                $(this).parent().prev().show();
-                $(this).parent().prev().prev().prev().prev().removeAttr('readonly');
-                $(".incomplet").addClass('hideavis');
-                $(".incomplet").val(['1']);
-                $("#inputComplet").hide();
-                afficherCacherAvis(0);
-                return false;
-            });
+        $(document).on("click", ".cancelDateRecep", function () {
+            const $btn = $(this);
 
+            const $container = $btn.closest("div"); 
+            const $input = $container.find('input[name="dateReceptionDocManquant[]"]');
+
+            $input.prop("readonly", false)
+                .css({
+                    "pointer-events": "auto",
+                    "background-color": "#fff"
+                })
+                .focus();
+
+            // Afficher le bouton Valider 
+            $btn.parent().prevAll(".validDocManquant:first").show();
+
+            $(".incomplet").addClass("hideavis").val(['1']);
+            $("#inputComplet").hide();
+
+            if (typeof afficherCacherAvis === 'function') {
+                afficherCacherAvis(0);
+            }
+
+            return false;
+        });
 
         $(document).on('click', "input[name=servInst]:radio", function() {
             if ($(this).val() == 'servInstCommune') {
@@ -361,7 +397,6 @@
             if ($(this).val() == 1) {
                 $(this).addClass('hideavis');
                 afficherCacherAvis();
-
                 $("#HORSDELAI").hide();
                 $("#inputComplet").hide();
 
@@ -374,6 +409,12 @@
                     beforeSend: function() {},
                     success: function(msg) {
                         $("#dossierIncomplet").append(msg);
+                         
+                        $("#dossierIncomplet").find('input.date').datepicker({
+                            dateFormat: 'dd/mm/yy'
+                        });
+                            $("#inputComplet").appendTo("#dossierIncomplet");
+
                     }
                 });
             } else {
@@ -382,5 +423,31 @@
             }
         });
     });
+
+    $("#addNumDoc").on('click', function() {
+        
+        const num = $("#NUM_DOCURBA").val().trim();
+        const prefix = $("#docurbaVal").text().trim(); 
+
+        if (num !== '') {
+            const fullNum = prefix + num;
+
+            $("#listeDocUrba").append(
+                "<div class='docurba'>" +
+                    "<input type='hidden' name='docUrba[]' value='" + fullNum + "'/>" +
+                    fullNum +
+                    " <a href='' class='suppDocUrba'>&times;</a>" +
+                "</div>"
+            );
+            $("#NUM_DOCURBA").val('');
+        }
+        return false;
+    });
+
+    $(document).on('click', '.suppDocUrba', function(e) {
+        e.preventDefault();
+        $(this).closest('.docurba').remove();
+    });
+
 </script>
 {% endblock %}
