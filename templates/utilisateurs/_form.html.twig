@@ -191,7 +191,7 @@
 
     <div class='pull-right'>
         <a class='btn btn-default' href="{{ path('admin_utilisateurs_index') }}">Annuler la modification</a>
-        <input type='submit' class="btn btn-success" value="Modifier l'utilisateur">
+        <input type='submit' class="btn btn-success" value="{{ userId is defined ? "Modifier l'utilisateur" : "Ajouter l'utilisateur" }}">
     </div>
 {{ form_end(form) }}
 
