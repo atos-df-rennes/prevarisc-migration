@@ -6,15 +6,22 @@ class UtilsDate
 {
     public function formatDateWithDayName(\DateTimeInterface $date): string
     {
-        if(!$date){  }
-            $jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-            $jour = $jours[(int)$date->format('w')];
-            return $jour . ' ' . $date->format('d/m/Y');
+
+        $formatter = new \IntlDateFormatter(
+            'fr_FR',
+            \IntlDateFormatter::FULL,      
+            \IntlDateFormatter::NONE,     
+            $date->getTimezone()->getName(),
+            \IntlDateFormatter::GREGORIAN,
+             "EEEE d MMM yyyy"            
+        );
+
+        return $formatter->format($date);
             
     }
 
-    public function convertFromMySQL(\DateTimeInterface $date): string
+    public function convertFromMySQL(\DateTimeInterface $date): string 
     {
-        return $date->format('Y-m-d');
+        return $date->format('d/m/Y');
     }
 }
