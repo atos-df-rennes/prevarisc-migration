@@ -9,6 +9,7 @@
     Les variables sont settées par un EventSubscriber.
     @see src/EventSubscriber/LateralNavigationSubscriber.php
 #}
+{% set parents_etablissement = app.request.attributes.get('parents_etablissement')|default([]) %}
 {% set libelle_descriptif = app.request.attributes.get('libelle_descriptif')|default('Descriptif') %}
 {% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
 {% set has_avis_derogations = app.request.attributes.get('has_avis_derogations') ?? false %}
@@ -95,8 +96,17 @@
 
 {% block body_structure %}
     <div id="ligne_informations">
-        {# @todo: Mettre le header avec l'établissement parent + avis #}
+        {# @todo: Mettre le header avec l'avis #}
         <h2 class='page-header'>
+            {% if not parents_etablissement is empty %}
+                {% for parent in parents_etablissement %}
+                    {# @todo: Faire la popup au survol du lien #}
+                    <a href="{{ '/etablissement/index/id/' ~ parent.id }}">
+                        {{ parent.informations.last.libelle }}
+                    </a> -
+                {% endfor %}
+            {% endif %}
+
             {% if icone_type_etablissement_exists(etablissement.informations|last.type.libelle) %}
                 <img
                     src="{{ asset('images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png') }}"

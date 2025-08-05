@@ -48,6 +48,9 @@ class EtablissementRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return Etablissement[]
+     */
     public function findDeleted(): array
     {
         $queryBuilder = $this->createQueryBuilder('e');

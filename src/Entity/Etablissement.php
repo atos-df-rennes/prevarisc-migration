@@ -69,10 +69,37 @@ class Etablissement
      */
     private $numero;
 
+    /**
+     * @var Collection<int, Etablissement>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Etablissement::class, inversedBy="parents")
+     */
+    private $fils;
+
+    /**
+     * @var Collection<int, Etablissement>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
+     * )
+     * @ORM\ManyToMany(targetEntity=Etablissement::class, mappedBy="fils")
+     */
+    private $parents;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
         $this->adresses = new ArrayCollection();
+        $this->fils = new ArrayCollection();
+        $this->parents = new ArrayCollection();
     }
 
     public function getId(): int
@@ -195,6 +222,66 @@ class Etablissement
     public function setNumero(?string $numero): self
     {
         $this->numero = $numero;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFils(): Collection
+    {
+        return $this->fils;
+    }
+
+    public function addFils(self $fils): self
+    {
+        if (!$this->fils->contains($fils)) {
+            $this->fils[] = $fils;
+        }
+
+        return $this;
+    }
+
+    public function removeFils(self $fils): self
+    {
+        $this->fils->removeElement($fils);
+
+        return $this;
+    }
+
+    /**
+     * Le schéma de base de données exige un ManyToMany alors qu'on ne peut avoir qu'un seul parent.
+     * Cette méthode renvoie donc le 1er élément de la Collection ou null s'il n'y a pas de parent.
+     */
+    public function getParent(): ?Etablissement
+    {
+        return $this->parents->first() ?: null;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getParents(): Collection
+    {
+        return $this->parents;
+    }
+
+    public function addParent(self $parent): self
+    {
+        if (!$this->parents->contains($parent)) {
+            $this->parents[] = $parent;
+            $parent->addFils($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParent(self $parent): self
+    {
+        if ($this->parents->removeElement($parent)) {
+            $parent->removeFils($this);
+        }
 
         return $this;
     }
