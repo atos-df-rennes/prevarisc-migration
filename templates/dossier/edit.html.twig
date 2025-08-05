@@ -3,63 +3,65 @@
 {% block title %}Dossier / Édition{% endblock %} 
 
 {% block body %}
-    <div>
-        <div class='pull-right'>
-            <div class="btn-group">
-                <a class="btn btn-primary" href="{{ path('dossier_index', {'id': idDossier}) }}">Annuler la modification</a>  {# A voir mettre un id de button pour le javascript #}
-                <button id='validModification' type='submit' class="btn btn-success" >Sauvegarder</button>
-            </div>
-        </div>
+    <form id="editDossier" method="POST">
         <div>
-            <input type='hidden' name='idDossier' id='idDossier' value='{{idDossier}}' />
-            <input type='hidden' name='genreInfo' id='genreInfo' value='{{genre}}' />
-            <input type="hidden" id="dateToday" value="{{ "now"|date("d/m/Y") }}">
+            <div class='pull-right'>
+                <div class="btn-group">
+                    <a class="btn btn-primary" href="{{ path('dossier_index', {'id': idDossier}) }}">Annuler la modification</a>  {# A voir mettre un id de button pour le javascript #}
+                    <button id='validModification' type='submit' class="btn btn-success" >Sauvegarder</button>
+                </div>
+            </div>
+            <div>
+                <input type='hidden' name='idDossier' id='idDossier' value='{{idDossier}}' />
+                <input type='hidden' name='genreInfo' id='genreInfo' value='{{genre}}' />
+                <input type="hidden" id="dateToday" value="{{ "now"|date("d/m/Y") }}">
 
 
-            <h3 class="text-bold">Informations générales</h3>
-            {% if platauConsultation is not null and platauConsultation.id is not null %}
-                {% include 'dossier/_platau_infos.html.twig' %}
-            {% endif %}
-            <h4 class="text-bold h4_subtitle">Type et nature du dossier</h4>
-            <ul class="list-unstyled">
-                <li class="row" style="margin-bottom: 20px;" id="type">
-                    <div class="col-sm-3" style="float: left;">Type</div>
-                    <div class="col-sm-3">
-                        <select name="TYPE_DOSSIER" id="TYPE_DOSSIER"  class="form-control">
-                            <option value="0">Sélectionnez un type</option>
-                            {% for value in typesDossier %}
-                                <option value="{{ value.id}}"
-                                    {% if dossierType.id == value.id %}selected{% endif %}>
-                                    {{ value.libelle }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </li>
-                <li class="row" style="margin-bottom: 20px;" id="nature">
-                    <div class="col-sm-3 libelle">Nature</div>
-                    <div class="col-sm-3 form">
-                        <select name="selectNature" id="selectNature" class="form-control">
-                            <option value="0">Sélectionnez une nature</option>
+                <h3 class="text-bold">Informations générales</h3>
+                {% if platauConsultation is not null and platauConsultation.id is not null %}
+                    {% include 'dossier/_platau_infos.html.twig' %}
+                {% endif %}
+                <h4 class="text-bold h4_subtitle">Type et nature du dossier</h4>
+                <ul class="list-unstyled">
+                    <li class="row" style="margin-bottom: 20px;" id="type">
+                        <div class="col-sm-3" style="float: left;">Type</div>
+                        <div class="col-sm-3">
+                            <select name="TYPE_DOSSIER" id="TYPE_DOSSIER"  class="form-control">
+                                <option value="0">Sélectionnez un type</option>
+                                {% for value in typesDossier %}
+                                    <option value="{{ value.id}}"
+                                        {% if dossierType.id == value.id %}selected{% endif %}>
+                                        {{ value.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </li>
+                    <li class="row" style="margin-bottom: 20px;" id="nature">
+                        <div class="col-sm-3 libelle">Nature</div>
+                        <div class="col-sm-3 form">
+                            <select name="selectNature" id="selectNature" class="form-control">
+                                <option value="0">Sélectionnez une nature</option>
 
-                            {% for nature in dossierNatureListe %}
-                                <option value="{{ nature.id }}"
-                                    {% if nature.id == dossierNature.id %}selected{% endif %}>
-                                    {{ nature.libelle }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div id="loading" class="col-sm-1" style="display: none;">
-                        <img src="/images/load.gif" alt="loading">
-                    </div>
-                </li>
-            </ul>
-            {% include 'dossier/_infos_dossier_edit.html.twig' %}
+                                {% for nature in dossierNatureListe %}
+                                    <option value="{{ nature.id }}"
+                                        {% if nature.id == dossierNature.id %}selected{% endif %}>
+                                        {{ nature.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div id="loading" class="col-sm-1" style="display: none;">
+                            <img src="/images/load.gif" alt="loading">
+                        </div>
+                    </li>
+                </ul>
+                {% include 'dossier/_infos_dossier_edit.html.twig' %}
+            </div>
+
         </div>
 
-    </div>
-
+    </form>
 
 {% endblock %}
 {% block javascripts %}
@@ -129,7 +131,7 @@
 
         function afficheInfosPlatau(parentRow) {
             $.ajax({
-                url: Routing.generate('display_pj_platau'), // Symfony route
+                url: Routing.generate('display_pj_platau'), 
                 method: 'POST',
                 data: {
                     idDossier: $('#idDossier').val()
@@ -249,7 +251,7 @@
             showCalendar();
             majAvisSelect();
 
-            //Fonction qui retourne la liste des natures sélectionnées ((((Attention ??))))
+            //Fonction qui retourne la liste des natures sélectionnées 
             $.fn.recupNatures = function() {
                 var listeIdNature = "";
                 var compteur = 1;
@@ -266,7 +268,7 @@
                 return listeIdNature;
             };
 
-            //Cache les natures de la liste          ((((Attention ??))))
+            //Cache les natures de la liste          
             $.fn.cacherNatureDuSelect = function(listeNatures) {
                 //Dans le cas d'une édition on cache dans le select des natures ceux qui sont déjà présentes
                 var tabNature = listeNatures.split('_');
@@ -278,87 +280,8 @@
                 }
             };
 
-/*
-            //Affichage des champs en fonction des natures
-            /*$.fn.afficheChamps = function(listeNature) {
-                $("#InfosDossier > li").hide();
-                $.ajax({
-                    url: "/dossier/showchamps",
-                    data: "listeNature=" + listeNature,
-                    type: "POST",
-                    beforeSend: function() {
-                        $('#loading').show();
-                    },
-                    success: function(affichageResultat) {
-                        //On affiche tous les champs
-                        if (affichageResultat != '') {
-                            var rez = eval("(" + affichageResultat + ")");
-                            for (var i in rez) {
-                                $("#InfosDossier > #" + rez[i]).show();
-                                $("#type > .value").hide();
-                                $("#type > .form").show();
-                            }
-                        }
-
-                        var incomplet = $("input[name=INCOMPLET_DOSSIER]:checked").val();
-                        var horsdelai = $(".horsdelai").is(':checked');
-                        var absquorum = $(".absquorum").is(':checked');
-                        var differeavis = $(".differeavis").is(':checked');
-                        var npsp = $(".npsp").is(':checked');
-                        console.log(incomplet);
-                        if (incomplet == 1) {
-                            $("#AVIS").hide();
-                            $("#AVIS_COMMISSION").hide();
-                            $("#HORSDELAI").hide();
-                            $("#DATECOMM").hide();
-                        } else if (horsdelai) {
-                            $("#AVIS").hide();
-                            $("#AVIS_COMMISSION").hide();
-                            $("#DATECOMM").hide();
-                        } else if (absquorum || npsp) {
-                            $("#AVIS_COMMISSION").hide();
-                            $("#DATECOMM").hide();
-                        }
-                        if (type == 2 || type == 3) {
-                            if ($("#AVIS_DOSSIER_COMMISSION").val() == 2) {
-                                $("#FACTDANGE").show();
-                                $("#ECHEANCIERTRAV").show();
-                            }
-                            $("#ANOMALIE").show();
-                        } else if (type == 1) {
-                            if ($("#selectNature").val() == 19 && $("#AVIS_DOSSIER_COMMISSION").val() == 2) {
-                                $("#FACTDANGE").show();
-                            }
-                            $("#ANOMALIE").show();
-                        }
-
-                        var listeDoc = {
-                            1: "PC",
-                            2: "AT",
-                            14: "PA",
-                            30: "DP",
-                            62: "CU"
-                        };
-                        if (listeDoc[$("#selectNature").val()]) {
-                            $("#docurbaVal").html('');
-                            var docurbaVal = listeDoc[$("#selectNature").val()];
-
-                            $("#docurbaVal").prepend(docurbaVal);
-                        } else {
-                            $("#docurbaVal").html('');
-                        }
-                        $("#chargement").html('');
-
-                        $('#loading').hide();
-                    },
-                    error: function() {
-                        return false;
-                    }
-                });
-            };
-*/
-           $(".cancelIncomplet").on('click', function() {
-                $(this).parent().remove();
+            $(document).on('click', '.cancelIncomplet', function() {
+                $(this).closest('div[id^="infosIncomplet_"]').remove();
                 $("#inputComplet").show();
                 $(".incomplet").val(['0']);
                 $(".incomplet").removeClass('hideavis');
@@ -370,18 +293,68 @@
                 afficherCacherAvis();
             });
 
-            //Selection d'une nature et affichage des champs en fonction de la ou des natures
-            $(document).on('change', '#selectNature', function() {
-                var idNature = $(this).val();
-                $(".docurba").remove();
-                if (idNature != 0) {
-                    var listeNature = $("#listeNature").recupNatures();
-                //    $("#InfosDossier").afficheChamps(idNature);
+                        
+            $(document).on('change', '#selectNature', function () {
+                console.log("hello");
+                const natureId = $(this).val();
+                const idDossier = $('#idDossier').val();
+
+                $('#loading').show();
+
+                $.get(`/dossier/edit/${idDossier}/nature/${natureId}`, function (html) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newInfos = doc.querySelector('#InfosDossier');
+
+                    if (newInfos) {
+                        $('#InfosDossier').html(newInfos.innerHTML);
+                        $(document).trigger('refresh-autocomplete');
+                        gestionCalendrier("showCommission", "hideCommission", "calendarCommission", "month_comm", "year_comm");
+                        gestionCalendrier("showVisite", "hideVisite", "calendarVisiteAffichage", "month_visite", "year_visite");
+
+                    }
+                
+                    $('#loading').hide();
+
+                    $(".docurba").remove();
                     $("#selectNature option[value='0']").remove();
                     majAvisSelect();
-                }
+                    const type = $("#TYPE_DOSSIER").val();
+                    const avis = $("#AVIS_DOSSIER_COMMISSION").val();
+                    const nature = $("#selectNature").val();
+
+                    var incomplet = $("input[name=INCOMPLET_DOSSIER]:checked").val();   
+                    var horsdelai = $(".horsdelai").is(':checked');
+                    var absquorum = $(".absquorum").is(':checked');
+                    var differeavis = $(".differeavis").is(':checked');
+                    var npsp = $(".npsp").is(':checked');
+                    if (incomplet == 1) {
+                        $("#AVIS").hide();
+                        $("#AVIS_COMMISSION").hide();
+                        $("#HORSDELAI").hide();
+                        $("#DATECOMM").hide();
+                    } else if (horsdelai) {
+                        $("#AVIS").hide();
+                        $("#AVIS_COMMISSION").hide();
+                        $("#DATECOMM").hide();
+                    } else if (absquorum || npsp) {
+                        $("#AVIS_COMMISSION").hide();
+                        $("#DATECOMM").hide();
+                    }
+                    if (type == 2 || type == 3) {
+                        if (avis == 2) {
+                            $("#FACTDANGE").show();
+                            $("#ECHEANCIERTRAV").show();
+                        }
+                    } else if (type == 1) {
+                        if (nature == 19 && avis == 2) {
+                            $("#FACTDANGE").show();
+                        }
+                    }
+
+                });
             });
-                const idType = $(this).val();
+
 
 
             // Gestion du changement de type de dossier
@@ -466,8 +439,6 @@
                     $("#listeNature").gestionSuppNature();
                 }
 
-            //    $("#InfosDossier").afficheChamps($("#selectNature").val());
-
                 // Gestion des cas calendrier commission / visite en fonction du type de dossier
                 $(".hideCalendar").hide();
 
@@ -515,6 +486,39 @@
                 return false;
             });
 
+            $(".validateDocManquant").live('click', function () {
+                var valeur = $(this)
+                    .closest('[id^="infosIncomplet_"]')
+                    .find('input[name="dateReceptionDocManquant[]"]')
+                    .val();
+                if (valeur === '') {
+                    $(this)
+                        .closest('[id^="infosIncomplet_"]')
+                        .find('.today')
+                        .last()
+                        .click();
+
+                    $(this).click();
+                    return false;
+                } else {
+                    var $container = $(this).closest('[id^="infosIncomplet_"]');
+
+                    $container.find('input[name="dateReceptionDocManquant[]"]').removeClass('date').attr('readonly', 'readonly');
+                    $container.find('input[name="dateDocManquant[]"]').removeClass('date').attr('readonly', 'readonly');
+                    $container.find('textarea.docManquant').attr('readonly', 'readonly');
+
+                    $(this).hide();
+
+
+                    $(".incomplet").removeClass('hideavis');
+                    afficherCacherAvis();
+                    $(".incomplet").val(['0']);
+                    $("#inputComplet").show();
+                }
+
+                return false;
+            });
+
 
             $(".validDocManquant").live('click', function() {
                 if ($(this).prev().prev().val() == '') {
@@ -526,7 +530,11 @@
                     $(this).prev().prev().prev().prev().prev().removeClass('date').attr('readonly', 'readonly');
                     $(this).prev().prev().prev().attr('readonly', 'readonly');
                     $(this).hide();
-                    $(this).next().show();
+                    /*$(this)
+                        .closest('[id^="infosIncomplet_"]')
+                        .find('.cancelDateRecep')
+                        .closest('span')
+                        .hide();*/                   
                     $(".incomplet").removeClass('hideavis');
                     afficherCacherAvis();
                     $(".incomplet").val(['0']);
