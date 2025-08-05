@@ -26,17 +26,17 @@
     <div class="col-sm-9">
         <div class="form-inline">
             <input type="text" class="form-control"  name="DATEVISITE_DOSSIER" id="DATEVISITE_INPUT"
-                value="{{ dateVisiteInput ? dateVisiteInput|date('d/m/Y') : '' }}" readonly="readonly" />
+                value="{{ dateVisite ? dateVisite|date('d/m/Y') : '' }}" readonly="readonly" />
 
             <input type="hidden" name="ID_AFFECTATION_DOSSIER_VISITE" id="ID_AFFECTATION_DOSSIER_VISITE"
                 value="{{ idDateVisiteAffect is not null ? idDateVisiteAffect : '' }}" />
 
-            <button id="showVisite" class="btn btn-default showCalendar"
+            <button id="showVisite" type="button" class="btn btn-default showCalendar"
                 {% if commissionInfos is not null and commissionInfos.id is empty %} style="display: none;"{% endif %}>
                 <i class="glyphicon glyphicon-chevron-down" aria-hidden="true"></i>&nbsp;Afficher le calendrier
             </button>
 
-            <button id="hideVisite" class="btn btn-default hideCalendar" style="display: none;">
+            <button id="hideVisite" type="button" class="btn btn-default hideCalendar" style="display: none;">
                 <i class="glyphicon glyphicon-chevron-up" aria-hidden="true"></i>&nbsp;Cacher le calendrier
             </button>
 

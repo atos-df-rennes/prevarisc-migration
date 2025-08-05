@@ -22,7 +22,7 @@
     </li>
     {% endif %}
 
-    {% if serviceInstructeur is not empty and serviceInstructeur != '0'  %}
+    {% if serviceInstructeur is not empty and serviceInstructeur != '0' and natureId in [1, 2, 3, 14, 30, 61, 62, 63]  %}
     <li class="row" style="margin-bottom: 20px;" id="SERVICEINSTRUC">
         <div class="col-sm-3" style='float:left;'>Service instructeur</div>
         <div class="col-sm-9">
