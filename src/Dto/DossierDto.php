@@ -78,7 +78,7 @@ final class DossierDto
     /** @var bool|null */
     private $celluleNonExploitée; 
 
-    /** @var bool|null */
+    /** @var int|null */
     private $facteurDanger;
 
     /** @var DateTimeInterface|null */
@@ -206,7 +206,7 @@ final class DossierDto
         ?string $demandeur, ?string $lieuReunion, ?string $serviceInstructeur, ?string $descriptifAnalyseRisque,
         ?string $reglesADeroger, ?string $justificatifDerogation, ?string $mesuresCompensatoires, ?string $mesuresComplementaires,
         ?string $etatDossier, ?bool $horsDelai , ?string $differeAvis, ?string $nonPrononce, ?bool $absenceQuorum,
-        ?bool $celluleNonExploitée, ?bool $facteurDanger, ?DateTimeInterface $echeancierTravaux, ?string $anomalie,
+        ?bool $celluleNonExploitée, ?int $facteurDanger, ?DateTimeInterface $echeancierTravaux, ?string $anomalie,
         ?bool $operationSDIS, ?bool $RCCI, ?bool $verrouDossier, ?string $REX, ?string $chargeSecurite,
         ?string $gravitePrescription, ?int $numIntervention, ?string $observations, ?DateTimeInterface $dateCreation,
         ?DateTimeInterface $dateReunion, ?DateTimeInterface $dateMairie, ?DateTimeInterface $dateSuppression,
@@ -452,7 +452,7 @@ final class DossierDto
         return $this->celluleNonExploitée;
     }
 
-    public function facteurDanger(): ?bool
+    public function facteurDanger(): ?int
     {
         return $this->facteurDanger;
     }

@@ -313,9 +313,9 @@ class Dossier
     private $celluleNonExploitée;
 
     /**
-     * @var ?bool
+     * @var ?int
      * 
-     * @ORM\Column(name="FACTDANGE_DOSSIER", type="boolean", nullable=true)
+     * @ORM\Column(name="FACTDANGE_DOSSIER", type="smallint", nullable=true)
      */
     private $facteurDanger;
 
@@ -976,12 +976,12 @@ class Dossier
        return $this;
    }
 
-   public function getFacteurDanger(): ?bool
+   public function getFacteurDanger(): ?int
    {
        return $this->facteurDanger;
    }
 
-   public function setFacteurDanger(?bool $facteurDanger): self
+   public function setFacteurDanger(?int $facteurDanger): self
    {
        $this->facteurDanger = $facteurDanger;
 
