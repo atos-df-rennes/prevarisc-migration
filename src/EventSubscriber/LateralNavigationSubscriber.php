@@ -3,6 +3,7 @@
 namespace App\EventSubscriber;
 
 use App\Controller\EtablissementController;
+use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -13,8 +14,15 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
     /** @var EtablissementRepository */
     private $etablissementRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository) {
+    /** @var CapsuleRubriqueRepository */
+    private $capsuleRubriqueRepository;
+
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        CapsuleRubriqueRepository $capsuleRubriqueRepository
+    ) {
         $this->etablissementRepository = $etablissementRepository;
+        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
     }
 
     public function onKernelController(ControllerEvent $event)
@@ -28,22 +36,24 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
         if ($controller instanceof EtablissementController) {
             $etablissement = $this->etablissementRepository->find($event->getRequest()->attributes->get('id'));
 
+            // Récupère récursivement le parent de l'établissement
+            $etablissementCourant = $etablissement;
             $parents = [];
             do {
-                $parent = $etablissement->getParent();
+                $parent = $etablissementCourant->getParent();
 
                 if ($parent !== null) {
                     $parents[] = $parent;
-                    $etablissement = $this->etablissementRepository->find($parent->getId());
+                    $etablissementCourant = $this->etablissementRepository->find($parent->getId());
                 }
             } while ($parent !== null);
             $parents = array_reverse($parents);
 
             $event->getRequest()->attributes->set('parents_etablissement', $parents);
 
-//            $event->getRequest()->attributes->set('libelle_descriptif', 'TEST');
-//            $event->getRequest()->attributes->set('libelle_effectifs_degagements', 'Effectifs');
-//            $event->getRequest()->attributes->set('has_avis_derogations', true);
+            $event->getRequest()->attributes->set('libelle_descriptif', $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement'])->getNom());
+            $event->getRequest()->attributes->set('libelle_effectifs_degagements', $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement'])->getNom());
+            $event->getRequest()->attributes->set('has_avis_derogations', $etablissement->hasAvisDeogations());
         }
     }
 

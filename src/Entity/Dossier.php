@@ -86,7 +86,7 @@ class Dossier
      *
      * @ORM\ManyToOne(targetEntity=Avis::class)
      *
-     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS")
+     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS", nullable=true)
      */
     private $avisCommission;
 
@@ -113,10 +113,18 @@ class Dossier
      */
     private $createur;
 
+    /**
+     * @var Collection<int, AvisDerogations>
+     *
+     * @ORM\OneToMany(targetEntity=AvisDerogations::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $avisDerogations;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
         $this->etablissements = new ArrayCollection();
+        $this->avisDerogations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -262,6 +270,36 @@ class Dossier
     public function setCreateur(?UtilisateurInformations $createur): self
     {
         $this->createur = $createur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AvisDerogations>
+     */
+    public function getAvisDerogations(): Collection
+    {
+        return $this->avisDerogations;
+    }
+
+    public function addAvisDerogation(AvisDerogations $avisDerogation): self
+    {
+        if (!$this->avisDerogations->contains($avisDerogation)) {
+            $this->avisDerogations[] = $avisDerogation;
+            $avisDerogation->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvisDerogation(AvisDerogations $avisDerogation): self
+    {
+        if ($this->avisDerogations->removeElement($avisDerogation)) {
+            // set the owning side to null (unless already changed)
+            if ($avisDerogation->getDossier() === $this) {
+                $avisDerogation->setDossier(null);
+            }
+        }
 
         return $this;
     }
