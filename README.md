@@ -53,6 +53,9 @@ PREVARISC_PATH=/chemin/absolu/vers/Prevarisc
 (Optionnel, si valeur différente de l'exemple : e.g. /var/www/html/prevarisc)
 ```
 
+> [!TIP]
+> Si l'un des paramètres de la variable DATABASE_URL contient des caractères spéciaux, ils doivent être encodés : + => %2B, @ => %40, $ => %24, # => %23, / => %2F, : => %3A, * => %2A, ! => %21
+
 3. Installez les dépendances :
 ```sh
 $ composer install --no-dev --classmap-authoritative
@@ -63,7 +66,7 @@ $ composer install --no-dev --classmap-authoritative
 $ composer dump-env prod
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > En cas de modification des variables d'environnement, cette commande est à rejouer à la suite pour que la nouvelle configuration soit prise en comtpe.
 
 5. Jouez les migrations pour avoir un schéma de base de données à jour :
