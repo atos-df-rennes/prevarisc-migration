@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/status-not--ready-red)
+![Static Badge](https://img.shields.io/badge/status-ready-dark--green)
 ![Static Badge](https://img.shields.io/badge/php-7.1-blue)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
 
@@ -53,18 +53,18 @@ PREVARISC_PATH=/chemin/absolu/vers/Prevarisc
 (Optionnel, si valeur différente de l'exemple : e.g. /var/www/html/prevarisc)
 ```
 
-3. Optimisez la lecture des configurations :
+3. Installez les dépendances :
+```sh
+$ composer install --no-dev --classmap-authoritative
+```
+
+4. Optimisez la lecture des configurations :
 ```sh
 $ composer dump-env prod
 ```
 
 > [!NOTE]
 > En cas de modification des variables d'environnement, cette commande est à rejouer à la suite pour que la nouvelle configuration soit prise en comtpe.
-
-4. Installez les dépendances :
-```sh
-$ composer install --prefer-source --no-dev --optimize-autoloader
-```
 
 5. Jouez les migrations pour avoir un schéma de base de données à jour :
 ```sh
