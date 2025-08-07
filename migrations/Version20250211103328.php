@@ -164,7 +164,7 @@ final class Version20250211103328 extends AbstractMigration
 
         $this->addSql('CREATE TABLE groupe (ID_GROUPE BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, LIBELLE_GROUPE VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, DESC_GROUPE TEXT CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(ID_GROUPE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
-        $this->addSql('CREATE TABLE groupe-privileges (id_privilege BIGINT UNSIGNED NOT NULL, ID_GROUPE BIGINT UNSIGNED NOT NULL, INDEX `fk_groupe-privileges_privileges1_idx` (id_privilege), INDEX `fk_groupe-privileges_groupe1_idx` (ID_GROUPE), PRIMARY KEY(ID_GROUPE, id_privilege)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
+        $this->addSql('CREATE TABLE `groupe-privileges` (id_privilege BIGINT UNSIGNED NOT NULL, ID_GROUPE BIGINT UNSIGNED NOT NULL, INDEX `fk_groupe-privileges_privileges1_idx` (id_privilege), INDEX `fk_groupe-privileges_groupe1_idx` (ID_GROUPE), PRIMARY KEY(ID_GROUPE, id_privilege)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
         $this->addSql('CREATE TABLE groupement (ID_GROUPEMENT BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, LIBELLE_GROUPEMENT VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, ID_UTILISATEURINFORMATIONS BIGINT DEFAULT NULL, ID_GROUPEMENTTYPE BIGINT UNSIGNED NOT NULL, INDEX fk_groupement_groupementtype1_idx (ID_GROUPEMENTTYPE), INDEX ID_UTILISATEURINFORMATIONS (ID_UTILISATEURINFORMATIONS), PRIMARY KEY(ID_GROUPEMENT)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
@@ -2720,7 +2720,7 @@ final class Version20250211103328 extends AbstractMigration
 
         $this->addSql('DROP TABLE groupe');
 
-        $this->addSql('DROP TABLE groupe-privileges');
+        $this->addSql('DROP TABLE `groupe-privileges`');
 
         $this->addSql('DROP TABLE groupement');
 
