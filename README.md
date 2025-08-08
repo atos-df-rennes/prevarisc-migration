@@ -74,6 +74,9 @@ $ composer dump-env prod
 $ php bin/console doctrine:migrations:migrate
 ```
 
+> [!IMPORTANT]
+> Pour exécuter les commandes de migration, l'utilisateur de base de données utilisé doit disposer des droits suivants : CREATE, DROP, ALTER, INDEX, CREATE VIEW, SELECT, INSERT, UPDATE, DELETE.
+
 6. Appliquez les permissions nécessaires :
 ```sh
 $ chown –R www-data:www-data *
