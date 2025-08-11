@@ -14,24 +14,28 @@ final class Version20250219143031 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Renforcement de la sécurité.';
+        return 'Notification de nouveaux éléments.';
     }
 
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->skipIf($schema->getTable('utilisateur')->hasColumn('FAILED_LOGIN_ATTEMPTS_UTILISATEUR'), 'Renforcement de la sécurité déjà existant.');
+        $this->skipIf($schema->getTable('dossier')->hasColumn('DATE_NOTIFICATION'), 'Notification de nouveaux éléments déjà existante.');
 
-        $this->addSql('ALTER TABLE `utilisateur` ADD `FAILED_LOGIN_ATTEMPTS_UTILISATEUR` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `ACTIF_UTILISATEUR`');
-        $this->addSql('ALTER TABLE `utilisateur` ADD `IP_UTILISATEUR` VARCHAR(45) DEFAULT NULL AFTER `FAILED_LOGIN_ATTEMPTS_UTILISATEUR`');
+        $this->addSql('ALTER TABLE `dossier` ADD COLUMN `DATE_NOTIFICATION` DATETIME NULL DEFAULT NULL');
+        $this->addSql('ALTER TABLE `piecejointe` ADD COLUMN `DATE_NOTIFICATION` DATETIME NULL DEFAULT NULL');
+        $this->addSql('ALTER TABLE `utilisateur` ADD COLUMN `DERNIERE_VISITE_DASHBOARD` DATETIME DEFAULT CURRENT_TIMESTAMP');
+        $this->addSql('ALTER TABLE `utilisateur` ADD COLUMN `DERNIERE_VISITE_PIECES_DOSSIER` DATETIME DEFAULT CURRENT_TIMESTAMP');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->skipIf(!$schema->getTable('utilisateur')->hasColumn('FAILED_LOGIN_ATTEMPTS_UTILISATEUR'), 'Renforcement de la sécurité non existant.');
+        $this->skipIf(!$schema->getTable('dossier')->hasColumn('DATE_NOTIFICATION'), 'Notification de nouveaux éléments non existante.');
 
-        $this->addSql('ALTER TABLE `utilisateur` DROP COLUMN `IP_UTILISATEUR`');
-        $this->addSql('ALTER TABLE `utilisateur` DROP COLUMN `FAILED_LOGIN_ATTEMPTS_UTILISATEUR`');
+        $this->addSql('ALTER TABLE `dossier` DROP COLUMN `DATE_NOTIFICATION`');
+        $this->addSql('ALTER TABLE `piecejointe` DROP COLUMN `DATE_NOTIFICATION`');
+        $this->addSql('ALTER TABLE `utilisateur` DROP COLUMN `DERNIERE_VISITE_DASHBOARD`');
+        $this->addSql('ALTER TABLE `utilisateur` DROP COLUMN `DERNIERE_VISITE_PIECES_DOSSIER`');
     }
 }
