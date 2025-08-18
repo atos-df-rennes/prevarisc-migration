@@ -3,16 +3,21 @@
 namespace App\Service;
 
 use App\Entity\Etablissement as EtablissementEntity;
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 
 final class Etablissement
 {
     /** @var EtablissementRepository */
-    private $repository;
+    private $etablissementRepository;
 
-    public function __construct(EtablissementRepository $repository)
+    /** @var DossierRepository */
+    private $dossierRepository;
+
+    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository)
     {
-        $this->repository = $repository;
+        $this->etablissementRepository = $etablissementRepository;
+        $this->dossierRepository = $dossierRepository;
     }
 
     /**
@@ -21,13 +26,13 @@ final class Etablissement
      */
     public function getHistorique(int $id): array
     {
-        $etablissmentInformationsData = $this->repository->getHistoriqueInformationsData($id);
-        $etablissementDossiersData = $this->repository->getHistoriqueDossiersData($id);
+        $etablissmentInformationsData = $this->etablissementRepository->getHistoriqueInformationsData($id);
+        $etablissementDossiersData = $this->dossierRepository->getHistoriqueDossiersData($id);
 
         $historiqueInformations = $this->getHistoriqueInformations($etablissmentInformationsData);
         $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
 
-        // TODO Le traitement des avis derogations sera traitée dans l'onglet concerné
+        // @todo: Le traitement des avis derogations sera traitée dans l'onglet concerné
         return array_merge($historiqueInformations, $historiqueDossiers);
     }
 
@@ -182,45 +187,48 @@ final class Etablissement
     }
 
     /**
-     * @param EtablissementEntity|null $etablissement
-     * @return mixed[]
+     * @param \App\Entity\Dossier[] $dossiers
      */
-    private function getHistoriqueDossiers(?EtablissementEntity $etablissement): array
+    private function getHistoriqueDossiers(array $dossiers): array
     {
+        if ([] === $dossiers) {
+            return [];
+        }
+
         $historique = [];
         $lastHistorique = [];
-        if (null != $etablissement) {
-            foreach ($etablissement->getDossiers() as $etablissementDossier) {
-                $avis = $etablissementDossier->getAvisCommission();
-                $date = null != $etablissementDossier->getDateCommission() ? strtotime($etablissementDossier->getDateCommission()) : (null != $etablissementDossier->getDateVisite() ? $etablissementDossier->getDateVisite()->getTimestamp() : '');
-                $auteur = $etablissementDossier->getCreateur();
-                $infosAuteur = '';
-                if (isset($auteur)) {
-                    $infosAuteur = [
-                        'id' => $auteur->getId(),
-                        'name' => $auteur->getNom().' '.$auteur->getPrenom(),
-                    ];
-                }
 
-                if ([] === $historique) {
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                    $historique['avis'][$date] = [
-                        'valeur' => isset($avis) ? $avis->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique = [
-                        'avis' => $avis,
-                        'date' => $date,
-                    ];
-                } elseif ($lastHistorique['avis'] !== $avis) {
-                    $historique['avis'][$lastHistorique['date']]['fin'] = $date;
-                    $historique['avis'][$date] = [
-                        'valeur' => isset($avis) ? $avis->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['avis'] = $avis;
-                    $lastHistorique['date'] = $date;
-                }
+        foreach ($dossiers as $dossier) {
+            $avis = $dossier->getAvisCommission();
+            $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : '');
+            $auteur = $dossier->getCreateur();
+            $infosAuteur = '';
+
+            if (null !== $auteur) {
+                $infosAuteur = [
+                    'id' => $auteur->getId(),
+                    'name' => $auteur->getNom().' '.$auteur->getPrenom(),
+                ];
+            }
+
+            if ([] === $historique) {
+                // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                $historique['avis'][$date] = [
+                    'valeur' => null !== $avis ? $avis->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $lastHistorique = [
+                    'avis' => $avis,
+                    'date' => $date,
+                ];
+            } elseif ($lastHistorique['avis'] !== $avis) {
+                $historique['avis'][$lastHistorique['date']]['fin'] = $date;
+                $historique['avis'][$date] = [
+                    'valeur' => null !== $avis ? $avis->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $lastHistorique['avis'] = $avis;
+                $lastHistorique['date'] = $date;
             }
         }
 
