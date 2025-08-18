@@ -53,7 +53,7 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
 
             $event->getRequest()->attributes->set('libelle_descriptif', $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement'])->getNom());
             $event->getRequest()->attributes->set('libelle_effectifs_degagements', $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement'])->getNom());
-            $event->getRequest()->attributes->set('has_avis_derogations', $etablissement->hasAvisDeogations());
+            $event->getRequest()->attributes->set('has_avis_derogations', $etablissement->hasAvisDerogations());
         }
     }
 

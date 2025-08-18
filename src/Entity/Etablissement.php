@@ -321,7 +321,7 @@ class Etablissement
         return $this;
     }
 
-    public function hasAvisDeogations(): bool
+    public function hasAvisDerogations(): bool
     {
         $dossiers = $this->getDossiers();
 
@@ -360,5 +360,22 @@ class Etablissement
         $this->risquesTechnologiques = $risquesTechnologiques;
 
         return $this;
+    }
+
+    public function hasEcheancierTravaux(): bool
+    {
+        $dossiers = $this->getDossiers();
+
+        $dossiersEcheancier = $dossiers->filter(function (Dossier $dossier) {
+            $nature = $dossier->getNature();
+
+            if (null === $nature) {
+                return false;
+            }
+
+            return $dossier->getNature()->getId() === DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX;
+        });
+
+        return !$dossiersEcheancier->isEmpty();
     }
 }

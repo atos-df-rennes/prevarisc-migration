@@ -98,7 +98,6 @@
 
 {% block body_structure %}
     <div id="ligne_informations">
-        {# @todo: Mettre le header avec l'avis #}
         <h2 class='page-header'>
             {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
@@ -149,8 +148,6 @@
         {% endif %}
         {# @todo: Avis indisponible #}
 
-        {# @todo: Échéancier #}
-        <!-- Présence de risques naturels ou technologiques-->
         {% if etablissement.risquesNaturels is not empty %}
             <p class='label label-warning'>
                 Présence de risques naturels
@@ -163,6 +160,12 @@
                 Présence de risques technologiques
             </p>
             <br/>
+        {% endif %}
+
+        {% if etablissement.hasEcheancierTravaux %}
+            <p class='label label-info'>
+                Présence d'un échéancier de travaux
+            </p>
         {% endif %}
 
         <span class="ml-3">Statut : {{ etablissement.informations|last.statut.libelle }}</span>
