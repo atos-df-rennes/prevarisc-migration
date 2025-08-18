@@ -127,26 +127,30 @@
             {% endif %}
         </h2>
 
-        {# @todo: Avis différé #}
-        {% if etablissement.dossierDonnantAvis.avisCommission.id in [1, 2] %}
-            {% set label_color = 'default' %}
-            {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
-                {% set label_color = 'success' %}
-            {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
-                {% set label_color = 'danger' %}
-            {% endif %}
-
-            <span class="{{ 'label label-' ~ label_color }}">
-                {{ etablissement.dossierDonnantAvis.avisCommission.libelle }}
-
-                {% if etablissement.informations|last.genre.id is not same as(3) %}
-                    à l'exploitation
-                {% endif %}
-            </span>
+        {% if etablissement.hasAvisDiffere %}
+            <p class='label label-info'>
+                Présence d'un dossier avec avis differé
+            </p>
         {% else %}
-            <span class="label label-default">Avis d'exploitation indisponible</span>
+            {% if etablissement.dossierDonnantAvis.avisCommission %}
+                {% set label_color = 'default' %}
+                {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
+                    {% set label_color = 'success' %}
+                {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                    {% set label_color = 'danger' %}
+                {% endif %}
+
+                <span class="{{ 'label label-' ~ label_color }}">
+                    {{ etablissement.dossierDonnantAvis.avisCommission.libelle }}
+
+                    {% if etablissement.informations|last.genre.id is not same as(3) %}
+                        à l'exploitation
+                    {% endif %}
+                </span>
+            {% else %}
+                <span class="label label-default">Avis d'exploitation indisponible</span>
+            {% endif %}
         {% endif %}
-        {# @todo: Avis indisponible #}
 
         {% if etablissement.risquesNaturels is not empty %}
             <p class='label label-warning'>

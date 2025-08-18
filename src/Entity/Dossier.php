@@ -120,6 +120,13 @@ class Dossier
      */
     private $avisDerogations;
 
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DIFFEREAVIS_DOSSIER", type="boolean", nullable=true)
+     */
+    private $avisDiffere;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -300,6 +307,18 @@ class Dossier
                 $avisDerogation->setDossier(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAvisDiffere(): ?bool
+    {
+        return $this->avisDiffere;
+    }
+
+    public function setAvisDiffere(?bool $avisDiffere): self
+    {
+        $this->avisDiffere = $avisDiffere;
 
         return $this;
     }

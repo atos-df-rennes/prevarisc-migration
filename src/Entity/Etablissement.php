@@ -362,18 +362,27 @@ class Etablissement
         return $this;
     }
 
+    public function hasAvisDiffere(): bool
+    {
+        $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier) {
+            return $dossier->getAvisDiffere()
+                && $dossier->getDateSuppression() === null;
+        });
+
+        return !$dossiersAvisDiffere->isEmpty();
+    }
+
     public function hasEcheancierTravaux(): bool
     {
-        $dossiers = $this->getDossiers();
-
-        $dossiersEcheancier = $dossiers->filter(function (Dossier $dossier) {
+        $dossiersEcheancier = $this->getDossiers()->filter(function (Dossier $dossier) {
             $nature = $dossier->getNature();
 
             if (null === $nature) {
                 return false;
             }
 
-            return $dossier->getNature()->getId() === DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX;
+            return $dossier->getNature()->getId() === DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX
+                && $dossier->getDateSuppression() === null;
         });
 
         return !$dossiersEcheancier->isEmpty();
