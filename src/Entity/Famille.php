@@ -24,7 +24,7 @@ class Famille
     /**
      * @var ?string
      *
-     * @ORM\Column(type="string", length=100, name="LIBELLE_FAMILLE")
+     * @ORM\Column(type="string", length=100, name="LIBELLE_FAMILLE", nullable=false)
      */
     private $libelle;
 
