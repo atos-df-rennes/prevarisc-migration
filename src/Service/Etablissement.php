@@ -44,6 +44,7 @@ final class Etablissement
     {
         $lastHistorique = [];
         $historique = [];
+
         foreach ($etablissement->getInformations() as $etablissementInformation) {
             $statut = $etablissementInformation->getStatut();
             $type = $etablissementInformation->getType();
@@ -53,132 +54,118 @@ final class Etablissement
             $classe = $etablissementInformation->getClasse();
             $famille = $etablissementInformation->getFamille();
             $auteur = $etablissementInformation->getUtilisateur();
-            $infosAuteur = '';
-            if (isset($auteur)) {
+            $infosAuteur = [];
+
+            if (null === $date) {
+                continue;
+            }
+
+            if (null !== $auteur) {
                 $infosAuteur = [
                     'id' => $auteur->getId(),
                     'name' => $auteur->getNom().' '.$auteur->getPrenom(),
                 ];
             }
 
-            if (isset($date)) {
-                if ([] === $historique) {
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
+            if ([] === $historique) {
+                $historique['statut'][$date->getTimestamp()] = [
+                    'valeur' => null !== $statut ? $statut->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $historique['type'][$date->getTimestamp()] = [
+                    'valeur' => null !== $type ? $type->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $historique['classe'][$date->getTimestamp()] = [
+                    'valeur' => null !== $classe ? $classe->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $historique['famille'][$date->getTimestamp()] = [
+                    'valeur' => null !== $famille ? $famille->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $historique['libelle'][$date->getTimestamp()] = [
+                    'valeur' => $libelle,
+                    'auteur' => $infosAuteur,
+                ];
+                $historique['categorie'][$date->getTimestamp()] = [
+                    'valeur' => null !== $categorie ? $categorie->getLibelle() : '',
+                    'auteur' => $infosAuteur,
+                ];
+                $lastHistorique = [
+                    'statut' => $statut,
+                    'type' => $type,
+                    'categorie' => $categorie,
+                    'libelle' => $libelle,
+                    'classe' => $classe,
+                    'famille' => $famille,
+                    'date' => $date->getTimestamp(),
+                ];
+            } else {
+                $historized = false;
+
+                if ($lastHistorique['statut'] !== $statut) {
+                    $historique['statut'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
                     $historique['statut'][$date->getTimestamp()] = [
                         'valeur' => isset($statut) ? $statut->getLibelle() : '',
                         'auteur' => $infosAuteur,
                     ];
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                    $lastHistorique['statut'] = $statut;
+                    $historized = true;
+                }
+
+                if ($lastHistorique['type'] !== $type) {
+                    $historique['type'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
                     $historique['type'][$date->getTimestamp()] = [
                         'valeur' => isset($type) ? $type->getLibelle() : '',
                         'auteur' => $infosAuteur,
                     ];
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                    $historique['classe'][$date->getTimestamp()] = [
-                        'valeur' => isset($classe) ? $classe->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                    $historique['famille'][$date->getTimestamp()] = [
-                        'valeur' => isset($famille) ? $famille->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                    $lastHistorique['type'] = $type;
+                    $historized = true;
+                }
+
+                if ($lastHistorique['libelle'] !== $libelle) {
+                    $historique['libelle'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
                     $historique['libelle'][$date->getTimestamp()] = [
                         'valeur' => $libelle,
                         'auteur' => $infosAuteur,
                     ];
-                    // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                    $lastHistorique['libelle'] = $libelle;
+                    $historized = true;
+                }
+
+                if ($lastHistorique['classe'] !== $classe) {
+                    $historique['classe'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
+                    $historique['classe'][$date->getTimestamp()] = [
+                        'valeur' => isset($classe) ? $classe->getLibelle() : '',
+                        'auteur' => $infosAuteur,
+                    ];
+                    $lastHistorique['classe'] = $classe;
+                    $historized = true;
+                }
+
+                if ($lastHistorique['famille'] !== $famille) {
+                    $historique['famille'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
+                    $historique['famille'][$date->getTimestamp()] = [
+                        'valeur' => isset($famille) ? $famille->getLibelle() : '',
+                        'auteur' => $infosAuteur,
+                    ];
+                    $lastHistorique['famille'] = $famille;
+                    $historized = true;
+                }
+
+                if ($lastHistorique['categorie'] !== $categorie) {
+                    $historique['categorie'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
                     $historique['categorie'][$date->getTimestamp()] = [
                         'valeur' => isset($categorie) ? $categorie->getLibelle() : '',
                         'auteur' => $infosAuteur,
                     ];
-                    $lastHistorique = [
-                        'statut' => $statut,
-                        'type' => $type,
-                        'categorie' => $categorie,
-                        'libelle' => $libelle,
-                        'classe' => $classe,
-                        'famille' => $famille,
-                        'date' => $date->getTimestamp(),
-                    ];
-                } else {
-                    $historized = false;
-                    // @phpstan-ignore offsetAccess.notFound
-                    if ($lastHistorique['statut'] !== $statut) {
-                        // @phpstan-ignore offsetAccess.notFound
-                        $historique['statut'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                        $historique['statut'][$date->getTimestamp()] = [
-                            'valeur' => isset($statut) ? $statut->getLibelle() : '',
-                            'auteur' => $infosAuteur,
-                        ];
-                        $lastHistorique['statut'] = $statut;
-                        $historized = true;
-                    }
+                    $lastHistorique['categorie'] = $categorie;
+                    $historized = true;
+                }
 
-                    // @phpstan-ignore offsetAccess.notFound
-                    if ($lastHistorique['type'] !== $type) {
-                        // @phpstan-ignore offsetAccess.notFound
-                        $historique['type'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                        $historique['type'][$date->getTimestamp()] = [
-                            'valeur' => isset($type) ? $type->getLibelle() : '',
-                            'auteur' => $infosAuteur,
-                        ];
-                        $lastHistorique['type'] = $type;
-                        $historized = true;
-                    }
-
-                    // @phpstan-ignore offsetAccess.notFound
-                    if ($lastHistorique['libelle'] !== $libelle) {
-                        // @phpstan-ignore offsetAccess.notFound
-                        $historique['libelle'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                        $historique['libelle'][$date->getTimestamp()] = [
-                            'valeur' => $libelle,
-                            'auteur' => $infosAuteur,
-                        ];
-                        $lastHistorique['libelle'] = $libelle;
-                        $historized = true;
-                    }
-
-                    // @phpstan-ignore offsetAccess.notFound
-                    if ($lastHistorique['classe'] !== $classe) {
-                        // @phpstan-ignore offsetAccess.notFound
-                        $historique['classe'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                        $historique['classe'][$date->getTimestamp()] = [
-                            'valeur' => isset($classe) ? $classe->getLibelle() : '',
-                            'auteur' => $infosAuteur,
-                        ];
-                        $lastHistorique['classe'] = $classe;
-                        $historized = true;
-                    }
-
-                    // @phpstan-ignore offsetAccess.notFound
-                    if ($lastHistorique['famille'] !== $famille) {
-                        // @phpstan-ignore offsetAccess.notFound
-                        $historique['famille'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                        $historique['famille'][$date->getTimestamp()] = [
-                            'valeur' => isset($famille) ? $famille->getLibelle() : '',
-                            'auteur' => $infosAuteur,
-                        ];
-                        $lastHistorique['famille'] = $famille;
-                        $historized = true;
-                    }
-
-                    // @phpstan-ignore offsetAccess.notFound
-                    if ($lastHistorique['categorie'] !== $categorie) {
-                        // @phpstan-ignore offsetAccess.notFound
-                        $historique['categorie'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                        $historique['categorie'][$date->getTimestamp()] = [
-                            'valeur' => isset($categorie) ? $categorie->getLibelle() : '',
-                            'auteur' => $infosAuteur,
-                        ];
-                        $lastHistorique['categorie'] = $categorie;
-                        $historized = true;
-                    }
-
-                    if ($historized) {
-                        $lastHistorique['date'] = $date->getTimestamp();
-                    }
+                if ($historized) {
+                    $lastHistorique['date'] = $date->getTimestamp();
                 }
             }
         }
@@ -202,7 +189,7 @@ final class Etablissement
             $avis = $dossier->getAvisCommission();
             $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : '');
             $auteur = $dossier->getCreateur();
-            $infosAuteur = '';
+            $infosAuteur = [];
 
             if (null !== $auteur) {
                 $infosAuteur = [
@@ -212,7 +199,6 @@ final class Etablissement
             }
 
             if ([] === $historique) {
-                // @phpstan-ignore offsetAccess.nonOffsetAccessible
                 $historique['avis'][$date] = [
                     'valeur' => null !== $avis ? $avis->getLibelle() : '',
                     'auteur' => $infosAuteur,
