@@ -1,0 +1,38 @@
+{% macro section_historique(datas) %}
+    {% set valeurs = datas|first %}
+
+    {% if datas|length == 1 and valeurs.valeur is empty %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% else %}
+        <table class='table table-bordered table-hover'>
+            <thead>
+                <tr>
+                    <th style='width: 250px' >Date</th>
+                    <th></th>
+                </tr>
+                </thead>
+            <tbody>
+                {% for key, data in datas %}
+                    <tr>
+                        <td>
+                            {# @todo: Remettre un format humain après activation d'INTL (e.g. 4 juil. 2022) #}
+                            Du {{ key|date('d/m/Y') }} {% if loop.last %}à aujourd'hui{% else %}au {{ data.fin|date('d/m/Y') }}{% endif %}
+                        </td>
+                        <td>
+                            {{ data.valeur }}
+                            <span style="font-size: 0.8em">
+                                (Dernière modification par
+                                {% if data.auteur is empty %}
+                                    <em>Inconnu</em>
+                                {% else %}
+                                    <a href='/user/profile/uid/{{ data.auteur.id }}'>{{ data.auteur.name }}</a>
+                                {% endif %}
+                                )
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endmacro %}
