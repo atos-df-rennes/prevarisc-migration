@@ -14,8 +14,8 @@
             {% for key, data in datas %}
                 <tr>
                     <td>
-                        {# @todo: Remplacer par un format standard j/m/a en attendant de pouvoir activer INTL #}
-                        Du {{ key|date('d F Y') }} {% if loop.last %}à aujourd'hui{% else %}au {{ data.fin|date('d F Y') }}{% endif %}
+                        {# @todo: Remettre un format humain après activation d'INTL (e.g. 4 juil. 2022) #}
+                        Du {{ key|date('d/m/Y') }} {% if loop.last %}à aujourd'hui{% else %}au {{ data.fin|date('d/m/Y') }}{% endif %}
                     </td>
                     <td>
                         {{ data.valeur }}
