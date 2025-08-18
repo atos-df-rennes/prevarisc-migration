@@ -103,6 +103,20 @@ class Etablissement
      */
     private $dossierDonnantAvis;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_RISQUES_NATURELS_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $risquesNaturels;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_RISQUES_TECHNOLOGIQUES_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $risquesTechnologiques;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
@@ -322,5 +336,29 @@ class Etablissement
         }
 
         return false;
+    }
+
+    public function getRisquesNaturels(): ?string
+    {
+        return $this->risquesNaturels;
+    }
+
+    public function setRisquesNaturels(?string $risquesNaturels): self
+    {
+        $this->risquesNaturels = $risquesNaturels;
+
+        return $this;
+    }
+
+    public function getRisquesTechnologiques(): ?string
+    {
+        return $this->risquesTechnologiques;
+    }
+
+    public function setRisquesTechnologiques(?string $risquesTechnologiques): self
+    {
+        $this->risquesTechnologiques = $risquesTechnologiques;
+
+        return $this;
     }
 }

@@ -149,7 +149,21 @@
         {% endif %}
         {# @todo: Avis indisponible #}
 
-        {# @todo: Risques + échéancier #}
+        {# @todo: Échéancier #}
+        <!-- Présence de risques naturels ou technologiques-->
+        {% if etablissement.risquesNaturels is not empty %}
+            <p class='label label-warning'>
+                Présence de risques naturels
+            </p>
+            <br/>
+        {% endif %}
+
+        {% if etablissement.risquesTechnologiques is not empty %}
+            <p class='label label-warning'>
+                Présence de risques technologiques
+            </p>
+            <br/>
+        {% endif %}
 
         <span class="ml-3">Statut : {{ etablissement.informations|last.statut.libelle }}</span>
     </div>
