@@ -5,12 +5,12 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <script type='text/javascript' >
+    <script type='text/javascript'>
         $(document).ready(function() {
             $(".sortTexteAppl").sortable({
                 update: function(event, ui) {
                     var id = $(this).attr('id');
-                    var listeTexteApplUpdate = new Array();
+                    var listeTexteApplUpdate = [];
                     var listeOrder = "";
                     $("#"+id+" > li").each(function(){
                         //on parcourt les li pour récolter les changements et mettre à jour dans la base
@@ -49,39 +49,49 @@
             })
         });
     </script>
-
 {% endblock %}
 
 {% block body %}
     <h3 class='page-header'>Gestion des textes applicables</h3>
-    <button id='createTexteAppl' class='btn createTexteAppl' data-toggle="modal" data-target="#texteApplModal"><i class='icon-plus'></i>&nbsp;Ajouter un texte applicable</button>
+    <button id='createTexteAppl' class='btn btn-primary mb-4 createTexteAppl' data-toggle="modal" data-target="#texteApplModal">
+        <span class='glyphicon glyphicon-plus' aria-hidden="true"></span>&nbsp;Ajouter un texte applicable
+    </button>
 
     {% set lastTypeid = textesApplicables[0].typeid %}
-    <div class='row container'>
-        <div class='col-xs-12' style='font-weight:bold;font-size:25px;' >{{ textesApplicables[0].type }}</div>
+    <div class='row'>
+        <div class='col-xs-12' style='font-weight:bold;font-size:25px;'>{{ textesApplicables[0].type }}</div>
     </div>
     <ul class='sortTexteAppl list-unstyled container-fluid' id='liste_{{ lastTypeid }}'>
-    {% for texteApplicable in textesApplicables %}
-        {% if texteApplicable.typeid != lastTypeid %}
-            {% set lastTypeid = texteApplicable.typeid %}
-            </ul>
-            <div class='row container'>
-                <div class='col-xs-12' style='font-weight:bold;font-size:25px;' >{{ texteApplicable.type }}</div>
-            </div>
-            <ul class='sortTexteAppl list-unstyled container-fluid' id='liste_{{ texteApplicable.typeid }}'>
-        {% endif %}
-        <li class='row' style='margin-top:15px;margin-bottom:10px;' id='{{ texteApplicable.id }}'>
-            <div class='col-xs-10'>
-                <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
-                <span class="sr-only">(draggable)</span>
-                {{ texteApplicable.libelle }}
-            </div>
-            <div class='col-xs-1'><button class='editTexteAppl btn' data-ta-id="{{ texteApplicable.id }}" data-toggle="modal" data-target="#texteApplModal"><i class='icon-pencil'></i>&nbsp;Editer</button></div>
-            <div class='col-xs-1'>{% if texteApplicable.visible %}<img src='/images/visible.gif' alt='visible' />{% else %}<img src='/images/nonvisible.gif' alt='non visible' />{% endif %}</div>
-        </li>
-    {% endfor %}
+        {% for texteApplicable in textesApplicables %}
+            {% if texteApplicable.typeid != lastTypeid %}
+                {% set lastTypeid = texteApplicable.typeid %}
+                </ul>
+                <div class='row'>
+                    <div class='col-xs-12' style='font-weight:bold;font-size:25px;'>{{ texteApplicable.type }}</div>
+                </div>
+                <ul class='sortTexteAppl list-unstyled container-fluid' id='liste_{{ texteApplicable.typeid }}'>
+            {% endif %}
+            <li class='row' style='margin-top:15px;margin-bottom:10px;' id='{{ texteApplicable.id }}'>
+                <div class='col-xs-10'>
+                    <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                    <span class="sr-only">(draggable)</span>
+
+                    {% if texteApplicable.visible %}
+                        <img src='{{ asset('images/visible.gif') }}' alt='visible' />
+                    {% else %}
+                        <img src='{{ asset('images/nonvisible.gif') }}' alt='non visible' />
+                    {% endif %}
+
+                    {{ texteApplicable.libelle }}
+                </div>
+                <div class='col-xs-2'>
+                    <button class='editTexteAppl btn btn-default' data-ta-id="{{ texteApplicable.id }}" data-toggle="modal" data-target="#texteApplModal">
+                        <span class='glyphicon glyphicon-pencil' aria-hidden="true"></span>&nbsp;Editer
+                    </button>
+                </div>
+            </li>
+        {% endfor %}
     </ul>
 
     {{ include('textes_applicables/_modal.html.twig') }}
-
 {% endblock %}

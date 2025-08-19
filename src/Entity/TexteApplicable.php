@@ -24,9 +24,9 @@ class TexteApplicable
     private $id;
 
     /**
-     * @var string
+     * @var ?string
      *
-     * @ORM\Column(name="LIBELLE_TEXTESAPPL", type="string", length=255)
+     * @ORM\Column(name="LIBELLE_TEXTESAPPL", type="text")
      */
     private $libelle;
 
@@ -58,7 +58,7 @@ class TexteApplicable
         return $this->id;
     }
 
-    public function getLibelle(): string
+    public function getLibelle(): ?string
     {
         return $this->libelle;
     }

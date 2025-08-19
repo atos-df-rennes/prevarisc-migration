@@ -50,8 +50,8 @@
             <a href='/gestion-prescriptions'><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Gestion des prescriptions</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_textesApplicables') %}class="active"{% endif %}>
-            <a href='{{ path('admin_textesApplicables') }}'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
+        <li {% if app.request.get('_route') is same as('admin_textes_applicables') %}class="active"{% endif %}>
+            <a href='{{ path('admin_textes_applicables') }}'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
         </li>
 
         <li class="nav-header">Paramétrage du logiciel</li>

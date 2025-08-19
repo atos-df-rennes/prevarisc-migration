@@ -14,11 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class TextesApplicablesController extends AbstractController
 {
     /**
-     * @Route("/admin/textes-applicables", name="admin_textesApplicables")
+     * @Route("/admin/textes-applicables", name="admin_textes_applicables")
      */
-    public function index(TexteApplicableRepository $taRepository): Response
+    public function index(TexteApplicableRepository $texteApplicableRepository): Response
     {
-        $textesApplicables = $taRepository->getAllSorted();
+        $textesApplicables = $texteApplicableRepository->getAllSorted();
 
         return $this->render('textes_applicables/index.html.twig', [
             'textesApplicables' => $textesApplicables,
@@ -26,7 +26,7 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/add", name="admin_textesApplicables_add")
+     * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add")
      */
     public function ajouter(Request $request): Response
     {
@@ -36,7 +36,7 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textesApplicables_edit")
+     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit")
      */
     public function modifier(Request $request, TexteApplicableRepository $texteApplicableRepository): Response
     {
@@ -49,9 +49,9 @@ class TextesApplicablesController extends AbstractController
     {
         if ($texteApplicable != null) {
             if (null !== $texteApplicable->getId()) {
-                $url = $this->generateUrl('admin_textesApplicables_edit', ['id' => $texteApplicable->getId()]);
+                $url = $this->generateUrl('admin_textes_applicables_edit', ['id' => $texteApplicable->getId()]);
             } else {
-                $url = $this->generateUrl('admin_textesApplicables_add');
+                $url = $this->generateUrl('admin_textes_applicables_add');
             }
 
             $form = $this->createForm(TexteApplicableType::class, $texteApplicable, [
@@ -75,7 +75,7 @@ class TextesApplicablesController extends AbstractController
 
                 $this->addFlash('success', 'Texte applicable enregistré');
 
-                return $this->redirectToRoute('admin_textesApplicables');
+                return $this->redirectToRoute('admin_textes_applicables');
             }
 
             return $this->render('textes_applicables/ajout.html.twig', [
@@ -84,12 +84,12 @@ class TextesApplicablesController extends AbstractController
         }
         else {
             $this->addFlash('error', "Ce texte n'existe pas");
-            return $this->redirectToRoute('admin_textesApplicables');
+            return $this->redirectToRoute('admin_textes_applicables');
         }
     }
 
     /**
-     * @Route("/admin/textes-applicables/updateorder", name="admin_textesApplicables_updateorder")
+     * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder")
      */
     public function ordonner(Request $request, TexteApplicableRepository $texteApplicableRepository): Response
     {
@@ -105,6 +105,6 @@ class TextesApplicablesController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->redirectToRoute('admin_textesApplicables');
+        return $this->redirectToRoute('admin_textes_applicables');
     }
 }
