@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\PrestationTexteListe;
+use App\Entity\PrescriptionTexteListe;
 use App\Entity\TexteApplicable;
 use App\Form\TexteApplicableType;
 use App\Repository\TexteApplicableRepository;
@@ -18,7 +18,7 @@ class TextesApplicablesController extends AbstractController
      */
     public function index(TexteApplicableRepository $texteApplicableRepository): Response
     {
-        $textesApplicables = $texteApplicableRepository->getAllSorted();
+        $textesApplicables = $texteApplicableRepository->findAllSorted();
 
         return $this->render('textes_applicables/index.html.twig', [
             'textesApplicables' => $textesApplicables,
@@ -28,64 +28,53 @@ class TextesApplicablesController extends AbstractController
     /**
      * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add")
      */
-    public function ajouter(Request $request): Response
+    public function ajouter(Request $request, \App\Service\TexteApplicable $serviceTexteApplicable): Response
     {
         $texteApplicable = new TexteApplicable();
 
-        return $this->formRender($texteApplicable, $request);
+        $form = $this->createForm(TexteApplicableType::class, $texteApplicable, [
+            'action' => $this->generateUrl('admin_textes_applicables_add'),
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // @todo: gestion de l'affichage prescription
+            // la valeur oui/non n'est pas conservée, peut-être le gérer mais quid des conséquences d'affichage/masquaque
+            $prescription = $form->get('prescription')->getData();
+            $serviceTexteApplicable->save($texteApplicable, $prescription);
+
+            $this->addFlash('success', 'Texte applicable ajouté.');
+
+            return $this->redirectToRoute('admin_textes_applicables');
+        }
+
+        return $this->render('textes_applicables/ajout.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
      * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit")
      */
-    public function modifier(Request $request, TexteApplicableRepository $texteApplicableRepository): Response
+    public function modifier(Request $request, TexteApplicable $texteApplicable, \App\Service\TexteApplicable $serviceTexteApplicable): Response
     {
-        $texteApplicable = $texteApplicableRepository->find($request->get('id'));
+        $form = $this->createForm(TexteApplicableType::class, $texteApplicable, [
+            'action' => $this->generateUrl('admin_textes_applicables_edit', ['id' => $texteApplicable->getId()]),
+        ]);
 
-        return $this->formRender($texteApplicable, $request);
-    }
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $prescription = $form->get('prescription')->getData();
+            $serviceTexteApplicable->save($texteApplicable, $prescription);
 
-    private function formRender(?TexteApplicable $texteApplicable, Request $request): Response
-    {
-        if ($texteApplicable != null) {
-            if (null !== $texteApplicable->getId()) {
-                $url = $this->generateUrl('admin_textes_applicables_edit', ['id' => $texteApplicable->getId()]);
-            } else {
-                $url = $this->generateUrl('admin_textes_applicables_add');
-            }
+            $this->addFlash('success', 'Texte applicable modifié.');
 
-            $form = $this->createForm(TexteApplicableType::class, $texteApplicable, [
-                'action' => $url,
-            ]);
-
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $entityManager = $this->getDoctrine()->getManager();
-                // TODO gestion de l'affichage prescription
-                // la valeur oui/non n'est pas conservé, peut etre le gerer mais quid des consequences d'affichage/masquaque
-                $prescription = $form->get('prescription')->getData();
-                if ($prescription) {
-                    $prescriptionListe = new PrestationTexteListe();
-                    $prescriptionListe->setLibelle($texteApplicable->getLibelle());
-                    $entityManager->persist($prescriptionListe);
-                }
-
-                $entityManager->persist($texteApplicable);
-                $entityManager->flush();
-
-                $this->addFlash('success', 'Texte applicable enregistré');
-
-                return $this->redirectToRoute('admin_textes_applicables');
-            }
-
-            return $this->render('textes_applicables/ajout.html.twig', [
-                'form' => $form->createView(),
-            ]);
-        }
-        else {
-            $this->addFlash('error', "Ce texte n'existe pas");
             return $this->redirectToRoute('admin_textes_applicables');
         }
+
+        return $this->render('textes_applicables/ajout.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -93,14 +82,18 @@ class TextesApplicablesController extends AbstractController
      */
     public function ordonner(Request $request, TexteApplicableRepository $texteApplicableRepository): Response
     {
-        $taIds = explode(',', $request->get('tableUpdate'));
+        $taIds = explode(',', $request->request->get('tableUpdate'));
         $entityManager = $this->getDoctrine()->getManager();
+
         foreach ($taIds as $key => $id) {
             $texteApplicable = $texteApplicableRepository->find($id);
-            if ($texteApplicable != null) {
-                $texteApplicable->setNum($key);
-                $entityManager->persist($texteApplicable);
+
+            if (null === $texteApplicable) {
+                continue;
             }
+
+            $texteApplicable->setNum($key);
+            $entityManager->persist($texteApplicable);
         }
 
         $entityManager->flush();
