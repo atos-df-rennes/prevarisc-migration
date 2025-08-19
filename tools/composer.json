@@ -6,7 +6,8 @@
         "ramsey/conventional-commits": "^1.5",
         "marcocesarato/php-conventional-changelog": "^1.17",
         "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan-symfony": "^2.0"
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpmetrics/phpmetrics": "^2.9"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
