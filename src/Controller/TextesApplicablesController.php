@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\PrescriptionTexteListe;
 use App\Entity\TexteApplicable;
 use App\Form\TexteApplicableType;
 use App\Repository\TexteApplicableRepository;
