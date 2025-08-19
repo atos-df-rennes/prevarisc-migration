@@ -62,13 +62,71 @@ class Etablissement
      */
     private $adresses;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="NUMEROID_ETABLISSEMENT", type="string", length=50, nullable=true)
+     */
+    private $numero;
+
+    /**
+     * @var Collection<int, Etablissement>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Etablissement::class, inversedBy="parents")
+     */
+    private $fils;
+
+    /**
+     * @var Collection<int, Etablissement>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Etablissement::class, mappedBy="fils")
+     */
+    private $parents;
+
+    /**
+     * @var ?Dossier
+     *
+     * @ORM\OneToOne(targetEntity=Dossier::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinColumn(name="ID_DOSSIER_DONNANT_AVIS", referencedColumnName="ID_DOSSIER", nullable=true)
+     */
+    private $dossierDonnantAvis;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_RISQUES_NATURELS_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $risquesNaturels;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_RISQUES_TECHNOLOGIQUES_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $risquesTechnologiques;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
         $this->adresses = new ArrayCollection();
+        $this->fils = new ArrayCollection();
+        $this->parents = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -178,5 +236,156 @@ class Etablissement
         }
 
         return $this;
+    }
+
+    public function getNumero(): ?string
+    {
+        return $this->numero;
+    }
+
+    public function setNumero(?string $numero): self
+    {
+        $this->numero = $numero;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFils(): Collection
+    {
+        return $this->fils;
+    }
+
+    public function addFils(self $fils): self
+    {
+        if (!$this->fils->contains($fils)) {
+            $this->fils[] = $fils;
+        }
+
+        return $this;
+    }
+
+    public function removeFils(self $fils): self
+    {
+        $this->fils->removeElement($fils);
+
+        return $this;
+    }
+
+    /**
+     * Le schéma de base de données exige un ManyToMany alors qu'on ne peut avoir qu'un seul parent.
+     * Cette méthode renvoie donc le 1er élément de la Collection ou null s'il n'y a pas de parent.
+     */
+    public function getParent(): ?Etablissement
+    {
+        return $this->parents->first() ?: null;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getParents(): Collection
+    {
+        return $this->parents;
+    }
+
+    public function addParent(self $parent): self
+    {
+        if (!$this->parents->contains($parent)) {
+            $this->parents[] = $parent;
+            $parent->addFils($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParent(self $parent): self
+    {
+        if ($this->parents->removeElement($parent)) {
+            $parent->removeFils($this);
+        }
+
+        return $this;
+    }
+
+    public function getDossierDonnantAvis(): ?Dossier
+    {
+        return $this->dossierDonnantAvis;
+    }
+
+    public function setDossierDonnantAvis(?Dossier $dossierDonnantAvis): self
+    {
+        $this->dossierDonnantAvis = $dossierDonnantAvis;
+
+        return $this;
+    }
+
+    public function hasAvisDerogations(): bool
+    {
+        $dossiers = $this->getDossiers();
+
+        foreach ($dossiers as $dossier) {
+            $avisDerogations = $dossier->getAvisDerogations();
+
+            foreach ($avisDerogations as $avisDerogation) {
+                if ($avisDerogation->getDisplayHistorique()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getRisquesNaturels(): ?string
+    {
+        return $this->risquesNaturels;
+    }
+
+    public function setRisquesNaturels(?string $risquesNaturels): self
+    {
+        $this->risquesNaturels = $risquesNaturels;
+
+        return $this;
+    }
+
+    public function getRisquesTechnologiques(): ?string
+    {
+        return $this->risquesTechnologiques;
+    }
+
+    public function setRisquesTechnologiques(?string $risquesTechnologiques): self
+    {
+        $this->risquesTechnologiques = $risquesTechnologiques;
+
+        return $this;
+    }
+
+    public function hasAvisDiffere(): bool
+    {
+        $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
+            return $dossier->getAvisDiffere()
+                && null === $dossier->getDateSuppression();
+        });
+
+        return !$dossiersAvisDiffere->isEmpty();
+    }
+
+    public function hasEcheancierTravaux(): bool
+    {
+        $dossiersEcheancier = $this->getDossiers()->filter(function (Dossier $dossier): bool {
+            $nature = $dossier->getNature();
+
+            if (null === $nature) {
+                return false;
+            }
+
+            return DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX === $nature->getId()
+                && null === $dossier->getDateSuppression();
+        });
+
+        return !$dossiersEcheancier->isEmpty();
     }
 }

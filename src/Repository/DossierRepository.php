@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -66,6 +67,30 @@ class DossierRepository extends ServiceEntityRepository
             ->orderBy('d.dateSuppression', 'DESC')
             ->getQuery()
         ;
+
+        return $query->getResult();
+    }
+
+    /**
+     * @return Dossier[]
+     */
+    public function getHistoriqueDossiersData(int $idEtablissement): array
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $query = $queryBuilder
+            ->addSelect('e')
+            ->addSelect('COALESCE(d.dateCommission, d.dateVisite) as hidden columnOrder')
+            ->join('d.etablissements', 'e')
+            ->join('d.nature', 'dn')
+            ->join('d.avisCommission', 'da')
+            ->where('e.id = :id')
+            ->andWhere('dn.id in (:nature)')
+            ->andWhere('da.id in (1,2)')
+            ->andWhere('d.dateCommission is not null OR d.dateVisite is not null')
+            ->orderBy('columnOrder', 'ASC')
+            ->setParameter('id', $idEtablissement)
+            ->setParameter('nature', DossierNatureListe::NATURE_DOSSIERS_DONNANT_AVIS)
+            ->getQuery();
 
         return $query->getResult();
     }

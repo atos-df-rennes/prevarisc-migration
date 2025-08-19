@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/status-not--ready-red)
+![Static Badge](https://img.shields.io/badge/status-ready-dark--green)
 ![Static Badge](https://img.shields.io/badge/php-7.1-blue)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
 
@@ -53,23 +53,29 @@ PREVARISC_PATH=/chemin/absolu/vers/Prevarisc
 (Optionnel, si valeur différente de l'exemple : e.g. /var/www/html/prevarisc)
 ```
 
-3. Optimisez la lecture des configurations :
+> [!TIP]
+> Si l'un des paramètres de la variable DATABASE_URL contient des caractères spéciaux, ils doivent être encodés : + => %2B, @ => %40, $ => %24, # => %23, / => %2F, : => %3A, * => %2A, ! => %21
+
+3. Installez les dépendances :
+```sh
+$ composer install --no-dev --classmap-authoritative
+```
+
+4. Optimisez la lecture des configurations :
 ```sh
 $ composer dump-env prod
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > En cas de modification des variables d'environnement, cette commande est à rejouer à la suite pour que la nouvelle configuration soit prise en comtpe.
-
-4. Installez les dépendances :
-```sh
-$ composer install --prefer-source --no-dev --optimize-autoloader
-```
 
 5. Jouez les migrations pour avoir un schéma de base de données à jour :
 ```sh
 $ php bin/console doctrine:migrations:migrate
 ```
+
+> [!IMPORTANT]
+> Pour exécuter les commandes de migration, l'utilisateur de base de données utilisé doit disposer des droits suivants : CREATE, DROP, ALTER, INDEX, CREATE VIEW, SELECT, INSERT, UPDATE, DELETE.
 
 6. Appliquez les permissions nécessaires :
 ```sh

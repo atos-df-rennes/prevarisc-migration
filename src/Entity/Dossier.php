@@ -81,10 +81,57 @@ class Dossier
      */
     private $etablissements;
 
+    /**
+     * @var ?Avis
+     *
+     * @ORM\ManyToOne(targetEntity=Avis::class)
+     *
+     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS", nullable=true)
+     */
+    private $avisCommission;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(type="string", length=10, nullable=true, name="DATECOMM_DOSSIER")
+     */
+    private $dateCommission;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
+     */
+    private $dateVisite;
+
+    /**
+     * @var ?UtilisateurInformations
+     *
+     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     *
+     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS")
+     */
+    private $createur;
+
+    /**
+     * @var Collection<int, AvisDerogations>
+     *
+     * @ORM\OneToMany(targetEntity=AvisDerogations::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $avisDerogations;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DIFFEREAVIS_DOSSIER", type="boolean", nullable=true)
+     */
+    private $avisDiffere;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
         $this->etablissements = new ArrayCollection();
+        $this->avisDerogations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -182,6 +229,94 @@ class Dossier
     public function removeEtablissement(Etablissement $etablissement): self
     {
         $this->etablissements->removeElement($etablissement);
+
+        return $this;
+    }
+
+    public function getAvisCommission(): ?Avis
+    {
+        return $this->avisCommission;
+    }
+
+    public function setAvisCommission(?Avis $avisCommission): self
+    {
+        $this->avisCommission = $avisCommission;
+
+        return $this;
+    }
+
+    public function getDateCommission(): ?string
+    {
+        return $this->dateCommission;
+    }
+
+    public function setDateCommission(?string $dateCommission): self
+    {
+        $this->dateCommission = $dateCommission;
+
+        return $this;
+    }
+
+    public function getDateVisite(): ?\DateTimeInterface
+    {
+        return $this->dateVisite;
+    }
+
+    public function setDateVisite(?\DateTimeInterface $dateVisite): self
+    {
+        $this->dateVisite = $dateVisite;
+
+        return $this;
+    }
+
+    public function getCreateur(): ?UtilisateurInformations
+    {
+        return $this->createur;
+    }
+
+    public function setCreateur(?UtilisateurInformations $createur): self
+    {
+        $this->createur = $createur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AvisDerogations>
+     */
+    public function getAvisDerogations(): Collection
+    {
+        return $this->avisDerogations;
+    }
+
+    public function addAvisDerogation(AvisDerogations $avisDerogation): self
+    {
+        if (!$this->avisDerogations->contains($avisDerogation)) {
+            $this->avisDerogations[] = $avisDerogation;
+            $avisDerogation->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvisDerogation(AvisDerogations $avisDerogation): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->avisDerogations->removeElement($avisDerogation) && $avisDerogation->getDossier() === $this) {
+            $avisDerogation->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    public function getAvisDiffere(): ?bool
+    {
+        return $this->avisDiffere;
+    }
+
+    public function setAvisDiffere(?bool $avisDiffere): self
+    {
+        $this->avisDiffere = $avisDiffere;
 
         return $this;
     }
