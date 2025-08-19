@@ -5,7 +5,7 @@ namespace App\Dto\Historique;
 use App\Entity\Avis;
 
 class LastAvis {
-    /** @var ?\App\Entity\Avis */
+    /** @var ?Avis */
     private $avis;
 
     /** @var false|int */

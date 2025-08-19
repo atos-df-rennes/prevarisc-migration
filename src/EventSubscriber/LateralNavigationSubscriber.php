@@ -39,7 +39,7 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
             $etablissement = $this->etablissementRepository->find($idEtablissement);
 
             if (null === $etablissement) {
-                throw new NotFoundHttpException("L'établissement ayant pour identifiant {$idEtablissement} n'existe pas.");
+                throw new NotFoundHttpException(sprintf("L'établissement ayant pour identifiant %s n'existe pas.", $idEtablissement));
             }
 
             // Récupère récursivement le parent de l'établissement

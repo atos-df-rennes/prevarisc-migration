@@ -13,6 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AvisDerogations|null findOneBy(array $criteria, array $orderBy = null)
  * @method AvisDerogations[]    findAll()
  * @method AvisDerogations[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends \Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository<\App\Entity\AvisDerogations>
  */
 class AvisDerogationsRepository extends ServiceEntityRepository
 {

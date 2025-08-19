@@ -301,11 +301,9 @@ class Dossier
 
     public function removeAvisDerogation(AvisDerogations $avisDerogation): self
     {
-        if ($this->avisDerogations->removeElement($avisDerogation)) {
-            // set the owning side to null (unless already changed)
-            if ($avisDerogation->getDossier() === $this) {
-                $avisDerogation->setDossier(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->avisDerogations->removeElement($avisDerogation) && $avisDerogation->getDossier() === $this) {
+            $avisDerogation->setDossier(null);
         }
 
         return $this;

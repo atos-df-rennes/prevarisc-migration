@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Dto\Historique\Informations;
+use App\Entity\Dossier;
 use App\Dto\Historique\Auteur;
 use App\Dto\Historique\DonneeHistorique;
 use App\Dto\Historique\LastAvis;
@@ -24,7 +26,7 @@ final class Etablissement
         $this->dossierRepository = $dossierRepository;
     }
 
-    public function getHistorique(int $id): \App\Dto\Historique\Informations
+    public function getHistorique(int $id): Informations
     {
         $etablissmentInformationsData = $this->etablissementRepository->getHistoriqueInformationsData($id);
         $etablissementDossiersData = $this->dossierRepository->getHistoriqueDossiersData($id);
@@ -40,9 +42,9 @@ final class Etablissement
     /**
      * Récupère les données d'historique des informations de l'établissement.
      */
-    private function getHistoriqueInformations(EtablissementEntity $etablissement): \App\Dto\Historique\Informations
+    private function getHistoriqueInformations(EtablissementEntity $etablissement): Informations
     {
-        $historique = new \App\Dto\Historique\Informations();
+        $historique = new Informations();
         $lastHistorique = new LastInformations();
 
         foreach ($etablissement->getInformations() as $etablissementInformation) {
@@ -173,9 +175,9 @@ final class Etablissement
     /**
      * Récupère les données d'historique des avis de l'établissement.
      *
-     * @param \App\Entity\Dossier[] $dossiers
+     * @param Dossier[] $dossiers
      *
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     private function getHistoriqueDossiers(array $dossiers): array
     {

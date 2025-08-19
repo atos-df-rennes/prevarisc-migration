@@ -364,7 +364,7 @@ class Etablissement
 
     public function hasAvisDiffere(): bool
     {
-        $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier) {
+        $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
             return $dossier->getAvisDiffere()
                 && $dossier->getDateSuppression() === null;
         });
@@ -374,7 +374,7 @@ class Etablissement
 
     public function hasEcheancierTravaux(): bool
     {
-        $dossiersEcheancier = $this->getDossiers()->filter(function (Dossier $dossier) {
+        $dossiersEcheancier = $this->getDossiers()->filter(function (Dossier $dossier): bool {
             $nature = $dossier->getNature();
 
             if (null === $nature) {

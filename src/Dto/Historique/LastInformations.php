@@ -9,22 +9,22 @@ use App\Entity\Famille;
 use App\Entity\IghClasse;
 
 class LastInformations {
-    /** @var ?\App\Entity\EtablissementStatut */
+    /** @var ?EtablissementStatut */
     private $statut;
 
-    /** @var ?\App\Entity\EtablissementType */
+    /** @var ?EtablissementType */
     private $type;
 
-    /** @var ?\App\Entity\EtablissementCategorie */
+    /** @var ?EtablissementCategorie */
     private $categorie;
 
     /** @var ?string */
     private $libelle;
 
-    /** @var ?\App\Entity\IghClasse */
+    /** @var ?IghClasse */
     private $classe;
 
-    /** @var ?\App\Entity\Famille */
+    /** @var ?Famille */
     private $famille;
 
     public function __construct() {

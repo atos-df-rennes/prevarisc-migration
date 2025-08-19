@@ -46,7 +46,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getStatut(): array {
         return $this->statut;
@@ -59,7 +59,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getType(): array {
         return $this->type;
@@ -72,7 +72,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getClasse(): array {
         return $this->classe;
@@ -85,7 +85,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getFamille(): array {
         return $this->famille;
@@ -98,7 +98,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getLibelle(): array {
         return $this->libelle;
@@ -111,7 +111,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getCategorie(): array {
         return $this->categorie;
@@ -124,7 +124,7 @@ class Informations {
     }
 
     /**
-     * @return \App\Dto\Historique\DonneeHistorique[]
+     * @return DonneeHistorique[]
      */
     public function getAvis(): array
     {
@@ -132,7 +132,7 @@ class Informations {
     }
 
     /**
-     * @param \App\Dto\Historique\DonneeHistorique[] $avis
+     * @param DonneeHistorique[] $avis
      */
     public function setAvis(array $avis): self {
         $this->avis = $avis;
