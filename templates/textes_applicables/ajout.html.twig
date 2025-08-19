@@ -1,12 +1,17 @@
 {{ form_start(form) }}
     {{ form_errors(form) }}
     {{ form_row(form.type) }}
+
     <hr class='clear'>
+
     {{ form_row(form.libelle) }}
+
     <hr class="clear">
+
     {{ form_row(form.visible) }}
     {{ form_row(form.prescription) }}
-<div class="modal-footer">
-    {{ form_widget(form.submit) }}
-</div>
+
+    <div class="modal-footer">
+        {{ form_widget(form.submit) }}
+    </div>
 {{ form_end(form) }}

@@ -19,14 +19,14 @@ class TypeTexteApplicable
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_TYPETEXTEAPPL", type="bigint", options={"unsigned":true})
+     * @ORM\Column(name="ID_TYPETEXTEAPPL", type="bigint")
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_TYPETEXTEAPPL",type="string", length=255)
+     * @ORM\Column(name="LIBELLE_TYPETEXTEAPPL", type="text")
      */
     private $libelle;
 

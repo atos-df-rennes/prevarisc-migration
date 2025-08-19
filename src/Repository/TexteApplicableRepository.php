@@ -47,7 +47,7 @@ class TexteApplicableRepository extends ServiceEntityRepository
         }
     }
 
-    public function getAllSorted(): array
+    public function findAllSorted(): array
     {
         $queryBuilder = $this->createQueryBuilder('ta');
         $query = $queryBuilder

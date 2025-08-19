@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\PrestationTexteListeRepository;
+use App\Repository\PrescriptionTexteListeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=PrestationTexteListeRepository::class)
+ * @ORM\Entity(repositoryClass=PrescriptionTexteListeRepository::class)
  *
  * @ORM\Table(name="prescriptiontexteliste")
  */
-class PrestationTexteListe
+class PrescriptionTexteListe
 {
     /**
      * @var int
@@ -19,15 +19,14 @@ class PrestationTexteListe
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(type="integer")
-     * @ORM\Column(name="ID_TEXTE", type="bigint", options={"unsigned":true})
+     * @ORM\Column(name="ID_TEXTE", type="bigint")
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_TEXTE", type="string", length=255)
+     * @ORM\Column(name="LIBELLE_TEXTE", type="string", length=255, nullable=false)
      */
     private $libelle;
 

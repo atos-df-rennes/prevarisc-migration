@@ -19,7 +19,7 @@ class TexteApplicable
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(name="ID_TEXTESAPPL", type="bigint", options={"unsigned":true})
+     * @ORM\Column(name="ID_TEXTESAPPL", type="bigint")
      */
     private $id;
 
@@ -49,7 +49,7 @@ class TexteApplicable
     /**
      * @var int
      *
-     * @ORM\Column(name="NUM_TEXTESAPPL", type="integer")
+     * @ORM\Column(name="NUM_TEXTESAPPL", type="integer", nullable=false)
      */
     private $num;
 

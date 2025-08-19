@@ -18,11 +18,8 @@ class TexteApplicableType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('libelle', TextareaType::class, [
-                'label' => false,
-            ])
+            ->add('libelle', TextareaType::class)
             ->add('visible', ChoiceType::class, [
-                'label' => false,
                 'choices' => [
                     'Afficher' => true,
                     'Masquer' => false,
@@ -32,7 +29,6 @@ class TexteApplicableType extends AbstractType
                 'empty_data' => 9999,
             ])
             ->add('type', EntityType::class, [
-                'label' => false,
                 'class' => TypeTexteApplicable::class,
                 'choice_label' => 'libelle',
             ])
