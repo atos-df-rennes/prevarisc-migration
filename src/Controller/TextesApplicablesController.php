@@ -84,7 +84,7 @@ class TextesApplicablesController extends AbstractController
         $tableUpdate = $request->request->get('tableUpdate');
 
         if (!\is_string($tableUpdate)) {
-            throw new \Exception("Le format de la table de mise à jour est incorrect.");
+            throw new \Exception('Le format de la table de mise à jour est incorrect.');
         }
 
         $taIds = explode(',', $tableUpdate);
