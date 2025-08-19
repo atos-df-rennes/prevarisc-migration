@@ -81,7 +81,7 @@ class AvisDerogations
     private $dossierLie;
 
     /**
-     * @var Dossier
+     * @var ?Dossier
      * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="avisDerogations")
      * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
      */
@@ -189,18 +189,6 @@ class AvisDerogations
     public function setDisplayHistorique(bool $displayHistorique): self
     {
         $this->displayHistorique = $displayHistorique;
-
-        return $this;
-    }
-
-    public function getIdDossier(): ?int
-    {
-        return $this->idDossier;
-    }
-
-    public function setIdDossier(int $idDossier): self
-    {
-        $this->idDossier = $idDossier;
 
         return $this;
     }

@@ -2,6 +2,10 @@
 
 namespace App\Service;
 
+use App\Dto\Historique\Auteur;
+use App\Dto\Historique\DonneeHistorique;
+use App\Dto\Historique\LastAvis;
+use App\Dto\Historique\LastInformations;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
@@ -20,30 +24,26 @@ final class Etablissement
         $this->dossierRepository = $dossierRepository;
     }
 
-    /**
-     * @param int $id
-     * @return mixed[]
-     */
-    public function getHistorique(int $id): array
+    public function getHistorique(int $id): \App\Dto\Historique\Informations
     {
         $etablissmentInformationsData = $this->etablissementRepository->getHistoriqueInformationsData($id);
         $etablissementDossiersData = $this->dossierRepository->getHistoriqueDossiersData($id);
 
         $historiqueInformations = $this->getHistoriqueInformations($etablissmentInformationsData);
         $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
+        $historiqueInformations->setAvis($historiqueDossiers);
 
         // @todo: Le traitement des avis derogations sera traitée dans l'onglet concerné
-        return array_merge($historiqueInformations, $historiqueDossiers);
+        return $historiqueInformations;
     }
 
     /**
-     * @param EtablissementEntity $etablissement
-     * @return mixed[]
+     * Récupère les données d'historique des informations de l'établissement.
      */
-    private function getHistoriqueInformations(EtablissementEntity $etablissement): array
+    private function getHistoriqueInformations(EtablissementEntity $etablissement): \App\Dto\Historique\Informations
     {
-        $lastHistorique = [];
-        $historique = [];
+        $historique = new \App\Dto\Historique\Informations();
+        $lastHistorique = new LastInformations();
 
         foreach ($etablissement->getInformations() as $etablissementInformation) {
             $statut = $etablissementInformation->getStatut();
@@ -54,118 +54,115 @@ final class Etablissement
             $classe = $etablissementInformation->getClasse();
             $famille = $etablissementInformation->getFamille();
             $auteur = $etablissementInformation->getUtilisateur();
-            $infosAuteur = [];
+            $infosAuteur = null;
 
             if (null === $date) {
                 continue;
             }
 
             if (null !== $auteur) {
-                $infosAuteur = [
-                    'id' => $auteur->getId(),
-                    'name' => $auteur->getNom().' '.$auteur->getPrenom(),
-                ];
+                $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
             }
 
-            if ([] === $historique) {
-                $historique['statut'][$date->getTimestamp()] = [
-                    'valeur' => null !== $statut ? $statut->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $historique['type'][$date->getTimestamp()] = [
-                    'valeur' => null !== $type ? $type->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $historique['classe'][$date->getTimestamp()] = [
-                    'valeur' => null !== $classe ? $classe->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $historique['famille'][$date->getTimestamp()] = [
-                    'valeur' => null !== $famille ? $famille->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $historique['libelle'][$date->getTimestamp()] = [
-                    'valeur' => $libelle,
-                    'auteur' => $infosAuteur,
-                ];
-                $historique['categorie'][$date->getTimestamp()] = [
-                    'valeur' => null !== $categorie ? $categorie->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $lastHistorique = [
-                    'statut' => $statut,
-                    'type' => $type,
-                    'categorie' => $categorie,
-                    'libelle' => $libelle,
-                    'classe' => $classe,
-                    'famille' => $famille,
-                    'date' => $date->getTimestamp(),
-                ];
+
+            if ($historique->isEmpty()) {
+                $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
+                $historique->addStatut($statutHistorique);
+
+                $typeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $type ? $type->getLibelle() : null, $infosAuteur);
+                $historique->addType($typeHistorique);
+
+                $classeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $classe ? $classe->getLibelle() : null, $infosAuteur);
+                $historique->addClasse($classeHistorique);
+
+                $familleHistorique = new DonneeHistorique($date->getTimestamp(), null !== $famille ? $famille->getLibelle() : null, $infosAuteur);
+                $historique->addFamille($familleHistorique);
+
+                $libelleHistorique = new DonneeHistorique($date->getTimestamp(), $libelle, $infosAuteur);
+                $historique->addLibelle($libelleHistorique);
+
+                $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
+                $historique->addCategorie($categorieHistorique);
+
+                $lastHistorique
+                    ->setStatut($statut)
+                    ->setType($type)
+                    ->setCategorie($categorie)
+                    ->setLibelle($libelle)
+                    ->setClasse($classe)
+                    ->setFamille($famille)
+                ;
             } else {
-                $historized = false;
+                if ($lastHistorique->getStatut() !== $statut) {
+                    $allStatuts = $historique->getStatut();
+                    $currentStatut = end($allStatuts);
+                    \assert($currentStatut !== false);
+                    $currentStatut->setFin($date->getTimestamp());
 
-                if ($lastHistorique['statut'] !== $statut) {
-                    $historique['statut'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                    $historique['statut'][$date->getTimestamp()] = [
-                        'valeur' => isset($statut) ? $statut->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['statut'] = $statut;
-                    $historized = true;
+                    $lastHistorique->setStatut($statut);
+
+                    $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
+                    $historique->addStatut($statutHistorique);
                 }
 
-                if ($lastHistorique['type'] !== $type) {
-                    $historique['type'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                    $historique['type'][$date->getTimestamp()] = [
-                        'valeur' => isset($type) ? $type->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['type'] = $type;
-                    $historized = true;
+                if ($lastHistorique->getType() !== $type) {
+                    $allTypes = $historique->getType();
+                    $currentType = end($allTypes);
+                    \assert($currentType !== false);
+                    $currentType->setFin($date->getTimestamp());
+
+                    $lastHistorique->setType($type);
+
+                    $typeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $type ? $type->getLibelle() : null, $infosAuteur);
+                    $historique->addType($typeHistorique);
                 }
 
-                if ($lastHistorique['libelle'] !== $libelle) {
-                    $historique['libelle'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                    $historique['libelle'][$date->getTimestamp()] = [
-                        'valeur' => $libelle,
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['libelle'] = $libelle;
-                    $historized = true;
+                if ($lastHistorique->getLibelle() !== $libelle) {
+                    $allLibelles = $historique->getLibelle();
+                    $currentLibelle = end($allLibelles);
+                    \assert($currentLibelle !== false);
+                    $currentLibelle->setFin($date->getTimestamp());
+
+                    $lastHistorique->setLibelle($libelle);
+
+                    $libelleHistorique = new DonneeHistorique($date->getTimestamp(), $libelle, $infosAuteur);
+                    $historique->addLibelle($libelleHistorique);
                 }
 
-                if ($lastHistorique['classe'] !== $classe) {
-                    $historique['classe'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                    $historique['classe'][$date->getTimestamp()] = [
-                        'valeur' => isset($classe) ? $classe->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['classe'] = $classe;
-                    $historized = true;
+                if ($lastHistorique->getClasse() !== $classe) {
+                    $allClasses = $historique->getClasse();
+                    $currentClasse = end($allClasses);
+                    \assert($currentClasse !== false);
+                    $currentClasse->setFin($date->getTimestamp());
+
+                    $lastHistorique->setClasse($classe);
+
+                    $classeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $classe ? $classe->getLibelle() : null, $infosAuteur);
+                    $historique->addClasse($classeHistorique);
                 }
 
-                if ($lastHistorique['famille'] !== $famille) {
-                    $historique['famille'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                    $historique['famille'][$date->getTimestamp()] = [
-                        'valeur' => isset($famille) ? $famille->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['famille'] = $famille;
-                    $historized = true;
+                if ($lastHistorique->getFamille() !== $famille) {
+                    $allFamilles = $historique->getFamille();
+                    $currentFamille = end($allFamilles);
+                    \assert($currentFamille !== false);
+                    $currentFamille->setFin($date->getTimestamp());
+
+                    $lastHistorique->setFamille($famille);
+
+                    $familleHistorique = new DonneeHistorique($date->getTimestamp(), null !== $famille ? $famille->getLibelle() : null, $infosAuteur);
+                    $historique->addFamille($familleHistorique);
                 }
 
-                if ($lastHistorique['categorie'] !== $categorie) {
-                    $historique['categorie'][$lastHistorique['date']]['fin'] = $date->getTimestamp();
-                    $historique['categorie'][$date->getTimestamp()] = [
-                        'valeur' => isset($categorie) ? $categorie->getLibelle() : '',
-                        'auteur' => $infosAuteur,
-                    ];
-                    $lastHistorique['categorie'] = $categorie;
-                    $historized = true;
-                }
+                if ($lastHistorique->getCategorie() !== $categorie) {
+                    $allCategories = $historique->getCategorie();
+                    $currentCategorie = end($allCategories);
+                    \assert($currentCategorie !== false);
+                    $currentCategorie->setFin($date->getTimestamp());
 
-                if ($historized) {
-                    $lastHistorique['date'] = $date->getTimestamp();
+                    $lastHistorique->setCategorie($categorie);
+
+                    $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
+                    $historique->addCategorie($categorieHistorique);
                 }
             }
         }
@@ -174,7 +171,11 @@ final class Etablissement
     }
 
     /**
+     * Récupère les données d'historique des avis de l'établissement.
+     *
      * @param \App\Entity\Dossier[] $dossiers
+     *
+     * @return \App\Dto\Historique\DonneeHistorique[]
      */
     private function getHistoriqueDossiers(array $dossiers): array
     {
@@ -183,38 +184,34 @@ final class Etablissement
         }
 
         $historique = [];
-        $lastHistorique = [];
+        $lastHistorique = new LastAvis();
 
         foreach ($dossiers as $dossier) {
             $avis = $dossier->getAvisCommission();
-            $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : '');
+            $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : false);
             $auteur = $dossier->getCreateur();
-            $infosAuteur = [];
+            $infosAuteur = null;
 
             if (null !== $auteur) {
-                $infosAuteur = [
-                    'id' => $auteur->getId(),
-                    'name' => $auteur->getNom().' '.$auteur->getPrenom(),
-                ];
+                $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
             }
 
             if ([] === $historique) {
-                $historique['avis'][$date] = [
-                    'valeur' => null !== $avis ? $avis->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $lastHistorique = [
-                    'avis' => $avis,
-                    'date' => $date,
-                ];
-            } elseif ($lastHistorique['avis'] !== $avis) {
-                $historique['avis'][$lastHistorique['date']]['fin'] = $date;
-                $historique['avis'][$date] = [
-                    'valeur' => null !== $avis ? $avis->getLibelle() : '',
-                    'auteur' => $infosAuteur,
-                ];
-                $lastHistorique['avis'] = $avis;
-                $lastHistorique['date'] = $date;
+                $avisHistorique = new DonneeHistorique($date, null !== $avis ? $avis->getLibelle() : null, $infosAuteur);
+                $historique[] = $avisHistorique;
+
+                $lastHistorique->setAvis($avis);
+                $lastHistorique->setDate($date);
+            } elseif ($lastHistorique->getAvis() !== $avis) {
+                $currentLastAvis = end($historique);
+                $currentLastAvis->setFin($date);
+
+                $avisHistorique = new DonneeHistorique($date, null !== $avis ? $avis->getLibelle() : null, $infosAuteur);
+                $historique[] = $avisHistorique;
+
+                $lastHistorique
+                    ->setAvis($avis)
+                    ->setDate($date);
             }
         }
 

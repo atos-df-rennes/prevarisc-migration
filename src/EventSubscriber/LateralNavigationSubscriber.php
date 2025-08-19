@@ -7,6 +7,7 @@ use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class LateralNavigationSubscriber implements EventSubscriberInterface
@@ -25,7 +26,7 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
         $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
     }
 
-    public function onKernelController(ControllerEvent $event)
+    public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
 
@@ -34,25 +35,39 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
         }
 
         if ($controller instanceof EtablissementController) {
-            $etablissement = $this->etablissementRepository->find($event->getRequest()->attributes->get('id'));
+            $idEtablissement = filter_var($event->getRequest()->attributes->get('id'), FILTER_VALIDATE_INT);
+            $etablissement = $this->etablissementRepository->find($idEtablissement);
+
+            if (null === $etablissement) {
+                throw new NotFoundHttpException("L'établissement ayant pour identifiant {$idEtablissement} n'existe pas.");
+            }
 
             // Récupère récursivement le parent de l'établissement
             $etablissementCourant = $etablissement;
             $parents = [];
+
             do {
+                if (null === $etablissementCourant) {
+                    break;
+                }
+
                 $parent = $etablissementCourant->getParent();
 
                 if ($parent !== null) {
                     $parents[] = $parent;
                     $etablissementCourant = $this->etablissementRepository->find($parent->getId());
                 }
-            } while ($parent !== null);
-            $parents = array_reverse($parents);
+            }
+            while ($parent !== null);
 
+            $parents = array_reverse($parents);
             $event->getRequest()->attributes->set('parents_etablissement', $parents);
 
-            $event->getRequest()->attributes->set('libelle_descriptif', $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement'])->getNom());
-            $event->getRequest()->attributes->set('libelle_effectifs_degagements', $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement'])->getNom());
+            $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement']);
+            $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement']);
+            $event->getRequest()->attributes->set('libelle_descriptif', null !== $capsuleDescriptifEtablissement ? $capsuleDescriptifEtablissement->getNom() : 'Descriptif');
+            $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
+
             $event->getRequest()->attributes->set('has_avis_derogations', $etablissement->hasAvisDerogations());
         }
     }

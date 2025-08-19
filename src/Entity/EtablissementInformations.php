@@ -219,7 +219,7 @@ class EtablissementInformations
         return $this->genre;
     }
 
-    public function setGenre(?Genre $genre): self
+    public function setGenre(Genre $genre): self
     {
         $this->genre = $genre;
 

@@ -63,7 +63,7 @@ class Etablissement
     private $adresses;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(name="NUMEROID_ETABLISSEMENT", type="string", length=50, nullable=true)
      */
@@ -381,7 +381,7 @@ class Etablissement
                 return false;
             }
 
-            return $dossier->getNature()->getId() === DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX
+            return $nature->getId() === DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX
                 && $dossier->getDateSuppression() === null;
         });
 

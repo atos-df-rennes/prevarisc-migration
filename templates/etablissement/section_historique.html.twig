@@ -12,17 +12,17 @@
                 </tr>
                 </thead>
             <tbody>
-                {% for key, data in datas %}
+                {% for data in datas %}
                     <tr>
                         <td>
                             {# @todo: Remettre un format humain après activation d'INTL (e.g. 4 juil. 2022) #}
-                            Du {{ key|date('d/m/Y') }} {% if loop.last %}à aujourd'hui{% else %}au {{ data.fin|date('d/m/Y') }}{% endif %}
+                            Du {{ data.date|date('d/m/Y') }} {% if loop.last %}à aujourd'hui{% else %}au {{ data.fin|date('d/m/Y') }}{% endif %}
                         </td>
                         <td>
                             {{ data.valeur }}
                             <span style="font-size: 0.8em">
                                 (Dernière modification par
-                                {% if data.auteur is empty %}
+                                {% if data.auteur is null %}
                                     <em>Inconnu</em>
                                 {% else %}
                                     <a href='/user/profile/uid/{{ data.auteur.id }}'>{{ data.auteur.name }}</a>
