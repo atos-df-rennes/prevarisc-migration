@@ -40,7 +40,7 @@ class TextesApplicablesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // @todo: gestion de l'affichage prescription
             // la valeur oui/non n'est pas conservée, peut-être le gérer mais quid des conséquences d'affichage/masquaque
-            $prescription = $form->get('prescription')->getData();
+            $prescription = filter_var($form->get('prescription')->getData(), FILTER_VALIDATE_BOOLEAN);
             $serviceTexteApplicable->save($texteApplicable, $prescription);
 
             $this->addFlash('success', 'Texte applicable ajouté.');
@@ -64,7 +64,7 @@ class TextesApplicablesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $prescription = $form->get('prescription')->getData();
+            $prescription = filter_var($form->get('prescription')->getData(), FILTER_VALIDATE_BOOLEAN);
             $serviceTexteApplicable->save($texteApplicable, $prescription);
 
             $this->addFlash('success', 'Texte applicable modifié.');
@@ -82,7 +82,13 @@ class TextesApplicablesController extends AbstractController
      */
     public function ordonner(Request $request, TexteApplicableRepository $texteApplicableRepository): Response
     {
-        $taIds = explode(',', $request->request->get('tableUpdate'));
+        $tableUpdate = $request->request->get('tableUpdate');
+
+        if (!\is_string($tableUpdate)) {
+            throw new \Exception("Le format de la table de mise à jour est incorrect.");
+        }
+
+        $taIds = explode(',', $tableUpdate);
         $entityManager = $this->getDoctrine()->getManager();
 
         foreach ($taIds as $key => $id) {

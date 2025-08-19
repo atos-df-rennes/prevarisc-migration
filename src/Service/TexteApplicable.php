@@ -18,7 +18,7 @@ final class TexteApplicable
     {
         if ($prescription) {
             $prescriptionListe = new PrescriptionTexteListe();
-            $prescriptionListe->setLibelle($texteApplicable->getLibelle());
+            $prescriptionListe->setLibelle($texteApplicable->getLibelle() ?: '');
             $this->entityManager->persist($prescriptionListe);
         }
 
