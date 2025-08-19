@@ -26,14 +26,14 @@ class EtablissementInformations
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_ETABLISSEMENTINFORMATIONS", type="string", length=255)
+     * @ORM\Column(nullable=false, name="LIBELLE_ETABLISSEMENTINFORMATIONS", type="string", length=255)
      */
     private $libelle;
 
     /**
      * @var \DateTimeInterface
      *
-     * @ORM\Column(name="DATE_ETABLISSEMENTINFORMATIONS", type="date")
+     * @ORM\Column(nullable=false, name="DATE_ETABLISSEMENTINFORMATIONS", type="date")
      */
     private $date;
 
@@ -45,6 +45,69 @@ class EtablissementInformations
      * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
      */
     private $etablissement;
+
+    /**
+     * @var ?EtablissementStatut
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementStatut::class)
+     *
+     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=true, options={"unsigned":true})
+     */
+    private $statut;
+
+    /**
+     * @var ?EtablissementType
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementType::class)
+     *
+     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=true, options={"unsigned":true})
+     */
+    private $type;
+
+    /**
+     * @var ?EtablissementCategorie
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
+     *
+     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE", nullable=true, options={"unsigned":true})
+     */
+    private $categorie;
+
+    /**
+     * @var ?IghClasse
+     *
+     * @ORM\ManyToOne(targetEntity=IghClasse::class)
+     *
+     * @ORM\JoinColumn(nullable=true, name="ID_CLASSE", referencedColumnName="ID_CLASSE", options={"unsigned":true})
+     */
+    private $classe;
+
+    /**
+     * @var ?Famille
+     *
+     * @ORM\ManyToOne(targetEntity=Famille::class)
+     *
+     * @ORM\JoinColumn(nullable=true, name="ID_FAMILLE", referencedColumnName="ID_FAMILLE")
+     */
+    private $famille;
+
+    /**
+     * @var ?UtilisateurInformations
+     *
+     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     *
+     * @ORM\JoinColumn(nullable=true, name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})
+     */
+    private $utilisateur;
+
+    /**
+     * @var Genre
+     *
+     * @ORM\ManyToOne(targetEntity=Genre::class)
+     *
+     * @ORM\JoinColumn(nullable=false, name="ID_GENRE", referencedColumnName="ID_GENRE", options={"unsigned":true})
+     */
+    private $genre;
 
     public function getId(): ?int
     {
@@ -83,6 +146,90 @@ class EtablissementInformations
     public function setEtablissement(?Etablissement $etablissement): self
     {
         $this->etablissement = $etablissement;
+
+        return $this;
+    }
+
+    public function getStatut(): ?EtablissementStatut
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(?EtablissementStatut $statut): self
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getType(): ?EtablissementType
+    {
+        return $this->type;
+    }
+
+    public function setType(?EtablissementType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getCategorie(): ?EtablissementCategorie
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(?EtablissementCategorie $categorie): self
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getClasse(): ?IghClasse
+    {
+        return $this->classe;
+    }
+
+    public function setClasse(?IghClasse $classe): self
+    {
+        $this->classe = $classe;
+
+        return $this;
+    }
+
+    public function getFamille(): ?Famille
+    {
+        return $this->famille;
+    }
+
+    public function setFamille(?Famille $famille): self
+    {
+        $this->famille = $famille;
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?UtilisateurInformations
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(?UtilisateurInformations $utilisateur): self
+    {
+        $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getGenre(): ?Genre
+    {
+        return $this->genre;
+    }
+
+    public function setGenre(Genre $genre): self
+    {
+        $this->genre = $genre;
 
         return $this;
     }

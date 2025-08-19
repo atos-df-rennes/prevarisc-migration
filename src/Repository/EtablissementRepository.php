@@ -47,6 +47,9 @@ class EtablissementRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return Etablissement[]
+     */
     public function findDeleted(): array
     {
         $queryBuilder = $this->createQueryBuilder('e');
@@ -66,5 +69,25 @@ class EtablissementRepository extends ServiceEntityRepository
         ;
 
         return $query->getResult();
+    }
+
+    public function getHistoriqueInformationsData(int $id): Etablissement
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('ei')
+            ->join('e.informations', 'ei')
+            ->leftJoin('ei.statut', 'es')
+            ->leftJoin('ei.type', 'et')
+            ->leftJoin('ei.categorie', 'ec')
+            ->leftJoin('ei.classe', 'ecl')
+            ->leftJoin('ei.famille', 'ef')
+            ->leftJoin('ei.utilisateur', 'eu')
+            ->where('e.id = :id')
+            ->orderBy('ei.date', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        return $query->getSingleResult();
     }
 }

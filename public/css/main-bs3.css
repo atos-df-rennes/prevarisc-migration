@@ -54,13 +54,21 @@
       margin-left: 0;
       font-style: italic;
   }
-  
+
+  h1, h2, h3, h4, h5, h6 {
+      font-weight: bold;
+  }
+
   h2{
       font-size: 20px;
   }
   
   h3 {
       font-size: 18px;
+  }
+
+  h4 {
+        font-size: 17.5px
   }
   
   h2 small {
@@ -1233,5 +1241,9 @@
 
   input[type="file"].avatar-utilisateur {
     display: inline-block;
+  }
+
+  p.muted {
+      color: #999;
   }
   

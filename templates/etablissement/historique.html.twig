@@ -1,0 +1,57 @@
+{% extends 'layouts/etablissement.html.twig' %}
+{% from "etablissement/section_historique.html.twig" import section_historique %}
+
+{% block title %}{{ parent() }} / Historique{% endblock %}
+
+{% block body %}
+    <h3>Historique</h3>
+
+    <h4>Historique des avis d'exploitation</h4>
+    {% if historique.avis is defined %}
+        {{ section_historique(historique.avis) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+
+    <h4>Historique du libellé</h4>
+    {% if historique.libelle is defined %}
+        {{ section_historique(historique.libelle) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+
+    <h4>Historique du statut</h4>
+    {% if historique.statut is defined %}
+        {{ section_historique(historique.statut) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+
+    <h4>Historique de la catégorie</h4>
+    {% if historique.categorie is defined %}
+        {{ section_historique(historique.categorie) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+
+    <h4>Historique de la classe</h4>
+    {% if historique.classe is defined %}
+        {{ section_historique(historique.classe) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+
+    <h4>Historique de la famille</h4>
+    {% if historique.famille is defined %}
+        {{ section_historique(historique.famille) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+
+    <h4>Historique du type d'activité</h4>
+    {% if historique.type is defined %}
+        {{ section_historique(historique.type) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
+{% endblock %}
