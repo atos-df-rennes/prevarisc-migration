@@ -5,11 +5,13 @@ namespace App\Twig;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-class IconeTypeEtablissementExtension extends AbstractExtension {
+class IconeTypeEtablissementExtension extends AbstractExtension
+{
     /** @var string */
     private $srcDir;
 
-    public function __construct(string $srcDir) {
+    public function __construct(string $srcDir)
+    {
         $this->srcDir = $srcDir;
     }
 

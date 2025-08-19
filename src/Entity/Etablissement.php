@@ -90,6 +90,7 @@ class Etablissement
      *     joinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
      *     inverseJoinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
      * )
+     *
      * @ORM\ManyToMany(targetEntity=Etablissement::class, mappedBy="fils")
      */
     private $parents;
@@ -366,7 +367,7 @@ class Etablissement
     {
         $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
             return $dossier->getAvisDiffere()
-                && $dossier->getDateSuppression() === null;
+                && null === $dossier->getDateSuppression();
         });
 
         return !$dossiersAvisDiffere->isEmpty();
@@ -381,8 +382,8 @@ class Etablissement
                 return false;
             }
 
-            return $nature->getId() === DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX
-                && $dossier->getDateSuppression() === null;
+            return DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX === $nature->getId()
+                && null === $dossier->getDateSuppression();
         });
 
         return !$dossiersEcheancier->isEmpty();

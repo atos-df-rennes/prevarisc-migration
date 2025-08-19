@@ -12,14 +12,18 @@ class Genre
 {
     /**
      * @var int
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_GENRE", type="integer", options={"unsigned":true})
      */
     private $id;
 
     /**
      * @var string
+     *
      * @ORM\Column(name="LIBELLE_GENRE", type="string", length=50)
      */
     private $libelle;

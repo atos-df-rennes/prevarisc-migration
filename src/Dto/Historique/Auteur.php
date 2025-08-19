@@ -2,14 +2,16 @@
 
 namespace App\Dto\Historique;
 
-class Auteur {
+class Auteur
+{
     /** @var ?int */
     private $id;
 
     /** @var string */
     private $name;
 
-    public function __construct(?int $id, string $name) {
+    public function __construct(?int $id, string $name)
+    {
         $this->id = $id;
         $this->name = $name;
     }

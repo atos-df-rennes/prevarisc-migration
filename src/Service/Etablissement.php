@@ -2,12 +2,12 @@
 
 namespace App\Service;
 
-use App\Dto\Historique\Informations;
-use App\Entity\Dossier;
 use App\Dto\Historique\Auteur;
 use App\Dto\Historique\DonneeHistorique;
+use App\Dto\Historique\Informations;
 use App\Dto\Historique\LastAvis;
 use App\Dto\Historique\LastInformations;
+use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
@@ -66,7 +66,6 @@ final class Etablissement
                 $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
             }
 
-
             if ($historique->isEmpty()) {
                 $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
                 $historique->addStatut($statutHistorique);
@@ -98,7 +97,7 @@ final class Etablissement
                 if ($lastHistorique->getStatut() !== $statut) {
                     $allStatuts = $historique->getStatut();
                     $currentStatut = end($allStatuts);
-                    \assert($currentStatut !== false);
+                    \assert(false !== $currentStatut);
                     $currentStatut->setFin($date->getTimestamp());
 
                     $lastHistorique->setStatut($statut);
@@ -110,7 +109,7 @@ final class Etablissement
                 if ($lastHistorique->getType() !== $type) {
                     $allTypes = $historique->getType();
                     $currentType = end($allTypes);
-                    \assert($currentType !== false);
+                    \assert(false !== $currentType);
                     $currentType->setFin($date->getTimestamp());
 
                     $lastHistorique->setType($type);
@@ -122,7 +121,7 @@ final class Etablissement
                 if ($lastHistorique->getLibelle() !== $libelle) {
                     $allLibelles = $historique->getLibelle();
                     $currentLibelle = end($allLibelles);
-                    \assert($currentLibelle !== false);
+                    \assert(false !== $currentLibelle);
                     $currentLibelle->setFin($date->getTimestamp());
 
                     $lastHistorique->setLibelle($libelle);
@@ -134,7 +133,7 @@ final class Etablissement
                 if ($lastHistorique->getClasse() !== $classe) {
                     $allClasses = $historique->getClasse();
                     $currentClasse = end($allClasses);
-                    \assert($currentClasse !== false);
+                    \assert(false !== $currentClasse);
                     $currentClasse->setFin($date->getTimestamp());
 
                     $lastHistorique->setClasse($classe);
@@ -146,7 +145,7 @@ final class Etablissement
                 if ($lastHistorique->getFamille() !== $famille) {
                     $allFamilles = $historique->getFamille();
                     $currentFamille = end($allFamilles);
-                    \assert($currentFamille !== false);
+                    \assert(false !== $currentFamille);
                     $currentFamille->setFin($date->getTimestamp());
 
                     $lastHistorique->setFamille($famille);
@@ -158,7 +157,7 @@ final class Etablissement
                 if ($lastHistorique->getCategorie() !== $categorie) {
                     $allCategories = $historique->getCategorie();
                     $currentCategorie = end($allCategories);
-                    \assert($currentCategorie !== false);
+                    \assert(false !== $currentCategorie);
                     $currentCategorie->setFin($date->getTimestamp());
 
                     $lastHistorique->setCategorie($categorie);

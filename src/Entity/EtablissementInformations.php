@@ -48,6 +48,7 @@ class EtablissementInformations
 
     /**
      * @var ?EtablissementStatut
+     *
      * @ORM\ManyToOne(targetEntity=EtablissementStatut::class)
      *
      * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=true, options={"unsigned":true})
@@ -56,6 +57,7 @@ class EtablissementInformations
 
     /**
      * @var ?EtablissementType
+     *
      * @ORM\ManyToOne(targetEntity=EtablissementType::class)
      *
      * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=true, options={"unsigned":true})
@@ -64,6 +66,7 @@ class EtablissementInformations
 
     /**
      * @var ?EtablissementCategorie
+     *
      * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
      *
      * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE", nullable=true, options={"unsigned":true})
@@ -72,6 +75,7 @@ class EtablissementInformations
 
     /**
      * @var ?IghClasse
+     *
      * @ORM\ManyToOne(targetEntity=IghClasse::class)
      *
      * @ORM\JoinColumn(nullable=true, name="ID_CLASSE", referencedColumnName="ID_CLASSE", options={"unsigned":true})
@@ -80,6 +84,7 @@ class EtablissementInformations
 
     /**
      * @var ?Famille
+     *
      * @ORM\ManyToOne(targetEntity=Famille::class)
      *
      * @ORM\JoinColumn(nullable=true, name="ID_FAMILLE", referencedColumnName="ID_FAMILLE")
@@ -88,6 +93,7 @@ class EtablissementInformations
 
     /**
      * @var ?UtilisateurInformations
+     *
      * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
      *
      * @ORM\JoinColumn(nullable=true, name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})
@@ -96,7 +102,9 @@ class EtablissementInformations
 
     /**
      * @var Genre
+     *
      * @ORM\ManyToOne(targetEntity=Genre::class)
+     *
      * @ORM\JoinColumn(nullable=false, name="ID_GENRE", referencedColumnName="ID_GENRE", options={"unsigned":true})
      */
     private $genre;

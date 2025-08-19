@@ -2,7 +2,8 @@
 
 namespace App\Dto\Historique;
 
-class DonneeHistorique {
+class DonneeHistorique
+{
     /** @var false|int */
     private $date;
 
@@ -60,7 +61,8 @@ class DonneeHistorique {
     /**
      * @return false|int
      */
-    public function getFin() {
+    public function getFin()
+    {
         return $this->fin;
     }
 }

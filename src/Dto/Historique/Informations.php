@@ -2,7 +2,8 @@
 
 namespace App\Dto\Historique;
 
-class Informations {
+class Informations
+{
     /** @var DonneeHistorique[] */
     private $statut;
 
@@ -24,7 +25,8 @@ class Informations {
     /** @var DonneeHistorique[] */
     private $avis;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->statut = [];
         $this->type = [];
         $this->classe = [];
@@ -36,23 +38,25 @@ class Informations {
 
     public function isEmpty(): bool
     {
-        return $this->statut === []
-            && $this->type === []
-            && $this->classe === []
-            && $this->famille === []
-            && $this->libelle === []
-            && $this->categorie === []
+        return [] === $this->statut
+            && [] === $this->type
+            && [] === $this->classe
+            && [] === $this->famille
+            && [] === $this->libelle
+            && [] === $this->categorie
         ;
     }
 
     /**
      * @return DonneeHistorique[]
      */
-    public function getStatut(): array {
+    public function getStatut(): array
+    {
         return $this->statut;
     }
 
-    public function addStatut(DonneeHistorique $statut): self {
+    public function addStatut(DonneeHistorique $statut): self
+    {
         $this->statut[] = $statut;
 
         return $this;
@@ -61,11 +65,13 @@ class Informations {
     /**
      * @return DonneeHistorique[]
      */
-    public function getType(): array {
+    public function getType(): array
+    {
         return $this->type;
     }
 
-    public function addType(DonneeHistorique $type): self {
+    public function addType(DonneeHistorique $type): self
+    {
         $this->type[] = $type;
 
         return $this;
@@ -74,11 +80,13 @@ class Informations {
     /**
      * @return DonneeHistorique[]
      */
-    public function getClasse(): array {
+    public function getClasse(): array
+    {
         return $this->classe;
     }
 
-    public function addClasse(DonneeHistorique $classe): self {
+    public function addClasse(DonneeHistorique $classe): self
+    {
         $this->classe[] = $classe;
 
         return $this;
@@ -87,11 +95,13 @@ class Informations {
     /**
      * @return DonneeHistorique[]
      */
-    public function getFamille(): array {
+    public function getFamille(): array
+    {
         return $this->famille;
     }
 
-    public function addFamille(DonneeHistorique $famille): self {
+    public function addFamille(DonneeHistorique $famille): self
+    {
         $this->famille[] = $famille;
 
         return $this;
@@ -100,11 +110,13 @@ class Informations {
     /**
      * @return DonneeHistorique[]
      */
-    public function getLibelle(): array {
+    public function getLibelle(): array
+    {
         return $this->libelle;
     }
 
-    public function addLibelle(DonneeHistorique $libelle): self {
+    public function addLibelle(DonneeHistorique $libelle): self
+    {
         $this->libelle[] = $libelle;
 
         return $this;
@@ -113,11 +125,13 @@ class Informations {
     /**
      * @return DonneeHistorique[]
      */
-    public function getCategorie(): array {
+    public function getCategorie(): array
+    {
         return $this->categorie;
     }
 
-    public function addCategorie(DonneeHistorique $categorie): self {
+    public function addCategorie(DonneeHistorique $categorie): self
+    {
         $this->categorie[] = $categorie;
 
         return $this;
@@ -134,7 +148,8 @@ class Informations {
     /**
      * @param DonneeHistorique[] $avis
      */
-    public function setAvis(array $avis): self {
+    public function setAvis(array $avis): self
+    {
         $this->avis = $avis;
 
         return $this;

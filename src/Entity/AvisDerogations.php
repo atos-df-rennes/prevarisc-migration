@@ -6,83 +6,101 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AvisDerogationsRepository")
+ *
  * @ORM\Table(name="avisderogations")
  */
 class AvisDerogations
 {
     /**
      * @var int
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
      * @ORM\Column(type="bigint", name="ID_AVIS_DEROGATION")
      */
     private $id;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=50, name="TYPE")
      */
     private $type;
 
     /**
      * @var ?string
+     *
      * @ORM\Column(type="string", length=100, name="TITRE", nullable=true)
      */
     private $titre;
 
     /**
      * @var ?string
+     *
      * @ORM\Column(type="text", name="OBJET", nullable=true)
      */
     private $objet;
 
     /**
      * @var ?string
+     *
      * @ORM\Column(type="text", name="JUSTIFICATION", nullable=true)
      */
     private $justification;
 
     /**
      * @var ?string
+     *
      * @ORM\Column(type="text", name="ARTICLES_CONCERNES", nullable=true)
      */
     private $articlesConcernes;
 
     /**
      * @var ?string
+     *
      * @ORM\Column(type="text", name="MESURES_COMPENSATOIRES_PROPOSEES", nullable=true)
      */
     private $mesuresCompensatoiresProposees;
 
     /**
      * @var ?string
+     *
      * @ORM\Column(type="text", name="ANALYSE_DE_RISQUE", nullable=true)
      */
     private $analyseDeRisque;
 
     /**
      * @var bool
+     *
      * @ORM\Column(type="boolean", name="DISPLAY_HISTORIQUE", options={"default": 0})
      */
     private $displayHistorique;
 
     /**
      * @var ?Avis
+     *
      * @ORM\ManyToOne(targetEntity=Avis::class, cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(name="AVIS", referencedColumnName="ID_AVIS", nullable=true)
      */
     private $avis;
 
     /**
      * @var ?Dossier
+     *
      * @ORM\ManyToOne(targetEntity=Dossier::class, cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(name="ID_DOSSIER_LIE", referencedColumnName="ID_DOSSIER", nullable=true)
      */
     private $dossierLie;
 
     /**
      * @var ?Dossier
+     *
      * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="avisDerogations")
+     *
      * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
      */
     private $dossier;

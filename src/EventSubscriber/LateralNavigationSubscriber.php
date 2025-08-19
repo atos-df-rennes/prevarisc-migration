@@ -53,12 +53,11 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
 
                 $parent = $etablissementCourant->getParent();
 
-                if ($parent !== null) {
+                if (null !== $parent) {
                     $parents[] = $parent;
                     $etablissementCourant = $this->etablissementRepository->find($parent->getId());
                 }
-            }
-            while ($parent !== null);
+            } while (null !== $parent);
 
             $parents = array_reverse($parents);
             $event->getRequest()->attributes->set('parents_etablissement', $parents);
