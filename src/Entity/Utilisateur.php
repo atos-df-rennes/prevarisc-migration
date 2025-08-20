@@ -86,6 +86,7 @@ class Utilisateur implements UserInterface
      */
     private $ip;
 
+    // @todo: Vérifier si doublon avec $commune
     /**
      * @var ?string
      *
