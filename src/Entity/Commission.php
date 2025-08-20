@@ -73,11 +73,19 @@ class Commission
      */
     private $contacts;
 
+    /**
+     * @var Collection<int, CommissionMembre>
+     *
+     * @ORM\OneToMany(targetEntity=CommissionMembre::class, mappedBy="commission", orphanRemoval=true)
+     */
+    private $membres;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
         $this->regles = new ArrayCollection();
         $this->contacts = new ArrayCollection();
+        $this->membres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -196,6 +204,34 @@ class Commission
     public function removeContact(UtilisateurInformations $contact): self
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommissionMembre>
+     */
+    public function getMembres(): Collection
+    {
+        return $this->membres;
+    }
+
+    public function addMembre(CommissionMembre $membre): self
+    {
+        if (!$this->membres->contains($membre)) {
+            $this->membres[] = $membre;
+            $membre->setCommission($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembre(CommissionMembre $membre): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->membres->removeElement($membre) && $membre->getCommission() === $this) {
+            $membre->setCommission(null);
+        }
 
         return $this;
     }
