@@ -26,7 +26,7 @@ class IghClasse
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_CLASSE", type="string", length=100)
+     * @ORM\Column(name="LIBELLE_CLASSE", type="string", length=100, nullable=false)
      */
     private $libelle;
 

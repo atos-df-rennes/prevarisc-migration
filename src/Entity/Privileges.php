@@ -42,7 +42,7 @@ class Privileges
      *
      * @ORM\ManyToOne(targetEntity=Resources::class, inversedBy="privileges")
      *
-     * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", options={"unsigned":true})
+     * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", nullable=false, options={"unsigned":true})
      */
     private $resource;
 

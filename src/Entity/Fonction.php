@@ -26,7 +26,7 @@ class Fonction
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_FONCTION", type="string", length=50)
+     * @ORM\Column(name="LIBELLE_FONCTION", type="string", length=50, nullable=false)
      */
     private $libelle;
 

@@ -28,14 +28,14 @@ class CapsuleRubrique
     /**
      * @var string
      *
-     * @ORM\Column(name="NOM_INTERNE", type="string", length=255)
+     * @ORM\Column(name="NOM_INTERNE", type="string", length=255, nullable=false)
      */
     private $nomInterne;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="NOM", type="string", length=255)
+     * @ORM\Column(name="NOM", type="string", length=255, nullable=false)
      */
     private $nom;
 

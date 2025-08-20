@@ -26,7 +26,7 @@ class EtablissementType
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_TYPE", type="string", length=45)
+     * @ORM\Column(name="LIBELLE_TYPE", type="string", length=45, nullable=false)
      */
     private $libelle;
 

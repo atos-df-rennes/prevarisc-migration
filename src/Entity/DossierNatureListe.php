@@ -30,7 +30,7 @@ class DossierNatureListe
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_DOSSIERNATURE", type="string", length=100)
+     * @ORM\Column(name="LIBELLE_DOSSIERNATURE", type="string", length=100, nullable=false)
      */
     private $libelle;
 
@@ -39,7 +39,7 @@ class DossierNatureListe
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
-     * @ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", nullable=false)
+     * @ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
      */
     private $type;
 

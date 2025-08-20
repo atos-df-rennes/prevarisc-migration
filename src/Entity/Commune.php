@@ -26,14 +26,14 @@ class Commune
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_COMMUNE", type="string", length=60)
+     * @ORM\Column(name="LIBELLE_COMMUNE", type="string", length=60, nullable=false)
      */
     private $libelle;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="CODEPOSTAL_COMMUNE", type="string", length=5)
+     * @ORM\Column(name="CODEPOSTAL_COMMUNE", type="string", length=5, nullable=false)
      */
     private $codePostal;
 

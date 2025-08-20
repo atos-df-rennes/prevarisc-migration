@@ -28,7 +28,7 @@ class CommissionRegle
      *
      * @ORM\ManyToOne(targetEntity=Groupement::class)
      *
-     * @ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT")
+     * @ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", nullable=true)
      */
     private $groupement;
 
@@ -46,7 +46,7 @@ class CommissionRegle
      *
      * @ORM\ManyToOne(targetEntity=Commune::class)
      *
-     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=true, onDelete="CASCADE")
      */
     private $commune;
 

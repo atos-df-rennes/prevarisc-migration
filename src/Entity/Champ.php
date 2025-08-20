@@ -27,7 +27,7 @@ class Champ
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="NOM", type="string", length=255, nullable=false)
      */
     private $nom;
 
@@ -70,7 +70,7 @@ class Champ
      *
      * @ORM\ManyToOne(targetEntity=Champ::class, inversedBy="enfants")
      *
-     * @ORM\JoinColumn(name="ID_PARENT", referencedColumnName="ID_CHAMP")
+     * @ORM\JoinColumn(name="ID_PARENT", referencedColumnName="ID_CHAMP", nullable=true)
      */
     private $parent;
 

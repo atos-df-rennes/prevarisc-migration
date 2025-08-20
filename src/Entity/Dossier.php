@@ -53,7 +53,7 @@ class Dossier
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
-     * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false)
+     * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
      */
     private $type;
 
@@ -86,7 +86,7 @@ class Dossier
      *
      * @ORM\ManyToOne(targetEntity=Avis::class)
      *
-     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS", nullable=true)
+     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
      */
     private $avisCommission;
 
@@ -109,7 +109,7 @@ class Dossier
      *
      * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
      *
-     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS")
+     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true)
      */
     private $createur;
 

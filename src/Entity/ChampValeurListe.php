@@ -26,7 +26,7 @@ class ChampValeurListe
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="VALEUR", type="string", length=255, nullable=false)
      */
     private $valeur;
 

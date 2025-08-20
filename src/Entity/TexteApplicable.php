@@ -26,14 +26,14 @@ class TexteApplicable
     /**
      * @var ?string
      *
-     * @ORM\Column(name="LIBELLE_TEXTESAPPL", type="text")
+     * @ORM\Column(name="LIBELLE_TEXTESAPPL", type="text", nullable=true)
      */
     private $libelle;
 
     /**
-     * @var bool
+     * @var ?bool
      *
-     * @ORM\Column(name="VISIBLE_TEXTESAPPL", type="boolean")
+     * @ORM\Column(name="VISIBLE_TEXTESAPPL", type="boolean", nullable=true)
      */
     private $visible;
 
@@ -63,7 +63,7 @@ class TexteApplicable
         return $this->libelle;
     }
 
-    public function setLibelle(string $libelle): self
+    public function setLibelle(?string $libelle): self
     {
         $this->libelle = $libelle;
 
@@ -75,7 +75,7 @@ class TexteApplicable
         return $this->visible;
     }
 
-    public function setVisible(bool $visible): self
+    public function setVisible(?bool $visible): self
     {
         $this->visible = $visible;
 

@@ -26,7 +26,7 @@ class TypeTexteApplicable
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_TYPETEXTEAPPL", type="text")
+     * @ORM\Column(name="LIBELLE_TYPETEXTEAPPL", type="text", nullable=false)
      */
     private $libelle;
 

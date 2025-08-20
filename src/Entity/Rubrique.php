@@ -26,7 +26,7 @@ class Rubrique
     /**
      * @var string
      *
-     * @ORM\Column(name="NOM", type="string", length=255)
+     * @ORM\Column(name="NOM", type="string", length=255, nullable=false)
      */
     private $nom;
 

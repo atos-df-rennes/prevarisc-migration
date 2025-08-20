@@ -17,14 +17,14 @@ class Famille
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(type="integer", name="ID_FAMILLE")
+     * @ORM\Column(name="ID_FAMILLE", type="integer")
      */
     private $id;
 
     /**
-     * @var ?string
+     * @var string
      *
-     * @ORM\Column(type="string", length=100, name="LIBELLE_FAMILLE", nullable=false)
+     * @ORM\Column(name="LIBELLE_FAMILLE", type="string", length=100, nullable=false)
      */
     private $libelle;
 
@@ -38,7 +38,7 @@ class Famille
         return $this->libelle;
     }
 
-    public function setLibelle(?string $libelle): self
+    public function setLibelle(string $libelle): self
     {
         $this->libelle = $libelle;
 

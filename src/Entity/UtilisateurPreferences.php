@@ -26,7 +26,7 @@ class UtilisateurPreferences
     /**
      * @var ?string
      *
-     * @ORM\Column(type="string", length=500, nullable=true)
+     * @ORM\Column(name="DASHBOARD_BLOCS", type="string", length=500, nullable=true)
      */
     private $blocsDashboard;
 

@@ -26,7 +26,7 @@ class TypeChamp
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(name="TYPE", type="string", length=50, nullable=false)
      */
     private $type;
 

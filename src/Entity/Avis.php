@@ -19,14 +19,14 @@ class Avis
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(type="integer", name="ID_AVIS")
+     * @ORM\Column(name="ID_AVIS", type="integer", options={"unsigned":true})
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=30, name="LIBELLE_AVIS")
+     * @ORM\Column(name="LIBELLE_AVIS", type="string", length=30, nullable=false)
      */
     private $libelle;
 

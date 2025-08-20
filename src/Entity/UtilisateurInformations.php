@@ -147,7 +147,7 @@ class UtilisateurInformations
      *
      * @ORM\ManyToOne(targetEntity=UtilisateurCivilite::class)
      *
-     * @ORM\JoinColumn(name="ID_UTILISATEURCIVILITE", referencedColumnName="ID_UTILISATEURCIVILITE", options={"unsigned":true})
+     * @ORM\JoinColumn(name="ID_UTILISATEURCIVILITE", referencedColumnName="ID_UTILISATEURCIVILITE", nullable=true, options={"unsigned":true})
      */
     private $civilite;
 
@@ -156,7 +156,7 @@ class UtilisateurInformations
      *
      * @ORM\ManyToOne(targetEntity=Fonction::class, inversedBy="utilisateurInformations")
      *
-     * @ORM\JoinColumn(name="ID_FONCTION", referencedColumnName="ID_FONCTION", options={"unsigned":true})
+     * @ORM\JoinColumn(name="ID_FONCTION", referencedColumnName="ID_FONCTION", nullable=true, options={"unsigned":true})
      */
     private $fonction;
 

@@ -29,7 +29,7 @@ class Groupe
      *
      * @Assert\NotBlank(message="Cette valeur ne doit pas être vide.")
      *
-     * @ORM\Column(name="LIBELLE_GROUPE", type="string", length=255)
+     * @ORM\Column(name="LIBELLE_GROUPE", type="string", length=255, nullable=false)
      */
     private $libelle;
 

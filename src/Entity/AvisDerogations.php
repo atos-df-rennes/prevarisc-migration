@@ -18,63 +18,63 @@ class AvisDerogations
      *
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @ORM\Column(type="bigint", name="ID_AVIS_DEROGATION")
+     * @ORM\Column(name="ID_AVIS_DEROGATION", type="bigint")
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=50, name="TYPE")
+     * @ORM\Column(name="TYPE", type="string", length=50, nullable=false)
      */
     private $type;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="string", length=100, name="TITRE", nullable=true)
+     * @ORM\Column(name="TITRE", type="string", length=100, nullable=true)
      */
     private $titre;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="text", name="OBJET", nullable=true)
+     * @ORM\Column(name="OBJET", type="text", nullable=true)
      */
     private $objet;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="text", name="JUSTIFICATION", nullable=true)
+     * @ORM\Column(name="JUSTIFICATION", type="text", nullable=true)
      */
     private $justification;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="text", name="ARTICLES_CONCERNES", nullable=true)
+     * @ORM\Column(name="ARTICLES_CONCERNES", type="text", nullable=true)
      */
     private $articlesConcernes;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="text", name="MESURES_COMPENSATOIRES_PROPOSEES", nullable=true)
+     * @ORM\Column(name="MESURES_COMPENSATOIRES_PROPOSEES", type="text", nullable=true)
      */
     private $mesuresCompensatoiresProposees;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(type="text", name="ANALYSE_DE_RISQUE", nullable=true)
+     * @ORM\Column(name="ANALYSE_DE_RISQUE", type="text", nullable=true)
      */
     private $analyseDeRisque;
 
     /**
      * @var bool
      *
-     * @ORM\Column(type="boolean", name="DISPLAY_HISTORIQUE", options={"default": 0})
+     * @ORM\Column(name="DISPLAY_HISTORIQUE", type="boolean", options={"default": 0})
      */
     private $displayHistorique;
 
@@ -83,7 +83,7 @@ class AvisDerogations
      *
      * @ORM\ManyToOne(targetEntity=Avis::class, cascade={"persist", "remove"})
      *
-     * @ORM\JoinColumn(name="AVIS", referencedColumnName="ID_AVIS", nullable=true)
+     * @ORM\JoinColumn(name="AVIS", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
      */
     private $avis;
 
