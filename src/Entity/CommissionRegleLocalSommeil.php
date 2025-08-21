@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CommissionRegleLocalSommeilRepository::class)
+ *
  * @ORM\Table(name="commissionreglelocalsommeil")
  */
 class CommissionRegleLocalSommeil
