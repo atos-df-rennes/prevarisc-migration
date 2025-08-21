@@ -42,7 +42,7 @@ class DocumentType extends AbstractType
             ])
             ->add('close', ButtonType::class, [
                 'label' => 'Fermer',
-                'attr' => ['class' => 'btn btn-default'],
+                'attr' => ['class' => 'btn btn-default', 'data-dismiss' => 'modal'],
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Envoyer',

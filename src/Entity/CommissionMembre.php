@@ -107,9 +107,23 @@ class CommissionMembre
      */
     private $categories;
 
+    /**
+     * @var Collection<int, EtablissementActivite>
+     *
+     * @ORM\JoinTable(
+     *     name="commissionmembretypeactivite",
+     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=EtablissementActivite::class)
+     */
+    private $types;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->types = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -245,6 +259,30 @@ class CommissionMembre
     public function removeCategory(EtablissementCategorie $category): self
     {
         $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementActivite>
+     */
+    public function getTypes(): Collection
+    {
+        return $this->types;
+    }
+
+    public function addType(EtablissementActivite $type): self
+    {
+        if (!$this->types->contains($type)) {
+            $this->types[] = $type;
+        }
+
+        return $this;
+    }
+
+    public function removeType(EtablissementActivite $type): self
+    {
+        $this->types->removeElement($type);
 
         return $this;
     }
