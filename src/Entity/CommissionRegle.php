@@ -100,12 +100,22 @@ class CommissionRegle
      */
     private $etudeVisite;
 
+    /**
+     * @var Collection<int, CommissionRegleLocalSommeil>
+     *
+     * @ORM\OneToMany(targetEntity=CommissionRegleLocalSommeil::class, mappedBy="regle", orphanRemoval=true)
+     *
+     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
+     */
+    private $localSommeil;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->classes = new ArrayCollection();
         $this->types = new ArrayCollection();
         $this->etudeVisite = new ArrayCollection();
+        $this->localSommeil = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -244,6 +254,34 @@ class CommissionRegle
         // set the owning side to null (unless already changed)
         if ($this->etudeVisite->removeElement($etudeVisite) && $etudeVisite->getRegle() === $this) {
             $etudeVisite->setRegle(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommissionRegleLocalSommeil>
+     */
+    public function getLocalSommeil(): Collection
+    {
+        return $this->localSommeil;
+    }
+
+    public function addLocalSommeil(CommissionRegleLocalSommeil $localSommeil): self
+    {
+        if (!$this->localSommeil->contains($localSommeil)) {
+            $this->localSommeil[] = $localSommeil;
+            $localSommeil->setRegle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLocalSommeil(CommissionRegleLocalSommeil $localSommeil): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->localSommeil->removeElement($localSommeil) && $localSommeil->getRegle() === $this) {
+            $localSommeil->setRegle(null);
         }
 
         return $this;
