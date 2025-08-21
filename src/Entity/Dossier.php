@@ -147,6 +147,32 @@ class Dossier
      */
     private $contacts;
 
+    /**
+     * @var Collection<int, Dossier>
+     *
+     * @ORM\JoinTable(
+     *     name="dossierlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER1", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIER2", referencedColumnName="ID_DOSSIER")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Dossier::class, inversedBy="dossiersAyantLie")
+     */
+    private $dossiersLies;
+
+    /**
+     * @var Collection<int, Dossier>
+     *
+     * @ORM\JoinTable(
+     *     name="dossierlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER2", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIER1", referencedColumnName="ID_DOSSIER")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Dossier::class, mappedBy="dossiersLies")
+     */
+    private $dossiersAyantLie;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -154,6 +180,8 @@ class Dossier
         $this->avisDerogations = new ArrayCollection();
         $this->displayRubriques = new ArrayCollection();
         $this->contacts = new ArrayCollection();
+        $this->dossiersLies = new ArrayCollection();
+        $this->dossiersAyantLie = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -391,6 +419,57 @@ class Dossier
     public function removeContact(UtilisateurInformations $contact): self
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getDossiersLies(): Collection
+    {
+        return $this->dossiersLies;
+    }
+
+    public function addDossiersLy(self $dossiersLy): self
+    {
+        if (!$this->dossiersLies->contains($dossiersLy)) {
+            $this->dossiersLies[] = $dossiersLy;
+        }
+
+        return $this;
+    }
+
+    public function removeDossiersLy(self $dossiersLy): self
+    {
+        $this->dossiersLies->removeElement($dossiersLy);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getDossiersAyantLie(): Collection
+    {
+        return $this->dossiersAyantLie;
+    }
+
+    public function addDossiersAyantLie(self $dossiersAyantLie): self
+    {
+        if (!$this->dossiersAyantLie->contains($dossiersAyantLie)) {
+            $this->dossiersAyantLie[] = $dossiersAyantLie;
+            $dossiersAyantLie->addDossiersLy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDossiersAyantLie(self $dossiersAyantLie): self
+    {
+        if ($this->dossiersAyantLie->removeElement($dossiersAyantLie)) {
+            $dossiersAyantLie->removeDossiersLy($this);
+        }
 
         return $this;
     }
