@@ -118,12 +118,20 @@ class Etablissement
      */
     private $risquesTechnologiques;
 
+    /**
+     * @var Collection<int, EtablissementDisplayRubrique>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementDisplayRubrique::class, mappedBy="etablissement", orphanRemoval=true)
+     */
+    private $displayRubriques;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
         $this->adresses = new ArrayCollection();
         $this->fils = new ArrayCollection();
         $this->parents = new ArrayCollection();
+        $this->displayRubriques = new ArrayCollection();
     }
 
     public function getId(): int
@@ -387,5 +395,33 @@ class Etablissement
         });
 
         return !$dossiersEcheancier->isEmpty();
+    }
+
+    /**
+     * @return Collection<int, EtablissementDisplayRubrique>
+     */
+    public function getDisplayRubriques(): Collection
+    {
+        return $this->displayRubriques;
+    }
+
+    public function addDisplayRubrique(EtablissementDisplayRubrique $displayRubrique): self
+    {
+        if (!$this->displayRubriques->contains($displayRubrique)) {
+            $this->displayRubriques[] = $displayRubrique;
+            $displayRubrique->setEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDisplayRubrique(EtablissementDisplayRubrique $displayRubrique): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->displayRubriques->removeElement($displayRubrique) && $displayRubrique->getEtablissement() === $this) {
+            $displayRubrique->setEtablissement(null);
+        }
+
+        return $this;
     }
 }
