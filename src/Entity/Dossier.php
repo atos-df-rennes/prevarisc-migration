@@ -127,11 +127,19 @@ class Dossier
      */
     private $avisDiffere;
 
+    /**
+     * @var Collection<int, DossierDisplayRubrique>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDisplayRubrique::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $displayRubriques;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
         $this->etablissements = new ArrayCollection();
         $this->avisDerogations = new ArrayCollection();
+        $this->displayRubriques = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -317,6 +325,34 @@ class Dossier
     public function setAvisDiffere(?bool $avisDiffere): self
     {
         $this->avisDiffere = $avisDiffere;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDisplayRubrique>
+     */
+    public function getDisplayRubriques(): Collection
+    {
+        return $this->displayRubriques;
+    }
+
+    public function addDisplayRubrique(DossierDisplayRubrique $displayRubrique): self
+    {
+        if (!$this->displayRubriques->contains($displayRubrique)) {
+            $this->displayRubriques[] = $displayRubrique;
+            $displayRubrique->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDisplayRubrique(DossierDisplayRubrique $displayRubrique): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->displayRubriques->removeElement($displayRubrique) && $displayRubrique->getDossier() === $this) {
+            $displayRubrique->setDossier(null);
+        }
 
         return $this;
     }
