@@ -91,11 +91,21 @@ class CommissionRegle
      */
     private $types;
 
+    /**
+     * @var Collection<int, CommissionRegleEtudeVisite>
+     *
+     * @ORM\OneToMany(targetEntity=CommissionRegleEtudeVisite::class, mappedBy="regle", orphanRemoval=true)
+     *
+     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
+     */
+    private $etudeVisite;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->classes = new ArrayCollection();
         $this->types = new ArrayCollection();
+        $this->etudeVisite = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +217,34 @@ class CommissionRegle
     public function removeType(EtablissementType $type): self
     {
         $this->types->removeElement($type);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommissionRegleEtudeVisite>
+     */
+    public function getEtudeVisite(): Collection
+    {
+        return $this->etudeVisite;
+    }
+
+    public function addEtudeVisite(CommissionRegleEtudeVisite $etudeVisite): self
+    {
+        if (!$this->etudeVisite->contains($etudeVisite)) {
+            $this->etudeVisite[] = $etudeVisite;
+            $etudeVisite->setRegle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEtudeVisite(CommissionRegleEtudeVisite $etudeVisite): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->etudeVisite->removeElement($etudeVisite) && $etudeVisite->getRegle() === $this) {
+            $etudeVisite->setRegle(null);
+        }
 
         return $this;
     }
