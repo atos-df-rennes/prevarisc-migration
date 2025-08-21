@@ -146,12 +146,26 @@ class CommissionMembre
      */
     private $naturesDossier;
 
+    /**
+     * @var Collection<int, DossierType>
+     *
+     * @ORM\JoinTable(
+     *     name="commissionmembredossiertype",
+     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=DossierType::class)
+     */
+    private $typesDossier;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->types = new ArrayCollection();
         $this->classes = new ArrayCollection();
         $this->naturesDossier = new ArrayCollection();
+        $this->typesDossier = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -359,6 +373,30 @@ class CommissionMembre
     public function removeNaturesDossier(DossierNatureListe $naturesDossier): self
     {
         $this->naturesDossier->removeElement($naturesDossier);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierType>
+     */
+    public function getTypesDossier(): Collection
+    {
+        return $this->typesDossier;
+    }
+
+    public function addTypesDossier(DossierType $typesDossier): self
+    {
+        if (!$this->typesDossier->contains($typesDossier)) {
+            $this->typesDossier[] = $typesDossier;
+        }
+
+        return $this;
+    }
+
+    public function removeTypesDossier(DossierType $typesDossier): self
+    {
+        $this->typesDossier->removeElement($typesDossier);
 
         return $this;
     }
