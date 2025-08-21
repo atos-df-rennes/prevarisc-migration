@@ -120,10 +120,24 @@ class CommissionMembre
      */
     private $types;
 
+    /**
+     * @var Collection<int, IghClasse>
+     *
+     * @ORM\JoinTable(
+     *     name="commissionmembreclasse",
+     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_CLASSE", referencedColumnName="ID_CLASSE", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=IghClasse::class)
+     */
+    private $classes;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->types = new ArrayCollection();
+        $this->classes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,6 +297,30 @@ class CommissionMembre
     public function removeType(EtablissementActivite $type): self
     {
         $this->types->removeElement($type);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IghClasse>
+     */
+    public function getClasses(): Collection
+    {
+        return $this->classes;
+    }
+
+    public function addClass(IghClasse $class): self
+    {
+        if (!$this->classes->contains($class)) {
+            $this->classes[] = $class;
+        }
+
+        return $this;
+    }
+
+    public function removeClass(IghClasse $class): self
+    {
+        $this->classes->removeElement($class);
 
         return $this;
     }
