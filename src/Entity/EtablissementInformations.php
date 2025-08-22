@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementInformationsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -108,6 +110,24 @@ class EtablissementInformations
      * @ORM\JoinColumn(name="ID_GENRE", referencedColumnName="ID_GENRE", nullable=false, options={"unsigned":true})
      */
     private $genre;
+
+    /**
+     * @var Collection<int, Utilisateur>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementinformationspreventionniste",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
+     */
+    private $preventionnistes;
+
+    public function __construct()
+    {
+        $this->preventionnistes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -230,6 +250,30 @@ class EtablissementInformations
     public function setGenre(Genre $genre): self
     {
         $this->genre = $genre;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Utilisateur>
+     */
+    public function getPreventionnistes(): Collection
+    {
+        return $this->preventionnistes;
+    }
+
+    public function addPreventionniste(Utilisateur $preventionniste): self
+    {
+        if (!$this->preventionnistes->contains($preventionniste)) {
+            $this->preventionnistes[] = $preventionniste;
+        }
+
+        return $this;
+    }
+
+    public function removePreventionniste(Utilisateur $preventionniste): self
+    {
+        $this->preventionnistes->removeElement($preventionniste);
 
         return $this;
     }

@@ -185,6 +185,20 @@ class Etablissement
         return $this->informations;
     }
 
+    /**
+     * Retourne l'historique le plus récent.
+     */
+    public function getLatestInformations(): EtablissementInformations
+    {
+        $latestInformations = $this->informations->last();
+
+        if (false === $latestInformations) {
+            throw new \OutOfBoundsException('Aucune information existante pour l\'établissement '.$this->id);
+        }
+
+        return $latestInformations;
+    }
+
     public function addInformations(EtablissementInformations $informations): self
     {
         if (!$this->informations->contains($informations)) {
