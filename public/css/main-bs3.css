@@ -1265,7 +1265,18 @@ p.muted {
   background-color: #fafafa;
 }
 
+.panel.panel-formulaire-perso .panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .panel.panel-formulaire-perso .date {
   background-color: #fff;
+}
+
+.panel.panel-formulaire-perso .control-group,
+.panel.panel-formulaire-perso .table {
+  margin-bottom: 0;
 }
   
