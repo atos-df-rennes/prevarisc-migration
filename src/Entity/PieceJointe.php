@@ -63,7 +63,7 @@ class PieceJointe
     /**
      * @var ?string
      *
-     * @ORM\Column(name="ID_PLATAU", type="string", length=11, nullable=true)
+     * @ORM\Column(name="ID_PLATAU", type="string", length=11, nullable=true, options={"fixed":true})
      */
     private $identifiantPlatau;
 
