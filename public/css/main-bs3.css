@@ -1246,4 +1246,26 @@ p.muted {
 .sortTexteAppl li {
   cursor: move;
 }
+
+.table-bordered,
+.table-bordered td {
+  border-color: black;
+}
+
+.table-bordered th {
+  background-color: #d5d5d5;
+  border-color: black;
+}
+
+.table-bordered .colonne-edition {
+  text-align: center;
+}
+
+.panel.panel-formulaire-perso {
+  background-color: #fafafa;
+}
+
+.panel.panel-formulaire-perso .date {
+  background-color: #fff;
+}
   

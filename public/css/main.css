@@ -1309,11 +1309,14 @@ dl.champ_effectif_camping dd input {
   border-color: black;
 }
 
-.table-bordered th:last-child,
-.table-bordered tr td:last-child{
+.table-bordered .colonne-edition {
   text-align: center;
 }
 
 .panel.panel-formulaire-perso {
   background-color: #fafafa;
+}
+
+.panel.panel-formulaire-perso .date {
+  background-color: #fff;
 }
