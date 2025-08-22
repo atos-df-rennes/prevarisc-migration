@@ -173,6 +173,13 @@ class Dossier
      */
     private $dossiersAyantLie;
 
+    /**
+     * @var Collection<int, DossierDocumentManquant>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsManquants;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -182,6 +189,7 @@ class Dossier
         $this->contacts = new ArrayCollection();
         $this->dossiersLies = new ArrayCollection();
         $this->dossiersAyantLie = new ArrayCollection();
+        $this->documentsManquants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -469,6 +477,34 @@ class Dossier
     {
         if ($this->dossiersAyantLie->removeElement($dossiersAyantLie)) {
             $dossiersAyantLie->removeDossiersLy($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDocumentManquant>
+     */
+    public function getDocumentsManquants(): Collection
+    {
+        return $this->documentsManquants;
+    }
+
+    public function addDocumentsManquant(DossierDocumentManquant $documentsManquant): self
+    {
+        if (!$this->documentsManquants->contains($documentsManquant)) {
+            $this->documentsManquants[] = $documentsManquant;
+            $documentsManquant->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsManquant(DossierDocumentManquant $documentsManquant): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsManquants->removeElement($documentsManquant) && $documentsManquant->getDossier() === $this) {
+            $documentsManquant->setDossier(null);
         }
 
         return $this;
