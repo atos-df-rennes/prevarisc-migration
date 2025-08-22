@@ -200,6 +200,19 @@ class Dossier
      */
     private $preventionnistes;
 
+    /**
+     * @var Collection<int, TexteApplicable>
+     *
+     * @ORM\JoinTable(
+     *     name="dossiertextesappl",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TEXTESAPPL", referencedColumnName="ID_TEXTESAPPL")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=TexteApplicable::class)
+     */
+    private $textesApplicables;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -212,6 +225,7 @@ class Dossier
         $this->documentsManquants = new ArrayCollection();
         $this->documentsUrbanisme = new ArrayCollection();
         $this->preventionnistes = new ArrayCollection();
+        $this->textesApplicables = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -580,6 +594,30 @@ class Dossier
     public function removePreventionniste(Utilisateur $preventionniste): self
     {
         $this->preventionnistes->removeElement($preventionniste);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TexteApplicable>
+     */
+    public function getTextesApplicables(): Collection
+    {
+        return $this->textesApplicables;
+    }
+
+    public function addTextesApplicable(TexteApplicable $textesApplicable): self
+    {
+        if (!$this->textesApplicables->contains($textesApplicable)) {
+            $this->textesApplicables[] = $textesApplicable;
+        }
+
+        return $this;
+    }
+
+    public function removeTextesApplicable(TexteApplicable $textesApplicable): self
+    {
+        $this->textesApplicables->removeElement($textesApplicable);
 
         return $this;
     }
