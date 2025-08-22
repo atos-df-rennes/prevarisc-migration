@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PieceJointeStatutRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,6 +39,18 @@ class PieceJointeStatut
      */
     private $nomLisible;
 
+    /**
+     * @var Collection<int, PieceJointe>
+     *
+     * @ORM\OneToMany(targetEntity=PieceJointe::class, mappedBy="statut")
+     */
+    private $pieceJointes;
+
+    public function __construct()
+    {
+        $this->pieceJointes = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -62,6 +76,34 @@ class PieceJointeStatut
     public function setNomLisible(string $nomLisible): self
     {
         $this->nomLisible = $nomLisible;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PieceJointe>
+     */
+    public function getPieceJointes(): Collection
+    {
+        return $this->pieceJointes;
+    }
+
+    public function addPieceJointe(PieceJointe $pieceJointe): self
+    {
+        if (!$this->pieceJointes->contains($pieceJointe)) {
+            $this->pieceJointes[] = $pieceJointe;
+            $pieceJointe->setStatut($this);
+        }
+
+        return $this;
+    }
+
+    public function removePieceJointe(PieceJointe $pieceJointe): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->pieceJointes->removeElement($pieceJointe) && $pieceJointe->getStatut() === $this) {
+            $pieceJointe->setStatut(null);
+        }
 
         return $this;
     }
