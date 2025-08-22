@@ -55,9 +55,23 @@ class Groupement
      */
     private $utilisateurs;
 
+    /**
+     * @var Collection<int, Commune>
+     *
+     * @ORM\JoinTable(
+     *     name="groupementcommune",
+     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", options={"fixed":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Commune::class)
+     */
+    private $communes;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
+        $this->communes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -124,6 +138,30 @@ class Groupement
         if ($this->utilisateurs->removeElement($utilisateur)) {
             $utilisateur->removeGroupement($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commune>
+     */
+    public function getCommunes(): Collection
+    {
+        return $this->communes;
+    }
+
+    public function addCommune(Commune $commune): self
+    {
+        if (!$this->communes->contains($commune)) {
+            $this->communes[] = $commune;
+        }
+
+        return $this;
+    }
+
+    public function removeCommune(Commune $commune): self
+    {
+        $this->communes->removeElement($commune);
 
         return $this;
     }
