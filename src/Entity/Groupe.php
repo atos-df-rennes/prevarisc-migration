@@ -59,10 +59,24 @@ class Groupe
      */
     private $privileges;
 
+    /**
+     * @var Collection<int, News>
+     *
+     * @ORM\JoinTable(
+     *     name="newsgroupe",
+     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_NEWS", referencedColumnName="ID_NEWS", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=News::class)
+     */
+    private $news;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
         $this->privileges = new ArrayCollection();
+        $this->news = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -142,6 +156,30 @@ class Groupe
     public function removePrivilege(Privileges $privilege): self
     {
         $this->privileges->removeElement($privilege);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, News>
+     */
+    public function getNews(): Collection
+    {
+        return $this->news;
+    }
+
+    public function addNews(News $news): self
+    {
+        if (!$this->news->contains($news)) {
+            $this->news[] = $news;
+        }
+
+        return $this;
+    }
+
+    public function removeNews(News $news): self
+    {
+        $this->news->removeElement($news);
 
         return $this;
     }
