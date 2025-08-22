@@ -187,6 +187,19 @@ class Dossier
      */
     private $documentsUrbanisme;
 
+    /**
+     * @var Collection<int, Utilisateur>
+     *
+     * @ORM\JoinTable(
+     *     name="dossierpreventionniste",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_PREVENTIONNISTE", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
+     */
+    private $preventionnistes;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -198,6 +211,7 @@ class Dossier
         $this->dossiersAyantLie = new ArrayCollection();
         $this->documentsManquants = new ArrayCollection();
         $this->documentsUrbanisme = new ArrayCollection();
+        $this->preventionnistes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -542,6 +556,30 @@ class Dossier
         if ($this->documentsUrbanisme->removeElement($documentsUrbanisme) && $documentsUrbanisme->getDossier() === $this) {
             $documentsUrbanisme->setDossier(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Utilisateur>
+     */
+    public function getPreventionnistes(): Collection
+    {
+        return $this->preventionnistes;
+    }
+
+    public function addPreventionniste(Utilisateur $preventionniste): self
+    {
+        if (!$this->preventionnistes->contains($preventionniste)) {
+            $this->preventionnistes[] = $preventionniste;
+        }
+
+        return $this;
+    }
+
+    public function removePreventionniste(Utilisateur $preventionniste): self
+    {
+        $this->preventionnistes->removeElement($preventionniste);
 
         return $this;
     }
