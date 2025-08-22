@@ -81,11 +81,29 @@ class Groupement
      */
     private $contacts;
 
+    /*
+     * La table de jointure contient plus de champs avec des dates
+     * mais elles ne sont jamais utilisées.
+     */
+    /**
+     * @var Collection<int, Utilisateur>
+     *
+     * @ORM\JoinTable(
+     *     name="groupementpreventionniste",
+     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
+     */
+    private $preventionnistes;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
         $this->communes = new ArrayCollection();
         $this->contacts = new ArrayCollection();
+        $this->preventionnistes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -200,6 +218,30 @@ class Groupement
     public function removeContact(UtilisateurInformations $contact): self
     {
         $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Utilisateur>
+     */
+    public function getPreventionnistes(): Collection
+    {
+        return $this->preventionnistes;
+    }
+
+    public function addPreventionniste(Utilisateur $preventionniste): self
+    {
+        if (!$this->preventionnistes->contains($preventionniste)) {
+            $this->preventionnistes[] = $preventionniste;
+        }
+
+        return $this;
+    }
+
+    public function removePreventionniste(Utilisateur $preventionniste): self
+    {
+        $this->preventionnistes->removeElement($preventionniste);
 
         return $this;
     }
