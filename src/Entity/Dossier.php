@@ -180,6 +180,13 @@ class Dossier
      */
     private $documentsManquants;
 
+    /**
+     * @var Collection<int, DossierDocumentUrbanisme>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDocumentUrbanisme::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsUrbanisme;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -190,6 +197,7 @@ class Dossier
         $this->dossiersLies = new ArrayCollection();
         $this->dossiersAyantLie = new ArrayCollection();
         $this->documentsManquants = new ArrayCollection();
+        $this->documentsUrbanisme = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -505,6 +513,34 @@ class Dossier
         // set the owning side to null (unless already changed)
         if ($this->documentsManquants->removeElement($documentsManquant) && $documentsManquant->getDossier() === $this) {
             $documentsManquant->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDocumentUrbanisme>
+     */
+    public function getDocumentsUrbanisme(): Collection
+    {
+        return $this->documentsUrbanisme;
+    }
+
+    public function addDocumentsUrbanisme(DossierDocumentUrbanisme $documentsUrbanisme): self
+    {
+        if (!$this->documentsUrbanisme->contains($documentsUrbanisme)) {
+            $this->documentsUrbanisme[] = $documentsUrbanisme;
+            $documentsUrbanisme->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsUrbanisme(DossierDocumentUrbanisme $documentsUrbanisme): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsUrbanisme->removeElement($documentsUrbanisme) && $documentsUrbanisme->getDossier() === $this) {
+            $documentsUrbanisme->setDossier(null);
         }
 
         return $this;
