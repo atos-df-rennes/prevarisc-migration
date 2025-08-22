@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PrescriptionCategorieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,6 +39,18 @@ class PrescriptionCategorie
      */
     private $numero;
 
+    /**
+     * @var Collection<int, PrescriptionTexte>
+     *
+     * @ORM\OneToMany(targetEntity=PrescriptionTexte::class, mappedBy="categorie", orphanRemoval=true)
+     */
+    private $textes;
+
+    public function __construct()
+    {
+        $this->textes = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -62,6 +76,34 @@ class PrescriptionCategorie
     public function setNumero(int $numero): self
     {
         $this->numero = $numero;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrescriptionTexte>
+     */
+    public function getTextes(): Collection
+    {
+        return $this->textes;
+    }
+
+    public function addTexte(PrescriptionTexte $texte): self
+    {
+        if (!$this->textes->contains($texte)) {
+            $this->textes[] = $texte;
+            $texte->setCategorie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTexte(PrescriptionTexte $texte): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->textes->removeElement($texte) && $texte->getCategorie() === $this) {
+            $texte->setCategorie(null);
+        }
 
         return $this;
     }
