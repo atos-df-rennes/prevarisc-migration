@@ -213,6 +213,13 @@ class Dossier
      */
     private $textesApplicables;
 
+    /**
+     * @var Collection<int, ListeDocumentAjoute>
+     *
+     * @ORM\OneToMany(targetEntity=ListeDocumentAjoute::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsAjoutes;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -226,6 +233,7 @@ class Dossier
         $this->documentsUrbanisme = new ArrayCollection();
         $this->preventionnistes = new ArrayCollection();
         $this->textesApplicables = new ArrayCollection();
+        $this->documentsAjoutes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -618,6 +626,34 @@ class Dossier
     public function removeTextesApplicable(TexteApplicable $textesApplicable): self
     {
         $this->textesApplicables->removeElement($textesApplicable);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListeDocumentAjoute>
+     */
+    public function getDocumentsAjoutes(): Collection
+    {
+        return $this->documentsAjoutes;
+    }
+
+    public function addDocumentsAjoute(ListeDocumentAjoute $documentsAjoute): self
+    {
+        if (!$this->documentsAjoutes->contains($documentsAjoute)) {
+            $this->documentsAjoutes[] = $documentsAjoute;
+            $documentsAjoute->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsAjoute(ListeDocumentAjoute $documentsAjoute): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsAjoutes->removeElement($documentsAjoute) && $documentsAjoute->getDossier() === $this) {
+            $documentsAjoute->setDossier(null);
+        }
 
         return $this;
     }
