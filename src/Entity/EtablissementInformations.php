@@ -124,9 +124,17 @@ class EtablissementInformations
      */
     private $preventionnistes;
 
+    /**
+     * @var Collection<int, EtablissementInformationsPlan>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementInformationsPlan::class, mappedBy="etablissementInformations", orphanRemoval=true)
+     */
+    private $plans;
+
     public function __construct()
     {
         $this->preventionnistes = new ArrayCollection();
+        $this->plans = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -274,6 +282,34 @@ class EtablissementInformations
     public function removePreventionniste(Utilisateur $preventionniste): self
     {
         $this->preventionnistes->removeElement($preventionniste);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementInformationsPlan>
+     */
+    public function getPlans(): Collection
+    {
+        return $this->plans;
+    }
+
+    public function addPlan(EtablissementInformationsPlan $plan): self
+    {
+        if (!$this->plans->contains($plan)) {
+            $this->plans[] = $plan;
+            $plan->setEtablissementInformations($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlan(EtablissementInformationsPlan $plan): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->plans->removeElement($plan) && $plan->getEtablissementInformations() === $this) {
+            $plan->setEtablissementInformations(null);
+        }
 
         return $this;
     }
