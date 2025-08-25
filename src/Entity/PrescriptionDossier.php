@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PrescriptionDossierRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -84,6 +86,18 @@ class PrescriptionDossier
      * @ORM\JoinColumn(name="ID_PRESCRIPTION_TYPE", referencedColumnName="ID_PRESCRIPTIONTYPE", nullable=true)
      */
     private $prescriptionType;
+
+    /**
+     * @var Collection<int, PrescriptionDossierAssociation>
+     *
+     * @ORM\OneToMany(targetEntity=PrescriptionDossierAssociation::class, mappedBy="prescriptionDossier", orphanRemoval=true)
+     */
+    private $associations;
+
+    public function __construct()
+    {
+        $this->associations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -182,6 +196,34 @@ class PrescriptionDossier
     public function setPrescriptionType(?PrescriptionType $prescriptionType): self
     {
         $this->prescriptionType = $prescriptionType;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrescriptionDossierAssociation>
+     */
+    public function getAssociations(): Collection
+    {
+        return $this->associations;
+    }
+
+    public function addAssociation(PrescriptionDossierAssociation $association): self
+    {
+        if (!$this->associations->contains($association)) {
+            $this->associations[] = $association;
+            $association->setPrescriptionDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssociation(PrescriptionDossierAssociation $association): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->associations->removeElement($association) && $association->getPrescriptionDossier() === $this) {
+            $association->setPrescriptionDossier(null);
+        }
 
         return $this;
     }
