@@ -151,6 +151,13 @@ class Etablissement
      */
     private $textesApplicables;
 
+    /**
+     * @var Collection<int, EtablissementPieceJointe>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementPieceJointe::class, mappedBy="etablissement", orphanRemoval=true)
+     */
+    private $piecesJointes;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
@@ -160,6 +167,7 @@ class Etablissement
         $this->displayRubriques = new ArrayCollection();
         $this->contacts = new ArrayCollection();
         $this->textesApplicables = new ArrayCollection();
+        $this->piecesJointes = new ArrayCollection();
     }
 
     public function getId(): int
@@ -511,6 +519,34 @@ class Etablissement
     public function removeTextesApplicable(TexteApplicable $textesApplicable): self
     {
         $this->textesApplicables->removeElement($textesApplicable);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementPieceJointe>
+     */
+    public function getPiecesJointes(): Collection
+    {
+        return $this->piecesJointes;
+    }
+
+    public function addPiecesJointe(EtablissementPieceJointe $piecesJointe): self
+    {
+        if (!$this->piecesJointes->contains($piecesJointe)) {
+            $this->piecesJointes[] = $piecesJointe;
+            $piecesJointe->setEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removePiecesJointe(EtablissementPieceJointe $piecesJointe): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->piecesJointes->removeElement($piecesJointe) && $piecesJointe->getEtablissement() === $this) {
+            $piecesJointe->setEtablissement(null);
+        }
 
         return $this;
     }
