@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\DateCommissionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -82,6 +84,24 @@ class DateCommission
      * @ORM\JoinColumn(name="COMMISSION_CONCERNE", referencedColumnName="ID_COMMISSION", nullable=false, options={"unsigned":true})
      */
     private $commission;
+
+    /**
+     * @var Collection<int, PieceJointe>
+     *
+     * @ORM\JoinTable(
+     *     name="datecommissionpj",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DATECOMMISSION", referencedColumnName="ID_DATECOMMISSION")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_PIECEJOINTE", referencedColumnName="ID_PIECEJOINTE")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=PieceJointe::class)
+     */
+    private $piecesJointes;
+
+    public function __construct()
+    {
+        $this->piecesJointes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -180,6 +200,30 @@ class DateCommission
     public function setCommission(?Commission $commission): self
     {
         $this->commission = $commission;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PieceJointe>
+     */
+    public function getPiecesJointes(): Collection
+    {
+        return $this->piecesJointes;
+    }
+
+    public function addPiecesJointe(PieceJointe $piecesJointe): self
+    {
+        if (!$this->piecesJointes->contains($piecesJointe)) {
+            $this->piecesJointes[] = $piecesJointe;
+        }
+
+        return $this;
+    }
+
+    public function removePiecesJointe(PieceJointe $piecesJointe): self
+    {
+        $this->piecesJointes->removeElement($piecesJointe);
 
         return $this;
     }
