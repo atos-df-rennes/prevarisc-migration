@@ -131,10 +131,18 @@ class EtablissementInformations
      */
     private $plans;
 
+    /**
+     * @var Collection<int, EtablissementInformationsTypesActivitesSecondaires>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementInformationsTypesActivitesSecondaires::class, mappedBy="etablissementInformations", orphanRemoval=true)
+     */
+    private $typesActivitesSecondaires;
+
     public function __construct()
     {
         $this->preventionnistes = new ArrayCollection();
         $this->plans = new ArrayCollection();
+        $this->typesActivitesSecondaires = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -309,6 +317,34 @@ class EtablissementInformations
         // set the owning side to null (unless already changed)
         if ($this->plans->removeElement($plan) && $plan->getEtablissementInformations() === $this) {
             $plan->setEtablissementInformations(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementInformationsTypesActivitesSecondaires>
+     */
+    public function getTypesActivitesSecondaires(): Collection
+    {
+        return $this->typesActivitesSecondaires;
+    }
+
+    public function addTypesActivitesSecondaire(EtablissementInformationsTypesActivitesSecondaires $typesActivitesSecondaire): self
+    {
+        if (!$this->typesActivitesSecondaires->contains($typesActivitesSecondaire)) {
+            $this->typesActivitesSecondaires[] = $typesActivitesSecondaire;
+            $typesActivitesSecondaire->setEtablissementInformations($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTypesActivitesSecondaire(EtablissementInformationsTypesActivitesSecondaires $typesActivitesSecondaire): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->typesActivitesSecondaires->removeElement($typesActivitesSecondaire) && $typesActivitesSecondaire->getEtablissementInformations() === $this) {
+            $typesActivitesSecondaire->setEtablissementInformations(null);
         }
 
         return $this;

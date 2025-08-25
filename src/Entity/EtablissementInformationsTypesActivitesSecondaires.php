@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\EtablissementInformationsTypesActivitesSecondairesRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass=EtablissementInformationsTypesActivitesSecondairesRepository::class)
+ *
+ * @ORM\Table(name="etablissementinformationstypesactivitessecondaires")
+ */
+class EtablissementInformationsTypesActivitesSecondaires
+{
+    /**
+     * @var int
+     *
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     *
+     * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONSTYPESACTIVITESSECONDAIRES", type="bigint", options={"unsigned":true})
+     */
+    private $id;
+
+    /**
+     * @var ?EtablissementInformations
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementInformations::class, inversedBy="typesActivitesSecondaires")
+     *
+     * @ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", nullable=false, options={"unsigned":true})
+     */
+    private $etablissementInformations;
+
+    /**
+     * @var EtablissementType
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementType::class)
+     *
+     * @ORM\JoinColumn(name="ID_TYPE_SECONDAIRE", referencedColumnName="ID_TYPE", nullable=false, options={"unsigned":true})
+     */
+    private $type;
+
+    /**
+     * @var EtablissementActivite
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
+     *
+     * @ORM\JoinColumn(name="ID_TYPEACTIVITE_SECONDAIRE", referencedColumnName="ID_TYPEACTIVITE", nullable=false, options={"unsigned":true})
+     */
+    private $activite;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEtablissementInformations(): ?EtablissementInformations
+    {
+        return $this->etablissementInformations;
+    }
+
+    public function setEtablissementInformations(?EtablissementInformations $etablissementInformations): self
+    {
+        $this->etablissementInformations = $etablissementInformations;
+
+        return $this;
+    }
+
+    public function getType(): ?EtablissementType
+    {
+        return $this->type;
+    }
+
+    public function setType(EtablissementType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getActivite(): ?EtablissementActivite
+    {
+        return $this->activite;
+    }
+
+    public function setActivite(EtablissementActivite $activite): self
+    {
+        $this->activite = $activite;
+
+        return $this;
+    }
+}
