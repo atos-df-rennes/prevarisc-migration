@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PrescriptionReglementaireRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -44,6 +46,18 @@ class PrescriptionReglementaire
      */
     private $visible;
 
+    /**
+     * @var Collection<int, PrescriptionReglementaireAssociation>
+     *
+     * @ORM\OneToMany(targetEntity=PrescriptionReglementaireAssociation::class, mappedBy="regle", orphanRemoval=true)
+     */
+    private $associations;
+
+    public function __construct()
+    {
+        $this->associations = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -81,6 +95,34 @@ class PrescriptionReglementaire
     public function setVisible(bool $visible): self
     {
         $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrescriptionReglementaireAssociation>
+     */
+    public function getAssociations(): Collection
+    {
+        return $this->associations;
+    }
+
+    public function addAssociation(PrescriptionReglementaireAssociation $association): self
+    {
+        if (!$this->associations->contains($association)) {
+            $this->associations[] = $association;
+            $association->setRegle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssociation(PrescriptionReglementaireAssociation $association): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->associations->removeElement($association) && $association->getRegle() === $this) {
+            $association->setRegle(null);
+        }
 
         return $this;
     }
