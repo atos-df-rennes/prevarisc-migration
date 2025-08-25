@@ -98,7 +98,7 @@ class DossierDocumentConsulte
         return $this;
     }
 
-    public function getConsulte(): ?bool
+    public function isConsulte(): ?bool
     {
         return $this->consulte;
     }
