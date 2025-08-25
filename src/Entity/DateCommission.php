@@ -98,9 +98,17 @@ class DateCommission
      */
     private $piecesJointes;
 
+    /**
+     * @var Collection<int, DossierAffectation>
+     *
+     * @ORM\OneToMany(targetEntity=DossierAffectation::class, mappedBy="dateCommission", orphanRemoval=true)
+     */
+    private $dossierAffectations;
+
     public function __construct()
     {
         $this->piecesJointes = new ArrayCollection();
+        $this->dossierAffectations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -224,6 +232,34 @@ class DateCommission
     public function removePiecesJointe(PieceJointe $piecesJointe): self
     {
         $this->piecesJointes->removeElement($piecesJointe);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierAffectation>
+     */
+    public function getDossierAffectations(): Collection
+    {
+        return $this->dossierAffectations;
+    }
+
+    public function addDossierAffectation(DossierAffectation $dossierAffectation): self
+    {
+        if (!$this->dossierAffectations->contains($dossierAffectation)) {
+            $this->dossierAffectations[] = $dossierAffectation;
+            $dossierAffectation->setDateCommission($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDossierAffectation(DossierAffectation $dossierAffectation): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->dossierAffectations->removeElement($dossierAffectation) && $dossierAffectation->getDateCommission() === $this) {
+            $dossierAffectation->setDateCommission(null);
+        }
 
         return $this;
     }
