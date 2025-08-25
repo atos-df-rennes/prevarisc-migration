@@ -234,6 +234,13 @@ class Dossier
      */
     private $piecesJointes;
 
+    /**
+     * @var Collection<int, PrescriptionDossier>
+     *
+     * @ORM\OneToMany(targetEntity=PrescriptionDossier::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $prescriptions;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -250,6 +257,7 @@ class Dossier
         $this->documentsAjoutes = new ArrayCollection();
         $this->documentsConsultes = new ArrayCollection();
         $this->piecesJointes = new ArrayCollection();
+        $this->prescriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -725,6 +733,34 @@ class Dossier
         // set the owning side to null (unless already changed)
         if ($this->piecesJointes->removeElement($piecesJointe) && $piecesJointe->getDossier() === $this) {
             $piecesJointe->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrescriptionDossier>
+     */
+    public function getPrescriptions(): Collection
+    {
+        return $this->prescriptions;
+    }
+
+    public function addPrescription(PrescriptionDossier $prescription): self
+    {
+        if (!$this->prescriptions->contains($prescription)) {
+            $this->prescriptions[] = $prescription;
+            $prescription->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrescription(PrescriptionDossier $prescription): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->prescriptions->removeElement($prescription) && $prescription->getDossier() === $this) {
+            $prescription->setDossier(null);
         }
 
         return $this;
