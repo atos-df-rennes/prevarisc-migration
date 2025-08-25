@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PrescriptionTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -57,6 +59,18 @@ class PrescriptionType
      * @ORM\Column(name="PRESCRIPTIONTYPE_NUM", type="integer", nullable=true)
      */
     private $numero;
+
+    /**
+     * @var Collection<int, PrescriptionTypeAssociation>
+     *
+     * @ORM\OneToMany(targetEntity=PrescriptionTypeAssociation::class, mappedBy="prescriptionType", orphanRemoval=true)
+     */
+    private $associations;
+
+    public function __construct()
+    {
+        $this->associations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -119,6 +133,34 @@ class PrescriptionType
     public function setNumero(?int $numero): self
     {
         $this->numero = $numero;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrescriptionTypeAssociation>
+     */
+    public function getAssociations(): Collection
+    {
+        return $this->associations;
+    }
+
+    public function addAssociation(PrescriptionTypeAssociation $association): self
+    {
+        if (!$this->associations->contains($association)) {
+            $this->associations[] = $association;
+            $association->setPrescriptionType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssociation(PrescriptionTypeAssociation $association): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->associations->removeElement($association) && $association->getPrescriptionType() === $this) {
+            $association->setPrescriptionType(null);
+        }
 
         return $this;
     }
