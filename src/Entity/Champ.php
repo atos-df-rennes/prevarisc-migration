@@ -90,10 +90,18 @@ class Champ
      */
     private $valeursListe;
 
+    /**
+     * @var Collection<int, Valeur>
+     *
+     * @ORM\OneToMany(targetEntity=Valeur::class, mappedBy="champ", orphanRemoval=true)
+     */
+    private $valeurs;
+
     public function __construct()
     {
         $this->enfants = new ArrayCollection();
         $this->valeursListe = new ArrayCollection();
+        $this->valeurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -224,6 +232,34 @@ class Champ
         // set the owning side to null (unless already changed)
         if ($this->valeursListe->removeElement($valeursListe) && $valeursListe->getChamp() === $this) {
             $valeursListe->setChamp(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Valeur>
+     */
+    public function getValeurs(): Collection
+    {
+        return $this->valeurs;
+    }
+
+    public function addValeur(Valeur $valeur): self
+    {
+        if (!$this->valeurs->contains($valeur)) {
+            $this->valeurs[] = $valeur;
+            $valeur->setChamp($this);
+        }
+
+        return $this;
+    }
+
+    public function removeValeur(Valeur $valeur): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->valeurs->removeElement($valeur) && $valeur->getChamp() === $this) {
+            $valeur->setChamp(null);
         }
 
         return $this;
