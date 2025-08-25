@@ -220,6 +220,13 @@ class Dossier
      */
     private $documentsAjoutes;
 
+    /**
+     * @var Collection<int, DossierDocumentConsulte>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDocumentConsulte::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsConsultes;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -234,6 +241,7 @@ class Dossier
         $this->preventionnistes = new ArrayCollection();
         $this->textesApplicables = new ArrayCollection();
         $this->documentsAjoutes = new ArrayCollection();
+        $this->documentsConsultes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -653,6 +661,34 @@ class Dossier
         // set the owning side to null (unless already changed)
         if ($this->documentsAjoutes->removeElement($documentsAjoute) && $documentsAjoute->getDossier() === $this) {
             $documentsAjoute->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDocumentConsulte>
+     */
+    public function getDocumentsConsultes(): Collection
+    {
+        return $this->documentsConsultes;
+    }
+
+    public function addDocumentsConsulte(DossierDocumentConsulte $documentsConsulte): self
+    {
+        if (!$this->documentsConsultes->contains($documentsConsulte)) {
+            $this->documentsConsultes[] = $documentsConsulte;
+            $documentsConsulte->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsConsulte(DossierDocumentConsulte $documentsConsulte): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsConsultes->removeElement($documentsConsulte) && $documentsConsulte->getDossier() === $this) {
+            $documentsConsulte->setDossier(null);
         }
 
         return $this;
