@@ -2,17 +2,6 @@
 
 {% block title %}Administration / Ajout d'une couche IGN{% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
-    <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
-    <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    <link href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" rel="stylesheet" />
-{% endblock %}
-
 {% block body %}
     <div class='pull-right btn-group'>
         <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
@@ -74,5 +63,4 @@
             </div>
         {% endfor %}
     </div>
-
 {% endblock %}

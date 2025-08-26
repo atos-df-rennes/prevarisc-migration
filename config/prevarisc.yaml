@@ -80,6 +80,12 @@ parameters:
     env(PREVARISC_PLUGIN_IGNKEY): ''
     app.ign_key: '%env(string:PREVARISC_PLUGIN_IGNKEY)%'
 
+    env(PREVARISC_CARTO_DEFAULT_LON): '2.71490430425517'
+    app.carto_default_lon: '%env(float:PREVARISC_CARTO_DEFAULT_LON)%'
+
+    env(PREVARISC_CARTO_DEFAULT_LAT): '50.4727273438818'
+    app.carto_default_lat: '%env(float:PREVARISC_CARTO_DEFAULT_LAT)%'
+
     env(PREVARISC_PLUGIN_GOOGLEMAPKEY): ''
     app.google_map_key: '%env(string:PREVARISC_PLUGIN_GOOGLEMAPKEY)%'
 

@@ -19,27 +19,26 @@
         <div id="info"></div>
 
         <script type="text/javascript">
-
             viewer = initViewer(
                 'geoportail-container',
                 '{{ key_ign }}',
                 [{{ default_lon }},{{ default_lat }}],
                 "<b>Centre par défaut</b>",
                 '{{ autoconf_path }}'
-            );
+            )
 
             viewer.listen('mapLoaded', afterInitMap);
 
             function afterInitMap () {
                 // Ajout du bouton FullScreen
-                var fsControl = new ol.control.FullScreen({});
-                viewer.getLibMap().addControl(fsControl);
+                var fsControl = new ol.control.FullScreen({})
+                viewer.getLibMap().addControl(fsControl)
 
                 viewer = addUserLayers(
                     viewer,
                     {{ couches_cartographiques|json_encode }}
-                );
-            };
+                )
+            }
 
             // Affichage de la version du SDK et de sa date de création
             var infoDiv = document.getElementById("info");
@@ -54,7 +53,7 @@
 
 
         {% if projection is not null %}
-        <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
+            <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
         {% endif %}
 
         <script type="text/javascript" src="/js/geoconcept/geoconcept.js"></script>
@@ -118,15 +117,17 @@
     {% if couches_cartographiques|length == 0 %}
         <div class='well well-large text-center'>
             <p class='lead'>Il n'y a pas de couche cartographique.</p>
-            <p><a href='{{ path('couches_cartographiques_add') }}' class='btn btn-default btn-lg'>Ajouter une couche personnalisée</a></p>
+            <p>
+                <a href='{{ path('couches_cartographiques_add') }}' class='btn btn-default btn-lg'>Ajouter une couche personnalisée</a>
+            </p>
             <p>
                 <a href='{{ path('couches_cartographiques_add_IGN') }}' class='btn btn-default btn-lg'>
-                Ajouter une couche IGN
+                    Ajouter une couche IGN
                 </a>
-            <div class="alert">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <strong>Attention !</strong> Le chargement de la page d'ajout d'une couche IGN peut prendre du temps si vous avez renseigné plusieurs clés.
-            </div>
+                <div class="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>Attention !</strong> Le chargement de la page d'ajout d'une couche IGN peut prendre du temps si vous avez renseigné plusieurs clés.
+                </div>
             </p>
         </div>
     {% else %}
@@ -147,27 +148,26 @@
 
         <table class="table">
             <thead>
-            <tr>
-                <th>Type</th>
-                <th>Nom de la couche</th>
-                <th>Ordre de la couche</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>Type</th>
+                    <th>Nom de la couche</th>
+                    <th>Ordre de la couche</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
-            {% for couche_cartographique in couches_cartographiques %}
-            <tr>
-                <td>{{ couche_cartographique.type }}</td>
-                <td>{{ couche_cartographique.nom }}{% if couche_cartographique.isBaseLayer %}  (couche de base){% endif %}
-                <td>{% if couche_cartographique.ordre %}{{ couche_cartographique.ordre }}{% else %}Ordre non renseigné{% endif %}</td>
-                <td>
-                    <a href="{{ path('couche_cartographique_edit', {id: couche_cartographique.id}) }}">Modifier la couche</a><br/>
-                    <a href="{{ path('couche_cartographique_delete', {id: couche_cartographique.id}) }}">Supprimer</a>
-                </td>
-            </tr>
-            {% endfor %}
+                {% for couche_cartographique in couches_cartographiques %}
+                    <tr>
+                        <td>{{ couche_cartographique.type }}</td>
+                        <td>{{ couche_cartographique.nom }}{% if couche_cartographique.isBaseLayer %}  (couche de base){% endif %}
+                        <td>{% if couche_cartographique.ordre %}{{ couche_cartographique.ordre }}{% else %}Ordre non renseigné{% endif %}</td>
+                        <td>
+                            <a href="{{ path('couche_cartographique_edit', {id: couche_cartographique.id}) }}">Modifier la couche</a><br/>
+                            <a href="{{ path('couche_cartographique_delete', {id: couche_cartographique.id}) }}">Supprimer</a>
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     {% endif %}
-
 {% endblock %}

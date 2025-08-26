@@ -34,16 +34,17 @@ class CouchesCartographiquesController extends AbstractController
     public function index(CoucheCartoRepository $coucheCartoRepository): Response
     {
         return $this->render('couches_cartographiques/index.html.twig', [
-            'key_ign' => getenv('PREVARISC_PLUGIN_IGNKEY'),
-            'geoconcept_url' => getenv('PREVARISC_PLUGIN_GEOCONCEPT_URL'),
-            'key_googlemap' => getenv('PREVARISC_PLUGIN_GOOGLEMAPKEY'),
-            'default_lon' => getenv('PREVARISC_CARTO_DEFAULT_LON') ?: '2.71490430425517',
-            'default_lat' => getenv('PREVARISC_CARTO_DEFAULT_LAT') ?: '50.4727273438818',
+            'key_ign' => $this->getParameter('app.ign_key'),
+            'geoconcept_url' => $this->getParameter('app.geoconcept_url'),
+            'key_googlemap' => $this->getParameter('app.google_map_key'),
+            'default_lon' => $this->getParameter('app.carto_default_lon'),
+            'default_lat' => $this->getParameter('app.carto_default_lat'),
+            // @todo: Le chemin n'est pas correct, à modifier
             'autoconf_path' => file_exists($_SERVER['DOCUMENT_ROOT'].(getenv('PREVARISC_CARTO_AUTOCONF_PATH') ?: '')),
-            'projection' => getenv('PREVARISC_PLUGIN_GEOCONCEPT_PROJECTION'),
-            'token' => getenv('PREVARISC_PLUGIN_GEOCONCEPT_TOKEN'),
-            'app_id' => getenv('PREVARISC_PLUGIN_GEOCONCEPT_APP_ID'),
-            'geoconcept_layer' => getenv('PREVARISC_PLUGIN_GEOCONCEPT_LAYER'),
+            'projection' => $this->getParameter('app.geoconcept_projection'),
+            'token' => $this->getParameter('app.geoconcept_token'),
+            'app_id' => $this->getParameter('app.geoconcept_app_id'),
+            'geoconcept_layer' => $this->getParameter('app.geoconcept_layer'),
             'couches_cartographiques' => $coucheCartoRepository->findAllOrdered(),
         ]);
     }

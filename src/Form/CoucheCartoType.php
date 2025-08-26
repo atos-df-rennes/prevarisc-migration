@@ -16,7 +16,7 @@ class CoucheCartoType extends AbstractType
             ->add('nom')
             ->add('url')
             ->add('isBaseLayer')
-            ->add('layers')
+            ->add('layer')
             ->add('format', ChoiceType::class, [
                 'choices' => [
                     'image/png' => 'image/png',
