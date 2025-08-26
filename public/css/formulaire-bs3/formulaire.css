@@ -43,36 +43,3 @@ td.tdMove {
   text-decoration: none;
   color: black;
 }
-
-.table-bordered,
-.table-bordered td {
-  border-color: black;
-}
-
-.table-bordered th {
-  background-color: #d5d5d5;
-  border-color: black;
-}
-
-.table-bordered .colonne-edition {
-  text-align: center;
-}
-
-.panel.panel-formulaire-perso {
-  background-color: #fafafa;
-}
-
-.panel.panel-formulaire-perso .panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.panel.panel-formulaire-perso .date {
-  background-color: #fff;
-}
-
-.panel.panel-formulaire-perso .control-group,
-.panel.panel-formulaire-perso .table {
-  margin-bottom: 0;
-}
