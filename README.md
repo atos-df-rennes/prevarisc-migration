@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/status-not--ready-red)
+![Static Badge](https://img.shields.io/badge/status-ready-dark--green)
 ![Static Badge](https://img.shields.io/badge/php-7.1-blue)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
 
@@ -28,7 +28,7 @@ Consultez la [documentation dédiée](docs/guide.md).
 
 Cette version est destinée à co-exister avec la version actuelle de Prevarisc. Pour l'installer, suivez les étapes ci-dessous :
 
-1. Clonez le dépôt à côté de du dépôt existant :
+1. Clonez le dépôt à côté du dépôt existant :
 ```sh
 $ git clone https://github.com/atos-df-rennes/prevarisc-migration.git
 ```
@@ -37,38 +37,46 @@ $ git clone https://github.com/atos-df-rennes/prevarisc-migration.git
 /home/prv/prevarisc\
 /home/prv/prevarisc-migration
 
-2. Accédez au répertoire du projet :
+2. Copiez le fichier de variables d'environnement d'exemple et renseignez les valeurs suivant votre configuration :
 ```sh
 $ cd prevarisc-migration
+$ cp .env.example .env
 ```
+```
+APP_ENV=prod
+APP_DEBUG=false
+APP_SECRET=<chaine_de_caractere>
+(cf. pour générer un secret : http://nux.net/secret)
+DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database_name>?serverVersion=5.6&charset=utf8mb4"
+(e.g. mysql://root:root@localhost:3306/PRV_prevarisc_v2?serverVersion=5.6&charset=utf8mb4)
+PREVARISC_PATH=/chemin/absolu/vers/Prevarisc
+(Optionnel, si valeur différente de l'exemple : e.g. /var/www/html/prevarisc)
+```
+
+> [!TIP]
+> Si l'un des paramètres de la variable DATABASE_URL contient des caractères spéciaux, ils doivent être encodés : + => %2B, @ => %40, $ => %24, # => %23, / => %2F, : => %3A, * => %2A, ! => %21
+
 3. Installez les dépendances :
 ```sh
-$ composer install --prefer-source --no-dev --optimize-autoloader
+$ composer install --no-dev --classmap-authoritative
 ```
-4. Renseignez les variables d'environnement nécessaires :
-```
-SetEnv APP_ENV prod
-```
-```
-SetEnv APP_SECRET <chaine_de_caractere>
 
-(cf. pour générer un secret : http://nux.net/secret)
+4. Optimisez la lecture des configurations :
+```sh
+$ composer dump-env prod
 ```
-```
-SetEnv DATABASE_URL mysql://<user>:<password>@<host>:<port>/<database_name>?serverVersion=5.6&charset=utf8mb4
 
-(e.g. mysql://root:root@localhost:3306/PRV_prevarisc_v2?serverVersion=5.6&charset=utf8mb4)
-```
-(Optionnel, si valeur différente de l'exemple)
-```
-SetEnv PREVARISC_PATH /chemin/absolu/vers/Prevarisc
+> [!IMPORTANT]
+> En cas de modification des variables d'environnement, cette commande est à rejouer à la suite pour que la nouvelle configuration soit prise en comtpe.
 
-(e.g. /home/prv/current/prevarisc)
-```
 5. Jouez les migrations pour avoir un schéma de base de données à jour :
 ```sh
 $ php bin/console doctrine:migrations:migrate
 ```
+
+> [!IMPORTANT]
+> Pour exécuter les commandes de migration, l'utilisateur de base de données utilisé doit disposer des droits suivants : CREATE, DROP, ALTER, INDEX, CREATE VIEW, SELECT, INSERT, UPDATE, DELETE.
+
 6. Appliquez les permissions nécessaires :
 ```sh
 $ chown –R www-data:www-data *
@@ -77,13 +85,13 @@ $ chmod –R 755 public/
 ```
 
 Vous devez ensuite modifier le Virtualhost pour définir ce dossier comme étant le principale avec le dossier *prevarisc/* celui de secours.\
-Pour cela, configurer le VirtualHost comme suit :\
+Pour cela, configurer le VirtualHost comme suit :
 ```
 <VirtualHost *:80>
     ServerName prevarisc.sdisxx.fr
-    DocumentRoot /var/www/prevarisc-migration/public
+    DocumentRoot /var/www/html/prevarisc-migration/public
     SetEnv [CLE DE CONFIGURATION] [VALEUR]
-    <Directory /var/www/prevarisc-migration/public>
+    <Directory /var/www/html/prevarisc-migration/public>
         DirectoryIndex index.php
         AllowOverride all
         Order allow,deny

@@ -28,7 +28,7 @@ class GroupementType
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_GROUPEMENTTYPE", type="string", length=255)
+     * @ORM\Column(name="LIBELLE_GROUPEMENTTYPE", type="string", length=255, nullable=false)
      */
     private $libelle;
 

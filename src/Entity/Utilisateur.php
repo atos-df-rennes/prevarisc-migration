@@ -35,7 +35,7 @@ class Utilisateur implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true)
+     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true, nullable=false)
      *
      * @Assert\NotBlank(message="Le nom d'utilisateur ne doit pas être vide.")
      */
@@ -68,14 +68,14 @@ class Utilisateur implements UserInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="ACTIF_UTILISATEUR", type="boolean")
+     * @ORM\Column(name="ACTIF_UTILISATEUR", type="boolean", nullable=false)
      */
     private $actif;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="FAILED_LOGIN_ATTEMPTS_UTILISATEUR", type="smallint")
+     * @ORM\Column(name="FAILED_LOGIN_ATTEMPTS_UTILISATEUR", type="smallint", nullable=false, options={"unsigned":true})
      */
     private $failedLoginAttempts = 0;
 
@@ -86,6 +86,7 @@ class Utilisateur implements UserInterface
      */
     private $ip;
 
+    // @todo: Vérifier si doublon avec $commune
     /**
      * @var ?string
      *
@@ -112,12 +113,12 @@ class Utilisateur implements UserInterface
      *
      * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="utilisateurs")
      *
-     * @ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})
+     * @ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", nullable=false, options={"unsigned":true})
      */
     private $groupe;
 
     /**
-     * @var ?UtilisateurInformations
+     * @var UtilisateurInformations
      *
      * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist"})
      *

@@ -1,0 +1,183 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/etiquetteAvisDerogations/greenCircle.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}Établissement{% endblock %}
+
+{#
+    Les variables sont settées par un EventSubscriber.
+    @see src/EventSubscriber/LateralNavigationSubscriber.php
+#}
+{% set parents_etablissement = app.request.attributes.get('parents_etablissement')|default([]) %}
+{% set libelle_descriptif = app.request.attributes.get('libelle_descriptif')|default('Descriptif') %}
+{% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
+{% set has_avis_derogations = app.request.attributes.get('has_avis_derogations') ?? false %}
+
+{% block lateral_navigation %}
+    <ul class='nav nav-tabs nav-stacked menu_dashboard'>
+        <li>
+            <a href="{{ '/etablissement/index/id/' ~ etablissement.id }}">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                Général
+            </a>
+        </li>
+
+        {% if etablissement.informations|last.genre.libelle != 'Site' %}
+            <li>
+                <a href="{{ '/etablissement/textes-applicables/id/' ~ etablissement.id }}">
+                    <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
+                    Textes applicables
+                </a>
+            </li>
+            <li>
+                <a href="{{ '/etablissement/descriptif/id/' ~ etablissement.id }}">
+                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                    {{ libelle_descriptif }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if is_granted('effectifs_degagements_ets') %}
+            <li>
+                <a class='sep' href="{{ '/etablissement/effectifs-degagements-etablissement/id/' ~ etablissement.id }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {{ libelle_effectifs_degagements }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if is_granted('avis_derogations') %}
+            <li>
+                <a class='sep' href="{{ '/etablissement/avis-derogations-etablissement/id/' ~ etablissement.id }}">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                    Avis et dérogations
+
+                    {% if has_avis_derogations %}
+                         <div class="greenCircle pull-right"></div>
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
+
+        <li >
+            <a href="{{ '/etablissement/pieces-jointes/id/' ~ etablissement.id }}">
+                <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
+                Pièces jointes
+            </a>
+        </li>
+        <li >
+            <a href="{{ '/etablissement/contacts/id/' ~ etablissement.id }}">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                Contacts
+            </a>
+        </li>
+        <li >
+            <a href="{{ '/etablissement/dossiers/id/' ~ etablissement.id }}">
+                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                Dossiers
+            </a>
+        </li>
+        <li {% if app.request.get('_route') is same as('etablissement_historique') %}class="active"{% endif %}>
+            <a class='sep' href='{{ path("etablissement_historique", {id: etablissement.id}) }}'>
+                <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+                Afficher l'historique
+            </a>
+        </li>
+        <li class="nav-header">Actions</li>
+        <li>
+            <a href="{{ '/dossier/add/id_etablissement/' ~ etablissement.id }}">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Ajouter un dossier
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block body_structure %}
+    <div id="ligne_informations">
+        <h2 class='page-header'>
+            {% if parents_etablissement is not empty %}
+                {% for parent in parents_etablissement %}
+                    {# @todo: Faire la popup au survol du lien #}
+                    <a href="{{ '/etablissement/index/id/' ~ parent.id }}">
+                        {{ parent.informations.last.libelle }}
+                    </a> -
+                {% endfor %}
+            {% endif %}
+
+            {% if icone_type_etablissement_exists(etablissement.informations|last.type.libelle) %}
+                <img
+                    src="{{ asset('images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png') }}"
+                    title="{{ etablissement.informations|last.type.libelle }}"
+                    alt="{{ 'Type ' ~ etablissement.informations|last.type.libelle }}"
+                />
+            {% endif %}
+
+            {{ etablissement.informations|last.libelle }}
+
+            {% if etablissement.numero %}
+                <span class="pull-right">
+                    <small>
+                        #{{ etablissement.numero }}
+                    </small>
+                </span>
+            {% endif %}
+        </h2>
+
+        {% if etablissement.hasAvisDiffere %}
+            <p class='label label-info'>
+                Présence d'un dossier avec avis differé
+            </p>
+        {% else %}
+            {% if etablissement.dossierDonnantAvis.avisCommission %}
+                {% set label_color = 'default' %}
+                {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
+                    {% set label_color = 'success' %}
+                {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                    {% set label_color = 'danger' %}
+                {% endif %}
+
+                <span class="{{ 'label label-' ~ label_color }}">
+                    {{ etablissement.dossierDonnantAvis.avisCommission.libelle }}
+
+                    {% if etablissement.informations|last.genre.id is not same as(3) %}
+                        à l'exploitation
+                    {% endif %}
+                </span>
+            {% else %}
+                <span class="label label-default">Avis d'exploitation indisponible</span>
+            {% endif %}
+        {% endif %}
+
+        {% if etablissement.risquesNaturels is not empty %}
+            <p class='label label-warning'>
+                Présence de risques naturels
+            </p>
+            <br/>
+        {% endif %}
+
+        {% if etablissement.risquesTechnologiques is not empty %}
+            <p class='label label-warning'>
+                Présence de risques technologiques
+            </p>
+            <br/>
+        {% endif %}
+
+        {% if etablissement.hasEcheancierTravaux %}
+            <p class='label label-info'>
+                Présence d'un échéancier de travaux
+            </p>
+        {% endif %}
+
+        <span class="ml-3">Statut : {{ etablissement.informations|last.statut.libelle }}</span>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

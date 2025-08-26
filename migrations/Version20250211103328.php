@@ -66,7 +66,7 @@ final class Version20250211103328 extends AbstractMigration
 
         $this->addSql('CREATE TABLE commissionmembredossiertype (ID_COMMISSIONMEMBRE BIGINT UNSIGNED NOT NULL, ID_DOSSIERTYPE BIGINT UNSIGNED NOT NULL, INDEX fk_commissionmembredossiertype_commissionmembre1_idx (ID_COMMISSIONMEMBRE), INDEX fk_commissionmembredossiertype_dossiertype1_idx (ID_DOSSIERTYPE), PRIMARY KEY(ID_DOSSIERTYPE, ID_COMMISSIONMEMBRE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
-        $this->addSql('CREATE TABLE commissionmembretypeactivite (ID_COMMISSIONMEMBRE BIGINT UNSIGNED NOT NULL, ID_TYPEACTIVITE INT UNSIGNED NOT NULL, INDEX fk_commissionmembre-typeactivite_typeactivite1_idx (ID_TYPEACTIVITE), INDEX fk_commissionmembre-typeactivite_commissionmembre1_idx (ID_COMMISSIONMEMBRE), PRIMARY KEY(ID_COMMISSIONMEMBRE, ID_TYPEACTIVITE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
+        $this->addSql('CREATE TABLE commissionmembretypeactivite (ID_COMMISSIONMEMBRE BIGINT UNSIGNED NOT NULL, ID_TYPEACTIVITE INT UNSIGNED NOT NULL, INDEX `fk_commissionmembre-typeactivite_typeactivite1_idx` (ID_TYPEACTIVITE), INDEX `fk_commissionmembre-typeactivite_commissionmembre1_idx` (ID_COMMISSIONMEMBRE), PRIMARY KEY(ID_COMMISSIONMEMBRE, ID_TYPEACTIVITE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
         $this->addSql('CREATE TABLE commissionregle (ID_REGLE BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, ID_GROUPEMENT BIGINT DEFAULT NULL, ID_COMMISSION BIGINT UNSIGNED NOT NULL, NUMINSEE_COMMUNE CHAR(5) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`, INDEX fk_commissionregle_commission1_idx (ID_COMMISSION), INDEX ID_GROUPEMENT (ID_GROUPEMENT), INDEX fk_commissionregle_adressecommune1_idx (NUMINSEE_COMMUNE), PRIMARY KEY(ID_REGLE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
@@ -164,7 +164,7 @@ final class Version20250211103328 extends AbstractMigration
 
         $this->addSql('CREATE TABLE groupe (ID_GROUPE BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, LIBELLE_GROUPE VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, DESC_GROUPE TEXT CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, PRIMARY KEY(ID_GROUPE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
-        $this->addSql('CREATE TABLE groupe-privileges (id_privilege BIGINT UNSIGNED NOT NULL, ID_GROUPE BIGINT UNSIGNED NOT NULL, INDEX fk_groupe-privileges_privileges1_idx (id_privilege), INDEX fk_groupe-privileges_groupe1_idx (ID_GROUPE), PRIMARY KEY(ID_GROUPE, id_privilege)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
+        $this->addSql('CREATE TABLE `groupe-privileges` (id_privilege BIGINT UNSIGNED NOT NULL, ID_GROUPE BIGINT UNSIGNED NOT NULL, INDEX `fk_groupe-privileges_privileges1_idx` (id_privilege), INDEX `fk_groupe-privileges_groupe1_idx` (ID_GROUPE), PRIMARY KEY(ID_GROUPE, id_privilege)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
         $this->addSql('CREATE TABLE groupement (ID_GROUPEMENT BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, LIBELLE_GROUPEMENT VARCHAR(255) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, ID_UTILISATEURINFORMATIONS BIGINT DEFAULT NULL, ID_GROUPEMENTTYPE BIGINT UNSIGNED NOT NULL, INDEX fk_groupement_groupementtype1_idx (ID_GROUPEMENTTYPE), INDEX ID_UTILISATEURINFORMATIONS (ID_UTILISATEURINFORMATIONS), PRIMARY KEY(ID_GROUPEMENT)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
 
@@ -2720,7 +2720,7 @@ final class Version20250211103328 extends AbstractMigration
 
         $this->addSql('DROP TABLE groupe');
 
-        $this->addSql('DROP TABLE groupe-privileges');
+        $this->addSql('DROP TABLE `groupe-privileges`');
 
         $this->addSql('DROP TABLE groupement');
 

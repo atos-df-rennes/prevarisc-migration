@@ -53,7 +53,7 @@ class Dossier
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
-     * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false)
+     * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
      */
     private $type;
 
@@ -81,10 +81,183 @@ class Dossier
      */
     private $etablissements;
 
+    /**
+     * @var ?Avis
+     *
+     * @ORM\ManyToOne(targetEntity=Avis::class)
+     *
+     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
+     */
+    private $avisCommission;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(type="string", length=10, nullable=true, name="DATECOMM_DOSSIER")
+     */
+    private $dateCommission;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
+     */
+    private $dateVisite;
+
+    /**
+     * @var ?UtilisateurInformations
+     *
+     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     *
+     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true)
+     */
+    private $createur;
+
+    /**
+     * @var Collection<int, AvisDerogations>
+     *
+     * @ORM\OneToMany(targetEntity=AvisDerogations::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $avisDerogations;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DIFFEREAVIS_DOSSIER", type="boolean", nullable=true)
+     */
+    private $avisDiffere;
+
+    /**
+     * @var Collection<int, DossierDisplayRubrique>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDisplayRubrique::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $displayRubriques;
+
+    /**
+     * @var Collection<int, UtilisateurInformations>
+     *
+     * @ORM\JoinTable(
+     *     name="dossiercontact",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
+     */
+    private $contacts;
+
+    /**
+     * @var Collection<int, Dossier>
+     *
+     * @ORM\JoinTable(
+     *     name="dossierlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER1", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIER2", referencedColumnName="ID_DOSSIER")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Dossier::class, inversedBy="dossiersAyantLie")
+     */
+    private $dossiersLies;
+
+    /**
+     * @var Collection<int, Dossier>
+     *
+     * @ORM\JoinTable(
+     *     name="dossierlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER2", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIER1", referencedColumnName="ID_DOSSIER")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Dossier::class, mappedBy="dossiersLies")
+     */
+    private $dossiersAyantLie;
+
+    /**
+     * @var Collection<int, DossierDocumentManquant>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsManquants;
+
+    /**
+     * @var Collection<int, DossierDocumentUrbanisme>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDocumentUrbanisme::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsUrbanisme;
+
+    /**
+     * @var Collection<int, Utilisateur>
+     *
+     * @ORM\JoinTable(
+     *     name="dossierpreventionniste",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_PREVENTIONNISTE", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
+     */
+    private $preventionnistes;
+
+    /**
+     * @var Collection<int, TexteApplicable>
+     *
+     * @ORM\JoinTable(
+     *     name="dossiertextesappl",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TEXTESAPPL", referencedColumnName="ID_TEXTESAPPL")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=TexteApplicable::class)
+     */
+    private $textesApplicables;
+
+    /**
+     * @var Collection<int, ListeDocumentAjoute>
+     *
+     * @ORM\OneToMany(targetEntity=ListeDocumentAjoute::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsAjoutes;
+
+    /**
+     * @var Collection<int, DossierDocumentConsulte>
+     *
+     * @ORM\OneToMany(targetEntity=DossierDocumentConsulte::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $documentsConsultes;
+
+    /**
+     * @var Collection<int, DossierPieceJointe>
+     *
+     * @ORM\OneToMany(targetEntity=DossierPieceJointe::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $piecesJointes;
+
+    /**
+     * @var Collection<int, PrescriptionDossier>
+     *
+     * @ORM\OneToMany(targetEntity=PrescriptionDossier::class, mappedBy="dossier", orphanRemoval=true)
+     */
+    private $prescriptions;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
         $this->etablissements = new ArrayCollection();
+        $this->avisDerogations = new ArrayCollection();
+        $this->displayRubriques = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
+        $this->dossiersLies = new ArrayCollection();
+        $this->dossiersAyantLie = new ArrayCollection();
+        $this->documentsManquants = new ArrayCollection();
+        $this->documentsUrbanisme = new ArrayCollection();
+        $this->preventionnistes = new ArrayCollection();
+        $this->textesApplicables = new ArrayCollection();
+        $this->documentsAjoutes = new ArrayCollection();
+        $this->documentsConsultes = new ArrayCollection();
+        $this->piecesJointes = new ArrayCollection();
+        $this->prescriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -182,6 +355,413 @@ class Dossier
     public function removeEtablissement(Etablissement $etablissement): self
     {
         $this->etablissements->removeElement($etablissement);
+
+        return $this;
+    }
+
+    public function getAvisCommission(): ?Avis
+    {
+        return $this->avisCommission;
+    }
+
+    public function setAvisCommission(?Avis $avisCommission): self
+    {
+        $this->avisCommission = $avisCommission;
+
+        return $this;
+    }
+
+    public function getDateCommission(): ?string
+    {
+        return $this->dateCommission;
+    }
+
+    public function setDateCommission(?string $dateCommission): self
+    {
+        $this->dateCommission = $dateCommission;
+
+        return $this;
+    }
+
+    public function getDateVisite(): ?\DateTimeInterface
+    {
+        return $this->dateVisite;
+    }
+
+    public function setDateVisite(?\DateTimeInterface $dateVisite): self
+    {
+        $this->dateVisite = $dateVisite;
+
+        return $this;
+    }
+
+    public function getCreateur(): ?UtilisateurInformations
+    {
+        return $this->createur;
+    }
+
+    public function setCreateur(?UtilisateurInformations $createur): self
+    {
+        $this->createur = $createur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AvisDerogations>
+     */
+    public function getAvisDerogations(): Collection
+    {
+        return $this->avisDerogations;
+    }
+
+    public function addAvisDerogation(AvisDerogations $avisDerogation): self
+    {
+        if (!$this->avisDerogations->contains($avisDerogation)) {
+            $this->avisDerogations[] = $avisDerogation;
+            $avisDerogation->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvisDerogation(AvisDerogations $avisDerogation): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->avisDerogations->removeElement($avisDerogation) && $avisDerogation->getDossier() === $this) {
+            $avisDerogation->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    public function getAvisDiffere(): ?bool
+    {
+        return $this->avisDiffere;
+    }
+
+    public function setAvisDiffere(?bool $avisDiffere): self
+    {
+        $this->avisDiffere = $avisDiffere;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDisplayRubrique>
+     */
+    public function getDisplayRubriques(): Collection
+    {
+        return $this->displayRubriques;
+    }
+
+    public function addDisplayRubrique(DossierDisplayRubrique $displayRubrique): self
+    {
+        if (!$this->displayRubriques->contains($displayRubrique)) {
+            $this->displayRubriques[] = $displayRubrique;
+            $displayRubrique->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDisplayRubrique(DossierDisplayRubrique $displayRubrique): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->displayRubriques->removeElement($displayRubrique) && $displayRubrique->getDossier() === $this) {
+            $displayRubrique->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(UtilisateurInformations $contact): self
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
+        }
+
+        return $this;
+    }
+
+    public function removeContact(UtilisateurInformations $contact): self
+    {
+        $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getDossiersLies(): Collection
+    {
+        return $this->dossiersLies;
+    }
+
+    public function addDossiersLy(self $dossiersLy): self
+    {
+        if (!$this->dossiersLies->contains($dossiersLy)) {
+            $this->dossiersLies[] = $dossiersLy;
+        }
+
+        return $this;
+    }
+
+    public function removeDossiersLy(self $dossiersLy): self
+    {
+        $this->dossiersLies->removeElement($dossiersLy);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getDossiersAyantLie(): Collection
+    {
+        return $this->dossiersAyantLie;
+    }
+
+    public function addDossiersAyantLie(self $dossiersAyantLie): self
+    {
+        if (!$this->dossiersAyantLie->contains($dossiersAyantLie)) {
+            $this->dossiersAyantLie[] = $dossiersAyantLie;
+            $dossiersAyantLie->addDossiersLy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDossiersAyantLie(self $dossiersAyantLie): self
+    {
+        if ($this->dossiersAyantLie->removeElement($dossiersAyantLie)) {
+            $dossiersAyantLie->removeDossiersLy($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDocumentManquant>
+     */
+    public function getDocumentsManquants(): Collection
+    {
+        return $this->documentsManquants;
+    }
+
+    public function addDocumentsManquant(DossierDocumentManquant $documentsManquant): self
+    {
+        if (!$this->documentsManquants->contains($documentsManquant)) {
+            $this->documentsManquants[] = $documentsManquant;
+            $documentsManquant->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsManquant(DossierDocumentManquant $documentsManquant): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsManquants->removeElement($documentsManquant) && $documentsManquant->getDossier() === $this) {
+            $documentsManquant->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDocumentUrbanisme>
+     */
+    public function getDocumentsUrbanisme(): Collection
+    {
+        return $this->documentsUrbanisme;
+    }
+
+    public function addDocumentsUrbanisme(DossierDocumentUrbanisme $documentsUrbanisme): self
+    {
+        if (!$this->documentsUrbanisme->contains($documentsUrbanisme)) {
+            $this->documentsUrbanisme[] = $documentsUrbanisme;
+            $documentsUrbanisme->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsUrbanisme(DossierDocumentUrbanisme $documentsUrbanisme): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsUrbanisme->removeElement($documentsUrbanisme) && $documentsUrbanisme->getDossier() === $this) {
+            $documentsUrbanisme->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Utilisateur>
+     */
+    public function getPreventionnistes(): Collection
+    {
+        return $this->preventionnistes;
+    }
+
+    public function addPreventionniste(Utilisateur $preventionniste): self
+    {
+        if (!$this->preventionnistes->contains($preventionniste)) {
+            $this->preventionnistes[] = $preventionniste;
+        }
+
+        return $this;
+    }
+
+    public function removePreventionniste(Utilisateur $preventionniste): self
+    {
+        $this->preventionnistes->removeElement($preventionniste);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TexteApplicable>
+     */
+    public function getTextesApplicables(): Collection
+    {
+        return $this->textesApplicables;
+    }
+
+    public function addTextesApplicable(TexteApplicable $textesApplicable): self
+    {
+        if (!$this->textesApplicables->contains($textesApplicable)) {
+            $this->textesApplicables[] = $textesApplicable;
+        }
+
+        return $this;
+    }
+
+    public function removeTextesApplicable(TexteApplicable $textesApplicable): self
+    {
+        $this->textesApplicables->removeElement($textesApplicable);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListeDocumentAjoute>
+     */
+    public function getDocumentsAjoutes(): Collection
+    {
+        return $this->documentsAjoutes;
+    }
+
+    public function addDocumentsAjoute(ListeDocumentAjoute $documentsAjoute): self
+    {
+        if (!$this->documentsAjoutes->contains($documentsAjoute)) {
+            $this->documentsAjoutes[] = $documentsAjoute;
+            $documentsAjoute->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsAjoute(ListeDocumentAjoute $documentsAjoute): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsAjoutes->removeElement($documentsAjoute) && $documentsAjoute->getDossier() === $this) {
+            $documentsAjoute->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierDocumentConsulte>
+     */
+    public function getDocumentsConsultes(): Collection
+    {
+        return $this->documentsConsultes;
+    }
+
+    public function addDocumentsConsulte(DossierDocumentConsulte $documentsConsulte): self
+    {
+        if (!$this->documentsConsultes->contains($documentsConsulte)) {
+            $this->documentsConsultes[] = $documentsConsulte;
+            $documentsConsulte->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentsConsulte(DossierDocumentConsulte $documentsConsulte): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->documentsConsultes->removeElement($documentsConsulte) && $documentsConsulte->getDossier() === $this) {
+            $documentsConsulte->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierPieceJointe>
+     */
+    public function getPiecesJointes(): Collection
+    {
+        return $this->piecesJointes;
+    }
+
+    public function addPiecesJointe(DossierPieceJointe $piecesJointe): self
+    {
+        if (!$this->piecesJointes->contains($piecesJointe)) {
+            $this->piecesJointes[] = $piecesJointe;
+            $piecesJointe->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removePiecesJointe(DossierPieceJointe $piecesJointe): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->piecesJointes->removeElement($piecesJointe) && $piecesJointe->getDossier() === $this) {
+            $piecesJointe->setDossier(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrescriptionDossier>
+     */
+    public function getPrescriptions(): Collection
+    {
+        return $this->prescriptions;
+    }
+
+    public function addPrescription(PrescriptionDossier $prescription): self
+    {
+        if (!$this->prescriptions->contains($prescription)) {
+            $this->prescriptions[] = $prescription;
+            $prescription->setDossier($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrescription(PrescriptionDossier $prescription): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->prescriptions->removeElement($prescription) && $prescription->getDossier() === $this) {
+            $prescription->setDossier(null);
+        }
 
         return $this;
     }

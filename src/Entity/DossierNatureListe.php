@@ -12,6 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DossierNatureListe
 {
+    public const NATURE_DOSSIERS_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 47, 26, 28, 29, 48];
+
+    public const NATURE_ECHEANCIER_TRAVAUX = 46;
+
     /**
      * @var int
      *
@@ -26,7 +30,7 @@ class DossierNatureListe
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_DOSSIERNATURE", type="string", length=100)
+     * @ORM\Column(name="LIBELLE_DOSSIERNATURE", type="string", length=100, nullable=false)
      */
     private $libelle;
 
@@ -35,7 +39,7 @@ class DossierNatureListe
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
-     * @ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", nullable=false)
+     * @ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
      */
     private $type;
 

@@ -26,7 +26,7 @@ class Groupement
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_GROUPEMENT", type="string", length=255)
+     * @ORM\Column(name="LIBELLE_GROUPEMENT", type="string", length=255, nullable=false)
      */
     private $libelle;
 
@@ -55,9 +55,55 @@ class Groupement
      */
     private $utilisateurs;
 
+    /**
+     * @var Collection<int, Commune>
+     *
+     * @ORM\JoinTable(
+     *     name="groupementcommune",
+     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", options={"fixed":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Commune::class)
+     */
+    private $communes;
+
+    /**
+     * @var Collection<int, UtilisateurInformations>
+     *
+     * @ORM\JoinTable(
+     *     name="groupementcontact",
+     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
+     */
+    private $contacts;
+
+    /*
+     * La table de jointure contient plus de champs avec des dates
+     * mais elles ne sont jamais utilisées.
+     */
+    /**
+     * @var Collection<int, Utilisateur>
+     *
+     * @ORM\JoinTable(
+     *     name="groupementpreventionniste",
+     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
+     */
+    private $preventionnistes;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
+        $this->communes = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
+        $this->preventionnistes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -124,6 +170,78 @@ class Groupement
         if ($this->utilisateurs->removeElement($utilisateur)) {
             $utilisateur->removeGroupement($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commune>
+     */
+    public function getCommunes(): Collection
+    {
+        return $this->communes;
+    }
+
+    public function addCommune(Commune $commune): self
+    {
+        if (!$this->communes->contains($commune)) {
+            $this->communes[] = $commune;
+        }
+
+        return $this;
+    }
+
+    public function removeCommune(Commune $commune): self
+    {
+        $this->communes->removeElement($commune);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(UtilisateurInformations $contact): self
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
+        }
+
+        return $this;
+    }
+
+    public function removeContact(UtilisateurInformations $contact): self
+    {
+        $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Utilisateur>
+     */
+    public function getPreventionnistes(): Collection
+    {
+        return $this->preventionnistes;
+    }
+
+    public function addPreventionniste(Utilisateur $preventionniste): self
+    {
+        if (!$this->preventionnistes->contains($preventionniste)) {
+            $this->preventionnistes[] = $preventionniste;
+        }
+
+        return $this;
+    }
+
+    public function removePreventionniste(Utilisateur $preventionniste): self
+    {
+        $this->preventionnistes->removeElement($preventionniste);
 
         return $this;
     }

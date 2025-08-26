@@ -15,14 +15,14 @@ class Periodicite
      *
      * @ORM\Id
      *
-     * @ORM\Column(name="LOCALSOMMEIL_PERIODICITE", type="boolean")
+     * @ORM\Column(name="LOCALSOMMEIL_PERIODICITE", type="boolean", nullable=false)
      */
     private $localSommeil;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="PERIODICITE_PERIODICITE", type="integer", options={"unsigned":true})
+     * @ORM\Column(name="PERIODICITE_PERIODICITE", type="integer", nullable=false, options={"unsigned":true})
      */
     private $periodicite;
 
@@ -31,7 +31,7 @@ class Periodicite
      *
      * @ORM\Id
      *
-     * @ORM\Column(name="ID_CATEGORIE", type="integer", options={"unsigned":true})
+     * @ORM\Column(name="ID_CATEGORIE", type="integer", nullable=false, options={"unsigned":true})
      */
     private $categorie;
 
@@ -40,7 +40,7 @@ class Periodicite
      *
      * @ORM\Id
      *
-     * @ORM\Column(name="ID_TYPE", type="string", length=10)
+     * @ORM\Column(name="ID_TYPE", type="string", length=10, nullable=false)
      */
     private $type;
 

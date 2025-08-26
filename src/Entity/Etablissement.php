@@ -62,13 +62,115 @@ class Etablissement
      */
     private $adresses;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="NUMEROID_ETABLISSEMENT", type="string", length=50, nullable=true)
+     */
+    private $numero;
+
+    /**
+     * @var Collection<int, Etablissement>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Etablissement::class, inversedBy="parents")
+     */
+    private $fils;
+
+    /**
+     * @var Collection<int, Etablissement>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementlie",
+     *     joinColumns={@ORM\JoinColumn(name="ID_FILS_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=Etablissement::class, mappedBy="fils")
+     */
+    private $parents;
+
+    /**
+     * @var ?Dossier
+     *
+     * @ORM\OneToOne(targetEntity=Dossier::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinColumn(name="ID_DOSSIER_DONNANT_AVIS", referencedColumnName="ID_DOSSIER", nullable=true)
+     */
+    private $dossierDonnantAvis;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_RISQUES_NATURELS_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $risquesNaturels;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_RISQUES_TECHNOLOGIQUES_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $risquesTechnologiques;
+
+    /**
+     * @var Collection<int, EtablissementDisplayRubrique>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementDisplayRubrique::class, mappedBy="etablissement", orphanRemoval=true)
+     */
+    private $displayRubriques;
+
+    /**
+     * @var Collection<int, UtilisateurInformations>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementcontact",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
+     */
+    private $contacts;
+
+    /**
+     * @var Collection<int, TexteApplicable>
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementtextapp",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TEXTESAPPL", referencedColumnName="ID_TEXTESAPPL")}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=TexteApplicable::class)
+     */
+    private $textesApplicables;
+
+    /**
+     * @var Collection<int, EtablissementPieceJointe>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementPieceJointe::class, mappedBy="etablissement", orphanRemoval=true)
+     */
+    private $piecesJointes;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
         $this->adresses = new ArrayCollection();
+        $this->fils = new ArrayCollection();
+        $this->parents = new ArrayCollection();
+        $this->displayRubriques = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
+        $this->textesApplicables = new ArrayCollection();
+        $this->piecesJointes = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -103,6 +205,20 @@ class Etablissement
     public function getInformations(): Collection
     {
         return $this->informations;
+    }
+
+    /**
+     * Retourne l'historique le plus récent.
+     */
+    public function getLatestInformations(): EtablissementInformations
+    {
+        $latestInformations = $this->informations->last();
+
+        if (false === $latestInformations) {
+            throw new \OutOfBoundsException('Aucune information existante pour l\'établissement '.$this->id);
+        }
+
+        return $latestInformations;
     }
 
     public function addInformations(EtablissementInformations $informations): self
@@ -175,6 +291,261 @@ class Etablissement
         // set the owning side to null (unless already changed)
         if ($this->adresses->removeElement($adress) && $adress->getEtablissement() === $this) {
             $adress->setEtablissement(null);
+        }
+
+        return $this;
+    }
+
+    public function getNumero(): ?string
+    {
+        return $this->numero;
+    }
+
+    public function setNumero(?string $numero): self
+    {
+        $this->numero = $numero;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFils(): Collection
+    {
+        return $this->fils;
+    }
+
+    public function addFils(self $fils): self
+    {
+        if (!$this->fils->contains($fils)) {
+            $this->fils[] = $fils;
+        }
+
+        return $this;
+    }
+
+    public function removeFils(self $fils): self
+    {
+        $this->fils->removeElement($fils);
+
+        return $this;
+    }
+
+    /**
+     * Le schéma de base de données exige un ManyToMany alors qu'on ne peut avoir qu'un seul parent.
+     * Cette méthode renvoie donc le 1er élément de la Collection ou null s'il n'y a pas de parent.
+     */
+    public function getParent(): ?Etablissement
+    {
+        return $this->parents->first() ?: null;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getParents(): Collection
+    {
+        return $this->parents;
+    }
+
+    public function addParent(self $parent): self
+    {
+        if (!$this->parents->contains($parent)) {
+            $this->parents[] = $parent;
+            $parent->addFils($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParent(self $parent): self
+    {
+        if ($this->parents->removeElement($parent)) {
+            $parent->removeFils($this);
+        }
+
+        return $this;
+    }
+
+    public function getDossierDonnantAvis(): ?Dossier
+    {
+        return $this->dossierDonnantAvis;
+    }
+
+    public function setDossierDonnantAvis(?Dossier $dossierDonnantAvis): self
+    {
+        $this->dossierDonnantAvis = $dossierDonnantAvis;
+
+        return $this;
+    }
+
+    public function hasAvisDerogations(): bool
+    {
+        $dossiers = $this->getDossiers();
+
+        foreach ($dossiers as $dossier) {
+            $avisDerogations = $dossier->getAvisDerogations();
+
+            foreach ($avisDerogations as $avisDerogation) {
+                if ($avisDerogation->getDisplayHistorique()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getRisquesNaturels(): ?string
+    {
+        return $this->risquesNaturels;
+    }
+
+    public function setRisquesNaturels(?string $risquesNaturels): self
+    {
+        $this->risquesNaturels = $risquesNaturels;
+
+        return $this;
+    }
+
+    public function getRisquesTechnologiques(): ?string
+    {
+        return $this->risquesTechnologiques;
+    }
+
+    public function setRisquesTechnologiques(?string $risquesTechnologiques): self
+    {
+        $this->risquesTechnologiques = $risquesTechnologiques;
+
+        return $this;
+    }
+
+    public function hasAvisDiffere(): bool
+    {
+        $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
+            return $dossier->getAvisDiffere()
+                && null === $dossier->getDateSuppression();
+        });
+
+        return !$dossiersAvisDiffere->isEmpty();
+    }
+
+    public function hasEcheancierTravaux(): bool
+    {
+        $dossiersEcheancier = $this->getDossiers()->filter(function (Dossier $dossier): bool {
+            $nature = $dossier->getNature();
+
+            if (null === $nature) {
+                return false;
+            }
+
+            return DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX === $nature->getId()
+                && null === $dossier->getDateSuppression();
+        });
+
+        return !$dossiersEcheancier->isEmpty();
+    }
+
+    /**
+     * @return Collection<int, EtablissementDisplayRubrique>
+     */
+    public function getDisplayRubriques(): Collection
+    {
+        return $this->displayRubriques;
+    }
+
+    public function addDisplayRubrique(EtablissementDisplayRubrique $displayRubrique): self
+    {
+        if (!$this->displayRubriques->contains($displayRubrique)) {
+            $this->displayRubriques[] = $displayRubrique;
+            $displayRubrique->setEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDisplayRubrique(EtablissementDisplayRubrique $displayRubrique): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->displayRubriques->removeElement($displayRubrique) && $displayRubrique->getEtablissement() === $this) {
+            $displayRubrique->setEtablissement(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(UtilisateurInformations $contact): self
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
+        }
+
+        return $this;
+    }
+
+    public function removeContact(UtilisateurInformations $contact): self
+    {
+        $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TexteApplicable>
+     */
+    public function getTextesApplicables(): Collection
+    {
+        return $this->textesApplicables;
+    }
+
+    public function addTextesApplicable(TexteApplicable $textesApplicable): self
+    {
+        if (!$this->textesApplicables->contains($textesApplicable)) {
+            $this->textesApplicables[] = $textesApplicable;
+        }
+
+        return $this;
+    }
+
+    public function removeTextesApplicable(TexteApplicable $textesApplicable): self
+    {
+        $this->textesApplicables->removeElement($textesApplicable);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementPieceJointe>
+     */
+    public function getPiecesJointes(): Collection
+    {
+        return $this->piecesJointes;
+    }
+
+    public function addPiecesJointe(EtablissementPieceJointe $piecesJointe): self
+    {
+        if (!$this->piecesJointes->contains($piecesJointe)) {
+            $this->piecesJointes[] = $piecesJointe;
+            $piecesJointe->setEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removePiecesJointe(EtablissementPieceJointe $piecesJointe): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->piecesJointes->removeElement($piecesJointe) && $piecesJointe->getEtablissement() === $this) {
+            $piecesJointe->setEtablissement(null);
         }
 
         return $this;

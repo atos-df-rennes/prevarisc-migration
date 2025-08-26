@@ -19,55 +19,63 @@ class CoucheCarto
      *
      * @ORM\GeneratedValue
      *
-     * @ORM\Column(type="integer", name="ID_COUCHECARTO")
+     * @ORM\Column(name="ID_COUCHECARTO", type="bigint", options={"unsigned":true})
      */
     private $id;
 
     /**
-     * @var string
-     * @ORM\Column(type="string", length=255, name="NOM_COUCHECARTO", nullable=true)
+     * @var ?string
+     *
+     * @ORM\Column(name="NOM_COUCHECARTO", type="string", length=255, nullable=true)
      */
     private $nom;
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, name="URL_COUCHECARTO", nullable=true)
+     *
+     * @ORM\Column(name="URL_COUCHECARTO", type="string", length=255, nullable=false)
      */
     private $url;
 
     /**
-     * @var boolean
-     * @ORM\Column(type="boolean", name="ISBASELAYER_COUCHECARTO")
+     * @var bool
+     *
+     * @ORM\Column(name="ISBASELAYER_COUCHECARTO", type="boolean", nullable=false)
      */
-    private $isBaseLayer;
+    private $baseLayer;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="LAYERS_COUCHECARTO", type="string", length=255, nullable=true)
+     */
+    private $layer;
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, name="LAYERS_COUCHECARTO", nullable=true)
-     */
-    private $layers;
-
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=255, name="FORMAT_COUCHECARTO")
+     *
+     * @ORM\Column(name="FORMAT_COUCHECARTO", type="string", length=255, nullable=false)
      */
     private $format;
 
     /**
-     * @var boolean
-     * @ORM\Column(type="boolean", name="TRANSPARENT_COUCHECARTO")
+     * @var bool
+     *
+     * @ORM\Column(name="TRANSPARENT_COUCHECARTO", type="boolean", nullable=false)
      */
     private $transparent;
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=50, name="TYPE_COUCHECARTO")
+     *
+     * @ORM\Column(name="TYPE_COUCHECARTO", type="string", length=50, nullable=false)
      */
     private $type;
 
     /**
-     * @var int
-     * @ORM\Column(type="integer", name="ORDRE_COUCHECARTO", nullable=true)
+     * @var ?int
+     *
+     * @ORM\Column(name="ORDRE_COUCHECARTO", type="integer", nullable=true)
      */
     private $ordre;
 
@@ -81,7 +89,7 @@ class CoucheCarto
         return $this->nom;
     }
 
-    public function setNom(string $nom): self
+    public function setNom(?string $nom): self
     {
         $this->nom = $nom;
 
@@ -100,26 +108,26 @@ class CoucheCarto
         return $this;
     }
 
-    public function getIsBaseLayer(): ?bool
+    public function isBaseLayer(): ?bool
     {
-        return $this->isBaseLayer;
+        return $this->baseLayer;
     }
 
-    public function setIsBaseLayer(bool $isBaseLayer): self
+    public function setBaseLayer(bool $baseLayer): self
     {
-        $this->isBaseLayer = $isBaseLayer;
+        $this->baseLayer = $baseLayer;
 
         return $this;
     }
 
-    public function getLayers(): ?string
+    public function getLayer(): ?string
     {
-        return $this->layers;
+        return $this->layer;
     }
 
-    public function setLayers(string $layers): self
+    public function setLayer(?string $layer): self
     {
-        $this->layers = $layers;
+        $this->layer = $layer;
 
         return $this;
     }
@@ -136,7 +144,7 @@ class CoucheCarto
         return $this;
     }
 
-    public function getTransparent(): ?bool
+    public function isTransparent(): ?bool
     {
         return $this->transparent;
     }
@@ -165,7 +173,7 @@ class CoucheCarto
         return $this->ordre;
     }
 
-    public function setOrdre(int $ordre): self
+    public function setOrdre(?int $ordre): self
     {
         $this->ordre = $ordre;
 

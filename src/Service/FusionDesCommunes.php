@@ -135,15 +135,24 @@ final class FusionDesCommunes
     private function updateRues(FusionDeCommunes $fusionCommune): void
     {
         foreach ($fusionCommune->listeCommunes() as $commune) {
-            $newCommune = $this->communeRepository->find($fusionCommune->numinsee());
-            $ruesToUpdate = $this->adresseRueRepository->findBy(['commune' => $commune->numinsee()]);
+            try {
+                $newCommune = $this->communeRepository->find($fusionCommune->numinsee());
 
-            foreach ($ruesToUpdate as $rueToUpdate) {
-                $rueToUpdate->setCommune($newCommune);
-                $this->entityManager->persist($rueToUpdate);
+                if (null === $newCommune) {
+                    throw new \Exception(sprintf("La nouvelle commune %s n'existe pas en base de données.", $fusionCommune->numinsee()));
+                }
+
+                $ruesToUpdate = $this->adresseRueRepository->findBy(['commune' => $commune->numinsee()]);
+
+                foreach ($ruesToUpdate as $rueToUpdate) {
+                    $rueToUpdate->setCommune($newCommune);
+                    $this->entityManager->persist($rueToUpdate);
+                }
+
+                $this->entityManager->flush();
+            } catch (\Exception $exception) {
+                $this->logger->error($exception->getMessage());
             }
-
-            $this->entityManager->flush();
         }
     }
 
@@ -157,7 +166,7 @@ final class FusionDesCommunes
                 $communeEntity = $this->communeRepository->find($commune->numinsee());
 
                 if (null === $communeEntity) {
-                    throw new \Exception("La commune n'existe pas en base de données.");
+                    throw new \Exception(sprintf("La commune %s n'existe pas en base de données.", $commune->numinsee()));
                 }
 
                 $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);

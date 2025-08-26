@@ -26,7 +26,7 @@ class Commission
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_COMMISSION", type="string", length=80)
+     * @ORM\Column(name="LIBELLE_COMMISSION", type="string", length=80, nullable=false)
      */
     private $libelle;
 
@@ -60,10 +60,40 @@ class Commission
      */
     private $regles;
 
+    /**
+     * @var Collection<int, UtilisateurInformations>
+     *
+     * @ORM\JoinTable(
+     *     name="commissioncontact",
+     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
+     * )
+     *
+     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
+     */
+    private $contacts;
+
+    /**
+     * @var Collection<int, CommissionMembre>
+     *
+     * @ORM\OneToMany(targetEntity=CommissionMembre::class, mappedBy="commission", orphanRemoval=true)
+     */
+    private $membres;
+
+    /**
+     * @var Collection<int, DateCommission>
+     *
+     * @ORM\OneToMany(targetEntity=DateCommission::class, mappedBy="commission", orphanRemoval=true)
+     */
+    private $dateCommissions;
+
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
         $this->regles = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
+        $this->membres = new ArrayCollection();
+        $this->dateCommissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -157,6 +187,86 @@ class Commission
         // set the owning side to null (unless already changed)
         if ($this->regles->removeElement($regle) && $regle->getCommission() === $this) {
             $regle->setCommission(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(UtilisateurInformations $contact): self
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
+        }
+
+        return $this;
+    }
+
+    public function removeContact(UtilisateurInformations $contact): self
+    {
+        $this->contacts->removeElement($contact);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CommissionMembre>
+     */
+    public function getMembres(): Collection
+    {
+        return $this->membres;
+    }
+
+    public function addMembre(CommissionMembre $membre): self
+    {
+        if (!$this->membres->contains($membre)) {
+            $this->membres[] = $membre;
+            $membre->setCommission($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembre(CommissionMembre $membre): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->membres->removeElement($membre) && $membre->getCommission() === $this) {
+            $membre->setCommission(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DateCommission>
+     */
+    public function getDateCommissions(): Collection
+    {
+        return $this->dateCommissions;
+    }
+
+    public function addDateCommission(DateCommission $dateCommission): self
+    {
+        if (!$this->dateCommissions->contains($dateCommission)) {
+            $this->dateCommissions[] = $dateCommission;
+            $dateCommission->setCommission($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDateCommission(DateCommission $dateCommission): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->dateCommissions->removeElement($dateCommission) && $dateCommission->getCommission() === $this) {
+            $dateCommission->setCommission(null);
         }
 
         return $this;

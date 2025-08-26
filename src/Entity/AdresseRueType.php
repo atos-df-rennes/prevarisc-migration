@@ -26,14 +26,14 @@ class AdresseRueType
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_RUETYPE", type="string", length=32)
+     * @ORM\Column(name="LIBELLE_RUETYPE", type="string", length=32, nullable=false)
      */
     private $libelle;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="ABREVIATION_RUETYPE", type="string", length=16)
+     * @ORM\Column(name="ABREVIATION_RUETYPE", type="string", length=16, nullable=false)
      */
     private $abbreviation;
 

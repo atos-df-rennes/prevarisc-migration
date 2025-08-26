@@ -55,6 +55,10 @@ class UtilisateursController extends AbstractController
             // @fixme: Utiliser l'encodage de Symfony + ré-encoder les mots de passe existants
             $utilisateur->setPassword(md5($utilisateur->getUsername().$this->getParameter('app.security_salt').$utilisateur->getPlainPassword()));
 
+            $dateDerniereVisite = new \DateTime();
+            $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
+            $utilisateur->setDerniereVisiteDashboard($dateDerniereVisite);
+
             $entityManager->persist($preferences);
             $entityManager->persist($utilisateur);
             $entityManager->flush();

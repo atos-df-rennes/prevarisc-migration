@@ -26,21 +26,21 @@ class AdresseRue
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_RUE", type="string", length=255)
+     * @ORM\Column(name="LIBELLE_RUE", type="string", length=255, nullable=false)
      */
     private $libelle;
 
     /**
-     * @var ?AdresseRueType
+     * @var AdresseRueType
      *
      * @ORM\ManyToOne(targetEntity=AdresseRueType::class)
      *
-     * @ORM\JoinColumn(name="ID_RUETYPE", referencedColumnName="ID_RUETYPE", nullable=false)
+     * @ORM\JoinColumn(name="ID_RUETYPE", referencedColumnName="ID_RUETYPE", nullable=false, options={"unsigned":true})
      */
     private $type;
 
     /**
-     * @var ?Commune
+     * @var Commune
      *
      * @ORM\ManyToOne(targetEntity=Commune::class)
      *
@@ -70,7 +70,7 @@ class AdresseRue
         return $this->type;
     }
 
-    public function setType(?AdresseRueType $type): self
+    public function setType(AdresseRueType $type): self
     {
         $this->type = $type;
 
@@ -82,7 +82,7 @@ class AdresseRue
         return $this->commune;
     }
 
-    public function setCommune(?Commune $commune): self
+    public function setCommune(Commune $commune): self
     {
         $this->commune = $commune;
 

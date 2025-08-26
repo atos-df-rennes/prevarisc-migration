@@ -26,7 +26,7 @@ class DossierType
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_DOSSIERTYPE", type="string", length=100)
+     * @ORM\Column(name="LIBELLE_DOSSIERTYPE", type="string", length=100, nullable=false)
      */
     private $libelle;
 

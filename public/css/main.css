@@ -836,10 +836,10 @@ text-decoration: none;
   color: #555555;
 }
 
-.dashboard .panel {
+#home.dashboard .panel {
   width:  49%;
   float: left;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .dashboard .panel.ui-draggable-dragging {
@@ -851,7 +851,7 @@ text-decoration: none;
   width:  100%;
 }
 
-.dashboard .panel-heading {
+#home.dashboard .panel-heading {
   cursor: move;
 }
 
@@ -861,6 +861,13 @@ text-decoration: none;
 
 .dashboard .panel.folded .panel-heading {
   margin-bottom: -15px;
+}
+
+.panel.panel-formulaire-perso .panel-heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .dashboard .grid-gutter {
@@ -1272,6 +1279,7 @@ dl.champ_effectif_camping dd input {
     padding: 10px 0 10px 16px;
     background-color: white;
     height: fit-content;
+    z-index: 10;
 }
 
 #go-top {
@@ -1291,3 +1299,92 @@ dl.champ_effectif_camping dd input {
     margin-left: .5rem;
     cursor: pointer;
 }
+
+/* Formulaires personnalisés */
+.panel.panel-formulaire-perso,
+.table-wrapper .table td.colonne-edition {
+  background-color: #fafafa;
+}
+
+.panel.panel-formulaire-perso .panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel.panel-formulaire-perso .date {
+  background-color: #fff;
+}
+
+.panel.panel-formulaire-perso .control-group {
+  margin-bottom: 0;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 0;
+}
+
+.table-responsive .table td,
+.table-responsive .table th {
+  white-space: nowrap;
+}
+
+.add-row-button-wrapper {
+  padding: 4px;
+}
+
+.table-wrapper {
+  border: 1px solid black;
+}
+
+.table-wrapper .table {
+  border-collapse: unset;
+}
+
+.table-wrapper .table th,
+.table-wrapper .table td {
+  border-right: 1px solid;
+  border-color: black;
+}
+
+.table-wrapper .table tbody tr:last-child td {
+  border-bottom: 1px solid;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.table-wrapper .table th,
+.table-wrapper .table th.colonne-edition {
+  background-color: #d5d5d5;
+}
+
+.table-wrapper .table .colonne-edition {
+  text-align: center;
+  position: sticky;
+  right: 0;
+  border-left: 1px solid black;
+  border-right: 0;
+}
+
+.table-wrapper .table .colonne-edition.with-shadow {
+  box-shadow: -21px 3px 15px -3px rgba(0,0,0,0.2);
+}
+
+.table-wrapper .table-responsive:not(.table-tableau) .table,
+.table-wrapper .table-responsive:not(.table-writable) .table {
+  margin-bottom: 0;
+}
+
+.table-wrapper .table-responsive:not(.table-tableau) tbody tr:last-child td,
+.table-wrapper .table-responsive:not(.table-writable) tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-wrapper .table-responsive:not(.table-tableau) th:last-child,
+.table-wrapper .table-responsive:not(.table-tableau) td:last-child,
+.table-wrapper .table-responsive:not(.table-writable) th:last-child,
+.table-wrapper .table-responsive:not(.table-writable) td:last-child {
+  border-right: 0;
+}
+/* Formulaires personnalisés */
