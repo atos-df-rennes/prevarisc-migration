@@ -218,4 +218,29 @@ final class Etablissement
 
         return $historique;
     }
+
+    public function getTextesApplicablesEtablissement(int $id): array
+    {
+        $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
+
+        $textesApplicables = [];
+        $lastType = '';
+        foreach ($textesApplicablesData->getTextesApplicables()->getValues() as $texteApplicable){
+            if ($texteApplicable->getVisible()){
+                if ($lastType !== $texteApplicable->getType()) {
+                    $textesApplicables[$texteApplicable->getType()->getId()] = [
+                        'titre' => $texteApplicable->getType()->getLibelle(),
+                        'textes' => [$texteApplicable->getLibelle()],
+                    ];
+                    $lastType = $texteApplicable->getType();
+                }
+                else {
+                    $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+                }
+            }
+        }
+
+        return $textesApplicables;
+    }
+
 }
