@@ -95,10 +95,6 @@ class CouchesCartographiquesController extends AbstractController
                 return $this->redirectToRoute('couches_cartographiques');
             }
 
-            if (!isset($coucheCartoData['isBaseLayer'])) {
-                $coucheCartoData['isBaseLayer'] = false;
-            }
-
             $coucheCartoData['transparent'] = isset($coucheCartoData['transparent']);
 
             $coucheCarto = $this->serializer->deserialize(json_encode($coucheCartoData), CoucheCarto::class, 'json');

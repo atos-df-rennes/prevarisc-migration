@@ -33,13 +33,13 @@
                             </thead>
                             <tbody>
                                 {% for couche in couches %}
-                                    <tr >
+                                    <tr>
                                         <td>
                                             <form method="post" action="{{ path('couches_cartographiques_add_IGN') }}" id="form-{{ couche.layers }}-{{ format }}">
                                                 <input type="hidden" name="token" value="{{ csrf_token('ajouter-IGN-' ~ couche.nom ) }}">
                                                 <input type="hidden" name="nom" value="{{ couche.nom }}">
                                                 <input type="hidden" name="type" value="{{ couche.type }}">
-                                                <input type="hidden" name="layers" value="{{ couche.layers }}">
+                                                <input type="hidden" name="layer" value="{{ couche.layers }}">
                                                 <input type="hidden" name="url" value="{{ couche.url }}">
                                                 <input type="hidden" name="format" value="{{ couche.format }}">
                                             </form>
@@ -55,7 +55,7 @@
                                             <input form="form-{{ couche.layers }}-{{ format }}" name="transparent" type="checkbox" />
                                         </td>
                                         <td>
-                                            <input form="form-{{ couche.layers }}-{{ format }}" type="submit" class="btn btn-success" value="Ajouter">
+                                            <input form="form-{{ couche.layers }}-{{ format }}" type="submit" class="btn btn-success" value="Ajouter" />
                                         </td>
                                     </tr>
                                 {% endfor %}

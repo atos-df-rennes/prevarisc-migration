@@ -23,7 +23,7 @@ final class IgnApi
     private $transparent;
 
     /** @var bool */
-    private $isBaseLayer;
+    private $baseLayer;
 
     public function __construct(string $nom, string $url, string $type, string $layers, string $format)
     {
@@ -33,7 +33,7 @@ final class IgnApi
         $this->layers = $layers;
         $this->format = $format;
         $this->transparent = false;
-        $this->isBaseLayer = false;
+        $this->baseLayer = false;
     }
 
     public function nom(): string
@@ -66,8 +66,8 @@ final class IgnApi
         return $this->transparent;
     }
 
-    public function isBaseLayer(): bool
+    public function baseLayer(): bool
     {
-        return $this->isBaseLayer;
+        return $this->baseLayer;
     }
 }
