@@ -42,22 +42,23 @@
 
             // Affichage de la version du SDK et de sa date de création
             var infoDiv = document.getElementById("info");
-            infoDiv.innerHTML = "<h6><p><b><i> SDK version " + Gp.sdkVersion + " (" + Gp.sdkDate + ")</b></i></p></h6>";
+            infoDiv.innerHTML = "<h6><p><i>SDK version " + Gp.sdkVersion + " (" + Gp.sdkDate + ")</i></p></h6>";
         </script>
     {% elseif geoconcept_url is not null %}
         <div id='geoconcept-container'  style="height: 350px; max-height: 350px;width: 100%"></div>
 
-        <script type="text/javascript" src="/js/geoconcept/OpenLayers.js"></script>
-        <script type="text/javascript" src="/js/geoconcept/proj4js.js"></script>
-        <script type="text/javascript" src="/js/geoconcept/htc-lite.js"></script>
+        <script type="text/javascript" src="{{ asset('js/geoconcept/OpenLayers.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/geoconcept/proj4js.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/geoconcept/htc-lite.js') }}"></script>
 
 
         {% if projection is not null %}
             <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
+            <script type="text/javascript" src="{{ asset('js/geoconcept/defs/' ~ projection ~ '.js') }}"></script>
         {% endif %}
 
-        <script type="text/javascript" src="/js/geoconcept/geoconcept.js"></script>
-        <link rel="stylesheet" href="/css/geoconcept/htc.css"/>
+        <script type="text/javascript" src="{{ asset('js/geoconcept/geoconcept.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('css/geoconcept/htc.css') }}"/>
 
         <script>
             $(document).ready(function() {
@@ -98,7 +99,7 @@
                 var marker = new google.maps.Marker({
                     position: point,
                     map: map,
-                    // title: "<?php echo $this->etablissement['informations']['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?>"
+                    title: "Centre par défaut"
                 });
 
                 google.maps.event.addDomListener(window, 'load', initialize);
@@ -141,7 +142,7 @@
             <a class='btn btn-default' href='{{ path('couches_cartographiques_order') }}'>Changer l'ordre des couches</a>
         </p>
 
-        <div class="alert alert-warning pull-right span4">
+        <div class="alert alert-warning pull-right col-md-4">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <strong>Attention !</strong> Le chargement de la page d'ajout d'une couche IGN peut prendre du temps si vous avez renseigné plusieurs clés.
         </div>
@@ -159,8 +160,11 @@
                 {% for couche_cartographique in couches_cartographiques %}
                     <tr>
                         <td>{{ couche_cartographique.type }}</td>
-                        <td>{{ couche_cartographique.nom }}{% if couche_cartographique.isBaseLayer %}  (couche de base){% endif %}
-                        <td>{% if couche_cartographique.ordre %}{{ couche_cartographique.ordre }}{% else %}Ordre non renseigné{% endif %}</td>
+                        <td>
+                            {{ couche_cartographique.nom }}
+                            {% if couche_cartographique.isBaseLayer %}  (couche de base){% endif %}
+                        </td>
+                        <td>{{ couche_cartographique.ordre|default('Ordre non renseigné') }}</td>
                         <td>
                             <a href="{{ path('couche_cartographique_edit', {id: couche_cartographique.id}) }}">Modifier la couche</a><br/>
                             <a href="{{ path('couche_cartographique_delete', {id: couche_cartographique.id}) }}">Supprimer</a>
