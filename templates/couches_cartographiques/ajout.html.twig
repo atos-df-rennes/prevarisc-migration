@@ -3,14 +3,16 @@
 {% block title %}Administration / {% if couche_id is defined %}Modification{% else %}Ajout{% endif %} d'une couche cartographique{% endblock %}
 
 {% block body %}
-    <div class='pull-right btn-group'>
-        <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
-        <input type='submit' class="btn btn-success" value="{% if couche_id is defined %}Modifier{% else %}Ajouter{% endif %} la couche" />
-    </div>
-
     <h3>{% if couche_id is defined %}Modification{% else %}Ajout{% endif %} d'une couche cartographique</h3>
 
     {{ form_start(form) }}
+        <div class='pull-right btn-group'>
+            <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
+            <input type='submit' class="btn btn-success" value="{% if couche_id is defined %}Modifier{% else %}Ajouter{% endif %} la couche" />
+        </div>
+
+        <hr class="clearfix" style="border: none;" />
+
         {{ form_errors(form) }}
 
         {{ form_row(form.type) }}

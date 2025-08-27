@@ -31,6 +31,7 @@ class CoucheCartoType extends AbstractType
             ])
             ->add('baseLayer', CheckboxType::class, [
                 'label' => 'Oui',
+                'required' => false,
             ])
             ->add('layer', TextType::class, [
                 'label' => 'Nom de la couche dans le flux'
@@ -44,6 +45,7 @@ class CoucheCartoType extends AbstractType
             ])
             ->add('transparent', CheckboxType::class, [
                 'label' => 'Oui',
+                'required' => false,
             ])
         ;
     }
