@@ -9,16 +9,18 @@
 
     <h3>Ajout d'une couche cartographique IGN</h3>
 
-    <div class="accordion panel-group" id="ign-accordion">
+    <div class="panel-group" id="ign-accordion" role="tablist" aria-multiselectable="true">
         {% for format, couches in couchesIGN %}
-            <div class="accordion-group panel panel-default">
-                <div class="accordion-heading panel-heading">
-                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#ign-accordion" href="#{{ format | replace({' ':'-'}) }}">
-                        {{ format | upper }}
-                    </a>
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading-{{ format }}">
+                    <h4 class="panel-title">
+                        <a role="button" data-toggle="collapse" data-parent="#ign-accordion" href="#{{ format | replace({' ':'-'}) }}" aria-controls="{{ format | replace({' ':'-'}) }}" {% if loop.first %}aria-expanded="true" {% endif %}>
+                            {{ format | upper }}
+                        </a>
+                    </h4>
                 </div>
-                <div id="{{ format | replace({' ':'-'}) }}" class="accordion-body panel-collapse collapse {% if loop.first %}in{% else %}''{% endif %}">
-                    <div class="accordion-inner">
+                <div id="{{ format | replace({' ':'-'}) }}" class="panel-collapse collapse {% if loop.first %}in{% endif %}" role="tabpanel" aria-labelledby="heading-{{ format }}">
+                    <div class="panel-body">
                         <table class="table table-hover table-condensed">
                             <thead>
                             <tr>
@@ -30,7 +32,6 @@
                             </tr>
                             </thead>
                             <tbody>
-
                                 {% for couche in couches %}
                                     <tr >
                                         <td>

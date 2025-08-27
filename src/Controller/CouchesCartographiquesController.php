@@ -107,7 +107,7 @@ class CouchesCartographiquesController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'La couche cartographique IGN a été ajoutée.');
 
-            return $this->redirectToRoute('couches_cartographiques_add_IGN');
+            return $this->redirectToRoute('couches_cartographiques');
         }
 
         $couchesIGN = $this->couchesCarto->getCouchesIGN();
