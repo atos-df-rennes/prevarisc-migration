@@ -17,6 +17,12 @@ final class Version20250305163248 extends AbstractMigration
         return "Gestion des groupes et ajout d'utilisateur.";
     }
 
+    public function preUp(Schema $schema): void
+    {
+        $this->addSql('ALTER TABLE adressecommune CHANGE ID_UTILISATEURINFORMATIONS ID_UTILISATEURINFORMATIONS BIGINT UNSIGNED DEFAULT NULL');
+        $this->addSql('UPDATE adressecommune SET ID_UTILISATEURINFORMATIONS = NULL WHERE adressecommune.ID_UTILISATEURINFORMATIONS NOT IN (SELECT ID_UTILISATEURINFORMATIONS FROM utilisateurinformations)');
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE groupe CHANGE DESC_GROUPE DESC_GROUPE LONGTEXT DEFAULT NULL');
