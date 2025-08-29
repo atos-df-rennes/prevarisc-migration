@@ -35,7 +35,6 @@ final class Version20250305163248 extends AbstractMigration
         $this->addSql('ALTER IGNORE TABLE utilisateur CHANGE PASSWD_UTILISATEUR PASSWD_UTILISATEUR VARCHAR(255) DEFAULT NULL, CHANGE ID_GROUPE ID_GROUPE BIGINT UNSIGNED DEFAULT NULL');
         $this->addSql('DROP INDEX fk_utilisateurinformations_fonction1_idx ON utilisateurinformations');
         $this->addSql('DROP INDEX fk_utilisateurinformations_utilisateurcivilite1_idx ON utilisateurinformations');
-        $this->addSql('ALTER TABLE adressecommune CHANGE ID_UTILISATEURINFORMATIONS ID_UTILISATEURINFORMATIONS BIGINT UNSIGNED NOT NULL');
         $this->addSql('ALTER TABLE adressecommune ADD CONSTRAINT FK_D404E385B2A0DA51 FOREIGN KEY (ID_UTILISATEURINFORMATIONS) REFERENCES utilisateurinformations (ID_UTILISATEURINFORMATIONS)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D404E385B2A0DA51 ON adressecommune (ID_UTILISATEURINFORMATIONS)');
         $this->addSql('ALTER TABLE commission DROP FOREIGN KEY fk_commission_commissiontype1');
