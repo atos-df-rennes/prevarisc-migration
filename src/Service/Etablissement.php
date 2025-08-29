@@ -222,7 +222,6 @@ final class Etablissement
     /**
      * Récupère les Textes Applicables d'un établissement.
      *
-     * @param int $id
      * @return mixed[]
      */
     public function getTextesApplicablesEtablissement(int $id): array
@@ -230,17 +229,20 @@ final class Etablissement
         $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
 
         $textesApplicables = [];
-        $lastType = '';
-        foreach ($textesApplicablesData->getTextesApplicables()->getValues() as $texteApplicable) {
-            if ($texteApplicable->getVisible() && $texteApplicable->getType() != null) {
-                if ($lastType !== $texteApplicable->getType()) {
-                    $textesApplicables[$texteApplicable->getType()->getId()] = [
-                        'titre' => $texteApplicable->getType()->getLibelle(),
-                        'textes' => [$texteApplicable->getLibelle()],
-                    ];
-                    $lastType = $texteApplicable->getType();
-                } else {
-                    $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+
+        if (null != $textesApplicablesData) {
+            $lastType = '';
+            foreach ($textesApplicablesData->getTextesApplicables()->getValues() as $texteApplicable) {
+                if ($texteApplicable->getVisible() && null != $texteApplicable->getType()) {
+                    if ($lastType !== $texteApplicable->getType()) {
+                        $textesApplicables[$texteApplicable->getType()->getId()] = [
+                            'titre' => $texteApplicable->getType()->getLibelle(),
+                            'textes' => [$texteApplicable->getLibelle()],
+                        ];
+                        $lastType = $texteApplicable->getType();
+                    } else {
+                        $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+                    }
                 }
             }
         }

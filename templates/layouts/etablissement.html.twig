@@ -132,7 +132,7 @@
                 Présence d'un dossier avec avis differé
             </p>
         {% else %}
-            {% if etablissement.dossierDonnantAvis.avisCommission %}
+            {% if etablissement.dossierDonnantAvis and etablissement.dossierDonnantAvis.avisCommission %}
                 {% set label_color = 'default' %}
                 {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
                     {% set label_color = 'success' %}

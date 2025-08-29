@@ -1,0 +1,24 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Edition des textes applicables{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+        <div class='action-buttons pull-right form-inline'>
+            <div class="row">
+                {{ form_row(form.annuler) }}
+                {{ form_row(form.sauvegarder) }}
+            </div>
+        </div>
+        <h3 class="">Modification des Textes applicables</h3>
+        {% for texteApplicable in form.textesApplicables %}
+{#            {{ dump(texteApplicable) }}#}
+            {% if loop.index == 1 or texteApplicable.vars.attr['data-type'] != lastType %}
+                <h4>{{ texteApplicable.vars.attr['data-type'] }}</h4>
+                {% set lastType = texteApplicable.vars.attr['data-type'] %}
+            {% endif %}
+            {{ form_row(texteApplicable) }}
+        {% endfor %}
+    {{ form_end(form) }}
+{% endblock %}

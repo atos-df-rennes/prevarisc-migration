@@ -1243,6 +1243,10 @@ p.muted {
   color: #999;
 }
 
+form[name='textes_applicables_etablissement'] div.checkbox label:has(input[checked='checked']) {
+  font-weight: bold;
+}
+
 .sortTexteAppl li {
   cursor: move;
 }
