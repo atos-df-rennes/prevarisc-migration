@@ -20,6 +20,15 @@ final class Version20250220150019 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('DROP VIEW IF EXISTS `etablissementinformationsactuel`');
+        $this->addSql('CREATE VIEW `etablissementinformationsactuel` AS 
+            SELECT * FROM `etablissementinformations` ei WHERE ei.DATE_ETABLISSEMENTINFORMATIONS = 
+            ( 
+                SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations 
+                WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT 
+            )
+        ');
+
         $this->addSql('update `etablissementinformations` as `dest`,
             (
                 select
