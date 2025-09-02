@@ -36,7 +36,7 @@
 
                 viewer = addUserLayers(
                     viewer,
-                    {{ couches_cartographiques|json_encode }}
+                    {{ couches_cartographiques_json_encoded|raw }}
                 )
             }
 

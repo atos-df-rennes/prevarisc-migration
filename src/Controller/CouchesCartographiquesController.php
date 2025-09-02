@@ -52,6 +52,7 @@ class CouchesCartographiquesController extends AbstractController
             'app_id' => $this->getParameter('app.geoconcept_app_id'),
             'geoconcept_layer' => $this->getParameter('app.geoconcept_layer'),
             'couches_cartographiques' => $coucheCartoRepository->findAllOrdered(),
+            'couches_cartographiques_json_encoded' => $this->serializer->serialize($coucheCartoRepository->findAllOrdered(), 'json')
         ]);
     }
 
