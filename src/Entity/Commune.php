@@ -38,11 +38,11 @@ class Commune
     private $codePostal;
 
     /**
-     * @var UtilisateurInformations
+     * @var ?UtilisateurInformations
      *
      * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false)
+     * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true)
      */
     private $utilisateurInformations;
 
@@ -92,7 +92,7 @@ class Commune
         return $this->utilisateurInformations;
     }
 
-    public function setUtilisateurInformations(UtilisateurInformations $utilisateurInformations): self
+    public function setUtilisateurInformations(?UtilisateurInformations $utilisateurInformations): self
     {
         $this->utilisateurInformations = $utilisateurInformations;
 
