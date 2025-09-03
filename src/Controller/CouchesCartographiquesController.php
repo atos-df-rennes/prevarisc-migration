@@ -24,7 +24,7 @@ class CouchesCartographiquesController extends AbstractController
     /** @var CouchesCarto  */
     private $couchesCarto;
 
-    /** @var \Psr\Log\LoggerInterface */
+    /** @var LoggerInterface */
     private $logger;
 
     public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger)
@@ -100,8 +100,8 @@ class CouchesCartographiquesController extends AbstractController
             $coucheCartoToken = $coucheCartoData['token'];
 
             if (!$this->isCsrfTokenValid('ajouter-IGN-'.$coucheCartoNom, $coucheCartoToken)) {
-                $this->logger->error("Problème avec le token CSR pour la couche {$coucheCartoNom}.");
-                $this->addFlash('error', "Un problème est survenu lors de l'ajout de la couche cartographique IGN {$coucheCartoNom}.");
+                $this->logger->error(sprintf('Problème avec le token CSR pour la couche %s.', $coucheCartoNom));
+                $this->addFlash('error', sprintf("Un problème est survenu lors de l'ajout de la couche cartographique IGN %s.", $coucheCartoNom));
 
                 return $this->redirectToRoute('couches_cartographiques');
             }

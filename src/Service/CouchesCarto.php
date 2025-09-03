@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Psr\Cache\CacheItemInterface;
 use App\Dto\IgnApi;
 use App\Dto\IgnCapabilities;
 use Psr\Log\LoggerInterface;
@@ -12,8 +13,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final class CouchesCarto
 {
     public const WMTS = 'wmts';
+
     public const WMS_RASTER = 'wms raster';
+
     public const WMS_VECTEUR = 'wms vecteur';
+
     public const FORMATS = [self::WMTS, self::WMS_RASTER, self::WMS_VECTEUR];
 
     /** @var HttpClientInterface */
@@ -75,7 +79,7 @@ final class CouchesCarto
             $url = $crawler->filterXPath('//ows:OperationsMetadata/ows:Operation[@name="GetCapabilities"]/ows:DCP/ows:HTTP/ows:Get')->attr('xlink:href');
 
             if (null === $url) {
-                $this->logger->error("L'URL du service de cartographie pour le format {$format} n'est pas valide.");
+                $this->logger->error(sprintf("L'URL du service de cartographie pour le format %s n'est pas valide.", $format));
 
                 return [];
             }
@@ -86,7 +90,7 @@ final class CouchesCarto
             $url = $contents->filterXPath('//default:Request/default:GetCapabilities/default:DCPType/default:HTTP/default:Get/default:OnlineResource')->attr('xlink:href');
 
             if (null === $url) {
-                $this->logger->error("L'URL du service de cartographie pour le format {$format} n'est pas valide.");
+                $this->logger->error(sprintf("L'URL du service de cartographie pour le format %s n'est pas valide.", $format));
 
                 return [];
             }
@@ -171,7 +175,7 @@ final class CouchesCarto
     /**
      * @return array<string, array<IgnApi>|string>
      */
-    public function getCouchesIGN()
+    public function getCouchesIGN(): array
     {
         $couchesIGN = [];
 
@@ -199,7 +203,7 @@ final class CouchesCarto
     {
         $cache = new FilesystemAdapter('app.cache');
 
-        /** @var \Psr\Cache\CacheItemInterface $cacheIgn */
+        /** @var CacheItemInterface $cacheIgn */
         $cacheIgn = $cache->getItem(str_replace(' ', '_', $format));
 
         if ($cacheIgn->isHit()) {
@@ -212,7 +216,7 @@ final class CouchesCarto
         $url = $capabilities->url();
         try {
             if (null === $url) {
-                throw new \DomainException("L'URL pour le format {$format} est null.");
+                throw new \DomainException(sprintf("L'URL pour le format %s est null.", $format));
             }
 
             $ignApiResponse = $this->client->request('GET', $url)->getContent();
