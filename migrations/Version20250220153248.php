@@ -14,13 +14,14 @@ final class Version20250220153248 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Ajout des rôles.';
     }
 
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf($schema->getTable('utilisateur')->hasColumn('roles'), 'Rôles déjà existants.');
 
         $this->addSql('ALTER TABLE utilisateur DROP INDEX fk_utilisateur_utilisateurinformations1_idx, ADD UNIQUE INDEX UNIQ_1D1C63B3B2A0DA51 (ID_UTILISATEURINFORMATIONS)');
         $this->addSql('ALTER TABLE utilisateur DROP FOREIGN KEY fk_utilisateur_groupe1');
@@ -41,6 +42,7 @@ final class Version20250220153248 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!$schema->getTable('utilisateur')->hasColumn('roles'), 'Rôles non existants.');
 
         $this->addSql('ALTER TABLE utilisateur DROP INDEX UNIQ_1D1C63B3B2A0DA51, ADD INDEX fk_utilisateur_utilisateurinformations1_idx (ID_UTILISATEURINFORMATIONS)');
         $this->addSql('ALTER TABLE utilisateur DROP FOREIGN KEY FK_1D1C63B3A9F11EBF');
