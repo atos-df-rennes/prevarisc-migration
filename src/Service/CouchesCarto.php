@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-use Psr\Cache\CacheItemInterface;
 use App\Dto\IgnApi;
 use App\Dto\IgnCapabilities;
+use Psr\Cache\CacheItemInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\DomCrawler\Crawler;

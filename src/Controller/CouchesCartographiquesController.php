@@ -8,7 +8,6 @@ use App\Form\ReOrderCoucheCartoType;
 use App\Repository\CoucheCartoRepository;
 use App\Service\CouchesCarto;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,10 +17,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class CouchesCartographiquesController extends AbstractController
 {
-    /** @var SerializerInterface  */
+    /** @var SerializerInterface */
     private $serializer;
 
-    /** @var CouchesCarto  */
+    /** @var CouchesCarto */
     private $couchesCarto;
 
     /** @var LoggerInterface */
@@ -185,7 +184,7 @@ class CouchesCartographiquesController extends AbstractController
         try {
             $coucheCartoRepository->remove($coucheCarto);
             $this->addFlash('success', 'La couche cartographique a été supprimée.');
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $this->addFlash('danger', 'La couche cartographique n\'a pas été supprimée. Veuillez rééssayez. ('.$exception->getMessage().')');
         }
 
