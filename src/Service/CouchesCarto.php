@@ -10,7 +10,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class CouchesCarto
 {
-    public const formats = ['wmts', 'wms raster', 'wms vecteur'];
+    public const FORMATS = ['wmts', 'wms raster', 'wms vecteur'];
 
     /** @var HttpClientInterface */
     private $client;
@@ -24,6 +24,7 @@ final class CouchesCarto
         $this->logger = $logger;
     }
 
+    // @todo: A refacto
     private function getCapabilities(string $format): array
     {
         $baseFormat = $this->getBaseFormat($format);
@@ -58,6 +59,10 @@ final class CouchesCarto
         $baseFormat = $this->getBaseFormat($format);
 
         $crawler = $this->getCrawler($capabilities, $format);
+
+        if (null === $crawler) {
+            return [];
+        }
 
         if ('wmts' === $format) {
             $contents = $crawler->filterXPath('//default:Contents');
@@ -131,7 +136,9 @@ final class CouchesCarto
 
     public function getCouchesIGN(): array
     {
-        foreach (self::formats as $format) {
+        $couchesIGN = [];
+
+        foreach (self::FORMATS as $format) {
             $capabilities = $this->getCapabilities($format);
             if (isset($capabilities['error'])) {
                 $couchesIGN['error'] = $capabilities['error'];
@@ -145,23 +152,25 @@ final class CouchesCarto
         return $couchesIGN;
     }
 
-    private function getCrawler(array $capabilities, string $format): Crawler
+    private function getCrawler(array $capabilities, string $format): ?Crawler
     {
         $cache = new FilesystemAdapter('app.cache');
 
-        $cacheIgn = $cache->getItem($format);
+        $cacheIgn = $cache->getItem(str_replace(' ', '_', $format));
         if ($cacheIgn->isHit()) {
-            $ignApiResponse = $cacheIgn->get();
-        } else {
-            try {
-                $ignApiResponse = $this->client->request('GET', $capabilities['url'])->getContent();
-            } catch (\Exception $exception) {
-                $this->logger->alert("Probleme lors de la connexion a l'API IGN : ".$exception->getMessage());
-            }
+            return new Crawler($cacheIgn->get());
+        }
 
-            $cacheIgn->expiresAfter(\DateInterval::createFromDateString('1 week'));
+        try {
+            $ignApiResponse = $this->client->request('GET', $capabilities['url'])->getContent();
+
             $cacheIgn->set($ignApiResponse);
+            $cacheIgn->expiresAfter(\DateInterval::createFromDateString('1 week'));
             $cache->save($cacheIgn);
+        } catch (\Exception $exception) {
+            $this->logger->alert("Problème lors de la connexion a l'API IGN : ".$exception->getMessage());
+
+            return null;
         }
 
         return new Crawler($ignApiResponse);

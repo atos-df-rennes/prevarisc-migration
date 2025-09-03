@@ -7,7 +7,7 @@ final class IgnApi
     /** @var string */
     private $nom;
 
-    /** @var string @ */
+    /** @var string */
     private $url;
 
     /** @var string */
