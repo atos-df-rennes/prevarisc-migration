@@ -1,0 +1,177 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des couches cartographiques{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
+    <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+    {% if key_ign is not null %}
+        <div id='geoportail-container' style="height: 350px; max-height: 350px;"></div>
+        <div id="info"></div>
+
+        <script type="text/javascript">
+            viewer = initViewer(
+                'geoportail-container',
+                '{{ key_ign }}',
+                [{{ default_lon }},{{ default_lat }}],
+                "<b>Centre par défaut</b>",
+                '{{ autoconf_path }}'
+            )
+
+            viewer.listen('mapLoaded', afterInitMap);
+
+            function afterInitMap () {
+                // Ajout du bouton FullScreen
+                var fsControl = new ol.control.FullScreen({})
+                viewer.getLibMap().addControl(fsControl)
+
+                viewer = addUserLayers(
+                    viewer,
+                    {{ couches_cartographiques_json_encoded|raw }}
+                )
+            }
+
+            // Affichage de la version du SDK et de sa date de création
+            var infoDiv = document.getElementById("info");
+            infoDiv.innerHTML = "<h6><p><i>SDK version " + Gp.sdkVersion + " (" + Gp.sdkDate + ")</i></p></h6>";
+        </script>
+    {% elseif geoconcept_url is not null %}
+        <div id='geoconcept-container'  style="height: 350px; max-height: 350px;width: 100%"></div>
+
+        <script type="text/javascript" src="{{ asset('js/geoconcept/OpenLayers.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/geoconcept/proj4js.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/geoconcept/htc-lite.js') }}"></script>
+
+
+        {% if projection is not null %}
+            <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
+            <script type="text/javascript" src="{{ asset('js/geoconcept/defs/' ~ projection ~ '.js') }}"></script>
+        {% endif %}
+
+        <script type="text/javascript" src="{{ asset('js/geoconcept/geoconcept.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('css/geoconcept/htc.css') }}"/>
+
+        <script>
+            $(document).ready(function() {
+                {% if token is not null and app_id is not null %}
+                    initGeoConceptKey({{ app_id }}, {{ token }});
+                {% endif %}
+                var points = [];
+                points.push({
+                    lat: {{ default_lat }},
+                    lon: {{ default_lon }},
+                    description: "Centre par défaut"
+                 });
+
+                map = initGeoConceptViewer(
+                    'geoconcept-container',
+                    '{{ geoconcept_url }}',
+                    '{{ geoconcept_layer }}',
+                    points,
+                    {{ couches_cartographiques|json_encode }}
+                );
+            });
+        </script>
+    {% elseif key_googlemap is not null %}
+        <div id='googlemap-container' style="height: 350px; max-height: 350px;"></div>
+
+        <script type="text/javascript"
+                src="https://maps.googleapis.com/maps/api/js?key={{ key_googlemap }}&sensor=false">
+        </script>
+
+        <script type="text/javascript">
+            function initialize() {
+                var point = new google.maps.LatLng({{ default_lat }}, {{ default_lon }});
+                var map = new google.maps.Map(document.getElementById("googlemap-container"), {
+                    center: point,
+                    zoom: 12
+                });
+
+                var marker = new google.maps.Marker({
+                    position: point,
+                    map: map,
+                    title: "Centre par défaut"
+                });
+
+                google.maps.event.addDomListener(window, 'load', initialize);
+            }
+        </script>
+    {% else %}
+        <div class='well well-large text-center'>
+            <p class='lead'>Aucun player cartographique configuré.</p>
+            <p>Vous devez configurer comme ceci : </p>
+            <pre>SetEnv PREVARISC_PLUGIN_IGNKEY XXXXXXXXXXXX</pre>
+            <pre>SetEnv PREVARISC_PLUGIN_GOOGLEMAPKEY XXXXXXXXXXXX</pre>
+            <pre>SetEnv PREVARISC_PLUGIN_GEOCONCEPT_URL XXXXXXXXXXXX</pre>
+        </div>
+    {% endif %}
+
+    {% if couches_cartographiques|length == 0 %}
+        <div class='well well-large text-center'>
+            <p class='lead'>Il n'y a pas de couche cartographique.</p>
+            <p>
+                <a href='{{ path('couches_cartographiques_add') }}' class='btn btn-default btn-lg'>Ajouter une couche personnalisée</a>
+            </p>
+            <p>
+                <a href='{{ path('couches_cartographiques_add_IGN') }}' class='btn btn-default btn-lg'>
+                    Ajouter une couche IGN
+                </a>
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">&times;</button>
+                    <strong>Attention !</strong> Le chargement de la page d'ajout d'une couche IGN peut prendre du temps si vous avez renseigné plusieurs clés.
+                </div>
+            </p>
+        </div>
+    {% else %}
+        <p class='text-right'>
+            <a class='btn btn-default' href='{{ path('couches_cartographiques_add') }}'>Ajouter une couche personnalisée</a>
+        </p>
+        <p class='text-right'>
+            <a class='btn btn-default' href='{{ path('couches_cartographiques_add_IGN') }}'>Ajouter une couche IGN</a>
+        </p>
+        <p class='text-right'>
+            <a class='btn btn-default' href='{{ path('couches_cartographiques_order') }}'>Changer l'ordre des couches</a>
+        </p>
+
+        <div class="alert alert-warning alert-dismissible pull-right col-md-4" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">&times;</button>
+            <strong>Attention !</strong> Le chargement de la page d'ajout d'une couche IGN peut prendre du temps si vous avez renseigné plusieurs clés.
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Nom de la couche</th>
+                    <th>Ordre de la couche</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for couche_cartographique in couches_cartographiques %}
+                    <tr>
+                        <td>{{ couche_cartographique.type }}</td>
+                        <td>
+                            {{ couche_cartographique.nom }}
+                            {% if couche_cartographique.isBaseLayer %}  (couche de base){% endif %}
+                        </td>
+                        <td>{{ couche_cartographique.ordre|default('Ordre non renseigné') }}</td>
+                        <td>
+                            <a href="{{ path('couche_cartographique_edit', {id: couche_cartographique.id}) }}">Modifier la couche</a><br/>
+                            <a href="{{ path('couche_cartographique_delete', {id: couche_cartographique.id}) }}">Supprimer</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

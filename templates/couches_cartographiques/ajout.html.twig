@@ -1,0 +1,33 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / {% if couche_id is defined %}Modification{% else %}Ajout{% endif %} d'une couche cartographique{% endblock %}
+
+{% block body %}
+    <h3>{% if couche_id is defined %}Modification{% else %}Ajout{% endif %} d'une couche cartographique</h3>
+
+    {{ form_start(form) }}
+        <div class='pull-right btn-group'>
+            <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
+            <input type='submit' class="btn btn-success" value="{% if couche_id is defined %}Modifier{% else %}Ajouter{% endif %} la couche" />
+        </div>
+
+        <hr class="clearfix" style="border: none;" />
+
+        {{ form_errors(form) }}
+
+        {{ form_row(form.type) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.url) }}
+
+        <div class="form-group">
+            <label for="{{ form.baseLayer.vars.id }}" class="control-label">Couche de base ?</label>
+            {{ form_widget(form.baseLayer) }}
+        </div>
+
+        {{ form_row(form.layer) }}
+        {{ form_row(form.format) }}
+
+        <label for="{{ form.transparent.vars.id }}" class="control-label">Couche transparente ?</label>
+        {{ form_widget(form.transparent) }}
+    {{ form_end(form) }}
+{% endblock %}
