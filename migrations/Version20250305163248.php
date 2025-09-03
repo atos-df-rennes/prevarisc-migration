@@ -25,11 +25,12 @@ final class Version20250305163248 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        $this->skipIf($schema->getTable('utilisateur')->hasColumn('sso'), 'SSO déjà existant.');
+
         $this->addSql('ALTER TABLE groupe CHANGE DESC_GROUPE DESC_GROUPE LONGTEXT DEFAULT NULL');
         $this->addSql('ALTER TABLE utilisateur CHANGE DERNIERE_VISITE_DASHBOARD DERNIERE_VISITE_DASHBOARD DATETIME DEFAULT NULL, CHANGE DERNIERE_VISITE_PIECES_DOSSIER DERNIERE_VISITE_PIECES_DOSSIER DATETIME DEFAULT NULL');
         $this->addSql('ALTER TABLE utilisateurpreferences DROP INDEX fk_utilisateurpreferences_utilisateur1_idx, ADD UNIQUE INDEX UNIQ_B8C2949BF6170F81 (ID_UTILISATEUR)');
         $this->addSql('ALTER TABLE utilisateurpreferences DROP FOREIGN KEY fk_utilisateurpreferences_utilisateur1');
-        $this->addSql('ALTER TABLE utilisateurpreferences CHANGE dashboard_blocs blocs_dashboard VARCHAR(500) DEFAULT NULL');
         $this->addSql('ALTER TABLE utilisateurpreferences ADD CONSTRAINT FK_B8C2949BF6170F81 FOREIGN KEY (ID_UTILISATEUR) REFERENCES utilisateur (ID_UTILISATEUR)');
         $this->addSql('DROP INDEX fk_utilisateur_groupe1_idx ON utilisateur');
         $this->addSql('ALTER IGNORE TABLE utilisateur CHANGE PASSWD_UTILISATEUR PASSWD_UTILISATEUR VARCHAR(255) DEFAULT NULL, CHANGE ID_GROUPE ID_GROUPE BIGINT UNSIGNED DEFAULT NULL');
@@ -68,6 +69,8 @@ final class Version20250305163248 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
+        $this->skipIf(!$schema->getTable('utilisateur')->hasColumn('sso'), 'SSO non existant.');
+
         $this->addSql('ALTER TABLE commission DROP FOREIGN KEY FK_1C65015860FC5742');
         $this->addSql('ALTER TABLE commission CHANGE LIBELLE_COMMISSION LIBELLE_COMMISSION VARCHAR(50) CHARACTER SET utf8 DEFAULT \'Nom de la commission\' NOT NULL COLLATE `utf8_general_ci`');
         $this->addSql('ALTER TABLE commission ADD CONSTRAINT fk_commission_commissiontype1 FOREIGN KEY (ID_COMMISSIONTYPE) REFERENCES commissiontype (ID_COMMISSIONTYPE) ON UPDATE CASCADE ON DELETE NO ACTION');
@@ -106,7 +109,6 @@ final class Version20250305163248 extends AbstractMigration
         $this->addSql('CREATE INDEX fk_utilisateurinformations_utilisateurcivilite1_idx ON utilisateurinformations (ID_UTILISATEURCIVILITE)');
         $this->addSql('ALTER TABLE utilisateurpreferences DROP INDEX UNIQ_B8C2949BF6170F81, ADD INDEX fk_utilisateurpreferences_utilisateur1_idx (ID_UTILISATEUR)');
         $this->addSql('ALTER TABLE utilisateurpreferences DROP FOREIGN KEY FK_B8C2949BF6170F81');
-        $this->addSql('ALTER TABLE utilisateurpreferences CHANGE blocs_dashboard DASHBOARD_BLOCS VARCHAR(500) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`');
         $this->addSql('ALTER TABLE utilisateurpreferences ADD CONSTRAINT fk_utilisateurpreferences_utilisateur1 FOREIGN KEY (ID_UTILISATEUR) REFERENCES utilisateur (ID_UTILISATEUR) ON UPDATE CASCADE ON DELETE CASCADE');
         $this->addSql('ALTER TABLE utilisateur CHANGE DERNIERE_VISITE_DASHBOARD DERNIERE_VISITE_DASHBOARD DATETIME NOT NULL, CHANGE DERNIERE_VISITE_PIECES_DOSSIER DERNIERE_VISITE_PIECES_DOSSIER DATETIME NOT NULL');
         $this->addSql('ALTER TABLE groupe CHANGE DESC_GROUPE DESC_GROUPE TEXT CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`');
