@@ -86,6 +86,9 @@ parameters:
     env(PREVARISC_CARTO_DEFAULT_LAT): '50.4727273438818'
     app.carto_default_lat: '%env(float:PREVARISC_CARTO_DEFAULT_LAT)%'
 
+    env(PREVARISC_CARTO_AUTOCONF_PATH): ''
+    app.carto_autoconf_path: '%env(string:PREVARISC_CARTO_AUTOCONF_PATH)%'
+
     env(PREVARISC_PLUGIN_GOOGLEMAPKEY): ''
     app.google_map_key: '%env(string:PREVARISC_PLUGIN_GOOGLEMAPKEY)%'
 

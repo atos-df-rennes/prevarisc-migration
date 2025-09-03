@@ -39,6 +39,11 @@ class CouchesCartographiquesController extends AbstractController
      */
     public function index(CoucheCartoRepository $coucheCartoRepository): Response
     {
+        /** @var string $documentRoot */
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'];
+        /** @var string $autoconfPath */
+        $autoconfPath = $this->getParameter('app.carto_autoconf_path');
+
         return $this->render('couches_cartographiques/index.html.twig', [
             'key_ign' => $this->getParameter('app.ign_key'),
             'geoconcept_url' => $this->getParameter('app.geoconcept_url'),
@@ -46,7 +51,7 @@ class CouchesCartographiquesController extends AbstractController
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
             // @todo: Le chemin n'est pas correct, à modifier
-            'autoconf_path' => file_exists($_SERVER['DOCUMENT_ROOT'].(getenv('PREVARISC_CARTO_AUTOCONF_PATH') ?: '')),
+            'autoconf_path' => file_exists($documentRoot.$autoconfPath),
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),
@@ -89,9 +94,14 @@ class CouchesCartographiquesController extends AbstractController
         if ($request->isMethod('POST')) {
             $coucheCartoData = $request->request->all();
 
-            if (!$this->isCsrfTokenValid('ajouter-IGN-'.$coucheCartoData['nom'], $coucheCartoData['token'])) {
-                $this->logger->error("Problème avec le token CSR pour la couche {$coucheCartoData['nom']}.");
-                $this->addFlash('error', "Un problème est survenu lors de l'ajout de la couche cartographique IGN {$coucheCartoData['nom']}.");
+            /** @var string $coucheCartoNom */
+            $coucheCartoNom = $coucheCartoData['nom'];
+            /** @var string $coucheCartoToken */
+            $coucheCartoToken = $coucheCartoData['token'];
+
+            if (!$this->isCsrfTokenValid('ajouter-IGN-'.$coucheCartoNom, $coucheCartoToken)) {
+                $this->logger->error("Problème avec le token CSR pour la couche {$coucheCartoNom}.");
+                $this->addFlash('error', "Un problème est survenu lors de l'ajout de la couche cartographique IGN {$coucheCartoNom}.");
 
                 return $this->redirectToRoute('couches_cartographiques');
             }
