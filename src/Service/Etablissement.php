@@ -237,7 +237,11 @@ final class Etablissement
         $lastType = '';
 
         foreach ($textesApplicablesValues as $texteApplicable) {
-            if (!$texteApplicable->getVisible() || null === $texteApplicable->getType()) {
+            if (!$texteApplicable->getVisible()) {
+                continue;
+            }
+
+            if (null === $texteApplicable->getType()) {
                 continue;
             }
 
