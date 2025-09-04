@@ -1,0 +1,56 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Avis et dérogations{% endblock %}
+
+{% block body %}
+    <h4>Avis et dérogations en vigueur</h4>
+    {% if historiqueAvisDerogations is empty %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% else %}
+        <table class='table table-bordered table-hover'>
+            <thead>
+            <tr>
+                <th style='width: 250px' >Date</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in historiqueAvisDerogations %}
+            <tr>
+                <td>
+                    {% if item.debut is defined and item.debut is not null %}
+                    Du {{ item.debut }}
+                    {% else %}
+                        {% if item.typeDossier is defined and item.typeDossier == 1 %}
+                            Date de commission non renseignée
+                        {% elseif item.typeDossier is defined and item.typeDossier in [2, 3] %}
+                            Date de visite non renseignée
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+{#                    TODO ajouter route de la modification des avis et derogations du dossier #}
+{#                    <a href="{{ path('foo', item.id) }}" target="_blank" title="Ouvrir {{ item.titre }} (nouvel onglet)">{{ item.titre }}</a>#}
+                    <a href="" target="_blank" title="Ouvrir {{ item.titre }} (nouvel onglet)">{{ item.titre }}</a>
+
+                    <div>
+                        <small class="muted">{{ item.type }}</small>
+
+                        {% if item.leve is defined and item.leve is not null %}
+                            <span class="label label-info">
+                                Levé{% if item.type == 'Dérogation' %}'e'{% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if derogationsOriginales is not empty %}
+        <h4>Dérogations originales</h4>
+        {{ derogationsOriginales|nl2br }}
+    {% endif %}
+{% endblock %}

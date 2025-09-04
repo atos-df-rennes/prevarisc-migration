@@ -90,4 +90,24 @@ class EtablissementRepository extends ServiceEntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param int $id
+     * @return array{int,array{'id':int,'dateCommission':string,'dateVisite':string,'idAvisDerogation':int,'titre':string,'type':string}}
+     */
+    public function getAvisDerogationsEtablissement(int $id): array
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->Select('d.id, d.dateCommission, d.dateVisite')
+            ->addSelect('da.id as idAvisDerogation, da.titre, da.type')
+            ->join('e.dossiers', 'd')
+            ->join('d.avisDerogations', 'da')
+            ->where('e.id = :id')
+            ->andWhere('da.displayHistorique = 1')
+            ->setParameter(':id', $id)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }

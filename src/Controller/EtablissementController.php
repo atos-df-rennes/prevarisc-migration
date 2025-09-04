@@ -22,4 +22,19 @@ class EtablissementController extends AbstractController
             'historique' => $historique,
         ]);
     }
+
+    /**
+     * @Route("/etablissement/{id}/avis-derogations", name="etablissement_avisDerogations")
+     */
+    public function avisDerogations(Etablissement $etablissement, EtablissementService $etablissementService): Response
+    {
+        $historiqueAvisDerogations = $etablissementService->getAvisDerogations($etablissement->getId());
+        $derogationsOriginales = $etablissement->getDescriptifDerogation();
+
+        return $this->render('etablissement/avisDerogations.html.twig', [
+            'etablissement' => $etablissement,
+            'historiqueAvisDerogations' => $historiqueAvisDerogations,
+            'derogationsOriginales' => $derogationsOriginales,
+        ]);
+    }
 }
