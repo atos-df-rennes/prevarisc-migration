@@ -21,6 +21,7 @@ Consultez la [documentation dédiée](docs/guide.md).
 ## Technologies utilisées
 
 - **PHP** : Utilisé en version 7.1 avec le framework [Symfony 4](https://symfony.com/doc/4.x/index.html)
+- **MySQL**: Utilisé en version 5.6 pour les migrations
 - **JavaScript** : Utilisé avec [jQuery](https://jquery.com/)
 - **Bootstrap** : Utilisé en [version 3](https://getbootstrap.com/docs/3.4/)
 
