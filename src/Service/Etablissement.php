@@ -222,7 +222,7 @@ final class Etablissement
     /**
      * Récupère les textes applicables d'un établissement.
      *
-     * @return mixed[]
+     * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
      */
     public function getTextesApplicables(int $id): array
     {
@@ -241,7 +241,7 @@ final class Etablissement
                 continue;
             }
 
-            if ($lastType === $texteApplicable->getType()) {
+            if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
                 $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
