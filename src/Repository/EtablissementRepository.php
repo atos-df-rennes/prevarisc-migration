@@ -91,7 +91,7 @@ class EtablissementRepository extends ServiceEntityRepository
         return $query->getSingleResult();
     }
 
-    public function getTextesApplicablesByType(int $id): Etablissement
+    public function getTextesApplicablesByType(int $id): ?Etablissement
     {
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
@@ -103,6 +103,6 @@ class EtablissementRepository extends ServiceEntityRepository
             ->setParameter('id', $id)
             ->getQuery();
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 }

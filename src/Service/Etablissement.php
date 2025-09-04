@@ -225,9 +225,13 @@ final class Etablissement
      * @param int $id
      * @return mixed[]
      */
-    public function getTextesApplicablesEtablissement(int $id): array
+    public function getTextesApplicables(int $id): array
     {
         $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
+
+        if (null === $textesApplicablesData) {
+            return [];
+        }
 
         $textesApplicables = [];
         $lastType = '';
