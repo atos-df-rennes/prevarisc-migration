@@ -90,4 +90,20 @@ class EtablissementRepository extends ServiceEntityRepository
 
         return $query->getSingleResult();
     }
+
+    public function getTextesApplicablesByType(int $id): ?Etablissement
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('eta')
+            ->addSelect('tta')
+            ->join('e.textesApplicables', 'eta')
+            ->join('eta.type', 'tta')
+            ->where('e.id = :id')
+            ->orderBy('eta.type', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
 }

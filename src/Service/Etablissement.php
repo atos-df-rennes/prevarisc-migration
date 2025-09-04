@@ -218,4 +218,46 @@ final class Etablissement
 
         return $historique;
     }
+
+    /**
+     * Récupère les textes applicables d'un établissement.
+     *
+     * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
+     */
+    public function getTextesApplicables(int $id): array
+    {
+        $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
+
+        if (null === $textesApplicablesData) {
+            return [];
+        }
+
+        $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
+        $textesApplicables = [];
+        $lastType = '';
+
+        foreach ($textesApplicablesValues as $texteApplicable) {
+            if (!$texteApplicable->getVisible()) {
+                continue;
+            }
+
+            if (null === $texteApplicable->getType()) {
+                continue;
+            }
+
+            if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
+                $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+
+                continue;
+            }
+
+            $textesApplicables[$texteApplicable->getType()->getId()] = [
+                'titre' => $texteApplicable->getType()->getLibelle(),
+                'textes' => [$texteApplicable->getLibelle()],
+            ];
+            $lastType = $texteApplicable->getType();
+        }
+
+        return $textesApplicables;
+    }
 }
