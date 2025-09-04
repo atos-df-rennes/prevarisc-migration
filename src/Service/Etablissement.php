@@ -220,9 +220,8 @@ final class Etablissement
     }
 
     /**
-     * Récupère les Textes Applicables d'un établissement.
+     * Récupère les textes applicables d'un établissement.
      *
-     * @param int $id
      * @return mixed[]
      */
     public function getTextesApplicables(int $id): array
@@ -233,20 +232,26 @@ final class Etablissement
             return [];
         }
 
+        $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
         $textesApplicables = [];
         $lastType = '';
-        foreach ($textesApplicablesData->getTextesApplicables()->getValues() as $texteApplicable) {
-            if ($texteApplicable->getVisible() && $texteApplicable->getType() != null) {
-                if ($lastType !== $texteApplicable->getType()) {
-                    $textesApplicables[$texteApplicable->getType()->getId()] = [
-                        'titre' => $texteApplicable->getType()->getLibelle(),
-                        'textes' => [$texteApplicable->getLibelle()],
-                    ];
-                    $lastType = $texteApplicable->getType();
-                } else {
-                    $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
-                }
+
+        foreach ($textesApplicablesValues as $texteApplicable) {
+            if (!$texteApplicable->getVisible() || null === $texteApplicable->getType()) {
+                continue;
             }
+
+            if ($lastType === $texteApplicable->getType()) {
+                $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+
+                continue;
+            }
+
+            $textesApplicables[$texteApplicable->getType()->getId()] = [
+                'titre' => $texteApplicable->getType()->getLibelle(),
+                'textes' => [$texteApplicable->getLibelle()],
+            ];
+            $lastType = $texteApplicable->getType();
         }
 
         return $textesApplicables;

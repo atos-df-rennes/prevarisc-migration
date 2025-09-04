@@ -96,8 +96,9 @@ class EtablissementRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
             ->addSelect('eta')
+            ->addSelect('tta')
             ->join('e.textesApplicables', 'eta')
-            ->leftJoin('eta.type', 'tta')
+            ->join('eta.type', 'tta')
             ->where('e.id = :id')
             ->orderBy('eta.type', 'ASC')
             ->setParameter('id', $id)
