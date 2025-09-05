@@ -1267,16 +1267,6 @@ p.muted {
   margin-bottom: 0;
 }
 
-.table-responsive {
-  overflow-x: scroll;
-  margin-bottom: 0;
-}
-
-.table-responsive .table td,
-.table-responsive .table th {
-  white-space: nowrap;
-}
-
 .add-row-button-wrapper {
   padding: 4px;
 }
@@ -1316,6 +1306,16 @@ p.muted {
 
 .table-wrapper .table .colonne-edition.with-shadow {
   box-shadow: -21px 3px 15px -3px rgba(0,0,0,0.2);
+}
+
+.table-wrapper .table-responsive {
+  overflow-x: scroll;
+  margin-bottom: 0;
+}
+
+.table-wrapper .table-responsive .table td,
+.table-wrapper .table-responsive .table th {
+  white-space: nowrap;
 }
 
 .table-wrapper .table-responsive:not(.table-tableau) .table,
