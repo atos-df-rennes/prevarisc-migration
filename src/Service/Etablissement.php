@@ -220,31 +220,42 @@ final class Etablissement
     }
 
     /**
-     * Récupère les Textes Applicables d'un établissement.
+     * Récupère les textes applicables d'un établissement.
      *
-     * @return mixed[]
+     * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
      */
-    public function getTextesApplicablesEtablissement(int $id): array
+    public function getTextesApplicables(int $id): array
     {
         $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
 
-        $textesApplicables = [];
+        if (null === $textesApplicablesData) {
+            return [];
+        }
 
-        if (null != $textesApplicablesData) {
-            $lastType = '';
-            foreach ($textesApplicablesData->getTextesApplicables()->getValues() as $texteApplicable) {
-                if ($texteApplicable->getVisible() && null != $texteApplicable->getType()) {
-                    if ($lastType !== $texteApplicable->getType()) {
-                        $textesApplicables[$texteApplicable->getType()->getId()] = [
-                            'titre' => $texteApplicable->getType()->getLibelle(),
-                            'textes' => [$texteApplicable->getLibelle()],
-                        ];
-                        $lastType = $texteApplicable->getType();
-                    } else {
-                        $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
-                    }
-                }
+        $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
+        $textesApplicables = [];
+        $lastType = '';
+
+        foreach ($textesApplicablesValues as $texteApplicable) {
+            if (!$texteApplicable->getVisible()) {
+                continue;
             }
+
+            if (null === $texteApplicable->getType()) {
+                continue;
+            }
+
+            if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
+                $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+
+                continue;
+            }
+
+            $textesApplicables[$texteApplicable->getType()->getId()] = [
+                'titre' => $texteApplicable->getType()->getLibelle(),
+                'textes' => [$texteApplicable->getLibelle()],
+            ];
+            $lastType = $texteApplicable->getType();
         }
 
         return $textesApplicables;

@@ -28,13 +28,13 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/textes-applicables", name="etablissement_textesApplicables")
+     * @Route("/etablissement/{id}/textes-applicables", name="etablissement_textes_applicables")
      */
     public function textesApplicables(Etablissement $etablissement, EtablissementService $etablissementService): Response
     {
-        $etablissementData = $etablissementService->getTextesApplicablesEtablissement($etablissement->getId());
+        $etablissementData = $etablissementService->getTextesApplicables($etablissement->getId());
 
-        return $this->render('etablissement/textes-applicables.html.twig', [
+        return $this->render('etablissement/textes_applicables.html.twig', [
             'etablissement' => $etablissement,
             'textes_applicables' => $etablissementData,
         ]);

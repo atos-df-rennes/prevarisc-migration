@@ -1,0 +1,31 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Textes applicables{% endblock %}
+
+{% block body %}
+    <div class='action-buttons pull-right'>
+        <a class='btn btn-default' href="{{ '/etablissement/edit-textes-applicables/id/' ~ etablissement.id }}">Modifier les textes applicables</a>
+    </div>
+
+    <h3>Textes applicables</h3>
+
+    {% if textes_applicables|length > 0 %}
+        <div class='row-fluid'>
+            {% for texte_applicable in textes_applicables %}
+                <h4>{{ texte_applicable.titre }}</h4>
+                <ul class='list-unstyled'>
+                    {% for texte in texte_applicable.textes %}
+                        <li>
+                            <span class="glyphicon glyphicon-ok"></span> {{ texte }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class='well well-large text-center'>
+            <p class='lead'>Il n'y a pas de texte applicable.</p>
+            <p><a href='{{ '/etablissement/edit-textes-applicables/id/' ~ etablissement.id }}' class='btn btn-default btn-lg'>Gérer les textes applicables</a></p>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Etablissement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -97,19 +96,14 @@ class EtablissementRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
             ->addSelect('eta')
+            ->addSelect('tta')
             ->join('e.textesApplicables', 'eta')
-            ->leftJoin('eta.type', 'tta')
+            ->join('eta.type', 'tta')
             ->where('e.id = :id')
             ->orderBy('eta.type', 'ASC')
             ->setParameter('id', $id)
             ->getQuery();
 
-        try {
-            $etablissement = $query->getSingleResult();
-        } catch (NoResultException $noResultException) {
-            $etablissement = null;
-        }
-
-        return $etablissement;
+        return $query->getOneOrNullResult();
     }
 }
