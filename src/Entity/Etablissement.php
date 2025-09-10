@@ -158,6 +158,13 @@ class Etablissement
      */
     private $piecesJointes;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCRIPTIF_DEROGATIONS_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $descriptifDerogation;
+
     public function __construct()
     {
         $this->dossiers = new ArrayCollection();
@@ -547,6 +554,18 @@ class Etablissement
         if ($this->piecesJointes->removeElement($piecesJointe) && $piecesJointe->getEtablissement() === $this) {
             $piecesJointe->setEtablissement(null);
         }
+
+        return $this;
+    }
+
+    public function getDescriptifDerogation(): ?string
+    {
+        return $this->descriptifDerogation;
+    }
+
+    public function setDescriptifDerogation(?string $descriptifDerogation): self
+    {
+        $this->descriptifDerogation = $descriptifDerogation;
 
         return $this;
     }

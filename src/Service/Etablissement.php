@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\AvisDerogationEtablissement;
 use App\Dto\Historique\Auteur;
 use App\Dto\Historique\DonneeHistorique;
 use App\Dto\Historique\Informations;
@@ -9,6 +10,7 @@ use App\Dto\Historique\LastAvis;
 use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
+use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 
@@ -20,10 +22,14 @@ final class Etablissement
     /** @var DossierRepository */
     private $dossierRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository)
+    /** @var AvisDerogationsRepository */
+    private $avisDerogationsRepository;
+
+    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository)
     {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
+        $this->avisDerogationsRepository = $avisDerogationsRepository;
     }
 
     public function getHistorique(int $id): Informations
@@ -259,5 +265,47 @@ final class Etablissement
         }
 
         return $textesApplicables;
+    }
+
+    /**
+     * @return AvisDerogationEtablissement[]
+     */
+    public function getAvisDerogations(int $id): array
+    {
+        $listeAvisDerogationsEtablissement = $this->etablissementRepository->getAvisDerogationsEtablissement($id);
+
+        $avisDerogations = [];
+        foreach ($listeAvisDerogationsEtablissement as $dossier) {
+            $avisDerogation = $this->avisDerogationsRepository->find($dossier['idAvisDerogation']);
+            $leve = false;
+            $debut = null;
+            $typeDossier = null;
+
+            if (null !== $avisDerogation && null !== $avisDerogation->getDossierLie()) {
+                if (null !== $avisDerogation->getDossierLie()->getType() && null !== $avisDerogation->getDossierLie()->getType()->getId()) {
+                    $typeDossier = $avisDerogation->getDossierLie()->getType()->getId();
+                }
+
+                $leve = true;
+            }
+
+            if (null !== $dossier['dateCommission']) {
+                $debut = $dossier['dateCommission'];
+            } elseif (null !== $dossier['dateVisite']) {
+                $debut = $dossier['dateVisite'];
+            }
+
+            $avisDerogations[] = new AvisDerogationEtablissement(
+                $dossier['id'],
+                $dossier['idAvisDerogation'],
+                $dossier['titre'],
+                $dossier['type'],
+                $leve,
+                $debut,
+                $typeDossier
+            );
+        }
+
+        return $avisDerogations;
     }
 }
