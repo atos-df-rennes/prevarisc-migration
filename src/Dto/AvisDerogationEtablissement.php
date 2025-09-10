@@ -6,16 +6,22 @@ final class AvisDerogationEtablissement
 {
     /** @var int */
     private $idDossier;
+
     /** @var int */
     private $id;
-    /** @var string  */
+
+    /** @var string */
     private $titre;
-    /** @var string  */
+
+    /** @var string */
     private $type;
-    /** @var bool  */
+
+    /** @var bool */
     private $leve;
-    /** @var string|null  */
+
+    /** @var string|null */
     private $debut;
+
     /** @var int|null */
     private $typeDossier;
 
@@ -27,7 +33,7 @@ final class AvisDerogationEtablissement
         bool $leve,
         ?string $debut,
         ?int $typeDossier
-    ){
+    ) {
         $this->idDossier = $idDossier;
         $this->id = $id;
         $this->titre = $titre;
@@ -51,6 +57,7 @@ final class AvisDerogationEtablissement
     {
         return $this->debut;
     }
+
     public function typeDossier(): ?int
     {
         return $this->typeDossier;

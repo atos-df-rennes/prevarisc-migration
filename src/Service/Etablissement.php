@@ -268,7 +268,6 @@ final class Etablissement
     }
 
     /**
-     * @param int $id
      * @return AvisDerogationEtablissement[]
      */
     public function getAvisDerogations(int $id): array
