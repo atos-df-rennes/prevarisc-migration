@@ -63,7 +63,7 @@ class PrescriptionDossier
     /**
      * @var ?Dossier
      *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="prescriptionsReprises")
+     * @ORM\ManyToOne(targetEntity=Dossier::class)
      *
      * @ORM\JoinColumn(name="ID_DOSSIER_REPRISE", referencedColumnName="ID_DOSSIER", nullable=true)
      */
