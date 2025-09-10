@@ -29,14 +29,14 @@ class TextesApplicablesEtablissementType extends AbstractType
                 'choice_attr' => function (TexteApplicable $texteApplicable): array {
                     $type = $texteApplicable->getType();
 
-                    return ['data-type' => ($type !== null ? $type->getLibelle() : null)];
+                    return ['data-type' => (null !== $type ? $type->getLibelle() : null)];
                 },
                 'multiple' => true,
                 'expanded' => true,
                 'group_by' => function (TexteApplicable $texteApplicable): ?int {
                     $type = $texteApplicable->getType();
 
-                    return ($type !== null ? $type->getId() : null);
+                    return null !== $type ? $type->getId() : null;
                 }
             ])
         ;
