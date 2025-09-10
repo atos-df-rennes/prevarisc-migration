@@ -5,8 +5,8 @@ namespace App\Controller;
 use App\Entity\Etablissement;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\EtablissementRepository;
-use App\Repository\TexteApplicableRepository;
 use App\Service\Etablissement as EtablissementService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,13 +41,13 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/textes-applicables/edit", name="etablissement_textesApplicables_edit")
+     * @Route("/etablissement/{id}/textes-applicables/modifier", name="etablissement_textes_applicables_edit")
      */
-    public function editTextesApplicables(Request $request, Etablissement $etablissement, EtablissementRepository $etablissementRepository, TexteApplicableRepository $texteApplicableRepository): Response
+    public function editTextesApplicables(Request $request, Etablissement $etablissement, EtablissementRepository $etablissementRepository, EntityManagerInterface $entityManager): Response
     {
         $textesApplicablesEtablissementData = $etablissementRepository->getTextesApplicablesByType($etablissement->getId());
-
         $form = $this->createForm(TextesApplicablesEtablissementType::class, $textesApplicablesEtablissementData);
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Etablissement $etablissement */
@@ -57,16 +57,15 @@ class EtablissementController extends AbstractController
                 $etablissement->addTextesApplicable($ta);
             }
 
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($etablissement);
             $entityManager->flush();
 
             $this->addFlash('success', 'Les textes applicables ont bien été mis à jour.');
 
-            return $this->redirectToRoute('etablissement_textesApplicables', ['id' => $etablissement->getId()]);
+            return $this->redirectToRoute('etablissement_textes_applicables', ['id' => $etablissement->getId()]);
         }
 
-        return $this->render('etablissement/edit-textes-applicables.html.twig', [
+        return $this->render('etablissement/edit_textes_applicables.html.twig', [
             'form' => $form->createView(),
             'etablissement' => $etablissement,
         ]);

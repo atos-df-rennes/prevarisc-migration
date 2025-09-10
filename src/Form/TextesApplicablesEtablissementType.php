@@ -4,9 +4,9 @@ namespace App\Form;
 
 use App\Entity\Etablissement;
 use App\Entity\TexteApplicable;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -18,26 +18,27 @@ class TextesApplicablesEtablissementType extends AbstractType
             ->add('textesApplicables', EntityType::class, [
                 'label' => false,
                 'class' => TexteApplicable::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('t')
+                        ->where('t.visible = 1')
+                    ;
+                },
                 'choice_label' => function (TexteApplicable $texteApplicable): ?string {
                     return $texteApplicable->getLibelle();
                 },
                 'choice_attr' => function (TexteApplicable $texteApplicable): array {
                     $type = $texteApplicable->getType();
 
-                    return ['data-type' => ($type != null ? $type->getLibelle():null)];
+                    return ['data-type' => ($type !== null ? $type->getLibelle() : null)];
                 },
                 'multiple' => true,
                 'expanded' => true,
                 'group_by' => function (TexteApplicable $texteApplicable): ?int {
                     $type = $texteApplicable->getType();
 
-                    return ($type != null ? $type->getId():null);
+                    return ($type !== null ? $type->getId() : null);
                 }
             ])
-            ->add('sauvegarder', SubmitType::class, [
-                'attr' => ['class' => 'btn btn-primary'],
-            ])
-            ->add('annuler', SubmitType::class)
         ;
     }
 
