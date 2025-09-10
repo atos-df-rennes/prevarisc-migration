@@ -4,23 +4,47 @@ namespace App\Dto;
 
 final class AvisDerogationEtablissement
 {
-    /** @var string|null  */
-    private $debut;
-    /** @var int|null */
-    private $type_dossier;
+    /** @var int */
+    private $idDossier;
+    /** @var int */
+    private $id;
     /** @var string  */
     private $titre;
     /** @var string  */
     private $type;
-    /** @var int|null  */
+    /** @var bool  */
     private $leve;
+    /** @var string|null  */
+    private $debut;
+    /** @var int|null */
+    private $typeDossier;
 
-    public function __construct(string $titre, string $type, ?string $debut, ?int $typeDossier, ?int $leve){
+    public function __construct(
+        string $idDossier,
+        string $id,
+        string $titre,
+        string $type,
+        bool $leve,
+        ?string $debut,
+        ?int $typeDossier
+    ){
+        $this->idDossier = $idDossier;
+        $this->id = $id;
         $this->titre = $titre;
         $this->type = $type;
-        $this->debut = $debut;
-        $this->type_dossier = $typeDossier;
         $this->leve = $leve;
+        $this->debut = $debut;
+        $this->typeDossier = $typeDossier;
+    }
+
+    public function idDossier(): int
+    {
+        return $this->idDossier;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
     }
 
     public function debut(): ?string
@@ -29,7 +53,7 @@ final class AvisDerogationEtablissement
     }
     public function typeDossier(): ?int
     {
-        return $this->type_dossier;
+        return $this->typeDossier;
     }
 
     public function titre(): string
@@ -42,7 +66,7 @@ final class AvisDerogationEtablissement
         return $this->type;
     }
 
-    public function leve(): ?int
+    public function leve(): bool
     {
         return $this->leve;
     }

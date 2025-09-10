@@ -274,29 +274,37 @@ final class Etablissement
     public function getAvisDerogations(int $id): array
     {
         $listeAvisDerogationsEtablissement = $this->etablissementRepository->getAvisDerogationsEtablissement($id);
-        dump($listeAvisDerogationsEtablissement);
 
         $avisDerogations = [];
         foreach ($listeAvisDerogationsEtablissement as $dossier) {
             $avisDerogation = $this->avisDerogationsRepository->find($dossier['idAvisDerogation']);
-            $leve = null;
+            $leve = false;
             $debut = null;
             $typeDossier = null;
+
             if (null !== $avisDerogation && null !== $avisDerogation->getDossierLie()) {
-                if (null != $avisDerogation->getDossierLie()->getType() && null != $avisDerogation->getDossierLie()->getType()->getId()) {
+                if (null !== $avisDerogation->getDossierLie()->getType() && null !== $avisDerogation->getDossierLie()->getType()->getId()) {
                     $typeDossier = $avisDerogation->getDossierLie()->getType()->getId();
                 }
-                $leve = $avisDerogation->getDossierLie()->getId();
+
+                $leve = true;
             }
 
-            $debut = null;
-            if (null != $dossier['dateCommission']) {
+            if (null !== $dossier['dateCommission']) {
                 $debut = $dossier['dateCommission'];
-            } elseif (null != $dossier['dateVisite']) {
+            } elseif (null !== $dossier['dateVisite']) {
                 $debut = $dossier['dateVisite'];
             }
 
-            $avisDerogations[] = new AvisDerogationEtablissement($dossier['titre'], $dossier['type'], $debut, $typeDossier, $leve);
+            $avisDerogations[] = new AvisDerogationEtablissement(
+                $dossier['id'],
+                $dossier['idAvisDerogation'],
+                $dossier['titre'],
+                $dossier['type'],
+                $leve,
+                $debut,
+                $typeDossier
+            );
         }
 
         return $avisDerogations;

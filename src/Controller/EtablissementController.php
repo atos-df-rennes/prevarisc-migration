@@ -64,14 +64,14 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/avis-derogations", name="etablissement_avisDerogations")
+     * @Route("/etablissement/{id}/avis-derogations", name="etablissement_avis_derogations")
      */
     public function avisDerogations(Etablissement $etablissement, EtablissementService $etablissementService): Response
     {
         $historiqueAvisDerogations = $etablissementService->getAvisDerogations($etablissement->getId());
         $derogationsOriginales = $etablissement->getDescriptifDerogation();
 
-        return $this->render('etablissement/avisDerogations.html.twig', [
+        return $this->render('etablissement/avis_derogations.html.twig', [
             'etablissement' => $etablissement,
             'historiqueAvisDerogations' => $historiqueAvisDerogations,
             'derogationsOriginales' => $derogationsOriginales,

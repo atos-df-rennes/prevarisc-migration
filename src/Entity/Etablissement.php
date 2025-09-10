@@ -161,7 +161,7 @@ class Etablissement
     /**
      * @var ?string
      *
-     * @ORM\Column(name="DESCRIPTIF_DEROGATIONS_ETABLISSEMENT", type="string", length=65535, nullable=true)
+     * @ORM\Column(name="DESCRIPTIF_DEROGATIONS_ETABLISSEMENT", type="text", nullable=true)
      */
     private $descriptifDerogation;
 

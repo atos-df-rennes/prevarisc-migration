@@ -108,14 +108,13 @@ class EtablissementRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $id
-     * @return array{int,array{'id':int,'dateCommission':string,'dateVisite':string,'idAvisDerogation':int,'titre':string,'type':string}}
+     * @return array{int, array{'id': int, 'dateCommission': string, 'dateVisite': string, 'idAvisDerogation': int, 'titre': string, 'type': string}}
      */
     public function getAvisDerogationsEtablissement(int $id): array
     {
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
-            ->Select('d.id, d.dateCommission, d.dateVisite')
+            ->select('d.id, d.dateCommission, d.dateVisite')
             ->addSelect('da.id as idAvisDerogation, da.titre, da.type')
             ->join('e.dossiers', 'd')
             ->join('d.avisDerogations', 'da')
