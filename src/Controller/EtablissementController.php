@@ -50,14 +50,6 @@ class EtablissementController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var Etablissement $etablissement */
-            $etablissement = $form->getData();
-            $textesApplicablesAjoutes = $etablissement->getTextesApplicables();
-            foreach ($textesApplicablesAjoutes as $ta) {
-                $etablissement->addTextesApplicable($ta);
-            }
-
-            $entityManager->persist($etablissement);
             $entityManager->flush();
 
             $this->addFlash('success', 'Les textes applicables ont bien été mis à jour.');
