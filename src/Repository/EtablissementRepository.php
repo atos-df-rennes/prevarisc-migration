@@ -108,7 +108,7 @@ class EtablissementRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array{int, array{'id': int, 'dateCommission': string, 'dateVisite': string, 'idAvisDerogation': int, 'titre': string, 'type': string}}
+     * @return array<int, array{'id': int, 'dateCommission': ?string, 'dateVisite': ?string, 'idAvisDerogation': int, 'titre': string, 'type': string}>
      */
     public function getAvisDerogationsEtablissement(int $id): array
     {

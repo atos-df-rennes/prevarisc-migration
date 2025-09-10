@@ -20,8 +20,8 @@ final class AvisDerogationEtablissement
     private $typeDossier;
 
     public function __construct(
-        string $idDossier,
-        string $id,
+        int $idDossier,
+        int $id,
         string $titre,
         string $type,
         bool $leve,
