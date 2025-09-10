@@ -31,4 +31,9 @@ $(document).ready(function() {
             })
         }
     })
-})
+
+    window.addEventListener('beforeunload', function(event) {
+        event.preventDefault();
+        return '';
+    });
+});
