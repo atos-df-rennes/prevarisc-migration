@@ -26,8 +26,8 @@
         </li>
 
         {% if etablissement.informations|last.genre.libelle != 'Site' %}
-            <li>
-                <a href="{{ '/etablissement/textes-applicables/id/' ~ etablissement.id }}">
+            <li {% if app.request.get('_route') is same as('etablissement_textes_applicables') %}class="active"{% endif %}>
+                <a href="{{ path('etablissement_textes_applicables', { id: etablissement.id }) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables
                 </a>
@@ -62,26 +62,26 @@
             </li>
         {% endif %}
 
-        <li >
+        <li>
             <a href="{{ '/etablissement/pieces-jointes/id/' ~ etablissement.id }}">
                 <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
                 Pièces jointes
             </a>
         </li>
-        <li >
+        <li>
             <a href="{{ '/etablissement/contacts/id/' ~ etablissement.id }}">
                 <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                 Contacts
             </a>
         </li>
-        <li >
+        <li>
             <a href="{{ '/etablissement/dossiers/id/' ~ etablissement.id }}">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                 Dossiers
             </a>
         </li>
         <li {% if app.request.get('_route') is same as('etablissement_historique') %}class="active"{% endif %}>
-            <a class='sep' href='{{ path("etablissement_historique", {id: etablissement.id}) }}'>
+            <a class='sep' href='{{ path("etablissement_historique", { id: etablissement.id }) }}'>
                 <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
                 Afficher l'historique
             </a>
@@ -108,12 +108,14 @@
                 {% endfor %}
             {% endif %}
 
-            {% if icone_type_etablissement_exists(etablissement.informations|last.type.libelle) %}
-                <img
-                    src="{{ asset('images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png') }}"
-                    title="{{ etablissement.informations|last.type.libelle }}"
-                    alt="{{ 'Type ' ~ etablissement.informations|last.type.libelle }}"
-                />
+            {% if etablissement.informations|last.type is not null %}
+                {% if icone_type_etablissement_exists(etablissement.informations|last.type.libelle) %}
+                    <img
+                        src="{{ asset('images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png') }}"
+                        title="{{ etablissement.informations|last.type.libelle }}"
+                        alt="{{ 'Type ' ~ etablissement.informations|last.type.libelle }}"
+                    />
+                {% endif %}
             {% endif %}
 
             {{ etablissement.informations|last.libelle }}
@@ -132,7 +134,8 @@
                 Présence d'un dossier avec avis differé
             </p>
         {% else %}
-            {% if etablissement.dossierDonnantAvis.avisCommission %}
+            {# @todo: Ce bloc ne devrait pas apparaître si on est pas sur un établissement #}
+            {% if etablissement.dossierDonnantAvis is not null and etablissement.dossierDonnantAvis.avisCommission %}
                 {% set label_color = 'default' %}
                 {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
                     {% set label_color = 'success' %}

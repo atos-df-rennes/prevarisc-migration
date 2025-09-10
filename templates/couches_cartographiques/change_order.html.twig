@@ -1,0 +1,32 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Changement d'ordre des couches cartographiques{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom de la couche</th>
+                    <th>Ordre de la couche</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coucheCarto in form.couchesCarto %}
+                    <tr>
+                        <td>{{ form_widget(coucheCarto.nom) }}</td>
+                        <td>
+                            {{ form_widget(coucheCarto.ordre) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class='btn-group pull-right'>
+            <a class='btn btn-default' href="{{ path('couches_cartographiques') }}">Revenir sur la liste des couches cartographiques</a>
+            <button type='submit' class='btn btn-success'>Sauvegarder</button>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

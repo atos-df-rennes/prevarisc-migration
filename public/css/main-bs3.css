@@ -1243,6 +1243,10 @@ p.muted {
   color: #999;
 }
 
+form[name='textes_applicables_etablissement'] div.checkbox label:has(input[checked='checked']) {
+  font-weight: bold;
+}
+
 .sortTexteAppl li {
   cursor: move;
 }
@@ -1265,16 +1269,6 @@ p.muted {
 
 .panel.panel-formulaire-perso .control-group {
   margin-bottom: 0;
-}
-
-.table-responsive {
-  overflow-x: scroll;
-  margin-bottom: 0;
-}
-
-.table-responsive .table td,
-.table-responsive .table th {
-  white-space: nowrap;
 }
 
 .add-row-button-wrapper {
@@ -1318,6 +1312,16 @@ p.muted {
   box-shadow: -21px 3px 15px -3px rgba(0,0,0,0.2);
 }
 
+.table-wrapper .table-responsive {
+  overflow-x: scroll;
+  margin-bottom: 0;
+}
+
+.table-wrapper .table-responsive .table td,
+.table-wrapper .table-responsive .table th {
+  white-space: nowrap;
+}
+
 .table-wrapper .table-responsive:not(.table-tableau) .table,
 .table-wrapper .table-responsive:not(.table-writable) .table {
   margin-bottom: 0;
@@ -1335,4 +1339,8 @@ p.muted {
   border-right: 0;
 }
 /* Formulaires personnalisés */
+
+.control-label + .checkbox {
+  margin-top: 0;
+}
   

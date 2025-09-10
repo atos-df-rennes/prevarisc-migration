@@ -30,7 +30,6 @@ final class Version20250820093814 extends AbstractMigration
         $this->addSql('ALTER TABLE prescriptiontexteliste CHANGE VISIBLE_TEXTE VISIBLE_TEXTE TINYINT(1) DEFAULT NULL');
         $this->addSql('ALTER TABLE textesappl CHANGE NUM_TEXTESAPPL NUM_TEXTESAPPL INT NOT NULL');
         $this->addSql('ALTER TABLE typetextesappl CHANGE LIBELLE_TYPETEXTEAPPL LIBELLE_TYPETEXTEAPPL LONGTEXT NOT NULL');
-        $this->addSql('ALTER TABLE utilisateurpreferences CHANGE blocs_dashboard DASHBOARD_BLOCS VARCHAR(500) DEFAULT NULL');
     }
 
     public function down(Schema $schema): void

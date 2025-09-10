@@ -46,4 +46,17 @@ class CoucheCartoRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return CoucheCarto[]
+     */
+    public function findAllOrdered(): array
+    {
+        $couchesCarto = $this->findAll();
+        usort($couchesCarto, function ($a, $b): int {
+            return ($a->getOrdre() ?? 0) - ($b->getOrdre() ?? 0);
+        });
+
+        return $couchesCarto;
+    }
 }

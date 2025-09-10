@@ -38,9 +38,14 @@ function initViewer(divId, ignKeys, center, description, autoconfPath) {
     return viewer;
 }
 
+function symfonyValueFallbackToZendValue(symfonyValue, zendValue) {
+    return (typeof symfonyValue !== 'undefined') ? symfonyValue : zendValue
+}
+
 function addUserLayers(viewer, layers) {
     layers.forEach(function(layer) {
-        switch (layer.TYPE_COUCHECARTO) {
+        const type = symfonyValueFallbackToZendValue(layer.type, layer.TYPE_COUCHECARTO)
+        switch (type) {
             case 'WMS':
                 addWmsLayer(viewer, layer)
                 break
@@ -48,7 +53,7 @@ function addUserLayers(viewer, layers) {
                 addWmtsLayer(viewer, layer)
                 break
             default:
-                console.error('Type de couche non supporté: ' + layer.TYPE_COUCHECARTO)
+                console.error('Type de couche non supporté: ' + type)
                 return
         }
     })
@@ -58,28 +63,30 @@ function addUserLayers(viewer, layers) {
 
 function addWmsLayer(viewer, wmsLayer) {
     const source = new ol.source.TileWMS({
-        url: wmsLayer.URL_COUCHECARTO,
+        url: symfonyValueFallbackToZendValue(wmsLayer.url, wmsLayer.URL_COUCHECARTO),
         params: {
-            'LAYERS': wmsLayer.LAYERS_COUCHECARTO,
-            'FORMAT': wmsLayer.FORMAT_COUCHECARTO,
+            'LAYERS': symfonyValueFallbackToZendValue(wmsLayer.layer, wmsLayer.LAYERS_COUCHECARTO),
+            'FORMAT': symfonyValueFallbackToZendValue(wmsLayer.format, wmsLayer.FORMAT_COUCHECARTO),
             'TILED': true
         }
     })
 
     const layer = new ol.layer.Tile({
         source: source,
-        visible: wmsLayer.TRANSPARENT_COUCHECARTO === 1 ? false : true
+        visible: symfonyValueFallbackToZendValue(wmsLayer.transparent, wmsLayer.TRANSPARENT_COUCHECARTO) !== 1
     })
 
-    if (wmsLayer.ORDRE_COUCHECARTO !== null) {
-        layer.setZIndex(wmsLayer.ORDRE_COUCHECARTO)
+    const ordre = symfonyValueFallbackToZendValue(wmsLayer.ordre, wmsLayer.ORDRE_COUCHECARTO)
+    if (ordre !== null) {
+        layer.setZIndex(ordre)
     }
 
     viewer.getLibMap().addLayer(layer);
 
+    const nom = symfonyValueFallbackToZendValue(wmsLayer.nom, wmsLayer.NOM_COUCHECARTO)
     // On renomme les couches utilisateurs
-    $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(wmsLayer.NOM_COUCHECARTO)
-    .attr('title', wmsLayer.NOM_COUCHECARTO)
+    $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(nom)
+    .attr('title', nom)
 }
 
 function addWmtsLayer(viewer, wmtsLayer) {
@@ -121,13 +128,13 @@ function addWmtsLayer(viewer, wmtsLayer) {
 
             /* Données issues du getCapabilities correspondant à la couche renseignée par l'utilisateur
             Permet d'avoir des informations complémentaires non renseignées par l'utilisateur pour l'ajout de la couche */
-            const wmtsLayerCapability = wmtsCapabilities.find(wmtsCapability => wmtsCapability.internalName === wmtsLayer.LAYERS_COUCHECARTO)
+            const wmtsLayerCapability = wmtsCapabilities.find(wmtsCapability => wmtsCapability.internalName === symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO))
 
             const source = new ol.source.WMTS({
-                url: wmtsLayer.URL_COUCHECARTO,
-                layer: wmtsLayer.LAYERS_COUCHECARTO,
+                url: symfonyValueFallbackToZendValue(wmtsLayer.url, wmtsLayer.URL_COUCHECARTO),
+                layer: symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO),
                 matrixSet: wmtsLayerCapability.matrixSet,
-                format: wmtsLayer.FORMAT_COUCHECARTO,
+                format: symfonyValueFallbackToZendValue(wmtsLayer.format, wmtsLayer.FORMAT_COUCHECARTO),
                 tileGrid: new ol.tilegrid.WMTS({
                     origin: wmtsLayerCapability.origin,
                     resolutions: resolutions,
@@ -138,18 +145,20 @@ function addWmtsLayer(viewer, wmtsLayer) {
 
             const layer = new ol.layer.Tile({
                 source: source,
-                visible: wmtsLayer.TRANSPARENT_COUCHECARTO === 1 ? false : true
+                visible: symfonyValueFallbackToZendValue(wmtsLayer.transparent, wmtsLayer.TRANSPARENT_COUCHECARTO) !== 1
             })
 
-            if (wmtsLayer.ORDRE_COUCHECARTO !== null) {
-                layer.setZIndex(wmtsLayer.ORDRE_COUCHECARTO)
+            const ordre = symfonyValueFallbackToZendValue(wmtsLayer.ordre, wmtsLayer.ORDRE_COUCHECARTO)
+            if (ordre !== null) {
+                layer.setZIndex(ordre)
             }
 
             viewer.getLibMap().addLayer(layer);
 
+            const nom = symfonyValueFallbackToZendValue(wmtsLayer.nom, wmtsLayer.NOM_COUCHECARTO)
             // On renomme les couches utilisateurs
-            $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(wmtsLayer.NOM_COUCHECARTO)
-            .attr('title', wmtsLayer.NOM_COUCHECARTO)
+            $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(nom)
+              .attr('title', nom)
         }
     })
 }

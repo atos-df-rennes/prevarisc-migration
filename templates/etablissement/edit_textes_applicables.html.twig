@@ -1,0 +1,27 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Édition des textes applicables{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        <div class='action-buttons pull-right'>
+            <div class="btn-group">
+                <a class="btn btn-default" href="{{ path('etablissement_textes_applicables', { id: etablissement.id }) }}">Annuler</a>
+                <input type="submit" class="btn btn-success" value="Sauvegarder" />
+            </div>
+        </div>
+
+        <h3>Modification des Textes applicables</h3>
+
+        {% for texteApplicable in form.textesApplicables %}
+            {% if loop.index == 1 or texteApplicable.vars.attr['data-type'] != lastType %}
+                <h4>{{ texteApplicable.vars.attr['data-type'] }}</h4>
+                {% set lastType = texteApplicable.vars.attr['data-type'] %}
+            {% endif %}
+
+            {{ form_row(texteApplicable) }}
+        {% endfor %}
+    {{ form_end(form) }}
+{% endblock %}
