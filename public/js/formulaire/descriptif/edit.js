@@ -31,4 +31,18 @@ $(document).ready(function() {
             })
         }
     })
+
+    let beforeUnloadEnabled = true
+
+    document.addEventListener('click', function(event) {
+        if (event.target.hasAttribute('data-do-not-unload')) {
+            beforeUnloadEnabled = false
+        }
+    })
+
+    window.addEventListener('beforeunload', function(event) {
+        if (beforeUnloadEnabled) {
+            event.preventDefault()
+        }
+    })
 })
