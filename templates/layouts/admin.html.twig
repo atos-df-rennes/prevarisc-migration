@@ -46,7 +46,9 @@
             <a href="{{ path('admin_documents') }}"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Gestion des documents</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('gestion-prescriptions') %}class="active"{% endif %}>
+        <li {% if app.request.get('_route') is same as('admin_prescriptions')
+                or app.request.get('_route') is same as('admin_prescriptions_textes')
+            %}class="active"{% endif %}>
             <a href='/gestion-prescriptions'><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Gestion des prescriptions</a>
         </li>
 
