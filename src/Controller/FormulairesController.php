@@ -6,6 +6,7 @@ use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Repository\CapsuleRubriqueRepository;
+use App\Repository\ChampValeurListeRepository;
 use App\Service\Formulaires\FormulairesImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -87,5 +88,16 @@ class FormulairesController extends AbstractController
 
         // @todo: Lorsque la page des formulaires sera migrée, faire le $importStatus avec un flashMessage
         return $this->redirect('/formulaire?importStatus='.$importStatus);
+    }
+
+    /**
+     * @Route("/admin/formulaires/update-champ-valeur-liste-idx", name="admin_formulaires_order_champ_valeur_liste")
+     */
+    public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository, EntityManagerInterface $entityManager): void
+    {
+        $champValeurListe = $champValeurListeRepository->find($request->request->get('ID'));
+        $champValeurListe->setIdx($request->request->get('idx'));
+
+        $entityManager->flush();
     }
 }
