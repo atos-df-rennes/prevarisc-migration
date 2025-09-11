@@ -14,7 +14,10 @@ final class Prescriptions
         $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
     }
 
-    public function getTextesListe()
+    /**
+     * @return \App\Entity\PrescriptionTexteListe[]
+     */
+    public function getTextesListe(): array
     {
         return $this->prescriptionTexteListeRepository->findAllTextes();
     }
