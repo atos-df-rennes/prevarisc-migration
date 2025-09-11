@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\PrescriptionTexteListe;
 use App\Repository\PrescriptionTexteListeRepository;
 
 final class Prescriptions
@@ -15,7 +16,7 @@ final class Prescriptions
     }
 
     /**
-     * @return \App\Entity\PrescriptionTexteListe[]
+     * @return PrescriptionTexteListe[]
      */
     public function getTextesListe(): array
     {
