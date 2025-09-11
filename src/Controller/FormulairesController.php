@@ -98,7 +98,7 @@ class FormulairesController extends AbstractController
     {
         $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
 
-        if ($champValeurListeId === false) {
+        if (false === $champValeurListeId) {
             throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
         }
 
@@ -110,7 +110,7 @@ class FormulairesController extends AbstractController
 
         $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
 
-        if ($idx === false) {
+        if (false === $idx) {
             throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
         }
 
