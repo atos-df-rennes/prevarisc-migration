@@ -46,4 +46,22 @@ class PrescriptionTexteListeRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * Récupère tous les textes, avec une option pour filtrer par visibilité.
+     *
+     * @return PrescriptionTexteListe[]
+     */
+    public function findAllTextes(?bool $visible = null): array
+    {
+        $qb = $this->createQueryBuilder('ptl')
+            ->orderBy('ptl.libelle', 'ASC');
+
+        if (null !== $visible) {
+            $qb->where('ptl.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
