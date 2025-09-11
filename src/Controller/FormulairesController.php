@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\CircularReferenceException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -95,8 +96,25 @@ class FormulairesController extends AbstractController
      */
     public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository, EntityManagerInterface $entityManager): void
     {
-        $champValeurListe = $champValeurListeRepository->find($request->request->get('ID'));
-        $champValeurListe->setIdx($request->request->get('idx'));
+        $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
+
+        if ($champValeurListeId === false) {
+            throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
+        }
+
+        $champValeurListe = $champValeurListeRepository->find($champValeurListeId);
+
+        if (null === $champValeurListe) {
+            throw new NotFoundHttpException(\sprintf("La valeur de liste d'identifiant %d n'existe pas.", $champValeurListeId));
+        }
+
+        $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
+
+        if ($idx === false) {
+            throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
+        }
+
+        $champValeurListe->setIdx($idx);
 
         $entityManager->flush();
     }
