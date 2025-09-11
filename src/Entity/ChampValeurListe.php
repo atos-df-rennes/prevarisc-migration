@@ -39,6 +39,13 @@ class ChampValeurListe
      */
     private $champ;
 
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $idx;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,6 +71,18 @@ class ChampValeurListe
     public function setChamp(?Champ $champ): self
     {
         $this->champ = $champ;
+
+        return $this;
+    }
+
+    public function getIdx(): ?int
+    {
+        return $this->idx;
+    }
+
+    public function setIdx(?int $idx): self
+    {
+        $this->idx = $idx;
 
         return $this;
     }

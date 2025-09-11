@@ -6,6 +6,7 @@ use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Repository\CapsuleRubriqueRepository;
+use App\Repository\ChampValeurListeRepository;
 use App\Service\Formulaires\FormulairesImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\CircularReferenceException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -87,5 +89,33 @@ class FormulairesController extends AbstractController
 
         // @todo: Lorsque la page des formulaires sera migrée, faire le $importStatus avec un flashMessage
         return $this->redirect('/formulaire?importStatus='.$importStatus);
+    }
+
+    /**
+     * @Route("/admin/formulaires/update-champ-valeur-liste-idx", name="admin_formulaires_order_champ_valeur_liste")
+     */
+    public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository, EntityManagerInterface $entityManager): void
+    {
+        $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
+
+        if (false === $champValeurListeId) {
+            throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
+        }
+
+        $champValeurListe = $champValeurListeRepository->find($champValeurListeId);
+
+        if (null === $champValeurListe) {
+            throw new NotFoundHttpException(\sprintf("La valeur de liste d'identifiant %d n'existe pas.", $champValeurListeId));
+        }
+
+        $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
+
+        if (false === $idx) {
+            throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
+        }
+
+        $champValeurListe->setIdx($idx);
+
+        $entityManager->flush();
     }
 }
