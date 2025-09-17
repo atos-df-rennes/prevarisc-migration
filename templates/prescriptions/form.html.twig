@@ -2,26 +2,36 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% block title %}Administration / Gestion des prescriptions / Gestion des textes{% endblock %}
+{% set is_new_entity = app.request.get('texteListe').id is not defined %}
+
+{% if is_new_entity %}
+    {% set title = 'Ajout d\'un nouveau texte' %}
+{% else %}
+    {% set title = 'Modification d\'un texte existant' %}
+{% endif %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des textes / {{ title }}{% endblock %}
 
 {% block body %}
+
     <div class="row">
         <div class="col-md-12">
             <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a>
-            <i class="glyphicon glyphicon-chevron-right"></i>Modification d'un texte existant
+            <i class="glyphicon glyphicon-chevron-right"></i>{{ title }}
         </div>
     </div>
 
-    <h3 class="page-header">
-        Modification d'un texte existant
-    </h3>
-
+    <h3 class="page-header">{{ title }}</h3>
 
     {{ form_start(form) }}
         <div class="row form-group text-right">
             <div class="col-sm-12">
                 <a class="btn btn-default" href="{{ path('admin_prescriptions_textes') }}">
-                    Annuler la modification
+                    {% if is_new_entity %}
+                        Retourner à la liste des textes
+                    {% else %}
+                        Annuler la modification
+                    {% endif %}
                 </a>
                 <input type="submit" class="btn btn-success" value="Sauvegarder" />
             </div>
@@ -34,7 +44,7 @@
             </div>
         </div>
 
-        {% if app.request.get('texteListe').id is defined %}
+        {% if not is_new_entity %}
             <div class="text-center">
                 <a class="btn btn-warning" href="{{ '/gestion-prescriptions/gestion-textes-replace/id/' ~ app.request.get('texteListe').id }}">
                     Supprimer le texte et le remplacer par un autre

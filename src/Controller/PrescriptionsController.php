@@ -44,10 +44,15 @@ class PrescriptionsController extends AbstractController
     }
 
     /**
+     * @Route("/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
      * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
      */
-    public function formTextes(Request  $request, PrescriptionTexteListe $texteListe): Response
+    public function formTextes(Request  $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
+        if($texteListe === null){
+            $texteListe = new PrescriptionTexteListe();
+        }
+
         $form = $this->createForm(PrescriptionTexteListeType::class, $texteListe);
         $form->handleRequest($request);
 
