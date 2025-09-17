@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\PrescriptionTexteListe;
+use App\Form\PrescriptionTexteListeType;
 use App\Service\Prescriptions;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -37,6 +40,30 @@ class PrescriptionsController extends AbstractController
 
         return $this->render('prescriptions/textes.html.twig', [
             'liste_textes' => $listeTextes,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
+     */
+    public function formTextes(Request  $request, PrescriptionTexteListe $texteListe): Response
+    {
+        $form = $this->createForm(PrescriptionTexteListeType::class, $texteListe);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($texteListe);
+            $em->flush();
+
+            $this->addFlash('success', 'Le texte a bien été enregistré');
+
+            return $this->redirectToRoute('admin_prescriptions_textes');
+        }
+
+        return $this->render('prescriptions/form.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 }

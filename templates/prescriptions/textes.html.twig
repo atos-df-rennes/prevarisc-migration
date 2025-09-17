@@ -30,8 +30,7 @@
                     {% else %}
                         <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" />
                     {% endif %}
-                    <a class="btn btn-default" href="{{ '/gestion-prescriptions/gestion-textes-edit/id/' ~ texte.id }}"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Modifier</a>
-
+                    <a class="btn btn-default" href="{{ path('admin_prescriptions_textes_edit', {texteListe: texte.id} ) }}"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Modifier</a>
                     {{ texte.libelle }}
                 </div>
             </div>
