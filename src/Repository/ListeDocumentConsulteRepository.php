@@ -46,4 +46,22 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
-}
+
+    public function findAllSorted(): array
+    {
+        return $this->createQueryBuilder('ldc')
+            ->orderBy('ldc.ordre', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findMaxOrdre(): int
+    {
+        $maxOrdre = $this->createQueryBuilder('ldc')
+            ->select('MAX(ldc.ordre)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $maxOrdre;
+    }
+ }
