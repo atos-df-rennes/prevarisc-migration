@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\PrescriptionTexteListe;
 use App\Form\PrescriptionTexteListeType;
+use App\Form\ReplacePrescriptionTexteListeType;
 use App\Service\Prescriptions;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,9 +48,9 @@ class PrescriptionsController extends AbstractController
      * @Route("/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
      * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
      */
-    public function formTextes(Request  $request, ?PrescriptionTexteListe $texteListe = null): Response
+    public function formTexte(Request $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
-        if($texteListe === null){
+        if (null === $texteListe) {
             $texteListe = new PrescriptionTexteListe();
         }
 
@@ -72,6 +73,22 @@ class PrescriptionsController extends AbstractController
         }
 
         return $this->render('prescriptions/form.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/textes/replace/{texteListe}", name="admin_prescriptions_textes_replace")
+     */
+    public function replaceTexte(Prescriptions $servicePrescTextes, PrescriptionTexteListe $texteListe): Response
+    {
+        $listeTextes = $servicePrescTextes->getTextesListe();
+
+        $form = $this->createForm(ReplacePrescriptionTexteListeType::class);
+
+        return $this->render('prescriptions/replace_form.html.twig', [
+            'liste_textes' => $listeTextes,
+            'texte' => $texteListe,
             'form' => $form->createView(),
         ]);
     }
