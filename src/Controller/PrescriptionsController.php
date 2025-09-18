@@ -59,10 +59,14 @@ class PrescriptionsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
 
-            $em->persist($texteListe);
-            $em->flush();
+            try {
+                $em->persist($texteListe);
+                $em->flush();
 
-            $this->addFlash('success', 'Le texte a bien été enregistré');
+                $this->addFlash('success', 'Le texte a bien été enregistré');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Une erreur s\'est produite lors de l\enregistrement de la prescription ('.$e->getMessage().')');
+            }
 
             return $this->redirectToRoute('admin_prescriptions_textes');
         }
