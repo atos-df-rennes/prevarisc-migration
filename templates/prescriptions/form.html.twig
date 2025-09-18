@@ -2,9 +2,9 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set is_new_entity = app.request.get('texteListe').id is not defined %}
+{% set texteListe = app.request.get('texteListe') %}
 
-{% if is_new_entity %}
+{% if texteListe.id is null %}
     {% set title = 'Ajout d\'un nouveau texte' %}
 {% else %}
     {% set title = 'Modification d\'un texte existant' %}
@@ -24,10 +24,10 @@
     <h3 class="page-header">{{ title }}</h3>
 
     {{ form_start(form) }}
-        <div class="row form-group text-right">
+        <div class="row text-right">
             <div class="col-sm-12">
                 <a class="btn btn-default" href="{{ path('admin_prescriptions_textes') }}">
-                    {% if is_new_entity %}
+                    {% if texteListe.id is null %}
                         Retourner à la liste des textes
                     {% else %}
                         Annuler la modification
@@ -44,9 +44,9 @@
             </div>
         </div>
 
-        {% if not is_new_entity %}
+        {% if texteListe.id is not null %}
             <div class="text-center">
-                <a class="btn btn-warning" href="{{ '/gestion-prescriptions/gestion-textes-replace/id/' ~ app.request.get('texteListe').id }}">
+                <a class="btn btn-warning" href="{{ path('admin_prescriptions_textes_replace', {texteListe: texteListe.id }) }}">
                     Supprimer le texte et le remplacer par un autre
                 </a>
             </div>
