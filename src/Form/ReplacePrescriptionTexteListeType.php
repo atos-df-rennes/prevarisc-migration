@@ -11,7 +11,7 @@ class ReplacePrescriptionTexteListeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('texteReplace', EntityType::class, [
+        $builder->add('replacementText', EntityType::class, [
             'class' => PrescriptionTexteListe::class,
             'choice_label' => 'libelle',
             'label' => 'Texte de remplacement'

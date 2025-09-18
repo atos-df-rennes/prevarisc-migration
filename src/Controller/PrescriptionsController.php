@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\PrescriptionTexteListe;
 use App\Form\PrescriptionTexteListeType;
 use App\Form\ReplacePrescriptionTexteListeType;
+use App\Repository\PrescriptionTexteListeRepository;
 use App\Service\Prescriptions;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,25 +19,6 @@ class PrescriptionsController extends AbstractController
      */
     public function gestionTextes(Prescriptions $servicePrescTextes): Response
     {
-        //        if ($request->isMethod('POST')) {
-        //            try {
-        //                $post = $request->request->all();
-        //
-        //                if ('add' === $post['action']) {
-        //                    $servicePrescTextes->saveTexte($post);
-        //                    $this->addFlash('success', 'La texte a bien été enregistré');
-        //                } elseif ('edit' === $post['action']) {
-        //                    $servicePrescTextes->saveTexte($post, $post['id_texte']);
-        //                    $this->addFlash('success', 'La texte a bien été enregistré');
-        //                } elseif ('replace' === $post['action']) {
-        //                    $servicePrescTextes->replaceTexte($post['id_texte'], $post['idTexteReplace']);
-        //                    $this->addFlash('success', 'Le texte a bien été supprimé');
-        //                }
-        //            } catch (\Exception $e) {
-        //                $this->addFlash('error', 'Une erreur s\'est produite lors de l\'enregistrement de la prescription (' . $e->getMessage() . ')');
-        //            }
-        //        }
-
         $listeTextes = $servicePrescTextes->getTextesListe();
 
         return $this->render('prescriptions/textes.html.twig', [
@@ -80,15 +62,32 @@ class PrescriptionsController extends AbstractController
     /**
      * @Route("/admin/prescriptions/textes/replace/{texteListe}", name="admin_prescriptions_textes_replace")
      */
-    public function replaceTexte(Prescriptions $servicePrescTextes, PrescriptionTexteListe $texteListe): Response
-    {
-        $listeTextes = $servicePrescTextes->getTextesListe();
-
+    public function replaceTexte(
+        Request $request,
+        PrescriptionTexteListe $texteListe,
+        PrescriptionTexteListeRepository $prescriptionTexteListeRepository
+    ): Response {
         $form = $this->createForm(ReplacePrescriptionTexteListeType::class);
+        $form->handleRequest($request);
 
-        return $this->render('prescriptions/replace_form.html.twig', [
-            'liste_textes' => $listeTextes,
-            'texte' => $texteListe,
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newTexte = $form->get('replacementText')->getData();
+
+            if (!$newTexte instanceof PrescriptionTexteListe) {
+                throw new \Exception("Le texte de remplacement n'est pas correcte.");
+            }
+
+            try {
+                $prescriptionTexteListeRepository->replaceAndRemove($texteListe, $newTexte);
+                $this->addFlash('success', 'Le texte a bien été supprimé');
+            } catch (\Exception $e) {
+                $this->addFlash('error', "Une erreur s'est produite lors de la suppression du texte (".$e->getMessage().')');
+            }
+
+            return $this->redirectToRoute('admin_prescriptions_textes');
+        }
+
+        return $this->render('prescriptions/replacement_form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
