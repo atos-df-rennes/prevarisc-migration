@@ -4,7 +4,7 @@
 
 {% set texteListe = app.request.get('texteListe') %}
 
-{% if texteListe.id is null %}
+{% if texteListe is null %}
     {% set title = 'Ajout d\'un nouveau texte' %}
 {% else %}
     {% set title = 'Modification d\'un texte existant' %}
@@ -27,7 +27,7 @@
         <div class="row text-right">
             <div class="col-sm-12">
                 <a class="btn btn-default" href="{{ path('admin_prescriptions_textes') }}">
-                    {% if texteListe.id is null %}
+                    {% if texteListe is null %}
                         Retourner à la liste des textes
                     {% else %}
                         Annuler la modification
@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        {% if texteListe.id is not null %}
+        {% if texteListe is not null %}
             <div class="text-center">
                 <a class="btn btn-warning" href="{{ path('admin_prescriptions_textes_replace', {texteListe: texteListe.id }) }}">
                     Supprimer le texte et le remplacer par un autre
