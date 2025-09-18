@@ -12,10 +12,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class PrescriptionsController extends AbstractController
+/**
+ * @Route("/admin/prescriptions/textes")
+ */
+class PrescriptionsTextesController extends AbstractController
 {
     /**
-     * @Route("/admin/prescriptions/textes", name="admin_prescriptions_textes")
+     * @Route("/", name="admin_prescriptions_textes")
      */
     public function gestionTextes(Prescriptions $servicePrescTextes): Response
     {
@@ -27,8 +30,8 @@ class PrescriptionsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
-     * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
+     * @Route("/ajouter", name="admin_prescriptions_textes_add")
+     * @Route("/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
      */
     public function formTexte(Request $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
@@ -60,9 +63,9 @@ class PrescriptionsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/textes/replace/{texteListe}", name="admin_prescriptions_textes_replace")
+     * @Route("/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
      */
-    public function replaceTexte(
+    public function suppressionTexte(
         Request $request,
         PrescriptionTexteListe $texteListe,
         PrescriptionTexteListeRepository $prescriptionTexteListeRepository
