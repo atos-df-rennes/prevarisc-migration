@@ -27,29 +27,37 @@
     <h3>Texte que vous allez supprimer</h3>
 
     <dl class="dl-horizontal">
-        <dt>Libelle :</dt>
+        <dt>Libellé :</dt>
         <dd>{{ texteListe.libelle }}</dd>
         <dt>Visibilité :</dt>
-        <dd>{{ texteListe.visible }}</dd>
+        <dd>{{ texteListe.visible ? 'Visible' : 'Invisible' }}</dd>
     </dl>
 
-    <div class="alert alert-warning">
-        (Dans l'ensemble des prescriptions existantes, ce texte sera remplacé par celui que vous allez choisir ci-dessous)
-    </div>
+    <p class="alert alert-warning">
+        Dans l'ensemble des prescriptions existantes, ce texte sera remplacé par celui que vous allez choisir ci-dessous
+    </p>
 
     <h3>Choisissez dans la liste le texte que vous souhaitez utiliser en remplacement</h3>
 
     {{ form_start(form) }}
 
-        {{ form_row(form.texteReplace) }}
-
-    <div class="row text-right">
-        <div class="col-sm-12">
-            <a class="btn btn-default" href="{{ path('admin_prescriptions_textes_edit', {texteListe: texteListe.id}) }}">
-                Annuler la suppression
-            </a>
-            <button type="submit" class="btn btn-danger">Supprimer le texte</button>
+        <div class="row">
+            <div class="col-md-8">
+                {{ form_row(form.texteReplace) }}
+            </div>
         </div>
-    </div>
+
+        <div class="row text-right">
+            <div class="col-sm-12">
+                <p class="text-danger">
+                    <i class="glyphicon glyphicon-warning-sign"></i>
+                    Cette action est irréversible.
+                </p>
+                <a class="btn btn-default" href="{{ path('admin_prescriptions_textes_edit', {texteListe: texteListe.id}) }}">
+                    Annuler la suppression
+                </a>
+                <button type="submit" class="btn btn-danger">Supprimer le texte</button>
+            </div>
+        </div>
     {{ form_end(form) }}
 {% endblock %}
