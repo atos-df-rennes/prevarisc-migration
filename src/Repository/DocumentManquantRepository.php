@@ -54,5 +54,4 @@ class DocumentManquantRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
 }
