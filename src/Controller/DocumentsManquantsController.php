@@ -51,4 +51,30 @@ class DocumentsManquantsController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @Route("/admin/documents-manquants/{id}/edit", name="admin_documents_manquants_edit")
+     */
+    public function modifier(Request $request, DocumentManquant $documentManquant, DocumentsManquants $serviceDocumentManquant): Response
+    {
+        $form = $this->createForm(DocumentManquantType::class, $documentManquant, [
+            'action' => $this->generateUrl('admin_documents_manquants_edit', ['id' => $documentManquant->getId()]),
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $serviceDocumentManquant->save($documentManquant);
+
+            $this->addFlash('success', 'Document manquant modifié.');
+
+            return $this->redirectToRoute('admin_documents_manquants');
+        }
+
+        return $this->render('documents_manquants/ajout.html.twig', [
+            'form' => $form->createView(),
+            'edit' => true,
+        ]);
+    }
+
+
 }
