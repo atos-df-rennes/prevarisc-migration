@@ -76,5 +76,19 @@ class DocumentsManquantsController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/admin/documents-manquants/{id}/delete", name="admin_documents_manquants_delete", methods={"POST"})
+     */
+    public function supprimer(Request $request, DocumentManquant $documentManquant, DocumentsManquants $serviceDocumentsManquants): Response
+    {
+        $submittedToken = $request->request->get('_token');
 
+        if ($this->isCsrfTokenValid('supprimer'.$documentManquant->getId(), $submittedToken)) {
+            $serviceDocumentsManquants->supprimer($documentManquant);
+            $this->addFlash('success', 'Document manquant supprimé.');
+        } else {
+            $this->addFlash('error', 'Jeton CSRF invalide.');
+        }
+        return $this->redirectToRoute('admin_documents_manquants');
+    }
 }

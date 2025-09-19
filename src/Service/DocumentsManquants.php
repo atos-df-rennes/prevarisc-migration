@@ -25,4 +25,9 @@ final class DocumentsManquants
     {
         $this->save($documentManquant);
     }
+
+    public function supprimer(DocumentManquant $documentManquant): void
+    {
+        $this->documentManquantRepository->remove($documentManquant);
+    }
 }
