@@ -24,7 +24,7 @@ class PrescriptionsTextesController extends AbstractController
     {
         $listeTextes = $servicePrescTextes->getTextesListe();
 
-        return $this->render('prescriptions/textes.html.twig', [
+        return $this->render('prescriptions_textes/textes.html.twig', [
             'liste_textes' => $listeTextes,
         ]);
     }
@@ -57,7 +57,7 @@ class PrescriptionsTextesController extends AbstractController
             return $this->redirectToRoute('admin_prescriptions_textes');
         }
 
-        return $this->render('prescriptions/form.html.twig', [
+        return $this->render('prescriptions_textes/form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -90,7 +90,7 @@ class PrescriptionsTextesController extends AbstractController
             return $this->redirectToRoute('admin_prescriptions_textes');
         }
 
-        return $this->render('prescriptions/replacement_form.html.twig', [
+        return $this->render('prescriptions_textes/replacement_form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
