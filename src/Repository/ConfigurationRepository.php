@@ -47,32 +47,13 @@ class ConfigurationRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return Configuration[] Returns an array of Configuration objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findByConfigKey($configKey)
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Configuration
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->createQueryBuilder('ck')
+            ->andWhere('ck.configKey = :key')
+            ->setParameter('key', $configKey)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
 }

@@ -1,0 +1,120 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}
+    Administration / Configuration systèmes
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.toggle-boolean').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const configId = this.dataset.configId;
+                    fetch('{{ path('admin_configuration_toggle_boolean', {id: '__ID__'}) }}'.replace('__ID__', configId), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Erreur lors de la mise à jour de la configuration');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de la mise à jour de la configuration');
+                        });
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="page-header">Configuration système</h2>
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover lead">
+                        <thead>
+                        <tr>
+                            <th>Paramètre</th>
+                            <th class="text-center col-xs-3">Valeur actuelle</th>
+                            <th class="text-center col-xs-2">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in configsWithInfo %}
+                            {% set config = item.config %}
+                            {% set configInfo = item.info %}
+                            <form method="POST" action="{{ path('admin_configuration_update_text', {'id': config.id}) }}">
+                                <tr>
+                                    <td>
+                                        <strong>{{ configInfo.label ?? config.configKey }}</strong><br>
+                                        <small class="text-muted">{{ config.configKey }}</small>
+                                    </td>
+                                    <td class="text-center col-xs-3">
+                                        {% if configInfo.type == 'boolean' %}
+                                            {% if config.value == '1' %}
+                                                <span class="label label-danger">Désactivé</span>
+                                            {% else %}
+                                                <span class="label label-success">Activé</span>
+                                            {% endif %}
+                                        {% elseif configInfo.type == 'textarea' %}
+                                            <textarea name="value" rows="3" style="width: 100%;">{{ config.value }}</textarea>
+                                        {% else %}
+                                            <input type="{{ configInfo.type }}" name="value" value="{{ config.value }}" style="width: 100%;">
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center col-xs-2">
+                                        {% if configInfo.type == 'boolean' %}
+                                            <button type="button"
+                                                    class="btn btn-sm {% if config.value == '1' %}btn-success{% else %}btn-danger{% endif %} toggle-boolean"
+                                                    data-config-id="{{ config.id }}"
+                                                    title="{% if config.value == '1' %}Activer{% else %}Désactiver{% endif %}"
+                                                    style="min-width: 100px;">
+                                                {% if config.value == '1' %}Activer{% else %}Désactiver{% endif %}
+                                            </button>
+                                        {% else %}
+                                            <input type="hidden" name="_token" value="{{ csrf_token('update' ~ config.id) }}">
+                                            <button type="submit" class="btn btn-primary btn-sm" style="min-width: 100px;">
+                                                Modifier
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </form>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Aucune configuration disponible.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
