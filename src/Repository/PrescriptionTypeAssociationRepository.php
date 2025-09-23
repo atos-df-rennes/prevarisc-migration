@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionTexteListe;
 use App\Entity\PrescriptionTypeAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -45,5 +46,27 @@ class PrescriptionTypeAssociationRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Remplace tous les textes associés dans l'entité PrescriptionTypeAssociation.
+     *
+     * Cette méthode remplace les occurrences d'un texte existant par un nouveau texte,
+     * en mettant à jour directement l'entité correspondante dans la base de données.
+     *
+     * @param PrescriptionTexteListe $oldText L'ancien texte à remplacer
+     * @param PrescriptionTexteListe $newText le nouveau texte à définir
+     */
+    public function replaceAllTexts(PrescriptionTexteListe $oldText, PrescriptionTexteListe $newText): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionTypeAssociation::class, 'pta')
+            ->set('pta.texte', ':newText')
+            ->where('pta.texte = :oldText')
+            ->setParameter('newText', $newText)
+            ->setParameter('oldText', $oldText)
+            ->getQuery()
+            ->execute()
+        ;
     }
 }

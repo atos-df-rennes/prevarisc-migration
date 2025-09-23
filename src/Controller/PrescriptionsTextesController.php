@@ -12,13 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/admin/prescriptions/textes")
- */
 class PrescriptionsTextesController extends AbstractController
 {
     /**
-     * @Route("/", name="admin_prescriptions_textes")
+     * @Route("/admin/prescriptions/textes/", name="admin_prescriptions_textes")
      */
     public function gestionTextes(Prescriptions $servicePrescTextes): Response
     {
@@ -30,8 +27,8 @@ class PrescriptionsTextesController extends AbstractController
     }
 
     /**
-     * @Route("/ajouter", name="admin_prescriptions_textes_add")
-     * @Route("/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
+     * @Route("/admin/prescriptions/textes/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
+     * @Route("/admin/prescriptions/textes/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
      */
     public function formTexte(Request $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
@@ -63,7 +60,7 @@ class PrescriptionsTextesController extends AbstractController
     }
 
     /**
-     * @Route("/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
+     * @Route("/admin/prescriptions/textes/admin/prescriptions/textes/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
      */
     public function suppressionTexte(
         Request $request,
@@ -84,7 +81,7 @@ class PrescriptionsTextesController extends AbstractController
                 $prescriptionTexteListeRepository->replaceAndRemove($texteListe, $newTexte);
                 $this->addFlash('success', 'Le texte a bien été supprimé');
             } catch (\Exception $e) {
-                $this->addFlash('error', "Une erreur s'est produite lors de la suppression du texte (".$e->getMessage().')');
+                $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du texte (".$e->getMessage().')');
             }
 
             return $this->redirectToRoute('admin_prescriptions_textes');
