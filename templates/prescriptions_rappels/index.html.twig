@@ -1,0 +1,100 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des rappels réglementaires{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-9">
+            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> Gestion des rappels réglementaires
+        </div>
+        <div class="col-md-3 text-right">
+            <!-- Espace réservé pour un contenu futur -->
+        </div>
+    </div>
+
+    <h3 class="page-header">
+        Gestion des rappels réglementaires
+    </h3>
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <a class="btn btn-default" href="/gestion-prescriptions/gestion-rappel-reg-add"><i class="glyphicon glyphicon-plus"></i>&nbsp;Ajouter une prescription</a>
+        </div>
+    </div>
+
+    <br/>
+
+    <h3>Pour les études</h3>
+    <ul>
+        {% for prescription in listePrescEtude %}
+            {% if prescription[0]['ID_PRESCRIPTIONREGL'] is defined %}
+                <li class="table-responsive" id="prescriptionDossier_{{ prescription[0]['ID_PRESCRIPTIONREGL'] }}" style="list-style-type:none; margin-bottom:15px;">
+                    <table class="table">
+                        {% set nbAssoc = prescription|length %}
+                        {% set cpt = true %}
+                        {% for assoc in prescription %}
+                            <tr>
+                                <td class="col-md-2">{{ assoc['LIBELLE_TEXTE'] }}</td>
+                                <td class="col-md-2">{{ assoc['LIBELLE_ARTICLE'] }}</td>
+                                {% if cpt %}
+                                    <td rowspan="{{ nbAssoc }}" class="col-md-6">
+                                        {{ prescription[0]['PRESCRIPTIONREGL_LIBELLE']|nl2br }}
+                                    </td>
+                                    <td rowspan="{{ nbAssoc }}" class="col-md-1 numPresc">
+                                        {% if prescription[0]['PRESCRIPTIONREGL_VISIBLE'] == 1 %}
+                                            <img src="/images/visible.gif" alt="visible" />
+                                        {% else %}
+                                            <img src="/images/nonvisible.gif" alt="non visible" />
+                                        {% endif %}
+                                    </td>
+                                    <td class="col-md-1" rowspan="{{ nbAssoc }}">
+                                        <a class="btn" href="/gestion-prescriptions/gestion-rappel-reg-edit/id/{{ assoc['ID_PRESCRIPTIONREGL'] }}">Modifier</a>
+                                    </td>
+                                    {% set cpt = false %}
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <br/>
+
+    <h3>Pour les visites</h3>
+    <ul>
+        {% for prescription in listePrescVisite %}
+            {% if prescription[0]['ID_PRESCRIPTIONREGL'] is defined %}
+                <li class="table-responsive" id="prescriptionDossier_{{ prescription[0]['ID_PRESCRIPTIONREGL'] }}" style="list-style-type:none; margin-bottom:15px;">
+                    <table class="table">
+                        {% set nbAssoc = prescription|length %}
+                        {% set cpt = true %}
+                        {% for assoc in prescription %}
+                            <tr>
+                                <td class="col-md-2">{{ assoc['LIBELLE_TEXTE'] }}</td>
+                                <td class="col-md-2">{{ assoc['LIBELLE_ARTICLE'] }}</td>
+                                {% if cpt %}
+                                    <td rowspan="{{ nbAssoc }}" class="col-md-6">
+                                        {{ prescription[0]['PRESCRIPTIONREGL_LIBELLE']|nl2br }}
+                                    </td>
+                                    <td rowspan="{{ nbAssoc }}" class="col-md-1 numPresc">
+                                        {% if prescription[0]['PRESCRIPTIONREGL_VISIBLE'] == 1 %}
+                                            <img src="/images/visible.gif" alt="visible" />
+                                        {% else %}
+                                            <img src="/images/nonvisible.gif" alt="non visible" />
+                                        {% endif %}
+                                    </td>
+                                    <td class="col-md-1" rowspan="{{ nbAssoc }}">
+                                        <a class="btn" href="/gestion-prescriptions/gestion-rappel-reg-edit/id/{{ assoc['ID_PRESCRIPTIONREGL'] }}">Modifier</a>
+                                    </td>
+                                    {% set cpt = false %}
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock %}
