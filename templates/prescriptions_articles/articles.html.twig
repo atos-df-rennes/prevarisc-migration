@@ -1,0 +1,41 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des articles{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> Gestion des articles
+        </div>
+    </div>
+
+    <h3 class="page-header">
+        Gestion des articles
+    </h3>
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <a class="btn btn-default" href="{{ path('admin_prescriptions_articles_add') }}"><i class="glyphicon glyphicon-plus"></i>&nbsp;Ajouter un article</a>
+        </div>
+    </div>
+
+    <br/>
+
+    {% for article in liste_articles %}
+        {% if article.id != 1 %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% if article.visible == 1 %}
+                        <img src="{{ asset('images/visible.gif') }}" alt="visible" />
+                    {% else %}
+                        <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" />
+                    {% endif %}
+                    <a class="btn btn-default" href="{{ path('admin_prescriptions_articles_edit', {articleListe: article.id} ) }}"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Modifier</a>
+
+                    {{ article.libelle }}
+                </div>
+            </div>
+            <br/>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
