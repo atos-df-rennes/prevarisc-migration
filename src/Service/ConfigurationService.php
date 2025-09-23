@@ -210,7 +210,13 @@ final class ConfigurationService
                     'type' => 'boolean',
                     'category' => 'Fonctionnalités',
                     'description' => 'Active ou désactive l\'intégration Platau'
-                ]
-            ];
+                ],
+                'PREVARISC_PLATAU_NO_HEALTHCHECK' => [
+                    'label' => 'Désactiver le healthcheck Plat\'AU',
+                    'type' => 'boolean',
+                    'category' => 'Fonctionnalités',
+                    'description' => 'Permet de désactiver le healthcheck Plat\'AU sur la page d\'accueil (activé par défaut)',
+                ],
+        ];
     }
 }
