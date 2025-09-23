@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionReglementaireAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -45,5 +46,26 @@ class PrescriptionReglementaireAssociationRepository extends ServiceEntityReposi
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Remplace toutes les occurrences d'un ancien article par un nouveau article dans les associations réglementaires.
+     *
+     * @param PrescriptionArticleListe $oldArticle L'ancien article à remplacer.
+     * @param PrescriptionArticleListe $newArticle Le nouvel article qui remplace l'ancien.
+     *
+     * @return void
+     */
+    public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionReglementaireAssociation::class, 'pra')
+            ->set('pra.article', ':newArticle')
+            ->where('pra.article = :oldArticle')
+            ->setParameter('newArticle', $newArticle)
+            ->setParameter('oldArticle', $oldArticle)
+            ->getQuery()
+            ->execute()
+        ;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionDossierAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -45,5 +46,24 @@ class PrescriptionDossierAssociationRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Remplace toutes les occurrences d'un article par un autre dans les associations de dossier de prescription.
+     *
+     * @param PrescriptionArticleListe $oldArticle L'article existant à remplacer.
+     * @param PrescriptionArticleListe $newArticle Le nouvel article à associer.
+     */
+    public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionDossierAssociation::class, 'pda')
+            ->set('pda.article', ':newArticle')
+            ->where('pda.article = :oldArticle')
+            ->setParameter('newArticle', $newArticle)
+            ->setParameter('oldArticle', $oldArticle)
+            ->getQuery()
+            ->execute()
+        ;
     }
 }
