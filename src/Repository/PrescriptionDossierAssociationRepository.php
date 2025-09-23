@@ -51,8 +51,8 @@ class PrescriptionDossierAssociationRepository extends ServiceEntityRepository
     /**
      * Remplace toutes les occurrences d'un article par un autre dans les associations de dossier de prescription.
      *
-     * @param PrescriptionArticleListe $oldArticle L'article existant à remplacer.
-     * @param PrescriptionArticleListe $newArticle Le nouvel article à associer.
+     * @param PrescriptionArticleListe $oldArticle L'article existant à remplacer
+     * @param PrescriptionArticleListe $newArticle le nouvel article à associer
      */
     public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
     {

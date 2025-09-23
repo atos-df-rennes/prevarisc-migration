@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\PrescriptionArticleListe;
-use App\Entity\PrescriptionTexteListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -70,10 +69,8 @@ class PrescriptionArticleListeRepository extends ServiceEntityRepository
      * Cette méthode utilise une transaction pour garantir l'intégrité des données lors du remplacement et
      * de la suppression de l'entité spécifique.
      *
-     * @param PrescriptionArticleListe $entity L'entité existante à remplacer et à supprimer.
-     * @param PrescriptionArticleListe $newEntity La nouvelle entité qui remplacera l'ancienne.
-     *
-     * @return void
+     * @param PrescriptionArticleListe $entity    L'entité existante à remplacer et à supprimer
+     * @param PrescriptionArticleListe $newEntity la nouvelle entité qui remplacera l'ancienne
      */
     public function replaceAndRemove(PrescriptionArticleListe $entity, PrescriptionArticleListe $newEntity): void
     {

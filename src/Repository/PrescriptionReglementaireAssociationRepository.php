@@ -51,10 +51,8 @@ class PrescriptionReglementaireAssociationRepository extends ServiceEntityReposi
     /**
      * Remplace toutes les occurrences d'un ancien article par un nouveau article dans les associations réglementaires.
      *
-     * @param PrescriptionArticleListe $oldArticle L'ancien article à remplacer.
-     * @param PrescriptionArticleListe $newArticle Le nouvel article qui remplace l'ancien.
-     *
-     * @return void
+     * @param PrescriptionArticleListe $oldArticle L'ancien article à remplacer
+     * @param PrescriptionArticleListe $newArticle le nouvel article qui remplace l'ancien
      */
     public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
     {

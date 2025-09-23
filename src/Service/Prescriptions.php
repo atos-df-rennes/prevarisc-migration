@@ -18,7 +18,7 @@ final class Prescriptions
     public function __construct(
         PrescriptionTexteListeRepository $prescriptionTexteListeRepository,
         PrescriptionArticleListeRepository $prescriptionArticleListeRepository
-    ){
+    ) {
         $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
         $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
     }
@@ -32,13 +32,12 @@ final class Prescriptions
     }
 
     /**
-     * @param bool|null $isVisible
      * @return PrescriptionArticleListe[]
      */
-    public function getArticlesListe(?bool $isVisible = null):array
+    public function getArticlesListe(?bool $isVisible = null): array
     {
         $criteria = [];
-        if($isVisible !== null) {
+        if (null !== $isVisible) {
             $criteria['visible'] = $isVisible;
         }
 

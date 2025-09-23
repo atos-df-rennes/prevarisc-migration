@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\PrescriptionArticleListe;
-use App\Entity\PrescriptionDossierAssociation;
 use App\Entity\PrescriptionTypeAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -52,10 +51,8 @@ class PrescriptionTypeAssociationRepository extends ServiceEntityRepository
     /**
      * Remplace tous les articles associés à un article donné par un nouvel article.
      *
-     * @param PrescriptionArticleListe $oldArticle Ancien article à remplacer.
-     * @param PrescriptionArticleListe $newArticle Nouvel article qui remplacera l'ancien.
-     *
-     * @return void
+     * @param PrescriptionArticleListe $oldArticle ancien article à remplacer
+     * @param PrescriptionArticleListe $newArticle nouvel article qui remplacera l'ancien
      */
     public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
     {

@@ -12,13 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/admin/prescriptions/articles")
- */
 class PrescriptionsArticlesController extends AbstractController
 {
     /**
-     * @Route("/", name="admin_prescriptions_articles")
+     * @Route("/admin/prescriptions/articles/", name="admin_prescriptions_articles")
      */
     public function gestionArticles(Prescriptions $servicePresc): Response
     {
@@ -30,8 +27,8 @@ class PrescriptionsArticlesController extends AbstractController
     }
 
     /**
-     * @Route("/ajouter", name="admin_prescriptions_articles_add")
-     * @Route("/modifier/{articleListe}", name="admin_prescriptions_articles_edit")
+     * @Route("/admin/prescriptions/articles/ajouter", name="admin_prescriptions_articles_add")
+     * @Route("/admin/prescriptions/articles/modifier/{articleListe}", name="admin_prescriptions_articles_edit")
      */
     public function formArticle(Request $request, ?PrescriptionArticleListe $articleListe = null): Response
     {
@@ -63,7 +60,7 @@ class PrescriptionsArticlesController extends AbstractController
     }
 
     /**
-     * @Route("/suppression/{articleListe}", name="admin_prescriptions_articles_suppression")
+     * @Route("/admin/prescriptions/articles/suppression/{articleListe}", name="admin_prescriptions_articles_suppression")
      */
     public function suppressionArticle(
         Request $request,
