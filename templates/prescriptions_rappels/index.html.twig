@@ -22,79 +22,47 @@
         </div>
     </div>
 
-    <br/>
-
     <h3>Pour les études</h3>
     <ul>
-        {% for prescription in listePrescEtude %}
-            {% if prescription[0]['ID_PRESCRIPTIONREGL'] is defined %}
-                <li class="table-responsive" id="prescriptionDossier_{{ prescription[0]['ID_PRESCRIPTIONREGL'] }}" style="list-style-type:none; margin-bottom:15px;">
-                    <table class="table">
-                        {% set nbAssoc = prescription|length %}
-                        {% set cpt = true %}
-                        {% for assoc in prescription %}
-                            <tr>
-                                <td class="col-md-2">{{ assoc['LIBELLE_TEXTE'] }}</td>
-                                <td class="col-md-2">{{ assoc['LIBELLE_ARTICLE'] }}</td>
-                                {% if cpt %}
-                                    <td rowspan="{{ nbAssoc }}" class="col-md-6">
-                                        {{ prescription[0]['PRESCRIPTIONREGL_LIBELLE']|nl2br }}
-                                    </td>
-                                    <td rowspan="{{ nbAssoc }}" class="col-md-1 numPresc">
-                                        {% if prescription[0]['PRESCRIPTIONREGL_VISIBLE'] == 1 %}
-                                            <img src="/images/visible.gif" alt="visible" />
-                                        {% else %}
-                                            <img src="/images/nonvisible.gif" alt="non visible" />
-                                        {% endif %}
-                                    </td>
-                                    <td class="col-md-1" rowspan="{{ nbAssoc }}">
-                                        <a class="btn" href="/gestion-prescriptions/gestion-rappel-reg-edit/id/{{ assoc['ID_PRESCRIPTIONREGL'] }}">Modifier</a>
-                                    </td>
-                                    {% set cpt = false %}
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </li>
-            {% endif %}
+        {% for presc_etude in listePrescEtude %}
+            {{ _self.rappel_reg(presc_etude.prescription, presc_etude.associations) }}
         {% endfor %}
     </ul>
-
-    <br/>
 
     <h3>Pour les visites</h3>
     <ul>
-        {% for prescription in listePrescVisite %}
-            {% if prescription[0]['ID_PRESCRIPTIONREGL'] is defined %}
-                <li class="table-responsive" id="prescriptionDossier_{{ prescription[0]['ID_PRESCRIPTIONREGL'] }}" style="list-style-type:none; margin-bottom:15px;">
-                    <table class="table">
-                        {% set nbAssoc = prescription|length %}
-                        {% set cpt = true %}
-                        {% for assoc in prescription %}
-                            <tr>
-                                <td class="col-md-2">{{ assoc['LIBELLE_TEXTE'] }}</td>
-                                <td class="col-md-2">{{ assoc['LIBELLE_ARTICLE'] }}</td>
-                                {% if cpt %}
-                                    <td rowspan="{{ nbAssoc }}" class="col-md-6">
-                                        {{ prescription[0]['PRESCRIPTIONREGL_LIBELLE']|nl2br }}
-                                    </td>
-                                    <td rowspan="{{ nbAssoc }}" class="col-md-1 numPresc">
-                                        {% if prescription[0]['PRESCRIPTIONREGL_VISIBLE'] == 1 %}
-                                            <img src="/images/visible.gif" alt="visible" />
-                                        {% else %}
-                                            <img src="/images/nonvisible.gif" alt="non visible" />
-                                        {% endif %}
-                                    </td>
-                                    <td class="col-md-1" rowspan="{{ nbAssoc }}">
-                                        <a class="btn" href="/gestion-prescriptions/gestion-rappel-reg-edit/id/{{ assoc['ID_PRESCRIPTIONREGL'] }}">Modifier</a>
-                                    </td>
-                                    {% set cpt = false %}
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </li>
-            {% endif %}
+        {% for presc_visite in listePrescVisite %}
+            {{ _self.rappel_reg(presc_visite.prescription, presc_visite.associations) }}
         {% endfor %}
     </ul>
 {% endblock %}
+
+
+{% macro rappel_reg(rappel, associations) %}
+    <li class="table-responsive" id="prescriptionDossier_{{ rappel.id }}" style="list-style-type:none; margin-bottom:15px;">
+        <table class="table">
+            {% set nb_assoc = associations|length %}
+            {% for association in associations %}
+                <tr>
+                    <td class="col-xs-2">{{ association.article.libelle }}</td>
+                    <td class="col-xs-2">{{ association.texte.libelle }}</td>
+                    {% if loop.first %}
+                        <td rowspan="{{ association }}" class="col-xs-6">
+                            {{ rappel.libelle|nl2br }}
+                        </td>
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1 numPresc">
+                            {% if rappel.visible == 1 %}
+                                <img src="{{ asset('images/visible.gif') }}" alt="visible" title="Visible" />
+                            {% else %}
+                                <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" title="Non visible" />
+                            {% endif %}
+                        </td>
+                        <td class="col-xs-1" rowspan="{{ nb_assoc }}">
+                            <a class="btn btn-default" href="/gestion-prescriptions/gestion-rappel-reg-edit/id/{{ rappel.id }}">Modifier</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </li>
+{% endmacro %}
