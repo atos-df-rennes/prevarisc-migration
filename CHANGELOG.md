@@ -4,6 +4,48 @@
 
 <!--- END HEADER -->
 
+## [2.8.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.0...v2.8.1) (24-09-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+
+##### Formulaires
+
+* Glisser les valeurs de la liste dans administration (#55) ([bf4419](https://github.com/atos-df-rennes/prevarisc-migration/commit/bf4419f81505e8aaa22c04305c3bfd7ec7aeea74))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Mauvaise synchronisation sur le nom d'une colonne entre l'entité et le schéma (#52) ([5a15bb](https://github.com/atos-df-rennes/prevarisc-migration/commit/5a15bb90f50207a59270d84113d9c3d7ea9df9d4))
+* Migrations en erreur sur une installation fresh (#51) ([358c88](https://github.com/atos-df-rennes/prevarisc-migration/commit/358c883c3d43934d0c5dd699bf16750acce8fe6b))
+* Ne force pas les informations sur la commune (#49) ([625533](https://github.com/atos-df-rennes/prevarisc-migration/commit/625533d51a1a999339f8b8098f1c76ae3cec1350))
+* Informations non obligatoires sur la commune (#48) ([71e761](https://github.com/atos-df-rennes/prevarisc-migration/commit/71e761d1255988e49c08f4f894514a7bb6f1e36b))
+* Mauvais ordre d'exécution des migrations (#45) ([32ceae](https://github.com/atos-df-rennes/prevarisc-migration/commit/32ceaeb69d4724fe5d1a56027535cb104e195dc9))
+* Rafraichissement des vues après modification d'une des tables utilisées (#43) ([6c5931](https://github.com/atos-df-rennes/prevarisc-migration/commit/6c5931a93b7a82886e6fa3c1e3592fca550c628d))
+* Prise en compte des caractères spéciaux dans la chaîne de connexion à la base de données (#42) ([4f5ebc](https://github.com/atos-df-rennes/prevarisc-migration/commit/4f5ebcda3be7a14cef604764f7a39a5ae53c5f13))
+* Le "-" fait planter la commande de migration (#41) ([14fdc8](https://github.com/atos-df-rennes/prevarisc-migration/commit/14fdc8a831301137c2a589d054f9c55eb271e5c1))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="25" height="25"> Migration
+
+
+##### Administration
+
+* Couches cartographiques (#31) ([1681a6](https://github.com/atos-df-rennes/prevarisc-migration/commit/1681a6b6ecfe9888f5fb7d27973811a9caf974f2))
+* Textes applicables (#44) ([b8d6cd](https://github.com/atos-df-rennes/prevarisc-migration/commit/b8d6cdbeb8c53089a30d8749915a71b4218d6b48))
+
+##### Etablissement
+
+* Affichage des avis et dérogations (#53) ([f1f37e](https://github.com/atos-df-rennes/prevarisc-migration/commit/f1f37edf7d0977569903f423275dcbe4e6718c27))
+* édition des textes applicables (#50) ([aff3b8](https://github.com/atos-df-rennes/prevarisc-migration/commit/aff3b8c588e21bf7a221175cdd6b110775b9b8df))
+* Affichage des textes applicables (#47) ([346ef3](https://github.com/atos-df-rennes/prevarisc-migration/commit/346ef3ebe773bb9c6af33d6f11dec90488dbca50))
+* Historique (#32) ([5e9dc3](https://github.com/atos-df-rennes/prevarisc-migration/commit/5e9dc353fafaa693276cee8dc81bdbc5f0a82453))
+
+##### Prescriptions
+
+* Affichage des textes (#56) ([3843bf](https://github.com/atos-df-rennes/prevarisc-migration/commit/3843bf6db4746fcee1d2ae8ccde7668f99277c7a))
+
+
+---
+
 ## [2.8.0](https://github.com/atos-df-rennes/prevarisc-migration/compare/3e6bb61fcff5194de100a562d0388ee4a89d38c0...v2.8.0) (28-07-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
