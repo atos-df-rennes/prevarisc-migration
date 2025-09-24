@@ -40,7 +40,7 @@ class DocumentsConsultesController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $serviceDocumentsConsultes->create($documentConsulte);
+            $serviceDocumentsConsultes->save($documentConsulte);
 
             $this->addFlash('success', 'Document consulté ajouté.');
 
@@ -75,22 +75,5 @@ class DocumentsConsultesController extends AbstractController
             'form' => $form->createView(),
             'edit' => true,
         ]);
-    }
-
-
-    /**
-     * @Route("/admin/documents-consultes/{id}/supprimer", name="admin_documents_consultes_supprimer", methods={"POST"})
-     */
-    public function supprimer(Request $request, ListeDocumentConsulte $documentConsulte, DocumentsConsultes $serviceDocumentsConsultes): Response
-    {
-        $submittedToken = $request->request->get('_token');
-
-        if ($this->isCsrfTokenValid('supprimer'.$documentConsulte->getId(), $submittedToken)) {
-            $serviceDocumentsConsultes->supprimer($documentConsulte);
-            $this->addFlash('success', 'Document consulté supprimé.');
-        } else {
-            $this->addFlash('error', 'Jeton CSRF invalide.');
-        }
-        return $this->redirectToRoute('admin_documents_consultes');
     }
 }

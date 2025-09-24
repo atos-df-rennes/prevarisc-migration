@@ -64,4 +64,4 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
 
         return (int) $maxOrdre;
     }
- }
+}

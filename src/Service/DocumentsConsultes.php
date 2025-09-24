@@ -25,20 +25,12 @@ final class DocumentsConsultes
         $documentConsulte->setOrdre($lastOrdre + 1);
     }
 
-    public function save(ListeDocumentConsulte $documentConsulte): void
+    public function save(ListeDocumentConsulte $document): void
     {
-        $this->entityManager->persist($documentConsulte);
-        $this->entityManager->flush();
-    }
+        if (null === $document->getId()) {
+            $this->prepareOrdre($document);
+        }
 
-    public function create(ListeDocumentConsulte $documentConsulte): void
-    {
-        $this->prepareOrdre($documentConsulte);
-        $this->save($documentConsulte);
-    }
-
-    public function supprimer(ListeDocumentConsulte $documentConsulte): void
-    {
-        $this->listeDocumentConsulteRepository->remove($documentConsulte);
+        $this->listeDocumentConsulteRepository->add($document);
     }
 }
