@@ -31,8 +31,8 @@ class PrescriptionsTextesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/textes/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
-     * @Route("/admin/prescriptions/textes/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
+     * @Route("/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
+     * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
      */
     public function formTexte(Request $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
@@ -64,7 +64,7 @@ class PrescriptionsTextesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/textes/admin/prescriptions/textes/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
+     * @Route("/admin/prescriptions/textes/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
      */
     public function suppressionTexte(
         Request $request,
