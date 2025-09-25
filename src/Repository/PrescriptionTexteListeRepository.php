@@ -18,9 +18,25 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PrescriptionTexteListeRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    /** @var PrescriptionDossierAssociationRepository */
+    private $prescriptionDossierAssociationRepository;
+
+    /** @var PrescriptionTypeAssociationRepository */
+    private $prescriptionTypeAssociationRepository;
+
+    /** @var PrescriptionReglementaireAssociationRepository */
+    private $prescriptionReglementaireAssociationRepository;
+
+    public function __construct(
+        ManagerRegistry $registry,
+        PrescriptionDossierAssociationRepository $prescriptionDossierAssociationRepository,
+        PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
+        PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
+    ) {
         parent::__construct($registry, PrescriptionTexteListe::class);
+        $this->prescriptionDossierAssociationRepository = $prescriptionDossierAssociationRepository;
+        $this->prescriptionTypeAssociationRepository = $prescriptionTypeAssociationRepository;
+        $this->prescriptionReglementaireAssociationRepository = $prescriptionReglementaireAssociationRepository;
     }
 
     /**
@@ -45,6 +61,26 @@ class PrescriptionTexteListeRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Remplace les références de l'entité spécifiée par celles d'une nouvelle entité, puis supprime l'entité originale.
+     *
+     * Cette méthode encapsule l'opération dans une transaction pour garantir l'intégrité des données.
+     *
+     * @param PrescriptionTexteListe $entity    L'entité à remplacer et à supprimer
+     * @param PrescriptionTexteListe $newEntity la nouvelle entité remplaçant l'ancienne
+     */
+    public function replaceAndRemove(PrescriptionTexteListe $entity, PrescriptionTexteListe $newEntity): void
+    {
+        $em = $this->getEntityManager();
+        $em->wrapInTransaction(function ($em) use ($entity, $newEntity): void {
+            $this->prescriptionDossierAssociationRepository->replaceAllTexts($entity, $newEntity);
+            $this->prescriptionTypeAssociationRepository->replaceAllTexts($entity, $newEntity);
+            $this->prescriptionReglementaireAssociationRepository->replaceAllTexts($entity, $newEntity);
+
+            $em->remove($entity);
+        });
     }
 
     /**

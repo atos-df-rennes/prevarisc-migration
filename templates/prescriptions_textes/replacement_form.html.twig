@@ -1,0 +1,55 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% set texteListe = app.request.get('texteListe') %}
+{% form_theme form '_form_theme.html.twig' %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des textes / Remplacer et supprimer un texte existant {% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a>
+            <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes_edit', {texteListe: texteListe.id}) }}">Modification d'un texte existant</a><i class="glyphicon glyphicon-chevron-right"></i> Remplacer et supprimer un texte existant
+        </div>
+    </div>
+
+    <h3 class="page-header">Remplacer et supprimer un texte existant </h3>
+
+    <h3>Texte que vous allez supprimer</h3>
+
+    <dl class="dl-horizontal">
+        <dt>Libellé :</dt>
+        <dd>{{ texteListe.libelle }}</dd>
+        <dt>Visibilité :</dt>
+        <dd>{{ texteListe.visible ? 'Visible' : 'Invisible' }}</dd>
+    </dl>
+
+    <p class="alert alert-warning">
+        Dans l'ensemble des prescriptions existantes, ce texte sera remplacé par celui que vous allez choisir ci-dessous
+    </p>
+
+    <h3>Choisissez dans la liste le texte que vous souhaitez utiliser en remplacement</h3>
+
+    {{ form_start(form) }}
+
+        <div class="row">
+            <div class="col-md-8">
+                {{ form_row(form.replacementText) }}
+            </div>
+        </div>
+
+        <div class="row text-right">
+            <div class="col-sm-12">
+                <p class="text-danger">
+                    <i class="glyphicon glyphicon-warning-sign"></i>
+                    Cette action est irréversible.
+                </p>
+                <a class="btn btn-default" href="{{ path('admin_prescriptions_textes_edit', {texteListe: texteListe.id}) }}">
+                    Annuler la suppression
+                </a>
+                <button type="submit" class="btn btn-danger">Supprimer le texte</button>
+            </div>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

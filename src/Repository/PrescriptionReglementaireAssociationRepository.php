@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\PrescriptionReglementaireAssociation;
+use App\Entity\PrescriptionTexteListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -45,5 +46,24 @@ class PrescriptionReglementaireAssociationRepository extends ServiceEntityReposi
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Remplace toutes les occurrences d'un texte réglementaire par un nouveau texte.
+     *
+     * @param PrescriptionTexteListe $oldText L'ancien texte à remplacer
+     * @param PrescriptionTexteListe $newText le nouveau texte à utiliser
+     */
+    public function replaceAllTexts(PrescriptionTexteListe $oldText, PrescriptionTexteListe $newText): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionReglementaireAssociation::class, 'pra')
+            ->set('pra.texte', ':newText')
+            ->where('pra.texte = :oldText')
+            ->setParameter('newText', $newText)
+            ->setParameter('oldText', $oldText)
+            ->getQuery()
+            ->execute()
+        ;
     }
 }
