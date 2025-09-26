@@ -24,18 +24,22 @@ class PrescriptionsRappelsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/rappels/ajouter", name="admin_prescriptions_rappels_add" )
+     * @Route("/admin/prescriptions/rappels/ajouter", name="admin_prescriptions_rappels_add")
+     * @Route("/admin/prescriptions/rappels/modifier/{rappelReg}", name="admin_prescriptions_rappels_edit")
      */
-    public function form(Request $request): Response
+    public function form(Request $request, ?PrescriptionReglementaire $rappelReg = null): Response
     {
-        $form = $this->createForm(PrescriptionReglementaireType::class);
+        if (null === $rappelReg) {
+            $rappelReg = new PrescriptionReglementaire();
+        }
+
+        $form = $this->createForm(PrescriptionReglementaireType::class, $rappelReg);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-
             $em = $this->getDoctrine()->getManager();
-            $em->persist($data);
+
+            $em->persist($rappelReg);
             $em->flush();
 
             return $this->redirectToRoute('admin_prescriptions_rappels');
