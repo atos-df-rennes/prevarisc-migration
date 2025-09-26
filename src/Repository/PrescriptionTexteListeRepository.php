@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\PrescriptionTexteListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -107,9 +106,9 @@ class PrescriptionTexteListeRepository extends ServiceEntityRepository
      *
      * Cette méthode permet de filtrer les résultats en fonction de leur visibilité.
      *
-     * @param bool|null $visible Optionnel, filtre les éléments visibles uniquement si une valeur est fournie (true/false).
+     * @param bool|null $visible optionnel, filtre les éléments visibles uniquement si une valeur est fournie (true/false)
      *
-     * @return PrescriptionTexteListe[] Tableau associatif où la clé correspond au libellé et la valeur à l'identifiant.
+     * @return PrescriptionTexteListe[] tableau associatif où la clé correspond au libellé et la valeur à l'identifiant
      */
     public function findAllForChoices(?bool $visible = null): array
     {

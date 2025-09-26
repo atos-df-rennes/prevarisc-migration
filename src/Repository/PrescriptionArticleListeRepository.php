@@ -87,10 +87,10 @@ class PrescriptionArticleListeRepository extends ServiceEntityRepository
     /**
      * Recherche tous les textes avec une option pour filtrer par visibilité.
      *
-     * @param bool|null $visible Filtrer les textes visibles si une valeur est fournie (true/false),
-     *                           ou renvoyer tous les textes si null.
+     * @param bool|null $visible filtrer les textes visibles si une valeur est fournie (true/false),
+     *                           ou renvoyer tous les textes si null
      *
-     * @return PrescriptionArticleListe[] Retourne un tableau contenant les résultats des textes.
+     * @return PrescriptionArticleListe[] retourne un tableau contenant les résultats des textes
      */
     public function findAllTextes(?bool $visible = null): array
     {
@@ -110,9 +110,9 @@ class PrescriptionArticleListeRepository extends ServiceEntityRepository
      *
      * Cette méthode permet de filtrer les résultats en fonction de leur visibilité.
      *
-     * @param bool|null $visible Optionnel, filtre les éléments visibles uniquement si une valeur est fournie (true/false).
+     * @param bool|null $visible optionnel, filtre les éléments visibles uniquement si une valeur est fournie (true/false)
      *
-     * @return PrescriptionArticleListe[] Tableau associatif où la clé correspond au libellé et la valeur à l'identifiant.
+     * @return PrescriptionArticleListe[] tableau associatif où la clé correspond au libellé et la valeur à l'identifiant
      */
     public function findAllForChoices(?bool $visible = null): array
     {

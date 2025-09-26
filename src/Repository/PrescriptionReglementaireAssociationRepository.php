@@ -62,7 +62,6 @@ class PrescriptionReglementaireAssociationRepository extends ServiceEntityReposi
         // Crée la requête QueryBuilder
         $qb = $this->createQueryBuilder('pra')
             ->addSelect('pal', 'ptl')
-            ->join('pra.regle', 'pr')
             ->join(PrescriptionArticleListe::class, 'pal', Join::WITH, 'pal.id = pra.article')
             ->join(PrescriptionTexteListe::class, 'ptl', Join::WITH, 'ptl.id = pra.texte')
             ->where('pra.regle = :idPrescriptionRegl')
@@ -72,7 +71,6 @@ class PrescriptionReglementaireAssociationRepository extends ServiceEntityReposi
         // Exécute la requête et retourne les résultats
         return $qb->getQuery()->getResult();
     }
-
 
     /**
      * Remplace toutes les occurrences d'un texte réglementaire par un nouveau texte.
