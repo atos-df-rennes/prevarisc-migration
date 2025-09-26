@@ -9,8 +9,8 @@
 
     <div class="row">
         <div class="col-md-12">
-            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_articles') }}">Gestion des articles</a>
-            <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_articles_edit', {articleListe: articleListe.id}) }}">Modification d'un article existant</a><i class="glyphicon glyphicon-chevron-right"></i> Remplacer et supprimer un article existant
+            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <span class="glyphicon glyphicon-chevron-right"></span> <a href="{{ path('admin_prescriptions_articles') }}">Gestion des articles</a>
+            <span class="glyphicon glyphicon-chevron-right"></span> <a href="{{ path('admin_prescriptions_articles_edit', {articleListe: articleListe.id}) }}">Modification d'un article existant</a><span class="glyphicon glyphicon-chevron-right"></span> Remplacer et supprimer un article existant
         </div>
     </div>
 
@@ -42,7 +42,7 @@
     <div class="row text-right">
         <div class="col-sm-12">
             <p class="text-danger">
-                <i class="glyphicon glyphicon-warning-sign"></i>
+                <span class="glyphicon glyphicon-warning-sign"></span>
                 Cette action est irréversible.
             </p>
             <a class="btn btn-default" href="{{ path('admin_prescriptions_articles_edit', {articleListe: articleListe.id}) }}">
