@@ -92,36 +92,64 @@ final class Prescriptions
      * Construit un tableau d'associations [association, texte, article] à partir
      * de la collection renvoyée par le repository (pra, ptl, pal).
      *
-     * @param array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $rawAssocItems
+     * @param array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
      *
      * @return array<int, array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe, article: PrescriptionArticleListe}>
      */
-    private function buildAssociationsFromRaw(array $rawAssocItems): array
+    private function buildAssociationsFromRaw(array $items): array
     {
         // Clés normalisées pour éviter les "magic strings"
         $KEY_ASSOC = 'association';
         $KEY_TEXTE = 'texte';
         $KEY_ARTICLE = 'article';
 
+        // Indexation préalable pour éviter une double boucle
+        $textesById   = $this->indexByIdOfType($items, PrescriptionTexteListe::class);
+        $articlesById = $this->indexByIdOfType($items, PrescriptionArticleListe::class);
+
         $assembled = [];
-        $current = [];
 
-        foreach ($rawAssocItems as $item) {
-            if ($item instanceof PrescriptionReglementaireAssociation) {
-                $current[$KEY_ASSOC] = $item;
-            } elseif ($item instanceof PrescriptionTexteListe) {
-                $current[$KEY_TEXTE] = $item;
-            } elseif ($item instanceof PrescriptionArticleListe) {
-                $current[$KEY_ARTICLE] = $item;
+        foreach ($items as $item) {
+            if (!$item instanceof PrescriptionReglementaireAssociation) {
+                continue;
             }
 
-            // Quand les 3 parties sont présentes, on pousse et on réinitialise
-            if (isset($current[$KEY_ASSOC], $current[$KEY_TEXTE], $current[$KEY_ARTICLE])) {
-                $assembled[] = $current;
-                $current = [];
+            $current = [$KEY_ASSOC => $item];
+            $texteId = $item->getTexte();
+            if ($texteId !== null && isset($textesById[$texteId])) {
+                $current[$KEY_TEXTE] = $textesById[$texteId];
             }
+
+            $articleId = $item->getArticle();
+            if ($articleId !== null && isset($articlesById[$articleId])) {
+                $current[$KEY_ARTICLE] = $articlesById[$articleId];
+            }
+
+            $assembled[] = $current;
         }
 
         return $assembled;
+    }
+
+    /**
+     * Indexe les éléments d'un type donné par leur identifiant.
+     *
+     * @param array  $items Liste hétérogène d'objets
+     * @param string $class Nom de la classe à filtrer (ex: PrescriptionTexteListe::class)
+     * @return array<int, object> tableau [id => objet]
+     */
+    private function indexByIdOfType(array $items, string $class): array
+    {
+        $index = [];
+        foreach ($items as $it) {
+            if ($it instanceof $class) {
+                // Tous les types ciblés exposent getId(): ?int
+                $id = $it->getId();
+                if ($id !== null) {
+                    $index[$id] = $it;
+                }
+            }
+        }
+        return $index;
     }
 }
