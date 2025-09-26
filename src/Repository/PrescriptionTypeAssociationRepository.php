@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionTexteListe;
 use App\Entity\PrescriptionTypeAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -65,6 +66,25 @@ class PrescriptionTypeAssociationRepository extends ServiceEntityRepository
             ->where('pta.texte = :oldText')
             ->setParameter('newText', $newText)
             ->setParameter('oldText', $oldText)
+            ->getQuery()
+            ->execute()
+        ;
+    }
+
+    /**
+     * Remplace tous les articles associés à un article donné par un nouvel article.
+     *
+     * @param PrescriptionArticleListe $oldArticle ancien article à remplacer
+     * @param PrescriptionArticleListe $newArticle nouvel article qui remplacera l'ancien
+     */
+    public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionTypeAssociation::class, 'pta')
+            ->set('pta.article', ':newArticle')
+            ->where('pta.article = :oldArticle')
+            ->setParameter('newArticle', $newArticle)
+            ->setParameter('oldArticle', $oldArticle)
             ->getQuery()
             ->execute()
         ;

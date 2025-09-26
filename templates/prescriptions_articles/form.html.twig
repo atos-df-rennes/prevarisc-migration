@@ -1,0 +1,55 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% form_theme form '_form_theme.html.twig' %}
+
+{% set articleListe = app.request.get('articleListe') %}
+
+{% if articleListe is null %}
+    {% set title = 'Ajout d\'un nouveau article' %}
+{% else %}
+    {% set title = 'Modification d\'un article existant' %}
+{% endif %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des articles / {{ title }}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <span class="glyphicon glyphicon-chevron-right"></span> <a href="{{ path('admin_prescriptions_articles') }}">Gestion des articles</a>
+            <span class="glyphicon glyphicon-chevron-right"></span>{{ title }}
+        </div>
+    </div>
+
+    <h3 class="page-header">{{ title }}</h3>
+
+    {{ form_start(form) }}
+    <div class="row text-right">
+        <div class="col-sm-12">
+            <a class="btn btn-default" href="{{ path('admin_prescriptions_articles') }}">
+                {% if articleListe is null %}
+                    Retourner à la liste des articles
+                {% else %}
+                    Annuler la modification
+                {% endif %}
+            </a>
+            <input type="submit" class="btn btn-success" value="Sauvegarder" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.libelle) }}
+            {{ form_row(form.visible) }}
+        </div>
+    </div>
+
+    {% if articleListe is not null %}
+        <div class="text-center">
+            <a class="btn btn-warning" href="{{ path('admin_prescriptions_articles_suppression', {articleListe: articleListe.id }) }}">
+                Supprimer l'article et le remplacer par un autre
+            </a>
+        </div>
+    {% endif %}
+    {{ form_end(form) }}
+{% endblock %}

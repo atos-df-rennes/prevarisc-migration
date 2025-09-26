@@ -47,7 +47,7 @@
         </li>
 
         <li {% if app.request.get('_route') is same as('admin_prescriptions')
-                or app.request.get('_route') is same as('admin_prescriptions_textes')
+                or app.request.get('_route') starts with 'admin_prescriptions_'
             %}class="active"{% endif %}>
             <a href='/gestion-prescriptions'><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Gestion des prescriptions</a>
         </li>
