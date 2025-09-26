@@ -48,7 +48,6 @@
         <ul id="prescription_reglementaire_associations"
             class="list-unstyled mt-4"
             data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
-            data-prototype-counter-target="{{ "[name=\"prescription_reglementaire[associations][__counter__][numero]\"]"|e }}"
             data-widget-tags="{{ '<li></li>'|e }}"
             data-widget-counter="{{ form.associations|length }}">
             {% for associationField in form.associations %}

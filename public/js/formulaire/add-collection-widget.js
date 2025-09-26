@@ -18,12 +18,5 @@ $(document).ready(function () {
         // create a new list element and add it to the list
         const newElem = $(list.attr('data-widget-tags')).html(newWidget);
         newElem.appendTo(list);
-
-        // Update input value with the item number
-        let counterTarget = list.data('prototype-counter-target');
-        if(counterTarget) {
-            counterTarget = counterTarget.replace(/__counter__/g, counter - 1);
-            document.querySelector(counterTarget).value = counter;
-        }
     });
 });

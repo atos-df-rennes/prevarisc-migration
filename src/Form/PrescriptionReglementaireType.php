@@ -2,18 +2,24 @@
 
 namespace App\Form;
 
-use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionReglementaire;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionReglementaireType extends AbstractType
 {
+    /**
+     * Configure le formulaire pour la gestion des prescriptions réglementaires.
+     *
+     * @param FormBuilderInterface $builder Instance de constructeur de formulaire pour définir les champs du formulaire.
+     * @param array $options Options supplémentaires passées au formulaire.
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -40,14 +46,39 @@ class PrescriptionReglementaireType extends AbstractType
             ->add('libelle', TextareaType::class, [
                 'label' => 'Contenu',
             ])
-
         ;
+
+        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit']);
     }
 
+    /**
+     * Configure les options pour ce formulaire.
+     *
+     * @param OptionsResolver $resolver Le résolveur d'options à configurer
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => PrescriptionReglementaire::class,
         ]);
+    }
+
+    /**
+     * Gère l'événement déclenché après la soumission du formulaire.
+     *
+     * @param PostSubmitEvent $event Événement contenant les données soumises.
+     */
+    public function onPostSubmit(PostSubmitEvent $event): void
+    {
+        $rappelReg = $event->getData();
+
+        if (!$rappelReg instanceof PrescriptionReglementaire) {
+            return;
+        }
+
+        foreach ($rappelReg->getAssociations() as $key => $association) {
+            $association->setRegle($rappelReg);
+            $association->setNumero($key + 1);
+        }
     }
 }
