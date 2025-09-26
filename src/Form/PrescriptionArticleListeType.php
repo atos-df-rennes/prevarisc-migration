@@ -15,12 +15,12 @@ class PrescriptionArticleListeType extends AbstractType
     {
         $builder
             ->add('libelle', TextType::class, [
-                'label' => ' Libellé du texte',
+                'label' => 'Libellé de l\'article',
                 'required' => false,
             ])
 
             ->add('visible', ChoiceType::class, [
-                'label' => 'Visibilité du texte',
+                'label' => 'Visibilité de l\'article',
                 'choices' => [
                     'Afficher' => true,
                     'Masquer' => false,
