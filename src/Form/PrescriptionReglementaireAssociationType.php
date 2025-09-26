@@ -36,14 +36,14 @@ class PrescriptionReglementaireAssociationType extends AbstractType
                 'label' => 'Texte',
                 'choices' => $choicesTextes,
                 'row_attr' => [
-                    'class' => 'col-sm-6'
+                    'class' => 'col-sm-5'
                 ]
             ])
             ->add('article', ChoiceType::class, [
                 'label' => 'Article',
                 'choices' => $choicesArticles,
                 'row_attr' => [
-                    'class' => 'col-sm-6'
+                    'class' => 'col-sm-5'
                 ]
             ])
         ;
