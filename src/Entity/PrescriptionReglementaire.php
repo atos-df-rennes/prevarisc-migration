@@ -107,6 +107,9 @@ class PrescriptionReglementaire
         return $this->associations;
     }
 
+    /**
+     * @param Collection<int, PrescriptionReglementaireAssociation> $associations
+     */
     public function setAssociations(Collection $associations): self
     {
         $this->associations->clear();
@@ -125,9 +128,13 @@ class PrescriptionReglementaire
 
     public function addAssociation(PrescriptionReglementaireAssociation $association): self
     {
-        $lastNumero = $this->associations->last()->getNumero();
-
         if (!$this->associations->contains($association)) {
+            if (($lastAsso = $this->associations->last()) instanceof PrescriptionReglementaireAssociation) {
+                $lastNumero = $lastAsso->getNumero();
+            } else {
+                $lastNumero = $this->associations->count();
+            }
+
             $association->setNumero($lastNumero + 1);
             $association->setRegle($this);
 

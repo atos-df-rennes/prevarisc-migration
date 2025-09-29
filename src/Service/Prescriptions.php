@@ -60,7 +60,7 @@ final class Prescriptions
     /**
      * Récupère les prescriptions et leurs associations article/texte.
      *
-     * @return array<int, array{prescription: object, associations: array<int, array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe, article: PrescriptionArticleListe}>}>
+     * @return array<int, array{prescription: object, associations: array<int, array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>}>
      */
     public function getPrescriptions(string $type, ?bool $mode = null): array
     {
@@ -94,7 +94,7 @@ final class Prescriptions
      *
      * @param array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
      *
-     * @return array<int, array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe, article: PrescriptionArticleListe}>
+     * @return list<array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>
      */
     private function buildAssociationsFromRaw(array $items): array
     {
@@ -104,7 +104,9 @@ final class Prescriptions
         $KEY_ARTICLE = 'article';
 
         // Indexation préalable pour éviter une double boucle
+        /** @var array<int, PrescriptionTexteListe> $textesById */
         $textesById = $this->indexByIdOfType($items, PrescriptionTexteListe::class);
+        /** @var array<int, PrescriptionArticleListe> $articlesById */
         $articlesById = $this->indexByIdOfType($items, PrescriptionArticleListe::class);
 
         $assembled = [];
@@ -114,14 +116,15 @@ final class Prescriptions
                 continue;
             }
 
-            $current = [$KEY_ASSOC => $item];
+            $current = [$KEY_ASSOC => $item, $KEY_TEXTE => null, $KEY_ARTICLE => null];
+
             $texteId = $item->getTexte();
-            if (null !== $texteId && isset($textesById[$texteId])) {
+            if (null !== $texteId && array_key_exists($texteId, $textesById)) {
                 $current[$KEY_TEXTE] = $textesById[$texteId];
             }
 
             $articleId = $item->getArticle();
-            if (null !== $articleId && isset($articlesById[$articleId])) {
+            if (null !== $articleId && array_key_exists($articleId, $articlesById)) {
                 $current[$KEY_ARTICLE] = $articlesById[$articleId];
             }
 
@@ -134,15 +137,19 @@ final class Prescriptions
     /**
      * Indexe les éléments d'un type donné par leur identifiant.
      *
-     * @param array  $items Liste hétérogène d'objets
-     * @param string $class Nom de la classe à filtrer (ex: PrescriptionTexteListe::class)
+     * @param array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
+     * @param string                                                                                           $class Nom de la classe à filtrer (ex: PrescriptionTexteListe::class)
      *
-     * @return array<int, object> tableau [id => objet]
+     * @return array<int, PrescriptionTexteListe|PrescriptionArticleListe> tableau [id => objet]
      */
     private function indexByIdOfType(array $items, string $class): array
     {
         $index = [];
         foreach ($items as $it) {
+            if ($it instanceof PrescriptionReglementaireAssociation) {
+                continue;
+            }
+
             if ($it instanceof $class) {
                 // Tous les types ciblés exposent getId(): ?int
                 $id = $it->getId();

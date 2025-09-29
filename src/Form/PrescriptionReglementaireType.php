@@ -12,12 +12,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionReglementaireType extends AbstractType
 {
-    /**
-     * Configure le formulaire pour la gestion des prescriptions réglementaires.
-     *
-     * @param FormBuilderInterface $builder instance de constructeur de formulaire pour définir les champs du formulaire
-     * @param array                $options options supplémentaires passées au formulaire
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
