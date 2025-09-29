@@ -5,6 +5,7 @@ namespace App\Tests\Service;
 use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionReglementaireAssociation;
 use App\Entity\PrescriptionTexteListe;
+use App\Repository\PrescriptionArticleListeRepository;
 use App\Repository\PrescriptionReglementaireAssociationRepository;
 use App\Repository\PrescriptionReglementaireRepository;
 use App\Repository\PrescriptionTexteListeRepository;
@@ -19,6 +20,7 @@ final class PrescriptionsTest extends TestCase
     {
         $this->prescriptions = new Prescriptions(
             $this->createMock(PrescriptionTexteListeRepository::class),
+            $this->createMock(PrescriptionArticleListeRepository::class),
             $this->createMock(PrescriptionReglementaireRepository::class),
             $this->createMock(PrescriptionReglementaireAssociationRepository::class)
         );
@@ -114,8 +116,8 @@ final class PrescriptionsTest extends TestCase
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertSame($association1, $result[0]['association']);
-        $this->assertArrayNotHasKey('texte', $result[0]);
-        $this->assertArrayNotHasKey('article', $result[0]);
+        $this->assertNull($result[0]['texte']);
+        $this->assertNull($result[0]['article']);
     }
 
     /**

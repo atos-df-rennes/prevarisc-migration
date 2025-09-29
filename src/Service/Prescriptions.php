@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\PrescriptionArticleListe;
+use App\Entity\PrescriptionReglementaireAssociation;
 use App\Entity\PrescriptionTexteListe;
 use App\Repository\PrescriptionArticleListeRepository;
 use App\Repository\PrescriptionReglementaireAssociationRepository;
@@ -22,7 +24,6 @@ final class Prescriptions
     /** @var PrescriptionReglementaireAssociationRepository */
     private $prescriptionReglementaireAssociationRepository;
 
-
     public function __construct(
         PrescriptionTexteListeRepository $prescriptionTexteListeRepository,
         PrescriptionArticleListeRepository $prescriptionArticleListeRepository,
@@ -34,7 +35,6 @@ final class Prescriptions
         $this->prescriptionReglementaireRepository = $prescriptionReglementaireRepository;
         $this->prescriptionReglementaireAssociationRepository = $prescriptionReglementaireAssociationRepository;
     }
-
 
     /**
      * @return PrescriptionTexteListe[]
