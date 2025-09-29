@@ -4,12 +4,10 @@ namespace App\Form;
 
 use App\Entity\PrescriptionReglementaire;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionReglementaireType extends AbstractType
@@ -17,8 +15,8 @@ class PrescriptionReglementaireType extends AbstractType
     /**
      * Configure le formulaire pour la gestion des prescriptions réglementaires.
      *
-     * @param FormBuilderInterface $builder Instance de constructeur de formulaire pour définir les champs du formulaire.
-     * @param array $options Options supplémentaires passées au formulaire.
+     * @param FormBuilderInterface $builder instance de constructeur de formulaire pour définir les champs du formulaire
+     * @param array                $options options supplémentaires passées au formulaire
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -39,6 +37,7 @@ class PrescriptionReglementaireType extends AbstractType
             ])
             ->add('associations', CollectionType::class, [
                 'entry_type' => PrescriptionReglementaireAssociationType::class,
+                'by_reference' => false,
                 'allow_add' => true,
                 'allow_delete' => true,
                 'delete_empty' => true,
@@ -47,8 +46,6 @@ class PrescriptionReglementaireType extends AbstractType
                 'label' => 'Contenu',
             ])
         ;
-
-        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit']);
     }
 
     /**
@@ -61,24 +58,5 @@ class PrescriptionReglementaireType extends AbstractType
         $resolver->setDefaults([
             'data_class' => PrescriptionReglementaire::class,
         ]);
-    }
-
-    /**
-     * Gère l'événement déclenché après la soumission du formulaire.
-     *
-     * @param PostSubmitEvent $event Événement contenant les données soumises.
-     */
-    public function onPostSubmit(PostSubmitEvent $event): void
-    {
-        $rappelReg = $event->getData();
-
-        if (!$rappelReg instanceof PrescriptionReglementaire) {
-            return;
-        }
-
-        foreach ($rappelReg->getAssociations() as $key => $association) {
-            $association->setRegle($rappelReg);
-            $association->setNumero($key + 1);
-        }
     }
 }
