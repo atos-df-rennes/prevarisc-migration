@@ -27,10 +27,9 @@ final class PrescriptionsTest extends TestCase
     /**
      * Teste la méthode `callBuildAssociationsFromRaw` avec une entrée vide.
      *
-     * @return void
-     * @throws \Exception Si une assertion échoue ou si un problème survient lors de l'exécution.
+     * @throws \Exception si une assertion échoue ou si un problème survient lors de l'exécution
      */
-    public function testBuildAssociationsFromRawWithEmptyInput()
+    public function testBuildAssociationsFromRawWithEmptyInput(): void
     {
         $result = $this->callBuildAssociationsFromRaw([]);
         $this->assertIsArray($result);
@@ -44,10 +43,8 @@ final class PrescriptionsTest extends TestCase
      * `PrescriptionTexteListe` et `PrescriptionArticleListe`. Elle simule un ensemble de données brutes
      * pour vérifier le bon fonctionnement de la méthode `callBuildAssociationsFromRaw`.
      * Les assertions permettent de valider que le résultat obtenu est conforme aux attentes.
-     *
-     * @return void
      */
-    public function testBuildAssociationsFromRawWithValidInput()
+    public function testBuildAssociationsFromRawWithValidInput(): void
     {
         // Mocking entities
         $association1 = $this->createMock(PrescriptionReglementaireAssociation::class);
@@ -62,7 +59,6 @@ final class PrescriptionsTest extends TestCase
         $association3->expects($this->any())->method('getTexte')->willReturn(1);
         $association3->expects($this->any())->method('getArticle')->willReturn(101);
 
-
         $texte1 = $this->createMock(PrescriptionTexteListe::class);
         $texte1->expects($this->any())->method('getId')->willReturn(1);
 
@@ -72,8 +68,7 @@ final class PrescriptionsTest extends TestCase
         $article2 = $this->createMock(PrescriptionArticleListe::class);
         $article2->expects($this->any())->method('getId')->willReturn(102);
 
-
-        $rawItems = [$association1, $texte1, $article1,$association2, $article2, $association3];
+        $rawItems = [$association1, $texte1, $article1, $association2, $article2, $association3];
 
         $result = $this->callBuildAssociationsFromRaw($rawItems);
 
@@ -103,10 +98,9 @@ final class PrescriptionsTest extends TestCase
      * Ce test vérifie que la méthode peut gérer correctement une association où
      * les propriétés `texte` et `article` sont nulles.
      *
-     * @return void
-     * @throws \ReflectionException Si la classe ou la méthode privée appelée via réflexion n'existent pas.
+     * @throws \ReflectionException si la classe ou la méthode privée appelée via réflexion n'existent pas
      */
-    public function testBuildAssociationsFromRawWithMissingTextOrArticle()
+    public function testBuildAssociationsFromRawWithMissingTextOrArticle(): void
     {
         // Mocking association without texte and article
         $association1 = $this->createMock(PrescriptionReglementaireAssociation::class);
@@ -129,10 +123,8 @@ final class PrescriptionsTest extends TestCase
      *
      * Cette méthode vérifie que la fonction gère correctement un tableau d'entités
      * qui ne sont pas associées aux données attendues, en retournant une liste vide.
-     *
-     * @return void
      */
-    public function testBuildAssociationsFromRawWithUnrelatedEntities()
+    public function testBuildAssociationsFromRawWithUnrelatedEntities(): void
     {
         // Mocking unrelated entities
         $texte1 = $this->createMock(PrescriptionTexteListe::class);
@@ -149,9 +141,11 @@ final class PrescriptionsTest extends TestCase
     /**
      * Appelle la méthode privée `buildAssociationsFromRaw` définie dans la classe de l'objet `$this->prescriptions`.
      *
-     * @param array $items Les données brutes qui seront utilisées pour l'association.
-     * @return mixed Le résultat de l'exécution de la méthode `buildAssociationsFromRaw`.
-     * @throws \ReflectionException Si la classe ou la méthode n'existent pas.
+     * @param array $items les données brutes qui seront utilisées pour l'association
+     *
+     * @return mixed le résultat de l'exécution de la méthode `buildAssociationsFromRaw`
+     *
+     * @throws \ReflectionException si la classe ou la méthode n'existent pas
      */
     private function callBuildAssociationsFromRaw(array $items)
     {

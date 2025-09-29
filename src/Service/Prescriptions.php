@@ -104,7 +104,7 @@ final class Prescriptions
         $KEY_ARTICLE = 'article';
 
         // Indexation préalable pour éviter une double boucle
-        $textesById   = $this->indexByIdOfType($items, PrescriptionTexteListe::class);
+        $textesById = $this->indexByIdOfType($items, PrescriptionTexteListe::class);
         $articlesById = $this->indexByIdOfType($items, PrescriptionArticleListe::class);
 
         $assembled = [];
@@ -116,12 +116,12 @@ final class Prescriptions
 
             $current = [$KEY_ASSOC => $item];
             $texteId = $item->getTexte();
-            if ($texteId !== null && isset($textesById[$texteId])) {
+            if (null !== $texteId && isset($textesById[$texteId])) {
                 $current[$KEY_TEXTE] = $textesById[$texteId];
             }
 
             $articleId = $item->getArticle();
-            if ($articleId !== null && isset($articlesById[$articleId])) {
+            if (null !== $articleId && isset($articlesById[$articleId])) {
                 $current[$KEY_ARTICLE] = $articlesById[$articleId];
             }
 
@@ -136,6 +136,7 @@ final class Prescriptions
      *
      * @param array  $items Liste hétérogène d'objets
      * @param string $class Nom de la classe à filtrer (ex: PrescriptionTexteListe::class)
+     *
      * @return array<int, object> tableau [id => objet]
      */
     private function indexByIdOfType(array $items, string $class): array
@@ -145,11 +146,12 @@ final class Prescriptions
             if ($it instanceof $class) {
                 // Tous les types ciblés exposent getId(): ?int
                 $id = $it->getId();
-                if ($id !== null) {
+                if (null !== $id) {
                     $index[$id] = $it;
                 }
             }
         }
+
         return $index;
     }
 }
