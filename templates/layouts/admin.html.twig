@@ -54,10 +54,6 @@
             <a href='{{ path('admin_textes_applicables') }}'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_documents_consultes') %}class="active"{% endif %}>
-            <a href='{{ path('admin_documents_consultes') }}'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des documents consultés</a>
-        </li>
-
         <li {% if app.request.get('_route') is same as('admin_documents_manquants') %}class="active"{% endif %}>
             <a href='{{ path('admin_documents_manquants') }}'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                 Gestion des documents manquants</a>
