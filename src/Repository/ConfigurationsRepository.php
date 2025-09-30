@@ -47,32 +47,24 @@ class ConfigurationsRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return Configurations[] Returns an array of Configurations objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * Vérifie qu'il n'y a qu'une seule configuration en base.
+     *
+     * @throws \LogicException Si le nombre de lignes est différent de 1.
+     */
+    public function assertSingleConfigurationExists(): ?Configurations
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
+        $count = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
             ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+            ->getSingleScalarResult();
 
-    /*
-    public function findOneBySomeField($value): ?Configurations
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if ((int) $count !== 1) {
+            throw new \LogicException("La table 'configurations' doit contenir exactement une seule ligne. Actuellement : $count.");
+        }
+
+        $config = $this->findOneBy([]);
+
+        return $config;
     }
-    */
 }

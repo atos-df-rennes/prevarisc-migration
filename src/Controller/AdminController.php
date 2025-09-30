@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Builder\VersionBuilder;
 use App\Dto\Ldap;
+use App\Repository\ConfigurationsRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -19,8 +20,9 @@ class AdminController extends AbstractController
     /**
      * @Route("/admin/", name="admin_index")
      */
-    public function index(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder): Response
+    public function index(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder, ConfigurationsRepository $configurationsRepository): Response
     {
+        dd($configurationsRepository = $configurationsRepository->assertSingleConfigurationExists());
         $versionService = $versionBuilder->build();
 
         return $this->render('admin/index.html.twig', [

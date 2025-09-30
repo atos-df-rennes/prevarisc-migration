@@ -2,7 +2,6 @@
 
 namespace App\EventSubscriber;
 
-use App\Repository\ConfigurationsRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
