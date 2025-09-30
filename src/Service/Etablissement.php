@@ -30,12 +30,11 @@ final class Etablissement
 
     /** @var DataStore */
     private $dataStore;
-
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, EtablissementPieceJointeRepository $etablissementPJRepository, DataStore $dataStore)
+    
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository)
+    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository, EtablissementPieceJointeRepository $etablissementPJRepository, DataStore $dataStore)
     {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
