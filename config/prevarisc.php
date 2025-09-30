@@ -226,4 +226,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_DOSSIERS_MAX_A_AFFICHER)', 5);
 
     $parameters->set('app.nb_dossiers_a_afficher', '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%');
+
+//    $parameters->set('env(PREVARISC_DATASTORE)', 'App\Service\HashedFileDataStore');;
+//    $parameters->set('env(PREVARISC_DATASTORE)', '');;
+
+//    $parameters->set('app.data_store', '%env(string:PREVARISC_DATASTORE)%');
 };

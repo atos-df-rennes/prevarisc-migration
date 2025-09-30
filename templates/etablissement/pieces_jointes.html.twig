@@ -1,0 +1,78 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Pièces jointes{% endblock %}
+
+{% block body %}
+    <div class='pull-right' >
+        <a class='btn btn-default' href="{{ path('etablissement_edit_pj', { id : etablissement.id }) }}">Gestion des pièces jointes</a>
+    </div>
+
+    <h3>Pièces jointes</h3>
+
+    {% if doc_pjs is empty and image_pjs is empty %}
+
+    <div class='well well-large text-center'>
+        <p class='lead'>Il n'y a pas de pièce jointe.</p>
+        <p><a href='{{ path('etablissement_edit_pj', { id : etablissement.id }) }}' class='btn btn-default'>Ajouter une pièce jointe</a></p>
+    </div>
+
+    {% else %}
+    <h4>Documents</h4>
+
+    <table class='table table-bordered table-condensed table-striped'>
+        <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Date d'ajout</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for piecejointe in doc_pjs %}
+        <tr>
+            <td>
+                <a href='{{ absolute_url(piecejointe.1) }}' target='_blank' >
+                {{ piecejointe.0.pieceJointe.nom }}{{ piecejointe.0.pieceJointe.extension }}
+                </a>
+            </td>
+            <td>
+                {% if piecejointe.0.pieceJointe.description is not empty %}{{ piecejointe.0.pieceJointe.description|nl2br }}{% else %}Aucune description{% endif %}
+            </td>
+            <td>
+                {{ piecejointe.0.pieceJointe.date|date('d/m/Y') }}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Images</h4>
+
+    <div class="row">
+        {% for piecejointe in image_pjs %}
+        <div class="col-md-3">
+            <a href='{{ absolute_url(piecejointe.1) }}' class="thumbnail">
+                <h5>{{ piecejointe.0.pieceJointe.nom }}</h5>
+                <p>{{ piecejointe.0.pieceJointe.description }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endif %}
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function() {
+            $('a[href$=png], a[href$=jpg], a[href$=jpeg]').fancybox({
+                'transitionIn'	:	'elastic',
+                'transitionOut'	:	'elastic',
+                'speedIn'		:	600,
+                'speedOut'		:	200,
+            });
+        });
+    </script>
+{% endblock %}

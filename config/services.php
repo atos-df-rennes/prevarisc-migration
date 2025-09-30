@@ -3,11 +3,20 @@
 declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(__DIR__ . '/prevarisc.php');
 
     $services = $containerConfigurator->services();
+
+    $envDatastore = getenv('PREVARISC_DATASTORE_ADAPTER');
+    if ($envDatastore === 'Plugin_HashedFileDataStore') {
+        $serviceDatastore = 'App\Service\DataStore\HashedFileDataStore';
+    }
+    else {
+        $serviceDatastore = 'App\Service\DataStore\SimpleFileDataStore';
+    }
 
     $services->defaults()
         ->autowire()
@@ -16,7 +25,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$dataPath', '%app.data_path%')
         ->bind('$realDataPath', '%app.files_path%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
-        ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/');
+        ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
+        ->bind(\App\Service\DataStore\DataStore::class, ref($serviceDatastore))
+        ;
+
 
     $services->load('App\\', __DIR__ . '/../src/')
         ->exclude([
