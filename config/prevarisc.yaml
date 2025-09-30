@@ -163,3 +163,27 @@ parameters:
 
     env(PREVARISC_DOSSIERS_MAX_A_AFFICHER): 5
     app.nb_dossiers_a_afficher: '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%'
+
+    env(PREVARISC_COMMISSION_COMMUNALE_TYPE): 2
+    app.commission_communale_type: '%env(integer:PREVARISC_COMMISSION_COMMUNALE_TYPE)%'
+
+    env(PREVARISC_RISQUES_NATURELS_EXEMPLES): 'Avalanche, Cyclonique, Feux de Forêt, Inondation, Mouvement de terrain, Sismique, Submersion marine, Tempête, Volcanique'
+    app.risques_naturels_exemples: '%env(text:PREVARISC_RISQUES_NATURELS_EXEMPLES)%'
+
+    env(PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES): 'Industriel, Nucléaire, Rupture de barrage, Transport de matières dangereuses'
+    app.risques_technologiques_exemples: '%env(text:PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)%'
+
+    env(PREVARISC_DASHBOARD_NEXT_COMMISSIONS_DAYS): 15
+    app.dashboard_next_commissions_days: '%env(int:PREVARISC_DASHBOARD_NEXT_COMMISSIONS_DAYS)%'
+
+    env(PREVARISC_DASHBOARD_DOSSIERS_SANS_AVIS_DAYS): 15
+    app.dashboard_dossiers_sans_avis_days: '%env(int:PREVARISC_DASHBOARD_DOSSIERS_SANS_AVIS_DAYS)%'
+
+    env(PREVARISC_DASHBOARD_COURRIER_SANS_REPONSE_DAYS): 10
+    app.dashboard_courrier_sans_reponse_days: '%env(int:PREVARISC_DASHBOARD_COURRIER_SANS_REPONSE_DAYS)%'
+
+    env(PREVARISC_DESCRIPTIF_PERSONNALISE): 1
+    app.descriptif_personnalise: '%env(bool:PREVARISC_DESCRIPTIF_PERSONNALISE)%'
+
+    env(PREVARISC_PLATAU_NO_HEALTHCHECK): 0
+    app.platau_no_healthcheck: '%env(bool:PREVARISC_PLATAU_NO_HEALTHCHECK)%'
