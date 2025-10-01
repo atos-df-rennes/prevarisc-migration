@@ -92,14 +92,4 @@ class EtablissementController extends AbstractController
             'etablissement' => $etablissement,
         ]);
     }
-
-    /**
-     * @Route("etablissment/{id}/edit-pieces-jointes", name="etablissement_edit_pj")
-     */
-    public function editPiecesJointes(Etablissement $etablissement): Response
-    {
-        return $this->render('etablissement/edit_pieces_jointes.html.twig', [
-            'etablissement' => $etablissement,
-        ]);
-    }
 }
