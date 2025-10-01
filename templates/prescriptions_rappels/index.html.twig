@@ -47,17 +47,17 @@
                     <td class="col-xs-2">{{ association.texte.libelle }}</td>
                     <td class="col-xs-2">{{ association.article.libelle }}</td>
                     {% if loop.first %}
-                        <td rowspan="{{ association }}" class="col-xs-6">
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-6">
                             {{ rappel.libelle|nl2br }}
                         </td>
-                        <td rowspan="{{ nb_assoc }}" class="col-xs-1 numPresc">
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1">
                             {% if rappel.visible == 1 %}
                                 <img src="{{ asset('images/visible.gif') }}" alt="visible" title="Visible" />
                             {% else %}
                                 <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" title="Non visible" />
                             {% endif %}
                         </td>
-                        <td class="col-xs-1" rowspan="{{ nb_assoc }}">
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1" >
                             <a class="btn btn-default" href="{{ path('admin_prescriptions_rappels_edit', {rappelReg: rappel.id}) }}">Modifier</a>
                         </td>
                     {% endif %}
