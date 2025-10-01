@@ -157,8 +157,7 @@ class EtablissementController extends AbstractController
         EntityManagerInterface $entityManager,
         UtilisateurInformationsRepository $utilisateurInformationsRepository,
         Contact $contactService
-    ): Response
-    {
+    ): Response {
         $contactId = $request->query->get('contactId');
         $contact = $utilisateurInformationsRepository->find($contactId);
 

@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 use App\Entity\UtilisateurInformations;
 
-interface HasContacts {
+interface HasContacts
+{
     public function findNumberByContacts(UtilisateurInformations $contact): int;
 }

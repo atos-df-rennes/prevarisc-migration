@@ -3,33 +3,41 @@
 namespace App\Service;
 
 use App\Entity\UtilisateurInformations;
+use App\Interfaces\HasContacts;
 use App\Repository\CommissionRepository;
 use App\Repository\CommuneRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 
-final class Contact {
+final class Contact
+{
     public const ETABLISSEMENT = 'etablissement';
+
     public const DOSSIER = 'dossier';
+
     public const GROUPEMENT = 'groupement';
+
     public const COMMISSION = 'commission';
+
     public const COMMUNE = 'commune';
 
-    /** @var \App\Repository\EtablissementRepository */
+    /** @var EtablissementRepository */
     private $etablissementRepository;
 
-    /** @var \App\Repository\DossierRepository */
+    /** @var DossierRepository */
     private $dossierRepository;
 
-    /** @var \App\Repository\GroupementRepository */
+    /** @var GroupementRepository */
     private $groupementRepository;
 
-    /** @var \App\Repository\CommissionRepository */
+    /** @var CommissionRepository */
     private $commissionRepository;
-    /** @var \App\Repository\CommuneRepository */
+
+    /** @var CommuneRepository */
     private $communeRepository;
-    /** @var array<string, \App\Interfaces\HasContacts> */
+
+    /** @var array<string, HasContacts> */
     private $repositories;
 
     public function __construct(
@@ -38,8 +46,7 @@ final class Contact {
         GroupementRepository $groupementRepository,
         CommissionRepository $commissionRepository,
         CommuneRepository $communeRepository
-    )
-    {
+    ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->groupementRepository = $groupementRepository;
