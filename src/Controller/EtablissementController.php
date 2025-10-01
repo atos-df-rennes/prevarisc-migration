@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class EtablissementController extends AbstractController
@@ -88,7 +89,13 @@ class EtablissementController extends AbstractController
      */
     public function contacts(Etablissement $etablissement, EtablissementRepository $etablissementRepository): Response
     {
-        $contacts = $etablissementRepository->findContactsOrderedByNom($etablissement->getId())->getContacts();
+        $contacts = $etablissementRepository->findContactsOrderedByNom($etablissement->getId());
+
+        if (null === $contacts) {
+            throw new NotFoundHttpException();
+        }
+
+        $contacts = $contacts->getContacts();
         $contactsParents = new ArrayCollection();
 
         $etablissementsParents = $etablissement->getParents();
@@ -154,6 +161,10 @@ class EtablissementController extends AbstractController
     {
         $contactId = $request->query->get('contactId');
         $contact = $utilisateurInformationsRepository->find($contactId);
+
+        if (null === $contact) {
+            throw new NotFoundHttpException();
+        }
 
         // Suppression de l'association.
         $etablissement->removeContact($contact);

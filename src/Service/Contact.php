@@ -16,10 +16,18 @@ final class Contact {
     public const COMMISSION = 'commission';
     public const COMMUNE = 'commune';
 
+    /** @var \App\Repository\EtablissementRepository */
     private $etablissementRepository;
+
+    /** @var \App\Repository\DossierRepository */
     private $dossierRepository;
+
+    /** @var \App\Repository\GroupementRepository */
     private $groupementRepository;
+
+    /** @var \App\Repository\CommissionRepository */
     private $commissionRepository;
+    /** @var \App\Repository\CommuneRepository */
     private $communeRepository;
     /** @var array<string, \App\Interfaces\HasContacts> */
     private $repositories;
