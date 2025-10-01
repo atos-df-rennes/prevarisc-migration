@@ -8,6 +8,7 @@ use App\Entity\PrescriptionTexteListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -47,6 +48,28 @@ class PrescriptionReglementaireAssociationRepository extends ServiceEntityReposi
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Récupère les associations de prescription réglementaire pour un identifiant donné.
+     *
+     * @param int $idPrescriptionRegl identifiant de la prescription réglementaire
+     *
+     * @return array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe>
+     */
+    public function getPrescriptionReglAssoc(int $idPrescriptionRegl): array
+    {
+        // Crée la requête QueryBuilder
+        $qb = $this->createQueryBuilder('pra')
+            ->addSelect('pal', 'ptl')
+            ->join(PrescriptionArticleListe::class, 'pal', Join::WITH, 'pal.id = pra.article')
+            ->join(PrescriptionTexteListe::class, 'ptl', Join::WITH, 'ptl.id = pra.texte')
+            ->where('pra.regle = :idPrescriptionRegl')
+            ->setParameter('idPrescriptionRegl', $idPrescriptionRegl)
+            ->orderBy('pra.numero');
+
+        // Exécute la requête et retourne les résultats
+        return $qb->getQuery()->getResult();
     }
 
     /**
