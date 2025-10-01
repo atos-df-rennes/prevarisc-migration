@@ -77,7 +77,7 @@ final class Prescriptions
 
             $associations = $this->buildAssociationsFromRaw($rawAssocItems);
 
-            if (!empty($associations)) {
+            if ([] !== $associations) {
                 $result[] = [
                     'prescription' => $prescription,
                     'associations' => $associations,
