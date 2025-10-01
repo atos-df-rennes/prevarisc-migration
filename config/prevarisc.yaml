@@ -165,7 +165,7 @@ parameters:
     app.nb_dossiers_a_afficher: '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%'
 
     env(PREVARISC_COMMISSION_COMMUNALE_TYPE): 2
-    app.commission_communale_type: '%env(integer:PREVARISC_COMMISSION_COMMUNALE_TYPE)%'
+    app.commission_communale_type: '%env(int:PREVARISC_COMMISSION_COMMUNALE_TYPE)%'
 
     env(PREVARISC_RISQUES_NATURELS_EXEMPLES): 'Avalanche, Cyclonique, Feux de Forêt, Inondation, Mouvement de terrain, Sismique, Submersion marine, Tempête, Volcanique'
     app.risques_naturels_exemples: '%env(text:PREVARISC_RISQUES_NATURELS_EXEMPLES)%'
