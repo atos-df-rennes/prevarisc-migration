@@ -459,13 +459,21 @@ h4.h4_subtitle input {
   display: block;
   float: right;
 }
-.fiche_edit img {
+.fiche_edit {
   float: right;
+}
+.fiche_edit button {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .fiche_delete {
   float: right;
-  color: #9b9b9b;
   margin: 0 0 0 3px;
+}
+.fiche_delete button {
+  padding-top: 0;
+  padding-bottom: 0;
+  color: #9b9b9b;
 }
 .fiche_contact_nom a {
   color: #9b9b9b;

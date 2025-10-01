@@ -7,6 +7,8 @@ use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\EtablissementRepository;
+use App\Repository\UtilisateurInformationsRepository;
+use App\Service\Contact;
 use App\Service\Etablissement as EtablissementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -92,7 +94,13 @@ class EtablissementController extends AbstractController
         $etablissementsParents = $etablissement->getParents();
 
         foreach ($etablissementsParents as $parent) {
-            $contactsParent = $etablissementRepository->findContactsOrderedByNom($parent->getId())->getContacts();
+            $contactsParent = $etablissementRepository->findContactsOrderedByNom($parent->getId());
+
+            if (null === $contactsParent) {
+                continue;
+            }
+
+            $contactsParent = $contactsParent->getContacts();
 
             foreach ($contactsParent as $contactParent) {
                 $contactsParents->add($contactParent);
@@ -131,5 +139,34 @@ class EtablissementController extends AbstractController
         return $this->render('contact/form.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("etablissement/{id}/contacts/supprimer", name="etablissement_contacts_delete")
+     */
+    public function deleteContact(
+        Request $request,
+        Etablissement $etablissement,
+        EntityManagerInterface $entityManager,
+        UtilisateurInformationsRepository $utilisateurInformationsRepository,
+        Contact $contactService
+    ): Response
+    {
+        $contactId = $request->query->get('contactId');
+        $contact = $utilisateurInformationsRepository->find($contactId);
+
+        // Suppression de l'association.
+        $etablissement->removeContact($contact);
+
+        // Suppression définitive du contact
+        if (!$contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
+            $entityManager->remove($contact);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Le contact a bien été supprimé.');
+
+        return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
     }
 }
