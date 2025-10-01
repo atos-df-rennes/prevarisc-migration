@@ -25,6 +25,7 @@ class ContactType extends AbstractType
             ->add('civilite', EntityType::class, [
                 'class' => UtilisateurCivilite::class,
                 'choice_label' => 'libelle',
+                'required' => false,
             ])
             ->add('nom')
             ->add('prenom')

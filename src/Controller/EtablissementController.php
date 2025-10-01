@@ -84,15 +84,15 @@ class EtablissementController extends AbstractController
     /**
      * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
      */
-    public function contacts(Etablissement $etablissement): Response
+    public function contacts(Etablissement $etablissement, EtablissementRepository $etablissementRepository): Response
     {
-        $contacts = $etablissement->getContacts();
+        $contacts = $etablissementRepository->findContactsOrderedByNom($etablissement->getId())->getContacts();
         $contactsParents = new ArrayCollection();
 
         $etablissementsParents = $etablissement->getParents();
 
         foreach ($etablissementsParents as $parent) {
-            $contactsParent = $parent->getContacts();
+            $contactsParent = $etablissementRepository->findContactsOrderedByNom($parent->getId())->getContacts();
 
             foreach ($contactsParent as $contactParent) {
                 $contactsParents->add($contactParent);

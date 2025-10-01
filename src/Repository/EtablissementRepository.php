@@ -125,4 +125,21 @@ class EtablissementRepository extends ServiceEntityRepository
 
         return $query->getResult();
     }
+
+    public function findContactsOrderedByNom(int $id): Etablissement
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('c')
+            ->addSelect('f')
+            ->join('e.contacts', 'c')
+            ->join('c.fonction', 'f')
+            ->where('e.id = :id')
+            ->orderBy('c.nom', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery()
+        ;
+
+        return $query->getSingleResult();
+    }
 }
