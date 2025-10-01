@@ -39,14 +39,6 @@ class ContactType extends AbstractType
             ->add('codePostalAdresse')
             ->add('villeAdresse')
             ->add('observations')
-            ->add('close', ButtonType::class, [
-                'label' => 'Fermer',
-                'attr' => ['class' => 'btn btn-default', 'data-dismiss' => 'modal'],
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Envoyer',
-                'attr' => ['class' => 'btn btn-success'],
-            ])
         ;
     }
 
