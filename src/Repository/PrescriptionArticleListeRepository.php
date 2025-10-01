@@ -120,7 +120,7 @@ class PrescriptionArticleListeRepository extends ServiceEntityRepository
 
         $result = [];
         foreach ($items as $item) {
-            $result[$item->getLibelle()] = $item->getid();
+            $result[$item->getLibelle()] = $item->getId();
         }
 
         return $result;
