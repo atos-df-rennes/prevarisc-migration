@@ -46,4 +46,28 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return EtablissementPieceJointe[]
+     */
+    public function getPjByType(int $id, array $extensions, bool $inverse = false): array
+    {
+        $queryBuilder = $this->createQueryBuilder('epj');
+        $queryBuilder
+            ->addSelect('pj')
+            ->join('epj.etablissement', 'e')
+            ->join('epj.pieceJointe', 'pj')
+            ->where('e.id = :id');
+        if ($inverse) {
+            $queryBuilder->andWhere('pj.extension not in (:extensions)');
+        } else {
+            $queryBuilder->andWhere('pj.extension in (:extensions)');
+        }
+
+        $query = $queryBuilder->setParameter('id', $id)
+            ->setParameter('extensions', $extensions)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }
