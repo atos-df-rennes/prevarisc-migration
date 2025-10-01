@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Etablissement;
+use App\Entity\UtilisateurInformations;
+use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\EtablissementRepository;
 use App\Service\Etablissement as EtablissementService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,6 +78,58 @@ class EtablissementController extends AbstractController
             'etablissement' => $etablissement,
             'historiqueAvisDerogations' => $historiqueAvisDerogations,
             'derogationsOriginales' => $derogationsOriginales,
+        ]);
+    }
+
+    /**
+     * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
+     */
+    public function contacts(Etablissement $etablissement): Response
+    {
+        $contacts = $etablissement->getContacts();
+        $contactsParents = new ArrayCollection();
+
+        $etablissementsParents = $etablissement->getParents();
+
+        foreach ($etablissementsParents as $parent) {
+            $contactsParent = $parent->getContacts();
+
+            foreach ($contactsParent as $contactParent) {
+                $contactsParents->add($contactParent);
+            }
+        }
+
+        return $this->render('etablissement/contacts.html.twig', [
+            'etablissement' => $etablissement,
+            'contacts' => $contacts,
+            'contacts_parents' => $contactsParents
+        ]);
+    }
+
+    /**
+     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add")
+     */
+    public function addContact(Request $request, Etablissement $etablissement, EntityManagerInterface $entityManager): Response
+    {
+        $contact = new UtilisateurInformations();
+
+        $form = $this->createForm(ContactType::class, $contact, [
+            'action' => $this->generateUrl('etablissement_contacts_add', ['id' => $etablissement->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($contact);
+            $etablissement->addContact($contact);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été ajouté.');
+
+            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('contact/form.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 }

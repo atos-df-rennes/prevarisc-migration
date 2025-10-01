@@ -1,0 +1,22 @@
+{{ form_start(form) }}
+    {{ form_row(form.fonction) }}
+    {{ form_row(form.societe) }}
+    {{ form_row(form.civilite) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.prenom) }}
+    {{ form_row(form.telephoneFixe) }}
+    {{ form_row(form.telephoneFax) }}
+    {{ form_row(form.telephonePortable) }}
+    {{ form_row(form.mail) }}
+    {{ form_row(form.siteWeb) }}
+    {{ form_row(form.numeroAdresse) }}
+    {{ form_row(form.rueAdresse) }}
+    {{ form_row(form.codePostalAdresse) }}
+    {{ form_row(form.villeAdresse) }}
+    {{ form_row(form.observations) }}
+
+    <div class="modal-footer">
+        {{ form_widget(form.close) }}
+        {{ form_widget(form.submit) }}
+    </div>
+{{ form_end(form) }}

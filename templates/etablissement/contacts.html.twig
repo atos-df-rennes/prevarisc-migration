@@ -1,0 +1,70 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Contacts{% endblock %}
+
+{% block body %}
+    <h3>Liste des contacts</h3>
+
+    {# @todo: Routes pour ajouter #}
+    <div class="btn-group pull-right" role="group">
+        <button type="button" class="btn btn-primary">Ajouter un contact existant</button>
+        <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
+    </div>
+
+    <div class="clearfix"></div>
+
+    {% if contacts_parents|length > 0 %}
+        <div class="row">
+            <div class="col-xs-12">
+                <h4>Contacts des établissements parents</h4>
+
+                {% for contact_parent in contacts_parents %}
+                    {{ include('contact/_fiche.html.twig', {can_edit: false, contact: contact_parent}) }}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            {% if contacts_parents|length > 0 %}
+                <hr />
+
+                <h4>Contacts de l'établissement</h4>
+            {% endif %}
+
+            {% for contact in contacts %}
+                {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="ajout-contact" tabindex="-1" role="dialog" aria-labelledby="ajout-contact-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ajout-contact-label">Ajouter un contact</h4>
+                </div>
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#ajout-contact-bouton').click(function () {
+                $.ajax({
+                    url: "{{ path('etablissement_contacts_add', {etablissement: etablissement.id}) }}",
+                    success: function (result) {
+                        $('#ajout-contact .modal-body').html(result)
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock %}

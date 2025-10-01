@@ -1,0 +1,62 @@
+<div class="fiche_contact">
+    <p class="fiche_contact_nom">
+        {{ contact.nom ~ ' ' ~ contact.prenom }}
+
+        {# @todo: Route pour supprimer et modifier #}
+        {% if can_edit %}
+            <span class="fiche_delete" title="Supprimer">
+                <a class="contact-delete" href="#">&times;</a>
+            </span>
+            <span class="fiche_edit" title="Modifier">
+                <a href="#"><img src="{{ asset('images/pen.png') }}" alt="Modifier" /></a>
+            </span>
+        {% endif %}
+    </p>
+
+    <p class="fiche_contact_fonction">
+        {{ contact.fonction.libelle }}
+
+        {% if contact.societe %}
+            - {{ contact.societe }}
+        {% endif %}
+    </p>
+
+    <ul class='list-unstyled'>
+        <li>
+            <span>Téléphone</span>
+            <span class="valeur">
+                {{ contact.telephoneFixe }}
+
+                {% if contact.telephonePortable %}
+                    / {{ contact.telephonePortable }}
+                {% endif %}
+            </span>
+        </li>
+        <li>
+            <span>Fax</span>
+            <span class="valeur">{{ contact.telephoneFax }}</span>
+        </li>
+        <li>
+            <span>Courriel</span>
+            <span class="valeur">
+                <a href="mailto:{{ contact.mail }}">{{ contact.mail }}</a>
+            </span>
+        </li>
+        <li>
+            <span>Site web</span>
+            <span class="valeur">
+                <a href="{{ contact.siteWeb }}">{{ contact.siteWeb }}</a>
+            </span>
+        </li>
+        <li>
+            <span>Adresse</span>
+            <span class="valeur">
+                {{ contact.numeroAdresse ~ ' ' ~ contact.rueAdresse ~ ' ' ~ contact.codePostalAdresse ~ ' ' ~ contact.villeAdresse }}
+            </span>
+        </li>
+        <li>
+            <span>Observations</span>
+            <span class="valeur">{{ contact.observations }}</span>
+        </li>
+    </ul>
+</div>
