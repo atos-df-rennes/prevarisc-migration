@@ -11,11 +11,11 @@ use App\Repository\EtablissementRepository;
 class SimpleFileDataStore implements DataStore
 {
     // Format de formattage des noms de fichiers.
-    /** @var string  */
+    /** @var string */
     protected $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
     // Mapping entre les types de pièces jointes et les répertoires dans lesquels ils sont stockés.
-    /** @var array|string[]  */
+    /** @var array|string[] */
     protected $types = [];
 
     /** @var EtablissementRepository */
@@ -28,7 +28,6 @@ class SimpleFileDataStore implements DataStore
     protected $dataPath;
 
     /**
-     * @param EtablissementRepository $etablissementRepository
      * @param array<string>|null $options
      */
     public function __construct(EtablissementRepository $etablissementRepository, ?array $options = null)
@@ -57,12 +56,10 @@ class SimpleFileDataStore implements DataStore
         $directory = $this->getBasePath($piece_jointe, $linkedObjectType, $linkedObjectId);
         if ($createDirIfNotExists && !is_dir($directory) && !@mkdir($directory, 0777, true)) {
             $error = error_get_last();
-            if ($error !== NULL) {
+            if (null !== $error) {
                 throw new \Exception('Cannot create base directory '.$directory.': '.$error['message']);
             }
-            else {
-                throw new \Exception('Cannot create base directory '.$directory);
-            }
+            throw new \Exception('Cannot create base directory '.$directory);
         }
 
         return implode(DIRECTORY_SEPARATOR, [
@@ -102,16 +99,16 @@ class SimpleFileDataStore implements DataStore
         switch ($linkedObjectType) {
             case 'etablissement':
                 // Logique pour récupérer le numéro d'établissement
-                $tokens[] = $etablissement !== null ? $etablissement->getId() : $linkedObjectId;
+                $tokens[] = null !== $etablissement ? $etablissement->getId() : $linkedObjectId;
                 break;
             case 'dossier':
                 // Logique pour récupérer le numéro d'établissement à partir du dossier
-                $dossiers = $etablissement !== null ? $etablissement->getDossiers() : [];
+                $dossiers = null !== $etablissement ? $etablissement->getDossiers() : [];
                 $default_numeroid = [];
-                if ($dossiers !== []) {
+                if ([] !== $dossiers) {
                     foreach ($dossiers as $dossier) {
                         $numero_id = $etablissement->getId() ?: $linkedObjectId;
-                        if (false !== stripos($piece_jointe->getDescription() !== null ? $piece_jointe->getDescription():'', $numero_id)) {
+                        if (false !== stripos($piece_jointe->getDescription() ?? '', $numero_id)) {
                             $tokens['%NUMEROID_ETABLISSEMENT%'] = $numero_id;
                             break;
                         }
@@ -119,7 +116,7 @@ class SimpleFileDataStore implements DataStore
                         $default_numeroid[] = $numero_id;
                     }
 
-                    if ($tokens['%NUMEROID_ETABLISSEMENT%'] === null) {
+                    if (null === $tokens['%NUMEROID_ETABLISSEMENT%']) {
                         $tokens['%NUMEROID_ETABLISSEMENT%'] = implode('_', $default_numeroid);
                     }
                 } else {

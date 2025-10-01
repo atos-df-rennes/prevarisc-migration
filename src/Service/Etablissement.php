@@ -30,7 +30,7 @@ final class Etablissement
 
     /** @var DataStore */
     private $dataStore;
-    
+
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
@@ -310,21 +310,21 @@ final class Etablissement
             $pjs,
             function (EtablissementPieceJointe $pj) use ($store): bool {
                 $path = '';
-                if ($pj->getPieceJointe() !== null && $pj->getEtablissement() !== null) {
+                if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                     $path = $store->getFilePath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
                 }
 
-                return $path!=='' && is_readable($path);
+                return '' !== $path && is_readable($path);
             }
         );
 
         return array_map(function (EtablissementPieceJointe $pj) use ($store): array {
             $path = '';
-            if ($pj->getPieceJointe() !== null && $pj->getEtablissement() !== null) {
+            if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                 $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
             }
 
-            return [$pj, $path!==null?$path:''];
+            return [$pj, $path ?? ''];
         }, $pjsFiltrees);
     }
 

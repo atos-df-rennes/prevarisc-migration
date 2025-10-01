@@ -14,7 +14,6 @@ class HashedFileDataStore extends SimpleFileDataStore
     protected $nonHashedTypes = ['document', 'courrier', 'avatar'];
 
     /**
-     * @param EtablissementRepository $etablissementRepository
      * @param array<string>|null $options
      */
     public function __construct(EtablissementRepository $etablissementRepository, ?array $options = null)
@@ -34,7 +33,7 @@ class HashedFileDataStore extends SimpleFileDataStore
 
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;
 
-        $hash = md5((string)$piece_jointe->getId());
+        $hash = md5((string) $piece_jointe->getId());
 
         return implode(DIRECTORY_SEPARATOR, [$this->realDataPath, 'uploads', $type, substr($hash, 0, 2), substr($hash, 2, 2), $linkedObjectId]);
     }
@@ -43,7 +42,7 @@ class HashedFileDataStore extends SimpleFileDataStore
     {
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;
 
-        $hash = md5((string)$piece_jointe->getId());
+        $hash = md5((string) $piece_jointe->getId());
 
         return implode(DIRECTORY_SEPARATOR, [$this->dataPath, 'uploads', $type, substr($hash, 0, 2), substr($hash, 2, 2), $linkedObjectId, $piece_jointe->getId().$piece_jointe->getExtension()]);
     }
