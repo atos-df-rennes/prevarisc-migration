@@ -168,10 +168,10 @@ parameters:
     app.commission_communale_type: '%env(int:PREVARISC_COMMISSION_COMMUNALE_TYPE)%'
 
     env(PREVARISC_RISQUES_NATURELS_EXEMPLES): 'Avalanche, Cyclonique, Feux de Forêt, Inondation, Mouvement de terrain, Sismique, Submersion marine, Tempête, Volcanique'
-    app.risques_naturels_exemples: '%env(text:PREVARISC_RISQUES_NATURELS_EXEMPLES)%'
+    app.risques_naturels_exemples: '%env(PREVARISC_RISQUES_NATURELS_EXEMPLES)%'
 
     env(PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES): 'Industriel, Nucléaire, Rupture de barrage, Transport de matières dangereuses'
-    app.risques_technologiques_exemples: '%env(text:PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)%'
+    app.risques_technologiques_exemples: '%env(PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)%'
 
     env(PREVARISC_DASHBOARD_NEXT_COMMISSIONS_DAYS): 15
     app.dashboard_next_commissions_days: '%env(int:PREVARISC_DASHBOARD_NEXT_COMMISSIONS_DAYS)%'
