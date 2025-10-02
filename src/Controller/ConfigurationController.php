@@ -17,6 +17,12 @@ class ConfigurationController extends AbstractController
      */
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('configuration/index.html.twig');
+        $configuration = new Configurations();
+
+        $form = $this->createForm(ConfigurationType::class, $configuration);
+
+        return $this->render('configuration/index.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }
