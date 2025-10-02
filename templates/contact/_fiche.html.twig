@@ -2,13 +2,12 @@
     <p class="fiche_contact_nom">
         {{ contact.nom ~ ' ' ~ contact.prenom }}
 
-        {# @todo: Route pour supprimer et modifier #}
         {% if can_edit %}
             <span class="fiche_delete" title="Supprimer">
                 <button type="button" class="btn btn-link delete-contact-button" data-toggle="modal" data-target="#dialog-delete-contact" data-id="{{ etablissement.id }}" data-contact-id="{{ contact.id }}">&times;</button>
             </span>
             <span class="fiche_edit" title="Modifier">
-                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#dialog-edit-contact">
+                <button type="button" class="btn btn-link edit-contact-button" data-toggle="modal" data-target="#ajout-contact" data-id="{{ etablissement.id }}" data-contact-id="{{ contact.id }}">
                     <img src="{{ asset('images/pen.png') }}" alt="Modifier" />
                 </button>
             </span>

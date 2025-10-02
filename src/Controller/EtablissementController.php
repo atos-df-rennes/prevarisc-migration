@@ -148,6 +148,7 @@ class EtablissementController extends AbstractController
         ]);
     }
 
+    // @todo: Dans les versions plus récentes de SF, on pourra rebasculer le query param dans la route avec le ParamConverter nommé.
     /**
      * @Route("etablissement/{id}/contacts/supprimer", name="etablissement_contacts_delete")
      */

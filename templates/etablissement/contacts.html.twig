@@ -77,6 +77,20 @@
                     },
                 })
             })
+
+            $('.edit-contact-button').on('click', function () {
+                etablissementId = $(this).attr('data-id')
+                contactId = $(this).attr('data-contact-id')
+
+                $.ajax({
+                    url: '/contact/' + contactId + '/modifier?elementLie=etablissement&elementId=' + etablissementId,
+                    success: function (result) {
+                        $('#ajout-contact #ajout-contact-label').html('Modifier un contact')
+                        $('#ajout-contact .modal-body').html(result)
+                        $('#ajout-contact button[type="submit"]').html('Modifier')
+                    }
+                })
+            })
         })
     </script>
 {% endblock %}
