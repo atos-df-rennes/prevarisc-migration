@@ -10,9 +10,12 @@ use App\Dto\Historique\LastAvis;
 use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
+use App\Entity\EtablissementPieceJointe;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
+use App\Service\DataStore\DataStore;
 
 final class Etablissement
 {
@@ -22,13 +25,21 @@ final class Etablissement
     /** @var DossierRepository */
     private $dossierRepository;
 
+    /** @var EtablissementPieceJointeRepository */
+    private $etablissementPJRepository;
+
+    /** @var DataStore */
+    private $dataStore;
+
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository)
+    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository, EtablissementPieceJointeRepository $etablissementPJRepository, DataStore $dataStore)
     {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
+        $this->etablissementPJRepository = $etablissementPJRepository;
+        $this->dataStore = $dataStore;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
     }
 
@@ -265,6 +276,56 @@ final class Etablissement
         }
 
         return $textesApplicables;
+    }
+
+    /**
+     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     */
+    public function getPJImages(int $id): array
+    {
+        $images = $this->etablissementPJRepository->getPjByType($id, ['.jpg', '.jpeg', '.png', '.gif']);
+
+        return $this->filtrePJs($images);
+    }
+
+    /**
+     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     */
+    public function getAutresPJs(int $id): array
+    {
+        $pjs = $this->etablissementPJRepository->getPjByType($id, ['.jpg', '.jpeg', '.png', '.gif'], true);
+
+        return $this->filtrePJs($pjs);
+    }
+
+    /**
+     * @param EtablissementPieceJointe[] $pjs
+     *
+     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     */
+    private function filtrePJs(array $pjs): array
+    {
+        $store = $this->dataStore;
+        $pjsFiltrees = array_filter(
+            $pjs,
+            function (EtablissementPieceJointe $pj) use ($store): bool {
+                $path = '';
+                if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
+                    $path = $store->getFilePath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
+                }
+
+                return '' !== $path && is_readable($path);
+            }
+        );
+
+        return array_map(function (EtablissementPieceJointe $pj) use ($store): array {
+            $path = '';
+            if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
+                $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
+            }
+
+            return [$pj, $path ?? ''];
+        }, $pjsFiltrees);
     }
 
     /**

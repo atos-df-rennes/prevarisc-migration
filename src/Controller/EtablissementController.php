@@ -85,6 +85,21 @@ class EtablissementController extends AbstractController
     }
 
     /**
+     * @Route("/etablissement/{id}/pieces-jointes", name="etablissement_pieces_jointes")
+     */
+    public function piecesJointes(Etablissement $etablissement, EtablissementService $etablissementService): Response
+    {
+        $image_pjs = $etablissementService->getPJImages($etablissement->getId());
+        $doc_pjs = $etablissementService->getAutresPJs($etablissement->getId());
+
+        return $this->render('etablissement/pieces_jointes.html.twig', [
+            'image_pjs' => $image_pjs,
+            'doc_pjs' => $doc_pjs,
+            'etablissement' => $etablissement,
+        ]);
+    }
+
+    /**
      * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
      */
     public function contacts(Etablissement $etablissement, EtablissementRepository $etablissementRepository): Response

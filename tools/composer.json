@@ -40,5 +40,8 @@
         "allow-plugins": {
             "phpstan/extension-installer": true
         }
+    },
+    "require-dev": {
+        "symplify/config-transformer": "^12.4"
     }
 }
