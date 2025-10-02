@@ -20,7 +20,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UtilisateurInformationsRepository extends ServiceEntityRepository
 {
-    /** @var \Doctrine\ORM\EntityManagerInterface */
+    /** @var EntityManagerInterface */
     private $entityManager;
 
     public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)

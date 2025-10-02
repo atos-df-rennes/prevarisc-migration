@@ -156,9 +156,12 @@ class EtablissementController extends AbstractController
         Etablissement $etablissement,
         EntityManagerInterface $entityManager,
         UtilisateurInformationsRepository $utilisateurInformationsRepository
-    ): Response
-    {
+    ): Response {
         $contactIdsString = $request->request->get('contacts');
+
+        if (!\is_string($contactIdsString)) {
+            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
+        }
 
         if ('' === $contactIdsString) {
             return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
@@ -168,6 +171,11 @@ class EtablissementController extends AbstractController
 
         foreach ($contactIds as $contactId) {
             $contact = $utilisateurInformationsRepository->find($contactId);
+
+            if (null === $contact) {
+                throw new NotFoundHttpException();
+            }
+
             $etablissement->addContact($contact);
         }
 
