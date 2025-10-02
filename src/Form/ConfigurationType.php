@@ -55,7 +55,7 @@ class ConfigurationType extends AbstractType
                 'label' => 'Dashboard - Jours courrier sans réponse',
                 'required' => false,
             ])
-            ->add('prevariscDateCommissionRelancePeriodicite', IntegerType::class, [
+            ->add('prevariscDateCommissionRelancePeriodicite', CheckboxType::class, [
                 'label' => 'Périodicité relance date commission',
                 'required' => false,
             ])
