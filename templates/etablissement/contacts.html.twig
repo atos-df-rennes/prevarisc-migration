@@ -6,8 +6,7 @@
     <h3>Liste des contacts</h3>
 
     <div class="btn-group pull-right" role="group">
-        {# @todo: Route pour ajouter #}
-        <button type="button" class="btn btn-primary">Ajouter un contact existant</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
         <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
     </div>
 
@@ -40,6 +39,7 @@
     </div>
 
     {{ include('contact/_modal_ajout.html.twig') }}
+    {{ include('contact/_modal_existant.html.twig') }}
     {{ include('contact/_modal_suppression.html.twig') }}
 {% endblock %}
 
@@ -90,6 +90,43 @@
                         $('#ajout-contact button[type="submit"]').html('Modifier')
                     }
                 })
+            })
+
+            new TomSelect('#contact-select', {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                plugins: ['remove_button'],
+                shouldLoad: function(query) {
+                    return query.length > 2;
+                },
+                load: function(query, callback) {
+                    fetch('/contacts/' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(json => {
+                        callback(json.map(contact => {
+                            // Concaténation conditionnelle
+                            let nameParts = []
+
+                            if (contact.societe) {
+                                nameParts.push(contact.societe)
+                            }
+                            if (contact.nom) {
+                                nameParts.push(contact.nom)
+                            }
+                            if (contact.prenom) {
+                                nameParts.push(contact.prenom)
+                            }
+
+                            return {
+                                id: contact.id,
+                                name: nameParts.join(" ") // Concatène les parties non nulles
+                            }
+                        }))
+                    }).catch(() => {
+                        callback()
+                    })
+                },
             })
         })
     </script>

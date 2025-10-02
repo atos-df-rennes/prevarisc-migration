@@ -148,6 +148,36 @@ class EtablissementController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing")
+     */
+    public function addExistingContact(
+        Request $request,
+        Etablissement $etablissement,
+        EntityManagerInterface $entityManager,
+        UtilisateurInformationsRepository $utilisateurInformationsRepository
+    ): Response
+    {
+        $contactIdsString = $request->request->get('contacts');
+
+        if ('' === $contactIdsString) {
+            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+        }
+
+        $contactIds = explode(',', $contactIdsString);
+
+        foreach ($contactIds as $contactId) {
+            $contact = $utilisateurInformationsRepository->find($contactId);
+            $etablissement->addContact($contact);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
+
+        return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+    }
+
     // @todo: Dans les versions plus récentes de SF, on pourra rebasculer le query param dans la route avec le ParamConverter nommé.
     /**
      * @Route("etablissement/{id}/contacts/supprimer", name="etablissement_contacts_delete")

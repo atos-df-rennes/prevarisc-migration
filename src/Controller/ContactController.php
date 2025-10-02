@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
+use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +18,7 @@ class ContactController extends AbstractController
     /**
      * @Route("/contact/{id}/modifier", name="contact_edit")
      */
-    public function index(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
     {
         $elementLie = $request->query->get('elementLie');
         $elementId = $request->query->get('elementId');
@@ -56,5 +58,13 @@ class ContactController extends AbstractController
         return $this->render('contact/form.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/contacts/{search}", name="contact_autocomplete")
+     */
+    public function autocomplete(string $search, UtilisateurInformationsRepository $utilisateurInformationsRepository): JsonResponse
+    {
+        return $this->json($utilisateurInformationsRepository->findByNameNotInUser($search));
     }
 }
