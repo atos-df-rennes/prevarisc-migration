@@ -68,8 +68,8 @@
                 Pièces jointes
             </a>
         </li>
-        <li>
-            <a href="{{ '/etablissement/contacts/id/' ~ etablissement.id }}">
+        <li {% if app.request.get('_route') is same as('etablissement_contacts') %}class="active"{% endif %}>
+            <a href="{{ path('etablissement_contacts', { id: etablissement.id }) }}">
                 <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                 Contacts
             </a>
