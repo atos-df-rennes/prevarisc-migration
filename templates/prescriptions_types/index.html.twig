@@ -4,13 +4,46 @@
 
 
 {% block body %}
-<ul class="nav nav-pills nav-justified">
-    <li role="presentation"><a href="{{ path('admin_prescriptions_rappels') }}">Gestion des rappels réglementaires</a></li>
-    <li role="presentation"><a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a></li>
-    <li role="presentation"><a href="{{ path('admin_prescriptions_articles') }}">Gestion des articles</a></li>
-</ul>
+    <ul class="nav nav-pills nav-justified">
+        <li role="presentation"><a href="{{ path('admin_prescriptions_rappels') }}">Gestion des rappels réglementaires</a></li>
+        <li role="presentation"><a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a></li>
+        <li role="presentation"><a href="{{ path('admin_prescriptions_articles') }}">Gestion des articles</a></li>
+    </ul>
 
-<h3 class="page-header">
-    Gestion des prescriptions types
-</h3>
+    <h3 class="page-header">
+        Gestion des prescriptions types
+    </h3>
+
+    {% for category in categories %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4 class="panel-title">{{ category.libelle }}</h4>
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <button class="btn btn-sm btn-default">Modifier</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">Sans catégories</h4>
+        </div>
+        <div class="panel-body">
+            {% for prescription in sans_categories %}
+                {% for association in prescription %}
+                    <p>{{ association.prescriptionType.libelle|nl2br }}</p>
+                    {{ association.texte.libelle|nl2br }}
+                    {{ association.texte.libelle|nl2br }}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

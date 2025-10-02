@@ -2,14 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\PrescriptionArticleListe;
-use App\Form\PrescriptionArticleListeType;
-use App\Form\ReplacePrescriptionArticleListeType;
-use App\Repository\PrescriptionArticleListeRepository;
+use App\Repository\PrescriptionCategorieRepository;
 use App\Service\Prescriptions;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,12 +17,11 @@ class PrescriptionsTypesController extends AbstractController
     /**
      * @Route("/admin/prescriptions", name="admin_prescriptions")
      */
-    public function index(Prescriptions $servicePresc): Response
+    public function index(Prescriptions $prescriptions, PrescriptionCategorieRepository $prescriptionCategorieRepository): Response
     {
-        $listeArticles = $servicePresc->getArticlesListe();
-
         return $this->render('prescriptions_types/index.html.twig', [
-            'liste_articles' => $listeArticles,
+            'categories' => $prescriptionCategorieRepository->findAll(),
+            'sans_categories' => $prescriptions->showPrescriptionType(0, 0, 0),
         ]);
     }
 }

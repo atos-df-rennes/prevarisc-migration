@@ -5,13 +5,23 @@ namespace App\Service;
 use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionReglementaireAssociation;
 use App\Entity\PrescriptionTexteListe;
+use App\Entity\PrescriptionType;
+use App\Entity\PrescriptionTypeAssociation;
 use App\Repository\PrescriptionArticleListeRepository;
 use App\Repository\PrescriptionReglementaireAssociationRepository;
 use App\Repository\PrescriptionReglementaireRepository;
 use App\Repository\PrescriptionTexteListeRepository;
+use App\Repository\PrescriptionTypeAssociationRepository;
+use App\Repository\PrescriptionTypeRepository;
 
 final class Prescriptions
 {
+    /** @var PrescriptionTypeRepository */
+    private $prescriptionTypeRepository;
+
+    /** @var PrescriptionTypeAssociationRepository */
+    private $prescriptionTypeAssociationRepository;
+
     /** @var PrescriptionTexteListeRepository */
     private $prescriptionTexteListeRepository;
 
@@ -25,11 +35,15 @@ final class Prescriptions
     private $prescriptionReglementaireAssociationRepository;
 
     public function __construct(
+        PrescriptionTypeRepository $prescriptionTypeRepository,
+        PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
         PrescriptionTexteListeRepository $prescriptionTexteListeRepository,
         PrescriptionArticleListeRepository $prescriptionArticleListeRepository,
         PrescriptionReglementaireRepository $prescriptionReglementaireRepository,
         PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
     ) {
+        $this->prescriptionTypeRepository = $prescriptionTypeRepository;
+        $this->prescriptionTypeAssociationRepository = $prescriptionTypeAssociationRepository;
         $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
         $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
         $this->prescriptionReglementaireRepository = $prescriptionReglementaireRepository;
@@ -88,13 +102,34 @@ final class Prescriptions
         return $result;
     }
 
+    public function showPrescriptionType(int $categorie, int $texte, int $article): array
+    {
+        /** @var PrescriptionType[] $prescriptions */
+        $prescriptions = $this->prescriptionTypeRepository->findBy([
+            'categorie' => $categorie,
+            'texte' => $texte,
+            'article' => $article,
+        ]);
+
+        $result = [];
+        foreach ($prescriptions as $prescription) {
+            if (null === ($prescriptionId = $prescription->getId())) {
+                continue;
+            }
+
+            $result[] = $this->prescriptionTypeAssociationRepository->getPrescriptionAssoc($prescriptionId);
+        }
+
+        return $result;
+    }
+
     /**
      * Construit un tableau d'associations [association, texte, article] à partir
      * de la collection renvoyée par le repository (pra, ptl, pal).
      *
-     * @param array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
+     * @param array<int, PrescriptionTypeAssociation|PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
      *
-     * @return list<array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>
+     * @return list<array{association: PrescriptionReglementaireAssociation|PrescriptionTypeAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>
      */
     private function buildAssociationsFromRaw(array $items): array
     {
@@ -112,7 +147,7 @@ final class Prescriptions
         $assembled = [];
 
         foreach ($items as $item) {
-            if (!$item instanceof PrescriptionReglementaireAssociation) {
+            if (!$item instanceof PrescriptionReglementaireAssociation && !$item instanceof PrescriptionTypeAssociation) {
                 continue;
             }
 
