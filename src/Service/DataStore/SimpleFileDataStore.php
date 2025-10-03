@@ -59,6 +59,7 @@ class SimpleFileDataStore implements DataStore
             if (null !== $error) {
                 throw new \Exception('Cannot create base directory '.$directory.': '.$error['message']);
             }
+
             throw new \Exception('Cannot create base directory '.$directory);
         }
 

@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Security;
@@ -16,10 +17,14 @@ class LastActionSubscriber implements EventSubscriberInterface
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(Security $security, EntityManagerInterface $entityManager)
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(Security $security, EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
         $this->security = $security;
         $this->entityManager = $entityManager;
+        $this->logger = $logger;
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -32,8 +37,12 @@ class LastActionSubscriber implements EventSubscriberInterface
 
         $utilisateur->setLastAction(new \DateTime());
 
-        $this->entityManager->persist($utilisateur);
-        $this->entityManager->flush();
+        try {
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
+        } catch (\Exception $exception) {
+            $this->logger->error('LastActionSubscriber: '.$exception->getMessage());
+        }
     }
 
     public static function getSubscribedEvents()
