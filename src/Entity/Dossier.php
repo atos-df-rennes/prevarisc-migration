@@ -241,6 +241,20 @@ class Dossier
      */
     private $prescriptions;
 
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="VERROU_DOSSIER", type="boolean", nullable=true)
+     */
+    private $verrou;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="VERROU_USER_DOSSIER", type="bigint", nullable=true)
+     */
+    private $utilisateurVerrou;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -762,6 +776,30 @@ class Dossier
         if ($this->prescriptions->removeElement($prescription) && $prescription->getDossier() === $this) {
             $prescription->setDossier(null);
         }
+
+        return $this;
+    }
+
+    public function getVerrou(): ?bool
+    {
+        return $this->verrou;
+    }
+
+    public function setVerrou(?bool $verrou): self
+    {
+        $this->verrou = $verrou;
+
+        return $this;
+    }
+
+    public function getUtilisateurVerrou(): ?int
+    {
+        return $this->utilisateurVerrou;
+    }
+
+    public function setUtilisateurVerrou(?int $utilisateurVerrou): self
+    {
+        $this->utilisateurVerrou = $utilisateurVerrou;
 
         return $this;
     }
