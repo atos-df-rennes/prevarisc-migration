@@ -20,25 +20,19 @@
         </div>
     </div>
 
-    <div class="classement">
+    <div class="overflow-x-scroll">
+        <ul class="nav nav-tabs classement w-max-cont" role="tablist">
+            {% for category in categories %}
+                <li role="presentation" {% if loop.first %}class="active"{% endif %} data-id="{{ category.id }}">
+                    <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab">{{ category.libelle }} <span class="handle glyphicon glyphicon-move"></span></a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="tab-content">
         {% for category in categories %}
-            <div class="panel panel-default" data-id="{{ category.id }}">
-                <div class="panel-heading">
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <h4 class="panel-title">
-                                <span class="handle glyphicon glyphicon-move"></span>
-                                {{ category.libelle }}
-                            </h4>
-                        </div>
-                        <div class="col-xs-6 text-right">
-                            <button class="btn btn-sm btn-default">Modifier</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel-body">
-
-                </div>
+            <div role="tabpanel" class="tab-pane {% if loop.first %}active{% endif %}" id="categorie_{{ category.id }}">
+                {{ category.libelle }}
             </div>
         {% endfor %}
     </div>
@@ -85,12 +79,12 @@
                 });
             });
 
-            $(".classement").sortable({
+            $("ul.classement").sortable({
                 handle: '.handle',
                 update: function(event, ui) {
 
                     let list = []
-                    $(this).find('.panel').each(function (index, el) {
+                    $(this).find('li').each(function (index, el) {
                         list.push(el.dataset.id)
                     })
 
