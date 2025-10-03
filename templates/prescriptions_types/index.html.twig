@@ -14,23 +14,36 @@
         Gestion des prescriptions types
     </h3>
 
-    {% for category in categories %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <div class="row">
-                    <div class="col-xs-6">
-                        <h4 class="panel-title">{{ category.libelle }}</h4>
-                    </div>
-                    <div class="col-xs-6 text-right">
-                        <button class="btn btn-sm btn-default">Modifier</button>
+    <div class="row mb-4">
+        <div class="col-md-12 text-right">
+            <button type="button" class="btn btn-default ajouter-categorie" data-target="#ajout-prescription-categorie">Ajouter une catégorie</button>
+        </div>
+    </div>
+
+    <div class="classement">
+        {% for category in categories %}
+            <div class="panel panel-default" data-id="{{ category.id }}">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="panel-title">
+                                <span class="handle glyphicon glyphicon-move"></span>
+                                {{ category.libelle }}
+                            </h4>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <button class="btn btn-sm btn-default">Modifier</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="panel-body">
+                <div class="panel-body">
 
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+
+    <hr>
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -46,4 +59,59 @@
             {% endfor %}
         </div>
     </div>
+
+    {{ include('prescriptions_types/_modal_ajout.html.twig') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".ajouter-categorie").click(function () {
+                const $target = $($(this).context.dataset.target);
+
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/prescriptions/categorie/ajouter",
+                    success: function (msg) {
+                        $target.find('.modal-body').html(msg);
+                    },
+                    error: function () {
+                        $target.find('.modal-body').html(`<div class="alert alert-danger">Une erreur est survenue. Veuillez réessayer</div>`);
+                    },
+                    complete: function () {
+                        $target.modal('show');
+                    }
+                });
+            });
+
+            $(".classement").sortable({
+                handle: '.handle',
+                update: function(event, ui) {
+
+                    let list = []
+                    $(this).find('.panel').each(function (index, el) {
+                        list.push(el.dataset.id)
+                    })
+
+                    var data = {
+                        "type": "categorie",
+                        "order": list
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/admin/prescriptions/changement-ordre",
+                        data: data,
+                        beforeSend: function(){
+                            $(this).disableSelection();
+                        },
+                        success: function(msg){
+                            $(this).enableSelection();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 {% endblock %}

@@ -46,4 +46,35 @@ class PrescriptionCategorieRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * Met à jour l'ordre des catégories en fonction d'un tableau fourni.
+     *
+     * @param array $order tableau contenant l'ordre des identifiants des catégories
+     */
+    public function setOrder(array $order): void
+    {
+        $em = $this->getEntityManager();
+
+        $categories = $this->findAll();
+        foreach ($categories as $category) {
+            $position = array_search($category->getId(), $order);
+            $category->setNumero($position + 1);
+        }
+
+        $em->flush();
+    }
+
+    /**
+     * Récupère le numéro maximal de la catégorie.
+     *
+     * @return int le numéro maximal de la catégorie
+     */
+    public function recupMaxNumCat(): int
+    {
+        $qb = $this->createQueryBuilder('category');
+        $qb->select('max(category.numero)');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
 }
