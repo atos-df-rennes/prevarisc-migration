@@ -38,7 +38,8 @@ class Configurations
     private $prevariscLocalSommeilTypes;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\CommissionType")
+     * @ORM\JoinColumn(name="prevarisc_commission_communale_type_id", referencedColumnName="ID_COMMISSIONTYPE", nullable=true)
      */
     private $prevariscCommissionCommunaleType;
 
@@ -150,14 +151,14 @@ class Configurations
         return $this;
     }
 
-    public function getPrevariscCommissionCommunaleType(): ?int
+    public function getPrevariscCommissionCommunaleType(): ?CommissionType
     {
         return $this->prevariscCommissionCommunaleType;
     }
 
-    public function setPrevariscCommissionCommunaleType(?int $prevariscCommissionCommunaleType): self
+    public function setPrevariscCommissionCommunaleType(?CommissionType $commissionType): self
     {
-        $this->prevariscCommissionCommunaleType = $prevariscCommissionCommunaleType;
+        $this->prevariscCommissionCommunaleType = $commissionType;
 
         return $this;
     }

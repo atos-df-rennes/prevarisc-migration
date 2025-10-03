@@ -49,7 +49,7 @@ class ConfigurationsSubscriber implements EventSubscriberInterface
 
         $commissionCommunaleType = $config->getPrevariscCommissionCommunaleType();
         if(null !== $commissionCommunaleType) {
-            $dotenvVars['PREVARISC_COMMISSION_COMMUNALE_TYPE'] = $commissionCommunaleType;
+            $dotenvVars['PREVARISC_COMMISSION_COMMUNALE_TYPE'] = $commissionCommunaleType->getId();
         }
 
         $risquesNaturelsExemples = $config->getPrevariscRisquesNaturelsExemples();

@@ -2,7 +2,9 @@
 
 namespace App\Form;
 
+use App\Entity\CommissionType;
 use App\Entity\Configurations;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -31,9 +33,12 @@ class ConfigurationType extends AbstractType
                 'label' => 'Types de locaux de sommeil',
                 'required' => false,
             ])
-            ->add('prevariscCommissionCommunaleType', TextType::class, [
+            ->add('prevariscCommissionCommunaleType', EntityType::class, [
+                'class' => CommissionType::class,
+                'choice_label' => 'libelle',
                 'label' => 'Type de commission communale',
                 'required' => false,
+                'placeholder' => 'Sélectionnez un type',
             ])
             ->add('prevariscRisquesNaturelsExemples', TextType::class, [
                 'label' => 'Exemples de risques naturels',

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\CommissionType;
 use App\Entity\Configurations;
 use App\Form\ConfigurationType;
 use App\Repository\ConfigurationsRepository;
@@ -24,7 +25,15 @@ class ConfigurationController extends AbstractController
         }
 
         $configuration->setPrevariscDebugEnabled($this->getParameter('app.debug'));
-        $configuration->setPrevariscCommissionCommunaleType($this->getParameter('app.commission_communale_type'));
+        $commissionTypeId = $this->getParameter('app.commission_communale_type');
+
+        if ($commissionTypeId) {
+            $commissionType = $entityManager->getRepository(CommissionType::class)->find($commissionTypeId);
+            if (!$commissionType) {
+                throw new \Exception('CommissionType introuvable pour l\'ID ' . $commissionTypeId);
+            }
+        }
+
         $configuration->setPrevariscDashboardCourrierSansReponseDays($this->getParameter('app.dashboard_courrier_sans_reponse_days'));
         $configuration->setPrevariscDashboardDossiersSansAvisDays($this->getParameter('app.dashboard_dossiers_sans_avis_days'));
         $configuration->setPrevariscDashboardNextCommissionsDays($this->getParameter('app.dashboard_next_commissions_days'));
