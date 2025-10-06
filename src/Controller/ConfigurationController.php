@@ -24,7 +24,6 @@ class ConfigurationController extends AbstractController
             $configuration = new Configurations();
         }
 
-        $configuration->setPrevariscDebugEnabled($this->getParameter('app.debug'));
         $commissionTypeId = $this->getParameter('app.commission_communale_type');
 
         if ($commissionTypeId) {
@@ -34,6 +33,7 @@ class ConfigurationController extends AbstractController
             }
         }
 
+        $configuration->setPrevariscDebugEnabled($this->getParameter('app.debug'));
         $configuration->setPrevariscDashboardCourrierSansReponseDays($this->getParameter('app.dashboard_courrier_sans_reponse_days'));
         $configuration->setPrevariscDashboardDossiersSansAvisDays($this->getParameter('app.dashboard_dossiers_sans_avis_days'));
         $configuration->setPrevariscDashboardNextCommissionsDays($this->getParameter('app.dashboard_next_commissions_days'));
