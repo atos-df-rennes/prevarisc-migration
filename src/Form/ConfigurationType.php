@@ -105,7 +105,7 @@ class ConfigurationType extends AbstractType
             'label' => 'Périodicité relance date commission',
             'required' => false,
         ])
-        ->add('prevariscDescriptifPersonnalise', TextType::class, [
+        ->add('prevariscDescriptifPersonnalise', CheckboxType::class, [
             'label' => 'Descriptif personnalisé',
             'required' => false,
         ])
