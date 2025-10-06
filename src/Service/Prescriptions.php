@@ -117,7 +117,13 @@ final class Prescriptions
                 continue;
             }
 
-            $result[] = $this->prescriptionTypeAssociationRepository->getPrescriptionAssoc($prescriptionId);
+            $associations = $this->prescriptionTypeAssociationRepository->getPrescriptionAssoc($prescriptionId);
+
+            if([] === $associations) {
+                continue;
+            }
+
+            $result[] = $associations;
         }
 
         return $result;

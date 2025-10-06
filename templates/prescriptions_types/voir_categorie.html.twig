@@ -1,14 +1,16 @@
 
-<div class="panel-group" id="accordion_categorie_{{ categorie.id }}" role="tablist" aria-multiselectable="true">
+<div id="accordion_categorie_{{ categorie.id }}"
+     class="panel-group"
+     role="tablist"
+     aria-multiselectable="true"
+>
     {% for prescription_texte in prescription_textes %}
         {% if prescription_texte.libelle is not empty %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="text_header_{{ prescription_texte.id }}">
-                    <h4 class="panel-title">
-                        <a role="button" data-toggle="collapse" data-parent="#accordion_categorie_{{ categorie.id }}" href="#text_content_{{ prescription_texte.id }}" aria-controls="#text_content_{{ prescription_texte.id }}">
-                            {{ prescription_texte.libelle }}
-                        </a>
-                    </h4>
+                    <a role="button" data-toggle="collapse" data-parent="#tab_categorie_{{ categorie.id }}" href="#text_content_{{ prescription_texte.id }}" aria-controls="#text_content_{{ prescription_texte.id }}">
+                        {{ prescription_texte.libelle }}
+                    </a>
                 </div>
                 <div
                     id="text_content_{{ prescription_texte.id }}"
