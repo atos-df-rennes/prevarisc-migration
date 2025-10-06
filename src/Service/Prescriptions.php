@@ -109,7 +109,7 @@ final class Prescriptions
             'categorie' => $categorie,
             'texte' => $texte,
             'article' => $article,
-        ]);
+        ], ['numero' => 'ASC']);
 
         $result = [];
         foreach ($prescriptions as $prescription) {

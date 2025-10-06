@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
+use App\Entity\PrescriptionTexte;
 use App\Form\PrescriptionTypeCategorieType;
+use App\Repository\PrescriptionArticleRepository;
 use App\Repository\PrescriptionCategorieRepository;
+use App\Repository\PrescriptionTexteRepository;
 use App\Service\Prescriptions;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -79,6 +83,45 @@ class PrescriptionsTypesController extends AbstractController
 
         return $this->render('prescriptions_types/ajout_categorie.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes", name="admin_prescriptions_types_categorie_voir_textes")
+     */
+    public function categoryTexts(PrescriptionCategorie $categorie, PrescriptionTexteRepository $prescriptionTexteRepository): Response
+    {
+        $textes = $prescriptionTexteRepository->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
+
+        return $this->render('prescriptions_types/voir_categorie.html.twig', [
+            'categorie' => $categorie,
+            'prescription_textes' => $textes
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}", name="admin_prescriptions_types_texte_voir_articles")
+     */
+    public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticleRepository $prescriptionArticleRepository, Prescriptions $prescriptions): Response
+    {
+        $articles = $prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
+
+        return $this->render('prescriptions_types/voir_texte.html.twig', [
+            'prescription_articles' => $articles,
+            'categorie' => $categorie,
+            'texte' => $texte,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/article/{article}", name="admin_prescriptions_types_texte_voir_article_contenu")
+     */
+    public function articlesAssociation(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticle $article, Prescriptions $prescriptions): Response
+    {
+        $associations = $prescriptions->showPrescriptionType($categorie->getId(), $texte->getId(), $article->getId());
+
+        return $this->render('prescriptions_types/voir_article.html.twig', [
+            'prescription_associations' => $associations
         ]);
     }
 }

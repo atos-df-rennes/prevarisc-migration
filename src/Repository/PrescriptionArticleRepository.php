@@ -46,4 +46,17 @@ class PrescriptionArticleRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    public function findByArticleWithContenu(PrescriptionArticle $article): array
+    {
+        $qb = $this->createQueryBuilder('article')
+            ->addSelect('texte')
+            ->leftJoin('association.texte', 'texte')
+            ->leftJoin('association.article', 'article')
+            ->where('association.prescriptionType = :idPrescription')
+            ->setParameter('idPrescription', $prescriptionId)
+            ->orderBy('association.numero');
+
+        return $qb->getQuery()->getResult();
+    }
 }

@@ -58,7 +58,7 @@ class PrescriptionCategorieRepository extends ServiceEntityRepository
 
         $categories = $this->findAll();
         foreach ($categories as $category) {
-            $position = array_search($category->getId(), $order);
+            $position = array_search($category->getId(), $order, true);
             $category->setNumero($position + 1);
         }
 

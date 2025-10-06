@@ -1,0 +1,52 @@
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <table class="table">
+        {% for article in prescription_articles %}
+            <thead>
+                <tr>
+                    <th>{{ article.libelle }}</th>
+                    <th colspan="3" class="text-right"><a id="btn-article-view-content-{{ article.id }}"
+                           class="btn btn-default"
+                           role="button"
+                           href="#article-view-content-{{ article.id }}"
+                        >+</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="article-view-content-{{ article.id }}"
+                   data-content="{{ path('admin_prescriptions_types_texte_voir_article_contenu', {categorie: categorie.id, texte: texte.id, article: article.id }) }}"
+            >
+
+            </tbody>
+        {% endfor %}
+    </table>
+</div>
+
+
+<script type="text/javascript">
+    $('[data-toggle="collapse"]').click(function (e) {
+        const $tabContent = $(e.target.hash)
+        if($tabContent.html() === '') {
+            $.ajax({
+                type: "GET",
+                url: $tabContent.data('content'),
+                success: function (msg) {
+                    $tabContent.html(msg);
+                },
+            });
+        }
+    })
+
+    $("[id^=btn-article-view-content-").click(function (e) {
+        const $tabContent = $(e.target.hash)
+        console.debug('article-view-content', e.target.hash)
+        $.ajax({
+            type: "GET",
+            url: $tabContent.data('content'),
+            success: function (msg) {
+                $tabContent.html(msg);
+            },
+        });
+    })
+
+</script>

@@ -24,16 +24,21 @@
         <ul class="nav nav-tabs classement w-max-cont" role="tablist">
             {% for category in categories %}
                 <li role="presentation" {% if loop.first %}class="active"{% endif %} data-id="{{ category.id }}">
-                    <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab">{{ category.libelle }} <span class="handle glyphicon glyphicon-move"></span></a>
+                    <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab"
+                    >
+                        {{ category.libelle }}
+                    </a>
                 </li>
             {% endfor %}
         </ul>
     </div>
     <div class="tab-content">
         {% for category in categories %}
-            <div role="tabpanel" class="tab-pane {% if loop.first %}active{% endif %}" id="categorie_{{ category.id }}">
-                {{ category.libelle }}
-            </div>
+            <div role="tabpanel"
+                 class="tab-pane {% if loop.first %}active{% endif %} mt-4"
+                 id="categorie_{{ category.id }}"
+                 data-content="{{ path('admin_prescriptions_types_categorie_voir_textes', {categorie: category.id}) }}"
+            ></div>
         {% endfor %}
     </div>
 
@@ -61,8 +66,24 @@
     {{ parent() }}
     <script type="text/javascript">
         $(document).ready(function() {
+
+            $('[data-toggle="tab"]').click(function (e) {
+                const $tabContent = $(e.target.hash)
+                if($tabContent.html() === '') {
+                    $.ajax({
+                        type: "GET",
+                        url: $tabContent.data('content'),
+                        success: function (msg) {
+                            $tabContent.html(msg);
+                        },
+                    });
+                }
+            })
+
+            $('[data-toggle="tab"]:first').click();
+
             $(".ajouter-categorie").click(function () {
-                const $target = $($(this).context.dataset.target);
+                const $target = $($(this).data('target'));
 
                 $.ajax({
                     type: "GET",
@@ -80,7 +101,6 @@
             });
 
             $("ul.classement").sortable({
-                handle: '.handle',
                 update: function(event, ui) {
 
                     let list = []

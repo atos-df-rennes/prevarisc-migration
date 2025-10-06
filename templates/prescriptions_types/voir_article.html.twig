@@ -1,0 +1,17 @@
+{% for association in prescription_associations %}
+    {% set nb_assoc = prescription_associations|length %}
+    {% for prescription_association in association %}
+        <tr>
+            <td class="col-xs-2">{{ prescription_association.texte.libelle }}</td>
+            <td class="col-xs-2">{{ prescription_association.article.libelle }}</td>
+            {% if loop.first %}
+                <td rowspan="{{ nb_assoc }}" class="col-xs-6">
+                    {{ prescription_association.prescriptionType.libelle|nl2br }}
+                </td>
+                <td rowspan="{{ nb_assoc }}" class="col-xs-1" >
+                    <a class="btn btn-default" href="#">Modifier</a>
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+{% endfor %}
