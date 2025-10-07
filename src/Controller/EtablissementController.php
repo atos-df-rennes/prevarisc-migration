@@ -12,6 +12,7 @@ use App\Service\Contact;
 use App\Service\Etablissement as EtablissementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -201,24 +202,18 @@ class EtablissementController extends AbstractController
         return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
     }
 
-    // @todo: Dans les versions plus récentes de SF, on pourra rebasculer le query param dans la route avec le ParamConverter nommé.
     /**
-     * @Route("etablissement/{id}/contacts/supprimer", name="etablissement_contacts_delete")
+     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete")
+     *
+     * @ParamConverter("etablissement", options={"id" = "id"})
+     * @ParamConverter("contact", options={"id" = "contact"})
      */
     public function deleteContact(
-        Request $request,
         Etablissement $etablissement,
+        UtilisateurInformations $contact,
         EntityManagerInterface $entityManager,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
         Contact $contactService
     ): Response {
-        $contactId = $request->query->get('contactId');
-        $contact = $utilisateurInformationsRepository->find($contactId);
-
-        if (null === $contact) {
-            throw new NotFoundHttpException();
-        }
-
         // Suppression de l'association.
         $etablissement->removeContact($contact);
 

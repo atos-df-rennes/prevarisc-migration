@@ -68,7 +68,7 @@
             $('#delete-contact').on('click', function () {
                 $.ajax({
                     type: 'POST',
-                    url: '/etablissement/' + etablissementId + '/contacts/supprimer?contactId=' + contactId,
+                    url: '/etablissement/' + etablissementId + '/contacts/' + contactId + '/supprimer',
                     success: function () {
                         window.location.reload();
                     },
