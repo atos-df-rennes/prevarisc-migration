@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
+use App\Form\RubriqueType;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\ChampValeurListeRepository;
 use App\Service\Formulaires\FormulairesImporter;
@@ -12,6 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +32,64 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class FormulairesController extends AbstractController
 {
+
+    /**
+     * @Route("/admin/formulaires", name="admin_formulaires")
+     */
+    public function index(Request $request, CapsuleRubriqueRepository $capsuleRubriqueRepository, EntityManagerInterface $entityManager, FormFactoryInterface $formFactory): Response
+    {
+        $formulaires = $capsuleRubriqueRepository->findAllInformations();
+
+        /** @var array<string, \Symfony\Component\Form\FormView> $forms */
+        $forms = [];
+        foreach ($formulaires as $formulaire) {
+            $rubrique = new Rubrique();
+            $rubrique->setIdx($formulaire->getRubriques()->count() + 1);
+            $rubrique->setCapsuleRubrique($formulaire);
+
+            $forms[$formulaire->getNomInterne()] = $formFactory->createNamed($formulaire->getNomInterne(), RubriqueType::class, $rubrique);
+        }
+
+        $submittedForm = $request->request->get('formulaire');
+
+        if (null !== $submittedForm) {
+            $form = $forms[$submittedForm];
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $submittedRubrique = $form->getData();
+                $entityManager->persist($submittedRubrique);
+
+                $entityManager->flush();
+
+                return $this->redirectToRoute('admin_formulaires');
+            }
+        }
+
+        return $this->render('formulaires/index.html.twig', [
+            'formulaires' => $formulaires,
+            'forms' => array_map(function (FormInterface $form) {
+                return $form->createView();
+            }, $forms),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaire_edit_capsule_rubrique_nom")
+     */
+    public function editCapsuleRubriqueNom(Request $request, EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
+    {
+        $idCapsuleRubrique = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
+
+        $capsuleRubrique = $capsuleRubriqueRepository->find($idCapsuleRubrique);
+        $nom = $request->request->get('nom');
+
+        $capsuleRubrique->setNom($nom);
+        $entityManager->flush();
+
+        return $this->json(['status' => 'success']);
+    }
+
     /**
      * @Route("/admin/formulaires/export", name="admin_formulaires_export")
      */
@@ -63,7 +124,6 @@ class FormulairesController extends AbstractController
         EntityManagerInterface $entityManager,
         LoggerInterface $logger
     ): Response {
-        // @todo: Message de succès/échec
         /** @var UploadedFile $configurationFile */
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
@@ -81,16 +141,17 @@ class FormulairesController extends AbstractController
                 $formulairesImporter->importConfiguration($entityManager, $capsulesRubriques);
             });
 
-            $importStatus = 'success';
+            $this->addFlash('success', 'La configuration a bien été importée.');
         } catch (\Exception $exception) {
             $logger->error($exception->getMessage(), ['service' => 'Importeur de configuration de formulaires']);
-            $importStatus = 'error';
+
+            $this->addFlash('error', "Un problème a eu lieu lors de l'import de la configuration.");
         }
 
-        // @todo: Lorsque la page des formulaires sera migrée, faire le $importStatus avec un flashMessage
-        return $this->redirect('/formulaire?importStatus='.$importStatus);
+        return $this->redirectToRoute('admin_formulaires');
     }
 
+    // @todo: A mettre dans ChampController
     /**
      * @Route("/admin/formulaires/update-champ-valeur-liste-idx", name="admin_formulaires_order_champ_valeur_liste")
      */

@@ -14,13 +14,8 @@
             <a href="{{ path('admin_elements_supprimes') }}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Gestion des éléments supprimés</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_utilisateurs_index')
-                or app.request.get('_route') is same as('admin_utilisateurs_add')
-                or app.request.get('_route') is same as('admin_utilisateurs_edit')
-                or app.request.get('_route') is same as('admin_groupe_index')
-                or app.request.get('_route') is same as('admin_groupe_add')
-                or app.request.get('_route') is same as('admin_groupe_edit')
-                or app.request.get('_route') is same as('admin_groupe_manage_privileges')
+        <li {% if app.request.get('_route') starts with 'admin_utilisateurs_'
+                or app.request.get('_route') starts with 'admin_groupe_'
             %}class="active"{% endif %}
         >
             <a href="{{ path('admin_utilisateurs_index') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Gestion des utilisateurs</a>
@@ -70,8 +65,8 @@
             <a href="{{ path('admin_changement') }}"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span> Messages des alertes</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('formulaire') %}class="active"{% endif %}>
-            <a href='/formulaire'><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Formulaires</a>
+        <li {% if app.request.get('_route') starts with 'admin_formulaires' %}class="active"{% endif %}>
+            <a href='{{ path('admin_formulaires') }}'><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Formulaires</a>
         </li>
     </ul>
 {% endblock %}

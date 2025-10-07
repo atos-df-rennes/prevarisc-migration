@@ -38,8 +38,8 @@ $(document).ready(function() {
 })
 
 function deleteRubrique(element) {
-    const id = element.getAttribute('data-id')
     const nom = element.getAttribute('data-nom')
+    const url = element.getAttribute('data-url')
     
     $("#name-rubrique").html(nom)
     $("#delete-rubrique").click(function() {
@@ -48,7 +48,7 @@ function deleteRubrique(element) {
         const nbOfRows = parentTable.children('.panel').children('table').children('tbody').children('tr').length
 
         $.ajax({
-            url: '/formulaire/delete-rubrique/rubrique/'+id,
+            url: url,
             type: 'POST',
             success: function() {
                 if (nbOfRows === 1) {
