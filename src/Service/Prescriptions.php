@@ -119,7 +119,7 @@ final class Prescriptions
 
             $associations = $this->prescriptionTypeAssociationRepository->getPrescriptionAssoc($prescriptionId);
 
-            if([] === $associations) {
+            if ([] === $associations) {
                 continue;
             }
 

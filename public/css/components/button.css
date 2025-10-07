@@ -1,0 +1,9 @@
+.btn.btn-icon {
+    width: 25px;
+    max-width: 100%;
+    max-height: 100%;
+    height: 25px;
+    text-align: center;
+    padding: 0px;
+    font-size:12px;
+}

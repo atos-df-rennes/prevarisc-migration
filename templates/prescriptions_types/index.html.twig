@@ -16,7 +16,7 @@
 
     <div class="row mb-4">
         <div class="col-md-12 text-right">
-            <button type="button" class="btn btn-default ajouter-categorie" data-target="#ajout-prescription-categorie">Ajouter une catégorie</button>
+            <button type="button" class="btn btn-default btn-ajouter" data-target="#ajout-prescription-categorie" data-content="{{ path("admin_prescriptions_types_categorie_ajouter") }}">Ajouter une catégorie</button>
         </div>
     </div>
 
@@ -27,6 +27,11 @@
                     <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab"
                     >
                         {{ category.libelle }}
+                        <button class="btn btn-info btn-icon btn-ajouter"
+                                data-content="{{ path("admin_prescriptions_types_textes_ajouter", {categorie: category.id}) }}"
+                                data-target="#ajout-prescription-categorie" title="Ajouter un texte">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
                     </a>
                 </li>
             {% endfor %}
@@ -37,7 +42,7 @@
             <div role="tabpanel"
                  class="tab-pane {% if loop.first %}active{% endif %} mt-4"
                  id="categorie_{{ category.id }}"
-                 data-content="{{ path('admin_prescriptions_types_categorie_voir_textes', {categorie: category.id}) }}"
+                 data-content="{{ path('admin_prescriptions_types_textes_voir', {categorie: category.id}) }}"
             ></div>
         {% endfor %}
     </div>
@@ -82,17 +87,19 @@
 
             $('[data-toggle="tab"]:first').click();
 
-            $(".ajouter-categorie").click(function () {
+
+            $(".btn-ajouter").click(function () {
                 const $target = $($(this).data('target'));
+                const url = $(this).data('content')
 
                 $.ajax({
                     type: "GET",
-                    url: "/admin/prescriptions/categorie/ajouter",
+                    url: url,
                     success: function (msg) {
-                        $target.find('.modal-body').html(msg);
+                        $target.find('.modal-content').html(msg);
                     },
                     error: function () {
-                        $target.find('.modal-body').html(`<div class="alert alert-danger">Une erreur est survenue. Veuillez réessayer</div>`);
+                        $target.find('.modal-content').html(`<div class="modal-body"><div class="alert alert-danger">Une erreur est survenue. Veuillez réessayer</div></div>`);
                     },
                     complete: function () {
                         $target.modal('show');

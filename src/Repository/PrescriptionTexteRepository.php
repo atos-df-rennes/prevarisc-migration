@@ -46,4 +46,17 @@ class PrescriptionTexteRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * Récupère le numéro maximal.
+     *
+     * @return int le numéro maximal
+     */
+    public function recupMaxNumCat(): int
+    {
+        $qb = $this->createQueryBuilder('texte');
+        $qb->select('max(texte.numero)');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
 }

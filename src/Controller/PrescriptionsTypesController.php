@@ -6,6 +6,7 @@ use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
 use App\Entity\PrescriptionTexte;
 use App\Form\PrescriptionTypeCategorieType;
+use App\Form\PrescriptionTypeTexteType;
 use App\Repository\PrescriptionArticleRepository;
 use App\Repository\PrescriptionCategorieRepository;
 use App\Repository\PrescriptionTexteRepository;
@@ -87,15 +88,52 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes", name="admin_prescriptions_types_categorie_voir_textes")
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes", name="admin_prescriptions_types_textes_voir")
      */
-    public function categoryTexts(PrescriptionCategorie $categorie, PrescriptionTexteRepository $prescriptionTexteRepository): Response
+    public function textsView(PrescriptionCategorie $categorie, PrescriptionTexteRepository $prescriptionTexteRepository): Response
     {
         $textes = $prescriptionTexteRepository->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
 
         return $this->render('prescriptions_types/voir_categorie.html.twig', [
             'categorie' => $categorie,
             'prescription_textes' => $textes
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/ajouter", name="admin_prescriptions_types_textes_ajouter")
+     */
+    public function textsAdd(Request $request, PrescriptionCategorie $categorie, PrescriptionTexteRepository $prescriptionTexteRepository): Response
+    {
+        $actionUrl = $this->generateUrl('admin_prescriptions_types_textes_ajouter', ['categorie' => $categorie->getId()]);
+
+        $texte = new PrescriptionTexte();
+        $texte->setCategorie($categorie);
+
+        $form = $this->createForm(PrescriptionTypeTexteType::class, $texte, [
+            'action' => $actionUrl,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+
+            $maxNumCat = $prescriptionTexteRepository->recupMaxNumCat();
+
+            /** @var PrescriptionTexte $texte */
+            $texte = $form->getData();
+            $texte->setNumero($maxNumCat + 1);
+
+            $em->persist($texte);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        return $this->render('prescriptions_types/ajout_texte.html.twig', [
+            'categorie' => $categorie,
+            'form' => $form->createView(),
         ]);
     }
 
