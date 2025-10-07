@@ -32,7 +32,6 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class FormulairesController extends AbstractController
 {
-
     /**
      * @Route("/admin/formulaires", name="admin_formulaires")
      */
@@ -40,7 +39,7 @@ class FormulairesController extends AbstractController
     {
         $formulaires = $capsuleRubriqueRepository->findAllInformations();
 
-        /** @var array<string, \Symfony\Component\Form\FormView> $forms */
+        /** @var array<string, FormInterface<Rubrique>> $forms */
         $forms = [];
         foreach ($formulaires as $formulaire) {
             $rubrique = new Rubrique();
@@ -53,13 +52,21 @@ class FormulairesController extends AbstractController
         $submittedForm = $request->request->get('formulaire');
 
         if (null !== $submittedForm) {
+            if (!\is_string($submittedForm)) {
+                throw new \InvalidArgumentException("Le nom du formulaire doit être une chaîne de caractère.");
+            }
+
+            if (!array_key_exists($submittedForm, $forms)) {
+                throw new \OutOfBoundsException("Le formulaire $submittedForm n'existe pas.");
+            }
+
             $form = $forms[$submittedForm];
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $submittedRubrique = $form->getData();
-                $entityManager->persist($submittedRubrique);
 
+                $entityManager->persist($submittedRubrique);
                 $entityManager->flush();
 
                 return $this->redirectToRoute('admin_formulaires');
@@ -82,7 +89,16 @@ class FormulairesController extends AbstractController
         $idCapsuleRubrique = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
 
         $capsuleRubrique = $capsuleRubriqueRepository->find($idCapsuleRubrique);
+
+        if (null === $capsuleRubrique) {
+            throw new NotFoundHttpException(\sprintf("La capsule rubrique d'identifiant %d n'existe pas.", $idCapsuleRubrique));
+        }
+
         $nom = $request->request->get('nom');
+
+        if (!\is_string($nom)) {
+            throw new \InvalidArgumentException('Le nom du formulaire doit être une chaîne de caractère.');
+        }
 
         $capsuleRubrique->setNom($nom);
         $entityManager->flush();
