@@ -11,6 +11,11 @@
                     <a role="button" data-toggle="collapse" data-parent="#tab_categorie_{{ categorie.id }}" href="#text_content_{{ prescription_texte.id }}" aria-controls="#text_content_{{ prescription_texte.id }}">
                         {{ prescription_texte.libelle }}
                     </a>
+                    <button class="btn btn-info btn-icon pull-right ajax-modal-trigger"
+                            data-content="{{ path("admin_prescriptions_types_textes_modifier", {categorie: categorie.id, texte: prescription_texte.id}) }}"
+                            data-target="#modal-prescription" title="Modifier le texte">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </button>
                 </div>
                 <div
                     id="text_content_{{ prescription_texte.id }}"
@@ -27,17 +32,3 @@
         {% endif %}
     {% endfor %}
 </div>
-
-
-<script type="text/javascript">
-    $('[data-toggle="collapse"]').click(function (e) {
-        const $tabContent = $(e.target.hash)
-        $.ajax({
-            type: "GET",
-            url: $tabContent.data('content'),
-            success: function (msg) {
-                $tabContent.find('.panel-body').html(msg);
-            },
-        });
-    })
-</script>

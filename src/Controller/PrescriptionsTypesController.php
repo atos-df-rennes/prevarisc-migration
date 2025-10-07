@@ -25,10 +25,15 @@ class PrescriptionsTypesController extends AbstractController
     /** @var PrescriptionCategorieRepository */
     private $prescriptionCategorieRepository;
 
+    /** @var PrescriptionTexteRepository */
+    private $prescriptionTexteRepository;
+
     public function __construct(
-        PrescriptionCategorieRepository $prescriptionCategorieRepository
+        PrescriptionCategorieRepository $prescriptionCategorieRepository,
+        PrescriptionTexteRepository $prescriptionTexteRepository
     ) {
         $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
+        $this->prescriptionTexteRepository = $prescriptionTexteRepository;
     }
 
     /**
@@ -90,9 +95,9 @@ class PrescriptionsTypesController extends AbstractController
     /**
      * @Route("/admin/prescriptions/categorie/{categorie}/textes", name="admin_prescriptions_types_textes_voir")
      */
-    public function textsView(PrescriptionCategorie $categorie, PrescriptionTexteRepository $prescriptionTexteRepository): Response
+    public function textsView(PrescriptionCategorie $categorie): Response
     {
-        $textes = $prescriptionTexteRepository->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
+        $textes = $this->prescriptionTexteRepository->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
 
         return $this->render('prescriptions_types/voir_categorie.html.twig', [
             'categorie' => $categorie,
@@ -102,13 +107,19 @@ class PrescriptionsTypesController extends AbstractController
 
     /**
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/ajouter", name="admin_prescriptions_types_textes_ajouter")
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/modifier", name="admin_prescriptions_types_textes_modifier")
      */
-    public function textsAdd(Request $request, PrescriptionCategorie $categorie, PrescriptionTexteRepository $prescriptionTexteRepository): Response
+    public function textsForm(Request $request, PrescriptionCategorie $categorie, ?PrescriptionTexte $texte = null): Response
     {
-        $actionUrl = $this->generateUrl('admin_prescriptions_types_textes_ajouter', ['categorie' => $categorie->getId()]);
+        $actionUrl = $this->generateUrl($request->attributes->get('_route'), $request->attributes->get('_route_params'));
 
-        $texte = new PrescriptionTexte();
-        $texte->setCategorie($categorie);
+        if (null === $texte) {
+            $maxNumCat = $this->prescriptionTexteRepository->recupMaxNumCat();
+
+            $texte = new PrescriptionTexte();
+            $texte->setCategorie($categorie);
+            $texte->setNumero($maxNumCat + 1);
+        }
 
         $form = $this->createForm(PrescriptionTypeTexteType::class, $texte, [
             'action' => $actionUrl,
@@ -118,12 +129,6 @@ class PrescriptionsTypesController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-
-            $maxNumCat = $prescriptionTexteRepository->recupMaxNumCat();
-
-            /** @var PrescriptionTexte $texte */
-            $texte = $form->getData();
-            $texte->setNumero($maxNumCat + 1);
 
             $em->persist($texte);
             $em->flush();

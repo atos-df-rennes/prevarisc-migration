@@ -16,7 +16,7 @@
 
     <div class="row mb-4">
         <div class="col-md-12 text-right">
-            <button type="button" class="btn btn-default btn-ajouter" data-target="#ajout-prescription-categorie" data-content="{{ path("admin_prescriptions_types_categorie_ajouter") }}">Ajouter une catégorie</button>
+            <button type="button" class="btn btn-default ajax-modal-trigger" data-target="#modal-prescription" data-content="{{ path("admin_prescriptions_types_categorie_ajouter") }}">Ajouter une catégorie</button>
         </div>
     </div>
 
@@ -27,9 +27,9 @@
                     <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab"
                     >
                         {{ category.libelle }}
-                        <button class="btn btn-info btn-icon btn-ajouter"
+                        <button class="btn btn-info btn-icon ajax-modal-trigger"
                                 data-content="{{ path("admin_prescriptions_types_textes_ajouter", {categorie: category.id}) }}"
-                                data-target="#ajout-prescription-categorie" title="Ajouter un texte">
+                                data-target="#modal-prescription" title="Ajouter un texte">
                             <span class="glyphicon glyphicon-plus"></span>
                         </button>
                     </a>
@@ -72,23 +72,26 @@
     <script type="text/javascript">
         $(document).ready(function() {
 
-            $('[data-toggle="tab"]').click(function (e) {
+            $(document).on('click', '[data-toggle]', function(e) {
                 const $tabContent = $(e.target.hash)
-                if($tabContent.html() === '') {
-                    $.ajax({
-                        type: "GET",
-                        url: $tabContent.data('content'),
-                        success: function (msg) {
+                $.ajax({
+                    type: "GET",
+                    url: $tabContent.data('content'),
+                    success: function (msg) {
+                        const $body = $tabContent.find('.panel-body')
+
+                        if($body.length) {
+                            $body.html(msg);
+                        } else {
                             $tabContent.html(msg);
-                        },
-                    });
-                }
-            })
+                        }
+                    },
+                });
+            });
 
             $('[data-toggle="tab"]:first').click();
 
-
-            $(".btn-ajouter").click(function () {
+            $(document).on('click', '.ajax-modal-trigger', function () {
                 const $target = $($(this).data('target'));
                 const url = $(this).data('content')
 

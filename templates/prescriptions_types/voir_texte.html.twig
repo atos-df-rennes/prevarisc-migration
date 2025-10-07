@@ -25,32 +25,3 @@
         </div>
     {% endfor %}
 </div>
-
-
-<script type="text/javascript">
-    $('[data-toggle="collapse"]').click(function (e) {
-        const $tabContent = $(e.target.hash)
-        if($tabContent.html() === '') {
-            $.ajax({
-                type: "GET",
-                url: $tabContent.data('content'),
-                success: function (msg) {
-                    $tabContent.html(msg);
-                },
-            });
-        }
-    })
-
-    $("[id^=btn-article-view-content-").click(function (e) {
-        const $tabContent = $(e.target.hash)
-        console.debug('article-view-content', e.target.hash)
-        $.ajax({
-            type: "GET",
-            url: $tabContent.data('content'),
-            success: function (msg) {
-                $tabContent.find('.panel-body').html(msg);
-            },
-        });
-    })
-
-</script>
