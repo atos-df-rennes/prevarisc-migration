@@ -53,11 +53,11 @@ class FormulairesController extends AbstractController
 
         if (null !== $submittedForm) {
             if (!\is_string($submittedForm)) {
-                throw new \InvalidArgumentException("Le nom du formulaire doit être une chaîne de caractère.");
+                throw new \InvalidArgumentException('Le nom du formulaire doit être une chaîne de caractère.');
             }
 
             if (!array_key_exists($submittedForm, $forms)) {
-                throw new \OutOfBoundsException("Le formulaire $submittedForm n'existe pas.");
+                throw new \OutOfBoundsException(sprintf("Le formulaire %s n'existe pas.", $submittedForm));
             }
 
             $form = $forms[$submittedForm];
