@@ -47,6 +47,19 @@ class PrescriptionArticleRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Récupère le numéro maximal.
+     *
+     * @return int le numéro maximal
+     */
+    public function recupMaxNumCat(): int
+    {
+        $qb = $this->createQueryBuilder('article');
+        $qb->select('max(article.numero)');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
     public function findByArticleWithContenu(PrescriptionArticle $article): array
     {
         $qb = $this->createQueryBuilder('article')

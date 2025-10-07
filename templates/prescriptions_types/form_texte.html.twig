@@ -2,7 +2,13 @@
     <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
         <span aria-hidden="true">&times;</span>
     </button>
-    <h3 class="modal-title">Ajouter un texte dans la catégorie "{{ categorie.libelle }}"</h3>
+    <h3 class="modal-title">
+        {% if texte.id is null %}
+            Ajouter un texte dans la catégorie "{{ categorie.libelle }}"
+        {% else %}
+            Modifier le texte
+        {% endif %}
+    </h3>
 </div>
 
 <div class="modal-body">

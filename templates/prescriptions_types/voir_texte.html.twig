@@ -1,19 +1,31 @@
 
 <div class="panel-group" id="accordion_texte_{{ texte.id }}" role="tablist" aria-multiselectable="true">
-    {% for article in prescription_articles %}
+    {% for article in articles %}
         <div class="panel panel-default">
             <div class="panel-heading" role="tab" id="headingOne">
                 <div class="panel-title">
-                    <a id="btn-article-view-content-{{ article.id }}"
-                       role="button"
-                       data-toggle="collapse"
-                       data-parent="#accordion_texte_{{ texte.id }}"
-                       href="#article-view-content-{{ article.id }}"
-                       aria-expanded="true"
-                       aria-controls="collapseOne"
-                    >
-                        {{ article.libelle }}
-                    </a>
+                    <div class="row">
+                        <div class="col-xs-10">
+
+                            <a id="btn-article-view-content-{{ article.id }}"
+                               role="button"
+                               data-toggle="collapse"
+                               data-parent="#accordion_texte_{{ texte.id }}"
+                               href="#article-view-content-{{ article.id }}"
+                               aria-expanded="true"
+                               aria-controls="collapseOne"
+                            >
+                                {{ article.libelle }}
+                            </a>
+                        </div>
+                        <div class="col-xs-2 text-right">
+                            <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                    data-content="{{ path("admin_prescriptions_types_articles_modifier", {categorie: categorie.id, texte: texte.id, article: article.id}) }}"
+                                    data-target="#modal-prescription" title="Modifier le texte">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="article-view-content-{{ article.id }}"
