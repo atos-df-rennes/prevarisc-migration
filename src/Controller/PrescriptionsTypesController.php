@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
 use App\Entity\PrescriptionTexte;
+use App\Entity\PrescriptionType;
 use App\Form\PrescriptionTypeArticleType;
 use App\Form\PrescriptionTypeCategorieType;
+use App\Form\PrescriptionTypePrescriptionType;
 use App\Form\PrescriptionTypeTexteType;
 use App\Repository\PrescriptionArticleRepository;
 use App\Repository\PrescriptionCategorieRepository;
@@ -18,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function foo\func;
 
 /**
  * @IsGranted("admin")
@@ -217,7 +220,63 @@ class PrescriptionsTypesController extends AbstractController
         $associations = $prescriptions->showPrescriptionType($categorie->getId(), $texte->getId(), $article->getId());
 
         return $this->render('prescriptions_types/voir_article.html.twig', [
-            'prescription_associations' => $associations
+            'prescription_associations' => $associations,
+            'categorie' => $categorie,
+            'texte' => $texte,
+            'article' => $article,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_ajouter")
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_modifier")
+     *
+     * @ParamConverter("categorie", options={"id" = "categorie"})
+     * @ParamConverter("texte", options={"id" = "texte"})
+     * @ParamConverter("article", options={"id" = "article"})
+     * @ParamConverter("prescription", options={"id" = "prescription"})
+     */
+    public function articlesAssociationForm(
+        Request $request,
+        PrescriptionCategorie $categorie,
+        PrescriptionTexte $texte,
+        PrescriptionArticle $article,
+        ?PrescriptionType $prescription = null
+    ): Response {
+        $actionUrl = $this->generateUrl($request->attributes->get('_route'), $request->attributes->get('_route_params'));
+
+        if (null === $prescription) {
+            //            $maxNumCat = $this->prescriptionArticleRepository->recupMaxNumCat();
+
+            $prescription = new PrescriptionType();
+            $prescription
+                ->setCategorie($categorie->getId())
+                ->setTexte($texte->getId())
+                ->setArticle($article->getId())
+                ->setNumero(1)
+            ;
+        }
+
+        $form = $this->createForm(PrescriptionTypePrescriptionType::class, $prescription, [
+            'action' => $actionUrl,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($prescription);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        return $this->render('prescriptions_types/form_prescription.html.twig', [
+            'article' => $article,
+            'prescription' => $prescription,
+            'form' => $form->createView(),
         ]);
     }
 }

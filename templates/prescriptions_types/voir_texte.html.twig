@@ -19,6 +19,12 @@
                             </a>
                         </div>
                         <div class="col-xs-2 text-right">
+
+                            <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                    data-content="{{ path("admin_prescriptions_types_prescriptions_ajouter", {categorie: categorie.id, texte: texte.id, article: article.id}) }}"
+                                    data-target="#modal-prescription" title="Ajouter une prescription type">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
                             <button class="btn btn-info btn-icon ajax-modal-trigger"
                                     data-content="{{ path("admin_prescriptions_types_articles_modifier", {categorie: categorie.id, texte: texte.id, article: article.id}) }}"
                                     data-target="#modal-prescription" title="Modifier le texte">

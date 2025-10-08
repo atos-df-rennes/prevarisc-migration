@@ -8,18 +8,22 @@
 </tr>
 </thead>
 <tbody>
-    {% for association in prescription_associations %}
-        {% set nb_assoc = association|length %}
-        {% for prescription_association in association %}
+    {% for prescriptions in prescription_associations %}
+        {% set nb_assoc = prescriptions|length %}
+        {% for prescription in prescriptions %}
             <tr>
-                <td class="col-xs-2">{{ prescription_association.texte.libelle }}</td>
-                <td class="col-xs-2">{{ prescription_association.article.libelle }}</td>
+                <td class="col-xs-2">{{ prescription.texte.libelle }}</td>
+                <td class="col-xs-2">{{ prescription.article.libelle }}</td>
                 {% if loop.first %}
                     <td class="col-xs-7" rowspan="{{ nb_assoc }}">
-                        {{ prescription_association.prescriptionType.libelle|nl2br }}
+                        {{ prescription.prescriptionType.libelle|nl2br }}
                     </td>
                     <td class="col-xs-1" rowspan="{{ nb_assoc }}">
-                        <a class="btn btn-default" href="#" title="Modifier"><span class="glyphicon glyphicon-edit"></span></a>
+                        <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                data-content="{{ path("admin_prescriptions_types_prescriptions_modifier", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
+                                data-target="#modal-prescription" title="Modifier le texte">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </button>
                     </td>
                 {% endif %}
             </tr>

@@ -3,14 +3,20 @@ document.addEventListener('DOMContentLoaded', function () {
     // Get the ul that holds the collection of tags
     const collectionHolder = document.querySelector('.remove-collection-widget');
 
-    // add a delete link to all of the existing tag form li elements
-    collectionHolder.querySelectorAll('li').forEach(
-        (el) => addTagFormDeleteLink(el)
-    );
+    if(collectionHolder) {
+        // add a delete link to all of the existing tag form li elements
+        collectionHolder.querySelectorAll('li').forEach(
+            (el) => addTagFormDeleteLink(el)
+        );
+    }
 
+    document.getElementsByTagName('body').item(0).addEventListener('click', (e) => {
+        var btnElement = e.target;
 
-    document.querySelector('.add-collection-widget').addEventListener('click', function (e) {
-        const list = document.querySelector(this.getAttribute('data-list-selector'));
+        if(!btnElement.classList.contains('add-collection-widget')){ // Si l'élément n'est pas un de ceux à traiter
+            return;
+        }
+        const list = document.querySelector(btnElement.getAttribute('data-list-selector'));
         // Try to find the counter of the list or use the length of the list
         let counter = Number(list.dataset.widgetCounter) || list.children.length;
 
@@ -35,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if(list.classList.contains('remove-collection-widget')) {
             addTagFormDeleteLink(newElem);
         }
-    });
+    })
 });
 
 function addTagFormDeleteLink(element) {
