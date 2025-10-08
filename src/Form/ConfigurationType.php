@@ -53,7 +53,7 @@ class ConfigurationType extends AbstractType
         $builder
             ->get('prevariscLocalSommeilTypes')
             ->addModelTransformer(new CallbackTransformer(
-                function (?string $localSommeilTypesAsString) {
+                function (?string $localSommeilTypesAsString): array {
                     if (null === $localSommeilTypesAsString) {
                         return [];
                     }
@@ -61,16 +61,16 @@ class ConfigurationType extends AbstractType
                     // Convertit les identifiants en entités
                     return array_map(function (string $localSommeilType) {
                         return $this->etablissementTypeRepository->find($localSommeilType);
-                    }, explode(';',  $localSommeilTypesAsString));
+                    }, explode(';', $localSommeilTypesAsString));
                 },
                 /** @var EtablissementType[] $etablissementsTypes */
-                function (array $etablissementsTypes) {
+                function (array $etablissementsTypes): string {
                     if ([] === $etablissementsTypes) {
                         return '';
                     }
 
                     // Convertit les entités en identifiants
-                    return implode(';', array_map(function ($etablissementType) {
+                    return implode(';', array_map(function ($etablissementType): int {
                         if (!$etablissementType instanceof EtablissementType) {
                             throw new \InvalidArgumentException("Le type d'établissement n'est pas valide.");
                         }

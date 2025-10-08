@@ -48,7 +48,7 @@ class ConfigurationsRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère la configuration unique (peu importe l'id)
+     * Récupère la configuration unique (peu importe l'id).
      */
     public function getSingleConfiguration(): ?Configurations
     {

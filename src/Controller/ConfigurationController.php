@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\CommissionType;
 use App\Entity\Configurations;
 use App\Form\ConfigurationType;
 use App\Repository\CommissionTypeRepository;
@@ -23,10 +22,9 @@ class ConfigurationController extends AbstractController
         EntityManagerInterface $entityManager,
         ConfigurationsRepository $configurationsRepository,
         CommissionTypeRepository $commissionTypeRepository
-    ): Response
-    {
+    ): Response {
         $configuration = $configurationsRepository->getSingleConfiguration();
-        if (!$configuration) {
+        if (null === $configuration) {
             $configuration = new Configurations();
         }
 
@@ -58,6 +56,7 @@ class ConfigurationController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Configuration mise à jour avec succès.');
+
             return $this->redirectToRoute('admin_configuration');
         }
 

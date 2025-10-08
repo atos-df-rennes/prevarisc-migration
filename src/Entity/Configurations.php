@@ -14,7 +14,9 @@ class Configurations
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -51,6 +53,7 @@ class Configurations
      * @var ?CommissionType
      *
      * @ORM\OneToOne(targetEntity="App\Entity\CommissionType")
+     *
      * @ORM\JoinColumn(name="prevarisc_commission_communale_type_id", referencedColumnName="ID_COMMISSIONTYPE", nullable=true)
      */
     private $prevariscCommissionCommunaleType;
