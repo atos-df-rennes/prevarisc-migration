@@ -49,7 +49,7 @@ class PrescriptionReglementaire
     /**
      * @var Collection<int, PrescriptionReglementaireAssociation>
      *
-     * @ORM\OneToMany(targetEntity=PrescriptionReglementaireAssociation::class, mappedBy="regle", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=PrescriptionReglementaireAssociation::class, mappedBy="regle", orphanRemoval=true, cascade={"persist"})
      */
     private $associations;
 
@@ -107,11 +107,38 @@ class PrescriptionReglementaire
         return $this->associations;
     }
 
+    /**
+     * @param Collection<int, PrescriptionReglementaireAssociation> $associations
+     */
+    public function setAssociations(Collection $associations): self
+    {
+        $this->associations->clear();
+
+        foreach ($associations as $key => $association) {
+            $association->setNumero($key + 1);
+            $association->setRegle($this);
+
+            $this->associations->add($association);
+        }
+
+        $this->associations = $associations;
+
+        return $this;
+    }
+
     public function addAssociation(PrescriptionReglementaireAssociation $association): self
     {
         if (!$this->associations->contains($association)) {
-            $this->associations[] = $association;
+            if (($lastAsso = $this->associations->last()) instanceof PrescriptionReglementaireAssociation) {
+                $lastNumero = $lastAsso->getNumero();
+            } else {
+                $lastNumero = $this->associations->count();
+            }
+
+            $association->setNumero($lastNumero + 1);
             $association->setRegle($this);
+
+            $this->associations->add($association);
         }
 
         return $this;
