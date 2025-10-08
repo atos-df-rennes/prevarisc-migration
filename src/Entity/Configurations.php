@@ -22,20 +22,6 @@ class Configurations
     private $id;
 
     /**
-     * @var ?bool
-     *
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $prevariscDebugEnabled;
-
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $prevariscEnforceSecurity;
-
-    /**
      * @var ?string
      *
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -138,30 +124,6 @@ class Configurations
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getPrevariscDebugEnabled(): ?bool
-    {
-        return $this->prevariscDebugEnabled;
-    }
-
-    public function setPrevariscDebugEnabled(?bool $prevariscDebugEnabled): self
-    {
-        $this->prevariscDebugEnabled = $prevariscDebugEnabled;
-
-        return $this;
-    }
-
-    public function getPrevariscEnforceSecurity(): ?bool
-    {
-        return $this->prevariscEnforceSecurity;
-    }
-
-    public function setPrevariscEnforceSecurity(?bool $prevariscEnforceSecurity): self
-    {
-        $this->prevariscEnforceSecurity = $prevariscEnforceSecurity;
-
-        return $this;
     }
 
     public function getPrevariscPluginIgnkey(): ?string

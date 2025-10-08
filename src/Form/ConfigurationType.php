@@ -28,17 +28,6 @@ class ConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('prevariscDebugEnabled', CheckboxType::class, [
-                'label' => 'Mode debug',
-                'required' => false,
-            ])
-            ->add('prevariscEnforceSecurity', CheckboxType::class, [
-                'label' => 'Sécurité renforcée',
-                'required' => false,
-            ])
-        ;
-
-        $builder
             ->add('prevariscLocalSommeilTypes', EntityType::class, [
                 'class' => EtablissementType::class,
                 'choice_label' => 'libelle',

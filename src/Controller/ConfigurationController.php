@@ -32,7 +32,6 @@ class ConfigurationController extends AbstractController
         $commissionType = $commissionTypeRepository->find($commissionTypeId);
 
         $configuration->setPrevariscCommissionCommunaleType($commissionType);
-        $configuration->setPrevariscDebugEnabled($this->getParameter('app.debug'));
         $configuration->setPrevariscDashboardCourrierSansReponseDays($this->getParameter('app.dashboard_courrier_sans_reponse_days'));
         $configuration->setPrevariscDashboardDossiersSansAvisDays($this->getParameter('app.dashboard_dossiers_sans_avis_days'));
         $configuration->setPrevariscDashboardNextCommissionsDays($this->getParameter('app.dashboard_next_commissions_days'));
@@ -40,7 +39,6 @@ class ConfigurationController extends AbstractController
         $configuration->setPrevariscDateCommissionRelancePeriodicite($this->getParameter('app.relance_periodicite_commission'));
         $configuration->setPrevariscDescriptifPersonnalise($this->getParameter('app.descriptif_personnalise'));
         $configuration->setPrevariscDossiersMaxAAfficher($this->getParameter('app.nb_dossiers_a_afficher'));
-        $configuration->setPrevariscEnforceSecurity($this->getParameter('app.enforce_security'));
         $configuration->setPrevariscRisquesNaturelsExemples($this->getParameter('app.risques_naturels_exemples'));
         $configuration->setPrevariscRisquesTechnologiquesExemples($this->getParameter('app.risques_technologiques_exemples'));
         $configuration->setPrevariscPluginIgnkey($this->getParameter('app.ign_key'));

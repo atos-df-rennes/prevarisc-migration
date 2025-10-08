@@ -27,16 +27,6 @@ class ConfigurationsSubscriber implements EventSubscriberInterface
 
         $dotenvVars = [];
 
-        $debug = $config->getPrevariscDebugEnabled();
-        if (null !== $debug) {
-            $dotenvVars['PREVARISC_DEBUG_ENABLED'] = $debug;
-        }
-
-        $enforceSecurity = $config->getPrevariscEnforceSecurity();
-        if (null !== $enforceSecurity) {
-            $dotenvVars['PREVARISC_ENFORCE_SECURITY'] = $enforceSecurity;
-        }
-
         $pluginIgnkey = $config->getPrevariscPluginIgnkey();
         if (null !== $pluginIgnkey) {
             $dotenvVars['PREVARISC_PLUGIN_IGNKEY'] = $pluginIgnkey;
