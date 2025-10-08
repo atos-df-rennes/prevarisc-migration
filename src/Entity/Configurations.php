@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Configurations
 {
     /**
+     * @var int
+     *
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -18,82 +20,114 @@ class Configurations
     private $id;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscDebugEnabled;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscEnforceSecurity;
 
     /**
+     * @var ?string
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $prevariscPluginIgnkey;
 
     /**
+     * @var ?string
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $prevariscLocalSommeilTypes;
 
     /**
+     * @var ?CommissionType
+     *
      * @ORM\OneToOne(targetEntity="App\Entity\CommissionType")
      * @ORM\JoinColumn(name="prevarisc_commission_communale_type_id", referencedColumnName="ID_COMMISSIONTYPE", nullable=true)
      */
     private $prevariscCommissionCommunaleType;
 
     /**
+     * @var ?string
+     *
      * @ORM\Column(type="text", nullable=true)
      */
     private $prevariscRisquesNaturelsExemples;
 
     /**
+     * @var ?string
+     *
      * @ORM\Column(type="text", nullable=true)
      */
     private $prevariscRisquesTechnologiquesExemples;
 
     /**
+     * @var ?int
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $prevariscDashboardNextCommissionsDays;
 
     /**
+     * @var ?int
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $prevariscDashboardDossiersSansAvisDays;
 
     /**
+     * @var ?int
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $prevariscDashboardCourrierSansReponseDays;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscDateCommissionRelancePeriodicite;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscDescriptifPersonnalise;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscUnitePeriodiciteAnnees;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscDeactivatePlatau;
 
     /**
+     * @var ?int
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $prevariscDossiersMaxAAfficher;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $prevariscPlatauNoHealthcheck;

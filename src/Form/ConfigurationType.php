@@ -63,15 +63,25 @@ class ConfigurationType extends AbstractType
                         return $this->etablissementTypeRepository->find($localSommeilType);
                     }, explode(';',  $localSommeilTypesAsString));
                 },
-                /** @var array<EtablissementType> $etablissementsTypes */
+                /** @var EtablissementType[] $etablissementsTypes */
                 function (array $etablissementsTypes) {
                     if ([] === $etablissementsTypes) {
                         return '';
                     }
 
                     // Convertit les entités en identifiants
-                    return implode(';', array_map(function (EtablissementType $etablissementType) {
-                        return $etablissementType->getId();
+                    return implode(';', array_map(function ($etablissementType) {
+                        if (!$etablissementType instanceof EtablissementType) {
+                            throw new \InvalidArgumentException("Le type d'établissement n'est pas valide.");
+                        }
+
+                        $id = $etablissementType->getId();
+
+                        if (null === $id) {
+                            throw new \DomainException("L'identifiant du type d'établissement ne peut pas être null.");
+                        }
+
+                        return $id;
                     }, $etablissementsTypes));
                 }
             ));

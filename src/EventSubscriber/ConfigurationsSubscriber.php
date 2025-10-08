@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class ConfigurationsSubscriber implements EventSubscriberInterface
 {
+    /** @var \App\Repository\ConfigurationsRepository */
     private $configurationsRepository;
 
     public function __construct(ConfigurationsRepository $configurationsRepository)
