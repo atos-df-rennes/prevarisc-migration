@@ -6,7 +6,6 @@ use App\Repository\ConfigurationsRepository;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class ConfigurationsSubscriber implements EventSubscriberInterface
 {
@@ -17,7 +16,7 @@ class ConfigurationsSubscriber implements EventSubscriberInterface
         $this->configurationsRepository = $configurationsRepository;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $config = $this->configurationsRepository->getSingleConfiguration();
 
@@ -107,15 +106,16 @@ class ConfigurationsSubscriber implements EventSubscriberInterface
             $dotenvVars['PREVARISC_DOSSIERS_MAX_A_AFFICHER'] = $dossiersMaxAAfficher;
         }
 
-        if (!empty($dotenvVars)) {
-            (new Dotenv())->populate($dotenvVars, true);
+        if ([] === $dotenvVars) {
+            return;
         }
+
+        (new Dotenv(true))->populate($dotenvVars, true);
     }
 
-    public static function getSubscribedEvents()
-    {
+    public static function getSubscribedEvents(): array {
         return [
-            'kernel.request' => 'onKernelRequest',
+            RequestEvent::class => 'onKernelRequest',
         ];
     }
 }

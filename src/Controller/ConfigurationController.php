@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CommissionType;
 use App\Entity\Configurations;
 use App\Form\ConfigurationType;
+use App\Repository\CommissionTypeRepository;
 use App\Repository\ConfigurationsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +18,12 @@ class ConfigurationController extends AbstractController
     /**
      * @Route("/admin/configuration", name="admin_configuration")
      */
-    public function index(Request $request, EntityManagerInterface $entityManager, ConfigurationsRepository $configurationsRepository): Response
+    public function index(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ConfigurationsRepository $configurationsRepository,
+        CommissionTypeRepository $commissionTypeRepository
+    ): Response
     {
         $configuration = $configurationsRepository->getSingleConfiguration();
         if (!$configuration) {
@@ -25,14 +31,9 @@ class ConfigurationController extends AbstractController
         }
 
         $commissionTypeId = $this->getParameter('app.commission_communale_type');
+        $commissionType = $commissionTypeRepository->find($commissionTypeId);
 
-        if ($commissionTypeId) {
-            $commissionType = $entityManager->getRepository(CommissionType::class)->find($commissionTypeId);
-            if (!$commissionType) {
-                throw new \Exception('CommissionType introuvable pour l\'ID ' . $commissionTypeId);
-            }
-        }
-
+        $configuration->setPrevariscCommissionCommunaleType($commissionType);
         $configuration->setPrevariscDebugEnabled($this->getParameter('app.debug'));
         $configuration->setPrevariscDashboardCourrierSansReponseDays($this->getParameter('app.dashboard_courrier_sans_reponse_days'));
         $configuration->setPrevariscDashboardDossiersSansAvisDays($this->getParameter('app.dashboard_dossiers_sans_avis_days'));

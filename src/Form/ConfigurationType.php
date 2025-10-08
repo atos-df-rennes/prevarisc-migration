@@ -28,6 +28,17 @@ class ConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('prevariscDebugEnabled', CheckboxType::class, [
+                'label' => 'Mode debug',
+                'required' => false,
+            ])
+            ->add('prevariscEnforceSecurity', CheckboxType::class, [
+                'label' => 'Sécurité renforcée',
+                'required' => false,
+            ])
+        ;
+
+        $builder
             ->add('prevariscLocalSommeilTypes', EntityType::class, [
                 'class' => EtablissementType::class,
                 'choice_label' => 'libelle',
@@ -39,13 +50,15 @@ class ConfigurationType extends AbstractType
                 'help' => 'Maintenez CTRL enfoncé pour sélectionner plusieurs types.',
             ]);
 
-        $builder->get('prevariscLocalSommeilTypes')
+        $builder
+            ->get('prevariscLocalSommeilTypes')
             ->addModelTransformer(new CallbackTransformer(
                 function (?string $localSommeilTypesAsString) {
                     if (null === $localSommeilTypesAsString) {
                         return [];
                     }
 
+                    // Convertit les identifiants en entités
                     return array_map(function (string $localSommeilType) {
                         return $this->etablissementTypeRepository->find($localSommeilType);
                     }, explode(';',  $localSommeilTypesAsString));
@@ -56,75 +69,70 @@ class ConfigurationType extends AbstractType
                         return '';
                     }
 
+                    // Convertit les entités en identifiants
                     return implode(';', array_map(function (EtablissementType $etablissementType) {
                         return $etablissementType->getId();
                     }, $etablissementsTypes));
                 }
             ));
 
-        $builder->add('prevariscDebugEnabled', CheckboxType::class, [
-        'label' => 'Debug activé',
-        'required' => false,
-        ])
-        ->add('prevariscEnforceSecurity', CheckboxType::class, [
-            'label' => 'Sécurité renforcée',
-            'required' => false,
-        ])
-        ->add('prevariscPluginIgnkey', TextType::class, [
-            'label' => 'Plugin IGN Key',
-            'required' => false,
-        ])
-        ->add('prevariscCommissionCommunaleType', EntityType::class, [
-            'class' => CommissionType::class,
-            'choice_label' => 'libelle',
-            'label' => 'Type de commission communale',
-            'required' => false,
-            'placeholder' => 'Sélectionnez un type',
-        ])
-        ->add('prevariscRisquesNaturelsExemples', TextType::class, [
-            'label' => 'Exemples de risques naturels',
-            'required' => false,
-        ])
-        ->add('prevariscRisquesTechnologiquesExemples', TextType::class, [
-            'label' => 'Exemples de risques technologiques',
-            'required' => false,
-        ])
-        ->add('prevariscDashboardNextCommissionsDays', IntegerType::class, [
-            'label' => 'Dashboard - Jours prochaines commissions',
-            'required' => false,
-        ])
-        ->add('prevariscDashboardDossiersSansAvisDays', IntegerType::class, [
-            'label' => 'Dashboard - Jours dossiers sans avis',
-            'required' => false,
-        ])
-        ->add('prevariscDashboardCourrierSansReponseDays', IntegerType::class, [
-            'label' => 'Dashboard - Jours courrier sans réponse',
-            'required' => false,
-        ])
-        ->add('prevariscDateCommissionRelancePeriodicite', CheckboxType::class, [
-            'label' => 'Périodicité relance date commission',
-            'required' => false,
-        ])
-        ->add('prevariscDescriptifPersonnalise', CheckboxType::class, [
-            'label' => 'Descriptif personnalisé',
-            'required' => false,
-        ])
-        ->add('prevariscUnitePeriodiciteAnnees', CheckboxType::class, [
-            'label' => 'Unité de périodicité en années',
-            'required' => false,
-        ])
-        ->add('prevariscDeactivatePlatau', CheckboxType::class, [
-            'label' => 'Désactiver PLATAU',
-            'required' => false,
-        ])
-        ->add('prevariscPlatauNoHealthcheck', CheckboxType::class, [
-            'label' => 'PLATAU - Pas de healthcheck',
-            'required' => false,
-        ])
-        ->add('prevariscDossiersMaxAAfficher', IntegerType::class, [
-            'label' => 'Nombre maximum de dossiers à afficher',
-            'required' => false,
-        ])
+        $builder
+            ->add('prevariscPluginIgnkey', TextType::class, [
+                'label' => 'Clés IGN',
+                'required' => false,
+            ])
+            ->add('prevariscCommissionCommunaleType', EntityType::class, [
+                'class' => CommissionType::class,
+                'choice_label' => 'libelle',
+                'label' => 'Type de commission communale',
+                'required' => false,
+                'placeholder' => 'Sélectionnez un type',
+            ])
+            ->add('prevariscRisquesNaturelsExemples', TextType::class, [
+                'label' => 'Exemples de risques naturels',
+                'required' => false,
+            ])
+            ->add('prevariscRisquesTechnologiquesExemples', TextType::class, [
+                'label' => 'Exemples de risques technologiques',
+                'required' => false,
+            ])
+            ->add('prevariscDashboardNextCommissionsDays', IntegerType::class, [
+                'label' => 'Dashboard - Jours prochaines commissions',
+                'required' => false,
+            ])
+            ->add('prevariscDashboardDossiersSansAvisDays', IntegerType::class, [
+                'label' => 'Dashboard - Jours dossiers sans avis',
+                'required' => false,
+            ])
+            ->add('prevariscDashboardCourrierSansReponseDays', IntegerType::class, [
+                'label' => 'Dashboard - Jours courrier sans réponse',
+                'required' => false,
+            ])
+            ->add('prevariscDossiersMaxAAfficher', IntegerType::class, [
+                'label' => 'Nombre maximum de dossiers à afficher',
+                'required' => false,
+            ])
+            ->add('prevariscDateCommissionRelancePeriodicite', CheckboxType::class, [
+                'label' => 'Relancer la périodicité à partir de la date de commission',
+                'help' => 'Uniquement pour les groupes de visite',
+                'required' => false,
+            ])
+            ->add('prevariscDescriptifPersonnalise', CheckboxType::class, [
+                'label' => "Descriptif d'établissement personnalisé",
+                'required' => false,
+            ])
+            ->add('prevariscUnitePeriodiciteAnnees', CheckboxType::class, [
+                'label' => 'Unité de périodicité en années',
+                'required' => false,
+            ])
+            ->add('prevariscDeactivatePlatau', CheckboxType::class, [
+                'label' => "Désactiver Plat'AU",
+                'required' => false,
+            ])
+            ->add('prevariscPlatauNoHealthcheck', CheckboxType::class, [
+                'label' => "Désactiver la vérification de la santé de Plat'AU",
+                'required' => false,
+            ])
         ;
     }
 
