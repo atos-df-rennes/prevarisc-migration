@@ -21,7 +21,7 @@
     </div>
 
     <div class="overflow-x-scroll">
-        <ul class="nav nav-tabs classement w-max-cont" role="tablist">
+        <ul class="nav nav-tabs classement-categorie w-max-cont" role="tablist">
             {% for category in categories %}
                 <li role="presentation" {% if loop.first %}class="active"{% endif %} data-id="{{ category.id }}">
                     <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab"
@@ -111,7 +111,8 @@
                 });
             });
 
-            $("ul.classement").sortable({
+            $(".classement-categorie").sortable({
+                axis: 'x',
                 update: function(event, ui) {
 
                     let list = []

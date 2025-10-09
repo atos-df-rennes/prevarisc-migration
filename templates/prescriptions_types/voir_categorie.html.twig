@@ -1,15 +1,16 @@
 
 <div id="accordion_categorie_{{ categorie.id }}"
-     class="panel-group"
+     class="panel-group classement-texte"
      role="tablist"
      aria-multiselectable="true"
 >
     {% for prescription_texte in prescription_textes %}
         {% if prescription_texte.libelle is not empty %}
-            <div class="panel panel-default">
+            <div class="panel panel-default" data-id="{{ prescription_texte.id }}">
                 <div class="panel-heading" role="tab" id="text_header_{{ prescription_texte.id }}">
-                    <div class="row">
+                    <div class="panel-title row">
                         <div class="col-xs-10">
+                            <span class="glyphicon glyphicon-move handle"></span>
                             <a role="button" data-toggle="collapse" data-parent="#tab_categorie_{{ categorie.id }}" href="#text_content_{{ prescription_texte.id }}" aria-controls="#text_content_{{ prescription_texte.id }}">
                                 {{ prescription_texte.libelle }}
                             </a>
@@ -43,3 +44,33 @@
         {% endif %}
     {% endfor %}
 </div>
+<script type="text/javascript">
+    $(".classement-texte").sortable({
+        handle: ".handle",
+        axis: 'y',
+        update: function(event, ui) {
+
+            let list = []
+            $(this).find('> div').each(function (index, el) {
+                list.push(el.dataset.id)
+            })
+
+            var data = {
+                "type": "texte",
+                "order": list
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/admin/prescriptions/changement-ordre",
+                data: data,
+                beforeSend: function(){
+                    $(this).disableSelection();
+                },
+                success: function(msg){
+                    $(this).enableSelection();
+                }
+            });
+        }
+    });
+</script>

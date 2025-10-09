@@ -1,11 +1,12 @@
 
-<div class="panel-group" id="accordion_texte_{{ texte.id }}" role="tablist" aria-multiselectable="true">
+<div class="panel-group classement-article" id="accordion_texte_{{ texte.id }}" role="tablist" aria-multiselectable="true">
     {% for article in articles %}
-        <div class="panel panel-default">
+        <div class="panel panel-default" data-id="{{ article.id }}">
             <div class="panel-heading" role="tab" id="headingOne">
                 <div class="panel-title">
                     <div class="row">
                         <div class="col-xs-10">
+                            <span class="glyphicon glyphicon-move handle"></span>
 
                             <a id="btn-article-view-content-{{ article.id }}"
                                role="button"
@@ -43,3 +44,33 @@
         </div>
     {% endfor %}
 </div>
+<script type="text/javascript">
+    $(".classement-article").sortable({
+        handle: ".handle",
+        axis: 'y',
+        update: function(event, ui) {
+
+            let list = []
+            $(this).find('> div').each(function (index, el) {
+                list.push(el.dataset.id)
+            })
+
+            var data = {
+                "type": "article",
+                "order": list
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/admin/prescriptions/changement-ordre",
+                data: data,
+                beforeSend: function(){
+                    $(this).disableSelection();
+                },
+                success: function(msg){
+                    $(this).enableSelection();
+                }
+            });
+        }
+    });
+</script>

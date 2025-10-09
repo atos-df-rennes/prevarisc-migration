@@ -55,11 +55,11 @@ class PrescriptionCategorieRepository extends ServiceEntityRepository
     public function setOrder(array $order): void
     {
         $em = $this->getEntityManager();
+        $elements = $this->findBy(['id' => $order]);
 
-        $categories = $this->findAll();
-        foreach ($categories as $category) {
-            $position = array_search($category->getId(), $order, true);
-            $category->setNumero($position + 1);
+        foreach ($elements as $element) {
+            $position = array_search($element->getId(), $order, true);
+            $element->setNumero($position + 1);
         }
 
         $em->flush();

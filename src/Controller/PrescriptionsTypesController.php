@@ -13,6 +13,7 @@ use App\Form\PrescriptionTypeTexteType;
 use App\Repository\PrescriptionArticleRepository;
 use App\Repository\PrescriptionCategorieRepository;
 use App\Repository\PrescriptionTexteRepository;
+use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -20,7 +21,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use function foo\func;
 
 /**
  * @IsGranted("admin")
@@ -36,14 +36,19 @@ class PrescriptionsTypesController extends AbstractController
     /** @var PrescriptionArticleRepository */
     private $prescriptionArticleRepository;
 
+    /** @var PrescriptionTypeRepository */
+    private $prescriptionTypeRepository;
+
     public function __construct(
         PrescriptionCategorieRepository $prescriptionCategorieRepository,
         PrescriptionTexteRepository $prescriptionTexteRepository,
-        PrescriptionArticleRepository $prescriptionArticleRepository
+        PrescriptionArticleRepository $prescriptionArticleRepository,
+        PrescriptionTypeRepository $prescriptionTypeRepository
     ) {
         $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
         $this->prescriptionTexteRepository = $prescriptionTexteRepository;
         $this->prescriptionArticleRepository = $prescriptionArticleRepository;
+        $this->prescriptionTypeRepository = $prescriptionTypeRepository;
     }
 
     /**
@@ -67,6 +72,12 @@ class PrescriptionsTypesController extends AbstractController
 
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);
+        } elseif ('texte' === $type) {
+            $this->prescriptionTexteRepository->setOrder($order);
+        } elseif ('article' === $type) {
+            $this->prescriptionArticleRepository->setOrder($order);
+        } elseif ('prescription' === $type) {
+            $this->prescriptionTypeRepository->setOrder($order);
         }
 
         return $this->json([]);
@@ -264,7 +275,6 @@ class PrescriptionsTypesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $em = $this->getDoctrine()->getManager();
 
             $em->persist($prescription);

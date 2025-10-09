@@ -1,33 +1,76 @@
-<table class="table">
-<thead>
-<tr>
-    <th>Texte</th>
-    <th>Article</th>
-    <th>Contenu</th>
-    <th>Édition</th>
-</tr>
-</thead>
-<tbody>
+<table class="table table-bordered">
+
+<tbody class="classement-prescription">
+    {%  dump(prescription_associations) %}
     {% for prescriptions in prescription_associations %}
-        {% set nb_assoc = prescriptions|length %}
-        {% for prescription in prescriptions %}
-            <tr>
-                <td class="col-xs-2">{{ prescription.texte.libelle }}</td>
-                <td class="col-xs-2">{{ prescription.article.libelle }}</td>
-                {% if loop.first %}
-                    <td class="col-xs-7" rowspan="{{ nb_assoc }}">
-                        {{ prescription.prescriptionType.libelle|nl2br }}
-                    </td>
-                    <td class="col-xs-1" rowspan="{{ nb_assoc }}">
-                        <button class="btn btn-info btn-icon ajax-modal-trigger"
-                                data-content="{{ path("admin_prescriptions_types_prescriptions_modifier", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
-                                data-target="#modal-prescription" title="Modifier le texte">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </button>
-                    </td>
-                {% endif %}
-            </tr>
-        {% endfor %}
+        <tr data-id="{{ prescriptions|first.prescriptionType.id }}">
+            <td>
+                <span class="handle-prescription glyphicon glyphicon-move"></span>
+            </td>
+            <td>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Texte</th>
+                            <th>Article</th>
+                            <th>Contenu</th>
+                            <th>Édition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% set nb_assoc = prescriptions|length %}
+                    {% for prescription in prescriptions %}
+                        <tr>
+                            <td class="col-xs-2">{{ prescription.texte.libelle }}</td>
+                            <td class="col-xs-2">{{ prescription.article.libelle }}</td>
+                            {% if loop.first %}
+                                <td class="col-xs-7" rowspan="{{ nb_assoc }}">
+                                    {{ prescription.prescriptionType.libelle|nl2br }}
+                                </td>
+                                <td class="col-xs-1" rowspan="{{ nb_assoc }}">
+                                    <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                            data-content="{{ path("admin_prescriptions_types_prescriptions_modifier", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
+                                            data-target="#modal-prescription" title="Modifier le texte">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
     {% endfor %}
 </tbody>
 </table>
+<script type="text/javascript">
+    $(".classement-prescription").sortable({
+        handle: ".handle-prescription",
+        axis: 'y',
+        update: function(event, ui) {
+
+            let list = []
+            $(this).find('> tr').each(function (index, el) {
+                list.push(el.dataset.id)
+            })
+
+            var data = {
+                "type": "prescription",
+                "order": list
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/admin/prescriptions/changement-ordre",
+                data: data,
+                beforeSend: function(){
+                    $(this).disableSelection();
+                },
+                success: function(msg){
+                    $(this).enableSelection();
+                }
+            });
+        }
+    });
+</script>
