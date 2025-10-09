@@ -13,7 +13,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionTypePrescriptionAssociationType extends AbstractType
-{/** @var PrescriptionArticleListeRepository */
+{
+    /** @var PrescriptionArticleListeRepository */
     private $prescriptionArticleListeRepository;
 
     /** @var PrescriptionTexteListeRepository */
