@@ -20,7 +20,7 @@
             <legend>Associations</legend>
 
             <ul id="prescription_reglementaire_associations"
-                class="list-unstyled mt-4"
+                class="list-unstyled mt-4 remove-collection-widget"
                 data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
                 data-widget-tags="{{ '<li></li>'|e }}"
                 data-widget-counter="{{ form.associations|length }}">
@@ -47,3 +47,12 @@
         </div>
     {{ form_end(form) }}
 </div>
+<script>
+    // Permet de gérer l'affichage du bouton de suppression pour les éléments déjà
+    const collection = document.querySelector('.remove-collection-widget').children;
+    if(collection.length > 0 && "function" === typeof addTagFormDeleteLink){
+        for (let item of collection) {
+            addTagFormDeleteLink(item)
+        }
+    }
+</script>

@@ -46,10 +46,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function addTagFormDeleteLink(element) {
     const buttonWrapper = document.createElement('div');
-    buttonWrapper.classList.add('col-sm-1');
-    buttonWrapper.classList.add('col-sm-offset-1');
+    buttonWrapper.classList.add('col-sm-2');
+    buttonWrapper.classList.add('text-right');
 
-    buttonWrapper.innerHTML = '<button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button>';
+    buttonWrapper.innerHTML = '<button class="btn btn-danger btn-icon" title="Supprimer l\'élément"><span class="glyphicon glyphicon-trash"></span></button>';
 
     element.firstElementChild.append(buttonWrapper);
 
