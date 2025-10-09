@@ -40,26 +40,31 @@ class PrescriptionsTypesController extends AbstractController
     /** @var PrescriptionTypeRepository */
     private $prescriptionTypeRepository;
 
+    /** @var Prescriptions */
+    private $prescriptionsService;
+
     public function __construct(
         PrescriptionCategorieRepository $prescriptionCategorieRepository,
         PrescriptionTexteRepository $prescriptionTexteRepository,
         PrescriptionArticleRepository $prescriptionArticleRepository,
-        PrescriptionTypeRepository $prescriptionTypeRepository
+        PrescriptionTypeRepository $prescriptionTypeRepository,
+        Prescriptions $prescriptionsService
     ) {
         $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
         $this->prescriptionTexteRepository = $prescriptionTexteRepository;
         $this->prescriptionArticleRepository = $prescriptionArticleRepository;
         $this->prescriptionTypeRepository = $prescriptionTypeRepository;
+        $this->prescriptionsService = $prescriptionsService;
     }
 
     /**
      * @Route("/admin/prescriptions", name="admin_prescriptions")
      */
-    public function index(Prescriptions $prescriptions): Response
+    public function index(): Response
     {
         return $this->render('prescriptions_types/index.html.twig', [
             'categories' => $this->prescriptionCategorieRepository->findBy([], ['numero' => 'ASC']),
-            'sans_categories' => $prescriptions->showPrescriptionType(0, 0, 0),
+            'sans_categories' => $this->prescriptionsService->showPrescriptionType(0, 0, 0),
         ]);
     }
 
@@ -127,7 +132,8 @@ class PrescriptionsTypesController extends AbstractController
 
         return $this->render('prescriptions_types/voir_categorie.html.twig', [
             'categorie' => $categorie,
-            'prescription_textes' => $textes
+            'sans_textes' => dump($this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, 0, 0)),
+            'prescription_textes' => dump($textes)
         ]);
     }
 
@@ -181,6 +187,7 @@ class PrescriptionsTypesController extends AbstractController
 
         return $this->render('prescriptions_types/voir_texte.html.twig', [
             'articles' => $articles,
+            'sans_articles' => $this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, 0),
             'categorie' => $categorie,
             'texte' => $texte,
         ]);
@@ -231,9 +238,9 @@ class PrescriptionsTypesController extends AbstractController
     /**
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/article/{article}", name="admin_prescriptions_types_texte_voir_article_contenu")
      */
-    public function articlesAssociation(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticle $article, Prescriptions $prescriptions): Response
+    public function articlesAssociation(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticle $article): Response
     {
-        $associations = $prescriptions->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, $article->getId() ?? 0);
+        $associations = $this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, $article->getId() ?? 0);
 
         return $this->render('prescriptions_types/voir_article.html.twig', [
             'prescription_associations' => $associations,

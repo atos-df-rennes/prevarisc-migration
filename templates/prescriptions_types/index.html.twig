@@ -49,20 +49,16 @@
 
     <hr>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">Sans catégories</h4>
+    {% if sans_categories|length > 0 %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Sans catégories</h4>
+            </div>
+            <div class="panel-body">
+                {% include 'prescriptions_types/_voir_prescriptions_type.html.twig' with {'prescriptions': sans_categories} only %}
+            </div>
         </div>
-        <div class="panel-body">
-            {% for prescription in sans_categories %}
-                {% for association in prescription %}
-                    <p>{{ association.prescriptionType.libelle|nl2br }}</p>
-                    {{ association.texte.libelle|nl2br }}
-                    {{ association.texte.libelle|nl2br }}
-                {% endfor %}
-            {% endfor %}
-        </div>
-    </div>
+    {% endif %}
 
     {{ include('prescriptions_types/_modal_ajout.html.twig') }}
 {% endblock %}
@@ -74,12 +70,13 @@
         $(document).ready(function() {
 
             $(document).on('click', '[data-toggle]', function(e) {
-                const $tabContent = $(e.target.hash)
+                const href = $(e.target).attr('href') ?? $(e.target).parent().attr('href')
+                const $tabContent = $(href)
                 $.ajax({
                     type: "GET",
                     url: $tabContent.data('content'),
                     success: function (msg) {
-                        const $body = $tabContent.find('.panel-body')
+                        const $body = $tabContent.find('> .panel-body')
 
                         if($body.length) {
                             $body.html(msg);

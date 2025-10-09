@@ -12,7 +12,7 @@
                         <div class="col-xs-10">
                             <span class="glyphicon glyphicon-move handle"></span>
                             <a role="button" data-toggle="collapse" data-parent="#tab_categorie_{{ categorie.id }}" href="#text_content_{{ prescription_texte.id }}" aria-controls="#text_content_{{ prescription_texte.id }}">
-                                {{ prescription_texte.libelle }}
+                                <em>Texte</em> - {{ prescription_texte.libelle }}
                             </a>
                         </div>
                         <div class="col-xs-2 text-right">
@@ -43,6 +43,17 @@
             </div>
         {% endif %}
     {% endfor %}
+
+    {% if sans_textes|length > 0 %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Sans Textes</h4>
+            </div>
+            <div class="panel-body">
+                {% include 'prescriptions_types/_voir_prescriptions_type.html.twig' with {'prescriptions': sans_textes} only %}
+            </div>
+        </div>
+    {% endif %}
 </div>
 <script type="text/javascript">
     $(".classement-texte").sortable({
