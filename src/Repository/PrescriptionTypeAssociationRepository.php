@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionArticleListe;
-use App\Entity\PrescriptionReglementaireAssociation;
 use App\Entity\PrescriptionTexte;
 use App\Entity\PrescriptionTexteListe;
 use App\Entity\PrescriptionTypeAssociation;

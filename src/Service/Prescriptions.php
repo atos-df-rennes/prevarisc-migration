@@ -77,8 +77,8 @@ final class Prescriptions
     /**
      * Récupère les rappels réglementaires en fonction du type et du mode spécifié.
      *
-     * @param string $type Le type de prescription à récupérer.
-     * @param bool|null $mode Le mode optionnel pour filtrer les prescriptions.
+     * @param string    $type le type de prescription à récupérer
+     * @param bool|null $mode le mode optionnel pour filtrer les prescriptions
      *
      * @return list<array{
      *     prescription: PrescriptionReglementaire,
@@ -87,7 +87,7 @@ final class Prescriptions
      *      texte: PrescriptionTexteListe|null,
      *      article: PrescriptionArticleListe|null
      *     }>
-     *    }> Un tableau contenant les prescriptions et leurs associations.
+     *    }> Un tableau contenant les prescriptions et leurs associations
      */
     public function getPrescriptions(string $type, ?bool $mode = null): array
     {
@@ -118,11 +118,11 @@ final class Prescriptions
     /**
      * Récupère les associations de types de prescription pour une catégorie, un texte et un article donnés.
      *
-     * @param int $categorie Identifiant de la catégorie.
-     * @param int $texte Identifiant du texte.
-     * @param int $article Identifiant de l'article.
+     * @param int $categorie identifiant de la catégorie
+     * @param int $texte     identifiant du texte
+     * @param int $article   identifiant de l'article
      *
-     * @return list<array<int, PrescriptionArticle|PrescriptionTexte|PrescriptionTypeAssociation>> Liste des associations de types de prescription.
+     * @return list<array<int, PrescriptionArticle|PrescriptionTexte|PrescriptionTypeAssociation>> liste des associations de types de prescription
      */
     public function showPrescriptionType(int $categorie, int $texte, int $article): array
     {

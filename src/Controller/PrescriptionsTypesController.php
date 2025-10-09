@@ -71,7 +71,7 @@ class PrescriptionsTypesController extends AbstractController
         $order = $request->get('order');
         $type = $request->get('type');
 
-        if(!is_array($order)) {
+        if (!is_array($order)) {
             throw new BadRequestHttpException("Le paramètre order n'est pas valide");
         }
 
@@ -298,17 +298,17 @@ class PrescriptionsTypesController extends AbstractController
     /**
      * Génère l'URL actuelle en fonction de la requête donnée.
      *
-     * @param Request $request La requête contenant les informations de route.
+     * @param Request $request la requête contenant les informations de route
      *
-     * @return string L'URL actuelle.
+     * @return string L'URL actuelle
      *
-     * @throws BadRequestHttpException Si les paramètres _route ou _route_params ne sont pas valides.
+     * @throws BadRequestHttpException si les paramètres _route ou _route_params ne sont pas valides
      */
     private function getCurrentUrl(Request $request): string
     {
         $routeName = $request->attributes->get('_route');
         $routeParams = $request->attributes->get('_route_params');
-        if(!is_string($routeName) || !is_array($routeParams)) {
+        if (!is_string($routeName) || !is_array($routeParams)) {
             throw new BadRequestHttpException('Les paramètres _route et _route_params ne sont pas valide');
         }
 
