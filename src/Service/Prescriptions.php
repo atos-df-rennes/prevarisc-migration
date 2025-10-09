@@ -2,8 +2,11 @@
 
 namespace App\Service;
 
+use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionArticleListe;
+use App\Entity\PrescriptionReglementaire;
 use App\Entity\PrescriptionReglementaireAssociation;
+use App\Entity\PrescriptionTexte;
 use App\Entity\PrescriptionTexteListe;
 use App\Entity\PrescriptionType;
 use App\Entity\PrescriptionTypeAssociation;
@@ -72,9 +75,19 @@ final class Prescriptions
     }
 
     /**
-     * Récupère les prescriptions et leurs associations article/texte.
+     * Récupère les rappels réglementaires en fonction du type et du mode spécifié.
      *
-     * @return array<int, array{prescription: object, associations: array<int, array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>}>
+     * @param string $type Le type de prescription à récupérer.
+     * @param bool|null $mode Le mode optionnel pour filtrer les prescriptions.
+     *
+     * @return list<array{
+     *     prescription: PrescriptionReglementaire,
+     *     associations: non-empty-list<array{
+     *      association: PrescriptionReglementaireAssociation,
+     *      texte: PrescriptionTexteListe|null,
+     *      article: PrescriptionArticleListe|null
+     *     }>
+     *    }> Un tableau contenant les prescriptions et leurs associations.
      */
     public function getPrescriptions(string $type, ?bool $mode = null): array
     {
@@ -102,6 +115,15 @@ final class Prescriptions
         return $result;
     }
 
+    /**
+     * Récupère les associations de types de prescription pour une catégorie, un texte et un article donnés.
+     *
+     * @param int $categorie Identifiant de la catégorie.
+     * @param int $texte Identifiant du texte.
+     * @param int $article Identifiant de l'article.
+     *
+     * @return list<array<int, PrescriptionArticle|PrescriptionTexte|PrescriptionTypeAssociation>> Liste des associations de types de prescription.
+     */
     public function showPrescriptionType(int $categorie, int $texte, int $article): array
     {
         /** @var PrescriptionType[] $prescriptions */
@@ -133,9 +155,9 @@ final class Prescriptions
      * Construit un tableau d'associations [association, texte, article] à partir
      * de la collection renvoyée par le repository (pra, ptl, pal).
      *
-     * @param array<int, PrescriptionTypeAssociation|PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
+     * @param array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe> $items
      *
-     * @return list<array{association: PrescriptionReglementaireAssociation|PrescriptionTypeAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>
+     * @return list<array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>
      */
     private function buildAssociationsFromRaw(array $items): array
     {
@@ -153,7 +175,7 @@ final class Prescriptions
         $assembled = [];
 
         foreach ($items as $item) {
-            if (!$item instanceof PrescriptionReglementaireAssociation && !$item instanceof PrescriptionTypeAssociation) {
+            if (!$item instanceof PrescriptionReglementaireAssociation) {
                 continue;
             }
 

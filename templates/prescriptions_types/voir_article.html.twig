@@ -1,7 +1,6 @@
 <table class="table table-bordered">
 
 <tbody class="classement-prescription">
-    {%  dump(prescription_associations) %}
     {% for prescriptions in prescription_associations %}
         <tr data-id="{{ prescriptions|first.prescriptionType.id }}">
             <td>

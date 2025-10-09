@@ -146,7 +146,7 @@ class PrescriptionType
     }
 
     /**
-     * @param Collection<int, PrescriptionReglementaireAssociation> $associations
+     * @param Collection<int, PrescriptionTypeAssociation> $associations
      */
     public function setAssociations(Collection $associations): self
     {
@@ -154,7 +154,7 @@ class PrescriptionType
 
         foreach ($associations as $key => $association) {
             $association->setNumero($key + 1);
-            $association->setRegle($this);
+            $association->setPrescriptionType($this);
 
             $this->associations->add($association);
         }

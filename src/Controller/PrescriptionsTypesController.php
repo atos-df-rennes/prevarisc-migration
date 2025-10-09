@@ -20,6 +20,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -69,6 +70,10 @@ class PrescriptionsTypesController extends AbstractController
     {
         $order = $request->get('order');
         $type = $request->get('type');
+
+        if(!is_array($order)) {
+            throw new BadRequestHttpException("Le paramètre order n'est pas valide");
+        }
 
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);
@@ -135,7 +140,7 @@ class PrescriptionsTypesController extends AbstractController
      */
     public function textsForm(Request $request, PrescriptionCategorie $categorie, ?PrescriptionTexte $texte = null): Response
     {
-        $actionUrl = $this->generateUrl($request->attributes->get('_route'), $request->attributes->get('_route_params'));
+        $actionUrl = $this->getCurrentUrl($request);
 
         if (null === $texte) {
             $maxNumCat = $this->prescriptionTexteRepository->recupMaxNumCat();
@@ -191,7 +196,7 @@ class PrescriptionsTypesController extends AbstractController
      */
     public function articlesForm(Request $request, PrescriptionCategorie $categorie, PrescriptionTexte $texte, ?PrescriptionArticle $article = null): Response
     {
-        $actionUrl = $this->generateUrl($request->attributes->get('_route'), $request->attributes->get('_route_params'));
+        $actionUrl = $this->getCurrentUrl($request);
 
         if (null === $article) {
             $maxNumCat = $this->prescriptionArticleRepository->recupMaxNumCat();
@@ -228,7 +233,7 @@ class PrescriptionsTypesController extends AbstractController
      */
     public function articlesAssociation(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticle $article, Prescriptions $prescriptions): Response
     {
-        $associations = $prescriptions->showPrescriptionType($categorie->getId(), $texte->getId(), $article->getId());
+        $associations = $prescriptions->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, $article->getId() ?? 0);
 
         return $this->render('prescriptions_types/voir_article.html.twig', [
             'prescription_associations' => $associations,
@@ -254,9 +259,10 @@ class PrescriptionsTypesController extends AbstractController
         PrescriptionArticle $article,
         ?PrescriptionType $prescription = null
     ): Response {
-        $actionUrl = $this->generateUrl($request->attributes->get('_route'), $request->attributes->get('_route_params'));
+        $actionUrl = $this->getCurrentUrl($request);
 
         if (null === $prescription) {
+            // todo: Il manque la gestion du numéro
             //            $maxNumCat = $this->prescriptionArticleRepository->recupMaxNumCat();
 
             $prescription = new PrescriptionType();
@@ -288,5 +294,25 @@ class PrescriptionsTypesController extends AbstractController
             'prescription' => $prescription,
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Génère l'URL actuelle en fonction de la requête donnée.
+     *
+     * @param Request $request La requête contenant les informations de route.
+     *
+     * @return string L'URL actuelle.
+     *
+     * @throws BadRequestHttpException Si les paramètres _route ou _route_params ne sont pas valides.
+     */
+    private function getCurrentUrl(Request $request): string
+    {
+        $routeName = $request->attributes->get('_route');
+        $routeParams = $request->attributes->get('_route_params');
+        if(!is_string($routeName) || !is_array($routeParams)) {
+            throw new BadRequestHttpException('Les paramètres _route et _route_params ne sont pas valide');
+        }
+
+        return $this->generateUrl($routeName, $routeParams);
     }
 }

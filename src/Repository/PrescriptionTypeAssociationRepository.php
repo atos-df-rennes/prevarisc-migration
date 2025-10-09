@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionReglementaireAssociation;
+use App\Entity\PrescriptionTexte;
 use App\Entity\PrescriptionTexteListe;
 use App\Entity\PrescriptionTypeAssociation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -53,7 +55,7 @@ class PrescriptionTypeAssociationRepository extends ServiceEntityRepository
     /**
      * Récupère les associations de prescription réglementaire pour un identifiant donné.
      *
-     * @return array<int, PrescriptionReglementaireAssociation|PrescriptionTexteListe|PrescriptionArticleListe>
+     * @return array<int, PrescriptionTypeAssociation|PrescriptionTexte|PrescriptionArticle>
      */
     public function getPrescriptionAssoc(int $prescriptionId): array
     {
