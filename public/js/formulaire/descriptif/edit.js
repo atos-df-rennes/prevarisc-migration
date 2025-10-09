@@ -46,3 +46,13 @@ $(document).ready(function() {
         }
     })
 })
+
+document.addEventListener('DOMContentLoaded', () => {
+    const showTocButton = document.getElementById('show-toc');
+
+    if (showTocButton) {
+        showTocButton.addEventListener('click', () => {
+            $('#tocModal').modal('show');
+        });
+    }
+});
