@@ -23,15 +23,20 @@
                             <td class="col-xs-2">{{ prescription.texte.libelle }}</td>
                             <td class="col-xs-2">{{ prescription.article.libelle }}</td>
                             {% if loop.first %}
-                                <td class="col-xs-7" rowspan="{{ nb_assoc }}">
+                                <td class="col-xs-6" rowspan="{{ nb_assoc }}">
                                     {{ prescription.prescriptionType.libelle|nl2br }}
                                 </td>
-                                <td class="col-xs-1" rowspan="{{ nb_assoc }}">
+                                <td class="col-xs-2" rowspan="{{ nb_assoc }}">
                                     <button class="btn btn-info btn-icon ajax-modal-trigger"
                                             data-content="{{ path("admin_prescriptions_types_prescriptions_modifier", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
-                                            data-target="#modal-prescription" title="Modifier le texte">
+                                            data-target="#modal-prescription" title="Modifier la prescription">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button>
+                                    <a class="btn btn-danger btn-icon ajax-modal-trigger"
+                                            data-content="{{ path("admin_prescriptions_types_prescriptions_supprimer", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
+                                            data-target="#modal-prescription" title="Supprimer la prescription">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
                                 </td>
                             {% endif %}
                         </tr>

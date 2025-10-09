@@ -303,6 +303,41 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_supprimer")
+     *
+     * @ParamConverter("categorie", options={"id" = "categorie"})
+     * @ParamConverter("texte", options={"id" = "texte"})
+     * @ParamConverter("article", options={"id" = "article"})
+     * @ParamConverter("prescription", options={"id" = "prescription"})
+     */
+    public function prescriptionTypeRemove(
+        Request $request,
+        PrescriptionCategorie $categorie,
+        PrescriptionTexte $texte,
+        PrescriptionArticle $article,
+        PrescriptionType $prescription
+    ): Response {
+
+        $form = $this->createFormBuilder(null, [
+            'action' => $this->getCurrentUrl($request),
+        ])->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($prescription);
+
+            $em->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        return $this->render('prescriptions_types/remove_prescription.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * Génère l'URL actuelle en fonction de la requête donnée.
      *
      * @param Request $request la requête contenant les informations de route
