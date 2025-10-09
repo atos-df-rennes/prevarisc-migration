@@ -317,7 +317,6 @@ class PrescriptionsTypesController extends AbstractController
         PrescriptionArticle $article,
         PrescriptionType $prescription
     ): Response {
-
         $form = $this->createFormBuilder(null, [
             'action' => $this->getCurrentUrl($request),
         ])->getForm();
