@@ -262,15 +262,14 @@ class PrescriptionsTypesController extends AbstractController
         $actionUrl = $this->getCurrentUrl($request);
 
         if (null === $prescription) {
-            // todo: Il manque la gestion du numéro
-            //            $maxNumCat = $this->prescriptionArticleRepository->recupMaxNumCat();
+            $maxNumCat = $this->prescriptionTypeRepository->recupMaxNumCat();
 
             $prescription = new PrescriptionType();
             $prescription
                 ->setCategorie($categorie->getId())
                 ->setTexte($texte->getId())
                 ->setArticle($article->getId())
-                ->setNumero(1)
+                ->setNumero($maxNumCat + 1)
             ;
         }
 
