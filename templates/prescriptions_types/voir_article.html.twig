@@ -32,11 +32,11 @@
                                             data-target="#modal-prescription" title="Modifier la prescription">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button>
-                                    <a class="btn btn-danger btn-icon ajax-modal-trigger"
+                                    <button class="btn btn-danger btn-icon ajax-modal-trigger"
                                             data-content="{{ path("admin_prescriptions_types_prescriptions_supprimer", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
                                             data-target="#modal-prescription" title="Supprimer la prescription">
                                         <span class="glyphicon glyphicon-trash"></span>
-                                    </a>
+                                    </button>
                                 </td>
                             {% endif %}
                         </tr>
