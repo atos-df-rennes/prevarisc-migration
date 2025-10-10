@@ -181,6 +181,8 @@ final class FusionDesCommunes
                 $this->entityManager->remove($utilisateur);
                 $this->entityManager->remove($communeEntity);
                 $this->entityManager->remove($utilisateurInformations);
+
+                $this->entityManager->flush();
             } catch (\Exception $e) {
                 $this->logger->error(\sprintf('Erreur lors de la suppression de la commune %s (%s) : %s', $commune->nom(), $commune->numinsee(), $e->getMessage()));
 
