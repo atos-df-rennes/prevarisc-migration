@@ -78,48 +78,42 @@ h2.page-header {
 /* On règle la navbar en mode "super sleek"
 -------------------------------------------------- */
 
-body > .navbar {
-    font-size: 12px;
+.navbar-inner .container-fluid,
+.navbar-inner .container-fluid .nav-collapse > ul > li > a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-transform: capitalize;
+    color: #333333;
+    text-decoration: none;
+    font-family: Helvetica Neue;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 100%;
+    vertical-align: bottom;
 }
 
-.navbar .btn, .navbar .btn-group {
-    margin-top: 10px;
+.navbar .nav-collapse {
+    flex: 1;
 }
 
-#research-input input {
-    font-size: 13px;
-    -webkit-transition: width 0.25s ease-in-out;
-    -moz-transition:width 0.25s ease-in-out;
-    -o-transition: width 0.25s ease-in-out;
-    transition: width 0.25s ease-in-out;
-}
-
-#research-input input:focus{
-    width: 300px;
-}
-
-#research-input a {
-    font-size: 12px;
-    padding: 4px 4px 4px 4px;
-    margin-top: 10px;
-    text-transform: initial;
-}
-
-#research-input button.btn_search {
-    padding: 4px 6px;
-}
-
-.navbar-inner .container-fluid {
+.navbar .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
     width: 100%;
 }
 
-.navbar-search {
-    margin: 0;
+.navbar .nav > li {
+    list-style: none;
 }
 
-.navbar-inner .container-fluid,
-.navbar-inner .container-fluid .nav-collapse > ul > li,
-.navbar-inner .container-fluid .nav-collapse > ul > li > a {
+.navbar .nav > li > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 8px;
     line-height: 30px;
     font-size: 12px;
     text-transform: uppercase;
@@ -127,16 +121,81 @@ body > .navbar {
     text-decoration: none;
 }
 
-.navbar-inner .container-fluid .nav-collapse > ul > li > a {
-    padding: 10px 8px 10px 5px;
-}
-
-.navbar-inner .container-fluid .nav-collapse > ul > li > a:hover {
-    color: #555;
+.navbar .nav > li > a > i {
+    font-size: 14px;
+    line-height: 1;
+    margin: 0 5px 3px 0;
 }
 
 .navbar .nav .dropdown-toggle .caret {
+    margin-left : 5px;
     margin-top: 13px;
+}
+
+.navbar .nav > li.li-searched {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.navbar-search {
+    margin: 0;
+}
+
+#research-input {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+#research-input input {
+    font-size: 13px;
+}
+
+.navbar .nav > li.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.navbar .nav > li > a.deconnexion {
+    background-color: #ffffff;
+    color: #333333;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    margin-left: 10px;
+    padding: 7px 12px;
+}
+
+@media (max-width: 767px) {
+    .navbar-inner .container-fluid {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar .nav {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .navbar .nav > li {
+        width: 100%;
+        text-align: left;
+    }
+
+    .navbar .brand {
+        margin-bottom: 10px;
+    }
 }
 
 
@@ -820,10 +879,6 @@ text-decoration: none;
     width: 10%;
     vertical-align: top;
     padding-top: 70px;
-}
-
-.navbar-fixed-top .navbar-inner {
-    box-shadow: none;
 }
 
 .nav-tabs.nav-stacked.menu_dashboard>li>a {
