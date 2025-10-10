@@ -202,7 +202,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete")
+     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"DELETE"})
      *
      * @ParamConverter("etablissement", options={"id" = "id"})
      * @ParamConverter("contact", options={"id" = "contact"})
