@@ -55,8 +55,8 @@
 {% endblock %}
 
 {% block body %}
-    {% set formulairesEtablissement = formulaires|filter(formulaire => formulaire.nomInterne in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
-    {% set formulairesDossier = formulaires|filter(formulaire => formulaire.nomInterne not in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
+    {% set formulaires_etablissement = formulaires|filter(formulaire => formulaire.nomInterne in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
+    {% set formulaires_dossier = formulaires|filter(formulaire => formulaire.nomInterne not in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
 
     <div class="pull-right mb-4">
         <a href="{{ path('admin_formulaires_export') }}" target="_blank" class="btn btn-primary">
@@ -75,7 +75,7 @@
         </div>
 
         <div class="panel-body">
-            {% for formulaire in formulairesEtablissement %}
+            {% for formulaire in formulaires_etablissement %}
                 <div id="{{ formulaire.nomInterne }}" class="row objet">
                     <div class="col-xs-12">
                         <h3>
@@ -105,7 +105,7 @@
         </div>
 
         <div class="panel-body">
-            {% for formulaire in formulairesDossier %}
+            {% for formulaire in formulaires_dossier %}
                 <div id="{{ formulaire.nomInterne }}" class="row objet">
                     <div class="col-xs-12">
                         <h3>

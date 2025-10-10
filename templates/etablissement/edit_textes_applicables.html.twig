@@ -15,13 +15,13 @@
 
         <h3>Modification des Textes applicables</h3>
 
-        {% for texteApplicable in form.textesApplicables %}
-            {% if loop.index == 1 or texteApplicable.vars.attr['data-type'] != lastType %}
-                <h4>{{ texteApplicable.vars.attr['data-type'] }}</h4>
-                {% set lastType = texteApplicable.vars.attr['data-type'] %}
+        {% for texte_applicable in form.textesApplicables %}
+            {% if loop.index == 1 or texte_applicable.vars.attr['data-type'] != last_type %}
+                <h4>{{ texte_applicable.vars.attr['data-type'] }}</h4>
+                {% set last_type = texte_applicable.vars.attr['data-type'] %}
             {% endif %}
 
-            {{ form_row(texteApplicable) }}
+            {{ form_row(texte_applicable) }}
         {% endfor %}
     {{ form_end(form) }}
 {% endblock %}

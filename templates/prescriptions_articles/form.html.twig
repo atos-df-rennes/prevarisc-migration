@@ -2,9 +2,9 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set articleListe = app.request.get('articleListe') %}
+{% set article_liste = app.request.get('articleListe') %}
 
-{% if articleListe is null %}
+{% if article_liste is null %}
     {% set title = 'Ajout d\'un nouveau article' %}
 {% else %}
     {% set title = 'Modification d\'un article existant' %}
@@ -27,7 +27,7 @@
     <div class="row text-right">
         <div class="col-sm-12">
             <a class="btn btn-default" href="{{ path('admin_prescriptions_articles') }}">
-                {% if articleListe is null %}
+                {% if article_liste is null %}
                     Retourner à la liste des articles
                 {% else %}
                     Annuler la modification
@@ -44,9 +44,9 @@
         </div>
     </div>
 
-    {% if articleListe is not null %}
+    {% if article_liste is not null %}
         <div class="text-center">
-            <a class="btn btn-warning" href="{{ path('admin_prescriptions_articles_suppression', {articleListe: articleListe.id}) }}">
+            <a class="btn btn-warning" href="{{ path('admin_prescriptions_articles_suppression', {articleListe: article_liste.id}) }}">
                 Supprimer l'article et le remplacer par un autre
             </a>
         </div>
