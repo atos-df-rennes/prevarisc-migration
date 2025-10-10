@@ -12,31 +12,37 @@
 
     <div class="clearfix"></div>
 
-    {% if contacts_parents|length > 0 %}
-        <div class="row">
-            <div class="col-xs-12">
-                <h4>Contacts des établissements parents</h4>
+    {% if contacts_parents|length == 0 and contacts|length == 0 %}
+        <p>Aucun contact</p>
+    {% else %}
+        {% if contacts_parents|length > 0 %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4>Contacts des établissements parents</h4>
 
-                {% for contact_parent in contacts_parents %}
-                    {{ include('contact/_fiche.html.twig', {can_edit: false, contact: contact_parent}) }}
-                {% endfor %}
+                    {% for contact_parent in contacts_parents %}
+                        {{ include('contact/_fiche.html.twig', {can_edit: false, contact: contact_parent}) }}
+                    {% endfor %}
+                </div>
             </div>
-        </div>
+        {% endif %}
+
+        {% if contacts|length > 0 %}
+            <div class="row">
+                <div class="col-xs-12">
+                    {% if contacts_parents|length > 0 %}
+                        <hr />
+
+                        <h4>Contacts de l'établissement</h4>
+                    {% endif %}
+
+                    {% for contact in contacts %}
+                        {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
-
-    <div class="row">
-        <div class="col-xs-12">
-            {% if contacts_parents|length > 0 %}
-                <hr />
-
-                <h4>Contacts de l'établissement</h4>
-            {% endif %}
-
-            {% for contact in contacts %}
-                {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
-            {% endfor %}
-        </div>
-    </div>
 
     {{ include('contact/_modal_ajout.html.twig') }}
     {{ include('contact/_modal_existant.html.twig') }}
@@ -67,7 +73,7 @@
 
             $('#delete-contact').on('click', function () {
                 $.ajax({
-                    type: 'POST',
+                    type: 'DELETE',
                     url: '/etablissement/' + etablissementId + '/contacts/' + contactId + '/supprimer',
                     success: function () {
                         window.location.reload();

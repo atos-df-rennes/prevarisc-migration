@@ -107,11 +107,10 @@ class EtablissementController extends AbstractController
     {
         $contacts = $etablissementRepository->findContactsOrderedByNom($etablissement->getId());
 
-        if (null === $contacts) {
-            throw new NotFoundHttpException();
+        if (null !== $contacts) {
+            $contacts = $contacts->getContacts();
         }
 
-        $contacts = $contacts->getContacts();
         $contactsParents = new ArrayCollection();
 
         $etablissementsParents = $etablissement->getParents();
