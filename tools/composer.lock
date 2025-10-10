@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f7f21f0405bab9c82252b287fec84623",
+    "content-hash": "4a32b1331c5e40c10c3f1fd63a8398a4",
     "packages": [
         {
             "name": "clue/ndjson-react",
@@ -4265,6 +4265,49 @@
                 }
             ],
             "time": "2025-09-11T14:36:48+00:00"
+        },
+        {
+            "name": "tombenevides/dump-linter",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tombenevides/dump-linter.git",
+                "reference": "3f60231b0287c198aa191897a1aef09058da5e5c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tombenevides/dump-linter/zipball/3f60231b0287c198aa191897a1aef09058da5e5c",
+                "reference": "3f60231b0287c198aa191897a1aef09058da5e5c",
+                "shasum": ""
+            },
+            "require": {
+                "friendsofphp/php-cs-fixer": "^3.13"
+            },
+            "require-dev": {
+                "pestphp/pest": "^1.22"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tombenevides\\DumpLinter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tom Benevides",
+                    "email": "tom@tonge.dev"
+                }
+            ],
+            "description": "A custom rules to remove dump functions from PHP code",
+            "support": {
+                "issues": "https://github.com/tombenevides/dump-linter/issues",
+                "source": "https://github.com/tombenevides/dump-linter/tree/v1.0.2"
+            },
+            "time": "2023-03-22T04:30:18+00:00"
         }
     ],
     "packages-dev": [

@@ -7,7 +7,8 @@
         "marcocesarato/php-conventional-changelog": "^1.17",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-symfony": "^2.0",
-        "phpmetrics/phpmetrics": "^2.9"
+        "phpmetrics/phpmetrics": "^2.9",
+        "tombenevides/dump-linter": "^1.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
