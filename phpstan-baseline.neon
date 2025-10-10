@@ -1,2 +1,43 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$prevariscDashboardCourrierSansReponseDays of method App\\Entity\\Configurations\:\:setPrevariscDashboardCourrierSansReponseDays\(\) expects int\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$prevariscDashboardDossiersSansAvisDays of method App\\Entity\\Configurations\:\:setPrevariscDashboardDossiersSansAvisDays\(\) expects int\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$prevariscDashboardNextCommissionsDays of method App\\Entity\\Configurations\:\:setPrevariscDashboardNextCommissionsDays\(\) expects int\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$prevariscDescriptifPersonnalise of method App\\Entity\\Configurations\:\:setPrevariscDescriptifPersonnalise\(\) expects bool\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$prevariscPlatauNoHealthcheck of method App\\Entity\\Configurations\:\:setPrevariscPlatauNoHealthcheck\(\) expects bool\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$prevariscRisquesNaturelsExemples of method App\\Entity\\Configurations\:\:setPrevariscRisquesNaturelsExemples\(\) expects string\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$prevariscRisquesTechnologiquesExemples of method App\\Entity\\Configurations\:\:setPrevariscRisquesTechnologiquesExemples\(\) expects string\|null, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/ConfigurationController.php
