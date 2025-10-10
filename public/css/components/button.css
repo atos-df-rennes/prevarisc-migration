@@ -6,5 +6,5 @@
     text-align: center;
     padding: 0px;
     font-size:12px;
-    line-height: 25px; // Permet d'afficher correctement les icon dans une balise a
+    line-height: 25px; /* Permet d'afficher correctement les icon dans une balise a */
 }
