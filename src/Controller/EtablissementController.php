@@ -174,7 +174,7 @@ class EtablissementController extends AbstractController
     ): Response {
         $contactIdsString = $request->request->get('contacts');
 
-        if (!\is_string($contactIdsString)) {
+        if (!\is_string($contactIdsString) || !preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
             throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
         }
 
