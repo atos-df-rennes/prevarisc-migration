@@ -30,7 +30,7 @@
                     {% else %}
                         <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" />
                     {% endif %}
-                    <a class="btn btn-default" href="{{ path('admin_prescriptions_articles_edit', {articleListe: article.id} ) }}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;Modifier</a>
+                    <a class="btn btn-default" href="{{ path('admin_prescriptions_articles_edit', {articleListe: article.id}) }}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;Modifier</a>
 
                     {{ article.libelle }}
                 </div>

@@ -28,12 +28,12 @@
                                 </td>
                                 <td class="col-xs-2" rowspan="{{ nb_assoc }}">
                                     <button class="btn btn-info btn-icon ajax-modal-trigger"
-                                            data-content="{{ path("admin_prescriptions_types_prescriptions_modifier", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
+                                            data-content="{{ path('admin_prescriptions_types_prescriptions_modifier', {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
                                             data-target="#modal-prescription" title="Modifier la prescription">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button>
                                     <button class="btn btn-danger btn-icon ajax-modal-trigger"
-                                            data-content="{{ path("admin_prescriptions_types_prescriptions_supprimer", {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
+                                            data-content="{{ path('admin_prescriptions_types_prescriptions_supprimer', {categorie: categorie.id, texte: texte.id, article: article.id, prescription: prescription.prescriptionType.id}) }}"
                                             data-target="#modal-prescription" title="Supprimer la prescription">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </button>

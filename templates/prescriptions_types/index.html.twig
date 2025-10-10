@@ -2,7 +2,6 @@
 
 {% block title %}Administration / Gestion des prescriptions{% endblock %}
 
-
 {% block body %}
     <ul class="nav nav-pills nav-justified">
         <li role="presentation"><a href="{{ path('admin_prescriptions_rappels') }}">Gestion des rappels réglementaires</a></li>
@@ -16,7 +15,7 @@
 
     <div class="row mb-4">
         <div class="col-md-12 text-right">
-            <button type="button" class="btn btn-default ajax-modal-trigger" data-target="#modal-prescription" data-content="{{ path("admin_prescriptions_types_categorie_ajouter") }}">Ajouter une catégorie</button>
+            <button type="button" class="btn btn-default ajax-modal-trigger" data-target="#modal-prescription" data-content="{{ path('admin_prescriptions_types_categorie_ajouter') }}">Ajouter une catégorie</button>
         </div>
     </div>
 
@@ -28,7 +27,7 @@
                     >
                         {{ category.libelle }}
                         <button class="btn btn-info btn-icon ajax-modal-trigger"
-                                data-content="{{ path("admin_prescriptions_types_textes_ajouter", {categorie: category.id}) }}"
+                                data-content="{{ path('admin_prescriptions_types_textes_ajouter', {categorie: category.id}) }}"
                                 data-target="#modal-prescription" title="Ajouter un texte">
                             <span class="glyphicon glyphicon-plus"></span>
                         </button>
@@ -55,7 +54,7 @@
                 <h4 class="panel-title">Sans catégories</h4>
             </div>
             <div class="panel-body">
-                {% include 'prescriptions_types/_voir_prescriptions_type.html.twig' with {'prescriptions': sans_categories} only %}
+                {{ include('prescriptions_types/_voir_prescriptions_type.html.twig', {prescriptions: sans_categories}, false) }}
             </div>
         </div>
     {% endif %}

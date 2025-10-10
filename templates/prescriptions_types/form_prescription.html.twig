@@ -24,10 +24,10 @@
                 data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
                 data-widget-tags="{{ '<li></li>'|e }}"
                 data-widget-counter="{{ form.associations|length }}">
-                {% for associationField in form.associations %}
+                {% for association_field in form.associations %}
                     <li>
-                        {{ form_errors(associationField) }}
-                        {{ form_widget(associationField) }}
+                        {{ form_errors(association_field) }}
+                        {{ form_widget(association_field) }}
                     </li>
                 {% endfor %}
             </ul>

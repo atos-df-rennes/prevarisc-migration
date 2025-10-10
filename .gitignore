@@ -27,3 +27,4 @@
 
 /tools/vendor/
 .php-cs-fixer.cache
+.twig-cs-fixer.cache

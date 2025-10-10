@@ -17,12 +17,12 @@
                         </div>
                         <div class="col-xs-2 text-right">
                             <button class="btn btn-info btn-icon ajax-modal-trigger"
-                                    data-content="{{ path("admin_prescriptions_types_article_ajouter", {categorie: categorie.id, texte: prescription_texte.id}) }}"
+                                    data-content="{{ path('admin_prescriptions_types_article_ajouter', {categorie: categorie.id, texte: prescription_texte.id}) }}"
                                     data-target="#modal-prescription" title="Ajouter un article">
                                 <span class="glyphicon glyphicon-plus"></span>
                             </button>
                             <button class="btn btn-info btn-icon ajax-modal-trigger"
-                                    data-content="{{ path("admin_prescriptions_types_textes_modifier", {categorie: categorie.id, texte: prescription_texte.id}) }}"
+                                    data-content="{{ path('admin_prescriptions_types_textes_modifier', {categorie: categorie.id, texte: prescription_texte.id}) }}"
                                     data-target="#modal-prescription" title="Modifier le texte">
                                 <span class="glyphicon glyphicon-pencil"></span>
                             </button>
@@ -34,7 +34,7 @@
                     class="panel-collapse collapse"
                     role="tabpanel"
                     aria-labelledby="text_header_{{ prescription_texte.id }}"
-                    data-content="{{ path('admin_prescriptions_types_texte_voir_articles', {categorie: prescription_texte.categorie.id, texte: prescription_texte.id }) }}"
+                    data-content="{{ path('admin_prescriptions_types_texte_voir_articles', {categorie: prescription_texte.categorie.id, texte: prescription_texte.id}) }}"
                 >
                     <div class="panel-body">
 
@@ -50,7 +50,7 @@
                 <h4 class="panel-title">Sans Textes</h4>
             </div>
             <div class="panel-body">
-                {% include 'prescriptions_types/_voir_prescriptions_type.html.twig' with {'prescriptions': sans_textes} only %}
+                {{ include('prescriptions_types/_voir_prescriptions_type.html.twig', {prescriptions: sans_textes}, false) }}
             </div>
         </div>
     {% endif %}
