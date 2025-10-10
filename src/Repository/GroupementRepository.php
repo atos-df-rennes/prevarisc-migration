@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Groupement;
+use App\Entity\UtilisateurInformations;
+use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,7 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Groupement[]    findAll()
  * @method Groupement[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GroupementRepository extends ServiceEntityRepository
+class GroupementRepository extends ServiceEntityRepository implements HasContacts
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -24,55 +24,19 @@ class GroupementRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Retourne le nombre de groupements ayant comme contact celui passé en paramètre.
      */
-    public function add(Groupement $entity, bool $flush = true): void
+    public function findNumberByContacts(UtilisateurInformations $contact): int
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Groupement $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    // /**
-    //  * @return Groupement[] Returns an array of Groupement objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('g.id', 'ASC')
-            ->setMaxResults(10)
+        $queryBuilder = $this->createQueryBuilder('g');
+        $query = $queryBuilder
+            ->select('COUNT(g.id)')
+            ->join('g.contacts', 'c')
+            ->where('c.id = :id')
+            ->setParameter('id', $contact->getId())
             ->getQuery()
-            ->getResult()
         ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Groupement
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $query->getSingleScalarResult();
     }
-    */
 }

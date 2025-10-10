@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Commune;
+use App\Entity\UtilisateurInformations;
+use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,7 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Commune[]    findAll()
  * @method Commune[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CommuneRepository extends ServiceEntityRepository
+class CommuneRepository extends ServiceEntityRepository implements HasContacts
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -24,55 +24,19 @@ class CommuneRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Retourne le nombre de communes ayant comme contact celui passé en paramètre.
      */
-    public function add(Commune $entity, bool $flush = true): void
+    public function findNumberByContacts(UtilisateurInformations $contact): int
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Commune $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    // /**
-    //  * @return Commune[] Returns an array of Commune objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
+        $queryBuilder = $this->createQueryBuilder('c');
+        $query = $queryBuilder
+            ->select('COUNT(c.id)')
+            ->join('c.utilisateurInformations', 'ui')
+            ->where('ui.id = :id')
+            ->setParameter('id', $contact->getId())
             ->getQuery()
-            ->getResult()
         ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Commune
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $query->getSingleScalarResult();
     }
-    */
 }
