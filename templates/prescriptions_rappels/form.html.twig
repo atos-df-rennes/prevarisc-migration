@@ -2,9 +2,9 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set rappelReg = app.request.get('rappelReg') %}
+{% set rappel_reg = app.request.get('rappelReg') %}
 
-{% if rappelReg is null %}
+{% if rappel_reg is null %}
     {% set title = 'Ajout d\'un nouveau rappel réglementaire' %}
 {% else %}
     {% set title = 'Modification d\'un rappel réglementaire existant' %}
@@ -15,7 +15,7 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_rappels') }}">Gestion des rappels réglementaires</a>
+            <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_rappels') }}">Gestion des rappels réglementaires</a>
             <i class="glyphicon glyphicon-chevron-right"></i>{{ title }}
         </div>
     </div>
@@ -26,7 +26,7 @@
     <div class="row text-right mb-4">
         <div class="col-sm-12">
             <a class="btn btn-default" href="{{ path('admin_prescriptions_rappels') }}">
-                {% if rappelReg is null %}
+                {% if rappel_reg is null %}
                     Annuler l'ajout
                 {% else %}
                     Annuler la modification
@@ -50,10 +50,10 @@
             data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
             data-widget-tags="{{ '<li></li>'|e }}"
             data-widget-counter="{{ form.associations|length }}">
-            {% for associationField in form.associations %}
+            {% for association_field in form.associations %}
                 <li>
-                    {{ form_errors(associationField) }}
-                    {{ form_widget(associationField) }}
+                    {{ form_errors(association_field) }}
+                    {{ form_widget(association_field) }}
                 </li>
             {% endfor %}
         </ul>

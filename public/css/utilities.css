@@ -41,3 +41,11 @@
 .no-padding-top {
     padding-top: 0 !important;
 }
+
+.w-max-cont {
+    width: max-content;
+}
+
+.overflow-x-scroll {
+    overflow-x: scroll;
+}

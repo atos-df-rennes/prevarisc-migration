@@ -5,7 +5,7 @@
 {% block body %}
     <div class="row">
         <div class="col-md-9">
-            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> Gestion des rappels réglementaires
+            <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> Gestion des rappels réglementaires
         </div>
         <div class="col-md-3 text-right">
             <!-- Espace réservé pour un contenu futur -->
@@ -36,7 +36,6 @@
         {% endfor %}
     </ul>
 {% endblock %}
-
 
 {% macro rappel_reg(rappel, associations) %}
     <li class="table-responsive" id="prescriptionDossier_{{ rappel.id }}" style="list-style-type:none; margin-bottom:15px;">

@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Utilisateur;
 use App\Entity\UtilisateurInformations;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,9 +20,13 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UtilisateurInformationsRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, UtilisateurInformations::class);
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -45,5 +51,28 @@ class UtilisateurInformationsRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    public function findByNameNotInUser(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('ui');
+
+        return $queryBuilder
+            ->select('ui.nom', 'ui.prenom', 'ui.societe', 'ui.id')
+            ->where('ui.nom LIKE :name OR ui.prenom LIKE :name OR ui.societe LIKE :name')
+            ->andWhere(
+                $queryBuilder->expr()->notIn(
+                    'ui.id',
+                    $this->entityManager->createQueryBuilder()
+                        ->select('IDENTITY(u.informations)')
+                        ->from(Utilisateur::class, 'u')
+                        ->getDQL()
+                )
+            )
+            ->setParameter('name', '%'.$name.'%')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

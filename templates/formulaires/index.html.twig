@@ -1,0 +1,132 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des formulaires personnalisés{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/formulaire/capsule-rubrique-bs3.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% for formulaire in formulaires %}
+                $('#editModal_{{ formulaire.id }}').on('submit', function (e) {
+                    e.preventDefault()
+                    const newName = $('#newName_{{ formulaire.id }}').val()
+                    if (newName) {
+                        $.ajax({
+                            url: '{{ path('admin_formulaire_edit_capsule_rubrique_nom') }}',
+                            type: 'POST',
+                            data: {
+                                id: {{ formulaire.id }},
+                                nom: newName,
+                            },
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    $('#nom_{{ formulaire.id }}').text(newName)
+
+                                    $('#newName_{{ formulaire.id }}').val('')
+                                    $('#editModal_{{ formulaire.id }}').modal('hide')
+                                } else {
+                                    alert('Une erreur est survenue lors de la mise à jour : ' + response.message)
+                                }
+                            },
+                            error: function () {
+                                alert('Une erreur est survenue lors de la requête.');
+                            },
+                        })
+                    } else {
+                        alert('Le nom ne peut pas être vide.');
+                    }
+                })
+            {% endfor %}
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+    {% set formulaires_etablissement = formulaires|filter(formulaire => formulaire.nomInterne in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
+    {% set formulaires_dossier = formulaires|filter(formulaire => formulaire.nomInterne not in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
+
+    <div class="pull-right mb-4">
+        <a href="{{ path('admin_formulaires_export') }}" target="_blank" class="btn btn-primary">
+            Exporter la configuration
+        </a>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#import-configuration">
+            Importer une configuration
+        </button>
+    </div>
+
+    <hr class="clearfix" style="border: none;"/>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h2>Onglets de l'établissement</h2>
+        </div>
+
+        <div class="panel-body">
+            {% for formulaire in formulaires_etablissement %}
+                <div id="{{ formulaire.nomInterne }}" class="row objet">
+                    <div class="col-xs-12">
+                        <h3>
+                        <span id="nom_{{ formulaire.id }}">
+                            {{ formulaire.nom }}
+                        </span>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#editModal_{{ formulaire.id }}" data-url="{{ path('admin_formulaire_edit_capsule_rubrique_nom', {id: formulaire.id}) }}">
+                                <span title='Modifier' class="glyphicon glyphicon-pencil"></span>
+                            </button>
+                        </h3>
+
+                        {{ include('formulaires/_modal_edit_nom_capsule_rubrique.html.twig') }}
+                        {{ include('formulaires/_informations_rubriques.html.twig') }}
+                    </div>
+                </div>
+
+                {% if not loop.last %}
+                    <hr/>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h2>Onglets du dossier</h2>
+        </div>
+
+        <div class="panel-body">
+            {% for formulaire in formulaires_dossier %}
+                <div id="{{ formulaire.nomInterne }}" class="row objet">
+                    <div class="col-xs-12">
+                        <h3>
+                            <span id="nom_{{ formulaire.id }}">{{ formulaire.nom }}</span>
+                            <button class="btn btn-link" data-toggle="modal" data-target="#editModal_{{ formulaire.id }}">
+                                <span title='Modifier' class="glyphicon glyphicon-pencil"></span>
+                            </button>
+                        </h3>
+
+                        {{ include('formulaires/_modal_edit_nom_capsule_rubrique.html.twig') }}
+                        {{ include('formulaires/_informations_rubriques.html.twig') }}
+                    </div>
+                </div>
+
+                {% if not loop.last %}
+                    <hr/>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {{ include('formulaires/_import_configuration.html.twig') }}
+    {{ include('formulaires/rubrique/_delete.html.twig') }}
+{% endblock %}

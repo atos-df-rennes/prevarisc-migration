@@ -24,8 +24,8 @@ window.onload = function() {
         })
     }
 
-    const setNewIdxRequest = (objData = {}) =>{
-        document.location.href.includes('edit') ? 
+    const setNewIdxRequest = (objData = {}) => {
+        document.location.href.includes('edit') ?
             $.ajax({
                 type: "post",
                 url: "/formulaire/update-champ-idx",
@@ -35,8 +35,7 @@ window.onload = function() {
         :
             $.ajax({
                 type: "post",
-                url: "/formulaire/update-rubrique-idx",
-                data: objData,
+                url: "/admin/formulaires/rubriques/" + objData.ID + "/index/" + objData.idx,
                 datatype:'json'
             })
     }

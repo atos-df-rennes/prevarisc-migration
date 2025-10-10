@@ -2,6 +2,7 @@
 
 use PhpCsFixer\Finder;
 use PhpCsFixer\Config;
+use Tombenevides\DumpLinter\DumpRemovalFixer;
 
 $finder = Finder::create()
     ->in([
@@ -12,9 +13,16 @@ $finder = Finder::create()
 ;
 
 $config = new Config();
-return $config->setRules([
+$config->registerCustomFixers([
+        new DumpRemovalFixer()
+    ])
+    ->setRules([
         '@Symfony' => true,
-        'trailing_comma_in_multiline' => ['elements' => []]
+        'trailing_comma_in_multiline' => ['elements' => []],
+        'Tombenevides/dump_removal' => true,
     ])
     ->setFinder($finder)
+    ->setRiskyAllowed(true)
 ;
+
+return $config;

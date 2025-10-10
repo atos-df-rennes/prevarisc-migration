@@ -2,16 +2,29 @@
 
 namespace App\Service;
 
+use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionArticleListe;
+use App\Entity\PrescriptionReglementaire;
 use App\Entity\PrescriptionReglementaireAssociation;
+use App\Entity\PrescriptionTexte;
 use App\Entity\PrescriptionTexteListe;
+use App\Entity\PrescriptionType;
+use App\Entity\PrescriptionTypeAssociation;
 use App\Repository\PrescriptionArticleListeRepository;
 use App\Repository\PrescriptionReglementaireAssociationRepository;
 use App\Repository\PrescriptionReglementaireRepository;
 use App\Repository\PrescriptionTexteListeRepository;
+use App\Repository\PrescriptionTypeAssociationRepository;
+use App\Repository\PrescriptionTypeRepository;
 
 final class Prescriptions
 {
+    /** @var PrescriptionTypeRepository */
+    private $prescriptionTypeRepository;
+
+    /** @var PrescriptionTypeAssociationRepository */
+    private $prescriptionTypeAssociationRepository;
+
     /** @var PrescriptionTexteListeRepository */
     private $prescriptionTexteListeRepository;
 
@@ -25,11 +38,15 @@ final class Prescriptions
     private $prescriptionReglementaireAssociationRepository;
 
     public function __construct(
+        PrescriptionTypeRepository $prescriptionTypeRepository,
+        PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
         PrescriptionTexteListeRepository $prescriptionTexteListeRepository,
         PrescriptionArticleListeRepository $prescriptionArticleListeRepository,
         PrescriptionReglementaireRepository $prescriptionReglementaireRepository,
         PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
     ) {
+        $this->prescriptionTypeRepository = $prescriptionTypeRepository;
+        $this->prescriptionTypeAssociationRepository = $prescriptionTypeAssociationRepository;
         $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
         $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
         $this->prescriptionReglementaireRepository = $prescriptionReglementaireRepository;
@@ -58,9 +75,19 @@ final class Prescriptions
     }
 
     /**
-     * Récupère les prescriptions et leurs associations article/texte.
+     * Récupère les rappels réglementaires en fonction du type et du mode spécifié.
      *
-     * @return array<int, array{prescription: object, associations: array<int, array{association: PrescriptionReglementaireAssociation, texte: PrescriptionTexteListe|null, article: PrescriptionArticleListe|null}>}>
+     * @param string    $type le type de prescription à récupérer
+     * @param bool|null $mode le mode optionnel pour filtrer les prescriptions
+     *
+     * @return list<array{
+     *     prescription: PrescriptionReglementaire,
+     *     associations: non-empty-list<array{
+     *      association: PrescriptionReglementaireAssociation,
+     *      texte: PrescriptionTexteListe|null,
+     *      article: PrescriptionArticleListe|null
+     *     }>
+     *    }> Un tableau contenant les prescriptions et leurs associations
      */
     public function getPrescriptions(string $type, ?bool $mode = null): array
     {
@@ -83,6 +110,42 @@ final class Prescriptions
                     'associations' => $associations,
                 ];
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Récupère les associations de types de prescription pour une catégorie, un texte et un article donnés.
+     *
+     * @param int $categorie identifiant de la catégorie
+     * @param int $texte     identifiant du texte
+     * @param int $article   identifiant de l'article
+     *
+     * @return list<array<int, PrescriptionArticle|PrescriptionTexte|PrescriptionTypeAssociation>> liste des associations de types de prescription
+     */
+    public function showPrescriptionType(int $categorie, int $texte, int $article): array
+    {
+        /** @var PrescriptionType[] $prescriptions */
+        $prescriptions = $this->prescriptionTypeRepository->findBy([
+            'categorie' => $categorie,
+            'texte' => $texte,
+            'article' => $article,
+        ], ['numero' => 'ASC']);
+
+        $result = [];
+        foreach ($prescriptions as $prescription) {
+            if (null === ($prescriptionId = $prescription->getId())) {
+                continue;
+            }
+
+            $associations = $this->prescriptionTypeAssociationRepository->getPrescriptionAssoc($prescriptionId);
+
+            if ([] === $associations) {
+                continue;
+            }
+
+            $result[] = $associations;
         }
 
         return $result;

@@ -46,4 +46,19 @@ class CapsuleRubriqueRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return CapsuleRubrique[]
+     */
+    public function findAllInformations(): array
+    {
+        return $this->createQueryBuilder('cr')
+            ->addSelect('r')
+            ->leftJoin('cr.rubriques', 'r')
+            ->orderBy('cr.id', 'ASC')
+            ->addOrderBy('r.idx', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

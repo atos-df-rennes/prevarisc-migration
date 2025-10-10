@@ -26,6 +26,12 @@ class PrescriptionReglementaireAssociationType extends AbstractType
         $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
     }
 
+    /**
+     * Construit le formulaire avec des champs de choix pour les textes et articles.
+     *
+     * Utilise les choix récupérés depuis les repositories pour les options des champs.
+     * Utilisation des ChoiceType avec un tableau array<string, int> pour hydrater les champs, car il n'y a pas de relations entre les entités.
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choicesTextes = $this->prescriptionTexteListeRepository->findAllForChoices(true);

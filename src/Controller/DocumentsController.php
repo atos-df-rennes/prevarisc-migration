@@ -43,10 +43,7 @@ class DocumentsController extends AbstractController
         // @TODO: Faire ça dans un service
         foreach ($commissions as $commission) {
             if (
-                null === $commission->getId()
-                || null === $commission->getLibelle()
-                || null === $commission->getType()
-                || null === $commission->getType()->getLibelle()
+                in_array(null, [$commission->getId(), $commission->getLibelle(), $commission->getType(), $commission->getType()->getLibelle()], true)
             ) {
                 $this->logger->error("La commission n'a pas été trouvée.");
 
@@ -88,10 +85,7 @@ class DocumentsController extends AbstractController
 
         foreach ($commissions as $commission) {
             if (
-                null === $commission->getId()
-                || null === $commission->getLibelle()
-                || null === $commission->getType()
-                || null === $commission->getType()->getLibelle()
+                in_array(null, [$commission->getId(), $commission->getLibelle(), $commission->getType(), $commission->getType()->getLibelle()], true)
             ) {
                 $this->logger->error("La commission n'a pas été trouvée.");
 

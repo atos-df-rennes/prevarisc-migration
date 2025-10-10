@@ -20,7 +20,7 @@
         {% if is_granted('delete_dossier') %}
             <div role="tabpanel" id="dossiers" class="tab-pane fade in active">
                 {{ include('elements_supprimes/_dossiers.html.twig', {
-                    dossiers: dossiers_supprimes
+                    dossiers: dossiers_supprimes,
                 }) }}
             </div>
         {% endif %}
@@ -28,7 +28,7 @@
         {% if is_granted('delete_etablissement') %}
             <div role="tabpanel" id="etablissements" class="tab-pane fade">
                 {{ include('elements_supprimes/_etablissements.html.twig', {
-                    etablissements: etablissements_supprimes
+                    etablissements: etablissements_supprimes,
                 }) }}
             </div>
         {% endif %}

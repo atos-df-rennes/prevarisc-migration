@@ -2,9 +2,9 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set texteListe = app.request.get('texteListe') %}
+{% set texte_liste = app.request.get('texteListe') %}
 
-{% if texteListe is null %}
+{% if texte_liste is null %}
     {% set title = 'Ajout d\'un nouveau texte' %}
 {% else %}
     {% set title = 'Modification d\'un texte existant' %}
@@ -16,7 +16,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <a href="/gestion-prescriptions">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a>
+            <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a>
             <i class="glyphicon glyphicon-chevron-right"></i>{{ title }}
         </div>
     </div>
@@ -27,7 +27,7 @@
         <div class="row text-right">
             <div class="col-sm-12">
                 <a class="btn btn-default" href="{{ path('admin_prescriptions_textes') }}">
-                    {% if texteListe is null %}
+                    {% if texte_liste is null %}
                         Retourner à la liste des textes
                     {% else %}
                         Annuler la modification
@@ -44,9 +44,9 @@
             </div>
         </div>
 
-        {% if texteListe is not null %}
+        {% if texte_liste is not null %}
             <div class="text-center">
-                <a class="btn btn-warning" href="{{ path('admin_prescriptions_textes_suppression', {texteListe: texteListe.id }) }}">
+                <a class="btn btn-warning" href="{{ path('admin_prescriptions_textes_suppression', {texteListe: texte_liste.id}) }}">
                     Supprimer le texte et le remplacer par un autre
                 </a>
             </div>

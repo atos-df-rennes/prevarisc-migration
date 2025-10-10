@@ -7,7 +7,6 @@ use App\Dto\FusionDesCommunes\FusionDeCommunes;
 use App\Repository\AdresseRueRepository;
 use App\Repository\CommuneRepository;
 use App\Repository\EtablissementAdresseRepository;
-use App\Repository\UtilisateurInformationsRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -36,9 +35,6 @@ final class FusionDesCommunes
     /** @var UtilisateurRepository */
     private $utilisateurRepository;
 
-    /** @var UtilisateurInformationsRepository */
-    private $utilisateurInformationsRepository;
-
     public function __construct(
         SerializerInterface $serializer,
         LoggerInterface $logger,
@@ -46,8 +42,7 @@ final class FusionDesCommunes
         CommuneRepository $communeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
         AdresseRueRepository $adresseRueRepository,
-        UtilisateurRepository $utilisateurRepository,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository
+        UtilisateurRepository $utilisateurRepository
     ) {
         $this->serializer = $serializer;
         $this->logger = $logger;
@@ -56,7 +51,6 @@ final class FusionDesCommunes
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
         $this->adresseRueRepository = $adresseRueRepository;
         $this->utilisateurRepository = $utilisateurRepository;
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
     }
 
     /**
@@ -184,9 +178,11 @@ final class FusionDesCommunes
                     throw new \Exception("Des éléments d'informations sont manquants. Veuillez consulter les logs.");
                 }
 
-                $this->utilisateurRepository->remove($utilisateur);
-                $this->communeRepository->remove($communeEntity);
-                $this->utilisateurInformationsRepository->remove($utilisateurInformations);
+                $this->entityManager->remove($utilisateur);
+                $this->entityManager->remove($communeEntity);
+                $this->entityManager->remove($utilisateurInformations);
+
+                $this->entityManager->flush();
             } catch (\Exception $e) {
                 $this->logger->error(\sprintf('Erreur lors de la suppression de la commune %s (%s) : %s', $commune->nom(), $commune->numinsee(), $e->getMessage()));
 
