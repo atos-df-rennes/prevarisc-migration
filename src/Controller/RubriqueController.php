@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class RubriqueController extends AbstractController
 {
     /**
-     * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaire_delete_rubrique")
+     * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaire_delete_rubrique", methods={"DELETE"})
      */
     public function delete(Rubrique $rubrique, EntityManagerInterface $entityManager): Response
     {
