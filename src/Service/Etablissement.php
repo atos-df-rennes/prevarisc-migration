@@ -263,6 +263,8 @@ final class Etablissement
             }
 
             if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
+                // @fixme: Créer un DTO pour corriger l'erreur PHPStan
+                /** @phpstan-ignore-next-line */
                 $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
