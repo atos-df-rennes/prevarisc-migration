@@ -1,0 +1,25 @@
+<table class="table">
+    <thead>
+    <tr>
+        <th>Texte</th>
+        <th>Article</th>
+        <th>Contenu</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for associations in prescriptions %}
+            {% set nb_associations = associations|length %}
+            {% for association in associations %}
+                <tr>
+                    <td class="col-xs-2">{{ association.texte.libelle }}</td>
+                    <td class="col-xs-2">{{ association.article.libelle }}</td>
+                    {% if loop.first %}
+                        <td class="col-xs-8" rowspan="{{ nb_associations }}">
+                            {{ association.prescriptionType.libelle|nl2br }}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>

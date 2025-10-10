@@ -92,7 +92,7 @@ class PrescriptionArticleListeRepository extends ServiceEntityRepository
      *
      * @return PrescriptionArticleListe[] retourne un tableau contenant les résultats des textes
      */
-    public function findAllTextes(?bool $visible = null): array
+    public function findAllArticles(?bool $visible = null): array
     {
         $qb = $this->createQueryBuilder('ptl')
             ->orderBy('ptl.libelle', 'ASC');
@@ -116,7 +116,7 @@ class PrescriptionArticleListeRepository extends ServiceEntityRepository
      */
     public function findAllForChoices(?bool $visible = null): array
     {
-        $items = $this->findAllTextes($visible);
+        $items = $this->findAllArticles($visible);
 
         $result = [];
         foreach ($items as $item) {

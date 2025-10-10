@@ -108,7 +108,7 @@ class PrescriptionTexteListeRepository extends ServiceEntityRepository
      *
      * @param bool|null $visible optionnel, filtre les éléments visibles uniquement si une valeur est fournie (true/false)
      *
-     * @return PrescriptionTexteListe[] tableau associatif où la clé correspond au libellé et la valeur à l'identifiant
+     * @return array<string, int> tableau associatif où la clé correspond au libellé et la valeur à l'identifiant
      */
     public function findAllForChoices(?bool $visible = null): array
     {

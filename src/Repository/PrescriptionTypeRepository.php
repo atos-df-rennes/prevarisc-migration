@@ -46,4 +46,35 @@ class PrescriptionTypeRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * Met à jour l'ordre en fonction d'un tableau fourni.
+     *
+     * @param array $order tableau contenant l'ordre des éléments (identifiants)
+     */
+    public function setOrder(array $order): void
+    {
+        $em = $this->getEntityManager();
+        $elements = $this->findBy(['id' => $order]);
+
+        foreach ($elements as $element) {
+            $position = array_search($element->getId(), $order, true);
+            $element->setNumero($position + 1);
+        }
+
+        $em->flush();
+    }
+
+    /**
+     * Récupère le numéro maximal.
+     *
+     * @return int le numéro maximal
+     */
+    public function recupMaxNumCat(): int
+    {
+        $qb = $this->createQueryBuilder('prescription_type');
+        $qb->select('max(prescription_type.numero)');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
 }
