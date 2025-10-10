@@ -132,8 +132,8 @@ class PrescriptionsTypesController extends AbstractController
 
         return $this->render('prescriptions_types/voir_categorie.html.twig', [
             'categorie' => $categorie,
-            'sans_textes' => dump($this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, 0, 0)),
-            'prescription_textes' => dump($textes)
+            'sans_textes' => $this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, 0, 0),
+            'prescription_textes' => $textes
         ]);
     }
 
