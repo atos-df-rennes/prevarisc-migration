@@ -17,7 +17,7 @@ function deleteRubrique(element) {
 
         $.ajax({
             url: url,
-            type: 'POST',
+            type: 'DELETE',
             success: function() {
                 if (nbOfRows === 1) {
                     parentTable.remove()
