@@ -14,12 +14,12 @@
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading-{{ format }}">
                     <h4 class="panel-title">
-                        <a role="button" data-toggle="collapse" data-parent="#ign-accordion" href="#{{ format | replace({' ':'-'}) }}" aria-controls="{{ format | replace({' ':'-'}) }}" {% if loop.first %}aria-expanded="true" {% endif %}>
-                            {{ format | upper }}
+                        <a role="button" data-toggle="collapse" data-parent="#ign-accordion" href="#{{ format|replace({' ': '-'}) }}" aria-controls="{{ format|replace({' ': '-'}) }}" {% if loop.first %}aria-expanded="true" {% endif %}>
+                            {{ format|upper }}
                         </a>
                     </h4>
                 </div>
-                <div id="{{ format | replace({' ':'-'}) }}" class="panel-collapse collapse {% if loop.first %}in{% endif %}" role="tabpanel" aria-labelledby="heading-{{ format }}">
+                <div id="{{ format|replace({' ': '-'}) }}" class="panel-collapse collapse {% if loop.first %}in{% endif %}" role="tabpanel" aria-labelledby="heading-{{ format }}">
                     <div class="panel-body">
                         <table class="table table-hover table-condensed">
                             <thead>
@@ -36,7 +36,7 @@
                                     <tr>
                                         <td>
                                             <form method="post" action="{{ path('couches_cartographiques_add_IGN') }}" id="form-{{ couche.layers }}-{{ format }}">
-                                                <input type="hidden" name="token" value="{{ csrf_token('ajouter-IGN-' ~ couche.nom ) }}">
+                                                <input type="hidden" name="token" value="{{ csrf_token('ajouter-IGN-' ~ couche.nom) }}">
                                                 <input type="hidden" name="nom" value="{{ couche.nom }}">
                                                 <input type="hidden" name="type" value="{{ couche.type }}">
                                                 <input type="hidden" name="layer" value="{{ couche.layers }}">

@@ -10,7 +10,7 @@
 
 <h4>Coordonnées</h4>
 
-{{ form_start(form, {'action': path('admin_commune_infos', {id: commune.id})}) }}
+{{ form_start(form, {action: path('admin_commune_infos', {id: commune.id})}) }}
     {{ form_errors(form) }}
 
     <dl class='dl-horizontal row row-no-gutters'>
