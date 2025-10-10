@@ -2573,6 +2573,12 @@ final class Version20250211103328 extends AbstractMigration
             (97, 1, 73, 36)
         ');
         $this->connection->executeStatement('ALTER TABLE `prescriptionreglassoc` ADD CONSTRAINT `fk_prescriptionreglassoc_prescriptionregl1` FOREIGN KEY (`ID_PRESCRIPTIONREGL`) REFERENCES `prescriptionregl` (`ID_PRESCRIPTIONREGL`) ON DELETE CASCADE ON UPDATE CASCADE');
+
+        $this->connection->executeStatement("INSERT INTO `changement` VALUES
+            (1,'Changement de statut','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est pass&eacute; au statut {etablissementStatut}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>'),
+            (2,'Changement d\'avis','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est maintenant sous avis {etablissementAvis}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>'),
+            (3,'Changement de classement','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est maintenant de cat&eacute;gorie {categorieEtablissement}, de type {typePrincipalEtablissement} - {activitePrincipaleEtablissement}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>')
+        ");
     }
 
     public function down(Schema $schema): void
