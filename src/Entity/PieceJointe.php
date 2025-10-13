@@ -84,14 +84,14 @@ class PieceJointe
     /**
      * @var ?string
      *
-     * @ORM\Column(name="TYPE", type="string", length=255, nullable=true)
+     * @ORM\Column(name="TYPE", type="text", nullable=true)
      */
     private $type;
 
     /**
      * @var ?string
      *
-     * @ORM\Column(name="SOUS_TYPE", type="string", length=255, nullable=true)
+     * @ORM\Column(name="SOUS_TYPE", type="text", nullable=true)
      */
     private $sousType;
 
