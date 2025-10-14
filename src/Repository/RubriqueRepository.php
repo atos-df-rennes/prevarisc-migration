@@ -23,27 +23,18 @@ class RubriqueRepository extends ServiceEntityRepository
         parent::__construct($registry, Rubrique::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Rubrique $entity, bool $flush = true): void
+    public function findAllInformations(Rubrique $rubrique): Rubrique
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Rubrique $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('r')
+            ->addSelect('c')
+            ->addSelect('tc')
+            ->leftJoin('r.champs', 'c')
+            ->leftJoin('c.type', 'tc')
+            ->andWhere('r = :rubrique')
+            ->setParameter('rubrique', $rubrique)
+            ->orderBy('c.idx', 'ASC')
+            ->getQuery()
+            ->getSingleResult()
+        ;
     }
 }
