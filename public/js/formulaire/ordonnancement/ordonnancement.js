@@ -25,19 +25,16 @@ window.onload = function() {
     }
 
     const setNewIdxRequest = (objData = {}) => {
-        document.location.href.includes('edit') ?
-            $.ajax({
-                type: "post",
-                url: "/formulaire/update-champ-idx",
-                data: objData,
-                datatype:'json'
-            })        
+        const url = document.location.href.includes('rubriques') ?
+            "/admin/formulaires/champs/" + objData.ID + "/index/" + objData.idx
         :
-            $.ajax({
-                type: "post",
-                url: "/admin/formulaires/rubriques/" + objData.ID + "/index/" + objData.idx,
-                datatype:'json'
-            })
+            "/admin/formulaires/rubriques/" + objData.ID + "/index/" + objData.idx
+
+        $.ajax({
+            type: "post",
+            url: url,
+            datatype:'json'
+        })
     }
 
     for (let i = 0; i < listGrp.length; i++) {
