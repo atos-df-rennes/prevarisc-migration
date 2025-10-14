@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Rubrique;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,20 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RubriqueController extends AbstractController
 {
+
+    /**
+     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaire_edit_rubrique", methods={"GET", "POST"})
+     *
+     * @ParamConverter("formulaire", options={"id" = "formulaire"})
+     * @ParamConverter("rubrique", options={"id" = "rubrique"})
+     */
+    public function edit(Rubrique $rubrique): Response
+    {
+        return $this->render('formulaires/rubrique/modification.html.twig', [
+            'rubrique' => $rubrique,
+        ]);
+    }
+
     /**
      * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaire_delete_rubrique", methods={"DELETE"})
      */

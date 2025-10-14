@@ -52,7 +52,7 @@
                                 </td>
                                 <td id='actions'>
                                     <div class='text-center'>
-                                        <a href="/formulaire/edit-rubrique/rubrique/{{ rubrique.id }}">
+                                        <a href="{{ path('admin_formulaire_edit_rubrique', {formulaire: formulaire.id, rubrique: rubrique.id}) }}">
                                             <span title='Modifier' class="glyphicon glyphicon-pencil"></span>
                                         </a>
                                         <button data-url="{{ path('admin_formulaire_delete_rubrique', {id: rubrique.id}) }}" data-nom="{{ rubrique.nom }}" class="btn btn-link delete-rubrique" data-toggle="modal" data-target="#modal-delete-rubrique">
