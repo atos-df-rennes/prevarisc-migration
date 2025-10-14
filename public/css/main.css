@@ -165,6 +165,7 @@ h2.page-header {
 
     .nav-collapse.collapse {
         overflow: auto;
+        height: 0;
     }
 
     .navbar .btn-navbar {
