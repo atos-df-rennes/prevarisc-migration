@@ -130,9 +130,8 @@
                                             {% endif %}
 
                                             <ul>
-                                                {% for valeur in champ.valeurs %}
-                                                    Test
-                                                    {#                                        <li>{{ valeur.VALEUR|e }}</li>#}
+                                                {% for valeur in champ.valeursListe %}
+                                                    <li>{{ valeur.valeur }}</li>
                                                 {% endfor %}
                                             </ul>
                                         {% endif %}

@@ -27,12 +27,15 @@ class RubriqueRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('r')
             ->addSelect('c')
-            ->addSelect('tc')
+            ->addSelect('ct')
+            ->addSelect('cvl')
             ->leftJoin('r.champs', 'c')
-            ->leftJoin('c.type', 'tc')
+            ->leftJoin('c.type', 'ct')
+            ->leftJoin('c.valeursListe', 'cvl')
             ->andWhere('r = :rubrique')
             ->setParameter('rubrique', $rubrique)
             ->orderBy('c.idx', 'ASC')
+            ->addOrderBy('cvl.idx', 'ASC')
             ->getQuery()
             ->getSingleResult()
         ;
