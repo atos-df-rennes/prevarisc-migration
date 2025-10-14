@@ -142,7 +142,7 @@
                                             <a href="/formulaire/edit-champ/rubrique/{{ rubrique.id }}/champ/{{ champ.id }}">
                                                 <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
                                             </a>
-                                            <button data-id="{{ champ.id }}" data-rubrique-id="{{ rubrique.id }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ" data-toggle="modal" data-target="#modal-delete-champ">
+                                            <button data-url="{{ path('admin_formulaire_delete_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.id}) }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ" data-toggle="modal" data-target="#modal-delete-champ">
                                                 <i title='Supprimer' class='glyphicon glyphicon-trash'></i>
                                             </button>
                                         </div>

@@ -85,8 +85,6 @@ $(document).ready(function() {
 })
 
 function deleteChamp(element) {
-    // const idChamp = element.getAttribute('data-id')
-    // const idRubrique = element.getAttribute('data-rubrique-id')
     const idParent = element.getAttribute('data-id-parent')
     const nom = element.getAttribute('data-nom')
     const url = element.getAttribute('data-url')

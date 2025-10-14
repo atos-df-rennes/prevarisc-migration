@@ -46,6 +46,7 @@ class RubriqueController extends AbstractController
         }
 
         return $this->render('formulaires/rubrique/modification.html.twig', [
+            'formulaire' => $formulaire,
             'rubrique' => $rubrique,
             'form_rubrique' => $formRubrique->createView(),
         ]);
@@ -54,12 +55,12 @@ class RubriqueController extends AbstractController
     /**
      * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaire_delete_rubrique", methods={"DELETE"})
      */
-    public function delete(Rubrique $rubrique, EntityManagerInterface $entityManager): Response
+    public function delete(Rubrique $rubrique, EntityManagerInterface $entityManager): JsonResponse
     {
         $entityManager->remove($rubrique);
         $entityManager->flush();
 
-        return $this->redirectToRoute('admin_formulaires');
+        return $this->json([]);
     }
 
     /**
