@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Rubrique;
 use App\Form\RubriqueType;
+use App\Repository\RubriqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -26,8 +27,10 @@ class RubriqueController extends AbstractController
      * @ParamConverter("formulaire", options={"id" = "formulaire"})
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
      */
-    public function edit(Request $request, CapsuleRubrique $formulaire, Rubrique $rubrique, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, CapsuleRubrique $formulaire, Rubrique $rubrique, RubriqueRepository $rubriqueRepository, EntityManagerInterface $entityManager): Response
     {
+        $rubrique = $rubriqueRepository->findAllInformations($rubrique);
+
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
 
         $formRubrique->handleRequest($request);
