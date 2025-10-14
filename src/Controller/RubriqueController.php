@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\CapsuleRubrique;
+use App\Entity\Champ;
 use App\Entity\Rubrique;
+use App\Form\ChampType;
 use App\Form\RubriqueType;
 use App\Repository\RubriqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,8 +32,11 @@ class RubriqueController extends AbstractController
     public function edit(Request $request, CapsuleRubrique $formulaire, Rubrique $rubrique, RubriqueRepository $rubriqueRepository, EntityManagerInterface $entityManager): Response
     {
         $rubrique = $rubriqueRepository->findAllInformations($rubrique);
-
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
+
+        $champ = new Champ();
+        $champ->setRubrique($rubrique);
+        $formChamp = $this->createForm(ChampType::class, $champ);
 
         $formRubrique->handleRequest($request);
         if ($formRubrique->isSubmitted() && $formRubrique->isValid()) {
@@ -45,10 +50,16 @@ class RubriqueController extends AbstractController
             ]);
         }
 
+        $formChamp->handleRequest($request);
+        if ($formChamp->isSubmitted() && $formChamp->isValid()) {
+            dd($champ);
+        }
+
         return $this->render('formulaires/rubrique/modification.html.twig', [
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
             'form_rubrique' => $formRubrique->createView(),
+            'form_champ' => $formChamp->createView(),
         ]);
     }
 
