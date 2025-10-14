@@ -1,0 +1,172 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des formulaires personnalisés / Modifier une rubrique{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/formulaire/rubrique-bs3.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_formulaires') }}">
+        <i class="glyphicon glyphicon-arrow-left" aria-hidden="true"></i>
+        Retourner sur la liste des formulaires
+    </a>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Informations sur la rubrique</h3>
+                </div>
+                <div class="panel-body">
+                    <form action="" method="post">
+                        <input type="hidden" id="rubrique-id" value="{{ rubrique.id }}">
+                        <div class="form-group">
+                            <label for="nom_rubrique">Nom de la rubrique</label>
+                            <input class="form-control" type="text" name="nom_rubrique" id="nom_rubrique" value="{{ rubrique.nom|e }}" required>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label for="afficher_rubrique">
+                                    <input id="afficher_rubrique" type="checkbox" name="afficher_rubrique" value="{{ rubrique.defaultDisplay }}" {% if rubrique.defaultDisplay %}checked{% endif%} />
+                                    Afficher la rubrique par défaut
+                                </label>
+                            </div>
+
+{#                            <label for="afficher_rubrique">Afficher la rubrique par défaut</label>#}
+{#                            <input type="hidden" name="afficher_rubrique" value="0">#}
+{#                            <input type="checkbox" name="afficher_rubrique" value="1" {{ rubrique.defaultDisplay ? 'checked' }}>#}
+                        </div>
+
+                        <div class="pull-right">
+                            <a href="{{ path('admin_formulaires') }}" type="button" class="btn btn-default">Annuler</a>
+                            <button type="submit" class="btn btn-success">Sauvegarder la rubrique</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row champs">
+        <div class="col-md-4 infos-champ">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Informations sur le champ</h3>
+                </div>
+                <div class="panel-body">
+{#                    <form enctype="application/x-www-form-urlencoded" method="post" class="form-inline" action="">#}
+{#                        <div>#}
+{#                            {{ fieldForm.nom_champ|raw }}#}
+{#                        </div>#}
+{#                        <div>#}
+{#                            {{ fieldForm.type_champ|raw }}#}
+{#                        </div>#}
+
+{#                        <div id="div-list-value">#}
+{#                            <h5>Définition des valeurs de la liste</h5>#}
+{#                            <div class="row">#}
+{#                                <button type="button" class="btn btn-link" id='add-list-value'>Ajouter une valeur</button>#}
+{#                            </div>#}
+{#                            <div class="row">#}
+{#                                <div id="list-value" class="col-md-10"></div>#}
+{#                            </div>#}
+{#                        </div>#}
+
+{#                        {{ fieldForm.save|raw }}#}
+{#                    </form>#}
+                </div>
+            </div>
+        </div>
+
+        {% if rubrique.champs|length > 0 %}
+            <div class="col-md-7 col-md-offset-1 saved-fields">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Liste des champs</h3>
+                    </div>
+                    <table id="saved-fields-table" class="table table-bordered table-condensed">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Nom du champ</th>
+                            <th>Type du champ</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id='grp1' class="grp">
+                        {% for champ in rubrique.champs|filter(c => c.parent is null) %}
+                            <tr id="{{ champ.id }}">
+                                <td class='tdMove'><i class="glyphicon glyphicon-move"></i></td>
+                                <td>{{ champ.nom }}</td>
+                                <td>
+                                    {{ champ.type.type }}
+
+                                    {% if champ.type.type == 'Parent' %}
+                                        {% if champ.tableau == 1 %}
+                                            <small class="text-muted">(affiché comme tableau)</small>
+                                        {% endif %}
+
+                                        {% if champ.enfants is not empty %}
+                                            <ul>
+                                                {% for champFils in champ.enfants %}
+                                                    <li>
+                                                        {{ champFils.nom }}
+                                                        <i>{{ champFils.type.type }}</i>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <div class="alert">
+                                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                                <strong>Attention ! </strong>Aucun champ fils renseigné.
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if champ.type.type == 'Liste' %}
+                                        {% if champ.valeurs|length == 0 %}
+                                            <div class="alert">
+                                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                                <strong>Attention !</strong> La liste ne possède aucune valeur, vous devriez en ajouter.
+                                            </div>
+                                        {% endif %}
+
+                                        <ul>
+                                            {% for valeur in champ.valeurs %}
+                                                Test
+                                                {#                                        <li>{{ valeur.VALEUR|e }}</li>#}
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </td>
+                                <td id='actions'>
+                                    <div class='text-center'>
+                                        <a href="/formulaire/edit-champ/rubrique/{{ rubrique.id }}/champ/{{ champ.id }}">
+                                            <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
+                                        </a>
+                                        <button data-id="{{ champ.id }}" data-rubrique-id="{{ rubrique.id }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ">
+                                            <i title='Supprimer' class='glyphicon glyphicon-trash'></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
