@@ -166,33 +166,4 @@ class FormulairesController extends AbstractController
 
         return $this->redirectToRoute('admin_formulaires');
     }
-
-    // @todo: A mettre dans ChampController
-    /**
-     * @Route("/admin/formulaires/update-champ-valeur-liste-idx", name="admin_formulaires_order_champ_valeur_liste")
-     */
-    public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository, EntityManagerInterface $entityManager): void
-    {
-        $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
-
-        if (false === $champValeurListeId) {
-            throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
-        }
-
-        $champValeurListe = $champValeurListeRepository->find($champValeurListeId);
-
-        if (null === $champValeurListe) {
-            throw new NotFoundHttpException(\sprintf("La valeur de liste d'identifiant %d n'existe pas.", $champValeurListeId));
-        }
-
-        $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
-
-        if (false === $idx) {
-            throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
-        }
-
-        $champValeurListe->setIdx($idx);
-
-        $entityManager->flush();
-    }
 }
