@@ -12,7 +12,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -31,6 +30,17 @@ class ChampController extends AbstractController
     public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ, EntityManagerInterface $entityManager): JsonResponse
     {
         $entityManager->remove($champ);
+        $entityManager->flush();
+
+        return $this->json([]);
+    }
+
+    /**
+     * @Route("/admin/formulaires/champs/{id}/index/{idx}", name="admin_formulaire_index_champ")
+     */
+    public function index(Champ $champ, int $idx, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $champ->setIdx($idx);
         $entityManager->flush();
 
         return $this->json([]);
