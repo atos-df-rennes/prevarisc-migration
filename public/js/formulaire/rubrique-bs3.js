@@ -1,13 +1,20 @@
 $(document).ready(function() {
-    const typeChampSelect = $('#type_champ')
-    
+    const typeChampSelect = $('#champ_type')
+
     typeChampSelect.on('change', function() {
         if (typeChampSelect.find(":selected").text() === 'Liste') {
             $('#div-list-value').show()
         } else {
             $('#div-list-value').hide()
         }
+
+        if (typeChampSelect.find(":selected").text() === 'Parent') {
+            $('#champ_tableau').closest('.form-group').show()
+        } else {
+            $('#champ_tableau').closest('.form-group').hide()
+        }
     })
+    typeChampSelect.trigger('change')
 
     $('#add-champ').on('click', function() {
         const form = this.closest('form')

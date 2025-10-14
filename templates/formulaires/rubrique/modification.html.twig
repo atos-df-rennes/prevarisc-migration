@@ -36,7 +36,7 @@
 
                         <div class="pull-right">
                             <a href="{{ path('admin_formulaires') }}" type="button" class="btn btn-default">Annuler</a>
-                            <button type="submit" class="btn btn-success">Sauvegarder la rubrique</button>
+                            <button type="submit" class="btn btn-success">Sauvegarder</button>
                         </div>
                     {{ form_end(form_rubrique) }}
                 </div>
@@ -51,26 +51,17 @@
                     <h3 class="panel-title">Informations sur le champ</h3>
                 </div>
                 <div class="panel-body">
-{#                    <form enctype="application/x-www-form-urlencoded" method="post" class="form-inline" action="">#}
-{#                        <div>#}
-{#                            {{ fieldForm.nom_champ|raw }}#}
-{#                        </div>#}
-{#                        <div>#}
-{#                            {{ fieldForm.type_champ|raw }}#}
-{#                        </div>#}
+                    {{ form_start(form_champ) }}
+                        {{ form_row(form_champ.nom) }}
+                        {{ form_row(form_champ.type) }}
+                        {{ form_row(form_champ.tableau) }}
 
-{#                        <div id="div-list-value">#}
-{#                            <h5>Définition des valeurs de la liste</h5>#}
-{#                            <div class="row">#}
-{#                                <button type="button" class="btn btn-link" id='add-list-value'>Ajouter une valeur</button>#}
-{#                            </div>#}
-{#                            <div class="row">#}
-{#                                <div id="list-value" class="col-md-10"></div>#}
-{#                            </div>#}
-{#                        </div>#}
+                        {# Ajouter les valeurs pour les listes #}
 
-{#                        {{ fieldForm.save|raw }}#}
-{#                    </form>#}
+                        <div class="pull-right">
+                            <button type="submit" class="btn btn-success">Ajouter</button>
+                        </div>
+                    {{ form_end(form_champ) }}
                 </div>
             </div>
         </div>
