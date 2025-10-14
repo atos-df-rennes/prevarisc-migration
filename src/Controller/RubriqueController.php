@@ -2,12 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\CapsuleRubrique;
 use App\Entity\Rubrique;
+use App\Form\RubriqueType;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,10 +26,25 @@ class RubriqueController extends AbstractController
      * @ParamConverter("formulaire", options={"id" = "formulaire"})
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
      */
-    public function edit(Rubrique $rubrique): Response
+    public function edit(Request $request, CapsuleRubrique $formulaire, Rubrique $rubrique, EntityManagerInterface $entityManager): Response
     {
+        $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
+
+        $formRubrique->handleRequest($request);
+        if ($formRubrique->isSubmitted() && $formRubrique->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'La rubrique a bien été modifiée.');
+
+            return $this->redirectToRoute('admin_formulaire_edit_rubrique', [
+                'formulaire' => $formulaire->getId(),
+                'rubrique' => $rubrique->getId(),
+            ]);
+        }
+
         return $this->render('formulaires/rubrique/modification.html.twig', [
             'rubrique' => $rubrique,
+            'form_rubrique' => $formRubrique->createView(),
         ]);
     }
 
