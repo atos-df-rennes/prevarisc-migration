@@ -28,15 +28,12 @@ class ChampController extends AbstractController
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
      * @ParamConverter("champ", options={"id" = "champ"})
      */
-    public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ, EntityManagerInterface $entityManager): Response
+    public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ, EntityManagerInterface $entityManager): JsonResponse
     {
         $entityManager->remove($champ);
         $entityManager->flush();
 
-        return $this->redirectToRoute('admin_formulaire_edit_rubrique', [
-            'formulaire' => $formulaire->getId(),
-            'rubrique' => $rubrique->getId(),
-        ]);
+        return $this->json([]);
     }
 
     /**
