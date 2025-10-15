@@ -76,6 +76,12 @@ class EtablissementRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
             ->addSelect('ei')
+            ->addSelect('es')
+            ->addSelect('et')
+            ->addSelect('ec')
+            ->addSelect('ecl')
+            ->addSelect('ef')
+            ->addSelect('eu')
             ->join('e.informations', 'ei')
             ->leftJoin('ei.statut', 'es')
             ->leftJoin('ei.type', 'et')
