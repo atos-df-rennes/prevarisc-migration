@@ -49,3 +49,12 @@
 .overflow-x-scroll {
     overflow-x: scroll;
 }
+
+.collection-item-wrapper {
+    display: flex;
+    align-items: last baseline;
+    margin-bottom: 15px;
+}
+.collection-item-wrapper .form-group {
+    margin-bottom: 0;
+}
