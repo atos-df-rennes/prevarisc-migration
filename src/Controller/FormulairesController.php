@@ -7,7 +7,6 @@ use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\RubriqueType;
 use App\Repository\CapsuleRubriqueRepository;
-use App\Repository\ChampValeurListeRepository;
 use App\Service\Formulaires\FormulairesImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;

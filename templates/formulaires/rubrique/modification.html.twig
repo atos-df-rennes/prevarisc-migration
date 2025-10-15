@@ -120,16 +120,16 @@
 
                                             {% if champ.enfants is not empty %}
                                                 <ul>
-                                                    {% for champFils in champ.enfants %}
+                                                    {% for champ_enfant in champ.enfants %}
                                                         <li>
-                                                            {{ champFils.nom }}
-                                                            <small class="text-muted">{{ champFils.type.type }}</small>
+                                                            {{ champ_enfant.nom }}
+                                                            <small class="text-muted">{{ champ_enfant.type.type }}</small>
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
                                                 <div class="alert alert-warning">
-                                                    <strong>Attention ! </strong>Aucun champ fils renseigné.
+                                                    <strong>Attention ! </strong>Aucun champ enfant renseigné.
                                                 </div>
                                             {% endif %}
                                         {% endif %}
@@ -142,8 +142,8 @@
                                             {% endif %}
 
                                             <ul>
-                                                {% for valeur in champ.valeursListe %}
-                                                    <li>{{ valeur.valeur }}</li>
+                                                {% for valeur_liste in champ.valeursListe %}
+                                                    <li>{{ valeur_liste.valeur }}</li>
                                                 {% endfor %}
                                             </ul>
                                         {% endif %}
@@ -173,6 +173,6 @@
         {% endfor %}
     </datalist>
 
-    {% include 'formulaires/champ/_list.html.twig' %}
-    {% include 'formulaires/champ/_delete.html.twig' %}
+    {{ include('formulaires/champ/_list.html.twig') }}
+    {{ include('formulaires/champ/_delete.html.twig') }}
 {% endblock %}
