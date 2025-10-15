@@ -82,7 +82,7 @@ class FormulairesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaire_edit_capsule_rubrique_nom")
+     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaires_edit_capsule_rubrique_nom")
      */
     public function editCapsuleRubriqueNom(Request $request, EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
     {

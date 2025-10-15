@@ -24,7 +24,7 @@ class RubriqueController extends AbstractController
 {
 
     /**
-     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaire_edit_rubrique", methods={"GET", "POST"})
+     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaires_edit_rubrique", methods={"GET", "POST"})
      *
      * @ParamConverter("formulaire", options={"id" = "formulaire"})
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
@@ -45,7 +45,7 @@ class RubriqueController extends AbstractController
 
             $this->addFlash('success', 'La rubrique a bien été modifiée.');
 
-            return $this->redirectToRoute('admin_formulaire_edit_rubrique', [
+            return $this->redirectToRoute('admin_formulaires_edit_rubrique', [
                 'formulaire' => $formulaire->getId(),
                 'rubrique' => $rubrique->getId(),
             ]);
@@ -58,7 +58,7 @@ class RubriqueController extends AbstractController
 
             $this->addFlash('success', 'Le champ a bien été ajouté.');
 
-            return $this->redirectToRoute('admin_formulaire_edit_rubrique', [
+            return $this->redirectToRoute('admin_formulaires_edit_rubrique', [
                 'formulaire' => $formulaire->getId(),
                 'rubrique' => $rubrique->getId(),
             ]);
@@ -73,7 +73,7 @@ class RubriqueController extends AbstractController
     }
 
     /**
-     * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaire_delete_rubrique", methods={"DELETE"})
+     * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaires_delete_rubrique", methods={"DELETE"})
      */
     public function delete(Rubrique $rubrique, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -84,7 +84,7 @@ class RubriqueController extends AbstractController
     }
 
     /**
-     * @Route("/admin/formulaires/rubriques/{id}/index/{idx}", name="admin_formulaire_index_rubrique")
+     * @Route("/admin/formulaires/rubriques/{id}/index/{idx}", name="admin_formulaires_index_rubrique")
      */
     public function index(Rubrique $rubrique, int $idx, EntityManagerInterface $entityManager): JsonResponse
     {

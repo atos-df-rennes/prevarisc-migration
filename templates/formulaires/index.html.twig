@@ -24,7 +24,7 @@
                     const newName = $('#newName_{{ formulaire.id }}').val()
                     if (newName) {
                         $.ajax({
-                            url: '{{ path('admin_formulaire_edit_capsule_rubrique_nom') }}',
+                            url: '{{ path('admin_formulaires_edit_capsule_rubrique_nom') }}',
                             type: 'POST',
                             data: {
                                 id: {{ formulaire.id }},
