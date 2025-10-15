@@ -13,6 +13,7 @@ use App\Entity\Etablissement as EtablissementEntity;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
+use App\Repository\UtilisateurInformationsRepository;
 
 final class Etablissement
 {
@@ -25,11 +26,20 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository)
+    /** @var \App\Repository\UtilisateurInformationsRepository */
+    private $utilisateurInformationsRepository;
+
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        DossierRepository $dossierRepository,
+        AvisDerogationsRepository $avisDerogationsRepository,
+        UtilisateurInformationsRepository $utilisateurInformationsRepository
+    )
     {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
+        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
     }
 
     public function getHistorique(int $id): Informations
@@ -69,7 +79,11 @@ final class Etablissement
             }
 
             if (null !== $auteur) {
-                $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
+                $auteur = $this->utilisateurInformationsRepository->find($auteur->getId());
+
+                if (null !== $auteur) {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom() . ' ' . $auteur->getPrenom());
+                }
             }
 
             if ($historique->isEmpty()) {
