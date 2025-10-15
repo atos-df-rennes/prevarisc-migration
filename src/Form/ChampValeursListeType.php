@@ -16,6 +16,7 @@ class ChampValeursListeType extends AbstractType
             ->add('valeur', TextType::class, [
                 'label' => false,
                 'row_attr' => ['class' => 'col-sm-10'],
+                'attr' => ['list' => 'champ-valeurs-liste', 'autocomplete' => 'off']
             ])
         ;
     }

@@ -7,6 +7,7 @@ use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\ChampType;
 use App\Form\RubriqueType;
+use App\Repository\ChampValeurListeRepository;
 use App\Repository\RubriqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -22,14 +23,20 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RubriqueController extends AbstractController
 {
-
     /**
      * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaires_edit_rubrique", methods={"GET", "POST"})
      *
      * @ParamConverter("formulaire", options={"id" = "formulaire"})
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
      */
-    public function edit(Request $request, CapsuleRubrique $formulaire, Rubrique $rubrique, RubriqueRepository $rubriqueRepository, EntityManagerInterface $entityManager): Response
+    public function edit(
+        Request $request,
+        CapsuleRubrique $formulaire,
+        Rubrique $rubrique,
+        RubriqueRepository $rubriqueRepository,
+        ChampValeurListeRepository $champValeurListeRepository,
+        EntityManagerInterface $entityManager
+    ): Response
     {
         $rubrique = $rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
@@ -69,6 +76,7 @@ class RubriqueController extends AbstractController
             'rubrique' => $rubrique,
             'form_rubrique' => $formRubrique->createView(),
             'form_champ' => $formChamp->createView(),
+            'champ_valeurs_liste' => $champValeurListeRepository->findAll(),
         ]);
     }
 

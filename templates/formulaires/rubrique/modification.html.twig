@@ -167,6 +167,12 @@
         {% endif %}
     </div>
 
+    <datalist id="champ-valeurs-liste">
+        {% for champ_valeur_liste in champ_valeurs_liste %}
+            <option value="{{ champ_valeur_liste.valeur }}"></option>
+        {% endfor %}
+    </datalist>
+
     {% include 'formulaires/champ/_list.html.twig' %}
     {% include 'formulaires/champ/_delete.html.twig' %}
 {% endblock %}
