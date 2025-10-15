@@ -56,9 +56,13 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $query = $queryBuilder
             ->addSelect('e')
             ->addSelect('COALESCE(d.dateCommission, d.dateVisite) as hidden columnOrder')
+            ->addSelect('dn')
+            ->addSelect('da')
+            ->addSelect('c')
             ->join('d.etablissements', 'e')
             ->join('d.nature', 'dn')
             ->join('d.avisCommission', 'da')
+            ->leftJoin('d.createur', 'c')
             ->where('e.id = :id')
             ->andWhere('dn.id in (:nature)')
             ->andWhere('da.id in (1,2)')
