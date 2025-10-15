@@ -35,6 +35,7 @@ class RubriqueController extends AbstractController
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
 
         $champ = new Champ();
+        $champ->setIdx($rubrique->getChamps()->count() + 1);
         $champ->setRubrique($rubrique);
         $formChamp = $this->createForm(ChampType::class, $champ);
 
@@ -52,7 +53,15 @@ class RubriqueController extends AbstractController
 
         $formChamp->handleRequest($request);
         if ($formChamp->isSubmitted() && $formChamp->isValid()) {
-            dd($champ);
+            $entityManager->persist($champ);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Le champ a bien été ajouté.');
+
+            return $this->redirectToRoute('admin_formulaire_edit_rubrique', [
+                'formulaire' => $formulaire->getId(),
+                'rubrique' => $rubrique->getId(),
+            ]);
         }
 
         return $this->render('formulaires/rubrique/modification.html.twig', [

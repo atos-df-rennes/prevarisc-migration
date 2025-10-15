@@ -105,8 +105,7 @@
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <div class="alert">
-                                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                                <div class="alert alert-warning">
                                                     <strong>Attention ! </strong>Aucun champ fils renseigné.
                                                 </div>
                                             {% endif %}
@@ -114,7 +113,7 @@
 
                                         {% if champ.type.type == 'Liste' %}
                                             {% if champ.valeurs|length == 0 %}
-                                                <div class="alert">
+                                                <div class="alert alert-warning">
                                                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                                                     <strong>Attention !</strong> La liste ne possède aucune valeur, vous devriez en ajouter.
                                                 </div>
