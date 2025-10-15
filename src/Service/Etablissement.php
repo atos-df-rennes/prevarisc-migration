@@ -27,7 +27,7 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
-    /** @var \Psr\Log\LoggerInterface */
+    /** @var LoggerInterface */
     private $logger;
 
     public function __construct(
@@ -35,8 +35,7 @@ final class Etablissement
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
@@ -81,7 +80,7 @@ final class Etablissement
 
             if (null !== $auteur) {
                 try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom() . ' ' . $auteur->getPrenom());
+                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
                 } catch (EntityNotFoundException $entityNotFoundException) {
                     $this->logger->error($entityNotFoundException->getMessage());
                 }
@@ -216,7 +215,7 @@ final class Etablissement
 
             if (null !== $auteur) {
                 try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom() . ' ' . $auteur->getPrenom());
+                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
                 } catch (EntityNotFoundException $entityNotFoundException) {
                     $this->logger->error($entityNotFoundException->getMessage());
                 }
