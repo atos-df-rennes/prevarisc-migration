@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ChampController extends AbstractController
 {
     /**
-     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer", name="admin_formulaire_delete_champ", methods={"DELETE"})
+     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer", name="admin_formulaires_delete_champ", methods={"DELETE"})
      *
      * @ParamConverter("formulaire", options={"id" = "formulaire"})
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
@@ -36,7 +36,7 @@ class ChampController extends AbstractController
     }
 
     /**
-     * @Route("/admin/formulaires/champs/{id}/index/{idx}", name="admin_formulaire_index_champ")
+     * @Route("/admin/formulaires/champs/{id}/index/{idx}", name="admin_formulaires_index_champ")
      */
     public function index(Champ $champ, int $idx, EntityManagerInterface $entityManager): JsonResponse
     {
