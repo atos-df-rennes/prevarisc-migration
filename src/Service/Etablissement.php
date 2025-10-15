@@ -92,10 +92,14 @@ final class Etablissement
             }
 
             if (null !== $auteur) {
-                try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
-                } catch (EntityNotFoundException $entityNotFoundException) {
-                    $this->logger->error($entityNotFoundException->getMessage());
+                $auteur = $auteur->getInformations();
+
+                if (null !== $auteur) {
+                    try {
+                        $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom() . ' ' . $auteur->getPrenom());
+                    } catch (EntityNotFoundException $entityNotFoundException) {
+                        $this->logger->error($entityNotFoundException->getMessage());
+                    }
                 }
             }
 
@@ -227,10 +231,15 @@ final class Etablissement
             $infosAuteur = null;
 
             if (null !== $auteur) {
-                try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
-                } catch (EntityNotFoundException $entityNotFoundException) {
-                    $this->logger->error($entityNotFoundException->getMessage());
+                $auteur = $auteur->getInformations();
+
+                if (null !== $auteur) {
+                    try {
+                        $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom() . ' ' . $auteur->getPrenom());
+                    }
+                    catch (EntityNotFoundException $entityNotFoundException) {
+                        $this->logger->error($entityNotFoundException->getMessage());
+                    }
                 }
             }
 

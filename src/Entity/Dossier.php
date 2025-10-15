@@ -105,11 +105,11 @@ class Dossier
     private $dateVisite;
 
     /**
-     * @var ?UtilisateurInformations
+     * @var ?\App\Entity\Utilisateur
      *
-     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
      *
-     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true)
+     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEUR", nullable=true)
      */
     private $createur;
 
@@ -409,12 +409,12 @@ class Dossier
         return $this;
     }
 
-    public function getCreateur(): ?UtilisateurInformations
+    public function getCreateur(): ?Utilisateur
     {
         return $this->createur;
     }
 
-    public function setCreateur(?UtilisateurInformations $createur): self
+    public function setCreateur(?Utilisateur $createur): self
     {
         $this->createur = $createur;
 
