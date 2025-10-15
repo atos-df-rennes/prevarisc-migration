@@ -25,17 +25,13 @@ class ChampType extends AbstractType
             ])
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
             /** @var Champ $champ */
             $champ = $event->getData();
             $form = $event->getForm();
 
             $typeChamp = $champ->getType();
-            if (null === $typeChamp || 'Parent' !== $typeChamp->getType()) {
-                $tableau = null;
-            } else {
-                $tableau = $champ->getTableau();
-            }
+            $tableau = null === $typeChamp || 'Parent' !== $typeChamp->getType() ? null : $champ->getTableau();
 
             $form->add('tableau', CheckboxType::class, [
                 'label' => 'Afficher comme tableau',
@@ -44,17 +40,13 @@ class ChampType extends AbstractType
             ]);
         });
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
             /** @var Champ $champ */
             $champ = $event->getData();
             $form = $event->getForm();
 
             $typeChamp = $champ->getType();
-            if (null === $typeChamp || 'Liste' !== $typeChamp->getType()) {
-                $valeursListe = [];
-            } else {
-                $valeursListe = $champ->getValeursListe();
-            }
+            $valeursListe = null === $typeChamp || 'Liste' !== $typeChamp->getType() ? [] : $champ->getValeursListe();
 
             $form->add('valeursListe', CollectionType::class, [
                 'entry_type' => ChampValeursListeType::class,

@@ -36,14 +36,14 @@ class RubriqueController extends AbstractController
         RubriqueRepository $rubriqueRepository,
         ChampValeurListeRepository $champValeurListeRepository,
         EntityManagerInterface $entityManager
-    ): Response
-    {
+    ): Response {
         $rubrique = $rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
 
         $champ = new Champ();
         $champ->setIdx($rubrique->getChamps()->count() + 1);
         $champ->setRubrique($rubrique);
+
         $formChamp = $this->createForm(ChampType::class, $champ);
 
         $formRubrique->handleRequest($request);
