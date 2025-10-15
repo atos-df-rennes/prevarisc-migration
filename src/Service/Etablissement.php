@@ -13,6 +13,8 @@ use App\Entity\Etablissement as EtablissementEntity;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
+use Doctrine\ORM\EntityNotFoundException;
+use Psr\Log\LoggerInterface;
 
 final class Etablissement
 {
@@ -25,11 +27,19 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository, AvisDerogationsRepository $avisDerogationsRepository)
-    {
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        DossierRepository $dossierRepository,
+        AvisDerogationsRepository $avisDerogationsRepository,
+        LoggerInterface $logger
+    ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
+        $this->logger = $logger;
     }
 
     public function getHistorique(int $id): Informations
@@ -69,7 +79,11 @@ final class Etablissement
             }
 
             if (null !== $auteur) {
-                $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
+                try {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
+                } catch (EntityNotFoundException $entityNotFoundException) {
+                    $this->logger->error($entityNotFoundException->getMessage());
+                }
             }
 
             if ($historique->isEmpty()) {
@@ -200,7 +214,11 @@ final class Etablissement
             $infosAuteur = null;
 
             if (null !== $auteur) {
-                $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
+                try {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
+                } catch (EntityNotFoundException $entityNotFoundException) {
+                    $this->logger->error($entityNotFoundException->getMessage());
+                }
             }
 
             if ([] === $historique) {
