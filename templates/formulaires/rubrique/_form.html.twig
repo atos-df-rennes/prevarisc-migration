@@ -1,0 +1,20 @@
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Informations sur la rubrique</h3>
+            </div>
+            <div class="panel-body">
+                {{ form_start(form_rubrique) }}
+                {{ form_row(form_rubrique.nom) }}
+                {{ form_row(form_rubrique.defaultDisplay) }}
+
+                <div class="pull-right">
+                    <a href="{{ path('admin_formulaires') }}" type="button" class="btn btn-default">Annuler</a>
+                    <button type="submit" class="btn btn-success">Sauvegarder</button>
+                </div>
+                {{ form_end(form_rubrique) }}
+            </div>
+        </div>
+    </div>
+</div>
