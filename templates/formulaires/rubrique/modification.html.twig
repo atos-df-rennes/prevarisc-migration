@@ -24,70 +24,10 @@
         Retourner sur la liste des formulaires
     </a>
 
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Informations sur la rubrique</h3>
-                </div>
-                <div class="panel-body">
-                    {{ form_start(form_rubrique) }}
-                        {{ form_row(form_rubrique.nom) }}
-                        {{ form_row(form_rubrique.defaultDisplay) }}
-
-                        <div class="pull-right">
-                            <a href="{{ path('admin_formulaires') }}" type="button" class="btn btn-default">Annuler</a>
-                            <button type="submit" class="btn btn-success">Sauvegarder</button>
-                        </div>
-                    {{ form_end(form_rubrique) }}
-                </div>
-            </div>
-        </div>
-    </div>
+    {{ include('formulaires/rubrique/_form.html.twig') }}
 
     <div class="row champs">
-        <div class="col-md-4 infos-champ">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Informations sur le champ</h3>
-                </div>
-                <div class="panel-body">
-                    {{ form_start(form_champ) }}
-                        {{ form_row(form_champ.nom) }}
-                        {{ form_row(form_champ.type) }}
-                        {{ form_row(form_champ.tableau) }}
-
-                        {% do form_champ.valeursListe.setRendered %}
-                        <fieldset id="fieldset_valeurs_liste">
-                            <legend>Valeurs de la liste</legend>
-
-                            <ul id="champ_valeurs_liste"
-                                class="list-unstyled mt-4 remove-collection-widget"
-                                data-prototype="{{ form_widget(form_champ.valeursListe.vars.prototype)|e }}"
-                                data-widget-tags="{{ '<li></li>'|e }}"
-                                data-widget-counter="{{ form_champ.valeursListe|length }}">
-                                {% for valeur_liste_field in form_champ.valeursListe %}
-                                    <li>
-                                        {{ form_errors(valeur_liste_field) }}
-                                        {{ form_widget(valeur_liste_field) }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-
-                            <div class="text-center">
-                                <button type="button"
-                                        class="btn btn-default add-collection-widget"
-                                        data-list-selector="#champ_valeurs_liste">Ajouter une valeur</button>
-                            </div>
-                        </fieldset>
-
-                        <div class="pull-right">
-                            <button type="submit" class="btn btn-success">Ajouter</button>
-                        </div>
-                    {{ form_end(form_champ) }}
-                </div>
-            </div>
-        </div>
+        {{ include('formulaires/champ/_form.html.twig') }}
 
         {% if rubrique.champs|length > 0 %}
             <div class="col-md-7 col-md-offset-1 saved-fields">
@@ -173,6 +113,5 @@
         {% endfor %}
     </datalist>
 
-{#    {{ include('formulaires/champ/_list.html.twig') }}#}
     {{ include('formulaires/champ/_delete.html.twig') }}
 {% endblock %}
