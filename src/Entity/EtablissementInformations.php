@@ -94,7 +94,7 @@ class EtablissementInformations
     private $famille;
 
     /**
-     * @var ?\App\Entity\Utilisateur
+     * @var ?Utilisateur
      *
      * @ORM\ManyToOne(targetEntity=Utilisateur::class)
      *

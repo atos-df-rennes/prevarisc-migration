@@ -105,7 +105,7 @@ class Dossier
     private $dateVisite;
 
     /**
-     * @var ?\App\Entity\Utilisateur
+     * @var ?Utilisateur
      *
      * @ORM\ManyToOne(targetEntity=Utilisateur::class)
      *

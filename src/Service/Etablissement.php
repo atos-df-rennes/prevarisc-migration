@@ -96,7 +96,7 @@ final class Etablissement
 
                 if (null !== $auteurInformations) {
                     try {
-                        $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom() . ' ' . $auteurInformations->getPrenom());
+                        $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
                     } catch (EntityNotFoundException $entityNotFoundException) {
                         $this->logger->error($entityNotFoundException->getMessage());
                     }
@@ -235,9 +235,8 @@ final class Etablissement
 
                 if (null !== $auteurInformations) {
                     try {
-                        $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom() . ' ' . $auteurInformations->getPrenom());
-                    }
-                    catch (EntityNotFoundException $entityNotFoundException) {
+                        $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
+                    } catch (EntityNotFoundException $entityNotFoundException) {
                         $this->logger->error($entityNotFoundException->getMessage());
                     }
                 }
