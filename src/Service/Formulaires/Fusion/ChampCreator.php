@@ -19,11 +19,11 @@ final class ChampCreator
         $nomFormulaire = $formulaire->getNomInterne();
 
         if (null === $typeChamp) {
-            throw new \InvalidArgumentException("Le type du champ est invalide.");
+            throw new \InvalidArgumentException('Le type du champ est invalide.');
         }
 
         if (null === $nomFormulaire) {
-            throw new \InvalidArgumentException("Le nom du formulaire est invalide.");
+            throw new \InvalidArgumentException('Le nom du formulaire est invalide.');
         }
 
         /*

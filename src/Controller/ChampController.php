@@ -26,7 +26,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChampController extends AbstractController
 {
-
     /**
      * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/modifier", name="admin_formulaires_edit_champ", methods={"GET", "POST"})
      *
@@ -44,8 +43,7 @@ class ChampController extends AbstractController
         ChampRepository $champRepository,
         ChampValeurListeRepository $champValeurListeRepository,
         TypeChampRepository $typeChampRepository
-    ): Response
-    {
+    ): Response {
         $champ = $champRepository->findAllInformations($champ);
         $formChamp = $this->createForm(ChampType::class, $champ, [
             'is_edit' => true,
@@ -71,7 +69,7 @@ class ChampController extends AbstractController
         }
 
         if (null === $initialType) {
-            throw new \InvalidArgumentException("Le type du champ est invalide.");
+            throw new \InvalidArgumentException('Le type du champ est invalide.');
         }
 
         $formChampEnfant = null;

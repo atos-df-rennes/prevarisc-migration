@@ -34,6 +34,6 @@ class ChampRepository extends ServiceEntityRepository
             ->addOrderBy('cvl.idx', 'ASC')
             ->getQuery()
             ->getSingleResult()
-            ;
+        ;
     }
 }

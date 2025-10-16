@@ -57,7 +57,7 @@ final class ChampNamer
         $trimmedName = trim($name);
         $loweredName = strtolower($trimmedName);
 
-        $result =  preg_replace(['/\s+/', "/'+/", '/\"+/'], '_', $loweredName);
+        $result = preg_replace(['/\s+/', "/'+/", '/\"+/'], '_', $loweredName);
 
         if (null === $result) {
             throw new \InvalidArgumentException('Invalid name format.');
