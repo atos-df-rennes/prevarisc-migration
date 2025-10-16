@@ -91,7 +91,7 @@
                     <h3 class="panel-title">Informations sur le champ</h3>
                 </div>
                 <div id="edit-champ" class="panel-body infos-champ">
-                    {% if valeur_champ_fusion is not null  %}
+                    {% if valeur_champ_fusion is not null and valeur_champ_fusion.enfants is empty %}
                         {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
                     {% endif %}
                 </div>

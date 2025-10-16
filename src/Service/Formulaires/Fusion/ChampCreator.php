@@ -15,8 +15,14 @@ final class ChampCreator
 {
     public static function make(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ): ?NomFusion
     {
-        // Si le champ parent est un tableau, le champ enfant n'a pas de champ de fusion.
-        if (null !== $champ->getParent() && $champ->getParent()->getTableau()) {
+        /*
+         * Si le champ parent n'est pas un tableau, il n'a pas de champ de fusion. Ce sont ses enfants qui en ont.
+         * Si le champ parent est un tableau, les champs enfants n'ont pas de champ de fusion.
+         */
+        if (
+            ('Parent' === $champ->getType()->getType() && !$champ->getTableau())
+            || (null !== $champ->getParent() && $champ->getParent()->getTableau())
+        ) {
             return null;
         }
 

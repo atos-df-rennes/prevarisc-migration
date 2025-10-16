@@ -90,7 +90,7 @@
                                     </td>
                                     <td id='actions'>
                                         <div class='text-center'>
-                                            <a href="/formulaire/edit-champ/rubrique/{{ rubrique.id }}/champ/{{ champ.id }}">
+                                            <a href="{{ path('admin_formulaires_edit_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.id}) }}">
                                                 <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
                                             </a>
                                             <button data-url="{{ path('admin_formulaires_delete_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.id}) }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ" data-toggle="modal" data-target="#modal-delete-champ">
