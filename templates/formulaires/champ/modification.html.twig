@@ -1,0 +1,302 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des formulaires personnalisés / Modifier un champ{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/formulaire/champ.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const listValuesContainer = document.getElementById('list-values-container');
+            if (!listValuesContainer) return;
+
+            const getValuesOrder = () => {
+                return Array.from(listValuesContainer.children).map((el, idx) => ({
+                    idx: idx,
+                    ID: el.id
+                }));
+            };
+
+            const updateAllValuesIdx = (list) => {
+                list.forEach((val) => {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
+                        data: { ID: val.ID, idx: val.idx },
+                        datatype: 'json'
+                    });
+                });
+            };
+
+            new Sortable(listValuesContainer, {
+                handle: '.tdMove',
+                animation: 100,
+                onEnd: function () {
+                    const newList = getValuesOrder();
+                    updateAllValuesIdx(newList);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+{#    <a href="{{ backUrl }}">#}
+    <a href="#">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+
+        {% if champ.parent is not null %}
+            Retourner sur le champ parent "{{ champ.parent.nom }}"
+        {% else %}
+            Retourner sur la rubrique "{{ rubrique.nom }}"
+        {% endif %}
+    </a>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Informations sur la rubrique</h3>
+                </div>
+                <div class="panel-body">
+                    <p>
+                        <b>{{ rubrique.nom }}</b>
+                        {% if rubrique.defaultDisplay %}
+                            <small class="text-muted">(Affichée par défaut)</small>
+                        {% endif %}
+                    </p>
+
+                    {% if champ.parent is not null %}
+                        <b>Champ parent :</b> {{ champ.parent.nom }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 col-md-offset-1">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Informations sur le champ</h3>
+                </div>
+                <div id="edit-champ" class="panel-body infos-champ">
+                    {% if valeur_champ_fusion is not null  %}
+                        {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{#    <div class="row">#}
+{#        <div class="col-md-4">#}
+{#            <h3>Informations sur la rubrique</h3>#}
+{#        </div>#}
+
+{#        <div class="col-md-6 col-md-offset-2">#}
+{#            <h3>Informations sur le champ</h3>#}
+{#        </div>#}
+{#    </div>#}
+
+{#    <div id="edit-champ" class="row">#}
+{#        <div class="col-md-4 infos-rubrique">#}
+{#            <h3>#}
+{#                {{ rubrique.nom }}#}
+{#                {% if rubrique.defaultDisplay %}#}
+{#                    <small>(Affichée par défaut)</small>#}
+{#                {% endif %}#}
+{#            </h3>#}
+
+{#            {% if champ.parent is not null %}#}
+{#                <b>Champ parent :</b>#}
+{#                {{ infosParent.nom }}#}
+{#            {% endif %}#}
+{#        </div>#}
+
+{#        <div class="col-md-6 col-md-offset-2 infos-champ">#}
+{#            {% if champFusionValue is not null and champFusionValue is not iterable %}#}
+{#                {{ include('formulaire/partials/partial-champ-nom-fusion.twig', { 'champFusionValue': champFusionValue }) }}#}
+{#            {% endif %}#}
+
+{#            <form action="" class="col-md-12 form-inline" method="post">#}
+{#                <input type="hidden" id="rubrique-id" value="{{ rubrique.id }}">#}
+{#                <div>#}
+{#                    <label for="nom_champ">Nom du champ</label>#}
+{#                    <input type="text" name="nom_champ" id="nom_champ" value="{{ champ.nom|e }}" required>#}
+{#                </div>#}
+{#                <div>#}
+{#                    <label for="type_champ">Type du champ</label>#}
+{#                    <select name="type_champ" id="type_champ" disabled>#}
+{#                        {% for typeChamp in listeTypeChampRubrique %}#}
+{#                            <option#}
+{#                                    value="{{ typeChamp.id }}"#}
+{#                                    {{ typeChamp.id == champ.type.id ? 'selected' : '' }}#}
+{#                            >#}
+{#                                {{ typeChamp.type }}#}
+{#                            </option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                    {% if champ.type.type == 'Parent' %}#}
+{#                        <div>#}
+{#                            <label for='is-tableau'>Afficher comme tableau#}
+{#                                <input name='is-tableau' type='checkbox' {{ champ.tableau == 1 ? 'checked' : '' }} />#}
+{#                            </label>#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{#                </div>#}
+
+{#                {% if champ.valeursListe is not null %}#}
+{#                    <!-- Valeurs de la liste -->#}
+{#                    <div class="row">#}
+{#                        <h3>Valeurs de la liste</h3>#}
+{#                        <div id="list-values-container" class="grp">#}
+{#                            {% for valeurListe in champ.valeursListe %}#}
+{#                                <div id="{{ valeurListe.id }}">#}
+{#                                    <span class="tdMove"><i class="glyphicon glyphicon-move"></i></span>#}
+{#                                    <input type="text" name="valeur-champ-{{ valeurListe.id }}" value="{{ valeurListe.valeur|e }}">#}
+{#                                    <button type="button" data-id="{{ valeurListe.id }}" class="btn btn-link delete-list-value">Supprimer</button>#}
+{#                                </div>#}
+{#                            {% endfor %}#}
+{#                        </div>#}
+
+{#                        <div id="div-valeurs-liste">#}
+{#                            <div class="row">#}
+{#                                <button type="button" class="btn btn-link" id='add-list-value'>Ajouter une valeur</button>#}
+{#                            </div>#}
+{#                            <div class="row">#}
+{#                                <div id="list-value" class="col-md-10">#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                {% endif %}#}
+
+{#                <div class="pull-left">#}
+{#                    <a href="{{ backUrl }}" type="button" class="btn">Annuler</a>#}
+{#                    <a href="#" type="button" class="btn">Annuler</a>#}
+{#                    <button type="submit" class="btn btn-success">Sauvegarder le champ</button>#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
+{#    </div>#}
+
+{#    {% if champ.type.type == 'Parent' %}#}
+{#        {{ include('formulaire/partials/champ/partial-add-and-list-titles.twig', {#}
+{#            'count': champ.enfants|length,#}
+{#            'titleInfo': 'Informations sur le champ enfant',#}
+{#            'titleList': 'Liste des champs enfants',#}
+{#        }) }}#}
+{#    {% endif %}#}
+
+{#    <div class="row">#}
+{#        {% if champ.type.type == 'Parent' %}#}
+{#            <div class="col-md-4 infos-champ">#}
+{#                <form enctype="application/x-www-form-urlencoded" method="post" class="form-inline" action="">#}
+{#                    <div>#}
+{#                        {{ formChamp.nom_champ_enfant }}#}
+{#                    </div>#}
+{#                    <div>#}
+{#                        {{ formChamp.type_champ_enfant }}#}
+{#                    </div>#}
+{#                    {{ formChamp.ID_CHAMP_PARENT }}#}
+{#                    {{ formChamp.rubrique }}#}
+
+{#                    <div id="div-list-value">#}
+{#                        <h5>Définition des valeurs de la liste</h5>#}
+{#                        <div class="row">#}
+{#                            <a href='#' id='add-list-value'>Ajouter une valeur</a>#}
+{#                        </div>#}
+{#                        <div class="row">#}
+{#                            <div id="list-value" class="col-md-10">#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+
+{#                    {{ formChamp.save }}#}
+{#                </form>#}
+{#            </div>#}
+{#        {% endif %}#}
+
+{#        <div id="saved-fields" class="col-md-6 col-md-offset-2">#}
+{#            {% if champ.enfants|length > 0 %}#}
+{#                {% if champFusionValue is not null and champFusionValue is iterable %}#}
+{#                    {{ include('formulaire/partials/partial-champ-nom-fusion.twig', { 'champFusionValue': champFusionValue }) }}#}
+{#                {% endif %}#}
+
+{#                <table class="table table-bordered table-condensed">#}
+{#                    <thead>#}
+{#                    <tr>#}
+{#                        <th></th>#}
+{#                        <th>Nom du champ</th>#}
+{#                        <th>Type du champ</th>#}
+{#                        <th></th>#}
+{#                    </tr>#}
+{#                    </thead>#}
+{#                    <tbody id='tableParentChamp' class="grp">#}
+{#                    {% for champ_enfant in champ.enfants %}#}
+{#                        <tr id="{{ champ_enfant.ID_CHAMP }}">#}
+{#                            <td class='tdMove'><i class="glyphicon glyphicon-move"></i></td>#}
+{#                            <td>{{ champ_enfant.nom }}</td>#}
+{#                            <td>#}
+{#                                {{ champ_enfant.TYPE }}#}
+{#                                {% if champ_enfant.TYPE == 'Liste' %}#}
+{#                                    {% if champ_enfant.VALEURS|length == 0 %}#}
+{#                                        <div class="alert alert-warning">#}
+{#                                            <button type="button" class="close" data-dismiss="alert">&times;</button>#}
+{#                                            <strong>Attention !</strong> La liste ne possède aucune valeur, vous devriez en ajouter.#}
+{#                                        </div>#}
+{#                                    {% endif %}#}
+
+{#                                    <ul>#}
+{#                                        {% for valeur in champ_enfant.VALEURS %}#}
+{#                                            <li>{{ valeur.VALEUR|e }}</li>#}
+{#                                        {% endfor %}#}
+{#                                    </ul>#}
+{#                                {% endif %}#}
+{#                                {% if champ_enfant.type.type == 'Parent' %}#}
+{#                                    {% if champ_enfant.LIST_CHAMP is not empty %}#}
+{#                                        <ul>#}
+{#                                            {% for champFils in champ_enfant.LIST_CHAMP %}#}
+{#                                                <li>#}
+{#                                                    {{ champFils.nom }}#}
+{#                                                    <i>{{ champFils.TYPE }}</i>#}
+{#                                                </li>#}
+{#                                            {% endfor %}#}
+{#                                        </ul>#}
+{#                                    {% else %}#}
+{#                                        <div class="alert alert-warning">#}
+{#                                            <button type="button" class="close" data-dismiss="alert">&times;</button>#}
+{#                                            <strong>Attention ! </strong>Aucun champ fils renseigné.#}
+{#                                        </div>#}
+{#                                    {% endif %}#}
+{#                                {% endif %}#}
+{#                            </td>#}
+{#                            <td id='actions'>#}
+{#                                <div class='text-center'>#}
+{#                                    <a href="{{ path('formulaire_edit_champ', { 'rubrique': rubrique.id, 'champ': champ.ID_CHAMP }) }}">#}
+{#                                        <i title='Modifier' class='glyphicon glyphicon-pencil'></i>#}
+{#                                    </a>#}
+{#                                    <button data-id="{{ champ.id }}" data-rubrique-id="{{ rubrique.id }}" data-id-parent="{{ champ.parent.id }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ">#}
+{#                                        <i title='Supprimer' class='glyphicon glyphicon-trash'></i>#}
+{#                                    </button>#}
+{#                                </div>#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                    {% endfor %}#}
+{#                    </tbody>#}
+{#                </table>#}
+{#            {% endif %}#}
+{#        </div>#}
+{#    </div>#}
+{% endblock %}

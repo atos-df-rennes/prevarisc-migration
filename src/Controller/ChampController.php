@@ -6,12 +6,14 @@ use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Repository\ChampValeurListeRepository;
+use App\Service\Formulaires\Fusion\ChampCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,6 +22,29 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChampController extends AbstractController
 {
+
+    /**
+     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/modifier", name="admin_formulaires_edit_champ", methods={"GET", "POST"})
+     *
+     * @ParamConverter("formulaire", options={"id" = "formulaire"})
+     * @ParamConverter("rubrique", options={"id" = "rubrique"})
+     * @ParamConverter("champ", options={"id" = "champ"})
+     */
+    public function edit(
+        CapsuleRubrique $formulaire,
+        Rubrique $rubrique,
+        Champ $champ,
+        EntityManagerInterface $entityManager
+    ): Response
+    {
+        return $this->render('formulaires/champ/modification.html.twig', [
+            'formulaire' => $formulaire,
+            'rubrique' => $rubrique,
+            'champ' => $champ,
+            'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
+        ]);
+    }
+
     /**
      * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer", name="admin_formulaires_delete_champ", methods={"DELETE"})
      *

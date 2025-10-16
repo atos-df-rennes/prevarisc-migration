@@ -1,0 +1,25 @@
+{% if valeur_champ_fusion.enfants is empty %}
+    <div class="col-xs-12 alert alert-info">
+        Nom du champ de fusion : {% verbatim %}{{% endverbatim %}{{ valeur_champ_fusion.valeur }}{% verbatim %}}{% endverbatim %}
+    </div>
+{% else %}
+    <div class="col-xs-12 alert alert-info">
+        Champs de fusion :
+        <table class="table table-bordered table-condensed champFusionTable">
+            <tr>
+                {% for enfant in valeur_champ_fusion.enfants %}
+                    <td>{% verbatim %}{{% endverbatim %}{{ enfant.valeur }}{% verbatim %}}{% endverbatim %}</td>
+                {% endfor %}
+            </tr>
+        </table>
+        [!-- BEGIN {{ valeur_champ_fusion.valeur }} --]
+        <table class="table table-bordered table-condensed champFusionTable">
+            <tr>
+                {% for enfant in valeur_champ_fusion.enfants %}
+                    <td>{valeur{{ loop.index0 }}}</td>
+                {% endfor %}
+            </tr>
+        </table>
+        [!-- END {{ valeur_champ_fusion.valeur }} --]
+    </div>
+{% endif %}

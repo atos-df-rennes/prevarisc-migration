@@ -1,28 +1,34 @@
 $(document).ready(function() {
-    $('#edit-champ .delete-list-value').on('click', function() {
-        const id = this.getAttribute('data-id')
-        const parentDiv = $(this).parent()
-
-        $.ajax({
-            url: '/formulaire/delete-valeur-liste/liste/'+id,
-            type: 'POST',
-            success: function() {
-                parentDiv.remove()
-            },
-            error: function() {
-                return false
-            }
-        })
-        return false
-    })
+    // $('#edit-champ .delete-list-value').on('click', function() {
+    //     const id = this.getAttribute('data-id')
+    //     const parentDiv = $(this).parent()
+    //
+    //     $.ajax({
+    //         url: '/formulaire/delete-valeur-liste/liste/'+id,
+    //         type: 'POST',
+    //         success: function() {
+    //             parentDiv.remove()
+    //         },
+    //         error: function() {
+    //             return false
+    //         }
+    //     })
+    //     return false
+    // })
 
     const typeChampSelect = $('#type_champ_enfant')
-    
+
     typeChampSelect.on('change', function() {
         if (typeChampSelect.find(":selected").text() === 'Liste') {
-            $('#div-list-value').show()
+            $('#fieldset_valeurs_liste').show()
         } else {
-            $('#div-list-value').hide()
+            $('#fieldset_valeurs_liste').hide()
+        }
+
+        if (typeChampSelect.find(":selected").text() === 'Parent') {
+            $('#champ_tableau').closest('.form-group').show()
+        } else {
+            $('#champ_tableau').closest('.form-group').hide()
         }
     })
 })
