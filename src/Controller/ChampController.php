@@ -7,11 +7,13 @@ use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\ChampType;
 use App\Repository\ChampValeurListeRepository;
+use App\Repository\TypeChampRepository;
 use App\Service\Formulaires\Fusion\ChampCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,7 +39,9 @@ class ChampController extends AbstractController
         Rubrique $rubrique,
         Champ $champ,
         EntityManagerInterface $entityManager,
-        ChampValeurListeRepository $champValeurListeRepository
+        FormFactoryInterface $formFactory,
+        ChampValeurListeRepository $champValeurListeRepository,
+        TypeChampRepository $typeChampRepository
     ): Response
     {
         $formChamp = $this->createForm(ChampType::class, $champ, [
@@ -63,6 +67,33 @@ class ChampController extends AbstractController
             ]);
         }
 
+        $formChampEnfant = null;
+        if ('Parent' === $champ->getType()->getType()) {
+            $champEnfant = new Champ();
+            $champEnfant->setIdx($champ->getEnfants()->count() + 1);
+            $champEnfant->setParent($champ);
+            $champEnfant->setRubrique($rubrique);
+
+            $types = $typeChampRepository->findAllowedTypeForParent();
+            $formChampEnfant = $formFactory->createNamed('champ_enfant', ChampType::class, $champEnfant, [
+                'types' => $types,
+            ]);
+
+            $formChampEnfant->handleRequest($request);
+            if ($formChampEnfant->isSubmitted() && $formChampEnfant->isValid()) {
+                $champ->addEnfant($champEnfant);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Le champ a bien été ajouté.');
+
+                return $this->redirectToRoute('admin_formulaires_edit_champ', [
+                    'formulaire' => $formulaire->getId(),
+                    'rubrique' => $rubrique->getId(),
+                    'champ' => $champ->getId(),
+                ]);
+            }
+        }
+
         return $this->render('formulaires/champ/modification.html.twig', [
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
@@ -70,6 +101,7 @@ class ChampController extends AbstractController
             'form_champ' => $formChamp->createView(),
             'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
             'champ_valeurs_liste' => $champValeurListeRepository->findAll(),
+            'form_champ_enfant' => $formChampEnfant ? $formChampEnfant->createView() : null
         ]);
     }
 
