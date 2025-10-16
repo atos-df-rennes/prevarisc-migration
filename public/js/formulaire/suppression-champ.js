@@ -6,7 +6,6 @@ $(document).ready(function() {
 })
 
 function deleteChamp(element) {
-    const idParent = element.getAttribute('data-id-parent')
     const nom = element.getAttribute('data-nom')
     const url = element.getAttribute('data-url')
 
@@ -19,7 +18,6 @@ function deleteChamp(element) {
         $.ajax({
             url: url,
             type: 'DELETE',
-            data: idParent,
             success: function() {
                 if (nbOfRows === 1) {
                     parentTable.remove()

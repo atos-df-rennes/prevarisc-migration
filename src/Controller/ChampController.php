@@ -6,6 +6,7 @@ use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\ChampType;
+use App\Repository\ChampRepository;
 use App\Repository\ChampValeurListeRepository;
 use App\Repository\TypeChampRepository;
 use App\Service\Formulaires\Fusion\ChampCreator;
@@ -40,10 +41,12 @@ class ChampController extends AbstractController
         Champ $champ,
         EntityManagerInterface $entityManager,
         FormFactoryInterface $formFactory,
+        ChampRepository $champRepository,
         ChampValeurListeRepository $champValeurListeRepository,
         TypeChampRepository $typeChampRepository
     ): Response
     {
+        $champ = $champRepository->findAllInformations($champ);
         $formChamp = $this->createForm(ChampType::class, $champ, [
             'is_edit' => true,
         ]);
