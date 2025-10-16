@@ -20,6 +20,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChampController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer", name="admin_formulaires_delete_champ", methods={"DELETE"})
      *
@@ -27,10 +35,10 @@ class ChampController extends AbstractController
      * @ParamConverter("rubrique", options={"id" = "rubrique"})
      * @ParamConverter("champ", options={"id" = "champ"})
      */
-    public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ, EntityManagerInterface $entityManager): JsonResponse
+    public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ): JsonResponse
     {
-        $entityManager->remove($champ);
-        $entityManager->flush();
+        $this->entityManager->remove($champ);
+        $this->entityManager->flush();
 
         return $this->json([]);
     }
@@ -38,10 +46,10 @@ class ChampController extends AbstractController
     /**
      * @Route("/admin/formulaires/champs/{id}/index/{idx}", name="admin_formulaires_index_champ")
      */
-    public function index(Champ $champ, int $idx, EntityManagerInterface $entityManager): JsonResponse
+    public function index(Champ $champ, int $idx): JsonResponse
     {
         $champ->setIdx($idx);
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->json([]);
     }
@@ -49,7 +57,7 @@ class ChampController extends AbstractController
     /**
      * @Route("/admin/formulaires/update-champ-valeur-liste-idx", name="admin_formulaires_order_champ_valeur_liste")
      */
-    public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository): JsonResponse
     {
         $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
 
@@ -71,7 +79,7 @@ class ChampController extends AbstractController
 
         $champValeurListe->setIdx($idx);
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->json([]);
     }

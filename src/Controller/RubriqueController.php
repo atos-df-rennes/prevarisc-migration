@@ -23,6 +23,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RubriqueController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaires_edit_rubrique", methods={"GET", "POST"})
      *
@@ -34,8 +42,7 @@ class RubriqueController extends AbstractController
         CapsuleRubrique $formulaire,
         Rubrique $rubrique,
         RubriqueRepository $rubriqueRepository,
-        ChampValeurListeRepository $champValeurListeRepository,
-        EntityManagerInterface $entityManager
+        ChampValeurListeRepository $champValeurListeRepository
     ): Response {
         $rubrique = $rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
@@ -48,7 +55,7 @@ class RubriqueController extends AbstractController
 
         $formRubrique->handleRequest($request);
         if ($formRubrique->isSubmitted() && $formRubrique->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'La rubrique a bien été modifiée.');
 
@@ -60,8 +67,8 @@ class RubriqueController extends AbstractController
 
         $formChamp->handleRequest($request);
         if ($formChamp->isSubmitted() && $formChamp->isValid()) {
-            $entityManager->persist($champ);
-            $entityManager->flush();
+            $this->entityManager->persist($champ);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le champ a bien été ajouté.');
 
@@ -83,10 +90,10 @@ class RubriqueController extends AbstractController
     /**
      * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaires_delete_rubrique", methods={"DELETE"})
      */
-    public function delete(Rubrique $rubrique, EntityManagerInterface $entityManager): JsonResponse
+    public function delete(Rubrique $rubrique): JsonResponse
     {
-        $entityManager->remove($rubrique);
-        $entityManager->flush();
+        $this->entityManager->remove($rubrique);
+        $this->entityManager->flush();
 
         return $this->json([]);
     }
@@ -94,10 +101,10 @@ class RubriqueController extends AbstractController
     /**
      * @Route("/admin/formulaires/rubriques/{id}/index/{idx}", name="admin_formulaires_index_rubrique")
      */
-    public function index(Rubrique $rubrique, int $idx, EntityManagerInterface $entityManager): JsonResponse
+    public function index(Rubrique $rubrique, int $idx): JsonResponse
     {
         $rubrique->setIdx($idx);
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->json([]);
     }
