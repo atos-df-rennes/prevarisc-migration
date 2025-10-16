@@ -54,16 +54,17 @@
 {% endblock %}
 
 {% block body %}
-{#    <a href="{{ backUrl }}">#}
-    <a href="#">
-        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-
-        {% if champ.parent is not null %}
+    {% if champ.parent is not null %}
+        <a href="{{ path('admin_formulaires_edit_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.parent.id}) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
             Retourner sur le champ parent "{{ champ.parent.nom }}"
-        {% else %}
+        </a>
+    {% else %}
+        <a href="{{ path('admin_formulaires_edit_rubrique', {formulaire: formulaire.id, rubrique: rubrique.id}) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
             Retourner sur la rubrique "{{ rubrique.nom }}"
-        {% endif %}
-    </a>
+        </a>
+    {% endif %}
 
     <div class="row mt-4">
         <div class="col-md-4">
