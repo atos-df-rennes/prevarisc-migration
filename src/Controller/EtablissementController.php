@@ -6,7 +6,9 @@ use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
+use App\Repository\CoucheCartoRepository;
 use App\Repository\EtablissementRepository;
+use App\Repository\PeriodiciteRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
 use App\Service\Etablissement as EtablissementService;
@@ -22,6 +24,48 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EtablissementController extends AbstractController
 {
+    /**
+     * @Route("/etablissement/{id}/informations", name="etablissement_informations")
+     */
+    public function informations(
+        Etablissement $etablissement,
+        CoucheCartoRepository $coucheCartoRepository,
+        PeriodiciteRepository $periodiciteRepository
+    ): Response
+    {
+        $couchesCartographiques = $coucheCartoRepository->getAll();
+
+        // TODO: Récupérer correctement les valeurs
+        $keyIgn = $_ENV['PREVARISC_PLUGIN_IGNKEY'];
+        $keyGoogleMap = $_ENV['PREVARISC_PLUGIN_GOOGLEMAPKEY'];
+        $geoconceptUrl = $_ENV['PREVARISC_PLUGIN_GEOCONCEPT_URL'];
+
+
+        $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
+        dd($defaultPeriodicite);
+//        $periodicity = $this->serviceEtablissement->getDisplayedPeriodicity($etablissement);
+//        $groupementsDeCommunes = count($etablissement['adresses']) === 0 ? [] : $this->serviceGroupementCommunes->findAll($etablissement->getAdresses()->first()->getCommune()->getCodePostal());
+
+//        $isAllowedDeleteEtablissement = unserialize($this->cache->get('acl'))->isAllowed(
+//            $this->security->getUser()->getGroup()->getLibelle(),
+//            'suppression',
+//            'delete_etablissement'
+//        );
+
+//        return $this->render('etablissement/informations.html.twig', [
+//            'couches_cartographiques' => $couchesCartographiques,
+//            'key_ign' => $keyIgn,
+//            'key_googlemap' => $keyGoogleMap,
+//            'geoconcept_url' => $geoconceptUrl,
+//            'default_periodicite' => $defaultPeriodicite,
+//            'periodicity' => $periodicity ?? 'todo',
+//            'groupements_de_communes' => $groupementsDeCommunes,
+//            'store' => $this->dataStore,
+//            'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
+//        ]);
+    }
+
+
     /**
      * @Route("/etablissement/{id}/historique", name="etablissement_historique")
      *

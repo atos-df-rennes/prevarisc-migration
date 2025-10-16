@@ -40,6 +40,13 @@ class EtablissementInformations
     private $date;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS", type="boolean" )
+     */
+    private $localSommeil;
+
+    /**
      * @var ?Etablissement
      *
      * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="informations")
@@ -197,6 +204,18 @@ class EtablissementInformations
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getLocalSommeil(): ?int
+    {
+        return $this->localSommeil;
+    }
+
+    public function setLocalSommeil(?int $localSommeil): self
+    {
+        $this->localSommeil = $localSommeil;
 
         return $this;
     }

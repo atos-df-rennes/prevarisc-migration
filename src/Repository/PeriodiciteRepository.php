@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Etablissement;
 use App\Entity\Periodicite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -18,33 +19,57 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PeriodiciteRepository extends ServiceEntityRepository
 {
+    public const ID_GENRE_ETABLISSEMENT = 2;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Periodicite::class);
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Récupère une entité Periodicite en fonction de la catégorie, du type et du local de sommeil.
+     *
+     * @param int $categorie La catégorie spécifique de la periodicité.
+     * @param int $type Le type spécifique de la periodicité.
+     * @param string $localSommeil Le local de sommeil associé à la periodicité.
+     *
+     * @return Periodicite|null Renvoie l'entité Periodicite correspondante ou null si aucune correspondance trouvée.
      */
-    public function add(Periodicite $entity, bool $flush = true): void
+    public function gn4(int $categorie, int $type, string $localSommeil): ?Periodicite
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        // On prépare la requête SQL
+        $queryBuilder = $this->createQueryBuilder('periodicite');
+        $queryBuilder
+            ->where('periodicite.categorie = :categorie')
+            ->andWhere('periodicite.type = :type')
+            ->andWhere('periodicite.localSommeil = :localSommeil')
+            ->setParameter('categorie', $categorie)
+            ->setParameter('type', $type)
+            ->setParameter('localSommeil', $localSommeil)
+        ;
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Génère une chaîne spécifique pour un établissement donné en fonction de ses informations.
+     *
+     * @param array $etablissement Tableau associatif contenant les informations de l'établissement.
+     *
+     * @return string|null Renvoie une chaîne spécifique si les conditions sont remplies, sinon null.
      */
-    public function remove(Periodicite $entity, bool $flush = true): void
+    public function gn4ForEtablissement(Etablissement $etablissement): ?Periodicite
     {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
+        $information = $etablissement->getLatestInformations();
+
+        if (!in_array($information->getGenre()->getId(), [2,5])) {
+            return null;
         }
+
+        $type = self::ID_GENRE_ETABLISSEMENT === $information->getGenre()->getId() ? $information->getType() : $information->getClasse();
+
+        dump($type);
+        return $this->gn4($information->getCategorie()->getId(), $type->getId(), 'todo');
     }
 
     // /**
