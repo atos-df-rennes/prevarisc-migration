@@ -70,8 +70,12 @@ class ChampController extends AbstractController
             ]);
         }
 
+        if (null === $initialType) {
+            throw new \InvalidArgumentException("Le type du champ est invalide.");
+        }
+
         $formChampEnfant = null;
-        if ('Parent' === $champ->getType()->getType()) {
+        if ('Parent' === $initialType->getType()) {
             $champEnfant = new Champ();
             $champEnfant->setIdx($champ->getEnfants()->count() + 1);
             $champEnfant->setParent($champ);

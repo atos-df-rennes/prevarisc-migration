@@ -9,6 +9,8 @@ final class ChampNamer
 {
     /**
      * Sépare toutes les options.
+     *
+     * @param string[] $options
      */
     public static function getFullFusionName(string $capsuleRubrique, array $options): string
     {
@@ -34,6 +36,10 @@ final class ChampNamer
         $loopName = '';
         $strings = preg_split("/[\\s'\"\\/]+/", $options);
 
+        if (false === $strings) {
+            throw new \InvalidArgumentException('Invalid options format.');
+        }
+
         foreach ($strings as $string) {
             $loopName .= ucfirst(strtolower($string));
         }
@@ -51,6 +57,12 @@ final class ChampNamer
         $trimmedName = trim($name);
         $loweredName = strtolower($trimmedName);
 
-        return preg_replace(['/\s+/', "/'+/", '/\"+/'], '_', $loweredName);
+        $result =  preg_replace(['/\s+/', "/'+/", '/\"+/'], '_', $loweredName);
+
+        if (null === $result) {
+            throw new \InvalidArgumentException('Invalid name format.');
+        }
+
+        return $result;
     }
 }

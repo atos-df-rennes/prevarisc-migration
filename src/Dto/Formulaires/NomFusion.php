@@ -10,6 +10,9 @@ final class NomFusion
     /** @var self[] */
     private $enfants;
 
+    /**
+     * @param self[] $enfants
+     */
     public function __construct(string $valeur, array $enfants = [])
     {
         $this->valeur = $valeur;

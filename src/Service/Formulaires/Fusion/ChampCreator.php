@@ -15,12 +15,23 @@ final class ChampCreator
 {
     public static function make(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ): ?NomFusion
     {
+        $typeChamp = $champ->getType();
+        $nomFormulaire = $formulaire->getNomInterne();
+
+        if (null === $typeChamp) {
+            throw new \InvalidArgumentException("Le type du champ est invalide.");
+        }
+
+        if (null === $nomFormulaire) {
+            throw new \InvalidArgumentException("Le nom du formulaire est invalide.");
+        }
+
         /*
          * Si le champ parent n'est pas un tableau, il n'a pas de champ de fusion. Ce sont ses enfants qui en ont.
          * Si le champ parent est un tableau, les champs enfants n'ont pas de champ de fusion.
          */
         if (
-            ('Parent' === $champ->getType()->getType() && !$champ->getTableau())
+            ('Parent' === $typeChamp->getType() && !$champ->getTableau())
             || (null !== $champ->getParent() && $champ->getParent()->getTableau())
         ) {
             return null;
@@ -37,9 +48,9 @@ final class ChampCreator
             $enfants = [];
 
             foreach ($champ->getEnfants() as $enfant) {
-                $options = [$rubrique->getNom(), $champ->getNom(), $enfant->getIdx()];
+                $options = [(string) $rubrique->getNom(), (string) $champ->getNom(), (string) $enfant->getIdx()];
 
-                $enfants[] = new NomFusion(ChampNamer::getFullFusionName($formulaire->getNomInterne(), $options));
+                $enfants[] = new NomFusion(ChampNamer::getFullFusionName($nomFormulaire, $options));
             }
 
             return new NomFusion($valeur, $enfants);
@@ -49,15 +60,15 @@ final class ChampCreator
          * Cas d'un champ classique, on fusionne les options.
          * En particulier, on ajoute le nom du champ parent si nécessaire.
          */
-        $options = [$rubrique->getNom()];
+        $options = [(string) $rubrique->getNom()];
 
         if (null !== $champ->getParent()) {
-            $options[] = $champ->getParent()->getNom();
+            $options[] = (string) $champ->getParent()->getNom();
         }
 
-        $options[] = $champ->getNom();
+        $options[] = (string) $champ->getNom();
 
-        $valeur = ChampNamer::getFullFusionName($formulaire->getNomInterne(), $options);
+        $valeur = ChampNamer::getFullFusionName($nomFormulaire, $options);
 
         return new NomFusion($valeur);
     }
