@@ -16,6 +16,7 @@
     <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
     <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script src="{{ asset('js/formulaire/handle-type-champ.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -27,7 +28,9 @@
     {{ include('formulaires/rubrique/_form.html.twig') }}
 
     <div class="row champs">
-        {{ include('formulaires/champ/_form.html.twig') }}
+        <div class="col-md-4">
+            {{ include('formulaires/champ/_form.html.twig') }}
+        </div>
 
         {% if rubrique.champs|length > 0 %}
             <div class="col-md-7 col-md-offset-1 saved-fields">
@@ -106,12 +109,6 @@
             </div>
         {% endif %}
     </div>
-
-    <datalist id="champ-valeurs-liste">
-        {% for champ_valeur_liste in champ_valeurs_liste %}
-            <option value="{{ champ_valeur_liste.valeur }}"></option>
-        {% endfor %}
-    </datalist>
 
     {{ include('formulaires/champ/_delete.html.twig') }}
 {% endblock %}

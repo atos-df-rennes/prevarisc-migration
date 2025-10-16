@@ -1,10 +1,12 @@
-<div class="col-md-4 infos-champ">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Informations sur le champ</h3>
-        </div>
-        <div class="panel-body">
-            {{ form_start(form_champ) }}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Informations sur le champ</h3>
+    </div>
+    <div class="panel-body">
+        {% block champ_fusion %}
+        {% endblock %}
+
+        {{ form_start(form_champ) }}
             {{ form_row(form_champ.nom) }}
             {{ form_row(form_champ.type) }}
             {{ form_row(form_champ.tableau) }}
@@ -21,7 +23,7 @@
                     {% for valeur_liste_field in form_champ.valeursListe %}
                         <li>
                             {{ form_errors(valeur_liste_field) }}
-                            {{ form_widget(valeur_liste_field) }}
+                            {{ form_widget(valeur_liste_field, {attr: {class: 'collection-item-wrapper'}}) }}
                         </li>
                     {% endfor %}
                 </ul>
@@ -34,9 +36,20 @@
             </fieldset>
 
             <div class="pull-right">
-                <button type="submit" class="btn btn-success">Ajouter</button>
+                <button type="submit" class="btn btn-success">
+                    {% if champ is not defined %}
+                        Ajouter
+                    {% else %}
+                        Sauvegarder
+                    {% endif %}
+                </button>
             </div>
-            {{ form_end(form_champ) }}
-        </div>
+        {{ form_end(form_champ) }}
     </div>
 </div>
+
+<datalist id="champ-valeurs-liste">
+    {% for champ_valeur_liste in champ_valeurs_liste %}
+        <option value="{{ champ_valeur_liste.valeur }}"></option>
+    {% endfor %}
+</datalist>

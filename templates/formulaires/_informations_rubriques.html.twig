@@ -8,9 +8,6 @@
             <div class="panel-body">
                 {{ form_start(forms[formulaire.nomInterne]) }}
                     {{ form_row(forms[formulaire.nomInterne].nom) }}
-
-                    {{ form_errors(forms[formulaire.nomInterne].defaultDisplay) }}
-                    {{ form_label(forms[formulaire.nomInterne].defaultDisplay) }}
                     {{ form_row(forms[formulaire.nomInterne].defaultDisplay) }}
 
                     <input type="hidden" name="formulaire" value="{{ formulaire.nomInterne }}" />

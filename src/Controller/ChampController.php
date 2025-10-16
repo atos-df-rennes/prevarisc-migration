@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
+use App\Form\ChampType;
 use App\Repository\ChampValeurListeRepository;
 use App\Service\Formulaires\Fusion\ChampCreator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,17 +32,44 @@ class ChampController extends AbstractController
      * @ParamConverter("champ", options={"id" = "champ"})
      */
     public function edit(
+        Request $request,
         CapsuleRubrique $formulaire,
         Rubrique $rubrique,
         Champ $champ,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ChampValeurListeRepository $champValeurListeRepository
     ): Response
     {
+        $formChamp = $this->createForm(ChampType::class, $champ, [
+            'is_edit' => true,
+        ]);
+        /*
+         * On a besoin d'avoir le type avant le handleRequest() car l'input est disabled.
+         * Cela crée une erreur lors de la sauvegarde.
+         */
+        $initialType = $champ->getType();
+
+        $formChamp->handleRequest($request);
+        if ($formChamp->isSubmitted() && $formChamp->isValid()) {
+            $champ->setType($initialType);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Le champ a bien été sauvegardé.');
+
+            return $this->redirectToRoute('admin_formulaires_edit_champ', [
+                'formulaire' => $formulaire->getId(),
+                'rubrique' => $rubrique->getId(),
+                'champ' => $champ->getId(),
+            ]);
+        }
+
         return $this->render('formulaires/champ/modification.html.twig', [
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
             'champ' => $champ,
+            'form_champ' => $formChamp->createView(),
             'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
+            'champ_valeurs_liste' => $champValeurListeRepository->findAll(),
         ]);
     }
 

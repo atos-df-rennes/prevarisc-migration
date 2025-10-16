@@ -12,6 +12,7 @@
 {% block javascripts %}
     {{ parent() }}
 
+    <script src="{{ asset('js/formulaire/handle-type-champ.js') }}"></script>
     <script src="{{ asset('js/formulaire/champ.js') }}"></script>
     <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
     <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
@@ -86,16 +87,7 @@
         </div>
 
         <div class="col-md-7 col-md-offset-1">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Informations sur le champ</h3>
-                </div>
-                <div id="edit-champ" class="panel-body infos-champ">
-                    {% if valeur_champ_fusion is not null and valeur_champ_fusion.enfants is empty %}
-                        {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
-                    {% endif %}
-                </div>
-            </div>
+            {{ include('formulaires/champ/_form_edit.html.twig') }}
         </div>
     </div>
 

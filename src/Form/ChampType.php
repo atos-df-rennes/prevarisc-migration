@@ -22,10 +22,13 @@ class ChampType extends AbstractType
             ->add('type', EntityType::class, [
                 'class' => TypeChamp::class,
                 'choice_label' => 'type',
+                'attr' => [
+                    'disabled' => (bool) $options['is_edit'],
+                ],
             ])
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options): void {
             /** @var Champ $champ */
             $champ = $event->getData();
             $form = $event->getForm();
@@ -37,6 +40,9 @@ class ChampType extends AbstractType
                 'label' => 'Afficher comme tableau',
                 'required' => false,
                 'data' => $tableau,
+                'attr' => [
+                    'disabled' => (bool) $options['is_edit'],
+                ],
             ]);
         });
 
@@ -64,6 +70,7 @@ class ChampType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Champ::class,
+            'is_edit' => false, // Par défaut, on considère que c'est une création
         ]);
     }
 }
