@@ -24,7 +24,7 @@
                     const newName = $('#newName_{{ formulaire.id }}').val()
                     if (newName) {
                         $.ajax({
-                            url: '{{ path('admin_formulaire_edit_capsule_rubrique_nom') }}',
+                            url: '{{ path('admin_formulaires_edit_capsule_rubrique_nom') }}',
                             type: 'POST',
                             data: {
                                 id: {{ formulaire.id }},
@@ -82,7 +82,7 @@
                         <span id="nom_{{ formulaire.id }}">
                             {{ formulaire.nom }}
                         </span>
-                            <button class="btn btn-link" data-toggle="modal" data-target="#editModal_{{ formulaire.id }}" data-url="{{ path('admin_formulaire_edit_capsule_rubrique_nom', {id: formulaire.id}) }}">
+                            <button class="btn btn-link" data-toggle="modal" data-target="#editModal_{{ formulaire.id }}" data-url="{{ path('admin_formulaires_edit_capsule_rubrique_nom', {id: formulaire.id}) }}">
                                 <span title='Modifier' class="glyphicon glyphicon-pencil"></span>
                             </button>
                         </h3>

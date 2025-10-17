@@ -1,0 +1,117 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des formulaires personnalisés / Modifier une rubrique{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/formulaire/rubrique-bs3.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_formulaires') }}">
+        <i class="glyphicon glyphicon-arrow-left" aria-hidden="true"></i>
+        Retourner sur la liste des formulaires
+    </a>
+
+    {{ include('formulaires/rubrique/_form.html.twig') }}
+
+    <div class="row champs">
+        {{ include('formulaires/champ/_form.html.twig') }}
+
+        {% if rubrique.champs|length > 0 %}
+            <div class="col-md-7 col-md-offset-1 saved-fields">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Liste des champs</h3>
+                    </div>
+                    <table id="saved-fields-table" class="table table-bordered table-condensed">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Nom du champ</th>
+                            <th>Type du champ</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id='grp1' class="grp">
+                            {# Le filter permet de n'afficher que les champs directs de la rubrique #}
+                            {% for champ in rubrique.champs|filter(c => c.parent is null) %}
+                                <tr id="{{ champ.id }}">
+                                    <td class='tdMove'><i class="glyphicon glyphicon-move"></i></td>
+                                    <td>{{ champ.nom }}</td>
+                                    <td>
+                                        {{ champ.type.type }}
+
+                                        {% if champ.type.type == 'Parent' %}
+                                            {% if champ.tableau == 1 %}
+                                                <small class="text-muted">(affiché comme tableau)</small>
+                                            {% endif %}
+
+                                            {% if champ.enfants is not empty %}
+                                                <ul>
+                                                    {% for champ_enfant in champ.enfants %}
+                                                        <li>
+                                                            {{ champ_enfant.nom }}
+                                                            <small class="text-muted">{{ champ_enfant.type.type }}</small>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <div class="alert alert-warning">
+                                                    <strong>Attention ! </strong>Aucun champ enfant renseigné.
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% if champ.type.type == 'Liste' %}
+                                            {% if champ.valeursListe|length == 0 %}
+                                                <div class="alert alert-warning">
+                                                    <strong>Attention !</strong> La liste ne possède aucune valeur, vous devriez en ajouter.
+                                                </div>
+                                            {% endif %}
+
+                                            <ul>
+                                                {% for valeur_liste in champ.valeursListe %}
+                                                    <li>{{ valeur_liste.valeur }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </td>
+                                    <td id='actions'>
+                                        <div class='text-center'>
+                                            <a href="/formulaire/edit-champ/rubrique/{{ rubrique.id }}/champ/{{ champ.id }}">
+                                                <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
+                                            </a>
+                                            <button data-url="{{ path('admin_formulaires_delete_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.id}) }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ" data-toggle="modal" data-target="#modal-delete-champ">
+                                                <i title='Supprimer' class='glyphicon glyphicon-trash'></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <datalist id="champ-valeurs-liste">
+        {% for champ_valeur_liste in champ_valeurs_liste %}
+            <option value="{{ champ_valeur_liste.valeur }}"></option>
+        {% endfor %}
+    </datalist>
+
+    {{ include('formulaires/champ/_delete.html.twig') }}
+{% endblock %}
