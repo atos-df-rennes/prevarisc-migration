@@ -7,7 +7,6 @@ use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\RubriqueType;
 use App\Repository\CapsuleRubriqueRepository;
-use App\Repository\ChampValeurListeRepository;
 use App\Service\Formulaires\FormulairesImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -32,10 +31,18 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class FormulairesController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/admin/formulaires", name="admin_formulaires")
      */
-    public function index(Request $request, CapsuleRubriqueRepository $capsuleRubriqueRepository, EntityManagerInterface $entityManager, FormFactoryInterface $formFactory): Response
+    public function index(Request $request, CapsuleRubriqueRepository $capsuleRubriqueRepository, FormFactoryInterface $formFactory): Response
     {
         $formulaires = $capsuleRubriqueRepository->findAllInformations();
 
@@ -66,8 +73,10 @@ class FormulairesController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 $submittedRubrique = $form->getData();
 
-                $entityManager->persist($submittedRubrique);
-                $entityManager->flush();
+                $this->entityManager->persist($submittedRubrique);
+                $this->entityManager->flush();
+
+                $this->addFlash('success', 'La rubrique a bien été ajoutée.');
 
                 return $this->redirectToRoute('admin_formulaires');
             }
@@ -82,9 +91,9 @@ class FormulairesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaire_edit_capsule_rubrique_nom")
+     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaires_edit_capsule_rubrique_nom")
      */
-    public function editCapsuleRubriqueNom(Request $request, EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
+    public function editCapsuleRubriqueNom(Request $request, CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
     {
         $idCapsuleRubrique = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
 
@@ -101,7 +110,7 @@ class FormulairesController extends AbstractController
         }
 
         $capsuleRubrique->setNom($nom);
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->json(['status' => 'success']);
     }
@@ -109,7 +118,7 @@ class FormulairesController extends AbstractController
     /**
      * @Route("/admin/formulaires/export", name="admin_formulaires_export")
      */
-    public function export(SerializerInterface $serializer, CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
+    public function export(CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
     {
         $context = [
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $format, $context): ?int {
@@ -137,7 +146,6 @@ class FormulairesController extends AbstractController
         Request $request,
         SerializerInterface $serializer,
         FormulairesImporter $formulairesImporter,
-        EntityManagerInterface $entityManager,
         LoggerInterface $logger
     ): Response {
         /** @var UploadedFile $configurationFile */
@@ -145,7 +153,7 @@ class FormulairesController extends AbstractController
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
 
         try {
-            $entityManager->wrapInTransaction(function (EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter): void {
+            $this->entityManager->wrapInTransaction(function (EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter): void {
                 if ($deleteExistingConfiguration) {
                     $formulairesImporter->deleteExistingConfiguration($entityManager);
                 }
@@ -165,34 +173,5 @@ class FormulairesController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_formulaires');
-    }
-
-    // @todo: A mettre dans ChampController
-    /**
-     * @Route("/admin/formulaires/update-champ-valeur-liste-idx", name="admin_formulaires_order_champ_valeur_liste")
-     */
-    public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository, EntityManagerInterface $entityManager): void
-    {
-        $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
-
-        if (false === $champValeurListeId) {
-            throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
-        }
-
-        $champValeurListe = $champValeurListeRepository->find($champValeurListeId);
-
-        if (null === $champValeurListe) {
-            throw new NotFoundHttpException(\sprintf("La valeur de liste d'identifiant %d n'existe pas.", $champValeurListeId));
-        }
-
-        $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
-
-        if (false === $idx) {
-            throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
-        }
-
-        $champValeurListe->setIdx($idx);
-
-        $entityManager->flush();
     }
 }
