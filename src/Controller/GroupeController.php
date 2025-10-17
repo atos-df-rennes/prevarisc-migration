@@ -131,10 +131,6 @@ class GroupeController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($groupes as $groupe) {
-                $this->entityManager->persist($groupe);
-            }
-
             $this->entityManager->flush();
 
             $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
