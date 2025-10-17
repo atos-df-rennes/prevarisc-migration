@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
         container.innerHTML = list.getAttribute('data-widget-tags');
         const newElem = container.firstElementChild;
         newElem.innerHTML = newWidget;
+        newElem.firstElementChild.setAttribute('class', 'collection-item-wrapper')
         list.appendChild(newElem);
 
         if(list.classList.contains('remove-collection-widget')) {

@@ -19,9 +19,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'buffer_size' => 50,
             ],
             'nested' => [
-                'type' => 'stream',
+                'type' => 'rotating_file',
                 'path' => '%kernel.logs_dir%/%kernel.environment%.log',
                 'level' => 'debug',
+                'max_files' => 30,
             ],
             'console' => [
                 'type' => 'console',
