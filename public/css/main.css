@@ -182,12 +182,35 @@ h2.page-header {
 }
 
 /*-------------------------- Styles des panneaux ouvrables du dashboard --------------------------*/
-.dashboard .grid-gutter {
-    width: 1%;
+.titre-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.titre-section hr {
+    border-top: 1px solid #ccc;
+    position: absolute;
+    width: 97%;
+}
+
+.titre-section h2 {
+    display: inline;
+    position: relative;
+    background: #fff;
+    padding: 0 15px;
+}
+
+.titre-section h2 i{
+    display: table-cell;
+}
+
+.blocs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .dashboard .panel.panel-ouvrable .panel-heading {
-    cursor: move;
     display: flex;
     align-items: center;
     width: 270px;
