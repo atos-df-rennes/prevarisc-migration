@@ -146,4 +146,12 @@ class GroupeController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees", name="admin_groupe_ressources_specialisees")
+     */
+    public function ressourcesSpecialisees(): Response
+    {
+        return $this->render('groupe/ressources_specialisees.html.twig');
+    }
 }
