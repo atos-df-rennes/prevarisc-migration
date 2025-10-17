@@ -7,6 +7,7 @@ use App\Form\GroupeType;
 use App\Form\MatriceDesDroitsType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GroupeController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/admin/groupes/{id}/utilisateurs", name="admin_groupe_index")
      */
@@ -46,9 +55,8 @@ class GroupeController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($groupe);
-            $entityManager->flush();
+            $this->entityManager->persist($groupe);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le groupe a bien été ajouté.');
 
@@ -62,35 +70,6 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
-     */
-    public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
-    {
-        $groupes = $groupeRepository->findAll();
-
-        $form = $this->createForm(MatriceDesDroitsType::class, ['groupes' => $groupes]);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
-            foreach ($groupes as $groupe) {
-                $entityManager->persist($groupe);
-            }
-
-            $entityManager->flush();
-
-            $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
-
-            return $this->redirectToRoute('admin_groupe_manage_privileges');
-        }
-
-        return $this->render('groupe/matrice_droits.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
      * @Route("/admin/groupes/{id}/modifier", name="admin_groupe_edit")
      */
     public function modifier(Request $request, Groupe $groupe): Response
@@ -99,8 +78,7 @@ class GroupeController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le groupe a bien été modifié.');
 
@@ -129,15 +107,43 @@ class GroupeController extends AbstractController
         $utilisateurs = $utilisateurRepository->findBy(['groupe' => $groupeId]);
         $groupeParDefaut = $groupeRepository->find(1);
 
-        $entityManager = $this->getDoctrine()->getManager();
         foreach ($utilisateurs as $utilisateur) {
             $utilisateur->setGroupe($groupeParDefaut);
-            $entityManager->flush();
         }
+        $this->entityManager->flush();
 
-        $groupeRepository->remove($groupe);
+        $this->entityManager->remove($groupe);
+        $this->entityManager->flush();
+
         $this->addFlash('success', 'Le groupe a bien été supprimé.');
 
         return $this->redirectToRoute('admin_utilisateurs_index');
+    }
+
+    /**
+     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
+     */
+    public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
+    {
+        $groupes = $groupeRepository->findAll();
+
+        $form = $this->createForm(MatriceDesDroitsType::class, ['groupes' => $groupes]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($groupes as $groupe) {
+                $this->entityManager->persist($groupe);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
+
+            return $this->redirectToRoute('admin_groupe_manage_privileges');
+        }
+
+        return $this->render('groupe/matrice_droits.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }
