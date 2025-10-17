@@ -207,7 +207,22 @@ h2.page-header {
 .blocs-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 45px;
+}
+
+.dashboard .panel {
+    margin-bottom: 0;
+}
+
+.dashboard .panel.panel-ouvrable {
+    width: 300px;
+    height: 200px;
+    background: #F5F5F5;
+    border: 1px solid #DDDDDD;
+    border-radius: 3px;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+    box-sizing: border-box;
 }
 
 .dashboard .panel.panel-ouvrable .panel-heading {
@@ -226,17 +241,6 @@ h2.page-header {
     background-color: #333333;
     padding: 5px;
     margin-right: 20px;
-}
-
-.dashboard .panel.panel-ouvrable {
-    width: 300px;
-    height: 200px;
-    background: #F5F5F5;
-    border: 1px solid #DDDDDD;
-    border-radius: 3px;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-    opacity: 1;
-    box-sizing: border-box;
 }
 
 .dashboard .panel.panel-ouvrable .ajouter-favoris {
