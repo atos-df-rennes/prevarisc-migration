@@ -88,7 +88,7 @@
         </div>
 
         <div class="col-md-7 col-md-offset-1">
-            {{ include('formulaires/champ/_form_edit.html.twig') }}
+            {{ include('formulaires/champ/_form.html.twig') }}
         </div>
     </div>
 
@@ -105,9 +105,11 @@
                             <h3 class="panel-title">Liste des champs enfants</h3>
                         </div>
 
-                        <div class="panel-body">
-                            {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
-                        </div>
+                        {% if valeur_champ_fusion is not null %}
+                            <div class="panel-body">
+                                {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
+                            </div>
+                        {% endif %}
 
                         <table id="saved-fields-table" class="table table-bordered table-condensed">
                             <thead>

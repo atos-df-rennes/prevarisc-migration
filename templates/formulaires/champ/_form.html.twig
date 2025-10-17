@@ -3,8 +3,14 @@
         <h3 class="panel-title">Informations sur le champ {% if enfant is defined %}enfant{% endif %}</h3>
     </div>
     <div class="panel-body">
-        {% block champ_fusion %}
-        {% endblock %}
+        {% if
+            enfant is not defined
+            and valeur_champ_fusion is defined
+            and valeur_champ_fusion is not null
+            and champ.type.type != 'Parent'
+        %}
+            {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
+        {% endif %}
 
         {{ form_start(form_champ) }}
             {{ form_row(form_champ.nom) }}

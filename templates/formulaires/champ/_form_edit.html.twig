@@ -1,7 +1,0 @@
-{% extends 'formulaires/champ/_form.html.twig' %}
-
-{% block champ_fusion %}
-    {% if valeur_champ_fusion is not null and valeur_champ_fusion.enfants is empty %}
-        {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
-    {% endif %}
-{% endblock %}
