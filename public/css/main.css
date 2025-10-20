@@ -181,10 +181,71 @@ h2.page-header {
     }
 }
 
+/*-------------------------- Styles des filtres --------------------------*/
+.filtres-cartes-recherche input.filtre-cartes-input {
+    width: 350px;
+    height: 30px;
+}
+
+.filtres-cartes-container {
+    margin-bottom: 15px;
+}
+
+.filtre-cartes-favoris {
+    display: inline-block;
+    margin: 5px 0 0 20px;
+}
+
+.filtres-cartes-droite .btn {
+    padding: 4px 10px;
+}
+
+.filtre-cartes-personnaliser-btn {
+    margin-left: 20px;
+}
+
+#filtre-cartes-tri-select {
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .row-fluid .filtres-cartes-gauche,
+    .row-fluid .filtres-cartes-droite {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .filtres-cartes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filtres-cartes-recherche {
+        width: 100%;
+        display: flex;
+    }
+
+    .filtre-cartes-input {
+        flex: 1;
+    }
+
+    #filtre-cartes-tri-select,
+    .filtre-cartes-personnaliser-btn {
+        width: 100%;
+        margin-top: 10px;
+        margin-left: 0;
+    }
+
+    .filtre-cartes-favoris {
+        margin-left: 0;
+    }
+}
+
 /*-------------------------- Styles des panneaux ouvrables du dashboard --------------------------*/
 .titre-section {
     text-align: center;
-    margin: 40px 0;
+    margin: 20px 0 40px 0;
 }
 
 .titre-section hr {
