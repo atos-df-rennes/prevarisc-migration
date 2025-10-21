@@ -26,9 +26,10 @@ class ResourcesRepository extends ServiceEntityRepository
      */
     public function findRessourcesSpecialiseesDossier(): array
     {
+        // Utilisation d'une expression régulière pour filtrer les noms du type "dossier_<nombre>"
         return $this->createQueryBuilder('r')
-            ->where('r.name LIKE :name')
-            ->setParameter('name', 'dossier\_%')
+            ->where('r.name REGEXP :pattern')
+            ->setParameter('pattern', '^dossier_[0-9]+$')
             ->getQuery()
             ->getResult()
         ;

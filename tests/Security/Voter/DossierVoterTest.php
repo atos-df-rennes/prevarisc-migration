@@ -218,28 +218,23 @@ class DossierVoterTest extends TestCase
         $user = $this->createMock(Utilisateur::class);
         $token->method('getUser')->willReturn($user);
 
-        // Dossier avec une nature spécifique (ex: id=1)
         $dossier = $this->createMock(Dossier::class);
         $nature = $this->createMock(DossierNatureListe::class);
         $nature->method('getId')->willReturn(1);
         $dossier->method('getNature')->willReturn($nature);
 
-        // Ressource avec plusieurs natures (doit être ignorée)
+        // Le repository ne retourne que des ressources avec plusieurs natures (ce qui ne devrait plus arriver)
         $resourceMultiple = $this->createMock(Resources::class);
         $resourceMultiple->method('getName')->willReturn('resource_1-2');
-        $privilegeMultiple = $this->createMock(Privileges::class);
-        $privilegeMultiple->method('getResource')->willReturn($resourceMultiple);
-
-        // Le repository retourne uniquement la ressource multiple
         $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourceMultiple]);
 
-        // Le repository de privilèges retourne le privilège sur la ressource multiple
-        $this->privilegesRepository->method('findOneBy')->willReturn($privilegeMultiple);
-
-        // L'utilisateur a le privilège sur la ressource multiple
+        // Le groupe utilisateur n'a aucun privilège pertinent
         $group = $this->createMock(Groupe::class);
-        $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilegeMultiple]));
+        $group->method('getPrivileges')->willReturn(new ArrayCollection([]));
         $user->method('getGroupe')->willReturn($group);
+
+        // Le repository de privilèges retourne null (aucun privilège trouvé)
+        $this->privilegesRepository->method('findOneBy')->willReturn(null);
 
         $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 

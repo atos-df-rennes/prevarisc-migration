@@ -79,35 +79,22 @@ class DossierVoter extends Voter
 
         // Vérification du privilège "toutes natures" (id=0)
         foreach ($resources as $resource) {
-            [, $naturesResources] = explode('_', $resource->getName());
-            $natureResource = explode('-', $naturesResources);
-
-            if (count($natureResource) > 1) {
-                continue;
-            }
-
-            $natureId = (int) $natureResource[0];
+            [, $natureIdStr] = explode('_', $resource->getName());
+            $natureId = (int) $natureIdStr;
 
             if ($natureId === 0) {
                 $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
                 if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
                     return true;
                 }
-                // Si l'utilisateur n'a pas le privilège "toutes natures", on continue la vérification
                 break;
             }
         }
 
         // Vérification du privilège spécifique à la nature du dossier
         foreach ($resources as $resource) {
-            [, $naturesResources] = explode('_', $resource->getName());
-            $natureResource = explode('-', $naturesResources);
-
-            if (count($natureResource) > 1) {
-                continue;
-            }
-
-            $natureId = (int) $natureResource[0];
+            [, $natureIdStr] = explode('_', $resource->getName());
+            $natureId = (int) $natureIdStr;
 
             if ($natureDossierId === $natureId) {
                 $privilegeSpecific = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
