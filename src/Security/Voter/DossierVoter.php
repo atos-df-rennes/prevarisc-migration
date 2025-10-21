@@ -56,35 +56,19 @@ class DossierVoter extends Voter
             return false;
         }
 
-        $natureDossier = $subject->getNature()->getId();
+        $natureDossier = $subject->getNature();
 
         if (null === $natureDossier) {
             return false;
         }
 
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
-        $resourceConcernee = null;
+        $natureDossierId = $natureDossier->getId();
 
-        foreach ($resources as $resource) {
-            [, $naturesResources] = explode('_', $resource->getName());
-            $natureResource = explode('-', $naturesResources);
-
-            if (count($natureResource) > 1) {
-                continue;
-            }
-
-            if ($natureDossier !== (int) $natureResource[0]) {
-                continue;
-            }
-
-            $resourceConcernee = $resource;
-        }
-
-        if (null === $resourceConcernee) {
+        if (null === $natureDossierId) {
             return false;
         }
 
-        $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourceConcernee]);
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
         $userGroup = $user->getGroupe();
 
         if (null === $userGroup) {
@@ -93,6 +77,47 @@ class DossierVoter extends Voter
 
         $userPrivileges = $userGroup->getPrivileges()->toArray();
 
-        return in_array($privilege, $userPrivileges, true);
+        // Vérification du privilège "toutes natures" (id=0)
+        foreach ($resources as $resource) {
+            [, $naturesResources] = explode('_', $resource->getName());
+            $natureResource = explode('-', $naturesResources);
+
+            if (count($natureResource) > 1) {
+                continue;
+            }
+
+            $natureId = (int) $natureResource[0];
+
+            if ($natureId === 0) {
+                $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
+                if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
+                    return true;
+                }
+                // Si l'utilisateur n'a pas le privilège "toutes natures", on continue la vérification
+                break;
+            }
+        }
+
+        // Vérification du privilège spécifique à la nature du dossier
+        foreach ($resources as $resource) {
+            [, $naturesResources] = explode('_', $resource->getName());
+            $natureResource = explode('-', $naturesResources);
+
+            if (count($natureResource) > 1) {
+                continue;
+            }
+
+            $natureId = (int) $natureResource[0];
+
+            if ($natureDossierId === $natureId) {
+                $privilegeSpecific = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
+                if ($privilegeSpecific && in_array($privilegeSpecific, $userPrivileges, true)) {
+                    return true;
+                }
+                break;
+            }
+        }
+
+        return false;
     }
 }

@@ -4,10 +4,10 @@ namespace App\Tests\Security\Voter;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
-use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
+use App\Entity\Groupe;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
@@ -18,80 +18,232 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class DossierVoterTest extends TestCase
 {
-    // @todo: Traiter le cas spécial du dossier_0
-    public function testAccessIsGranted(): void
+    private $resourcesRepository;
+    private $privilegesRepository;
+    private $voter;
+
+    protected function setUp(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->expects($this->once())->method('getName')->willReturn('dossier_1');
-
-        $privilege = new Privileges();
-        $privilege->setName(DossierVoter::LECTURE);
-        $privilege->setResource($resource);
-
-        $groupe = $this->createMock(Groupe::class);
-        $groupe->expects($this->once())->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
-
-        $user = $this->createMock(Utilisateur::class);
-        $user->expects($this->once())->method('getGroupe')->willReturn($groupe);
-
-        $token = $this->createMock(TokenInterface::class);
-        $token->expects($this->once())->method('getUser')->willReturn($user);
-
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $resourcesRepository->expects($this->any())->method('findRessourcesSpecialiseesDossier')->willReturn(
-            [$resource]
-        );
-
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $privilegesRepository->expects($this->once())->method('findOneBy')->willReturn($privilege);
-
-        $nature = $this->createMock(DossierNatureListe::class);
-        $nature->expects($this->once())->method('getId')->willReturn(1);
-
-        $dossier = $this->createMock(Dossier::class);
-        $dossier->expects($this->once())->method('getNature')->willReturn($nature);
-
-        $this->assertSame(
-            VoterInterface::ACCESS_GRANTED,
-            (new DossierVoter($resourcesRepository, $privilegesRepository))->vote($token, $dossier, [DossierVoter::LECTURE])
-        );
+        $this->resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $this->privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $this->voter = new DossierVoter($this->resourcesRepository, $this->privilegesRepository);
     }
 
-    public function testAccessIsDenied(): void
+    public function testVoteReturnsAccessAbstainForUnsupportedAttribute()
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->expects($this->once())->method('getName')->willReturn('dossier_1');
+        $dossier = $this->createMock(Dossier::class);
+        $token = $this->createMock(TokenInterface::class);
 
-        $privilege = new Privileges();
-        $privilege->setName(DossierVoter::LECTURE);
-        $privilege->setResource($resource);
+        $result = $this->voter->vote($token, $dossier, ['unsupported_attribute']);
 
-        $groupe = $this->createMock(Groupe::class);
-        $groupe->expects($this->once())->method('getPrivileges')->willReturn(new ArrayCollection([]));
+        $this->assertEquals(VoterInterface::ACCESS_ABSTAIN, $result);
+    }
 
-        $user = $this->createMock(Utilisateur::class);
-        $user->expects($this->once())->method('getGroupe')->willReturn($groupe);
+    public function testVoteReturnsAccessAbstainWhenNoSpecializedResourcesExist()
+    {
+        $dossier = $this->createMock(Dossier::class);
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([]);
 
         $token = $this->createMock(TokenInterface::class);
-        $token->expects($this->once())->method('getUser')->willReturn($user);
 
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $resourcesRepository->expects($this->any())->method('findRessourcesSpecialiseesDossier')->willReturn(
-            [$resource]
-        );
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $privilegesRepository->expects($this->once())->method('findOneBy')->willReturn($privilege);
+        $this->assertEquals(VoterInterface::ACCESS_ABSTAIN, $result);
+    }
 
-        $nature = $this->createMock(DossierNatureListe::class);
-        $nature->expects($this->once())->method('getId')->willReturn(1);
+    public function testVoteReturnsAccessDeniedForNonUtilisateurToken()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn(null);
+        $dossier = $this->createMock(Dossier::class);
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn(['resource_1']);
+
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testVoteReturnsAccessDeniedWhenDossierHasNoNature()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn(['resource_1']);
 
         $dossier = $this->createMock(Dossier::class);
-        $dossier->expects($this->once())->method('getNature')->willReturn($nature);
+        $dossier->method('getNature')->willReturn(null);
 
-        $this->assertSame(
-            VoterInterface::ACCESS_DENIED,
-            (new DossierVoter($resourcesRepository, $privilegesRepository))->vote($token, $dossier, [DossierVoter::LECTURE])
-        );
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testVoteReturnsAccessGrantedWhenUserHasPrivilege()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+
+        $dossier = $this->createMock(Dossier::class);
+        $nature = $this->createMock(DossierNatureListe::class);
+        $nature->method('getId')->willReturn(1);
+        $dossier->method('getNature')->willReturn($nature);
+
+        $resource = $this->createMock(Resources::class);
+        $resource->method('getName')->willReturn('resource_1');
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resource]);
+
+        $privilege = $this->createMock(Privileges::class);
+        $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+
+        $group = $this->createMock(Groupe::class);
+        $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
+        $user->method('getGroupe')->willReturn($group);
+
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testVoteReturnsAccessDeniedWhenUserHasPrivilegeForOtherNature()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+
+        // Dossier avec une nature différente de celle du privilège
+        $dossier = $this->createMock(Dossier::class);
+        $nature = $this->createMock(DossierNatureListe::class);
+        $nature->method('getId')->willReturn(2); // Nature différente
+        $dossier->method('getNature')->willReturn($nature);
+
+        // Simuler que le privilège est pour une autre nature (ex: id=1)
+        $privilege = $this->createMock(Privileges::class);
+        $resourcePrivilege = $this->createMock(Resources::class);
+        $resourcePrivilege->method('getName')->willReturn('resource_1');
+        $privilege->method('getResource')->willReturn($resourcePrivilege);
+
+        $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+
+        $group = $this->createMock(Groupe::class);
+        $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
+        $user->method('getGroupe')->willReturn($group);
+
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourcePrivilege]);
+
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testVoteReturnsAccessGrantedWhenUserHasPrivilegeForAllNatures()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+
+        // Dossier avec une nature quelconque (ex: id=5)
+        $dossier = $this->createMock(Dossier::class);
+        $nature = $this->createMock(DossierNatureListe::class);
+        $nature->method('getId')->willReturn(5);
+        $dossier->method('getNature')->willReturn($nature);
+
+        // Privilège pour toutes les natures (id=0)
+        $privilege = $this->createMock(Privileges::class);
+        $resourcePrivilege = $this->createMock(Resources::class);
+        $resourcePrivilege->method('getName')->willReturn('resource_0');
+        $privilege->method('getResource')->willReturn($resourcePrivilege);
+
+        $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+
+        $group = $this->createMock(Groupe::class);
+        $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
+        $user->method('getGroupe')->willReturn($group);
+
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourcePrivilege]);
+
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testVoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNaturesDenied()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+
+        // Dossier avec une nature spécifique (ex: id=3)
+        $dossier = $this->createMock(Dossier::class);
+        $nature = $this->createMock(DossierNatureListe::class);
+        $nature->method('getId')->willReturn(3);
+        $dossier->method('getNature')->willReturn($nature);
+
+        // Ressource "toutes natures" (id=0) pour laquelle l'utilisateur n'a PAS le privilège
+        $resourceAll = $this->createMock(Resources::class);
+        $resourceAll->method('getName')->willReturn('resource_0');
+        $privilegeAll = $this->createMock(Privileges::class);
+        $privilegeAll->method('getResource')->willReturn($resourceAll);
+
+        // Ressource spécifique (id=3) pour laquelle l'utilisateur a le privilège
+        $resourceSpecific = $this->createMock(Resources::class);
+        $resourceSpecific->method('getName')->willReturn('resource_3');
+        $privilegeSpecific = $this->createMock(Privileges::class);
+        $privilegeSpecific->method('getResource')->willReturn($resourceSpecific);
+
+        // Le repository retourne les deux ressources
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourceAll, $resourceSpecific]);
+
+        // Le repository de privilèges retourne le privilège spécifique pour la nature du dossier
+        $this->privilegesRepository->method('findOneBy')->willReturnCallback(function ($criteria) use ($privilegeSpecific, $resourceSpecific) {
+            if ($criteria['resource'] === $resourceSpecific) {
+                return $privilegeSpecific;
+            }
+            return null;
+        });
+
+        // L'utilisateur n'a pas le privilège "toutes natures", mais a le privilège spécifique
+        $group = $this->createMock(Groupe::class);
+        $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilegeSpecific]));
+        $user->method('getGroupe')->willReturn($group);
+
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testVoteIgnoresResourceWithMultipleNatures()
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+
+        // Dossier avec une nature spécifique (ex: id=1)
+        $dossier = $this->createMock(Dossier::class);
+        $nature = $this->createMock(DossierNatureListe::class);
+        $nature->method('getId')->willReturn(1);
+        $dossier->method('getNature')->willReturn($nature);
+
+        // Ressource avec plusieurs natures (doit être ignorée)
+        $resourceMultiple = $this->createMock(Resources::class);
+        $resourceMultiple->method('getName')->willReturn('resource_1-2');
+        $privilegeMultiple = $this->createMock(Privileges::class);
+        $privilegeMultiple->method('getResource')->willReturn($resourceMultiple);
+
+        // Le repository retourne uniquement la ressource multiple
+        $this->resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourceMultiple]);
+
+        // Le repository de privilèges retourne le privilège sur la ressource multiple
+        $this->privilegesRepository->method('findOneBy')->willReturn($privilegeMultiple);
+
+        // L'utilisateur a le privilège sur la ressource multiple
+        $group = $this->createMock(Groupe::class);
+        $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilegeMultiple]));
+        $user->method('getGroupe')->willReturn($group);
+
+        $result = $this->voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        // La règle doit être ignorée, donc accès refusé
+        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
     }
 }
