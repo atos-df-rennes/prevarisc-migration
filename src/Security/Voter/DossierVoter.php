@@ -3,6 +3,8 @@
 namespace App\Security\Voter;
 
 use App\Entity\Dossier;
+use App\Entity\Utilisateur;
+use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -13,17 +15,19 @@ class DossierVoter extends Voter
     public const LECTURE = 'view_doss';
     public const MODIFICATION = 'edit_doss';
     public const VERROUILLAGE = 'verrouillage_dossier';
-    public const TOUTES_LES_NATURES = 0;
 
     /** @var ResourcesRepository */
     private $resourcesRepository;
 
-    public function __construct(ResourcesRepository $resourcesRepository)
+    /** @var PrivilegesRepository */
+    private $privilegesRepository;
+
+    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
     {
         $this->resourcesRepository = $resourcesRepository;
+        $this->privilegesRepository = $privilegesRepository;
     }
 
-    // @fixme: décommenter le instanceof avant de commit
     protected function supports($attribute, $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::VERROUILLAGE], true)) {
@@ -42,29 +46,53 @@ class DossierVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        dump('Dossier Voter');
-        dd($attribute);
-
         $user = $token->getUser();
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+
+        if (!$user instanceof Utilisateur) {
             return false;
         }
 
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case self::LECTURE:
-                // logic to determine if the user can EDIT
-                // return true or false
-                break;
-            case self::MODIFICATION:
-                // logic to determine if the user can VIEW
-                // return true or false
-                break;
-            case self::VERROUILLAGE:
-                break;
+        if (!$subject instanceof Dossier) {
+            return false;
         }
 
-        throw new \LogicException(\sprintf("Le droit %s n'est pas supporté pour les dossiers.", $attribute));
+        $natureDossier = $subject->getNature()->getId();
+
+        if (null === $natureDossier) {
+            return false;
+        }
+
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
+        $resourceConcernee = null;
+
+        foreach ($resources as $resource) {
+            [, $naturesResources] = explode('_', $resource->getName());
+            $natureResource = explode('-', $naturesResources);
+
+            if (count($natureResource) > 1) {
+                continue;
+            }
+
+            if ($natureDossier !== (int) $natureResource[0]) {
+                continue;
+            }
+
+            $resourceConcernee = $resource;
+        }
+
+        if (null === $resourceConcernee) {
+            return false;
+        }
+
+        $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourceConcernee]);
+        $userGroup = $user->getGroupe();
+
+        if (null === $userGroup) {
+            return false;
+        }
+
+        $userPrivileges = $userGroup->getPrivileges()->toArray();
+
+        return in_array($privilege, $userPrivileges, true);
     }
 }
