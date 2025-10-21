@@ -4,15 +4,19 @@ namespace App\Controller;
 
 use App\Service\Doc;
 use Michelf\Markdown;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
+/**
+ * @IsGranted("view_doss")
+ */
 class AboutController extends AbstractController
 {
     /** @var Doc */
     private $docService;
-
     public function __construct(Doc $docService)
     {
         $this->docService = $docService;

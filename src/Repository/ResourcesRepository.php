@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Resources;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,26 +22,15 @@ class ResourcesRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return Resources[]
      */
-    public function add(Resources $entity, bool $flush = true): void
+    public function findRessourcesSpecialiseesDossier(): array
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Resources $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('r')
+            ->where('r.name LIKE :name')
+            ->setParameter('name', 'dossier\_%')
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

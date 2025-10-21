@@ -2,30 +2,36 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Privileges;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class PrivilegeVoter implements VoterInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    /** @var PrivilegesRepository */
+    private $privilegesRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private const EXCLUDED_ATTRIBUTES = [
+        DossierVoter::LECTURE,
+        DossierVoter::MODIFICATION,
+        DossierVoter::VERROUILLAGE
+    ];
+
+    public function __construct(PrivilegesRepository $privilegesRepository)
     {
-        $this->entityManager = $entityManager;
+        $this->privilegesRepository = $privilegesRepository;
     }
 
     public function vote(TokenInterface $token, $subject, array $attributes)
     {
         $attribute = $attributes[0];
 
-        /** @var PrivilegesRepository */
-        $privilegesRepository = $this->entityManager->getRepository(Privileges::class);
-        $privilege = $privilegesRepository->findOneBy(['name' => $attribute]);
+        if (in_array($attribute, self::EXCLUDED_ATTRIBUTES)) {
+            return self::ACCESS_ABSTAIN;
+        }
+
+        $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute]);
 
         if (null === $privilege) {
             return self::ACCESS_ABSTAIN;
