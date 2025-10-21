@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Resources;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -26,12 +27,17 @@ class ResourcesRepository extends ServiceEntityRepository
      */
     public function findRessourcesSpecialiseesDossier(): array
     {
-        // Utilisation d'une expression régulière pour filtrer les noms du type "dossier_<nombre>"
-        return $this->createQueryBuilder('r')
-            ->where('r.name REGEXP :pattern')
-            ->setParameter('pattern', '^dossier_[0-9]+$')
-            ->getQuery()
-            ->getResult()
-        ;
+        $em = $this->getEntityManager();
+        $rsm = new ResultSetMapping();
+        $rsm->addEntityResult(Resources::class, 'r');
+        $rsm->addFieldResult('r', 'id_resource', 'id');
+        $rsm->addFieldResult('r', 'name', 'name');
+        $rsm->addFieldResult('r', 'text', 'text');
+
+        // REGEXP '^dossier_[0-9]+$' sélectionne uniquement les noms du type 'dossier_<nombre>'
+        $sql = "SELECT * FROM resources WHERE name REGEXP '^dossier_[0-9]+$'";
+        $query = $em->createNativeQuery($sql, $rsm);
+
+        return $query->getResult();
     }
 }
