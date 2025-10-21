@@ -103,7 +103,7 @@ class DossierVoter extends Voter
         }
 
         // Vérification du privilège "toutes natures" (id=0)
-        if (isset($resourcesById[0])) {
+        if (array_key_exists(0, $resourcesById)) {
             $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[0]]);
             if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
                 return true;
@@ -111,7 +111,7 @@ class DossierVoter extends Voter
         }
 
         // Vérification du privilège spécifique à la nature du dossier
-        if (isset($resourcesById[$natureDossierId])) {
+        if (array_key_exists($natureDossierId, $resourcesById)) {
             $privilegeSpecific = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[$natureDossierId]]);
             if ($privilegeSpecific && in_array($privilegeSpecific, $userPrivileges, true)) {
                 return true;
