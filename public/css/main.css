@@ -191,11 +191,6 @@ h2.page-header {
     margin-bottom: 15px;
 }
 
-.filtre-cartes-favoris {
-    display: inline-block;
-    margin: 5px 0 0 20px;
-}
-
 .filtres-cartes-droite .btn {
     padding: 4px 10px;
 }
@@ -234,10 +229,6 @@ h2.page-header {
     .filtre-cartes-personnaliser-btn {
         width: 100%;
         margin-top: 10px;
-        margin-left: 0;
-    }
-
-    .filtre-cartes-favoris {
         margin-left: 0;
     }
 }
@@ -302,22 +293,6 @@ h2.page-header {
     background-color: #333333;
     padding: 5px;
     margin-right: 20px;
-}
-
-.dashboard .panel.panel-ouvrable .ajouter-favoris {
-    padding-left: 15px;
-}
-
-.dashboard .panel.panel-ouvrable .ajouter-favoris label {
-    display: flex;
-    align-items: center;
-}
-
-.dashboard .panel.panel-ouvrable .ajouter-favoris input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    margin-right: 8px;
 }
 
 .dashboard .panel.panel-ouvrable .panel-footer {
