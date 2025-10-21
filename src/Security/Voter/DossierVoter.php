@@ -8,7 +8,6 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class DossierVoter extends Voter
 {
@@ -16,10 +15,14 @@ class DossierVoter extends Voter
     public const MODIFICATION = 'edit_doss';
     public const VERROUILLAGE = 'verrouillage_dossier';
 
-    /** @var ResourcesRepository */
+    /**
+     * @var ResourcesRepository
+     */
     private $resourcesRepository;
 
-    /** @var PrivilegesRepository */
+    /**
+     * @var PrivilegesRepository
+     */
     private $privilegesRepository;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
@@ -28,6 +31,10 @@ class DossierVoter extends Voter
         $this->privilegesRepository = $privilegesRepository;
     }
 
+    /**
+     * @param mixed $attribute
+     * @param mixed $subject
+     */
     protected function supports($attribute, $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::VERROUILLAGE], true)) {
@@ -44,6 +51,10 @@ class DossierVoter extends Voter
         return $subject instanceof Dossier;
     }
 
+    /**
+     * @param mixed $attribute
+     * @param mixed $subject
+     */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
@@ -77,31 +88,33 @@ class DossierVoter extends Voter
 
         $userPrivileges = $userGroup->getPrivileges()->toArray();
 
-        // Vérification du privilège "toutes natures" (id=0)
+        // Indexer les ressources par identifiant
+        /** @var array<int, \App\Entity\Resources> $resourcesById */
+        $resourcesById = [];
         foreach ($resources as $resource) {
-            [, $natureIdStr] = explode('_', $resource->getName());
+            $name = $resource->getName();
+            $parts = explode('_', $name);
+            if (count($parts) < 2) {
+                continue;
+            }
+            $natureIdStr = $parts[1];
             $natureId = (int) $natureIdStr;
+            $resourcesById[$natureId] = $resource;
+        }
 
-            if ($natureId === 0) {
-                $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
-                if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
-                    return true;
-                }
-                break;
+        // Vérification du privilège "toutes natures" (id=0)
+        if (isset($resourcesById[0])) {
+            $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[0]]);
+            if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
+                return true;
             }
         }
 
         // Vérification du privilège spécifique à la nature du dossier
-        foreach ($resources as $resource) {
-            [, $natureIdStr] = explode('_', $resource->getName());
-            $natureId = (int) $natureIdStr;
-
-            if ($natureDossierId === $natureId) {
-                $privilegeSpecific = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
-                if ($privilegeSpecific && in_array($privilegeSpecific, $userPrivileges, true)) {
-                    return true;
-                }
-                break;
+        if (isset($resourcesById[$natureDossierId])) {
+            $privilegeSpecific = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[$natureDossierId]]);
+            if ($privilegeSpecific && in_array($privilegeSpecific, $userPrivileges, true)) {
+                return true;
             }
         }
 
