@@ -3,16 +3,16 @@
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
+use App\Repository\PrivilegesRepository;
+use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use App\Repository\ResourcesRepository;
-use App\Repository\PrivilegesRepository;
 
 class VoteReturnsAccessDeniedForNonUtilisateurTokenTest extends TestCase
 {
-    public function testVoteReturnsAccessDeniedForNonUtilisateurToken()
+    public function testVoteReturnsAccessDeniedForNonUtilisateurToken(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);

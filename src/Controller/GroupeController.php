@@ -110,6 +110,7 @@ class GroupeController extends AbstractController
         foreach ($utilisateurs as $utilisateur) {
             $utilisateur->setGroupe($groupeParDefaut);
         }
+
         $this->entityManager->flush();
 
         $this->entityManager->remove($groupe);

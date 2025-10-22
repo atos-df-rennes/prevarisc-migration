@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Dossier;
+use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -12,7 +13,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class DossierVoter extends Voter
 {
     public const LECTURE = 'view_doss';
+
     public const MODIFICATION = 'edit_doss';
+
     public const VERROUILLAGE = 'verrouillage_dossier';
 
     /**
@@ -31,10 +34,6 @@ class DossierVoter extends Voter
         $this->privilegesRepository = $privilegesRepository;
     }
 
-    /**
-     * @param mixed $attribute
-     * @param mixed $subject
-     */
     protected function supports($attribute, $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::VERROUILLAGE], true)) {
@@ -51,10 +50,6 @@ class DossierVoter extends Voter
         return $subject instanceof Dossier;
     }
 
-    /**
-     * @param mixed $attribute
-     * @param mixed $subject
-     */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
@@ -89,7 +84,7 @@ class DossierVoter extends Voter
         $userPrivileges = $userGroup->getPrivileges()->toArray();
 
         // Indexer les ressources par identifiant
-        /** @var array<int, \App\Entity\Resources> $resourcesById */
+        /** @var array<int, Resources> $resourcesById */
         $resourcesById = [];
         foreach ($resources as $resource) {
             $name = $resource->getName();
@@ -102,6 +97,7 @@ class DossierVoter extends Voter
             if (count($parts) < 2) {
                 continue;
             }
+
             $natureIdStr = $parts[1];
             $natureId = (int) $natureIdStr;
             $resourcesById[$natureId] = $resource;

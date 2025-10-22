@@ -3,17 +3,17 @@
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
+use App\Entity\Utilisateur;
+use App\Repository\PrivilegesRepository;
+use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use App\Repository\ResourcesRepository;
-use App\Repository\PrivilegesRepository;
-use App\Entity\Utilisateur;
 
 class VoteReturnsAccessDeniedWhenDossierHasNoNatureTest extends TestCase
 {
-    public function testVoteReturnsAccessDeniedWhenDossierHasNoNature()
+    public function testVoteReturnsAccessDeniedWhenDossierHasNoNature(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);

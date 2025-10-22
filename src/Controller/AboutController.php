@@ -12,6 +12,7 @@ class AboutController extends AbstractController
 {
     /** @var Doc */
     private $docService;
+
     public function __construct(Doc $docService)
     {
         $this->docService = $docService;

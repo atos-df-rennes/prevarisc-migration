@@ -4,21 +4,22 @@ namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
-use App\Entity\Groupe;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNaturesDeniedTest extends TestCase
 {
-    public function testVoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNaturesDenied()
+    public function testVoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNaturesDenied(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
@@ -45,10 +46,11 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNatu
 
         $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourceAll, $resourceSpecific]);
 
-        $privilegesRepository->method('findOneBy')->willReturnCallback(function ($criteria) use ($privilegeSpecific, $resourceSpecific) {
+        $privilegesRepository->method('findOneBy')->willReturnCallback(function ($criteria) use ($privilegeSpecific, $resourceSpecific): ?MockObject {
             if ($criteria['resource'] === $resourceSpecific) {
                 return $privilegeSpecific;
             }
+
             return null;
         });
 

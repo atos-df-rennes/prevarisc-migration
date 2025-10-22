@@ -4,10 +4,9 @@ namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
-use App\Entity\Privileges;
+use App\Entity\Groupe;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
-use App\Entity\Groupe;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
@@ -18,7 +17,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class VoteIgnoresResourceWithMultipleNaturesTest extends TestCase
 {
-    public function testVoteIgnoresResourceWithMultipleNatures()
+    public function testVoteIgnoresResourceWithMultipleNatures(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);

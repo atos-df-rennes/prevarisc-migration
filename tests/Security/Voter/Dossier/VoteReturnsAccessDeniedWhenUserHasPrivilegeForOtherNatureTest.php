@@ -4,10 +4,10 @@ namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
-use App\Entity\Groupe;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class VoteReturnsAccessDeniedWhenUserHasPrivilegeForOtherNatureTest extends TestCase
 {
-    public function testVoteReturnsAccessDeniedWhenUserHasPrivilegeForOtherNature()
+    public function testVoteReturnsAccessDeniedWhenUserHasPrivilegeForOtherNature(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
