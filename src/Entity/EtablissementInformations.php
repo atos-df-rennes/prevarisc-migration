@@ -138,6 +138,15 @@ class EtablissementInformations
      */
     private $typesActivitesSecondaires;
 
+    /**
+     * @var ?EtablissementActivite
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
+     *
+     * @ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", nullable=true, options={"unsigned":true})
+     */
+    private $typeActivite;
+
     public function __construct()
     {
         $this->preventionnistes = new ArrayCollection();
@@ -346,6 +355,18 @@ class EtablissementInformations
         if ($this->typesActivitesSecondaires->removeElement($typesActivitesSecondaire) && $typesActivitesSecondaire->getEtablissementInformations() === $this) {
             $typesActivitesSecondaire->setEtablissementInformations(null);
         }
+
+        return $this;
+    }
+
+    public function getTypeActivite(): ?EtablissementActivite
+    {
+        return $this->typeActivite;
+    }
+
+    public function setTypeActivite(?EtablissementActivite $typeActivite): self
+    {
+        $this->typeActivite = $typeActivite;
 
         return $this;
     }

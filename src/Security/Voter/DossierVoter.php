@@ -10,6 +10,7 @@ use App\Repository\ResourcesRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+// @todo: Séparer en deux Voter : un pour toutes les natures et un pour les natures spécifiques.
 class DossierVoter extends Voter
 {
     public const LECTURE = 'view_doss';
@@ -105,6 +106,7 @@ class DossierVoter extends Voter
 
         // Vérification du privilège "toutes natures" (id=0)
         if (array_key_exists(0, $resourcesById)) {
+            // @todo: Mettre cette partie dans un helper => Va chercher le privilège en fonction de l'attribut et de la ressource. Ajouter la vérification de si le privilège est bien dans les privilèges du groupe de l'utilisateur.
             $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[0]]);
             if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
                 return true;

@@ -15,7 +15,9 @@ class PrivilegeVoter implements VoterInterface
     private const EXCLUDED_ATTRIBUTES = [
         DossierVoter::LECTURE,
         DossierVoter::MODIFICATION,
-        DossierVoter::VERROUILLAGE
+        DossierVoter::VERROUILLAGE,
+        EtablissementVoter::LECTURE,
+        EtablissementVoter::MODIFICATION,
     ];
 
     public function __construct(PrivilegesRepository $privilegesRepository)
