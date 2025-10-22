@@ -4,7 +4,7 @@
     <dt>Genre</dt>
     <dd>
         <p>
-            <strong>{{ etablissement.latestInformations.libelle }}</strong>
+            <strong>{{ etablissement.latestInformations.genre.libelle }}</strong>
             {% if etablissement.latestInformations.icpe %}
                 <span class="badge badge-info">ICPE</span>
             {% endif %}
@@ -67,13 +67,7 @@
             <ul class="list-unstyled">
                 <li>
                     <strong>
-                        <img src="{{ asset('images/types/b/icone-type-'~ etablissement.latestInformations.type.libelle ~ '.png') }}"
-                             title="{{ etablissement.latestInformations.type.libelle }}"
-                             alt="{{ etablissement.latestInformations.type.libelle }}"
-                        />
-
                         {% set etablissement_type_asset_path = asset('images/types/b/icone-type-'~ etablissement.latestInformations.type.libelle ~ '.png') %}
-                        {% dump(asset_exist(etablissement_type_asset_path)) %}
                         {% if asset_exist(etablissement_type_asset_path) %}
                             <img src="{{ etablissement_type_asset_path }}" title="{{ etablissement.latestInformations.type.libelle }}" />&nbsp;-&nbsp;
                         {% else %}
