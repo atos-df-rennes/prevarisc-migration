@@ -53,13 +53,13 @@ class EtablissementController extends AbstractController
         DataStore $dataStore
     ): Response
     {
+        // TODO: Récupérer les couches cartographiques au bon format
         $couchesCartographiques = $coucheCartoRepository->findAll();
 
         // TODO: Déport dans le template directement
         $keyIgn = $parameterBag->get('app.ign_key');
         $keyGoogleMap = $parameterBag->get('app.google_map_key');
         $geoconceptUrl = $parameterBag->get('app.geoconcept_url');
-
 
         // TODO: Tester les valeurs récupérées
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);

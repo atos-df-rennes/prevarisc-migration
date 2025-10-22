@@ -6,20 +6,20 @@
     {% if diapo|length > 0 %}
         <li class="tabs-right"><a href="#diaporama-tab-pane" data-toggle="tab">Diaporama</a></li>
     {% endif %}
-    {% if etablissement.adresses|length > 0 and key_ign is not null and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if etablissement.adresses|length > 0 and key_ign is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#geoportail" data-toggle="tab">Carte IGN</a></li>
     {% endif %}
-    {% if etablissement.adresses|length > 0 and key_googlemap is not null and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if etablissement.adresses|length > 0 and key_googlemap is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#googlemap" data-toggle="tab">Carte Google</a></li>
     {% endif %}
-    {% if etablissement.adresses|length > 0 and geoconcept_url is not null and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if etablissement.adresses|length > 0 and geoconcept_url is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#geoconcept" data-toggle="tab">Carte GeoConcept</a></li>
     {% endif %}
 </ul>
 <div id="reponse-modal" class="modal fade"></div>
 <div class="tab-content">
     <!-- Carte IGN -->
-    {% if etablissement.adresses|length > 0 and key_ign is not null and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if etablissement.adresses|length > 0 and key_ign is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
         <div id="geoportail" class="tab-pane active" style="height: 350px; max-height: 350px;">
             <div id="geoportail-container" style="height: 100%; max-height: 100%;"></div>
 
@@ -53,7 +53,7 @@
         </div>
     {% endif %}
 
-    {% if etablissement.adresses|length > 0 and geoconcept_url is not null and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if etablissement.adresses|length > 0 and geoconcept_url is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
         {% set projection = app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_PROJECTION') %}
         {% set token = app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_TOKEN') %}
         {% set app_id = app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_APP_ID') %}
@@ -95,7 +95,7 @@
         </div>
     {% endif %}
 
-    {% if etablissement.adresses|length > 0 and key_googlemap is not null and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if etablissement.adresses|length > 0 and key_googlemap is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
         <div id="googlemap" class="tab-pane in" style="height: 350px; max-height: 350px;">
             <div id="googlemap-container"  style="height: 100%; max-height: 100%;"></div>
             <script type="text/javascript"
