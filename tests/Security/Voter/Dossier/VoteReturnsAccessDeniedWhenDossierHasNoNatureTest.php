@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Tests\Security\Voter\Dossier;
+
+use App\Entity\Dossier;
+use App\Security\Voter\DossierVoter;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use App\Repository\ResourcesRepository;
+use App\Repository\PrivilegesRepository;
+use App\Entity\Utilisateur;
+
+class VoteReturnsAccessDeniedWhenDossierHasNoNatureTest extends TestCase
+{
+    public function testVoteReturnsAccessDeniedWhenDossierHasNoNature()
+    {
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $voter = new DossierVoter($resourcesRepository, $privilegesRepository);
+
+        $token = $this->createMock(TokenInterface::class);
+        $user = $this->createMock(Utilisateur::class);
+        $token->method('getUser')->willReturn($user);
+        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn(['resource_1']);
+
+        $dossier = $this->createMock(Dossier::class);
+        $dossier->method('getNature')->willReturn(null);
+
+        $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
+
+        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+    }
+}
