@@ -93,6 +93,11 @@ class DossierVoter extends Voter
         $resourcesById = [];
         foreach ($resources as $resource) {
             $name = $resource->getName();
+
+            if (null === $name) {
+                continue;
+            }
+
             $parts = explode('_', $name);
             if (count($parts) < 2) {
                 continue;
