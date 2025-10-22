@@ -16,6 +16,7 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class Etablissement
 {
@@ -34,18 +35,25 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
+    /**
+     * @var ParameterBagInterface
+     */
+    private $parameterBag;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore
+        DataStore $dataStore,
+        ParameterBagInterface $parameterBag
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
         $this->etablissementPJRepository = $etablissementPJRepository;
         $this->dataStore = $dataStore;
+        $this->parameterBag = $parameterBag;
     }
 
     public function getHistorique(int $id): Informations

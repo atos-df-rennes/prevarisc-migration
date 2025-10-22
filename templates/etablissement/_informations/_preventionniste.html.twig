@@ -1,0 +1,9 @@
+<tr {% if preventionniste is null %}id='prototype_preventionniste' class='hide prototypes'{% else %}class='preventionniste'{% endif %}>
+<td>
+        <input type='hidden' value='{{ preventionniste.id }}' name='ID_UTILISATEUR[]' />
+        <span>{{ preventionniste.informations.nom ~ ' ' ~ preventionniste.informations.prenom }}</span>
+</td>
+<td>
+    <small><a href="#" onclick='$(this).parent().parent().parent().remove(); return false;' >Retirer</a></small>
+</td>
+</tr>

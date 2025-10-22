@@ -42,9 +42,95 @@ class EtablissementInformations
     /**
      * @var int
      *
-     * @ORM\Column(name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS", type="boolean" )
+     * @ORM\Column(name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
      */
     private $localSommeil;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="PERIODICITE_ETABLISSEMENTINFORMATIONS", type="smallint", nullable=true)
+     */
+    private $periodicite;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="ICPE_ETABLISSEMENTINFORMATIONS", type="boolean")
+     */
+    private $icpe;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="R14320_ETABLISSEMENTINFORMATIONS", type="boolean")
+     */
+    private $r14320;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS", type="boolean")
+     */
+    private $droitPublic;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifHabitation;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifCaravane;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifEmplacementNu;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifDivers;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifPublic;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifPersonnel;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifHeberge;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifJustifiantClassement;
+
+
 
     /**
      * @var ?Etablissement
@@ -74,6 +160,24 @@ class EtablissementInformations
     private $type;
 
     /**
+     * @var ?EtablissementActivite
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
+     *
+     * @ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", nullable=true, options={"unsigned":true})
+     */
+    private $activite;
+
+    /**
+     * @var ?Commission
+     *
+     * @ORM\ManyToOne(targetEntity=Commission::class)
+     *
+     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
+     */
+    private $commission;
+
+    /**
      * @var ?EtablissementCategorie
      *
      * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
@@ -90,6 +194,15 @@ class EtablissementInformations
      * @ORM\JoinColumn(name="ID_CLASSE", referencedColumnName="ID_CLASSE", nullable=true, options={"unsigned":true})
      */
     private $classe;
+
+    /**
+     * @var ?Classement
+     *
+     * @ORM\ManyToOne(targetEntity=Classement::class)
+     *
+     * @ORM\JoinColumn(name="ID_CLASSEMENT", referencedColumnName="ID_CLASSEMENT", nullable=true, options={"unsigned":true})
+     */
+    private $classement;
 
     /**
      * @var ?Famille
@@ -146,6 +259,13 @@ class EtablissementInformations
     private $typesActivitesSecondaires;
 
     /**
+     * @var Collection<int, EtablissementInformationsRubriques>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementInformationsRubriques::class, mappedBy="etablissementInformations", orphanRemoval=true)
+     */
+    private $rubriquesIcpe;
+
+    /**
      * @var ?EtablissementActivite
      *
      * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
@@ -177,6 +297,7 @@ class EtablissementInformations
         $this->preventionnistes = new ArrayCollection();
         $this->plans = new ArrayCollection();
         $this->typesActivitesSecondaires = new ArrayCollection();
+        $this->rubriquesIcpe = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -391,6 +512,34 @@ class EtablissementInformations
         // set the owning side to null (unless already changed)
         if ($this->typesActivitesSecondaires->removeElement($typesActivitesSecondaire) && $typesActivitesSecondaire->getEtablissementInformations() === $this) {
             $typesActivitesSecondaire->setEtablissementInformations(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection<int, EtablissementInformationsRubriques>
+     */
+    public function getRubriquesIcpe(): Collection
+    {
+        return $this->rubriquesIcpe;
+    }
+
+    public function addRubriqueIcpe(EtablissementInformationsRubriques $rubriqueIcpe): self
+    {
+        if (!$this->rubriquesIcpe->contains($rubriqueIcpe)) {
+            $this->rubriquesIcpe[] = $rubriqueIcpe;
+            $rubriqueIcpe->setEtablissementInformations($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRubriqueIcpe(EtablissementInformationsRubriques $rubriqueIcpe): self
+    {
+        if ($this->rubriquesIcpe->removeElement($rubriqueIcpe) && $rubriqueIcpe->getEtablissementInformations() === $this) {
+            $rubriqueIcpe->setEtablissementInformations(null);
         }
 
         return $this;

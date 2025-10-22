@@ -7,16 +7,21 @@ use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
+use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
+use App\Repository\GroupementRepository;
 use App\Repository\PeriodiciteRepository;
 use App\Repository\UtilisateurInformationsRepository;
+use App\Repository\UtilisateurRepository;
 use App\Service\Contact;
+use App\Service\DataStore\DataStore;
 use App\Service\Etablissement as EtablissementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -25,44 +30,121 @@ use Symfony\Component\Routing\Annotation\Route;
 class EtablissementController extends AbstractController
 {
     /**
+     * @var EtablissementPieceJointeRepository
+     */
+    private $etablissementPieceJointeRepository;
+
+    public function __construct(EtablissementPieceJointeRepository $etablissementPieceJointeRepository)
+    {
+        $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
+    }
+
+    /**
      * @Route("/etablissement/{id}/informations", name="etablissement_informations")
      */
     public function informations(
         Etablissement $etablissement,
+        ParameterBagInterface $parameterBag,
         CoucheCartoRepository $coucheCartoRepository,
-        PeriodiciteRepository $periodiciteRepository
+        PeriodiciteRepository $periodiciteRepository,
+        GroupementRepository $groupementRepository,
+        EtablissementService $etablissementService,
+        UtilisateurRepository $utilisateurRepository,
+        DataStore $dataStore
     ): Response
     {
-        $couchesCartographiques = $coucheCartoRepository->getAll();
+        $couchesCartographiques = $coucheCartoRepository->findAll();
 
-        // TODO: Récupérer correctement les valeurs
-        $keyIgn = $_ENV['PREVARISC_PLUGIN_IGNKEY'];
-        $keyGoogleMap = $_ENV['PREVARISC_PLUGIN_GOOGLEMAPKEY'];
-        $geoconceptUrl = $_ENV['PREVARISC_PLUGIN_GEOCONCEPT_URL'];
+        // TODO: Déport dans le template directement
+        $keyIgn = $parameterBag->get('app.ign_key');
+        $keyGoogleMap = $parameterBag->get('app.google_map_key');
+        $geoconceptUrl = $parameterBag->get('app.geoconcept_url');
 
 
+        // TODO: Tester les valeurs récupérées
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
-        dd($defaultPeriodicite);
-//        $periodicity = $this->serviceEtablissement->getDisplayedPeriodicity($etablissement);
-//        $groupementsDeCommunes = count($etablissement['adresses']) === 0 ? [] : $this->serviceGroupementCommunes->findAll($etablissement->getAdresses()->first()->getCommune()->getCodePostal());
+        dump('$defaultPeriodicite', $defaultPeriodicite);
 
+        // TODO: Tester les valeurs récupérées
+        $periodicity = $etablissementService->getDisplayedPeriodicity($etablissement);
+        dump('$periodicity', $periodicity);
+
+
+        // TODO: Tester les valeurs récupérées
+        $groupementsDeCommunes = [];
+        if($etablissement->getAdresses()->count() === 0) {
+            $groupementsDeCommunes = $groupementRepository->findByNumInsee(
+                $etablissement->getAdresses()->first()->getCommune()->getId()
+            );
+        }
+
+
+        $diapoPlans = $this->etablissementPieceJointeRepository->getPlans($etablissement);
+        $diapo = $this->etablissementPieceJointeRepository->getDiaporama($etablissement);
+
+        // TODO: Récupérer les préventioniste de l'établissement
+//        $preventionnistes = $utilisateurRepository->findBy(['etablissement' => $etablissement->getId()], null, 50 );
+
+        // TODO: A mettre dans le template ?
 //        $isAllowedDeleteEtablissement = unserialize($this->cache->get('acl'))->isAllowed(
 //            $this->security->getUser()->getGroup()->getLibelle(),
 //            'suppression',
 //            'delete_etablissement'
 //        );
 
-//        return $this->render('etablissement/informations.html.twig', [
-//            'couches_cartographiques' => $couchesCartographiques,
-//            'key_ign' => $keyIgn,
-//            'key_googlemap' => $keyGoogleMap,
-//            'geoconcept_url' => $geoconceptUrl,
-//            'default_periodicite' => $defaultPeriodicite,
-//            'periodicity' => $periodicity ?? 'todo',
-//            'groupements_de_communes' => $groupementsDeCommunes,
-//            'store' => $this->dataStore,
+        // TODO: Récupérer la dernière visite d'un établissement
+        $last_visite = new \DateTime();
+
+        // TODO: Récupérer la prochaine visite d'un établissement
+        $next_visite = new \DateTime();
+
+        // TODO: Récupérer la prochaine visite d'un établissement
+        $pc_initial = new \DateTime();
+
+        // TODO: Récupérer la présence d'un DUS dans les contacts de l'établissement (et ses parents)
+        $contacts_dus = [];
+        // Récupération de l'indicateur de présence d'un DUS
+//        $contacts_dus = [];
+//        $contacts = array_merge([], $this->getAllContacts($id_etablissement));
+//        foreach ($etablissement_parents as $etablissement_parent) {
+//            $contacts = array_merge($contacts, $this->getAllContacts($etablissement_parent['ID_ETABLISSEMENT']));
+//        }
+//
+//        foreach ($contacts as $contact) {
+//            if (self::ID_FONCTION_DUS == $contact['ID_FONCTION']) {
+//                $contacts_dus[] = $contact;
+//            }
+//        }
+
+        // TODO: Récupérer les données pratiques
+        $donnees_pratiques = [
+            'nbPreventionnistes' => null,
+            'dureeVisite' => $duree_totale ?? null,
+        ];
+
+
+        return $this->render('etablissement/informations.html.twig', [
+            'etablissement' => $etablissement,
+            'couches_cartographiques' => $couchesCartographiques,
+
+            'key_ign' => $keyIgn,
+            'key_googlemap' => $keyGoogleMap,
+            'geoconcept_url' => $geoconceptUrl,
+
+            'default_periodicite' => $defaultPeriodicite,
+            'periodicity' => $periodicity,
+            'groupements_de_communes' => $groupementsDeCommunes,
+            'store' => $dataStore,
+            'diapo_plans' => $diapoPlans,
+            'diapo' => $diapo,
+            'last_visite' => $last_visite,
+            'next_visite' => $next_visite,
+            'pc_initial' => $pc_initial,
+            'presence_dus' => [] !== $contacts_dus,
+            'donnees_pratiques' => $donnees_pratiques
+//            'preventionnistes' => $preventionnistes,
 //            'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
-//        ]);
+        ]);
     }
 
 

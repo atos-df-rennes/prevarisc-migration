@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Etablissement;
 use App\Entity\EtablissementPieceJointe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -21,30 +22,6 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EtablissementPieceJointe::class);
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(EtablissementPieceJointe $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(EtablissementPieceJointe $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
     }
 
     /**
@@ -69,5 +46,35 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    public function getDiaporama(Etablissement $etablissement): array
+    {
+        $queryBuilder = $this->createQueryBuilder('etablissement_pj');
+        $queryBuilder
+            ->leftJoin('etablissement_pj.pieceJointe', 'pj')
+            ->where('pj.extension IN (:extensions)')
+            ->andWhere('etablissement_pj.placement = 1')
+            ->andWhere('etablissement_pj.pieceJointe = :etablissement')
+            ->setParameter('etablissement', $etablissement->getId())
+            ->setParameter('extensions', [".jpg", ".JPG", ".jpeg", ".png"])
+        ;
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function getPlans(Etablissement $etablissement): array
+    {
+        $queryBuilder = $this->createQueryBuilder('etablissement_pj');
+        $queryBuilder
+            ->leftJoin('etablissement_pj.pieceJointe', 'pj')
+            ->where('pj.extension IN (:extensions)')
+            ->andWhere('etablissement_pj.placement = 2')
+            ->andWhere('etablissement_pj.pieceJointe = :etablissement')
+            ->setParameter('etablissement', $etablissement->getId())
+            ->setParameter('extensions', [".jpg", ".JPG", ".png"])
+        ;
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

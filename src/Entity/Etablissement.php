@@ -70,6 +70,27 @@ class Etablissement
     private $numero;
 
     /**
+     * @var ?string
+     *
+     * @ORM\Column(name="TELEPHONE_ETABLISSEMENT", type="string", length=20, nullable=true)
+     */
+    private $telephone;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="FAX_ETABLISSEMENT", type="string", length=20, nullable=true)
+     */
+    private $fax;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="COURRIEL_ETABLISSEMENT", type="string", length=75, nullable=true)
+     */
+    private $courriel;
+
+    /**
      * @var Collection<int, Etablissement>
      *
      * @ORM\JoinTable(
@@ -314,6 +335,43 @@ class Etablissement
 
         return $this;
     }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): self
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getFax(): ?string
+    {
+        return $this->fax;
+    }
+
+    public function setFax(?string $fax): self
+    {
+        $this->fax = $fax;
+
+        return $this;
+    }
+
+    public function getCourriel(): ?string
+    {
+        return $this->courriel;
+    }
+
+    public function setCourriel(?string $courriel): self
+    {
+        $this->courriel = $courriel;
+
+        return $this;
+    }
+
 
     /**
      * @return Collection<int, self>

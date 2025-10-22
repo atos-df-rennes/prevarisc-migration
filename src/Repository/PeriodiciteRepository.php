@@ -68,8 +68,7 @@ class PeriodiciteRepository extends ServiceEntityRepository
 
         $type = self::ID_GENRE_ETABLISSEMENT === $information->getGenre()->getId() ? $information->getType() : $information->getClasse();
 
-        dump($type);
-        return $this->gn4($information->getCategorie()->getId(), $type->getId(), 'todo');
+        return $this->gn4($information->getCategorie()->getId(), $type->getId(), $information->getLocalSommeil());
     }
 
     // /**
