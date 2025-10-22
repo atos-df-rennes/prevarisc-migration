@@ -53,7 +53,7 @@ class EtablissementIopVoter extends EtablissementVoter
         }
 
         if (count($resources) > 1) {
-            $this->logger->warning("Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.");
+            $this->logger->warning("Plusieurs règles trouvées pour les IOP. Il est recommandé de supprimer les doublons.");
 
             return false;
         }
