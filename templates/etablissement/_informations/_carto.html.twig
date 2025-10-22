@@ -267,7 +267,7 @@
     {% if etablissement.latestInformations.genre.id in [2, 5] %}
         <dt>Commission</dt>
         <dd>
-            <p>{{ etablissement.latestInformations.commission.libelle }} ({{ etablissement.latestInformations.commission.type.libelle }})</p>>
+            <p>{{ etablissement.latestInformations.commission.libelle }} ({{ etablissement.latestInformations.commission.type.libelle }})</p>
     {% endif %}
 
     <!-- Préventionnistes -->
@@ -277,7 +277,7 @@
             <p class="text-muted">Aucun préventionniste lié.</p>
         {% else %}
             {% for preventionniste in etablissement.latestInformations.preventionnistes %}
-                {{ include('etablissement/_informations/_preventionniste.html.twig', { 'preventionnistes': preventionniste }) }}
+                {{ include('utilisateurs/_user_card.html.twig', { 'user': preventionniste }) }}
                 <div style="clear: both; margin-bottom: 10px;"></div>
             {% endfor %}
         {% endif %}
