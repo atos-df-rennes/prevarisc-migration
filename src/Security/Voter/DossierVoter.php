@@ -29,6 +29,11 @@ class DossierVoter extends Voter
      */
     private $privilegesRepository;
 
+    /**
+     * @var Resources[]
+     */
+    private $resources;
+
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
     {
         $this->resourcesRepository = $resourcesRepository;
@@ -41,10 +46,10 @@ class DossierVoter extends Voter
             return false;
         }
 
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
+        $this->resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
 
         // S'il n'y a pas de ressources spécialisées, tout le monde a accès à tout.
-        if ([] === $resources) {
+        if ([] === $this->resources) {
             return false;
         }
 
@@ -75,7 +80,6 @@ class DossierVoter extends Voter
             return false;
         }
 
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
         $userGroup = $user->getGroupe();
 
         if (null === $userGroup) {
@@ -87,7 +91,7 @@ class DossierVoter extends Voter
         // Indexer les ressources par identifiant
         /** @var array<int, Resources> $resourcesById */
         $resourcesById = [];
-        foreach ($resources as $resource) {
+        foreach ($this->resources as $resource) {
             $name = $resource->getName();
 
             if (null === $name) {

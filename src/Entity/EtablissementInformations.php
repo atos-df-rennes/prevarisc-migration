@@ -147,6 +147,15 @@ class EtablissementInformations
      */
     private $typeActivite;
 
+    /**
+     * @var ?Classement
+     *
+     * @ORM\ManyToOne(targetEntity=Classement::class)
+     *
+     * @ORM\JoinColumn(name="ID_CLASSEMENT", referencedColumnName="ID_CLASSEMENT", nullable=true, options={"unsigned":true})
+     */
+    private $classement;
+
     public function __construct()
     {
         $this->preventionnistes = new ArrayCollection();
@@ -367,6 +376,18 @@ class EtablissementInformations
     public function setTypeActivite(?EtablissementActivite $typeActivite): self
     {
         $this->typeActivite = $typeActivite;
+
+        return $this;
+    }
+
+    public function getClassement(): ?Classement
+    {
+        return $this->classement;
+    }
+
+    public function setClassement(?Classement $classement): self
+    {
+        $this->classement = $classement;
 
         return $this;
     }
