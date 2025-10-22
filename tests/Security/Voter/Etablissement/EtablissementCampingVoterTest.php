@@ -42,16 +42,9 @@ class EtablissementCampingVoterTest extends TestCase
 
     private function createEtablissementMock(int $genreId): Etablissement
     {
-        $genre = $this->createMock(Genre::class);
-        $genre->method('getId')->willReturn($genreId);
-
-        $latestInformations = $this->createMock(EtablissementInformations::class);
-        $latestInformations->method('getGenre')->willReturn($genre);
-
-        $etablissement = $this->createMock(Etablissement::class);
-        $etablissement->method('getLatestInformations')->willReturn($latestInformations);
-
-        return $etablissement;
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => $genreId]);
+        $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+        return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
     public function testAbstainIfParentDoesNotSupport(): void
@@ -89,7 +82,7 @@ class EtablissementCampingVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with("Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.");
+            ->with($this->equalTo("Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons."));
 
         $etablissement = $this->createEtablissementMock(7);
 
@@ -123,9 +116,7 @@ class EtablissementCampingVoterTest extends TestCase
             ->with($this->equalTo(7))
             ->willReturn(['resource1']);
 
-        $user = $this->createMock(Utilisateur::class);
-        $user->method('getGroupe')->willReturn(null);
-
+        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => null]);
         $this->token->method('getUser')->willReturn($user);
 
         $etablissement = $this->createEtablissementMock(7);
@@ -150,12 +141,11 @@ class EtablissementCampingVoterTest extends TestCase
             ->with(['name' => EtablissementVoter::LECTURE, 'resource' => $resource])
             ->willReturn($privilege);
 
-        $userGroup = $this->createMock(Groupe::class);
-        $userGroup->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
+        $userGroup = $this->createConfiguredMock(Groupe::class, [
+            'getPrivileges' => new ArrayCollection([$privilege])
+        ]);
 
-        $user = $this->createMock(Utilisateur::class);
-        $user->method('getGroupe')->willReturn($userGroup);
-
+        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
         $this->token->method('getUser')->willReturn($user);
 
         $etablissement = $this->createEtablissementMock(7);
