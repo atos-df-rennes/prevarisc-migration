@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter;
 
+use App\Entity\Classement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
@@ -31,10 +32,17 @@ class EtablissementZoneVoterTest extends TestCase
         $this->voter = new EtablissementZoneVoter($this->resourcesRepository, $this->privilegesRepository);
     }
 
-    private function createEtablissementMock(int $genreId): Etablissement
+    private function createEtablissementMock(int $genreId, ?int $classementId = null): Etablissement
     {
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => $genreId]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+
+        if (null !== $classementId) {
+            $classement = $this->createConfiguredMock(Classement::class, ['getId' => $classementId]);
+
+            $latestInformations->method('getClassement')->willReturn($classement);
+        }
+
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
@@ -114,6 +122,60 @@ class EtablissementZoneVoterTest extends TestCase
             ->willReturn(null);
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
+            $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
+        );
+    }
+
+    public function testGrantIfPrivilegeSpecificClassementExists(): void
+    {
+        $resource = $this->createMock(Resources::class);
+        $resource->method('getName')->willReturn('REGLE_ZONE_4_X_X_X');
+        $this->resourcesRepository
+            ->method('findRessourcesSpecialiseesEtablissement')
+            ->willReturn([$resource]);
+        $privilege = new Privileges();
+        $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
+        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+        $etablissement = $this->createEtablissementMock(10, 4);
+        // On simule le classement de la zone à 4
+        $this->privilegesRepository
+            ->method('findOneBy')
+            ->willReturn($privilege);
+        $this->assertSame(
+            VoterInterface::ACCESS_GRANTED,
+            $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
+        );
+    }
+
+    public function testGrantIfPrivilegeOnAnyMatchingClassementRule(): void
+    {
+        $resourceSingle = $this->createMock(Resources::class);
+        $resourceSingle->method('getName')->willReturn('REGLE_ZONE_4_X_X_X');
+        $resourceMulti = $this->createMock(Resources::class);
+        $resourceMulti->method('getName')->willReturn('REGLE_ZONE_4-5_X_X_X');
+        $this->resourcesRepository
+            ->method('findRessourcesSpecialiseesEtablissement')
+            ->willReturn([$resourceSingle, $resourceMulti]);
+        $privilege = new Privileges();
+        $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
+        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+        $etablissement = $this->createEtablissementMock(10, 4);
+        // On simule le classement de la zone à 4
+        $this->privilegesRepository
+            ->method('findOneBy')
+            ->willReturnCallback(function($criteria) use ($privilege, $resourceSingle, $resourceMulti) {
+                // On accorde le privilège si la ressource est l'une des deux
+                if ($criteria['resource'] === $resourceSingle || $criteria['resource'] === $resourceMulti) {
+                    return $privilege;
+                }
+                return null;
+            });
+        $this->assertSame(
+            VoterInterface::ACCESS_GRANTED,
             $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
         );
     }
