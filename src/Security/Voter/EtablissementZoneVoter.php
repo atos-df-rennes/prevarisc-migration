@@ -14,12 +14,12 @@ class EtablissementZoneVoter extends EtablissementVoter
     private const ID_ZONE = 10;
 
     /**
-     * @var ResourcesRepository
+     * @var \App\Repository\ResourcesRepository
      */
     private $resourcesRepository;
 
     /**
-     * @var PrivilegesRepository
+     * @var \App\Repository\PrivilegesRepository
      */
     private $privilegesRepository;
 
@@ -31,91 +31,89 @@ class EtablissementZoneVoter extends EtablissementVoter
 
     protected function supports($attribute, $subject): bool
     {
-        if (!parent::supports($attribute, $subject)) {
-            return false;
-        }
-
-        return parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
+        return parent::supports($attribute, $subject) &&
+            parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_ZONE);
-
-        if ([] === $resources) {
+        if ([] === $resources || !$subject instanceof Etablissement) {
             return false;
         }
 
         $user = $token->getUser();
-
         if (!$user instanceof Utilisateur) {
             return false;
         }
 
-        if (!$subject instanceof Etablissement) {
+        $userGroupe = $user->getGroupe();
+        if (null === $userGroupe) {
             return false;
         }
 
-        $userGroup = $user->getGroupe();
+        $resourcesById = $this->indexResourcesById($resources);
 
-        if (null === $userGroup) {
-            return false;
+        if ($this->hasPrivilegeForAllClasses($resourcesById, $attribute, $user)) {
+            return true;
         }
 
-        $userPrivileges = $userGroup->getPrivileges()->toArray();
+        return $this->hasPrivilegeForSpecificClass($resourcesById, $attribute, $user, $subject);
+    }
 
-        // Indexer les ressources par identifiant
-        /** @var array<int, array<int, Resources>> $resourcesById */
+    private function indexResourcesById(array $resources): array
+    {
         $resourcesById = [];
+
         foreach ($resources as $resource) {
             $name = $resource->getName();
-
-            if (null === $name) {
+            if (!$name) {
                 continue;
             }
 
             $parts = explode('_', $name);
-            if (count($parts) < 5) {
+            if (count($parts) !== 5) {
                 continue;
             }
 
-            $classementsIdStr = explode('-', $parts[2]);
-
-            foreach ($classementsIdStr as $classementIdStr) {
-                $classementId = (int) $classementIdStr;
-                $resourcesById[$classementId][] = $resource;
+            $classementIdsStr = explode('-', $parts[2]);
+            foreach ($classementIdsStr as $classementIdStr) {
+                $resourcesById[(int) $classementIdStr][] = $resource;
             }
         }
 
-        // Vérification du privilège "toutes classes" (id=0)
-        if (array_key_exists(0, $resourcesById)) {
-            $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[0]]);
-            if ($privilegeAll && in_array($privilegeAll, $userPrivileges, true)) {
+        return $resourcesById;
+    }
+
+    private function hasPrivilegeForAllClasses(array $resourcesById, string $attribute, Utilisateur $user): bool
+    {
+        if (!array_key_exists(0, $resourcesById)) {
+            return false;
+        }
+
+        $privilege = $this->privilegesRepository->findOneBy([
+            'name' => $attribute,
+            'resource' => $resourcesById[0][0]
+        ]);
+
+        return $privilege && $user->getGroupe()->getPrivileges()->contains($privilege);
+    }
+
+    private function hasPrivilegeForSpecificClass(array $resourcesById, string $attribute, Utilisateur $user, Etablissement $subject): bool
+    {
+        $classement = $subject->getLatestInformations()->getClassement();
+        if (null === $classement || !array_key_exists($classement->getId(), $resourcesById)) {
+            return false;
+        }
+
+        foreach ($resourcesById[$classement->getId()] as $resource) {
+            $privilege = $this->privilegesRepository->findOneBy([
+                'name' => $attribute,
+                'resource' => $resource
+            ]);
+
+            if ($privilege && $user->getGroupe()->getPrivileges()->contains($privilege)) {
                 return true;
-            }
-        }
-
-        $zoneClassement = $subject->getLatestInformations()->getClassement();
-
-        if (null === $zoneClassement) {
-            return false;
-        }
-
-        $zoneClassementId = $zoneClassement->getId();
-
-        if (null === $zoneClassementId) {
-            return false;
-        }
-
-        if (array_key_exists($zoneClassementId, $resourcesById)) {
-            foreach ($resourcesById[$zoneClassementId] as $resource) {
-                $privilegeSpecific = $this->privilegesRepository->findOneBy([
-                    'name' => $attribute,
-                    'resource' => $resource
-                ]);
-                if ($privilegeSpecific && in_array($privilegeSpecific, $userPrivileges, true)) {
-                    return true;
-                }
             }
         }
 

@@ -89,7 +89,7 @@ class EtablissementZoneVoterTest extends TestCase
     public function testGrantIfPrivilegeAllExists(): void
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('REGLE_ZONE_0_X_X_X');
+        $resource->method('getName')->willReturn('REGLE_ZONE_0_X_X');
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissement')
             ->willReturn([$resource]);
@@ -131,7 +131,7 @@ class EtablissementZoneVoterTest extends TestCase
     public function testGrantIfPrivilegeSpecificClassementExists(): void
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('REGLE_ZONE_4_X_X_X');
+        $resource->method('getName')->willReturn('REGLE_ZONE_4_X_X');
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissement')
             ->willReturn([$resource]);
@@ -154,9 +154,9 @@ class EtablissementZoneVoterTest extends TestCase
     public function testGrantIfPrivilegeOnAnyMatchingClassementRule(): void
     {
         $resourceSingle = $this->createMock(Resources::class);
-        $resourceSingle->method('getName')->willReturn('REGLE_ZONE_4_X_X_X');
+        $resourceSingle->method('getName')->willReturn('REGLE_ZONE_4_X_X');
         $resourceMulti = $this->createMock(Resources::class);
-        $resourceMulti->method('getName')->willReturn('REGLE_ZONE_4-5_X_X_X');
+        $resourceMulti->method('getName')->willReturn('REGLE_ZONE_4-5_X_X');
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissement')
             ->willReturn([$resourceSingle, $resourceMulti]);
