@@ -18,6 +18,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
+/**
+ * Actuellement ce Voter est valable pour les campings, les manifestations temporaires et les IOP car ils ont tous le même comportement.
+ * Si l'un d'eux venait à changer, il faudrait créer un test spécifique pour celui ayant changé.
+ */
 class EtablissementCampingVoterTest extends TestCase
 {
     private $resourcesRepository;
