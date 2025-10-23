@@ -41,7 +41,16 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        return $subject->getLatestInformations()->getGenre()->getId() === self::ID_MANIFESTATION_TEMPORAIRE;
+        /** @var Etablissement $subject */
+        /** @var \App\Entity\EtablissementInformations $latestInformations */
+        $latestInformations = $subject->getLatestInformations();
+        $genre = $latestInformations->getGenre();
+
+        if (null === $genre) {
+            return false;
+        }
+
+        return $genre->getId() === self::ID_MANIFESTATION_TEMPORAIRE;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

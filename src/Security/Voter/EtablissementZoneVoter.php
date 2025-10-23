@@ -35,7 +35,16 @@ class EtablissementZoneVoter extends EtablissementVoter
             return false;
         }
 
-        return $subject->getLatestInformations()->getGenre()->getId() === self::ID_ZONE;
+        /** @var Etablissement $subject */
+        /** @var \App\Entity\EtablissementInformations $latestInformations */
+        $latestInformations = $subject->getLatestInformations();
+        $genre = $latestInformations->getGenre();
+
+        if (null === $genre) {
+            return false;
+        }
+
+        return $genre->getId() === self::ID_ZONE;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -65,7 +74,7 @@ class EtablissementZoneVoter extends EtablissementVoter
         $userPrivileges = $userGroup->getPrivileges()->toArray();
 
         // Indexer les ressources par identifiant
-        /** @var array<int, Resources> $resourcesById */
+        /** @var array<int, array<int, Resources>> $resourcesById */
         $resourcesById = [];
         foreach ($resources as $resource) {
             $name = $resource->getName();

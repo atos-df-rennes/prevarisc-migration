@@ -41,7 +41,16 @@ class EtablissementIopVoter extends EtablissementVoter
             return false;
         }
 
-        return $subject->getLatestInformations()->getGenre()->getId() === self::ID_IOP;
+        /** @var Etablissement $subject */
+        /** @var \App\Entity\EtablissementInformations $latestInformations */
+        $latestInformations = $subject->getLatestInformations();
+        $genre = $latestInformations->getGenre();
+
+        if (null === $genre) {
+            return false;
+        }
+
+        return $genre->getId() === self::ID_IOP;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
