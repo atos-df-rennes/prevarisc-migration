@@ -2,8 +2,18 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
-use App\Entity\{Commune, Etablissement, EtablissementAdresse, EtablissementInformations, Genre, Groupe, Groupement, Privileges, Resources, Utilisateur};
-use App\Repository\{PrivilegesRepository, ResourcesRepository};
+use App\Entity\Commune;
+use App\Entity\Etablissement;
+use App\Entity\EtablissementAdresse;
+use App\Entity\EtablissementInformations;
+use App\Entity\Genre;
+use App\Entity\Groupe;
+use App\Entity\Groupement;
+use App\Entity\Privileges;
+use App\Entity\Resources;
+use App\Entity\Utilisateur;
+use App\Repository\PrivilegesRepository;
+use App\Repository\ResourcesRepository;
 use App\Security\Voter\EtablissementBupVoter;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,7 +24,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class EtablissementBupVoterTest extends TestCase
 {
     private $resourcesRepository;
+
     private $privilegesRepository;
+
     private $voter;
 
     protected function setUp(): void
@@ -28,6 +40,7 @@ class EtablissementBupVoterTest extends TestCase
     {
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 6]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
@@ -35,12 +48,14 @@ class EtablissementBupVoterTest extends TestCase
     {
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
+
         return $token;
     }
 
     private function createUserWithPrivileges(array $privileges = []): Utilisateur
     {
         $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection($privileges)]);
+
         return $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $groupe]);
     }
 

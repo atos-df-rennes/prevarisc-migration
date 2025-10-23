@@ -43,7 +43,7 @@ class ResourcesRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $genre Le genre d'établissement à filtrer via son identifiant.
+     * @param int $genre le genre d'établissement à filtrer via son identifiant
      *
      * @return Resources[]
      */
@@ -70,11 +70,11 @@ class ResourcesRepository extends ServiceEntityRepository
         ];
 
         if (!array_key_exists($genre, $regles)) {
-            throw new \InvalidArgumentException("Genre invalide : $genre");
+            throw new \InvalidArgumentException('Genre invalide : '.$genre);
         }
 
         $regle = $regles[$genre];
-        $sql = "SELECT * FROM resources WHERE name REGEXP '" . $regle . "'";
+        $sql = "SELECT * FROM resources WHERE name REGEXP '".$regle."'";
         $query = $em->createNativeQuery($sql, $rsm);
 
         return $query->getResult();

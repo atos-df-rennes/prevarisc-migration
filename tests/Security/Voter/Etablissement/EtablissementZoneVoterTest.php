@@ -22,7 +22,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class EtablissementZoneVoterTest extends TestCase
 {
     private $resourcesRepository;
+
     private $privilegesRepository;
+
     private $voter;
 
     protected function setUp(): void
@@ -167,11 +169,12 @@ class EtablissementZoneVoterTest extends TestCase
         // On simule le classement de la zone à 4
         $this->privilegesRepository
             ->method('findOneBy')
-            ->willReturnCallback(function($criteria) use ($privilege, $resourceSingle, $resourceMulti) {
+            ->willReturnCallback(function ($criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
                 // On accorde le privilège si la ressource est l'une des deux
                 if ($criteria['resource'] === $resourceSingle || $criteria['resource'] === $resourceMulti) {
                     return $privilege;
                 }
+
                 return null;
             });
         $this->assertSame(

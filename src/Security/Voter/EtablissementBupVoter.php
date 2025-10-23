@@ -3,8 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
-use App\Entity\EtablissementAdresse;
-use App\Entity\Groupement;
+use App\Entity\EtablissementInformations;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -37,7 +36,7 @@ class EtablissementBupVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        /** @var \App\Entity\EtablissementInformations $latestInformations */
+        /** @var EtablissementInformations $latestInformations */
         $latestInformations = $subject->getLatestInformations();
         $genre = $latestInformations->getGenre();
 
@@ -45,7 +44,7 @@ class EtablissementBupVoter extends EtablissementVoter
             return false;
         }
 
-        return $genre->getId() === self::ID_BUP;
+        return self::ID_BUP === $genre->getId();
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -54,17 +53,21 @@ class EtablissementBupVoter extends EtablissementVoter
         if ([] === $resources) {
             return false;
         }
+
         $user = $token->getUser();
         if (!$user instanceof Utilisateur) {
             return false;
         }
+
         if (!$subject instanceof Etablissement) {
             return false;
         }
+
         $userGroup = $user->getGroupe();
         if (null === $userGroup) {
             return false;
         }
+
         $userPrivileges = $userGroup->getPrivileges()->toArray();
 
         // Indexer les ressources par paramètre
@@ -74,11 +77,13 @@ class EtablissementBupVoter extends EtablissementVoter
             if (!$name) {
                 continue;
             }
+
             // Nom attendu : etablissement_bup_{param1}_{param2}
             $parts = explode('_', $name);
-            if (count($parts) !== 4) {
+            if (4 !== count($parts)) {
                 continue;
             }
+
             $useUserGroupements = (int) $parts[2];
             $useUserCommune = (int) $parts[3];
             $resourcesByParam[$useUserGroupements][$useUserCommune] = $resource;
@@ -98,9 +103,10 @@ class EtablissementBupVoter extends EtablissementVoter
         // Règles spécifiques
         foreach ($resourcesByParam as $useUserGroupements => $subArray) {
             foreach ($subArray as $useUserCommune => $resource) {
-                if ($useUserGroupements === 0 && $useUserCommune === 0) {
+                if (0 === $useUserGroupements && 0 === $useUserCommune) {
                     continue; // déjà traité
                 }
+
                 $privilege = $this->privilegesRepository->findOneBy([
                     'name' => $attribute,
                     'resource' => $resource
@@ -109,7 +115,7 @@ class EtablissementBupVoter extends EtablissementVoter
                     $checkGroupements = true;
                     $checkCommune = true;
 
-                    if ($useUserGroupements === 1) {
+                    if (1 === $useUserGroupements) {
                         $checkGroupements = false;
 
                         $userGroupements = $user->getGroupements();
@@ -126,7 +132,8 @@ class EtablissementBupVoter extends EtablissementVoter
                             }
                         }
                     }
-                    if ($useUserCommune === 1) {
+
+                    if (1 === $useUserCommune) {
                         $checkCommune = false;
 
                         $userCommune = $user->getCommune();

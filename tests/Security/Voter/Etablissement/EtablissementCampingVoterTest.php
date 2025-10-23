@@ -5,9 +5,9 @@ namespace App\Tests\Security\Voter;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
+use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Utilisateur;
-use App\Entity\Groupe;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\EtablissementCampingVoter;
@@ -25,9 +25,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class EtablissementCampingVoterTest extends TestCase
 {
     private $resourcesRepository;
+
     private $privilegesRepository;
+
     private $logger;
+
     private $voter;
+
     private $token;
 
     protected function setUp(): void
@@ -48,6 +52,7 @@ class EtablissementCampingVoterTest extends TestCase
     {
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => $genreId]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
@@ -86,7 +91,7 @@ class EtablissementCampingVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo("Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons."));
+            ->with($this->equalTo('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.'));
 
         $etablissement = $this->createEtablissementMock(7);
 

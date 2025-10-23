@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
+use App\Entity\EtablissementInformations;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -24,7 +25,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
     private $privilegesRepository;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -42,7 +43,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        /** @var \App\Entity\EtablissementInformations $latestInformations */
+        /** @var EtablissementInformations $latestInformations */
         $latestInformations = $subject->getLatestInformations();
         $genre = $latestInformations->getGenre();
 
@@ -50,7 +51,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        return $genre->getId() === self::ID_MANIFESTATION_TEMPORAIRE;
+        return self::ID_MANIFESTATION_TEMPORAIRE === $genre->getId();
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -62,7 +63,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
         }
 
         if (count($resources) > 1) {
-            $this->logger->warning("Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.");
+            $this->logger->warning('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.');
 
             return false;
         }
@@ -86,10 +87,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
         $userPrivileges = $userGroup->getPrivileges()->toArray();
 
         $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resources[0]]);
-        if ($privilege && in_array($privilege, $userPrivileges, true)) {
-            return true;
-        }
 
-        return false;
+        return $privilege && in_array($privilege, $userPrivileges, true);
     }
 }

@@ -37,11 +37,7 @@ abstract class EtablissementVoter extends Voter
             return false;
         }
 
-        if (!$subject instanceof Etablissement) {
-            return false;
-        }
-
-        return true;
+        return $subject instanceof Etablissement;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -52,10 +48,6 @@ abstract class EtablissementVoter extends Voter
             return false;
         }
 
-        if (!$subject instanceof Etablissement) {
-            return false;
-        }
-
-        return true;
+        return $subject instanceof Etablissement;
     }
 }
