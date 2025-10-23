@@ -2,18 +2,8 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
-use App\Entity\Commune;
-use App\Entity\Etablissement;
-use App\Entity\EtablissementAdresse;
-use App\Entity\EtablissementInformations;
-use App\Entity\Genre;
-use App\Entity\Groupe;
-use App\Entity\Groupement;
-use App\Entity\Privileges;
-use App\Entity\Resources;
-use App\Entity\Utilisateur;
-use App\Repository\PrivilegesRepository;
-use App\Repository\ResourcesRepository;
+use App\Entity\{Commune, Etablissement, EtablissementAdresse, EtablissementInformations, Genre, Groupe, Groupement, Privileges, Resources, Utilisateur};
+use App\Repository\{PrivilegesRepository, ResourcesRepository};
 use App\Security\Voter\EtablissementBupVoter;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -41,93 +31,88 @@ class EtablissementBupVoterTest extends TestCase
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
-    public function testUserWithPrivilegeOnGeneralBupRuleHasAccess(): void
+    private function createTokenWithUser(Utilisateur $user): TokenInterface
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_bup_0_0');
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([$resource]);
-        $privilege = new Privileges();
-        $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $groupe]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $etablissement = $this->createEtablissementMock();
+        return $token;
+    }
+
+    private function createUserWithPrivileges(array $privileges = []): Utilisateur
+    {
+        $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection($privileges)]);
+        return $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $groupe]);
+    }
+
+    public function testUserWithPrivilegeOnGeneralBupRuleHasAccess(): void
+    {
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+            ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_0_0'])]);
+        $privilege = new Privileges();
+        $user = $this->createUserWithPrivileges([$privilege]);
         $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+
         $this->assertSame(
             VoterInterface::ACCESS_GRANTED,
-            $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
+            $this->voter->vote($this->createTokenWithUser($user), $this->createEtablissementMock(), [EtablissementVoter::LECTURE])
         );
     }
 
     public function testUserWithoutPrivilegeOnGeneralBupRuleIsDeniedAccess(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_bup_0_0');
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([$resource]);
-        $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection()]);
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $groupe]);
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn($user);
-        $etablissement = $this->createEtablissementMock();
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+            ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_0_0'])]);
+        $user = $this->createUserWithPrivileges();
         $this->privilegesRepository->method('findOneBy')->willReturn(null);
+
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
-            $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
+            $this->voter->vote($this->createTokenWithUser($user), $this->createEtablissementMock(), [EtablissementVoter::LECTURE])
         );
     }
 
     public function testUserWithSpecificGroupementAndCommunePrivilegesHasAccess(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_bup_1_1');
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([$resource]);
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+            ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_1_1'])]);
         $privilege = new Privileges();
-        $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
-        $userGroupement = $this->createMock(Groupement::class);
         $commune = $this->createMock(Commune::class);
-        $userGroupement->method('getCommunes')->willReturn(new ArrayCollection([$commune]));
         $user = $this->createConfiguredMock(Utilisateur::class, [
-            'getGroupe' => $groupe,
-            'getGroupements' => new ArrayCollection([$userGroupement]),
+            'getGroupe' => $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]),
+            'getGroupements' => new ArrayCollection([$this->createConfiguredMock(Groupement::class, ['getCommunes' => new ArrayCollection([$commune])])]),
             'getCommune' => $commune
         ]);
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn($user);
-        $etablissementAdresse = $this->createMock(EtablissementAdresse::class);
-        $etablissementAdresse->method('getCommune')->willReturn($commune);
         $etablissement = $this->createEtablissementMock();
-        $etablissement->method('getAdresses')->willReturn(new ArrayCollection([$etablissementAdresse]));
+        $etablissement->method('getAdresses')->willReturn(new ArrayCollection([
+            $this->createConfiguredMock(EtablissementAdresse::class, ['getCommune' => $commune])
+        ]));
         $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+
         $this->assertSame(
             VoterInterface::ACCESS_GRANTED,
-            $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
+            $this->voter->vote($this->createTokenWithUser($user), $etablissement, [EtablissementVoter::LECTURE])
         );
     }
 
     public function testUserWithoutMatchingGroupementOrCommunePrivilegesIsDeniedAccess(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_bup_1_1');
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([$resource]);
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+            ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_1_1'])]);
         $privilege = new Privileges();
-        $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
-        $userGroupement = $this->createMock(Groupement::class);
-        $userGroupement->method('getCommunes')->willReturn(new ArrayCollection());
         $user = $this->createConfiguredMock(Utilisateur::class, [
-            'getGroupe' => $groupe,
-            'getGroupements' => new ArrayCollection([$userGroupement]),
+            'getGroupe' => $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]),
+            'getGroupements' => new ArrayCollection([$this->createConfiguredMock(Groupement::class, ['getCommunes' => new ArrayCollection()])]),
             'getCommune' => $this->createMock(Commune::class)
         ]);
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn($user);
-        $etablissementAdresse = $this->createMock(EtablissementAdresse::class);
-        $etablissementAdresse->method('getCommune')->willReturn($this->createMock(Commune::class));
         $etablissement = $this->createEtablissementMock();
-        $etablissement->method('getAdresses')->willReturn(new ArrayCollection([$etablissementAdresse]));
+        $etablissement->method('getAdresses')->willReturn(new ArrayCollection([
+            $this->createConfiguredMock(EtablissementAdresse::class, ['getCommune' => $this->createMock(Commune::class)])
+        ]));
         $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
-            $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
+            $this->voter->vote($this->createTokenWithUser($user), $etablissement, [EtablissementVoter::LECTURE])
         );
     }
 }
