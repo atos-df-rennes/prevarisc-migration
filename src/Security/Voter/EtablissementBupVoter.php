@@ -6,6 +6,7 @@ use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
+use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementBupVoter extends EtablissementVoter
@@ -39,6 +40,7 @@ class EtablissementBupVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
+        // @todo: optimiser en factorisant ces vérifications.
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_BUP);
         if ([] === $resources) {
             return false;
@@ -102,44 +104,7 @@ class EtablissementBupVoter extends EtablissementVoter
                     'resource' => $resource
                 ]);
                 if ($privilege && in_array($privilege, $userPrivileges, true)) {
-                    $checkGroupements = true;
-                    $checkCommune = true;
-
-                    if (1 === $useUserGroupements) {
-                        $checkGroupements = false;
-
-                        $userGroupements = $user->getGroupements();
-                        $bupAdresses = $subject->getAdresses();
-
-                        foreach ($userGroupements as $userGroupement) {
-                            foreach ($bupAdresses as $bupAdresse) {
-                                $commune = $bupAdresse->getCommune();
-
-                                if ($userGroupement->getCommunes()->contains($commune)) {
-                                    $checkGroupements = true;
-                                    break 2;
-                                }
-                            }
-                        }
-                    }
-
-                    if (1 === $useUserCommune) {
-                        $checkCommune = false;
-
-                        $userCommune = $user->getCommune();
-                        $bupAdresses = $subject->getAdresses();
-
-                        foreach ($bupAdresses as $bupAdresse) {
-                            $commune = $bupAdresse->getCommune();
-
-                            if ($commune === $userCommune) {
-                                $checkCommune = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    return $checkGroupements && $checkCommune;
+                    return VoterUtils::isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune);
                 }
             }
         }
