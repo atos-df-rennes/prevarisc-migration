@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
+use App\Entity\EtablissementInformations;
 use App\Entity\Utilisateur;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -49,5 +50,22 @@ abstract class EtablissementVoter extends Voter
         }
 
         return $subject instanceof Etablissement;
+    }
+
+    /**
+     * @phpstan-ignore missingType.parameter
+     */
+    protected function isSubjectGenreAllowed($subject, int $genreId): bool
+    {
+        /** @var Etablissement $subject */
+        /** @var EtablissementInformations $latestInformations */
+        $latestInformations = $subject->getLatestInformations();
+        $genre = $latestInformations->getGenre();
+
+        if (null === $genre) {
+            return false;
+        }
+
+        return $genreId === $genre->getId();
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
-use App\Entity\EtablissementInformations;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
@@ -36,16 +35,7 @@ class EtablissementZoneVoter extends EtablissementVoter
             return false;
         }
 
-        /** @var Etablissement $subject */
-        /** @var EtablissementInformations $latestInformations */
-        $latestInformations = $subject->getLatestInformations();
-        $genre = $latestInformations->getGenre();
-
-        if (null === $genre) {
-            return false;
-        }
-
-        return self::ID_ZONE === $genre->getId();
+        return parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

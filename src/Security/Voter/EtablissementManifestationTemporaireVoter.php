@@ -3,7 +3,6 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
-use App\Entity\EtablissementInformations;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -42,16 +41,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        /** @var Etablissement $subject */
-        /** @var EtablissementInformations $latestInformations */
-        $latestInformations = $subject->getLatestInformations();
-        $genre = $latestInformations->getGenre();
-
-        if (null === $genre) {
-            return false;
-        }
-
-        return self::ID_MANIFESTATION_TEMPORAIRE === $genre->getId();
+        return parent::isSubjectGenreAllowed($subject, self::ID_MANIFESTATION_TEMPORAIRE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
