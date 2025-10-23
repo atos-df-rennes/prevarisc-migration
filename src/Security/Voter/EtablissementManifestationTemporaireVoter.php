@@ -74,10 +74,10 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        $userPrivileges = $userGroup->getPrivileges()->toArray();
+        $userPrivileges = $userGroup->getPrivileges();
 
         $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resources[0]]);
 
-        return $privilege && in_array($privilege, $userPrivileges, true);
+        return $privilege && $userPrivileges->contains($privilege);
     }
 }

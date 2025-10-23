@@ -60,7 +60,7 @@ class EtablissementBupVoter extends EtablissementVoter
             return false;
         }
 
-        $userPrivileges = $userGroup->getPrivileges()->toArray();
+        $userPrivileges = $userGroup->getPrivileges();
 
         // Indexer les ressources par paramètre
         $resourcesByParam = [];
@@ -87,7 +87,7 @@ class EtablissementBupVoter extends EtablissementVoter
                 'name' => $attribute,
                 'resource' => $resourcesByParam[0][0]
             ]);
-            if ($privilege && in_array($privilege, $userPrivileges, true)) {
+            if ($privilege && $userPrivileges->contains($privilege)) {
                 return true;
             }
         }
@@ -103,7 +103,7 @@ class EtablissementBupVoter extends EtablissementVoter
                     'name' => $attribute,
                     'resource' => $resource
                 ]);
-                if ($privilege && in_array($privilege, $userPrivileges, true)) {
+                if ($privilege && $userPrivileges->contains($privilege)) {
                     return VoterUtils::isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune);
                 }
             }
