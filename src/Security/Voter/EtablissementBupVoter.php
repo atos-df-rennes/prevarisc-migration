@@ -116,8 +116,12 @@ class EtablissementBupVoter extends EtablissementVoter
                     'name' => $attribute,
                     'resource' => $resource
                 ]);
-                if ($privilege && $userPrivileges->contains($privilege)) {
-                    return $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune);
+                if (
+                    $privilege
+                    && $userPrivileges->contains($privilege)
+                    && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
+                ) {
+                    return true;
                 }
             }
         }
