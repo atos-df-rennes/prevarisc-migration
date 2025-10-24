@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class EtablissementController extends AbstractController
 {
@@ -50,10 +51,10 @@ class EtablissementController extends AbstractController
         GroupementRepository $groupementRepository,
         EtablissementService $etablissementService,
         UtilisateurRepository $utilisateurRepository,
-        DataStore $dataStore
+        DataStore $dataStore,
+        SerializerInterface $serializer
     ): Response
     {
-        // TODO: Récupérer les couches cartographiques au bon format
         $couchesCartographiques = $coucheCartoRepository->findAll();
 
         // TODO: Déport dans le template directement
@@ -82,8 +83,6 @@ class EtablissementController extends AbstractController
         $diapoPlans = $this->etablissementPieceJointeRepository->getPlans($etablissement);
         $diapo = $this->etablissementPieceJointeRepository->getDiaporama($etablissement);
 
-        // TODO: Récupérer les préventioniste de l'établissement
-//        $preventionnistes = $utilisateurRepository->findBy(['etablissement' => $etablissement->getId()], null, 50 );
 
         // TODO: A mettre dans le template ?
 //        $isAllowedDeleteEtablissement = unserialize($this->cache->get('acl'))->isAllowed(
@@ -125,7 +124,7 @@ class EtablissementController extends AbstractController
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
-            'couches_cartographiques' => $couchesCartographiques,
+            'couches_cartographiques' => $serializer->serialize($couchesCartographiques, 'json'),
 
             'key_ign' => $keyIgn,
             'key_googlemap' => $keyGoogleMap,
@@ -142,7 +141,6 @@ class EtablissementController extends AbstractController
             'pc_initial' => $pc_initial,
             'presence_dus' => [] !== $contacts_dus,
             'donnees_pratiques' => $donnees_pratiques
-//            'preventionnistes' => $preventionnistes,
 //            'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
         ]);
     }
