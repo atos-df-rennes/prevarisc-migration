@@ -59,21 +59,16 @@ class EtablissementController extends AbstractController
 
         // TODO: Tester les valeurs récupérées
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
-        dump('$defaultPeriodicite', $defaultPeriodicite);
 
         // TODO: Tester les valeurs récupérées
         $periodicity = $etablissementService->getDisplayedPeriodicity($etablissement);
-        dump('$periodicity', $periodicity);
 
-
-        // TODO: Tester les valeurs récupérées
         $groupementsDeCommunes = [];
-        if($etablissement->getAdresses()->count() === 0) {
+        if($etablissement->getAdresses()->count() !== 0) {
             $groupementsDeCommunes = $groupementRepository->findByNumInsee(
                 $etablissement->getAdresses()->first()->getCommune()->getId()
             );
         }
-
 
         $diapoPlans = $this->etablissementPieceJointeRepository->getPlans($etablissement);
         $diapo = $this->etablissementPieceJointeRepository->getDiaporama($etablissement);
@@ -96,7 +91,7 @@ class EtablissementController extends AbstractController
         $pc_initial = new \DateTime();
 
         // TODO: Récupérer la présence d'un DUS dans les contacts de l'établissement (et ses parents)
-        $contacts_dus = [];
+
         // Récupération de l'indicateur de présence d'un DUS
 //        $contacts_dus = [];
 //        $contacts = array_merge([], $this->getAllContacts($id_etablissement));

@@ -67,15 +67,15 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     public function getGroupementParVille(string $codeInsee): array
     {
         $qb = $this->createQueryBuilder('groupement')
-            ->innerJoin('groupement.commune', 'commune')
-            ->innerJoin('groupement.type', 'type')
+            ->leftJoin('groupement.communes', 'communes')
+            ->leftJoin('groupement.type', 'type')
             ->addSelect('type.libelle')
-            ->where('commune.id = :codeInsee')
+            ->where('communes.id = :codeInsee')
             ->setParameter('codeInsee', $codeInsee)
             ->orderBy('type.id', 'ASC')
             ->addOrderBy('groupement.libelle', 'ASC')
         ;
 
-        return $qb->getQuery()->getArrayResult();
+        return $qb->getQuery()->getResult();
     }
 }
