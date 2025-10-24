@@ -98,7 +98,7 @@ class EtablissementHabitationVoter extends EtablissementVoter
             $allFamillesCheck = false;
 
             foreach ($resourcesByParam[0] as $useUserGroupements => $subArray) {
-                foreach ($subArray as $useUserCommune => $resource) {
+                foreach (array_keys($subArray) as $useUserCommune) {
                     $privilege = $this->privilegesRepository->findOneBy([
                         'name' => $attribute,
                         'resource' => $resourcesByParam[0][$useUserGroupements][$useUserCommune][0]

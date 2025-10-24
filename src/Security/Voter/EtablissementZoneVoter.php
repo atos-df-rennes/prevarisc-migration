@@ -3,7 +3,6 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
-use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -14,12 +13,12 @@ class EtablissementZoneVoter extends EtablissementVoter
     private const ID_ZONE = 10;
 
     /**
-     * @var \App\Repository\ResourcesRepository
+     * @var ResourcesRepository
      */
     private $resourcesRepository;
 
     /**
-     * @var \App\Repository\PrivilegesRepository
+     * @var PrivilegesRepository
      */
     private $privilegesRepository;
 
@@ -31,8 +30,8 @@ class EtablissementZoneVoter extends EtablissementVoter
 
     protected function supports($attribute, $subject): bool
     {
-        return parent::supports($attribute, $subject) &&
-            parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
+        return parent::supports($attribute, $subject)
+            && parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -72,7 +71,7 @@ class EtablissementZoneVoter extends EtablissementVoter
             }
 
             $parts = explode('_', $name);
-            if (count($parts) !== 5) {
+            if (5 !== count($parts)) {
                 continue;
             }
 
