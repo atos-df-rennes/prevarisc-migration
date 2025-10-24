@@ -7,7 +7,7 @@ use App\Entity\Utilisateur;
 
 class VoterUtils
 {
-    public static function isUserGroupementsAndCommuneAllowed(Utilisateur $user, Etablissement $subject, int $useUserGroupements, int $useUserCommune): bool
+    public function isUserGroupementsAndCommuneAllowed(Utilisateur $user, Etablissement $subject, int $useUserGroupements, int $useUserCommune): bool
     {
         $checkGroupements = true;
         $checkCommune = true;
