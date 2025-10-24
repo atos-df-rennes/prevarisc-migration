@@ -156,6 +156,15 @@ class EtablissementInformations
      */
     private $classement;
 
+    /**
+     * @var ?Commission
+     *
+     * @ORM\ManyToOne(targetEntity=Commission::class)
+     *
+     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
+     */
+    private $commission;
+
     public function __construct()
     {
         $this->preventionnistes = new ArrayCollection();
@@ -388,6 +397,18 @@ class EtablissementInformations
     public function setClassement(?Classement $classement): self
     {
         $this->classement = $classement;
+
+        return $this;
+    }
+
+    public function getCommission(): ?Commission
+    {
+        return $this->commission;
+    }
+
+    public function setCommission(?Commission $commission): self
+    {
+        $this->commission = $commission;
 
         return $this;
     }

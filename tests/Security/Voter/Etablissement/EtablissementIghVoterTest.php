@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter;
 
+use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
@@ -43,7 +44,7 @@ class EtablissementIghVoterTest extends TestCase
         return $user;
     }
 
-    private function createMockEtablissement(?MockObject $classe, MockObject $genre, array $communes = [])
+    private function createMockEtablissement(?MockObject $classe, MockObject $genre, array $communes = [], $commission = null)
     {
         $adresses = array_map(function ($commune) {
             $adresse = $this->createMock(EtablissementAdresse::class);
@@ -54,6 +55,7 @@ class EtablissementIghVoterTest extends TestCase
         $latestInformations = $this->createMock(EtablissementInformations::class);
         $latestInformations->method('getClasse')->willReturn($classe);
         $latestInformations->method('getGenre')->willReturn($genre);
+        $latestInformations->method('getCommission')->willReturn($commission);
 
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($latestInformations);
@@ -76,7 +78,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessAllClassesRuleGrantsAccess()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_0_0_0');
+        $resource->method('getName')->willReturn('etablissement_igh_0_0_0_0');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -94,7 +96,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessSpecificClasseRuleGrantsAccess()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_3_0_0');
+        $resource->method('getName')->willReturn('etablissement_igh_3_0_0_0');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -112,7 +114,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessMultipleClassesRuleGrantsAccess()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_2-3_0_0');
+        $resource->method('getName')->willReturn('etablissement_igh_2-3_0_0_0');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -134,7 +136,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessDeniedIfNoMatchingClasse()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_2_0_0');
+        $resource->method('getName')->willReturn('etablissement_igh_2_0_0_0');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -152,7 +154,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessClasseWithGroupementRuleGrantsAccess()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_3_1_0');
+        $resource->method('getName')->willReturn('etablissement_igh_3_0_1_0');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -173,7 +175,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessClasseWithCommuneRuleGrantsAccess()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_3_0_1');
+        $resource->method('getName')->willReturn('etablissement_igh_3_0_0_1');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -192,7 +194,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessClasseWithGroupementAndCommuneRuleGrantsAccess()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_3_1_1');
+        $resource->method('getName')->willReturn('etablissement_igh_3_0_1_1');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -213,7 +215,7 @@ class EtablissementIghVoterTest extends TestCase
     public function testAccessDeniedIfGroupementOrCommuneNotMatching()
     {
         $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_igh_3_1_1');
+        $resource->method('getName')->willReturn('etablissement_igh_3_0_1_1');
         $privilege = $this->createMock(Privileges::class);
 
         $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
@@ -221,6 +223,72 @@ class EtablissementIghVoterTest extends TestCase
         $commune = $this->createMock(Commune::class);
         $user = $this->createMockUserWithPrivileges($privilege);
         $subject = $this->createMockEtablissement($classe, $genre, [$commune]);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+
+        $voter = $this->createVoter([$resource], $privilege);
+
+        $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
+    }
+
+    public function testAccessClasseWithCommissionRuleGrantsAccess()
+    {
+        $resource = $this->createMock(Resources::class);
+        $resource->method('getName')->willReturn('etablissement_igh_3_1_0_0');
+        $privilege = $this->createMock(Privileges::class);
+
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
+        $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
+        $commission = $this->createMock(Commission::class);
+        $user = $this->createMockUserWithPrivileges($privilege);
+        $user->method('getCommissions')->willReturn(new ArrayCollection([$commission]));
+
+        $subject = $this->createMockEtablissement($classe, $genre, [], $commission);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+
+        $voter = $this->createVoter([$resource], $privilege);
+
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
+    }
+
+    public function testAccessClasseWithCommissionGroupementCommuneRuleGrantsAccess()
+    {
+        $resource = $this->createMock(Resources::class);
+        $resource->method('getName')->willReturn('etablissement_igh_3_1_1_1');
+        $privilege = $this->createMock(Privileges::class);
+
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
+        $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
+        $commission = $this->createMock(Commission::class);
+        $commune = $this->createMock(Commune::class);
+        $groupement = $this->createMock(Groupement::class);
+        $groupement->method('getCommunes')->willReturn(new ArrayCollection([$commune]));
+        $user = $this->createMockUserWithPrivileges($privilege, [$groupement], $commune);
+        $user->method('getCommissions')->willReturn(new ArrayCollection([$commission]));
+
+        $subject = $this->createMockEtablissement($classe, $genre, [$commune], $commission);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+
+        $voter = $this->createVoter([$resource], $privilege);
+
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
+    }
+
+    public function testAccessDeniedIfCommissionNotMatching()
+    {
+        $resource = $this->createMock(Resources::class);
+        $resource->method('getName')->willReturn('etablissement_igh_3_1_0_0');
+        $privilege = $this->createMock(Privileges::class);
+
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 5]);
+        $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
+        $commission = $this->createMock(Commission::class);
+        $user = $this->createMockUserWithPrivileges($privilege);
+        $user->method('getCommissions')->willReturn(new ArrayCollection());
+
+        $subject = $this->createMockEtablissement($classe, $genre, [], $commission);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 

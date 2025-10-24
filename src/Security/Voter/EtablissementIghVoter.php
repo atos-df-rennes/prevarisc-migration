@@ -53,49 +53,48 @@ class EtablissementIghVoter extends EtablissementVoter
         $resourcesByParam = [];
         foreach ($resources as $resource) {
             $name = $resource->getName();
-
             if (!$name) {
                 continue;
             }
-
-            // Nom attendu : etablissement_igh_{classe(-classe)*}_{param1}_{param2}
+            // Nom attendu : etablissement_igh_{classe(-classe)*}_{commissionUtilisateur}_{groupementsUtilisateur}_{communeUtilisateur}
             $parts = explode('_', $name);
-
-            if (5 !== count($parts)) {
+            if (6 !== count($parts)) {
                 continue;
             }
-
             $classesStr = explode('-', $parts[2]);
-
+            $commissionParam = (int) $parts[3];
+            $useUserGroupements = (int) $parts[4];
+            $useUserCommune = (int) $parts[5];
             foreach ($classesStr as $classeStr) {
                 $classe = (int) $classeStr;
-                $useUserGroupements = (int) $parts[3];
-                $useUserCommune = (int) $parts[4];
-
-                $resourcesByParam[$classe][$useUserGroupements][$useUserCommune][] = $resource;
+                $resourcesByParam[$classe][$commissionParam][$useUserGroupements][$useUserCommune][] = $resource;
             }
         }
 
-        // Si une des règles concernant "toutes les classes" permet de donner l'accès, on return directement.
-        if (array_key_exists(0, $resourcesByParam)) {
-            foreach ($resourcesByParam[0] as $useUserGroupements => $subArray) {
-                foreach (array_keys($subArray) as $useUserCommune) {
-                    $privilege = $this->privilegesRepository->findOneBy(array(
-                        'name' => $attribute,
-                        'resource' => $resourcesByParam[0][$useUserGroupements][$useUserCommune][0]
-                    ));
-                    if (
-                        $privilege
-                        && $userPrivileges->contains($privilege)
-                        && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
-                    ) {
-                        return true;
+        // Vérification des règles pour toutes les classes (classe=0)
+        if (isset($resourcesByParam[0])) {
+            foreach ($resourcesByParam[0] as $useUserCommissions => $byGroupement) {
+                foreach ($byGroupement as $useUserGroupements => $byCommune) {
+                    foreach ($byCommune as $useUserCommune => $resourcesList) {
+                        $privilege = $this->privilegesRepository->findOneBy([
+                            'name' => $attribute,
+                            'resource' => $resourcesList[0]
+                        ]);
+                        if ($privilege && $userPrivileges->contains($privilege)) {
+                            if (
+                                $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
+                                && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions)
+                            ) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        $ighClasse = $subject->getLatestInformations()->getClasse();
+        $latestInfos = $subject->getLatestInformations();
+        $ighClasse = $latestInfos->getClasse();
         if (null === $ighClasse) {
             return false;
         }
@@ -105,28 +104,29 @@ class EtablissementIghVoter extends EtablissementVoter
             return false;
         }
 
-        // Règles spécifiques
-        if (array_key_exists($ighClasseId, $resourcesByParam)) {
-            foreach ($resourcesByParam[$ighClasseId] as $useUserGroupements => $subSubArray) {
-                foreach ($subSubArray as $useUserCommune => $resources) {
-                    foreach ($resources as $resource) {
-                        $privilege = $this->privilegesRepository->findOneBy(array(
-                            'name' => $attribute,
-                            'resource' => $resource
-                        ));
-                        if (
-                            $privilege
-                            && $userPrivileges->contains($privilege)
-                            && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
-                        ) {
-                            return true;
+        // Vérification des règles spécifiques à la classe
+        if (isset($resourcesByParam[$ighClasseId])) {
+            foreach ($resourcesByParam[$ighClasseId] as $useUserCommissions => $byGroupement) {
+                foreach ($byGroupement as $useUserGroupements => $byCommune) {
+                    foreach ($byCommune as $useUserCommune => $resourcesList) {
+                        foreach ($resourcesList as $resource) {
+                            $privilege = $this->privilegesRepository->findOneBy([
+                                'name' => $attribute,
+                                'resource' => $resource
+                            ]);
+                            if ($privilege && $userPrivileges->contains($privilege)) {
+                                if (
+                                    $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
+                                    && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions)
+                                ) {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-
         return false;
     }
 }
-

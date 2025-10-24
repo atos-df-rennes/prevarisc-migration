@@ -48,4 +48,17 @@ class VoterUtils
 
         return $checkGroupements && $checkCommune;
     }
+
+    public function isUserCommissionsAllowed(Utilisateur $user, Etablissement $subject, int $useUserCommissions): bool
+    {
+        if (0 === $useUserCommissions) {
+            return true;
+        }
+
+        $userCommissions = $user->getCommissions();
+        $etablissementCommission = $subject->getLatestInformations()
+            ->getCommission();
+
+        return $userCommissions->contains($etablissementCommission);
+    }
 }
