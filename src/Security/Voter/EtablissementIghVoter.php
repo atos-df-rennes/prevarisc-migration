@@ -13,13 +13,13 @@ class EtablissementIghVoter extends EtablissementVoter
 {
     private const ID_IGH = 5;
 
-    /** @var \App\Repository\ResourcesRepository */
+    /** @var ResourcesRepository */
     private $resourcesRepository;
 
-    /** @var \App\Repository\PrivilegesRepository */
+    /** @var PrivilegesRepository */
     private $privilegesRepository;
 
-    /** @var \App\Service\Voter\VoterUtils */
+    /** @var VoterUtils */
     private $voterUtils;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
@@ -29,11 +29,13 @@ class EtablissementIghVoter extends EtablissementVoter
         $this->voterUtils = $voterUtils;
     }
 
-    protected function supports($attribute, $subject): bool {
+    protected function supports($attribute, $subject): bool
+    {
         return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, self::ID_IGH);
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool {
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    {
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_IGH);
         if ([] === $resources) {
             return false;
@@ -56,11 +58,13 @@ class EtablissementIghVoter extends EtablissementVoter
             if (!$name) {
                 continue;
             }
+
             // Nom attendu : etablissement_igh_{classe(-classe)*}_{commissionUtilisateur}_{groupementsUtilisateur}_{communeUtilisateur}
             $parts = explode('_', $name);
             if (6 !== count($parts)) {
                 continue;
             }
+
             $classesStr = explode('-', $parts[2]);
             $commissionParam = (int) $parts[3];
             $useUserGroupements = (int) $parts[4];
@@ -80,13 +84,8 @@ class EtablissementIghVoter extends EtablissementVoter
                             'name' => $attribute,
                             'resource' => $resourcesList[0]
                         ]);
-                        if ($privilege && $userPrivileges->contains($privilege)) {
-                            if (
-                                $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
-                                && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions)
-                            ) {
-                                return true;
-                            }
+                        if ($privilege && $userPrivileges->contains($privilege) && ($this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune) && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions))) {
+                            return true;
                         }
                     }
                 }
@@ -114,19 +113,15 @@ class EtablissementIghVoter extends EtablissementVoter
                                 'name' => $attribute,
                                 'resource' => $resource
                             ]);
-                            if ($privilege && $userPrivileges->contains($privilege)) {
-                                if (
-                                    $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
-                                    && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions)
-                                ) {
-                                    return true;
-                                }
+                            if ($privilege && $userPrivileges->contains($privilege) && ($this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune) && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions))) {
+                                return true;
                             }
                         }
                     }
                 }
             }
         }
+
         return false;
     }
 }

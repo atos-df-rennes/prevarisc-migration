@@ -28,7 +28,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementIghVoterTest extends TestCase
 {
-    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], $commune = null)
+    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], $commune = null): MockObject
     {
         $userPrivileges = $this->createMock(Collection::class);
         $userPrivileges->method('contains')->with($privilege)->willReturn(true);
@@ -44,11 +44,12 @@ class EtablissementIghVoterTest extends TestCase
         return $user;
     }
 
-    private function createMockEtablissement(?MockObject $classe, MockObject $genre, array $communes = [], $commission = null)
+    private function createMockEtablissement(?MockObject $classe, MockObject $genre, array $communes = [], $commission = null): MockObject
     {
-        $adresses = array_map(function ($commune) {
+        $adresses = array_map(function ($commune): MockObject {
             $adresse = $this->createMock(EtablissementAdresse::class);
             $adresse->method('getCommune')->willReturn($commune);
+
             return $adresse;
         }, $communes);
 
@@ -64,7 +65,7 @@ class EtablissementIghVoterTest extends TestCase
         return $etablissement;
     }
 
-    private function createVoter(array $resources, MockObject $privilege)
+    private function createVoter(array $resources, MockObject $privilege): EtablissementIghVoter
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->with(5)->willReturn($resources);
@@ -75,7 +76,7 @@ class EtablissementIghVoterTest extends TestCase
         return new EtablissementIghVoter($resourcesRepository, $privilegesRepository, new VoterUtils());
     }
 
-    public function testAccessAllClassesRuleGrantsAccess()
+    public function testAccessAllClassesRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_0_0_0_0');
@@ -93,7 +94,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessSpecificClasseRuleGrantsAccess()
+    public function testAccessSpecificClasseRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_0_0_0');
@@ -111,7 +112,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessMultipleClassesRuleGrantsAccess()
+    public function testAccessMultipleClassesRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_2-3_0_0_0');
@@ -133,7 +134,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject3, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessDeniedIfNoMatchingClasse()
+    public function testAccessDeniedIfNoMatchingClasse(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_2_0_0_0');
@@ -151,7 +152,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessClasseWithGroupementRuleGrantsAccess()
+    public function testAccessClasseWithGroupementRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_0_1_0');
@@ -172,7 +173,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessClasseWithCommuneRuleGrantsAccess()
+    public function testAccessClasseWithCommuneRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_0_0_1');
@@ -191,7 +192,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessClasseWithGroupementAndCommuneRuleGrantsAccess()
+    public function testAccessClasseWithGroupementAndCommuneRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_0_1_1');
@@ -212,7 +213,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessDeniedIfGroupementOrCommuneNotMatching()
+    public function testAccessDeniedIfGroupementOrCommuneNotMatching(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_0_1_1');
@@ -231,7 +232,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessClasseWithCommissionRuleGrantsAccess()
+    public function testAccessClasseWithCommissionRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_1_0_0');
@@ -252,7 +253,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessClasseWithCommissionGroupementCommuneRuleGrantsAccess()
+    public function testAccessClasseWithCommissionGroupementCommuneRuleGrantsAccess(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_1_1_1');
@@ -276,7 +277,7 @@ class EtablissementIghVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 
-    public function testAccessDeniedIfCommissionNotMatching()
+    public function testAccessDeniedIfCommissionNotMatching(): void
     {
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_igh_3_1_0_0');
