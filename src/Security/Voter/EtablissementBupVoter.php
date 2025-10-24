@@ -23,10 +23,16 @@ class EtablissementBupVoter extends EtablissementVoter
      */
     private $privilegesRepository;
 
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
+    /**
+     * @var VoterUtils
+     */
+    private $voterUtils;
+
+    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
     {
         $this->resourcesRepository = $resourcesRepository;
         $this->privilegesRepository = $privilegesRepository;
+        $this->voterUtils = $voterUtils;
     }
 
     protected function supports($attribute, $subject): bool
@@ -104,7 +110,7 @@ class EtablissementBupVoter extends EtablissementVoter
                     'resource' => $resource
                 ]);
                 if ($privilege && $userPrivileges->contains($privilege)) {
-                    return VoterUtils::isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune);
+                    return $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune);
                 }
             }
         }

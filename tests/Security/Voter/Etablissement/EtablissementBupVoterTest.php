@@ -16,6 +16,7 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\EtablissementBupVoter;
 use App\Security\Voter\EtablissementVoter;
+use App\Service\Voter\VoterUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -24,16 +25,14 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class EtablissementBupVoterTest extends TestCase
 {
     private $resourcesRepository;
-
     private $privilegesRepository;
-
     private $voter;
 
     protected function setUp(): void
     {
         $this->resourcesRepository = $this->createMock(ResourcesRepository::class);
         $this->privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $this->voter = new EtablissementBupVoter($this->resourcesRepository, $this->privilegesRepository);
+        $this->voter = new EtablissementBupVoter($this->resourcesRepository, $this->privilegesRepository, new VoterUtils());
     }
 
     private function createEtablissementMock(): Etablissement

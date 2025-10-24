@@ -63,7 +63,7 @@ class EtablissementHabitationVoterTest extends TestCase
         return $etablissement;
     }
 
-    private function createVoter(array $resources, MockObject $privilege, VoterUtils $voterUtils): EtablissementHabitationVoter
+    private function createVoter(array $resources, MockObject $privilege): EtablissementHabitationVoter
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->with(4)->willReturn($resources);
@@ -71,7 +71,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
-        return new EtablissementHabitationVoter($resourcesRepository, $privilegesRepository, $voterUtils);
+        return new EtablissementHabitationVoter($resourcesRepository, $privilegesRepository, new VoterUtils());
     }
 
     public function testAccessAllFamillesRuleGrantsAccess(): void
@@ -87,8 +87,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $voterUtils = new VoterUtils();
-        $voter = $this->createVoter([$resource], $privilege, $voterUtils);
+        $voter = $this->createVoter([$resource], $privilege);
 
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
@@ -106,8 +105,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $voterUtils = new VoterUtils();
-        $voter = $this->createVoter([$resource], $privilege, $voterUtils);
+        $voter = $this->createVoter([$resource], $privilege);
 
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
@@ -129,8 +127,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $voterUtils = new VoterUtils();
-        $voter = $this->createVoter([$resource], $privilege, $voterUtils);
+        $voter = $this->createVoter([$resource], $privilege);
 
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject2, [EtablissementVoter::LECTURE]));
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subject3, [EtablissementVoter::LECTURE]));
@@ -156,8 +153,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $voterUtils = new VoterUtils();
-        $voter = $this->createVoter([$resource], $privilege, $voterUtils);
+        $voter = $this->createVoter([$resource], $privilege);
 
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subjectCommune10, [EtablissementVoter::LECTURE]));
         $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $subjectCommune30, [EtablissementVoter::LECTURE]));
@@ -181,8 +177,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $voterUtils = new VoterUtils();
-        $voter = $this->createVoter([$resource], $privilege, $voterUtils);
+        $voter = $this->createVoter([$resource], $privilege);
 
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subjectCommune100, [EtablissementVoter::LECTURE]));
         $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $subjectCommune200, [EtablissementVoter::LECTURE]));
@@ -210,8 +205,7 @@ class EtablissementHabitationVoterTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
-        $voterUtils = new VoterUtils();
-        $voter = $this->createVoter([$resourceGroupements, $resourceAll], $privilege, $voterUtils);
+        $voter = $this->createVoter([$resourceGroupements, $resourceAll], $privilege);
 
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subjectCommune10, [EtablissementVoter::LECTURE]));
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subjectCommune30, [EtablissementVoter::LECTURE]));
