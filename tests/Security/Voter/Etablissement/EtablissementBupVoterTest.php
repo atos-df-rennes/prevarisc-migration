@@ -25,7 +25,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class EtablissementBupVoterTest extends TestCase
 {
     private $resourcesRepository;
+
     private $privilegesRepository;
+
     private $voter;
 
     protected function setUp(): void

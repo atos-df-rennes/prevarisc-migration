@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
+use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -63,9 +64,9 @@ class EtablissementZoneVoter extends EtablissementVoter
     }
 
     /**
-     * @param \App\Entity\Resources[] $resources
+     * @param Resources[] $resources
      *
-     * @return array<int, array<int, \App\Entity\Resources>>
+     * @return array<int, array<int, Resources>>
      */
     private function indexResourcesById(array $resources): array
     {
@@ -92,7 +93,7 @@ class EtablissementZoneVoter extends EtablissementVoter
     }
 
     /**
-     * @param array<int, array<int, \App\Entity\Resources>> $resourcesById
+     * @param array<int, array<int, Resources>> $resourcesById
      */
     private function hasPrivilegeForAllClasses(array $resourcesById, string $attribute, Collection $userPrivileges): bool
     {
@@ -109,7 +110,7 @@ class EtablissementZoneVoter extends EtablissementVoter
     }
 
     /**
-     * @param array<int, array<int, \App\Entity\Resources>> $resourcesById
+     * @param array<int, array<int, Resources>> $resourcesById
      */
     private function hasPrivilegeForSpecificClass(array $resourcesById, string $attribute, Collection $userPrivileges, Etablissement $subject): bool
     {

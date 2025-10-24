@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
+use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -14,13 +15,13 @@ class EtablissementBupVoter extends EtablissementVoter
 {
     private const ID_BUP = 6;
 
-    /** @var \App\Repository\ResourcesRepository */
+    /** @var ResourcesRepository */
     private $resourcesRepository;
 
-    /** @var \App\Repository\PrivilegesRepository */
+    /** @var PrivilegesRepository */
     private $privilegesRepository;
 
-    /** @var \App\Service\Voter\VoterUtils */
+    /** @var VoterUtils */
     private $voterUtils;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
@@ -30,11 +31,13 @@ class EtablissementBupVoter extends EtablissementVoter
         $this->voterUtils = $voterUtils;
     }
 
-    protected function supports($attribute, $subject): bool {
+    protected function supports($attribute, $subject): bool
+    {
         return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, self::ID_BUP);
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool {
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    {
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_BUP);
         if ([] === $resources) {
             return false;
@@ -61,11 +64,12 @@ class EtablissementBupVoter extends EtablissementVoter
     }
 
     /**
-     * @param \App\Entity\Resources[] $resources
+     * @param Resources[] $resources
      *
-     * @return array<int, array<int, \App\Entity\Resources>>
+     * @return array<int, array<int, Resources>>
      */
-    private function indexResourcesByParam(array $resources): array {
+    private function indexResourcesByParam(array $resources): array
+    {
         $grouped = [];
         foreach ($resources as $resource) {
             $name = $resource->getName();
@@ -74,33 +78,38 @@ class EtablissementBupVoter extends EtablissementVoter
             }
 
             $parts = explode('_', $name);
-            if (count($parts) === 4) {
+            if (4 === count($parts)) {
                 $useUserGroupements = (int) $parts[2];
                 $useUserCommune = (int) $parts[3];
                 $grouped[$useUserGroupements][$useUserCommune] = $resource;
             }
         }
+
         return $grouped;
     }
 
     /**
-     * @param array<int, array<int, \App\Entity\Resources>> $resourcesByParam
+     * @param array<int, array<int, Resources>> $resourcesByParam
      */
-    private function hasAccessToAll(string $attribute, array $resourcesByParam, Collection $userPrivileges): bool {
+    private function hasAccessToAll(string $attribute, array $resourcesByParam, Collection $userPrivileges): bool
+    {
         if (isset($resourcesByParam[0][0])) {
             $privilege = $this->privilegesRepository->findOneBy([
                 'name' => $attribute,
                 'resource' => $resourcesByParam[0][0]
             ]);
+
             return $privilege && $userPrivileges->contains($privilege);
         }
+
         return false;
     }
 
     /**
-     * @param array<int, array<int, \App\Entity\Resources>> $resourcesByParam
+     * @param array<int, array<int, Resources>> $resourcesByParam
      */
-    private function checkSpecificRules(string $attribute, array $resourcesByParam, Collection $userPrivileges, Utilisateur $user, Etablissement $subject): bool {
+    private function checkSpecificRules(string $attribute, array $resourcesByParam, Collection $userPrivileges, Utilisateur $user, Etablissement $subject): bool
+    {
         foreach ($resourcesByParam as $useUserGroupements => $subArray) {
             foreach ($subArray as $useUserCommune => $resource) {
                 $privilege = $this->privilegesRepository->findOneBy([
@@ -112,6 +121,7 @@ class EtablissementBupVoter extends EtablissementVoter
                 }
             }
         }
+
         return false;
     }
 }
