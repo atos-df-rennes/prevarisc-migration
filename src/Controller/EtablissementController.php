@@ -57,11 +57,6 @@ class EtablissementController extends AbstractController
     {
         $couchesCartographiques = $coucheCartoRepository->findAll();
 
-        // TODO: Déport dans le template directement
-        $keyIgn = $parameterBag->get('app.ign_key');
-        $keyGoogleMap = $parameterBag->get('app.google_map_key');
-        $geoconceptUrl = $parameterBag->get('app.geoconcept_url');
-
         // TODO: Tester les valeurs récupérées
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
         dump('$defaultPeriodicite', $defaultPeriodicite);
@@ -125,10 +120,6 @@ class EtablissementController extends AbstractController
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
             'couches_cartographiques' => $serializer->serialize($couchesCartographiques, 'json'),
-
-            'key_ign' => $keyIgn,
-            'key_googlemap' => $keyGoogleMap,
-            'geoconcept_url' => $geoconceptUrl,
 
             'default_periodicite' => $defaultPeriodicite,
             'periodicity' => $periodicity,

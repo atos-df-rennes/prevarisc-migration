@@ -1,3 +1,7 @@
+{% set key_ign = parameter('app.ign_key') %}
+{% set key_googlemap = parameter('app.google_map_key') %}
+{% set geoconcept_url = parameter('app.geoconcept_url') %}
+
 <!-- Cartes et diaporama -->
 <ul id="menu_nav" class="nav nav-tabs" style="margin: 0; padding: 0; border-bottom: none;">
     {% if diapo_plans|length > 0 %}
@@ -24,7 +28,7 @@
             <div id="geoportail-container" style="height: 100%; max-height: 100%;"></div>
 
             <script type="text/javascript">
-                {% set public_dir = app.request.server.get('DOCUMENT_ROOT') %}
+                {# TODO: Pas d'utilisation de parameter(), c'est uniquement une variable d'env #}
                 {% set autoconf_path = asset_exist(app.request.server.get('PREVARISC_IGN_AUTOCONF')) ? autoconf_path : '' %}
 
                 viewer = initViewer('geoportail-container',
@@ -56,9 +60,10 @@
     {% endif %}
 
     {% if etablissement.adresses|length > 0 and geoconcept_url is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
-        {% set projection = app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_PROJECTION') %}
-        {% set token = app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_TOKEN') %}
-        {% set app_id = app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_APP_ID') %}
+        {% set projection = parameter('app.geoconcept_projection') %}
+        {% set token = parameter('app.geoconcept_token') %}
+        {% set app_id = parameter('app.geoconcept_app_id') %}
+
         <div id="geoconcept" class="tab-pane in" style="height: 350px; max-height: 350px;width: 100%">
             <div id="geoconcept-container"  style="height: 100%; max-height: 100%;width: 100%"></div>
             <script type="text/javascript" src="/js/geoconcept/OpenLayers.js"></script>
@@ -88,7 +93,7 @@
                     {% endfor %}
                     map = initGeoConceptViewer('geoconcept-container',
                         "{{ geoconcept_url }}",
-                        "{{ app.request.server.get('PREVARISC_PLUGIN_GEOCONCEPT_LAYER') }}",
+                        "{{ parameter('app.geoconcept_layer') }}",
                         points,
                             {{ couches_cartographiques|json_encode|raw }}
                     );
@@ -118,9 +123,9 @@
 
                     var infowindow = new google.maps.InfoWindow({
                         content:
-                            "{{ etablissement.adresses[0].numero }}, "+
-                            "{{ etablissement.adresses[0].rue.libelle }} <br />"+
-                            "{{ etablissement.adresses[0].commune.codePostal }} "+
+                            "{{ etablissement.adresses[0].numero }}, " +
+                            "{{ etablissement.adresses[0].rue.libelle }} <br />" +
+                            "{{ etablissement.adresses[0].commune.codePostal }} " +
                             "{{ etablissement.adresses[0].commune.libelle }} "
                     });
                     infowindow.open(map,marker);
