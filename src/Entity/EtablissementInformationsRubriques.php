@@ -47,7 +47,7 @@ class EtablissementInformationsRubriques
     /**
      * @var ?EtablissementInformations
      *
-     * @ORM\ManyToOne(targetEntity=EtablissementInformations::class, inversedBy="rubriques")
+     * @ORM\ManyToOne(targetEntity=EtablissementInformations::class, inversedBy="rubriquesIcpe")
      *
      * @ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", nullable=false, options={"unsigned":true})
      */

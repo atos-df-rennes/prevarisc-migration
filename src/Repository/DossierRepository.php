@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -91,4 +92,34 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $query->getSingleScalarResult();
     }
+
+
+    /**
+     * Recherche la dernière visite d'un établissement en fonction des critères spécifiés.
+     *
+     * @param Etablissement $etablissement L'établissement pour lequel la dernière visite est recherchée.
+     *
+     * @return \DateTime|null Retourne l'objet correspondant à la dernière visite trouvée ou null si aucune visite ne correspond.
+     */
+    public function findLastVisite(Etablissement $etablissement) {
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->join('d.etablissements', 'etablissement')
+            ->join('d.type', 'type')
+            ->join('d.nature', 'nature')
+            ->andWhere('etablissement.id = :etablissement')
+            ->andWhere('type.id IN (:types)')
+            ->andWhere('nature.id IN (:natures)')
+            ->andWhere('d.avisCommission > 0')
+            ->setParameter('etablissement', $etablissement->getId())
+            ->setParameter('types', [2, 3]) // 2: Visite, 3: Groupe de visite
+            ->setParameter('natures', [21, 26, 47, 48])
+            ->orderBy('d.dateVisite', 'DESC')
+            ->setMaxResults(1)
+        ;
+
+        $lastVisite = $queryBuilder->getQuery()->getOneOrNullResult();
+
+        return $lastVisite ? $lastVisite->getDateVisite() : null;
+    }
+
 }

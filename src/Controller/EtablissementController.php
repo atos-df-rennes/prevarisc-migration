@@ -7,6 +7,7 @@ use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
@@ -50,7 +51,7 @@ class EtablissementController extends AbstractController
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
         EtablissementService $etablissementService,
-        UtilisateurRepository $utilisateurRepository,
+        DossierRepository $dossierRepository,
         DataStore $dataStore,
         SerializerInterface $serializer
     ): Response
@@ -81,8 +82,7 @@ class EtablissementController extends AbstractController
 //            'delete_etablissement'
 //        );
 
-        // TODO: Récupérer la dernière visite d'un établissement
-        $last_visite = new \DateTime();
+        $last_visite = $dossierRepository->findLastVisite($etablissement);
 
         // TODO: Récupérer la prochaine visite d'un établissement
         $next_visite = new \DateTime();
@@ -93,7 +93,7 @@ class EtablissementController extends AbstractController
         // TODO: Récupérer la présence d'un DUS dans les contacts de l'établissement (et ses parents)
 
         // Récupération de l'indicateur de présence d'un DUS
-//        $contacts_dus = [];
+        $contacts_dus = [];
 //        $contacts = array_merge([], $this->getAllContacts($id_etablissement));
 //        foreach ($etablissement_parents as $etablissement_parent) {
 //            $contacts = array_merge($contacts, $this->getAllContacts($etablissement_parent['ID_ETABLISSEMENT']));
