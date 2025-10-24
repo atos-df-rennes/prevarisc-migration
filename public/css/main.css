@@ -182,54 +182,41 @@ h2.page-header {
 }
 
 /*-------------------------- Styles des filtres --------------------------*/
+.bloc-sortable {
+    cursor: move;
+    padding: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    background: #fff;
+}
+
 .filtres-cartes-recherche input.filtre-cartes-input {
-    width: 350px;
+    width: 250px;
     height: 30px;
 }
 
-.filtres-cartes-container {
-    margin-bottom: 15px;
+.filtres-cartes {
+    display: flex;
+    justify-content: space-between;
 }
 
-.filtres-cartes-droite .btn {
-    padding: 4px 10px;
-}
-
-.filtre-cartes-personnaliser-btn {
-    margin-left: 20px;
-}
-
-#filtre-cartes-tri-select {
-    width: auto;
-}
-
-@media (max-width: 768px) {
-    .row-fluid .filtres-cartes-gauche,
-    .row-fluid .filtres-cartes-droite {
-        width: 100%;
-        margin-left: 0;
-    }
-
-    .filtres-cartes-container {
-        display: flex;
+@media (max-width: 980px) {
+    .filtres-cartes {
         flex-direction: column;
         gap: 10px;
     }
 
     .filtres-cartes-recherche {
-        width: 100%;
         display: flex;
     }
 
-    .filtre-cartes-input {
+    .filtres-cartes-recherche input.filtre-cartes-input {
         flex: 1;
     }
 
-    #filtre-cartes-tri-select,
-    .filtre-cartes-personnaliser-btn {
-        width: 100%;
-        margin-top: 10px;
-        margin-left: 0;
+    .filtre-cartes-types {
+        display: flex;
+        justify-content: space-between;
     }
 }
 
