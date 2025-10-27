@@ -94,11 +94,11 @@ class EtablissementInformations
     private $famille;
 
     /**
-     * @var ?UtilisateurInformations
+     * @var ?Utilisateur
      *
-     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
      *
-     * @ORM\JoinColumn(name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true, options={"unsigned":true})
+     * @ORM\JoinColumn(name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEUR", nullable=true, options={"unsigned":true})
      */
     private $utilisateur;
 
@@ -246,12 +246,12 @@ class EtablissementInformations
         return $this;
     }
 
-    public function getUtilisateur(): ?UtilisateurInformations
+    public function getUtilisateur(): ?Utilisateur
     {
         return $this->utilisateur;
     }
 
-    public function setUtilisateur(?UtilisateurInformations $utilisateur): self
+    public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
 
