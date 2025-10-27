@@ -16,7 +16,6 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
-use Psr\Log\LoggerInterface;
 
 final class Etablissement
 {
