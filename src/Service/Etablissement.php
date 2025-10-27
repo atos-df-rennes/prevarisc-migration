@@ -16,8 +16,6 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
-use Doctrine\ORM\EntityNotFoundException;
-use Psr\Log\LoggerInterface;
 
 final class Etablissement
 {
@@ -36,21 +34,16 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
-    /** @var LoggerInterface */
-    private $logger;
-
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
-        LoggerInterface $logger,
         EtablissementPieceJointeRepository $etablissementPJRepository,
         DataStore $dataStore
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->logger = $logger;
         $this->etablissementPJRepository = $etablissementPJRepository;
         $this->dataStore = $dataStore;
     }
@@ -64,7 +57,6 @@ final class Etablissement
         $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
         $historiqueInformations->setAvis($historiqueDossiers);
 
-        // @todo: Le traitement des avis derogations sera traitée dans l'onglet concerné
         return $historiqueInformations;
     }
 
@@ -92,10 +84,10 @@ final class Etablissement
             }
 
             if (null !== $auteur) {
-                try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
-                } catch (EntityNotFoundException $entityNotFoundException) {
-                    $this->logger->error($entityNotFoundException->getMessage());
+                $auteurInformations = $auteur->getInformations();
+
+                if (null !== $auteurInformations) {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
                 }
             }
 
@@ -227,10 +219,10 @@ final class Etablissement
             $infosAuteur = null;
 
             if (null !== $auteur) {
-                try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
-                } catch (EntityNotFoundException $entityNotFoundException) {
-                    $this->logger->error($entityNotFoundException->getMessage());
+                $auteurInformations = $auteur->getInformations();
+
+                if (null !== $auteurInformations) {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
                 }
             }
 
