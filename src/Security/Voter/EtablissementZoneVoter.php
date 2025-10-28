@@ -38,26 +38,18 @@ class EtablissementZoneVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        if (!$subject instanceof Etablissement) {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;
         }
 
+        /** @var Etablissement $subject */
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementZone($subject->getLatestInformations()->getClassement());
         if ([] === $resources) {
             return false;
         }
 
-        $user = $token->getUser();
-        if (!$user instanceof Utilisateur) {
-            return false;
-        }
-
-        $userGroupe = $user->getGroupe();
-        if (null === $userGroupe) {
-            return false;
-        }
-
-        $userPrivileges = $userGroupe->getPrivileges();
+        /** @phpstan-ignore-next-line */
+        $userPrivileges = $token->getUser()->getGroupe()->getPrivileges();
 
         foreach ($resources as $resource) {
             $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);

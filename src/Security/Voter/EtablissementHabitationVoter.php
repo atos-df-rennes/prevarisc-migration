@@ -46,26 +46,19 @@ class EtablissementHabitationVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        if (!$subject instanceof Etablissement) {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;
         }
 
+        /** @var Etablissement $subject */
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementHabitation($subject->getLatestInformations()->getFamille());
         if ([] === $resources) {
             return false;
         }
 
+        /** @var Utilisateur $user */
         $user = $token->getUser();
-        if (!$user instanceof Utilisateur) {
-            return false;
-        }
-
-        $userGroup = $user->getGroupe();
-        if (null === $userGroup) {
-            return false;
-        }
-
-        $userPrivileges = $userGroup->getPrivileges();
+        $userPrivileges = $user->getGroupe()->getPrivileges();
 
         foreach ($resources as $resource) {
             $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);

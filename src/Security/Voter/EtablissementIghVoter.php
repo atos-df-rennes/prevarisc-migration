@@ -36,26 +36,19 @@ class EtablissementIghVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        if (!$subject instanceof Etablissement) {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;
         }
 
+        /** @var Etablissement $subject */
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementIgh($subject->getLatestInformations()->getClasse());
         if ([] === $resources) {
             return false;
         }
 
+        /** @var Utilisateur $user */
         $user = $token->getUser();
-        if (!$user instanceof Utilisateur) {
-            return false;
-        }
-
-        $userGroupe = $user->getGroupe();
-        if (null === $userGroupe) {
-            return false;
-        }
-
-        $userPrivileges = $userGroupe->getPrivileges();
+        $userPrivileges = $user->getGroupe()->getPrivileges();
 
         foreach ($resources as $resource) {
             $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);

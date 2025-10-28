@@ -48,6 +48,10 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
+            return false;
+        }
+
         try {
             $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementManifestationTemporaire();
         } catch (NoResultException $noResultException) {
@@ -60,23 +64,8 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        $user = $token->getUser();
-
-        if (!$user instanceof Utilisateur) {
-            return false;
-        }
-
-        if (!$subject instanceof Etablissement) {
-            return false;
-        }
-
-        $userGroup = $user->getGroupe();
-
-        if (null === $userGroup) {
-            return false;
-        }
-
-        $userPrivileges = $userGroup->getPrivileges();
+        /** @phpstan-ignore-next-line */
+        $userPrivileges = $token->getUser()->getGroupe()->getPrivileges();
 
         $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resources]);
 

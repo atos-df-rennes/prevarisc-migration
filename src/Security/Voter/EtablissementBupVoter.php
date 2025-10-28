@@ -38,22 +38,18 @@ class EtablissementBupVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
+            return false;
+        }
+
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementBup();
         if ([] === $resources) {
             return false;
         }
 
+        /** @var Utilisateur $user */
         $user = $token->getUser();
-        if (!$user instanceof Utilisateur || !$subject instanceof Etablissement) {
-            return false;
-        }
-
-        $userGroupe = $user->getGroupe();
-        if (null === $userGroupe) {
-            return false;
-        }
-
-        $userPrivileges = $userGroupe->getPrivileges();
+        $userPrivileges = $user->getGroupe()->getPrivileges();
 
         foreach ($resources as $resource) {
             $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);

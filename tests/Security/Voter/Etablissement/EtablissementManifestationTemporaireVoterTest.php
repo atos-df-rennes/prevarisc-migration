@@ -77,6 +77,8 @@ class EtablissementManifestationTemporaireVoterTest extends TestCase
             ->method('warning')
             ->with($this->equalTo("Aucune règle trouvée pour les manifestations temporaires. Il est recommandé d'en ajouter une."));
 
+        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createMock(Groupe::class)]));
+
         $etablissement = $this->createEtablissementMock();
 
         $this->assertSame(
@@ -95,6 +97,8 @@ class EtablissementManifestationTemporaireVoterTest extends TestCase
             ->expects($this->once())
             ->method('warning')
             ->with($this->equalTo('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.'));
+
+        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createMock(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
