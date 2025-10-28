@@ -55,6 +55,7 @@ class ResourcesRepository extends ServiceEntityRepository
         $query = $queryBuilder
             ->where('r.name = :name')
             ->setParameter('name', 'etablissement_camp_0_0')
+            ->orderBy('r.name', 'ASC')
             ->getQuery()
         ;
 
@@ -71,6 +72,7 @@ class ResourcesRepository extends ServiceEntityRepository
         $query = $queryBuilder
             ->where('r.name = :name')
             ->setParameter('name', 'etablissement_iop_0_0')
+            ->orderBy('r.name', 'ASC')
             ->getQuery()
         ;
 
@@ -87,6 +89,7 @@ class ResourcesRepository extends ServiceEntityRepository
         $query = $queryBuilder
             ->where('r.name = :name')
             ->setParameter('name', 'etablissement_temp_0_0')
+            ->orderBy('r.name', 'ASC')
             ->getQuery()
         ;
 
@@ -109,7 +112,9 @@ class ResourcesRepository extends ServiceEntityRepository
                 ->setParameter('classement', 'etablissement\_zone\_%'.$classement->getId().'%\_0\_0');
         }
 
-        $query = $queryBuilder->getQuery();
+        $query = $queryBuilder
+            ->orderBy('r.name', 'ASC')
+            ->getQuery();
 
         return $query->getResult();
     }
@@ -123,7 +128,9 @@ class ResourcesRepository extends ServiceEntityRepository
             ->where('r.name LIKE :name')
             ->setParameter('name', 'etablissement\_bup\_0\__\__')
         ;
-        $query = $queryBuilder->getQuery();
+        $query = $queryBuilder
+            ->orderBy('r.name', 'ASC')
+            ->getQuery();
 
         return $query->getResult();
     }
@@ -145,7 +152,9 @@ class ResourcesRepository extends ServiceEntityRepository
             ;
         }
 
-        $query = $queryBuilder->getQuery();
+        $query = $queryBuilder
+            ->orderBy('r.name', 'ASC')
+            ->getQuery();
 
         return $query->getResult();
     }
@@ -167,7 +176,9 @@ class ResourcesRepository extends ServiceEntityRepository
             ;
         }
 
-        $query = $queryBuilder->getQuery();
+        $query = $queryBuilder
+            ->orderBy('r.name', 'ASC')
+            ->getQuery();
 
         return $query->getResult();
     }
@@ -189,7 +200,9 @@ class ResourcesRepository extends ServiceEntityRepository
             ;
         }
 
-        $query = $queryBuilder->getQuery();
+        $query = $queryBuilder
+            ->orderBy('r.name', 'ASC')
+            ->getQuery();
 
         return $query->getResult();
     }
