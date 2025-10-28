@@ -38,8 +38,12 @@ class EtablissementZoneVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
+        if (!$subject instanceof Etablissement) {
+            return false;
+        }
+
         $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementZone($subject->getLatestInformations()->getClassement());
-        if ([] === $resources || !$subject instanceof Etablissement) {
+        if ([] === $resources) {
             return false;
         }
 

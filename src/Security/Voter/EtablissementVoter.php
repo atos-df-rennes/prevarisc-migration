@@ -18,8 +18,6 @@ abstract class EtablissementVoter extends Voter
 
     public const REGLE_CELLULE = '^etablissement_cell_[0-9]+(-[0-9]+)*_0$';
 
-    public const REGLE_HABITATION = '^etablissement_hab_[0-9]+(-[0-9]+)*(_[01]){2}$';
-
     public const REGLE_IGH = '^etablissement_igh_[0-9]+(-[0-9]+)*(_[01]){3}$';
 
     protected function supports($attribute, $subject): bool

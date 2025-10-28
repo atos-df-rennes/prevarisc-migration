@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Classement;
+use App\Entity\Famille;
 use App\Entity\Resources;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -61,7 +62,6 @@ class ResourcesRepository extends ServiceEntityRepository
         $regles = [
             2 => EtablissementVoter::REGLE_ERP,
             3 => EtablissementVoter::REGLE_CELLULE,
-            4 => EtablissementVoter::REGLE_HABITATION,
             5 => EtablissementVoter::REGLE_IGH,
         ];
 
@@ -154,6 +154,28 @@ class ResourcesRepository extends ServiceEntityRepository
             ->where('r.name LIKE :name')
             ->setParameter('name', 'etablissement\_bup\_0\__\__')
         ;
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesEtablissementHabitation(?Famille $famille): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r')
+            ->where('r.name LIKE :toutesFamilles')
+            ->setParameter('toutesFamilles', 'etablissement\_hab\_0\__\__')
+        ;
+
+        if (null !== $famille) {
+            $queryBuilder
+                ->orWhere('r.name LIKE :famille')
+                ->setParameter('famille', 'etablissement\_hab\_%'.$famille->getId().'%\__\__')
+            ;
+        }
+
         $query = $queryBuilder->getQuery();
 
         return $query->getResult();

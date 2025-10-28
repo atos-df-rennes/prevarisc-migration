@@ -43,7 +43,7 @@ class EtablissementHabitationVoterTest extends TestCase
         return $user;
     }
 
-    private function createMockEtablissement(?MockObject $famille, MockObject $genre, array $communes = []): MockObject
+    private function createMockEtablissement(?MockObject $famille, array $communes = []): MockObject
     {
         $adresses = array_map(function ($commune): MockObject {
             $adresse = $this->createMock(EtablissementAdresse::class);
@@ -54,7 +54,7 @@ class EtablissementHabitationVoterTest extends TestCase
 
         $latestInformations = $this->createMock(EtablissementInformations::class);
         $latestInformations->method('getFamille')->willReturn($famille);
-        $latestInformations->method('getGenre')->willReturn($genre);
+        $latestInformations->method('getGenre')->willReturn($this->createConfiguredMock(Genre::class, ['getId' => 4]));
 
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($latestInformations);
@@ -66,7 +66,7 @@ class EtablissementHabitationVoterTest extends TestCase
     private function createVoter(array $resources, MockObject $privilege): EtablissementHabitationVoter
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->with(4)->willReturn($resources);
+        $resourcesRepository->method('findRessourcesSpecialiseesEtablissementHabitation')->willReturn($resources);
 
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
@@ -80,10 +80,9 @@ class EtablissementHabitationVoterTest extends TestCase
         $resource->method('getName')->willReturn('etablissement_habitation_0_0_0');
         $privilege = $this->createMock(Privileges::class);
 
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 4]);
         $famille = null;
         $user = $this->createMockUserWithPrivileges($privilege);
-        $subject = $this->createMockEtablissement($famille, $genre);
+        $subject = $this->createMockEtablissement($famille);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
@@ -98,10 +97,9 @@ class EtablissementHabitationVoterTest extends TestCase
         $resource->method('getName')->willReturn('etablissement_habitation_3_0_0');
         $privilege = $this->createMock(Privileges::class);
 
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 4]);
         $famille = $this->createConfiguredMock(Famille::class, ['getId' => 3]);
         $user = $this->createMockUserWithPrivileges($privilege);
-        $subject = $this->createMockEtablissement($famille, $genre);
+        $subject = $this->createMockEtablissement($famille);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
@@ -116,13 +114,12 @@ class EtablissementHabitationVoterTest extends TestCase
         $resource->method('getName')->willReturn('etablissement_habitation_2-3_0_0');
         $privilege = $this->createMock(Privileges::class);
 
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 4]);
         $famille2 = $this->createConfiguredMock(Famille::class, ['getId' => 2]);
         $famille3 = $this->createConfiguredMock(Famille::class, ['getId' => 3]);
 
         $user = $this->createMockUserWithPrivileges($privilege);
-        $subject2 = $this->createMockEtablissement($famille2, $genre);
-        $subject3 = $this->createMockEtablissement($famille3, $genre);
+        $subject2 = $this->createMockEtablissement($famille2);
+        $subject3 = $this->createMockEtablissement($famille3);
 
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
@@ -145,10 +142,9 @@ class EtablissementHabitationVoterTest extends TestCase
         $groupement10->method('getCommunes')->willReturn(new ArrayCollection([$commune10]));
 
         $user = $this->createMockUserWithPrivileges($privilege, [$groupement10]);
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 4]);
         $famille = $this->createConfiguredMock(Famille::class, ['getId' => 3]);
-        $subjectCommune10 = $this->createMockEtablissement($famille, $genre, [$commune10]);
-        $subjectCommune30 = $this->createMockEtablissement($famille, $genre, [$commune30]);
+        $subjectCommune10 = $this->createMockEtablissement($famille, [$commune10]);
+        $subjectCommune30 = $this->createMockEtablissement($famille, [$commune30]);
 
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
@@ -169,10 +165,9 @@ class EtablissementHabitationVoterTest extends TestCase
         $commune200 = $this->createConfiguredMock(Commune::class, ['getId' => 200]);
 
         $user = $this->createMockUserWithPrivileges($privilege, [], $commune100);
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 4]);
         $famille = $this->createConfiguredMock(Famille::class, ['getId' => 3]);
-        $subjectCommune100 = $this->createMockEtablissement($famille, $genre, [$commune100]);
-        $subjectCommune200 = $this->createMockEtablissement($famille, $genre, [$commune200]);
+        $subjectCommune100 = $this->createMockEtablissement($famille, [$commune100]);
+        $subjectCommune200 = $this->createMockEtablissement($famille, [$commune200]);
 
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
@@ -197,10 +192,9 @@ class EtablissementHabitationVoterTest extends TestCase
         $groupement10->method('getCommunes')->willReturn(new ArrayCollection([$commune10]));
 
         $user = $this->createMockUserWithPrivileges($privilege, [$groupement10]);
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 4]);
         $famille = $this->createConfiguredMock(Famille::class, ['getId' => 3]);
-        $subjectCommune10 = $this->createMockEtablissement($famille, $genre, [$commune10]);
-        $subjectCommune30 = $this->createMockEtablissement($famille, $genre, [$commune30]);
+        $subjectCommune10 = $this->createMockEtablissement($famille, [$commune10]);
+        $subjectCommune30 = $this->createMockEtablissement($famille, [$commune30]);
 
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
