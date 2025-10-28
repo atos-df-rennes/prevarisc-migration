@@ -63,6 +63,7 @@ class EtablissementIghVoter extends EtablissementVoter
             if (6 !== count($parts)) {
                 continue;
             }
+
             $useUserCommissions = (int) $parts[3];
             $useUserGroupements = (int) $parts[4];
             $useUserCommune = (int) $parts[5];

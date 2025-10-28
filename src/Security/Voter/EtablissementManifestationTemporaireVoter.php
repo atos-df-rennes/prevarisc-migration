@@ -2,11 +2,8 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Etablissement;
-use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Psr\Log\LoggerInterface;

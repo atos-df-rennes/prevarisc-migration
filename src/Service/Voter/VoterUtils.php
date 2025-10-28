@@ -91,6 +91,7 @@ class VoterUtils
         ) {
             $checkTypesActivites = true;
         }
+
         if (
             in_array(0, $categories, true)
             || in_array($erpCategorieId, $categories, true)

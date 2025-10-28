@@ -16,7 +16,6 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Security\Voter\EtablissementBupVoter;
 use App\Security\Voter\EtablissementErpVoter;
 use App\Security\Voter\EtablissementVoter;
 use App\Service\Voter\VoterUtils;
@@ -201,4 +200,3 @@ class EtablissementErpVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $subject, [EtablissementVoter::LECTURE]));
     }
 }
-

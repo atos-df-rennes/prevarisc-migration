@@ -3,11 +3,6 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
-use App\Entity\Resources;
-use App\Entity\Utilisateur;
-use App\Repository\PrivilegesRepository;
-use App\Repository\ResourcesRepository;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -15,7 +10,7 @@ class EtablissementSiteVoter extends EtablissementVoter
 {
     public const ID_SITE = 1;
 
-    /** @var \App\Security\Voter\EtablissementErpVoter */
+    /** @var EtablissementErpVoter */
     private $erpVoter;
 
     public function __construct(EtablissementErpVoter $erpVoter)

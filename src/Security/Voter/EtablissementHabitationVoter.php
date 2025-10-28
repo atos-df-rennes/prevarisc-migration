@@ -73,6 +73,7 @@ class EtablissementHabitationVoter extends EtablissementVoter
             if (5 !== count($parts)) {
                 continue;
             }
+
             $useUserGroupements = (int) $parts[3];
             $useUserCommune = (int) $parts[4];
 

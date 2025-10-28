@@ -3,12 +3,10 @@
 namespace App\Security\Voter;
 
 use App\Entity\Etablissement;
-use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\VoterUtils;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementBupVoter extends EtablissementVoter
@@ -64,6 +62,7 @@ class EtablissementBupVoter extends EtablissementVoter
             if (4 !== count($parts)) {
                 continue;
             }
+
             $useUserGroupements = (int) $parts[2];
             $useUserCommune = (int) $parts[3];
 

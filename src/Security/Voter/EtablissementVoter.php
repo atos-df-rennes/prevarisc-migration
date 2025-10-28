@@ -33,11 +33,7 @@ abstract class EtablissementVoter extends Voter
 
         $userGroupe = $user->getGroupe();
 
-        if (null === $userGroupe) {
-            return false;
-        }
-
-        return true;
+        return null !== $userGroupe;
     }
 
     /**

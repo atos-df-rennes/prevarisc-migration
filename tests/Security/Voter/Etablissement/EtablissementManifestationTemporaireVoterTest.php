@@ -11,7 +11,6 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Security\Voter\EtablissementCampingVoter;
 use App\Security\Voter\EtablissementManifestationTemporaireVoter;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;

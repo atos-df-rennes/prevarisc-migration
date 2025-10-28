@@ -7,7 +7,6 @@ use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\VoterUtils;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementErpVoter extends EtablissementVoter
@@ -67,6 +66,7 @@ class EtablissementErpVoter extends EtablissementVoter
             if (7 !== count($parts)) {
                 continue;
             }
+
             $typesActivites = array_map('intval', explode('-', $parts[2]));
             $categories = array_map('intval', explode('-', $parts[3]));
             $useUserCommissions = (int) $parts[4];
