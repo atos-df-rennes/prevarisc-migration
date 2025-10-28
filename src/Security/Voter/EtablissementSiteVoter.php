@@ -40,7 +40,9 @@ class EtablissementSiteVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        foreach ($subject->getFils() as $etablissementFils) {
+        $etablissementsFils = $subject->getFils()->getValues();
+
+        foreach ($etablissementsFils as $etablissementFils) {
             if (VoterInterface::ACCESS_GRANTED === $this->erpVoter->vote($token, $etablissementFils, [$attribute])) {
                 return true;
             }

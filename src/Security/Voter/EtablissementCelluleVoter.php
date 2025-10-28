@@ -48,6 +48,7 @@ class EtablissementCelluleVoter extends EtablissementVoter
             return false;
         }
 
+        /** @var Collection<int, \App\Entity\Privileges> $userPrivileges */
         /** @phpstan-ignore-next-line */
         $userPrivileges = $token->getUser()->getGroupe()->getPrivileges();
 

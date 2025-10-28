@@ -71,15 +71,29 @@ class VoterUtils
         $checkTypesActivites = false;
         $checkCategories = false;
 
+        $erpTypeActivite = $subject->getLatestInformations()->getTypeActivite();
+
+        $erpTypeActiviteId = null;
+        if (null !== $erpTypeActivite) {
+            $erpTypeActiviteId = $erpTypeActivite->getId();
+        }
+
+        $erpCategorie = $subject->getLatestInformations()->getCategorie();
+
+        $erpCategorieId = null;
+        if (null !== $erpCategorie) {
+            $erpCategorieId = $erpCategorie->getId();
+        }
+
         if (
             in_array(0, $typesActivites, true)
-            || in_array($subject->getLatestInformations()->getTypeActivite()->getId(), $typesActivites, true)
+            || in_array($erpTypeActiviteId, $typesActivites, true)
         ) {
             $checkTypesActivites = true;
         }
         if (
             in_array(0, $categories, true)
-            || in_array($subject->getLatestInformations()->getCategorie()->getId(), $categories, true)
+            || in_array($erpCategorieId, $categories, true)
         ) {
             $checkCategories = true;
         }

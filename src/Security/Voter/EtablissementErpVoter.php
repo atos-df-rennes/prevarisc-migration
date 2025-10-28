@@ -52,6 +52,7 @@ class EtablissementErpVoter extends EtablissementVoter
 
         /** @var Utilisateur $user */
         $user = $token->getUser();
+        /** @phpstan-ignore-next-line */
         $userPrivileges = $user->getGroupe()->getPrivileges();
 
         foreach ($resources as $resource) {

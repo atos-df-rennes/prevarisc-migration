@@ -6,6 +6,7 @@ use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Psr\Log\LoggerInterface;
@@ -64,6 +65,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
+        /** @var Collection<int, \App\Entity\Privileges> $userPrivileges */
         /** @phpstan-ignore-next-line */
         $userPrivileges = $token->getUser()->getGroupe()->getPrivileges();
 
