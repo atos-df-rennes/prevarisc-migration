@@ -79,4 +79,52 @@ class ResourcesRepository extends ServiceEntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findRessourcesSpecialiseesEtablissementCamping(): Resources
+    {
+        $queryBuilder = $this->createQueryBuilder('r');
+        $query = $queryBuilder
+            ->where('r.name = :name')
+            ->setParameter('name', 'etablissement_camp_0_0')
+            ->getQuery()
+        ;
+
+        return $query->getSingleResult();
+    }
+
+    /**
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findRessourcesSpecialiseesEtablissementIop(): Resources
+    {
+        $queryBuilder = $this->createQueryBuilder('r');
+        $query = $queryBuilder
+            ->where('r.name = :name')
+            ->setParameter('name', 'etablissement_iop_0_0')
+            ->getQuery()
+        ;
+
+        return $query->getSingleResult();
+    }
+
+    /**
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findRessourcesSpecialiseesEtablissementManifestationTemporaire(): Resources
+    {
+        $queryBuilder = $this->createQueryBuilder('r');
+        $query = $queryBuilder
+            ->where('r.name = :name')
+            ->setParameter('name', 'etablissement_temp_0_0')
+            ->getQuery()
+        ;
+
+        return $query->getSingleResult();
+    }
 }

@@ -6,12 +6,14 @@ use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 {
-    private const ID_MANIFESTATION_TEMPORAIRE = 8;
+    public const ID_MANIFESTATION_TEMPORAIRE = 8;
 
     /**
      * @var ResourcesRepository
@@ -46,13 +48,13 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_MANIFESTATION_TEMPORAIRE);
+        try {
+            $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementManifestationTemporaire();
+        } catch (NoResultException $noResultException) {
+            $this->logger->warning("Aucune règle trouvée pour les manifestations temporaires. Il est recommandé d'en ajouter une.");
 
-        if ([] === $resources) {
             return false;
-        }
-
-        if (count($resources) > 1) {
+        } catch (NonUniqueResultException $nonUniqueResultException) {
             $this->logger->warning('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.');
 
             return false;
@@ -76,7 +78,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 
         $userPrivileges = $userGroup->getPrivileges();
 
-        $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resources[0]]);
+        $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resources]);
 
         return $privilege && $userPrivileges->contains($privilege);
     }

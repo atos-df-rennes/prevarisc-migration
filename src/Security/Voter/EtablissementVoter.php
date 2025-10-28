@@ -24,12 +24,6 @@ abstract class EtablissementVoter extends Voter
 
     public const REGLE_BUP = '^etablissement_bup(_[01]){2}$';
 
-    public const REGLE_CAMPING = '^etablissement_camp_0_0$';
-
-    public const REGLE_MANIFESTATION_TEMPORAIRE = '^etablissement_temp_0_0$';
-
-    public const REGLE_IOP = '^etablissement_iop_0_0$';
-
     public const REGLE_ZONE = '^etablissement_zone_[0-9]+(-[0-9]+)*_0_0$';
 
     protected function supports($attribute, $subject): bool

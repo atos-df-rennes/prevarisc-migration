@@ -7,21 +7,20 @@ use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
 use App\Entity\Groupe;
 use App\Entity\Privileges;
+use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\EtablissementCampingVoter;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-/**
- * Actuellement ce Voter est valable pour les campings, les manifestations temporaires et les IOP car ils ont tous le même comportement.
- * Si l'un d'eux venait à changer, il faudrait créer un test spécifique pour celui ayant changé.
- */
 class EtablissementCampingVoterTest extends TestCase
 {
     private $resourcesRepository;
@@ -48,9 +47,9 @@ class EtablissementCampingVoterTest extends TestCase
         );
     }
 
-    private function createEtablissementMock(int $genreId): Etablissement
+    private function createEtablissementMock(): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => $genreId]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementCampingVoter::ID_CAMPING]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
 
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
@@ -69,11 +68,15 @@ class EtablissementCampingVoterTest extends TestCase
     public function testDenyIfNoResourcesFound(): void
     {
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
-            ->with($this->equalTo(7))
-            ->willReturn([]);
+            ->method('findRessourcesSpecialiseesEtablissementCamping')
+            ->willThrowException(new NoResultException());
 
-        $etablissement = $this->createEtablissementMock(7);
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with($this->equalTo("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une."));
+
+        $etablissement = $this->createEtablissementMock();
 
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
@@ -84,16 +87,15 @@ class EtablissementCampingVoterTest extends TestCase
     public function testDenyIfMultipleResourcesFound(): void
     {
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
-            ->with($this->equalTo(7))
-            ->willReturn(['resource1', 'resource2']);
+            ->method('findRessourcesSpecialiseesEtablissementCamping')
+            ->willThrowException(new NonUniqueResultException());
 
         $this->logger
             ->expects($this->once())
             ->method('warning')
             ->with($this->equalTo('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.'));
 
-        $etablissement = $this->createEtablissementMock(7);
+        $etablissement = $this->createEtablissementMock();
 
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
@@ -103,14 +105,15 @@ class EtablissementCampingVoterTest extends TestCase
 
     public function testDenyIfUserIsNotInstanceOfUtilisateur(): void
     {
+        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissemet_camp_0_0']);
+
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
-            ->with($this->equalTo(7))
-            ->willReturn(['resource1']);
+            ->method('findRessourcesSpecialiseesEtablissementCamping')
+            ->willReturn($resource);
 
         $this->token->method('getUser')->willReturn(null);
 
-        $etablissement = $this->createEtablissementMock(7);
+        $etablissement = $this->createEtablissementMock();
 
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
@@ -120,15 +123,16 @@ class EtablissementCampingVoterTest extends TestCase
 
     public function testDenyIfUserGroupIsNull(): void
     {
+        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissemet_camp_0_0']);
+
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
-            ->with($this->equalTo(7))
-            ->willReturn(['resource1']);
+            ->method('findRessourcesSpecialiseesEtablissementCamping')
+            ->willReturn($resource);
 
         $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => null]);
         $this->token->method('getUser')->willReturn($user);
 
-        $etablissement = $this->createEtablissementMock(7);
+        $etablissement = $this->createEtablissementMock();
 
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
@@ -138,11 +142,11 @@ class EtablissementCampingVoterTest extends TestCase
 
     public function testGrantIfPrivilegeExistsInUserGroup(): void
     {
-        $resource = 'resource1';
+        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissemet_camp_0_0']);
+
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
-            ->with($this->equalTo(7))
-            ->willReturn([$resource]);
+            ->method('findRessourcesSpecialiseesEtablissementCamping')
+            ->willReturn($resource);
 
         $privilege = $this->createMock(Privileges::class);
         $this->privilegesRepository
@@ -157,7 +161,7 @@ class EtablissementCampingVoterTest extends TestCase
         $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
         $this->token->method('getUser')->willReturn($user);
 
-        $etablissement = $this->createEtablissementMock(7);
+        $etablissement = $this->createEtablissementMock();
 
         $this->assertSame(
             VoterInterface::ACCESS_GRANTED,
