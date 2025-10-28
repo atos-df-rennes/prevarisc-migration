@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Classement;
 use App\Entity\Famille;
+use App\Entity\IghClasse;
 use App\Entity\Resources;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -62,7 +63,6 @@ class ResourcesRepository extends ServiceEntityRepository
         $regles = [
             2 => EtablissementVoter::REGLE_ERP,
             3 => EtablissementVoter::REGLE_CELLULE,
-            5 => EtablissementVoter::REGLE_IGH,
         ];
 
         if (!array_key_exists($genre, $regles)) {
@@ -173,6 +173,28 @@ class ResourcesRepository extends ServiceEntityRepository
             $queryBuilder
                 ->orWhere('r.name LIKE :famille')
                 ->setParameter('famille', 'etablissement\_hab\_%'.$famille->getId().'%\__\__')
+            ;
+        }
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesEtablissementIgh(?IghClasse $classe): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r')
+            ->where('r.name LIKE :toutesClasses')
+            ->setParameter('toutesClasses', 'etablissement\_igh\_0\__\__\__')
+        ;
+
+        if (null !== $classe) {
+            $queryBuilder
+                ->orWhere('r.name LIKE :classe')
+                ->setParameter('classe', 'etablissement\_igh\_%'.$classe->getId().'%\__\__\__')
             ;
         }
 
