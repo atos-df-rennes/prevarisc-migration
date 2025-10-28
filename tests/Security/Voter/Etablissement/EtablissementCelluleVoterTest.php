@@ -34,16 +34,11 @@ class EtablissementCelluleVoterTest extends TestCase
         $this->voter = new EtablissementCelluleVoter($this->resourcesRepository, $this->privilegesRepository);
     }
 
-    private function createEtablissementMock(int $genreId, ?int $typeActiviteId = null): Etablissement
+    private function createEtablissementMock(?EtablissementActivite $typeActivite = null): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => $genreId]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementCelluleVoter::ID_CELLULE]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
-
-        if (null !== $typeActiviteId) {
-            $typeActivite = $this->createConfiguredMock(EtablissementActivite::class, ['getId' => $typeActiviteId]);
-
-            $latestInformations->method('getTypeActivite')->willReturn($typeActivite);
-        }
+        $latestInformations->method('getTypeActivite')->willReturn($typeActivite);
 
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
@@ -61,11 +56,10 @@ class EtablissementCelluleVoterTest extends TestCase
     public function testDenyIfNoResourcesFound(): void
     {
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
-            ->with(3)
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
             ->willReturn([]);
         $token = $this->createMock(TokenInterface::class);
-        $etablissement = $this->createEtablissementMock(3);
+        $etablissement = $this->createEtablissementMock();
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
             $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
@@ -75,11 +69,11 @@ class EtablissementCelluleVoterTest extends TestCase
     public function testDenyIfUserIsNotUtilisateur(): void
     {
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
             ->willReturn([$this->createMock(Resources::class)]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
-        $etablissement = $this->createEtablissementMock(3);
+        $etablissement = $this->createEtablissementMock();
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
             $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
@@ -91,14 +85,14 @@ class EtablissementCelluleVoterTest extends TestCase
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_cell_0_0');
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
             ->willReturn([$resource]);
         $privilege = new Privileges();
         $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
         $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $etablissement = $this->createEtablissementMock(3);
+        $etablissement = $this->createEtablissementMock();
         $this->privilegesRepository
             ->method('findOneBy')
             ->willReturn($privilege);
@@ -112,13 +106,13 @@ class EtablissementCelluleVoterTest extends TestCase
     {
         $resource = $this->createMock(Resources::class);
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
             ->willReturn([$resource]);
         $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection()]);
         $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $etablissement = $this->createEtablissementMock(3);
+        $etablissement = $this->createEtablissementMock();
         $this->privilegesRepository
             ->method('findOneBy')
             ->willReturn(null);
@@ -133,15 +127,15 @@ class EtablissementCelluleVoterTest extends TestCase
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('etablissement_cell_1_0');
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
             ->willReturn([$resource]);
         $privilege = new Privileges();
         $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
         $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $etablissement = $this->createEtablissementMock(3, 1);
-        // On simule le classement de la zone à 4
+        $etablissement = $this->createEtablissementMock($this->createConfiguredMock(EtablissementActivite::class, ['getId' => 1]));
+        // On simule le type d'activité de la cellule à 1
         $this->privilegesRepository
             ->method('findOneBy')
             ->willReturn($privilege);
@@ -158,14 +152,14 @@ class EtablissementCelluleVoterTest extends TestCase
         $resourceMulti = $this->createMock(Resources::class);
         $resourceMulti->method('getName')->willReturn('etablissement_cell_1-2_0');
         $this->resourcesRepository
-            ->method('findRessourcesSpecialiseesEtablissement')
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
             ->willReturn([$resourceSingle, $resourceMulti]);
         $privilege = new Privileges();
         $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
         $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $etablissement = $this->createEtablissementMock(3, 1);
+        $etablissement = $this->createEtablissementMock($this->createConfiguredMock(EtablissementActivite::class, ['getId' => 1]));
         // On simule le type d'activité de la cellule à 1
         $this->privilegesRepository
             ->method('findOneBy')

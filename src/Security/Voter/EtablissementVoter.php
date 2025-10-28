@@ -14,10 +14,6 @@ abstract class EtablissementVoter extends Voter
 
     public const MODIFICATION = 'edit_ets';
 
-    public const REGLE_ERP = '^etablissement_erp_[0-9]+(-[0-9]+)*_[0-5](_[01]){3}$';
-
-    public const REGLE_CELLULE = '^etablissement_cell_[0-9]+(-[0-9]+)*_0$';
-
     protected function supports($attribute, $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION], true)) {
@@ -35,7 +31,13 @@ abstract class EtablissementVoter extends Voter
             return false;
         }
 
-        return $subject instanceof Etablissement;
+        $userGroupe = $user->getGroupe();
+
+        if (null === $userGroupe) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

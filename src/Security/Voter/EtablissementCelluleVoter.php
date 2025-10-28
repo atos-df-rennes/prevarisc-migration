@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementCelluleVoter extends EtablissementVoter
 {
-    private const ID_CELLULE = 3;
+    public const ID_CELLULE = 3;
 
     /**
      * @var ResourcesRepository
@@ -38,103 +38,21 @@ class EtablissementCelluleVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_CELLULE);
-        if ([] === $resources || !$subject instanceof Etablissement) {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;
         }
 
-        $user = $token->getUser();
-        if (!$user instanceof Utilisateur) {
+        /** @var Etablissement $subject */
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule($subject->getLatestInformations()->getTypeActivite());
+        if ([] === $resources) {
             return false;
         }
 
-        $userGroupe = $user->getGroupe();
-        if (null === $userGroupe) {
-            return false;
-        }
-
-        $userPrivileges = $userGroupe->getPrivileges();
-        $resourcesById = $this->indexResourcesById($resources);
-
-        if ($this->hasPrivilegeForAllTypesActivites($resourcesById, $attribute, $userPrivileges)) {
-            return true;
-        }
-
-        return $this->hasPrivilegeForSpecificTypeActivite($resourcesById, $attribute, $userPrivileges, $subject);
-    }
-
-    /**
-     * @param Resources[] $resources
-     *
-     * @return array<int, array<int, Resources>>
-     */
-    private function indexResourcesById(array $resources): array
-    {
-        $resourcesById = [];
+        /** @phpstan-ignore-next-line */
+        $userPrivileges = $token->getUser()->getGroupe()->getPrivileges();
 
         foreach ($resources as $resource) {
-            $name = $resource->getName();
-            if (!$name) {
-                continue;
-            }
-
-            $parts = explode('_', $name);
-            if (4 !== count($parts)) {
-                continue;
-            }
-
-            $typeActiviteIdsStr = explode('-', $parts[2]);
-            foreach ($typeActiviteIdsStr as $typeActiviteIdStr) {
-                $resourcesById[(int) $typeActiviteIdStr][] = $resource;
-            }
-        }
-
-        return $resourcesById;
-    }
-
-    /**
-     * @param array<int, array<int, Resources>> $resourcesById
-     */
-    private function hasPrivilegeForAllTypesActivites(array $resourcesById, string $attribute, Collection $userPrivileges): bool
-    {
-        if (!array_key_exists(0, $resourcesById)) {
-            return false;
-        }
-
-        $privilege = $this->privilegesRepository->findOneBy([
-            'name' => $attribute,
-            'resource' => $resourcesById[0][0]
-        ]);
-
-        return $privilege && $userPrivileges->contains($privilege);
-    }
-
-    /**
-     * @param array<int, array<int, Resources>> $resourcesById
-     */
-    private function hasPrivilegeForSpecificTypeActivite(array $resourcesById, string $attribute, Collection $userPrivileges, Etablissement $subject): bool
-    {
-        $typeActivite = $subject->getLatestInformations()->getTypeActivite();
-
-        if (null === $typeActivite) {
-            return false;
-        }
-
-        $typeActiviteId = $typeActivite->getId();
-
-        if (null === $typeActiviteId) {
-            return false;
-        }
-
-        if (!array_key_exists($typeActiviteId, $resourcesById)) {
-            return false;
-        }
-
-        foreach ($resourcesById[$typeActiviteId] as $resource) {
-            $privilege = $this->privilegesRepository->findOneBy([
-                'name' => $attribute,
-                'resource' => $resource
-            ]);
+            $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
 
             if ($privilege && $userPrivileges->contains($privilege)) {
                 return true;
