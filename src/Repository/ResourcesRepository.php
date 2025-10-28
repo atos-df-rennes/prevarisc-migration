@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Classement;
 use App\Entity\Resources;
 use App\Security\Voter\EtablissementVoter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -63,10 +64,6 @@ class ResourcesRepository extends ServiceEntityRepository
             4 => EtablissementVoter::REGLE_HABITATION,
             5 => EtablissementVoter::REGLE_IGH,
             6 => EtablissementVoter::REGLE_BUP,
-            7 => EtablissementVoter::REGLE_CAMPING,
-            8 => EtablissementVoter::REGLE_MANIFESTATION_TEMPORAIRE,
-            9 => EtablissementVoter::REGLE_IOP,
-            10 => EtablissementVoter::REGLE_ZONE,
         ];
 
         if (!array_key_exists($genre, $regles)) {
@@ -126,5 +123,26 @@ class ResourcesRepository extends ServiceEntityRepository
         ;
 
         return $query->getSingleResult();
+    }
+
+    /**
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesEtablissementZone(?Classement $classement): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r')
+            ->where('r.name LIKE :tousClassements')
+            ->setParameter('tousClassements', 'etablissement\_zone\_0\__\__')
+        ;
+
+        if (null !== $classement) {
+            $queryBuilder
+                ->orWhere('r.name LIKE :classement')
+                ->setParameter('classement', 'etablissement\_zone\_%'.$classement->getId().'%\__\__');
+        }
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
     }
 }

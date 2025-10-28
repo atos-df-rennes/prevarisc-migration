@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementZoneVoter extends EtablissementVoter
 {
-    private const ID_ZONE = 10;
+    public const ID_ZONE = 10;
 
     /**
      * @var ResourcesRepository
@@ -38,7 +38,7 @@ class EtablissementZoneVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_ZONE);
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementZone($subject->getLatestInformations()->getClassement());
         if ([] === $resources || !$subject instanceof Etablissement) {
             return false;
         }
@@ -54,87 +54,9 @@ class EtablissementZoneVoter extends EtablissementVoter
         }
 
         $userPrivileges = $userGroupe->getPrivileges();
-        $resourcesById = $this->indexResourcesById($resources);
-
-        if ($this->hasPrivilegeForAllClasses($resourcesById, $attribute, $userPrivileges)) {
-            return true;
-        }
-
-        return $this->hasPrivilegeForSpecificClass($resourcesById, $attribute, $userPrivileges, $subject);
-    }
-
-    /**
-     * @param Resources[] $resources
-     *
-     * @return array<int, array<int, Resources>>
-     */
-    private function indexResourcesById(array $resources): array
-    {
-        $resourcesById = [];
 
         foreach ($resources as $resource) {
-            $name = $resource->getName();
-            if (!$name) {
-                continue;
-            }
-
-            $parts = explode('_', $name);
-            if (5 !== count($parts)) {
-                continue;
-            }
-
-            $classementIdsStr = explode('-', $parts[2]);
-            foreach ($classementIdsStr as $classementIdStr) {
-                $resourcesById[(int) $classementIdStr][] = $resource;
-            }
-        }
-
-        return $resourcesById;
-    }
-
-    /**
-     * @param array<int, array<int, Resources>> $resourcesById
-     */
-    private function hasPrivilegeForAllClasses(array $resourcesById, string $attribute, Collection $userPrivileges): bool
-    {
-        if (!array_key_exists(0, $resourcesById)) {
-            return false;
-        }
-
-        $privilege = $this->privilegesRepository->findOneBy([
-            'name' => $attribute,
-            'resource' => $resourcesById[0][0]
-        ]);
-
-        return $privilege && $userPrivileges->contains($privilege);
-    }
-
-    /**
-     * @param array<int, array<int, Resources>> $resourcesById
-     */
-    private function hasPrivilegeForSpecificClass(array $resourcesById, string $attribute, Collection $userPrivileges, Etablissement $subject): bool
-    {
-        $classement = $subject->getLatestInformations()->getClassement();
-
-        if (null === $classement) {
-            return false;
-        }
-
-        $classementId = $classement->getId();
-
-        if (null === $classementId) {
-            return false;
-        }
-
-        if (!array_key_exists($classementId, $resourcesById)) {
-            return false;
-        }
-
-        foreach ($resourcesById[$classementId] as $resource) {
-            $privilege = $this->privilegesRepository->findOneBy([
-                'name' => $attribute,
-                'resource' => $resource
-            ]);
+            $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
 
             if ($privilege && $userPrivileges->contains($privilege)) {
                 return true;
