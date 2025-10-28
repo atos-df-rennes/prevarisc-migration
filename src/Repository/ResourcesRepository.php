@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Classement;
 use App\Entity\EtablissementActivite;
+use App\Entity\EtablissementCategorie;
 use App\Entity\Famille;
 use App\Entity\IghClasse;
 use App\Entity\Resources;
@@ -197,6 +198,37 @@ class ResourcesRepository extends ServiceEntityRepository
             $queryBuilder
                 ->orWhere('r.name LIKE :classe')
                 ->setParameter('classe', 'etablissement\_cell\_%'.$typeActivite->getId().'%\_0')
+            ;
+        }
+
+        $query = $queryBuilder
+            ->orderBy('r.name', 'ASC')
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesEtablissementErp(?EtablissementActivite $typeActivite, ?EtablissementCategorie $categorie): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r')
+            ->where('r.name LIKE :toutesActivitesCategories')
+            ->setParameter('toutesActivitesCategories', 'etablissement\_erp\_0\_0\__\__\__')
+        ;
+
+        if (null !== $typeActivite) {
+            $queryBuilder
+                ->orWhere('r.name LIKE :typeActivite')
+                ->setParameter('typeActivite', 'etablissement\_erp\_%'.$typeActivite->getId().'%\__%\__\__\__')
+            ;
+        }
+
+        if (null !== $categorie) {
+            $queryBuilder
+                ->orWhere('r.name LIKE :categorie')
+                ->setParameter('categorie', 'etablissement\_erp\__%\_%'.$categorie->getId().'%\__\__\__')
             ;
         }
 

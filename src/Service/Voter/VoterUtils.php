@@ -61,4 +61,29 @@ class VoterUtils
 
         return $userCommissions->contains($etablissementCommission);
     }
+
+    /**
+     * @param int[] $typesActivites
+     * @param int[] $categories
+     */
+    public function isTypeActiviteAndCategorieAllowed(Etablissement $subject, array $typesActivites, array $categories): bool
+    {
+        $checkTypesActivites = false;
+        $checkCategories = false;
+
+        if (
+            in_array(0, $typesActivites, true)
+            || in_array($subject->getLatestInformations()->getTypeActivite()->getId(), $typesActivites, true)
+        ) {
+            $checkTypesActivites = true;
+        }
+        if (
+            in_array(0, $categories, true)
+            || in_array($subject->getLatestInformations()->getCategorie()->getId(), $categories, true)
+        ) {
+            $checkCategories = true;
+        }
+
+        return $checkTypesActivites && $checkCategories;
+    }
 }

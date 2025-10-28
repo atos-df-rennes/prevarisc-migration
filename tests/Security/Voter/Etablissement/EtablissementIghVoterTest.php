@@ -28,7 +28,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementIghVoterTest extends TestCase
 {
-    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], $commune = null): MockObject
+    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], ?MockObject $commune = null): MockObject
     {
         $userPrivileges = $this->createMock(Collection::class);
         $userPrivileges->method('contains')->with($privilege)->willReturn(true);
@@ -44,7 +44,7 @@ class EtablissementIghVoterTest extends TestCase
         return $user;
     }
 
-    private function createMockEtablissement(?MockObject $classe, array $communes = [], $commission = null): MockObject
+    private function createMockEtablissement(?MockObject $classe, array $communes = [], ?MockObject $commission = null): MockObject
     {
         $adresses = array_map(function ($commune): MockObject {
             $adresse = $this->createMock(EtablissementAdresse::class);

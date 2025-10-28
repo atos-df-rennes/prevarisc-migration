@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+// @todo: Mettre les bonnes annotations aux bons endroits
 /**
  * @IsGranted("view_ets", subject="etablissement")
  */
