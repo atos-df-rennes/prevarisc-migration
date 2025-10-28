@@ -63,7 +63,6 @@ class ResourcesRepository extends ServiceEntityRepository
             3 => EtablissementVoter::REGLE_CELLULE,
             4 => EtablissementVoter::REGLE_HABITATION,
             5 => EtablissementVoter::REGLE_IGH,
-            6 => EtablissementVoter::REGLE_BUP,
         ];
 
         if (!array_key_exists($genre, $regles)) {
@@ -141,6 +140,20 @@ class ResourcesRepository extends ServiceEntityRepository
                 ->setParameter('classement', 'etablissement\_zone\_%'.$classement->getId().'%\__\__');
         }
 
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesEtablissementBup(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r')
+            ->where('r.name LIKE :name')
+            ->setParameter('name', 'etablissement\_bup\_0\__\__')
+        ;
         $query = $queryBuilder->getQuery();
 
         return $query->getResult();

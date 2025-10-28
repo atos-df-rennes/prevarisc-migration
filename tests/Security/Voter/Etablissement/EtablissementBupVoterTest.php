@@ -39,7 +39,7 @@ class EtablissementBupVoterTest extends TestCase
 
     private function createEtablissementMock(): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => 6]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementBupVoter::ID_BUP]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
 
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
@@ -62,7 +62,7 @@ class EtablissementBupVoterTest extends TestCase
 
     public function testUserWithPrivilegeOnGeneralBupRuleHasAccess(): void
     {
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissementBup')
             ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_0_0'])]);
         $privilege = new Privileges();
         $user = $this->createUserWithPrivileges([$privilege]);
@@ -76,7 +76,7 @@ class EtablissementBupVoterTest extends TestCase
 
     public function testUserWithoutPrivilegeOnGeneralBupRuleIsDeniedAccess(): void
     {
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissementBup')
             ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_0_0'])]);
         $user = $this->createUserWithPrivileges();
         $this->privilegesRepository->method('findOneBy')->willReturn(null);
@@ -89,7 +89,7 @@ class EtablissementBupVoterTest extends TestCase
 
     public function testUserWithSpecificGroupementAndCommunePrivilegesHasAccess(): void
     {
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissementBup')
             ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_1_1'])]);
         $privilege = new Privileges();
         $commune = $this->createMock(Commune::class);
@@ -112,7 +112,7 @@ class EtablissementBupVoterTest extends TestCase
 
     public function testUserWithoutMatchingGroupementOrCommunePrivilegesIsDeniedAccess(): void
     {
-        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissement')
+        $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissementBup')
             ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_1_1'])]);
         $privilege = new Privileges();
         $user = $this->createConfiguredMock(Utilisateur::class, [

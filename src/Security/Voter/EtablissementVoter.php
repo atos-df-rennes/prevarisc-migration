@@ -22,8 +22,6 @@ abstract class EtablissementVoter extends Voter
 
     public const REGLE_IGH = '^etablissement_igh_[0-9]+(-[0-9]+)*(_[01]){3}$';
 
-    public const REGLE_BUP = '^etablissement_bup(_[01]){2}$';
-
     protected function supports($attribute, $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION], true)) {

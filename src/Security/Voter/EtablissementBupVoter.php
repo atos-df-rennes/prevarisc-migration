@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementBupVoter extends EtablissementVoter
 {
-    private const ID_BUP = 6;
+    public const ID_BUP = 6;
 
     /** @var ResourcesRepository */
     private $resourcesRepository;
@@ -38,7 +38,7 @@ class EtablissementBupVoter extends EtablissementVoter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(self::ID_BUP);
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementBup();
         if ([] === $resources) {
             return false;
         }
@@ -54,75 +54,28 @@ class EtablissementBupVoter extends EtablissementVoter
         }
 
         $userPrivileges = $userGroupe->getPrivileges();
-        $resourcesByParam = $this->indexResourcesByParam($resources);
 
-        if ($this->hasAccessToAll($attribute, $resourcesByParam, $userPrivileges)) {
-            return true;
-        }
-
-        return $this->checkSpecificRules($attribute, $resourcesByParam, $userPrivileges, $user, $subject);
-    }
-
-    /**
-     * @param Resources[] $resources
-     *
-     * @return array<int, array<int, Resources>>
-     */
-    private function indexResourcesByParam(array $resources): array
-    {
-        $grouped = [];
         foreach ($resources as $resource) {
-            $name = $resource->getName();
-            if (!$name) {
+            $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
+
+            $resourceName = $resource->getName();
+            if (!$resourceName) {
                 continue;
             }
 
-            $parts = explode('_', $name);
-            if (4 === count($parts)) {
-                $useUserGroupements = (int) $parts[2];
-                $useUserCommune = (int) $parts[3];
-                $grouped[$useUserGroupements][$useUserCommune] = $resource;
+            $parts = explode('_', $resourceName);
+            if (4 !== count($parts)) {
+                continue;
             }
-        }
+            $useUserGroupements = (int) $parts[2];
+            $useUserCommune = (int) $parts[3];
 
-        return $grouped;
-    }
-
-    /**
-     * @param array<int, array<int, Resources>> $resourcesByParam
-     */
-    private function hasAccessToAll(string $attribute, array $resourcesByParam, Collection $userPrivileges): bool
-    {
-        if (isset($resourcesByParam[0][0])) {
-            $privilege = $this->privilegesRepository->findOneBy([
-                'name' => $attribute,
-                'resource' => $resourcesByParam[0][0]
-            ]);
-
-            return $privilege && $userPrivileges->contains($privilege);
-        }
-
-        return false;
-    }
-
-    /**
-     * @param array<int, array<int, Resources>> $resourcesByParam
-     */
-    private function checkSpecificRules(string $attribute, array $resourcesByParam, Collection $userPrivileges, Utilisateur $user, Etablissement $subject): bool
-    {
-        foreach ($resourcesByParam as $useUserGroupements => $subArray) {
-            foreach ($subArray as $useUserCommune => $resource) {
-                $privilege = $this->privilegesRepository->findOneBy([
-                    'name' => $attribute,
-                    'resource' => $resource
-                ]);
-                if (
-                    $privilege
-                    && $userPrivileges->contains($privilege)
-                    && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
-                ) {
-                    return true;
-                }
+            if (
+                $privilege
+                && $userPrivileges->contains($privilege)
+                && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
+            ) {
+                return true;
             }
         }
 
