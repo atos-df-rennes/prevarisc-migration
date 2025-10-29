@@ -129,7 +129,7 @@ class ResourcesRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('r')
             ->where('r.name LIKE :name')
-            ->setParameter('name', 'etablissement\_bup\_0\__\__')
+            ->setParameter('name', 'etablissement\_bup\__\__')
         ;
         $query = $queryBuilder
             ->orderBy('r.name', 'ASC')
