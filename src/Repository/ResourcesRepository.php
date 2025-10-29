@@ -30,9 +30,46 @@ class ResourcesRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne toutes les ressources spécialisées liées aux dossiers.
+     *
      * @return Resources[]
      */
     public function findRessourcesSpecialiseesDossier(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r');
+        $query = $queryBuilder
+            ->where('r.name LIKE :name')
+            ->setParameter('name', 'dossier_%')
+            ->getQuery()
+        ;
+
+        return $query->getResult();
+    }
+
+    /**
+     * Retourne toutes les ressources spécialisées liées aux établissements.
+     *
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesEtablissement(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('r');
+        $query = $queryBuilder
+            ->where('r.name LIKE :name')
+            ->setParameter('name', 'etablissement_%')
+            ->getQuery()
+        ;
+
+        return $query->getResult();
+    }
+
+    /**
+     * Retourne uniquement les ressources simples (une seule nature)
+     * car les ressources complexes (plusieurs natures) ne sont pas utilisées pour les dossiers.
+     *
+     * @return Resources[]
+     */
+    public function findRessourcesSpecialiseesSimplesDossier(): array
     {
         $em = $this->getEntityManager();
         $rsm = new ResultSetMapping();

@@ -21,7 +21,7 @@ class VoteReturnsAccessDeniedForNonUtilisateurTokenTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
         $dossier = $this->createMock(Dossier::class);
-        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn(['resource_1']);
+        $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn(['resource_1']);
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 

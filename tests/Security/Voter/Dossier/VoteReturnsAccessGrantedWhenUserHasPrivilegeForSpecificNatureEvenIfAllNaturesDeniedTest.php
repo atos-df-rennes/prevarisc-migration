@@ -44,7 +44,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNatu
         $privilegeSpecific = $this->createMock(Privileges::class);
         $privilegeSpecific->method('getResource')->willReturn($resourceSpecific);
 
-        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourceAll, $resourceSpecific]);
+        $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resourceAll, $resourceSpecific]);
 
         $privilegesRepository->method('findOneBy')->willReturnCallback(function ($criteria) use ($privilegeSpecific, $resourceSpecific): ?MockObject {
             if ($criteria['resource'] === $resourceSpecific) {

@@ -6,6 +6,7 @@ use App\Entity\Groupe;
 use App\Form\GroupeType;
 use App\Form\MatriceDesDroitsType;
 use App\Repository\GroupeRepository;
+use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -147,8 +148,11 @@ class GroupeController extends AbstractController
     /**
      * @Route("/admin/groupes/ressources-specialisees", name="admin_groupe_ressources_specialisees")
      */
-    public function ressourcesSpecialisees(): Response
+    public function ressourcesSpecialisees(ResourcesRepository $resourcesRepository): Response
     {
-        return $this->render('groupe/ressources_specialisees.html.twig');
+        return $this->render('groupe/ressources_specialisees.html.twig', [
+            'ressources_dossier' => $resourcesRepository->findRessourcesSpecialiseesDossier(),
+            'ressources_etablissement' => $resourcesRepository->findRessourcesSpecialiseesEtablissement(),
+        ]);
     }
 }

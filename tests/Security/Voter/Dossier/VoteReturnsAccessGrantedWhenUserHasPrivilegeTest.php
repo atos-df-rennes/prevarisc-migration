@@ -35,7 +35,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
 
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('resource_1');
-        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resource]);
+        $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resource]);
 
         $privilege = $this->createMock(Privileges::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);

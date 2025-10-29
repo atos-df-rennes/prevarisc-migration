@@ -34,7 +34,7 @@ class VoteIgnoresResourceWithMultipleNaturesTest extends TestCase
 
         $resourceMultiple = $this->createMock(Resources::class);
         $resourceMultiple->method('getName')->willReturn('resource_1-2');
-        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourceMultiple]);
+        $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resourceMultiple]);
 
         $group = $this->createMock(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([]));

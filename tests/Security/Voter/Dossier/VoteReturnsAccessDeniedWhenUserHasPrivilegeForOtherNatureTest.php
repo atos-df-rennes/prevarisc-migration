@@ -44,7 +44,7 @@ class VoteReturnsAccessDeniedWhenUserHasPrivilegeForOtherNatureTest extends Test
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
         $user->method('getGroupe')->willReturn($group);
 
-        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn([$resourcePrivilege]);
+        $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resourcePrivilege]);
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 

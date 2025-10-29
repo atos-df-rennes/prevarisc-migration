@@ -46,7 +46,7 @@ class DossierVoter extends Voter
             return false;
         }
 
-        $this->resources = $this->resourcesRepository->findRessourcesSpecialiseesDossier();
+        $this->resources = $this->resourcesRepository->findRessourcesSpecialiseesSimplesDossier();
 
         // S'il n'y a pas de ressources spécialisées, tout le monde a accès à tout.
         if ([] === $this->resources) {

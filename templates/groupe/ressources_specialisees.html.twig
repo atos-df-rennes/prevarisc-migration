@@ -6,4 +6,20 @@
     {{ include('utilisateurs/_topbar.html.twig') }}
 
     {{ include('groupe/_menu_droits.html.twig') }}
+
+    <article>
+        <button type="button" onclick='$("#resource-ets-modal").modal({show: true});' class='btn btn-default btn-small pull-right'>Ajouter une ressource</button>
+
+        <h4>Ressources liées aux établissements</h4>
+
+        {{ include('groupe/_table_ressources_specialisees.html.twig', {ressources: ressources_etablissement}) }}
+    </article>
+
+    <article>
+        <button type="button" onclick='$("#resource-dossier-modal").modal({show: true});' class='btn btn-default btn-small pull-right'>Ajouter une ressource</button>
+
+        <h4>Ressources liées aux dossiers</h4>
+
+        {{ include('groupe/_table_ressources_specialisees.html.twig', {ressources: ressources_dossier}) }}
+    </article>
 {% endblock %}

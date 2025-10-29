@@ -22,7 +22,7 @@ class VoteReturnsAccessDeniedWhenDossierHasNoNatureTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $user = $this->createMock(Utilisateur::class);
         $token->method('getUser')->willReturn($user);
-        $resourcesRepository->method('findRessourcesSpecialiseesDossier')->willReturn(['resource_1']);
+        $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn(['resource_1']);
 
         $dossier = $this->createMock(Dossier::class);
         $dossier->method('getNature')->willReturn(null);

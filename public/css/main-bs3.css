@@ -813,6 +813,10 @@ ul#gestionCommissionMenu li.active {
   color: #555;
 }
 
+.nav-tabs-with-margin-bottom {
+  margin-bottom: 20px;
+}
+
 .dashboard .panel {
   width: 49%;
   float: left;
@@ -1353,4 +1357,8 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 .control-label + .checkbox {
   margin-top: 0;
 }
-  
+
+/* Ressources spécialisées */
+.table-ressources-specialisees > tbody > tr > td {
+  vertical-align: middle;
+}
