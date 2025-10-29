@@ -2,6 +2,33 @@
 
 {% block title %}Administration / Gestion des groupes / Gérer les droits / Ressources spécialisées{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.bouton-suppression-ressource').click(function() {
+                const textRessource = $(this).attr('data-text')
+                const url = $(this).attr('data-url')
+
+                $('#modal-suppression-ressource #text-ressource').html(textRessource)
+                $('#supprimer-ressource').click(function() {
+                    $.ajax({
+                        type: "DELETE",
+                        url: url,
+                        success: function() {
+                            window.location.reload()
+                        },
+                        error: function() {
+                            window.location.reload()
+                        }
+                    })
+                })
+            })
+        })
+    </script>
+{% endblock %}
+
 {% block body %}
     {{ include('utilisateurs/_topbar.html.twig') }}
 
@@ -22,4 +49,6 @@
 
         {{ include('groupe/_table_ressources_specialisees.html.twig', {ressources: ressources_dossier}) }}
     </article>
+
+    {{ include('groupe/_modal_suppression_ressource.html.twig') }}
 {% endblock %}

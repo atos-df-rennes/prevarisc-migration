@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Groupe;
+use App\Entity\Resources;
 use App\Form\GroupeType;
 use App\Form\MatriceDesDroitsType;
 use App\Repository\GroupeRepository;
@@ -11,6 +12,7 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -154,5 +156,16 @@ class GroupeController extends AbstractController
             'ressources_dossier' => $resourcesRepository->findRessourcesSpecialiseesDossier(),
             'ressources_etablissement' => $resourcesRepository->findRessourcesSpecialiseesEtablissement(),
         ]);
+    }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees/{id}/supprimer", name="admin_groupe_ressources_specialisees_delete", methods={"DELETE"})
+     */
+    public function supprimerRessourceSpecialisee(Resources $resources): RedirectResponse
+    {
+        $this->entityManager->remove($resources);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('admin_groupe_ressources_specialisees');
     }
 }
