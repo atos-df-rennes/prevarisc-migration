@@ -25,6 +25,9 @@
                     })
                 })
             })
+
+            // @todo: Faire plutôt un Tom Select (après avoir validé l'ajout)
+            $("#ressource_specialisee_dossier_natures").multiselect({header: false, noneSelectedText: "Toutes les natures"});
         })
     </script>
 {% endblock %}
@@ -35,20 +38,21 @@
     {{ include('groupe/_menu_droits.html.twig') }}
 
     <article>
-        <button type="button" onclick='$("#resource-ets-modal").modal({show: true});' class='btn btn-default btn-small pull-right'>Ajouter une ressource</button>
+        <button type="button" class='btn btn-default btn-small pull-right' data-toggle="modal" data-target="#resource-ets-modal">Ajouter une ressource</button>
 
         <h4>Ressources liées aux établissements</h4>
 
-        {{ include('groupe/_table_ressources_specialisees.html.twig', {ressources: ressources_etablissement}) }}
+        {{ include('groupe/ressources_specialisees/_table_ressources_specialisees.html.twig', {ressources: ressources_etablissement}) }}
     </article>
 
     <article>
-        <button type="button" onclick='$("#resource-dossier-modal").modal({show: true});' class='btn btn-default btn-small pull-right'>Ajouter une ressource</button>
+        <button type="button" class='btn btn-default btn-small pull-right' data-toggle="modal" data-target="#resource-dossier-modal">Ajouter une ressource</button>
 
         <h4>Ressources liées aux dossiers</h4>
 
-        {{ include('groupe/_table_ressources_specialisees.html.twig', {ressources: ressources_dossier}) }}
+        {{ include('groupe/ressources_specialisees/_table_ressources_specialisees.html.twig', {ressources: ressources_dossier}) }}
     </article>
 
-    {{ include('groupe/_modal_suppression_ressource.html.twig') }}
+    {{ include('groupe/ressources_specialisees/_modal_suppression_ressource.html.twig') }}
+    {{ include('groupe/ressources_specialisees/_form_ajout_ressource_dossier.html.twig') }}
 {% endblock %}
