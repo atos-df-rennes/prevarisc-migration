@@ -9,13 +9,13 @@ class RessourcesSpecialiseesDossierNameGenerator
     public static function fromRequest(Request $request): string
     {
         $formData = $request->request->get('ressource_specialisee_dossier');
-        $natures = $formData['natures'];
-
         $name = 'dossier_';
 
-        if (null === $natures) {
+        if (!array_key_exists('natures', $formData)) {
             return $name.'0';
         }
+
+        $natures = $formData['natures'];
 
         return $name.implode('-', $natures);
     }

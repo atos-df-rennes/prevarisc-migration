@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface RessourcesSpecialiseesEtablissement
+interface RessourcesSpecialiseesEtablissementNamer
 {
     public function generateName(array $formData): string;
 }

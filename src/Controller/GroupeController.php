@@ -215,8 +215,6 @@ class GroupeController extends AbstractController
         $name = RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request);
         $text = $ressourcesSpecialiseesEtablissementTextGenerator->fromRequest($request);
 
-        dd($name, $text);
-
         $resource->setName($name);
         $resource->setText($text);
 

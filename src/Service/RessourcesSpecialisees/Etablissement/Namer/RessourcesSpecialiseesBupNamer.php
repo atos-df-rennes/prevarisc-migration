@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service\RessourcesSpecialisees\Etablissement;
+namespace App\Service\RessourcesSpecialisees\Etablissement\Namer;
 
-use App\Interfaces\RessourcesSpecialiseesEtablissement;
+use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
 
-class RessourcesSpecialiseesBupNamer implements RessourcesSpecialiseesEtablissement {
+class RessourcesSpecialiseesBupNamer implements RessourcesSpecialiseesEtablissementNamer {
     public function generateName(array $formData): string {
         $name = 'bup_';
 

@@ -2,16 +2,16 @@
 
 namespace App\Service\RessourcesSpecialisees;
 
-use App\Interfaces\RessourcesSpecialiseesEtablissement;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesBupNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesCampingNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesCelluleNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesErpNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesHabitationNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesIghNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesIopNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesManifestationTemporaireNamer;
-use App\Service\RessourcesSpecialisees\Etablissement\RessourcesSpecialiseesZoneNamer;
+use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesBupNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesCampingNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesCelluleNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesErpNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesHabitationNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesIghNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesIopNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesManifestationTemporaireNamer;
+use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesZoneNamer;
 use Symfony\Component\HttpFoundation\Request;
 
 class RessourcesSpecialiseesEtablissementNameGenerator
@@ -19,11 +19,6 @@ class RessourcesSpecialiseesEtablissementNameGenerator
     public static function fromRequest(Request $request): string
     {
         $formData = $request->request->get('ressource_specialisee_etablissement');
-        $text = $formData['text'];
-
-        if ('' !== $text) {
-            return $text;
-        }
 
         $name = 'etablissement_';
         $namer = self::createNamer($formData['genre']);
@@ -31,7 +26,7 @@ class RessourcesSpecialiseesEtablissementNameGenerator
         return $name.$namer->generateName($formData);
     }
 
-    private static function createNamer(int $genreId): RessourcesSpecialiseesEtablissement
+    private static function createNamer(int $genreId): RessourcesSpecialiseesEtablissementNamer
     {
         switch ($genreId) {
             case 2:
