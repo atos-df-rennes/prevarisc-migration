@@ -1365,6 +1365,7 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 .ui-multiselect-checkboxes label > span {
   margin-left: 0.5em;
 }
-#resource-dossier-modal .ui-multiselect {
+#resource-dossier-modal .ui-multiselect,
+#resource-ets-modal .ui-multiselect {
   display: block;
 }

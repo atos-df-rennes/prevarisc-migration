@@ -7,11 +7,14 @@ use App\Entity\Resources;
 use App\Form\GroupeType;
 use App\Form\MatriceDesDroitsType;
 use App\Form\RessourceSpecialiseeDossierType;
+use App\Form\RessourceSpecialiseeEtablissementType;
 use App\Repository\GroupeRepository;
 use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierNameGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerator;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -158,11 +161,15 @@ class GroupeController extends AbstractController
         $ressourceDossierForm = $this->createForm(RessourceSpecialiseeDossierType::class, null, [
             'action' => $this->generateUrl('admin_groupe_ressources_specialisees_add_dossier'),
         ]);
+        $ressourceEtablissementForm = $this->createForm(RessourceSpecialiseeEtablissementType::class, null, [
+            'action' => $this->generateUrl('admin_groupe_ressources_specialisees_add_etablissement'),
+        ]);
 
         return $this->render('groupe/ressources_specialisees/index.html.twig', [
             'ressources_dossier' => $resourcesRepository->findRessourcesSpecialiseesDossier(),
             'ressources_etablissement' => $resourcesRepository->findRessourcesSpecialiseesEtablissement(),
             'form_dossier' => $ressourceDossierForm->createView(),
+            'form_etablissement' => $ressourceEtablissementForm->createView(),
         ]);
     }
 
@@ -186,6 +193,29 @@ class GroupeController extends AbstractController
 
         $name = RessourcesSpecialiseesDossierNameGenerator::fromRequest($request);
         $text = $ressourcesSpecialiseesDossierTextGenerator->fromRequest($request);
+
+        $resource->setName($name);
+        $resource->setText($text);
+
+        $this->entityManager->persist($resource);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'La ressource spécialisée a bien été ajoutée.');
+
+        return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+    }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees/etablissement/ajouter", name="admin_groupe_ressources_specialisees_add_etablissement", methods={"POST"}))
+     */
+    public function ajouterRessourceSpecialiseeEtablissement(Request $request, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator): RedirectResponse
+    {
+        $resource = new Resources();
+
+        $name = RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request);
+        $text = $ressourcesSpecialiseesEtablissementTextGenerator->fromRequest($request);
+
+        dd($name, $text);
 
         $resource->setName($name);
         $resource->setText($text);
