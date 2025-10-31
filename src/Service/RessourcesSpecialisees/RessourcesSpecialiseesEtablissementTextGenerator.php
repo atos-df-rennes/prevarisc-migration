@@ -7,6 +7,8 @@ use App\Interfaces\RessourcesSpecialiseesEtablissementTexter;
 use App\Repository\DossierNatureListeRepository;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesBupTexter;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesCampingTexter;
+use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesCelluleTexter;
+use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesErpTexter;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesHabitationTexter;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesIghTexter;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesIopTexter;
@@ -25,15 +27,25 @@ class RessourcesSpecialiseesEtablissementTextGenerator
     /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesIghTexter */
     private $ighTexter;
 
+    /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesCelluleTexter */
+    private $celluleTexter;
+
+    /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesErpTexter */
+    private $erpTexter;
+
     public function __construct(
         RessourcesSpecialiseesZoneTexter $zoneTexter,
         RessourcesSpecialiseesHabitationTexter $habitationTexter,
-        RessourcesSpecialiseesIghTexter $ighTexter
+        RessourcesSpecialiseesIghTexter $ighTexter,
+        RessourcesSpecialiseesCelluleTexter $celluleTexter,
+        RessourcesSpecialiseesErpTexter $erpTexter
     )
     {
         $this->zoneTexter = $zoneTexter;
         $this->habitationTexter = $habitationTexter;
         $this->ighTexter = $ighTexter;
+        $this->celluleTexter = $celluleTexter;
+        $this->erpTexter = $erpTexter;
     }
 
     public function fromRequest(Request $request): string
@@ -51,12 +63,12 @@ class RessourcesSpecialiseesEtablissementTextGenerator
     private function createTexter(int $genreId): RessourcesSpecialiseesEtablissementTexter
     {
         switch ($genreId) {
-//            case 2:
-//                $texter = new RessourcesSpecialiseesErpNamerNamer();
-//                break;
-//            case 3:
-//                $texter = new RessourcesSpecialiseesCelluleNamerNamer();
-//                break;
+            case 2:
+                $texter = $this->erpTexter;
+                break;
+            case 3:
+                $texter = $this->celluleTexter;
+                break;
             case 4:
                 $texter = $this->habitationTexter;
                 break;
