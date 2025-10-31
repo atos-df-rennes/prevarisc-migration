@@ -14,10 +14,14 @@ use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialisee
 use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialiseesZoneNamer;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ */
 class RessourcesSpecialiseesEtablissementNameGenerator
 {
     public static function fromRequest(Request $request): string
     {
+        /** @var FormData $formData */
         $formData = $request->request->get('ressource_specialisee_etablissement');
 
         $name = 'etablissement_';

@@ -10,6 +10,9 @@ use App\Repository\FamilleRepository;
 use App\Repository\IghClasseRepository;
 use App\ValueObject\EtablissementTexter;
 
+/**
+ * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ */
 class RessourcesSpecialiseesIghTexter implements RessourcesSpecialiseesEtablissementTexter {
     /** @var EtablissementTexter */
     private $etablissementTexter;
@@ -20,9 +23,12 @@ class RessourcesSpecialiseesIghTexter implements RessourcesSpecialiseesEtablisse
         $this->etablissementTexter = $etablissementTexter;
     }
 
+    /**
+     * @param FormData $formData
+     */
     public function generateText(array $formData): string {
         $this->etablissementTexter
-            ->setClasses($formData['classes'])
+            ->setClasses($formData['classes'] ?? null)
             ->setUseUserCommissions($formData['commissions'])
             ->setUseUserGroupements($formData['groupements'])
             ->setUseUserCommune($formData['commune'])

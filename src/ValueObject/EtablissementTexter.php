@@ -57,6 +57,9 @@ final class EtablissementTexter
         $this->classementRepository = $classementRepository;
     }
 
+    /**
+     * @param ?array<int, string> $typesActivites
+     */
     public function setTypesActivites(?array $typesActivites): EtablissementTexter {
         if (null === $typesActivites) {
             $this->typesActivites = 'Tous les types';
@@ -81,6 +84,9 @@ final class EtablissementTexter
         return $this;
     }
 
+    /**
+     * @param ?array<int, string> $categories
+     */
     public function setCategories(?array $categories): EtablissementTexter {
         if (null === $categories) {
             $this->categories = 'Toutes les catégories';
@@ -105,6 +111,9 @@ final class EtablissementTexter
         return $this;
     }
 
+    /**
+     * @param ?array<int, string> $familles
+     */
     public function setFamilles(?array $familles): EtablissementTexter {
         if (null === $familles) {
             $this->familles = 'Toutes les familles';
@@ -129,6 +138,9 @@ final class EtablissementTexter
         return $this;
     }
 
+    /**
+     * @param ?array<int, string> $classes
+     */
     public function setClasses(?array $classes): EtablissementTexter {
         if (null === $classes) {
             $this->classes = 'Toutes les classes';
@@ -153,6 +165,9 @@ final class EtablissementTexter
         return $this;
     }
 
+    /**
+     * @param ?array<int, string> $classements
+     */
     public function setClassements(?array $classements): EtablissementTexter {
         if (null === $classements) {
             $this->classements = 'Tous les classements';

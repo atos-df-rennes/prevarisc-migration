@@ -16,6 +16,20 @@ use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialise
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesZoneTexter;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @phpstan-type FormData array{
+ *     text: string,
+ *     genre: int,
+ *     typesActivites?: array<int, string>,
+ *     categories?: array<int, string>,
+ *     familles?: array<int, string>,
+ *     classes?: array<int, string>,
+ *     classements?: array<int, string>,
+ *     commissions: bool,
+ *     groupements: bool,
+ *     commune: bool
+ * }
+ */
 class RessourcesSpecialiseesEtablissementTextGenerator
 {
     /** @var RessourcesSpecialiseesZoneTexter */
@@ -32,13 +46,25 @@ class RessourcesSpecialiseesEtablissementTextGenerator
 
     /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesErpTexter */
     private $erpTexter;
+    /** @var RessourcesSpecialiseesBupTexter */
+    private $bupTexter;
+    /** @var RessourcesSpecialiseesCampingTexter */
+    private $campingTexter;
+    /** @var RessourcesSpecialiseesIopTexter */
+    private $iopTexter;
+    /** @var RessourcesSpecialiseesManifestationTemporaireTexter */
+    private $manifestationTemporaireTexter;
 
     public function __construct(
         RessourcesSpecialiseesZoneTexter $zoneTexter,
         RessourcesSpecialiseesHabitationTexter $habitationTexter,
         RessourcesSpecialiseesIghTexter $ighTexter,
         RessourcesSpecialiseesCelluleTexter $celluleTexter,
-        RessourcesSpecialiseesErpTexter $erpTexter
+        RessourcesSpecialiseesErpTexter $erpTexter,
+        RessourcesSpecialiseesBupTexter $bupTexter,
+        RessourcesSpecialiseesCampingTexter $campingTexter,
+        RessourcesSpecialiseesIopTexter $iopTexter,
+        RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter
     )
     {
         $this->zoneTexter = $zoneTexter;
@@ -46,10 +72,15 @@ class RessourcesSpecialiseesEtablissementTextGenerator
         $this->ighTexter = $ighTexter;
         $this->celluleTexter = $celluleTexter;
         $this->erpTexter = $erpTexter;
+        $this->bupTexter = $bupTexter;
+        $this->campingTexter = $campingTexter;
+        $this->iopTexter = $iopTexter;
+        $this->manifestationTemporaireTexter = $manifestationTemporaireTexter;
     }
 
     public function fromRequest(Request $request): string
     {
+        /** @var FormData $formData */
         $formData = $request->request->get('ressource_specialisee_etablissement');
         $formText = $formData['text'];
 
@@ -76,16 +107,16 @@ class RessourcesSpecialiseesEtablissementTextGenerator
                 $texter = $this->ighTexter;
                 break;
             case 6:
-                $texter = new RessourcesSpecialiseesBupTexter();
+                $texter = $this->bupTexter;
                 break;
             case 7:
-                $texter = new RessourcesSpecialiseesCampingTexter();
+                $texter = $this->campingTexter;
                 break;
             case 8:
-                $texter = new RessourcesSpecialiseesManifestationTemporaireTexter();
+                $texter = $this->manifestationTemporaireTexter;
                 break;
             case 9:
-                $texter = new RessourcesSpecialiseesIopTexter();
+                $texter = $this->iopTexter;
                 break;
             case 10:
                 $texter = $this->zoneTexter;

@@ -9,6 +9,9 @@ use App\Repository\ClassementRepository;
 use App\Repository\FamilleRepository;
 use App\ValueObject\EtablissementTexter;
 
+/**
+ * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ */
 class RessourcesSpecialiseesHabitationTexter implements RessourcesSpecialiseesEtablissementTexter {
     /** @var EtablissementTexter */
     private $etablissementTexter;
@@ -19,9 +22,12 @@ class RessourcesSpecialiseesHabitationTexter implements RessourcesSpecialiseesEt
         $this->etablissementTexter = $etablissementTexter;
     }
 
+    /**
+     * @param FormData $formData
+     */
     public function generateText(array $formData): string {
         $this->etablissementTexter
-            ->setFamilles($formData['familles'])
+            ->setFamilles($formData['familles'] ?? null)
             ->setUseUserGroupements($formData['groupements'])
             ->setUseUserCommune($formData['commune'])
         ;
