@@ -109,7 +109,7 @@ class EtablissementIopVoterTest extends TestCase
 
     public function testDenyIfUserIsNotInstanceOfUtilisateur(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissemet_iop_0_0']);
+        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_iop_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementIop')
@@ -127,7 +127,7 @@ class EtablissementIopVoterTest extends TestCase
 
     public function testDenyIfUserGroupIsNull(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissemet_iop_0_0']);
+        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_iop_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementIop')
@@ -146,7 +146,7 @@ class EtablissementIopVoterTest extends TestCase
 
     public function testGrantIfPrivilegeExistsInUserGroup(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissemet_iop_0_0']);
+        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_iop_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementIop')
