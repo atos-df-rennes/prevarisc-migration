@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Groupe;
+use App\Entity\Privileges;
 use App\Entity\Resources;
 use App\Form\GroupeType;
 use App\Form\MatriceDesDroitsType;
@@ -11,6 +12,8 @@ use App\Form\RessourceSpecialiseeEtablissementType;
 use App\Repository\GroupeRepository;
 use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
+use App\Security\Voter\DossierVoter;
+use App\Security\Voter\EtablissementVoter;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierNameGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
@@ -200,6 +203,26 @@ class GroupeController extends AbstractController
         $this->entityManager->persist($resource);
         $this->entityManager->flush();
 
+        $privilegeLecture = new Privileges();
+        $privilegeLecture->setName(DossierVoter::LECTURE);
+        $privilegeLecture->setText('Lecture');
+        $privilegeLecture->setResource($resource);
+
+        $privilegeModification = new Privileges();
+        $privilegeModification->setName(DossierVoter::MODIFICATION);
+        $privilegeModification->setText('Modifier');
+        $privilegeModification->setResource($resource);
+
+        $privilegeVerrouillage = new Privileges();
+        $privilegeVerrouillage->setName(DossierVoter::VERROUILLAGE);
+        $privilegeVerrouillage->setText("Verrouillage d'un dossier");
+        $privilegeVerrouillage->setResource($resource);
+
+        $this->entityManager->persist($privilegeLecture);
+        $this->entityManager->persist($privilegeModification);
+        $this->entityManager->persist($privilegeVerrouillage);
+        $this->entityManager->flush();
+
         $this->addFlash('success', 'La ressource spécialisée a bien été ajoutée.');
 
         return $this->redirectToRoute('admin_groupe_ressources_specialisees');
@@ -219,6 +242,20 @@ class GroupeController extends AbstractController
         $resource->setText($text);
 
         $this->entityManager->persist($resource);
+        $this->entityManager->flush();
+
+        $privilegeLecture = new Privileges();
+        $privilegeLecture->setName(EtablissementVoter::LECTURE);
+        $privilegeLecture->setText('Lecture');
+        $privilegeLecture->setResource($resource);
+
+        $privilegeModification = new Privileges();
+        $privilegeModification->setName(EtablissementVoter::MODIFICATION);
+        $privilegeModification->setText('Modifier');
+        $privilegeModification->setResource($resource);
+
+        $this->entityManager->persist($privilegeLecture);
+        $this->entityManager->persist($privilegeModification);
         $this->entityManager->flush();
 
         $this->addFlash('success', 'La ressource spécialisée a bien été ajoutée.');
