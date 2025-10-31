@@ -2,9 +2,7 @@
 
 namespace App\Service\RessourcesSpecialisees;
 
-use App\Entity\DossierNatureListe;
 use App\Interfaces\RessourcesSpecialiseesEtablissementTexter;
-use App\Repository\DossierNatureListeRepository;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesBupTexter;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesCampingTexter;
 use App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesCelluleTexter;
@@ -38,20 +36,24 @@ class RessourcesSpecialiseesEtablissementTextGenerator
     /** @var RessourcesSpecialiseesHabitationTexter */
     private $habitationTexter;
 
-    /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesIghTexter */
+    /** @var RessourcesSpecialiseesIghTexter */
     private $ighTexter;
 
-    /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesCelluleTexter */
+    /** @var RessourcesSpecialiseesCelluleTexter */
     private $celluleTexter;
 
-    /** @var \App\Service\RessourcesSpecialisees\Etablissement\Texter\RessourcesSpecialiseesErpTexter */
+    /** @var RessourcesSpecialiseesErpTexter */
     private $erpTexter;
+
     /** @var RessourcesSpecialiseesBupTexter */
     private $bupTexter;
+
     /** @var RessourcesSpecialiseesCampingTexter */
     private $campingTexter;
+
     /** @var RessourcesSpecialiseesIopTexter */
     private $iopTexter;
+
     /** @var RessourcesSpecialiseesManifestationTemporaireTexter */
     private $manifestationTemporaireTexter;
 
@@ -65,8 +67,7 @@ class RessourcesSpecialiseesEtablissementTextGenerator
         RessourcesSpecialiseesCampingTexter $campingTexter,
         RessourcesSpecialiseesIopTexter $iopTexter,
         RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter
-    )
-    {
+    ) {
         $this->zoneTexter = $zoneTexter;
         $this->habitationTexter = $habitationTexter;
         $this->ighTexter = $ighTexter;

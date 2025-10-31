@@ -3,15 +3,18 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Namer;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesCampingNamer implements RessourcesSpecialiseesEtablissementNamer {
+class RessourcesSpecialiseesCampingNamer implements RessourcesSpecialiseesEtablissementNamer
+{
     /**
      * @param FormData $formData
      */
-    public function generateName(array $formData): string {
+    public function generateName(array $formData): string
+    {
         return 'camp_0_0';
     }
 }

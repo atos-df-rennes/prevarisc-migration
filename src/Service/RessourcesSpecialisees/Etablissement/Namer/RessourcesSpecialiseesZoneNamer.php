@@ -3,15 +3,18 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Namer;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesZoneNamer implements RessourcesSpecialiseesEtablissementNamer {
+class RessourcesSpecialiseesZoneNamer implements RessourcesSpecialiseesEtablissementNamer
+{
     /**
      * @param FormData $formData
      */
-    public function generateName(array $formData): string {
+    public function generateName(array $formData): string
+    {
         $name = 'zone_';
 
         if (!array_key_exists('classements', $formData)) {

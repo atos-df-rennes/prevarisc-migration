@@ -3,15 +3,18 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Namer;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesIghNamer implements RessourcesSpecialiseesEtablissementNamer {
+class RessourcesSpecialiseesIghNamer implements RessourcesSpecialiseesEtablissementNamer
+{
     /**
      * @param FormData $formData
      */
-    public function generateName(array $formData): string {
+    public function generateName(array $formData): string
+    {
         $name = 'igh_';
 
         if (!array_key_exists('classes', $formData)) {
@@ -27,8 +30,7 @@ class RessourcesSpecialiseesIghNamer implements RessourcesSpecialiseesEtablissem
 
         $name .= $commissions.'_';
         $name .= $groupements.'_';
-        $name .= $commune;
 
-        return $name;
+        return $name.$commune;
     }
 }

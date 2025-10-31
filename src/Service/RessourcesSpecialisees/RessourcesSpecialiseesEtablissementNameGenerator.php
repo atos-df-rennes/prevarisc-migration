@@ -15,7 +15,7 @@ use App\Service\RessourcesSpecialisees\Etablissement\Namer\RessourcesSpecialisee
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
 class RessourcesSpecialiseesEtablissementNameGenerator
 {

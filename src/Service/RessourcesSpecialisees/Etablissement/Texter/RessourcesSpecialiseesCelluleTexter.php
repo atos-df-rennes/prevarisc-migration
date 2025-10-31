@@ -2,16 +2,15 @@
 
 namespace App\Service\RessourcesSpecialisees\Etablissement\Texter;
 
-use App\Entity\EtablissementActivite;
 use App\Interfaces\RessourcesSpecialiseesEtablissementTexter;
-use App\Repository\ClassementRepository;
-use App\Repository\EtablissementActiviteRepository;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 use App\ValueObject\EtablissementTexter;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesCelluleTexter implements RessourcesSpecialiseesEtablissementTexter {
+class RessourcesSpecialiseesCelluleTexter implements RessourcesSpecialiseesEtablissementTexter
+{
     /** @var EtablissementTexter */
     private $etablissementTexter;
 
@@ -24,7 +23,8 @@ class RessourcesSpecialiseesCelluleTexter implements RessourcesSpecialiseesEtabl
     /**
      * @param FormData $formData
      */
-    public function generateText(array $formData): string {
+    public function generateText(array $formData): string
+    {
         $this->etablissementTexter
             ->setTypesActivites($formData['typesActivites'] ?? null)
         ;

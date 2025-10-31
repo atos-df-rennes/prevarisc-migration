@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\DossierNatureListe;
-use App\Entity\Resources;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;

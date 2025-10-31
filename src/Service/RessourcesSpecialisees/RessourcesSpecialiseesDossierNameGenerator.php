@@ -5,7 +5,7 @@ namespace App\Service\RessourcesSpecialisees;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesDossierTextGenerator
  */
 class RessourcesSpecialiseesDossierNameGenerator
 {

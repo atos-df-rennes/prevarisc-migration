@@ -40,14 +40,14 @@ class RessourcesSpecialiseesDossierTextGenerator
             $naturesIds = $formData['natures'];
 
             /** @var array<int, ?DossierNatureListe> $naturesEntities */
-            $naturesEntities = array_map(function(string $idNature) {
+            $naturesEntities = array_map(function (string $idNature) {
                 return $this->naturesRepository->find($idNature);
             }, $naturesIds);
             /** @var array<int, DossierNatureListe> $naturesEntities */
             $naturesEntities = array_filter($naturesEntities);
 
             /** @var array<int, ?string> $naturesLibelles */
-            $naturesLibelles = array_map(function(DossierNatureListe $nature) {
+            $naturesLibelles = array_map(function (DossierNatureListe $nature): ?string {
                 return $nature->getLibelle();
             }, $naturesEntities);
             /** @var array<int, string> $naturesLibelles */

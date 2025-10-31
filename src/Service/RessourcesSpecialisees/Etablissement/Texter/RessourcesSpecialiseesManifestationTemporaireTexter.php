@@ -3,16 +3,18 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Texter;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementTexter;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesManifestationTemporaireTexter implements RessourcesSpecialiseesEtablissementTexter {
-
+class RessourcesSpecialiseesManifestationTemporaireTexter implements RessourcesSpecialiseesEtablissementTexter
+{
     /**
      * @param FormData $formData
      */
-    public function generateText(array $formData): string {
+    public function generateText(array $formData): string
+    {
         return 'Manifestation temporaire (Ignorer les groupements - Ignorer la commune)';
     }
 }

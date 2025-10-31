@@ -3,15 +3,18 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Namer;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesErpNamer implements RessourcesSpecialiseesEtablissementNamer {
+class RessourcesSpecialiseesErpNamer implements RessourcesSpecialiseesEtablissementNamer
+{
     /**
      * @param FormData $formData
      */
-    public function generateName(array $formData): string {
+    public function generateName(array $formData): string
+    {
         $name = 'erp_';
 
         if (!array_key_exists('typesActivites', $formData)) {
@@ -34,8 +37,7 @@ class RessourcesSpecialiseesErpNamer implements RessourcesSpecialiseesEtablissem
 
         $name .= $commissions.'_';
         $name .= $groupements.'_';
-        $name .= $commune;
 
-        return $name;
+        return $name.$commune;
     }
 }

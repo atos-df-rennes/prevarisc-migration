@@ -3,12 +3,14 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Texter;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementTexter;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 use App\ValueObject\EtablissementTexter;
 
 /**
- * @phpstan-import-type FormData from \App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator
+ * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesErpTexter implements RessourcesSpecialiseesEtablissementTexter {
+class RessourcesSpecialiseesErpTexter implements RessourcesSpecialiseesEtablissementTexter
+{
     /** @var EtablissementTexter */
     private $etablissementTexter;
 
@@ -21,7 +23,8 @@ class RessourcesSpecialiseesErpTexter implements RessourcesSpecialiseesEtablisse
     /**
      * @param FormData $formData
      */
-    public function generateText(array $formData): string {
+    public function generateText(array $formData): string
+    {
         $this->etablissementTexter
             ->setTypesActivites($formData['typesActivites'] ?? null)
             ->setCategories($formData['categories'] ?? null)
