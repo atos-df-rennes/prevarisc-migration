@@ -45,6 +45,7 @@ class RessourceSpecialiseeEtablissementType extends AbstractType
             ])
             ->add('typesActivites', EntityType::class, [
                 'label' => "Types d'activité",
+                'help' => 'CTRL + clic pour sélectionner plusieurs.',
                 'required' => false,
                 'mapped' => false,
                 'class' => EtablissementActivite::class,

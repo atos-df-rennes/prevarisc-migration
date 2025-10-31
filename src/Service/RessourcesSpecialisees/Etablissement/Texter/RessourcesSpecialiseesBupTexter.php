@@ -3,20 +3,24 @@
 namespace App\Service\RessourcesSpecialisees\Etablissement\Texter;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementTexter;
+use App\ValueObject\EtablissementTexter;
 
-// @todo: Utiliser un ValueObject
 class RessourcesSpecialiseesBupTexter implements RessourcesSpecialiseesEtablissementTexter {
+    /** @var EtablissementTexter */
+    private $etablissementTexter;
+
+    public function __construct(
+        EtablissementTexter $etablissementTexter
+    ) {
+        $this->etablissementTexter = $etablissementTexter;
+    }
+
     public function generateText(array $formData): string {
-        $text = 'BUP (';
+        $this->etablissementTexter
+            ->setUseUserGroupements($formData['groupements'])
+            ->setUseUserCommune($formData['commune'])
+        ;
 
-        $groupements = filter_var($formData['groupements'], FILTER_VALIDATE_BOOLEAN);
-        $commune = filter_var($formData['commune'], FILTER_VALIDATE_BOOLEAN);
-
-        // @todo: Utiliser un tableau d'options implode par -
-        $text .= $groupements ? "Sur les groupements de l'utilisateur" : 'Ignorer les groupements';
-        $text .= ' - ';
-        $text .= $commune ? "Sur la commune de l'utilisateur" : 'Ignorer la commune';
-
-        return $text.')';
+        return 'BUP ('.$this->etablissementTexter->getText().')';
     }
 }

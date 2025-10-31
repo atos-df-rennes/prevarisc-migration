@@ -4,7 +4,6 @@ namespace App\Service\RessourcesSpecialisees\Etablissement\Namer;
 
 use App\Interfaces\RessourcesSpecialiseesEtablissementNamer;
 
-// @todo: Utiliser un ValueObject
 class RessourcesSpecialiseesHabitationNamer implements RessourcesSpecialiseesEtablissementNamer {
     public function generateName(array $formData): string {
         $name = 'hab_';
