@@ -7,6 +7,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(__DIR__ . '/prevarisc.php');
+    $containerConfigurator->import(__DIR__ . '/platau.php');
 
     $services = $containerConfigurator->services();
 
