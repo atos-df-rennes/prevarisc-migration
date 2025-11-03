@@ -166,9 +166,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_UNITE_PERIODICITE_ANNEES)', 0);
     $parameters->set('app.periodicite_annees', '%env(bool:PREVARISC_UNITE_PERIODICITE_ANNEES)%');
 
-    $parameters->set('env(PREVARISC_DEACTIVATE_PLATAU)', 0);
-    $parameters->set('app.deactivate_platau', '%env(bool:PREVARISC_DEACTIVATE_PLATAU)%');
-
     $parameters->set('env(PREVARISC_DOSSIERS_MAX_A_AFFICHER)', 5);
     $parameters->set('app.nb_dossiers_a_afficher', '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%');
 
@@ -192,7 +189,4 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_DESCRIPTIF_PERSONNALISE)', 1);
     $parameters->set('app.descriptif_personnalise', '%env(bool:PREVARISC_DESCRIPTIF_PERSONNALISE)%');
-
-    $parameters->set('env(PREVARISC_PLATAU_NO_HEALTHCHECK)', 0);
-    $parameters->set('app.platau_no_healthcheck', '%env(bool:PREVARISC_PLATAU_NO_HEALTHCHECK)%');
 };
