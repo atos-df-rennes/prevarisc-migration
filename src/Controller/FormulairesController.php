@@ -133,6 +133,7 @@ class FormulairesController extends AbstractController
                 return $object->getId();
             },
             AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
+            AbstractNormalizer::IGNORED_ATTRIBUTES => ['valeurs', '__initializer__', '__cloner__', '__isInitialized__'],
         ];
         $dispositions = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, 'configuration_formulaires_personnalises.json');
 
