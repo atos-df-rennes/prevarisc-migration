@@ -4,6 +4,16 @@
 
 <!--- END HEADER -->
 
+## [2.8.4](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.1...v2.8.4) (13-10-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Augmentation de la taille des champs TYPE et SOUS_TYPE pour les pièces jointes (#74) ([262727](https://github.com/atos-df-rennes/prevarisc-migration/commit/262727df1711921c1716f9112cd594b276a71bd9))
+* Insertion des ressources de changements indépendamment de la création de la table (#71) ([fb8c6d](https://github.com/atos-df-rennes/prevarisc-migration/commit/fb8c6dd234fc3ef70bd615bc6b3d3312eb56b05a))
+
+
+---
+
 ## [2.8.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.0...v2.8.1) (24-09-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
