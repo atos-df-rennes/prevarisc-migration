@@ -4,6 +4,18 @@
 
 <!--- END HEADER -->
 
+## [2.8.7](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.5...v2.8.7) (04-11-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Formulaires
+
+* Timeout lors de l'export de la configuration (#86) ([d33416](https://github.com/atos-df-rennes/prevarisc-migration/commit/d33416e48d5d059eb12d9d1f5f31b482336d0291))
+
+
+---
+
 ## [2.8.5](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.4...v2.8.5) (15-10-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
