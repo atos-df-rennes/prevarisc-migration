@@ -4,6 +4,18 @@
 
 <!--- END HEADER -->
 
+## [2.8.5](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.4...v2.8.5) (15-10-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Etablissement
+
+* Affichage de l'historique avec utilisateurs inconnus (#75) ([66db47](https://github.com/atos-df-rennes/prevarisc-migration/commit/66db47e82a88b37934b533146132e55c63bbb121))
+
+
+---
+
 ## [2.8.4](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.1...v2.8.4) (13-10-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
