@@ -1,0 +1,19 @@
+{{ form_start(form_etablissement, {attr: {id: 'resource-ets-modal', class: 'modal fade'}}) }}
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h5>Ajout d'une ressource spécialisée établissement</h5>
+            </div>
+
+            <div class="modal-body">
+                 {{ form_rest(form_etablissement) }}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <input type='submit' value='Ajouter' class='btn btn-success' />
+            </div>
+        </div>
+    </div>
+{{ form_end(form_etablissement) }}

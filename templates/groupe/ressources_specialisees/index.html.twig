@@ -1,0 +1,99 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des groupes / Gérer les droits / Ressources spécialisées{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.bouton-suppression-ressource').click(function() {
+                const textRessource = $(this).attr('data-text')
+                const url = $(this).attr('data-url')
+
+                $('#modal-suppression-ressource #text-ressource').html(textRessource)
+                $('#supprimer-ressource').click(function() {
+                    $.ajax({
+                        type: "DELETE",
+                        url: url,
+                        success: function() {
+                            window.location.reload()
+                        },
+                        error: function() {
+                            window.location.reload()
+                        }
+                    })
+                })
+            })
+
+            // @todo: Faire plutôt un Tom Select (après avoir validé l'ajout)
+            $("#ressource_specialisee_dossier_natures").multiselect({header: false, noneSelectedText: "Toutes les natures"});
+            $("#ressource_specialisee_etablissement_categories").multiselect({header: false, noneSelectedText: "Toutes les catégories"});
+            $("#ressource_specialisee_etablissement_familles").multiselect({header: false, noneSelectedText: "Toutes les familles"});
+            $("#ressource_specialisee_etablissement_classes").multiselect({header: false, noneSelectedText: "Toutes les classes"});
+            $("#ressource_specialisee_etablissement_classements").multiselect({header: false, noneSelectedText: "Tous les classements"});
+
+            // Action sur le changement du genre des ressources établissement (affichage des champs)
+            $("#ressource_specialisee_etablissement_genre").change(function() {
+                $('.champs').hide();
+                switch($(this).find('option:selected').val()) {
+                    // Établissement
+                    case '2':
+                        $('.champ_categorie, .champ_types, .champ_adresse, .champ_commission').show();
+                        break;
+
+                    // Cellule
+                    case '3':
+                        $('.champ_types').show();
+                        break;
+
+                    // Habitation
+                    case '4':
+                        $('.champ_famille, .champ_adresse').show();
+                        break;
+
+                    // IGH
+                    case '5':
+                        $('.champ_classe, .champ_adresse, .champ_commission').show();
+                        break;
+
+                    // BUP
+                    case '6':
+                        $('.champ_adresse').show();
+                        break;
+
+                    // Zones
+                    case '10':
+                        $('.champ_classement').show();
+                        break;
+                }
+            }).change();
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+    {{ include('utilisateurs/_topbar.html.twig') }}
+
+    {{ include('groupe/_menu_droits.html.twig') }}
+
+    <article>
+        <button type="button" class='btn btn-default btn-small pull-right' data-toggle="modal" data-target="#resource-ets-modal">Ajouter une ressource</button>
+
+        <h4>Ressources liées aux établissements</h4>
+
+        {{ include('groupe/ressources_specialisees/_table_ressources_specialisees.html.twig', {ressources: ressources_etablissement}) }}
+    </article>
+
+    <article>
+        <button type="button" class='btn btn-default btn-small pull-right' data-toggle="modal" data-target="#resource-dossier-modal">Ajouter une ressource</button>
+
+        <h4>Ressources liées aux dossiers</h4>
+
+        {{ include('groupe/ressources_specialisees/_table_ressources_specialisees.html.twig', {ressources: ressources_dossier}) }}
+    </article>
+
+    {{ include('groupe/ressources_specialisees/_modal_suppression_ressource.html.twig') }}
+    {{ include('groupe/ressources_specialisees/_form_ajout_ressource_etablissement.html.twig') }}
+    {{ include('groupe/ressources_specialisees/_form_ajout_ressource_dossier.html.twig') }}
+{% endblock %}
