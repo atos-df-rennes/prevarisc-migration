@@ -133,7 +133,7 @@ class UtilisateursController extends AbstractController
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
 
-            return $this->redirectToRoute('admin_utilisateurs_index');
+            return $this->redirect('/legacy/admin/utilisateurs/sauvegarder?userId='.$userId);
         }
 
         return $this->render('utilisateurs/modification.html.twig', [

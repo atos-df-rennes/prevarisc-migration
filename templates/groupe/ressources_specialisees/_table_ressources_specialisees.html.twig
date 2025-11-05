@@ -1,0 +1,26 @@
+<table class="table table-condensed table-hover table-ressources-specialisees">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Identifiant</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for resource in ressources %}
+            <tr>
+                <td>{{ resource.text }}</td>
+                <td>{{ resource.name }}</td>
+                <td>
+                    <button type="button"
+                            class="btn btn-link bouton-suppression-ressource"
+                            data-text="{{ resource.text }}"
+                            data-url="{{ path('admin_groupe_ressources_specialisees_delete', {id: resource.id}) }}"
+                            data-toggle="modal"
+                            data-target="#modal-suppression-ressource"
+                    >Supprimer</button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

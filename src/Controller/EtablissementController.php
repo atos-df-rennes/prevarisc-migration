@@ -12,6 +12,7 @@ use App\Service\Contact;
 use App\Service\Etablissement as EtablissementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,8 @@ class EtablissementController extends AbstractController
 {
     /**
      * @Route("/etablissement/{id}/historique", name="etablissement_historique")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function historique(Etablissement $etablissement, EtablissementService $etablissementService): Response
     {
@@ -36,6 +39,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/textes-applicables", name="etablissement_textes_applicables")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function textesApplicables(Etablissement $etablissement, EtablissementService $etablissementService): Response
     {
@@ -49,6 +54,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/textes-applicables/modifier", name="etablissement_textes_applicables_edit")
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
      */
     public function editTextesApplicables(Request $request, Etablissement $etablissement, EtablissementRepository $etablissementRepository, EntityManagerInterface $entityManager): Response
     {
@@ -72,6 +79,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/avis-derogations", name="etablissement_avis_derogations")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function avisDerogations(Etablissement $etablissement, EtablissementService $etablissementService): Response
     {
@@ -87,6 +96,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/pieces-jointes", name="etablissement_pieces_jointes")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function piecesJointes(Etablissement $etablissement, EtablissementService $etablissementService): Response
     {
@@ -102,6 +113,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function contacts(Etablissement $etablissement, EtablissementRepository $etablissementRepository): Response
     {
@@ -138,6 +151,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add")
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
      */
     public function addContact(Request $request, Etablissement $etablissement, EntityManagerInterface $entityManager): Response
     {
@@ -165,6 +180,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing")
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
      */
     public function addExistingContact(
         Request $request,
@@ -203,6 +220,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"DELETE"})
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
      *
      * @ParamConverter("etablissement", options={"id" = "id"})
      * @ParamConverter("contact", options={"id" = "contact"})

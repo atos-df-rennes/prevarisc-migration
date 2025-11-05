@@ -19,5 +19,3 @@ parameters:
                 - src/Entity
         -
             identifier: missingType.generics
-            paths:
-                - src/Form
