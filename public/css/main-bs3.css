@@ -1277,6 +1277,10 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
   gap: 1.5rem;
 }
 
+.panel.panel-formulaire-perso .panel-body.panel-body-hidden {
+  display: none;
+}
+
 .panel.panel-formulaire-perso .date {
   background-color: #fff;
 }
