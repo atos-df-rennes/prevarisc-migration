@@ -1312,6 +1312,10 @@ dl.champ_effectif_camping dd input {
   gap: 1.5rem;
 }
 
+.panel.panel-formulaire-perso .panel-body.panel-body-hidden {
+  display: none;
+}
+
 .panel.panel-formulaire-perso .date {
   background-color: #fff;
 }
