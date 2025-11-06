@@ -1,0 +1,166 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des formulaires personnalisés / Modifier un champ{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
+    <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script src="{{ asset('js/formulaire/suppression-champ.js') }}"></script>
+    <script src="{{ asset('js/formulaire/handle-type-champ.js') }}"></script>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const listValuesContainer = document.getElementById('list-values-container');
+            if (!listValuesContainer) return;
+
+            const getValuesOrder = () => {
+                return Array.from(listValuesContainer.children).map((el, idx) => ({
+                    idx: idx,
+                    ID: el.id
+                }));
+            };
+
+            const updateAllValuesIdx = (list) => {
+                list.forEach((val) => {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
+                        data: { ID: val.ID, idx: val.idx },
+                        datatype: 'json'
+                    });
+                });
+            };
+
+            new Sortable(listValuesContainer, {
+                handle: '.tdMove',
+                animation: 100,
+                onEnd: function () {
+                    const newList = getValuesOrder();
+                    updateAllValuesIdx(newList);
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    {% if champ.parent is not null %}
+        <a href="{{ path('admin_formulaires_edit_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.parent.id}) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            Retourner sur le champ parent "{{ champ.parent.nom }}"
+        </a>
+    {% else %}
+        <a href="{{ path('admin_formulaires_edit_rubrique', {formulaire: formulaire.id, rubrique: rubrique.id}) }}">
+            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+            Retourner sur la rubrique "{{ rubrique.nom }}"
+        </a>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Informations sur la rubrique</h3>
+                </div>
+                <div class="panel-body">
+                    <p>
+                        <b>{{ rubrique.nom }}</b>
+                        {% if rubrique.defaultDisplay %}
+                            <small class="text-muted">(Affichée par défaut)</small>
+                        {% endif %}
+                    </p>
+
+                    {% if champ.parent is not null %}
+                        <b>Champ parent :</b> {{ champ.parent.nom }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 col-md-offset-1">
+            {{ include('formulaires/champ/_form.html.twig') }}
+        </div>
+    </div>
+
+    {% if 'Parent' == champ.type.type %}
+        <div class="row">
+            <div class="col-md-4">
+                {{ include('formulaires/champ/_form.html.twig', {form_champ: form_champ_enfant, enfant: true}) }}
+            </div>
+
+            {% if champ.enfants|length > 0 %}
+                <div class="col-md-7 col-md-offset-1 saved-fields">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Liste des champs enfants</h3>
+                        </div>
+
+                        {% if valeur_champ_fusion is not null %}
+                            <div class="panel-body">
+                                {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
+                            </div>
+                        {% endif %}
+
+                        <table id="saved-fields-table" class="table table-bordered table-condensed">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Nom du champ</th>
+                                    <th>Type du champ</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id='tableParentChamp' class="grp">
+                                {% for champ_enfant in champ.enfants %}
+                                    <tr id="{{ champ_enfant.id }}">
+                                        <td class='tdMove'><span class="glyphicon glyphicon-move" aria-hidden="true"></span></td>
+                                        <td>{{ champ_enfant.nom }}</td>
+                                        <td>
+                                            {{ champ_enfant.type.type }}
+
+                                            {% if champ_enfant.type.type == 'Liste' %}
+                                                {% if champ_enfant.valeursListe|length == 0 %}
+                                                    <div class="alert alert-warning">
+                                                        <strong>Attention !</strong> La liste ne possède aucune valeur, vous devriez en ajouter.
+                                                    </div>
+                                                {% endif %}
+
+                                                <ul>
+                                                    {% for valeur_liste in champ_enfant.valeursListe %}
+                                                        <li>{{ valeur_liste.valeur }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </td>
+                                        <td id='actions'>
+                                            <div class='text-center'>
+                                                <a href="{{ path('admin_formulaires_edit_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ_enfant.id}) }}">
+                                                    <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
+                                                </a>
+                                                <button data-url="{{ path('admin_formulaires_delete_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ_enfant.id}) }}" data-nom="{{ champ_enfant.nom }}" class="btn btn-link delete-champ" data-toggle="modal" data-target="#modal-delete-champ">
+                                                    <i title='Supprimer' class='glyphicon glyphicon-trash'></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {{ include('formulaires/champ/_delete.html.twig') }}
+{% endblock %}

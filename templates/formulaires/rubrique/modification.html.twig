@@ -12,10 +12,11 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <script src="{{ asset('js/formulaire/rubrique-bs3.js') }}"></script>
     <script src="{{ asset('js/formulaire/ordonnancement/ordonnancement.js') }}"></script>
     <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script src="{{ asset('js/formulaire/suppression-champ.js') }}"></script>
+    <script src="{{ asset('js/formulaire/handle-type-champ.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -26,8 +27,10 @@
 
     {{ include('formulaires/rubrique/_form.html.twig') }}
 
-    <div class="row champs">
-        {{ include('formulaires/champ/_form.html.twig') }}
+    <div class="row">
+        <div class="col-md-4">
+            {{ include('formulaires/champ/_form.html.twig') }}
+        </div>
 
         {% if rubrique.champs|length > 0 %}
             <div class="col-md-7 col-md-offset-1 saved-fields">
@@ -90,7 +93,7 @@
                                     </td>
                                     <td id='actions'>
                                         <div class='text-center'>
-                                            <a href="/formulaire/edit-champ/rubrique/{{ rubrique.id }}/champ/{{ champ.id }}">
+                                            <a href="{{ path('admin_formulaires_edit_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.id}) }}">
                                                 <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
                                             </a>
                                             <button data-url="{{ path('admin_formulaires_delete_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ.id}) }}" data-nom="{{ champ.nom }}" class="btn btn-link delete-champ" data-toggle="modal" data-target="#modal-delete-champ">
@@ -106,12 +109,6 @@
             </div>
         {% endif %}
     </div>
-
-    <datalist id="champ-valeurs-liste">
-        {% for champ_valeur_liste in champ_valeurs_liste %}
-            <option value="{{ champ_valeur_liste.valeur }}"></option>
-        {% endfor %}
-    </datalist>
 
     {{ include('formulaires/champ/_delete.html.twig') }}
 {% endblock %}

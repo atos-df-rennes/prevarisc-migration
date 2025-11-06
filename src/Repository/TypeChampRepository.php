@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\TypeChamp;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,26 +22,14 @@ class TypeChampRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return TypeChamp[]
      */
-    public function add(TypeChamp $entity, bool $flush = true): void
+    public function findAllowedTypeForParent(): array
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(TypeChamp $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('tc')
+            ->where('tc.type != :type')
+            ->setParameter('type', 'Parent')
+            ->getQuery()
+            ->getResult();
     }
 }

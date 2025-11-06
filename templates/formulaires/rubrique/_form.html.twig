@@ -6,13 +6,12 @@
             </div>
             <div class="panel-body">
                 {{ form_start(form_rubrique) }}
-                {{ form_row(form_rubrique.nom) }}
-                {{ form_row(form_rubrique.defaultDisplay) }}
+                    {{ form_row(form_rubrique.nom) }}
+                    {{ form_row(form_rubrique.defaultDisplay) }}
 
-                <div class="pull-right">
-                    <a href="{{ path('admin_formulaires') }}" type="button" class="btn btn-default">Annuler</a>
-                    <button type="submit" class="btn btn-success">Sauvegarder</button>
-                </div>
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-success">Sauvegarder</button>
+                    </div>
                 {{ form_end(form_rubrique) }}
             </div>
         </div>

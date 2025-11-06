@@ -1,21 +1,4 @@
 $(document).ready(function() {
-    const typeChampSelect = $('#champ_type')
-
-    typeChampSelect.on('change', function() {
-        if (typeChampSelect.find(":selected").text() === 'Liste') {
-            $('#fieldset_valeurs_liste').show()
-        } else {
-            $('#fieldset_valeurs_liste').hide()
-        }
-
-        if (typeChampSelect.find(":selected").text() === 'Parent') {
-            $('#champ_tableau').closest('.form-group').show()
-        } else {
-            $('#champ_tableau').closest('.form-group').hide()
-        }
-    })
-    typeChampSelect.trigger('change')
-
     $('.delete-champ').on('click', function(e) {
         e.preventDefault()
         deleteChamp(this)
@@ -23,7 +6,6 @@ $(document).ready(function() {
 })
 
 function deleteChamp(element) {
-    const idParent = element.getAttribute('data-id-parent')
     const nom = element.getAttribute('data-nom')
     const url = element.getAttribute('data-url')
 
@@ -36,7 +18,6 @@ function deleteChamp(element) {
         $.ajax({
             url: url,
             type: 'DELETE',
-            data: idParent,
             success: function() {
                 if (nbOfRows === 1) {
                     parentTable.remove()

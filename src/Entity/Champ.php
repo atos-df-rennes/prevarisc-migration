@@ -79,7 +79,7 @@ class Champ
      *
      * @MaxDepth(1)
      *
-     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="parent")
+     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="parent", cascade={"persist", "remove"})
      */
     private $enfants;
 

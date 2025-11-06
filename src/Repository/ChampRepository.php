@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Champ;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,27 +21,19 @@ class ChampRepository extends ServiceEntityRepository
         parent::__construct($registry, Champ::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Champ $entity, bool $flush = true): void
+    public function findAllInformations(Champ $champ): Champ
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Champ $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('c')
+            ->addSelect('e')
+            ->addSelect('cvl')
+            ->leftJoin('c.enfants', 'e')
+            ->leftJoin('c.valeursListe', 'cvl')
+            ->andWhere('c = :champ')
+            ->setParameter('champ', $champ)
+            ->orderBy('e.idx', 'ASC')
+            ->addOrderBy('cvl.idx', 'ASC')
+            ->getQuery()
+            ->getSingleResult()
+        ;
     }
 }
