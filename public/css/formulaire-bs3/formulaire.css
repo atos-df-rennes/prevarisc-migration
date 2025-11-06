@@ -19,10 +19,6 @@ label.optional {
   vertical-align: middle;
 }
 
-.infos-champ #div-list-value {
-  display: none;
-}
-
 #default-display,
 #actions,
 .table > tbody > tr > td {
