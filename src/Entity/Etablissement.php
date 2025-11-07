@@ -91,6 +91,20 @@ class Etablissement
     private $courriel;
 
     /**
+     * @var ?int
+     *
+     * @ORM\Column(name="NBPREV_ETABLISSEMENT", type="smallint", nullable=true)
+     */
+    private $nbPrev;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DUREEVISITE_ETABLISSEMENT", type="time", nullable=true)
+     */
+    private $dureeVisite;
+
+    /**
      * @var Collection<int, Etablissement>
      *
      * @ORM\JoinTable(
@@ -372,6 +386,29 @@ class Etablissement
         return $this;
     }
 
+    public function getNbPrev(): ?int
+    {
+        return $this->nbPrev;
+    }
+
+    public function setNbPrev(?int $nbPrev): self
+    {
+        $this->nbPrev = $nbPrev;
+
+        return $this;
+    }
+
+    public function getDureeVisite(): ?string
+    {
+        return $this->dureeVisite;
+    }
+
+    public function setDureeVisite(?string $dureeVisite): self
+    {
+        $this->dureeVisite = $dureeVisite;
+
+        return $this;
+    }
 
     /**
      * @return Collection<int, self>

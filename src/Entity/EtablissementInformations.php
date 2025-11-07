@@ -130,8 +130,6 @@ class EtablissementInformations
      */
     private $effectifJustifiantClassement;
 
-
-
     /**
      * @var ?Etablissement
      *
@@ -341,6 +339,150 @@ class EtablissementInformations
         return $this;
     }
 
+    public function getPeriodicite(): ?int
+    {
+        return $this->periodicite;
+    }
+
+    public function setPeriodicite(int $periodicite): self
+    {
+        $this->periodicite = $periodicite;
+
+        return $this;
+    }
+
+    public function getIcpe(): bool
+    {
+        return $this->icpe ?? false;
+    }
+
+    public function setIcpe(bool $icpe): self
+    {
+        $this->icpe = $icpe;
+
+        return $this;
+    }
+
+    public function getR14320(): bool
+    {
+        return $this->r14320 ?? false;
+    }
+
+    public function setR14320(bool $r14320): self
+    {
+        $this->r14320 = $r14320;
+
+        return $this;
+    }
+
+    public function getDroitPublic(): bool
+    {
+        return $this->droitPublic ?? false;
+    }
+
+    public function setDroitPublic(bool $droitPublic): self
+    {
+        $this->droitPublic = $droitPublic;
+
+        return $this;
+    }
+
+    public function getEffectifHabitation(): ?int
+    {
+        return $this->effectifHabitation;
+    }
+
+    public function setEffectifHabitation(int $effectifHabitation): self
+    {
+        $this->effectifHabitation = $effectifHabitation;
+
+        return $this;
+    }
+
+    public function getEffectifCaravane(): ?int
+    {
+        return $this->effectifCaravane;
+    }
+
+    public function setEffectifCaravane(int $effectifCaravane): self
+    {
+        $this->effectifCaravane = $effectifCaravane;
+
+        return $this;
+    }
+
+    public function getEffectifEmplacementNu(): ?int
+    {
+        return $this->effectifEmplacementNu;
+    }
+
+    public function setEffectifEmplacementNu(int $effectifEmplacementNu): self
+    {
+        $this->effectifEmplacementNu = $effectifEmplacementNu;
+
+        return $this;
+    }
+
+    public function getEffectifDivers(): ?int
+    {
+        return $this->effectifDivers;
+    }
+
+    public function setEffectifDivers(int $effectifDivers): self
+    {
+        $this->effectifDivers = $effectifDivers;
+
+        return $this;
+    }
+
+    public function getEffectifPublic(): ?int
+    {
+        return $this->effectifPublic;
+    }
+
+    public function setEffectifPublic(int $effectifPublic): self
+    {
+        $this->effectifPublic = $effectifPublic;
+
+        return $this;
+    }
+
+    public function getEffectifPersonnel(): ?int
+    {
+        return $this->effectifPersonnel;
+    }
+
+    public function setEffectifPersonnel(int $effectifPersonnel): self
+    {
+        $this->effectifPersonnel = $effectifPersonnel;
+
+        return $this;
+    }
+
+    public function getEffectifHeberge(): ?int
+    {
+        return $this->effectifHeberge;
+    }
+
+    public function setEffectifHeberge(int $effectifHeberge): self
+    {
+        $this->effectifHeberge = $effectifHeberge;
+
+        return $this;
+    }
+
+    public function getEffectifJustifiantClassement(): ?int
+    {
+        return $this->effectifJustifiantClassement;
+    }
+
+    public function setEffectifJustifiantClassement(int $effectifJustifiantClassement): self
+    {
+        $this->effectifJustifiantClassement = $effectifJustifiantClassement;
+
+        return $this;
+    }
+
     public function getEtablissement(): ?Etablissement
     {
         return $this->etablissement;
@@ -373,6 +515,30 @@ class EtablissementInformations
     public function setType(?EtablissementType $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getActivite(): ?EtablissementActivite
+    {
+        return $this->activite;
+    }
+
+    public function setActivite(?EtablissementActivite $activite): self
+    {
+        $this->activite = $activite;
+
+        return $this;
+    }
+
+    public function getCommission(): ?Commission
+    {
+        return $this->commission;
+    }
+
+    public function setCommission(?Commission $commission): self
+    {
+        $this->commission = $commission;
 
         return $this;
     }
@@ -516,7 +682,6 @@ class EtablissementInformations
 
         return $this;
     }
-
 
     /**
      * @return Collection<int, EtablissementInformationsRubriques>

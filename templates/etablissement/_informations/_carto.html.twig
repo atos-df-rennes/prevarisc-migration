@@ -148,7 +148,7 @@
                 <div class="carousel-inner" style="background-color: #333">
                     {% for item in etablissement.diapo %}
                         <div class="item {{ loop.first ? 'active' }}">
-                            {#                                            {% set EXTENSION_PIECEJOINTE == '.jpg' %}#}
+                            {# {% set EXTENSION_PIECEJOINTE == '.jpg' %} #}
                             <img style="margin: 0 auto; width: auto; height: 350px; max-height: 350px;"
                                  src="{{ store.getURLPath(item, 'etablissement_miniature', etablissement.general.id) }}"
                                  alt="{{ item.nom|e('html_attr') }}"
@@ -179,7 +179,7 @@
                 <div class="carousel-inner" style="background-color: #333">
                     {% for item in etablissement.diapo_plans %}
                         <div class="item {{ loop.first ? 'active' }}" >
-                            {#                                            {% set item.EXTENSION_PIECEJOINTE = '.jpg' %}#}
+                            {# {% set item.EXTENSION_PIECEJOINTE = '.jpg' %} #}
                             <img style="margin: 0 auto; width: auto; height: 350px; max-height: 350px;"
                                  src="{{ store.getURLPath(item, 'etablissement_miniature', etablissement.general.id) }}"
                                  alt="{{ item.nom|e('html_attr') }}"
@@ -284,7 +284,7 @@
             <p class="text-muted">Aucun préventionniste lié.</p>
         {% else %}
             {% for preventionniste in etablissement.latestInformations.preventionnistes %}
-                {{ include('utilisateurs/_user_card.html.twig', { 'user': preventionniste }) }}
+                {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
                 <div style="clear: both; margin-bottom: 10px;"></div>
             {% endfor %}
         {% endif %}
@@ -294,21 +294,18 @@
     {% if last_visite is not empty %}
         <dt>Dernière VP</dt>
         <dd><p>{{ last_visite|date('d/m/Y') }}</p></dd>
-        {# TODO: Revoir le format de la date #}
     {% endif %}
 
     <!-- Date de prochaine visite-->
     {% if next_visite is not empty %}
         <dt>Prochaine VP</dt>
         <dd><p>{{ next_visite|date('d/m/Y') }}</p></dd>
-        {# TODO: Revoir le format de la date #}
     {% endif %}
 
     <!-- Date de PC initial -->
     {% if pc_initial is not empty %}
         <dt>Date PC Initial</dt>
         <dd><p>{{ pc_initial|date('d/m/Y') }}</p></dd>
-        {# TODO: Revoir le format de la date #}
     {% endif %}
 
     <!-- Présence DUS -->

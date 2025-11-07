@@ -14,33 +14,35 @@ class EtablissementInformationsRubriques
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONSRUBRIQUE", type="bigint")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE", type="integer")
      */
     private $numero;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(name="VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="float")
      */
     private $valeur;
 
     /**
-     * @ORM\Column(type="string", length=500)
+     * @ORM\Column(name="NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="string", length=500)
      */
     private $nom;
 
     /**
-     * @ORM\Column(type="smallint")
+     * @ORM\Column(name="ID_RUBRIQUE",type="smallint")
      */
     private $rubrique;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(name="CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="string", length=50)
      */
     private $classement;
 
@@ -129,5 +131,4 @@ class EtablissementInformationsRubriques
 
         return $this;
     }
-
 }

@@ -5,8 +5,6 @@ namespace App\Repository;
 use App\Entity\Etablissement;
 use App\Entity\Periodicite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -29,11 +27,11 @@ class PeriodiciteRepository extends ServiceEntityRepository
     /**
      * Récupère une entité Periodicite en fonction de la catégorie, du type et du local de sommeil.
      *
-     * @param int $categorie La catégorie spécifique de la periodicité.
-     * @param int $type Le type spécifique de la periodicité.
-     * @param string $localSommeil Le local de sommeil associé à la periodicité.
+     * @param int    $categorie    la catégorie spécifique de la periodicité
+     * @param int    $type         le type spécifique de la periodicité
+     * @param string $localSommeil le local de sommeil associé à la periodicité
      *
-     * @return Periodicite|null Renvoie l'entité Periodicite correspondante ou null si aucune correspondance trouvée.
+     * @return Periodicite|null renvoie l'entité Periodicite correspondante ou null si aucune correspondance trouvée
      */
     public function gn4(int $categorie, int $type, string $localSommeil): ?Periodicite
     {
@@ -54,15 +52,15 @@ class PeriodiciteRepository extends ServiceEntityRepository
     /**
      * Génère une chaîne spécifique pour un établissement donné en fonction de ses informations.
      *
-     * @param array $etablissement Tableau associatif contenant les informations de l'établissement.
+     * @param array $etablissement tableau associatif contenant les informations de l'établissement
      *
-     * @return string|null Renvoie une chaîne spécifique si les conditions sont remplies, sinon null.
+     * @return string|null renvoie une chaîne spécifique si les conditions sont remplies, sinon null
      */
     public function gn4ForEtablissement(Etablissement $etablissement): ?Periodicite
     {
         $information = $etablissement->getLatestInformations();
 
-        if (!in_array($information->getGenre()->getId(), [2,5])) {
+        if (!in_array($information->getGenre()->getId(), [2, 5])) {
             return null;
         }
 

@@ -144,4 +144,50 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
 
         return $query->getSingleScalarResult();
     }
+
+    public function findByIdWithJoinedData(int $id): ?Etablissement
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('ei')
+            ->addSelect('ea')
+            ->addSelect('ac')
+            ->addSelect('es')
+            ->addSelect('et')
+            ->addSelect('ec')
+            ->addSelect('ecl')
+            ->addSelect('ef')
+            ->addSelect('c')
+            ->addSelect('cf')
+            ->addSelect('ta')
+            ->addSelect('tat')
+            ->addSelect('pj')
+            ->addSelect('dr')
+            ->addSelect('fils')
+            ->addSelect('parents')
+            ->addSelect('dossiers')
+            ->leftJoin('e.informations', 'ei')
+            ->leftJoin('e.adresses', 'ea')
+            ->leftJoin('ea.commune', 'ac')
+            ->leftJoin('ei.statut', 'es')
+            ->leftJoin('ei.type', 'et')
+            ->leftJoin('ei.categorie', 'ec')
+            ->leftJoin('ei.classe', 'ecl')
+            ->leftJoin('ei.famille', 'ef')
+            ->leftJoin('e.contacts', 'c')
+            ->leftJoin('c.fonction', 'cf')
+            ->leftJoin('e.textesApplicables', 'ta')
+            ->leftJoin('ta.type', 'tat')
+            ->leftJoin('e.piecesJointes', 'pj')
+            ->leftJoin('e.displayRubriques', 'dr')
+            ->leftJoin('e.fils', 'fils')
+            ->leftJoin('e.parents', 'parents')
+            ->leftJoin('e.dossiers', 'dossiers')
+            ->where('e.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+        ;
+
+        return $query->getOneOrNullResult();
+    }
 }

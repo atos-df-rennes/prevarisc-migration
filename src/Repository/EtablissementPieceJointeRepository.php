@@ -5,8 +5,6 @@ namespace App\Repository;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementPieceJointe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -57,7 +55,7 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
             ->andWhere('etablissement_pj.placement = 1')
             ->andWhere('etablissement_pj.pieceJointe = :etablissement')
             ->setParameter('etablissement', $etablissement->getId())
-            ->setParameter('extensions', [".jpg", ".JPG", ".jpeg", ".png"])
+            ->setParameter('extensions', ['.jpg', '.JPG', '.jpeg', '.png'])
         ;
 
         return $queryBuilder->getQuery()->getResult();
@@ -72,7 +70,7 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
             ->andWhere('etablissement_pj.placement = 2')
             ->andWhere('etablissement_pj.pieceJointe = :etablissement')
             ->setParameter('etablissement', $etablissement->getId())
-            ->setParameter('extensions', [".jpg", ".JPG", ".png"])
+            ->setParameter('extensions', ['.jpg', '.JPG', '.png'])
         ;
 
         return $queryBuilder->getQuery()->getResult();

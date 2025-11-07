@@ -14,7 +14,8 @@ class AssetExistExtension extends AbstractExtension
     /** @var string */
     private $srcDir;
 
-    public function __construct(Packages $packages, string $srcDir) {
+    public function __construct(Packages $packages, string $srcDir)
+    {
         $this->packages = $packages;
         $this->srcDir = $srcDir;
     }

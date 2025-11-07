@@ -163,6 +163,7 @@ class EtablissementAdresse
     public function setRue(?AdresseRue $rue): self
     {
         $this->rue = $rue;
+
         return $this;
     }
 }

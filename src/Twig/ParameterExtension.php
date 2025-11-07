@@ -2,7 +2,6 @@
 
 namespace App\Twig;
 
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -15,7 +14,8 @@ class ParameterExtension extends AbstractExtension
     /** @var ParameterBagInterface */
     private $parameterBag;
 
-    public function __construct(ParameterBagInterface $parameterBag) {
+    public function __construct(ParameterBagInterface $parameterBag)
+    {
         $this->parameterBag = $parameterBag;
     }
 
@@ -32,8 +32,9 @@ class ParameterExtension extends AbstractExtension
     /**
      * Récupère la valeur d'un paramètre depuis le parameterBag.
      *
-     * @param string $parameterName Nom du paramètre à récupérer.
-     * @return array|bool|string|int|float|\UnitEnum|null Valeur du paramètre.
+     * @param string $parameterName nom du paramètre à récupérer
+     *
+     * @return array|bool|string|int|float|\UnitEnum|null valeur du paramètre
      */
     public function parameter(string $parameterName)
     {

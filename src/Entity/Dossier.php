@@ -91,6 +91,13 @@ class Dossier
     private $avisCommission;
 
     /**
+     * @var ?int
+     *
+     * @ORM\Column(name="FACTDANGE_DOSSIER", type="integer", nullable=true, options={"unsigned":true})
+     */
+    private $facteurDangerosite;
+
+    /**
      * @var ?string
      *
      * @ORM\Column(type="string", length=10, nullable=true, name="DATECOMM_DOSSIER")
@@ -103,6 +110,13 @@ class Dossier
      * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
      */
     private $dateVisite;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(type="datetime", nullable=true, name="DATEINSERT_DOSSIER")
+     */
+    private $dateInsert;
 
     /**
      * @var ?Utilisateur
@@ -385,6 +399,24 @@ class Dossier
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
+    public function getFacteurDangerosite()
+    {
+        return $this->facteurDangerosite;
+    }
+
+    /**
+     * @param int|null $facteurDangerosite
+     */
+    public function setFacteurDangerosite($facteurDangerosite): self
+    {
+        $this->facteurDangerosite = $facteurDangerosite;
+
+        return $this;
+    }
+
     public function getDateCommission(): ?string
     {
         return $this->dateCommission;
@@ -405,6 +437,18 @@ class Dossier
     public function setDateVisite(?\DateTimeInterface $dateVisite): self
     {
         $this->dateVisite = $dateVisite;
+
+        return $this;
+    }
+
+    public function getDateInsert(): ?\DateTimeInterface
+    {
+        return $this->dateInsert;
+    }
+
+    public function setDateInsert(?\DateTimeInterface $dateInsert): self
+    {
+        $this->dateInsert = $dateInsert;
 
         return $this;
     }

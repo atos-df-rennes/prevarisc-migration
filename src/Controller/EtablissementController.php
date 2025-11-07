@@ -7,13 +7,11 @@ use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
-use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\PeriodiciteRepository;
 use App\Repository\UtilisateurInformationsRepository;
-use App\Repository\UtilisateurRepository;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
 use App\Service\Etablissement as EtablissementService;
@@ -22,7 +20,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -45,27 +42,25 @@ class EtablissementController extends AbstractController
      * @Route("/etablissement/{id}/informations", name="etablissement_informations")
      */
     public function informations(
-        Etablissement $etablissement,
-        ParameterBagInterface $parameterBag,
+        int $id,
         CoucheCartoRepository $coucheCartoRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
         EtablissementService $etablissementService,
-        DossierRepository $dossierRepository,
         DataStore $dataStore,
         SerializerInterface $serializer
-    ): Response
-    {
+    ): Response {
+        $data = $etablissementService->get($id);
+        $etablissement = $data['etablissement'];
+
         $couchesCartographiques = $coucheCartoRepository->findAll();
 
-        // TODO: Tester les valeurs récupérées
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
 
-        // TODO: Tester les valeurs récupérées
         $periodicity = $etablissementService->getDisplayedPeriodicity($etablissement);
 
         $groupementsDeCommunes = [];
-        if($etablissement->getAdresses()->count() !== 0) {
+        if (0 !== $etablissement->getAdresses()->count()) {
             $groupementsDeCommunes = $groupementRepository->findByNumInsee(
                 $etablissement->getAdresses()->first()->getCommune()->getId()
             );
@@ -73,44 +68,6 @@ class EtablissementController extends AbstractController
 
         $diapoPlans = $this->etablissementPieceJointeRepository->getPlans($etablissement);
         $diapo = $this->etablissementPieceJointeRepository->getDiaporama($etablissement);
-
-
-        // TODO: A mettre dans le template ?
-//        $isAllowedDeleteEtablissement = unserialize($this->cache->get('acl'))->isAllowed(
-//            $this->security->getUser()->getGroup()->getLibelle(),
-//            'suppression',
-//            'delete_etablissement'
-//        );
-
-        $last_visite = $dossierRepository->findLastVisite($etablissement);
-
-        // TODO: Récupérer la prochaine visite d'un établissement
-        $next_visite = new \DateTime();
-
-        // TODO: Récupérer la prochaine visite d'un établissement
-        $pc_initial = new \DateTime();
-
-        // TODO: Récupérer la présence d'un DUS dans les contacts de l'établissement (et ses parents)
-
-        // Récupération de l'indicateur de présence d'un DUS
-        $contacts_dus = [];
-//        $contacts = array_merge([], $this->getAllContacts($id_etablissement));
-//        foreach ($etablissement_parents as $etablissement_parent) {
-//            $contacts = array_merge($contacts, $this->getAllContacts($etablissement_parent['ID_ETABLISSEMENT']));
-//        }
-//
-//        foreach ($contacts as $contact) {
-//            if (self::ID_FONCTION_DUS == $contact['ID_FONCTION']) {
-//                $contacts_dus[] = $contact;
-//            }
-//        }
-
-        // TODO: Récupérer les données pratiques
-        $donnees_pratiques = [
-            'nbPreventionnistes' => null,
-            'dureeVisite' => $duree_totale ?? null,
-        ];
-
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
@@ -122,15 +79,17 @@ class EtablissementController extends AbstractController
             'store' => $dataStore,
             'diapo_plans' => $diapoPlans,
             'diapo' => $diapo,
-            'last_visite' => $last_visite,
-            'next_visite' => $next_visite,
-            'pc_initial' => $pc_initial,
-            'presence_dus' => [] !== $contacts_dus,
-            'donnees_pratiques' => $donnees_pratiques
-//            'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
+            'last_visite' => $data['lastVisite'],
+            'next_visite' => $data['nextVisite'],
+            'pc_initial' => $data['pcInitial'],
+            'presence_dus' => $data['presenceDus'],
+            'donnees_pratiques' => [
+                'nbPreventionnistes' => $data['nbPrevCalcule'],
+                'dureeVisite' => $data['dureeVisiteCalculee'],
+            ]
+            //            'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
         ]);
     }
-
 
     /**
      * @Route("/etablissement/{id}/historique", name="etablissement_historique")

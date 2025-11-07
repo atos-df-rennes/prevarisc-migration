@@ -24,12 +24,13 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
 
     /**
      * Récupère tous les groupements, avec la possibilité de filtrer par numéro INSEE de la ville.
-     * Remplace la méthode findAll($num_insee) du legacy (@see )
+     * Remplace la méthode findAll($num_insee) du legacy (@see ).
+     *
      * @see
      *
-     * @param string|null $num_insee Numéro INSEE pour filtrer les groupements par ville.
+     * @param string|null $num_insee numéro INSEE pour filtrer les groupements par ville
      *
-     * @return Groupement[] Liste des groupements triés par libellé en ordre croissant, ou filtrés par ville si le numéro INSEE est fourni.
+     * @return Groupement[] liste des groupements triés par libellé en ordre croissant, ou filtrés par ville si le numéro INSEE est fourni
      */
     public function findByNumInsee(?string $num_insee = null): array
     {
@@ -60,9 +61,9 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     /**
      * Retourne une liste de groupements associés à une ville identifiée par son code INSEE.
      *
-     * @param string $codeInsee Code INSEE de la commune.
+     * @param string $codeInsee code INSEE de la commune
      *
-     * @return Groupement[] Liste des groupements correspondant, triés par type et libellé.
+     * @return Groupement[] liste des groupements correspondant, triés par type et libellé
      */
     public function getGroupementParVille(string $codeInsee): array
     {

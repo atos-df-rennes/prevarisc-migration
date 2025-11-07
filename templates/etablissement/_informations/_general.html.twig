@@ -67,7 +67,7 @@
             <ul class="list-unstyled">
                 <li>
                     <strong>
-                        {% set etablissement_type_asset_path = asset('images/types/b/icone-type-'~ etablissement.latestInformations.type.libelle ~ '.png') %}
+                        {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ etablissement.latestInformations.type.libelle ~ '.png') %}
                         {% if asset_exist(etablissement_type_asset_path) %}
                             <img src="{{ etablissement_type_asset_path }}" title="{{ etablissement.latestInformations.type.libelle }}" />&nbsp;-&nbsp;
                         {% else %}
@@ -120,13 +120,13 @@
             </tr>
             </thead>
             <tbody>
-            {% for rubriqueIcpe in etablissement.latestInformations.rubriquesIcpe %}
+            {% for rubrique_icpe in etablissement.latestInformations.rubriquesIcpe %}
                 <tr>
-                    <td>{{ rubriqueIcpe.rubrique == 1 ? 'Substance' : (rubriqueIcpe.rubrique == 2 ? 'Activité' : (rubriqueIcpe.rubrique == 3 ? 'IED' : 'Produits dangereux')) }}</td>
-                    <td>{{ rubriqueIcpe.numero }}</td>
-                    <td>{{ rubriqueIcpe.nom }}</td>
-                    <td>{{ rubriqueIcpe.valeur }}</td>
-                    <td>{{ rubriqueIcpe.classement }}</td>
+                    <td>{{ rubrique_icpe.rubrique == 1 ? 'Substance' : (rubrique_icpe.rubrique == 2 ? 'Activité' : (rubrique_icpe.rubrique == 3 ? 'IED' : 'Produits dangereux')) }}</td>
+                    <td>{{ rubrique_icpe.numero }}</td>
+                    <td>{{ rubrique_icpe.nom }}</td>
+                    <td>{{ rubrique_icpe.valeur }}</td>
+                    <td>{{ rubrique_icpe.classement }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -241,7 +241,7 @@
 
 <!-- Etablissement lié -->
 {% if etablissement.fils|length > 0 %}
-    <h4 class="h4_subtitle">Établissements liés <small>{{ etablissement.fils|length > 0 ? "(" ~ etablissement.fils|length ~ ")" }}</small>
+    <h4 class="h4_subtitle">Établissements liés <small>{{ etablissement.fils|length > 0 ? '(' ~ etablissement.fils|length ~ ')' }}</small>
         <input type="text" class="pull-right form-control input-medium" id="filterLinkedEts" placeholder="Filtrer les établissements" />
         <script>
             $(document).ready(function(){
@@ -259,6 +259,6 @@
         </script>
     </h4>
     <ul class="recherche_liste list-unstyled no_slide" style="max-height: 500px; overflow-y: scroll;">
-        {{ include('etablissement/_informations/_etablissement_lies.html.twig', { 'etablissement_lies': etablissement.fils }) }}
+        {{ include('etablissement/_informations/_etablissement_lies.html.twig', {etablissement_lies: etablissement.fils}) }}
     </ul>
 {% endif %}
