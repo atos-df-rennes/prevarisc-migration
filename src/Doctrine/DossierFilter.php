@@ -15,7 +15,7 @@ class DossierFilter extends SQLFilter
 {
     public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {
-        if ($targetEntity->getName() !== Dossier::class) {
+        if (Dossier::class !== $targetEntity->getName()) {
             return '';
         }
 

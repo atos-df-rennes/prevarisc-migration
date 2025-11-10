@@ -320,7 +320,6 @@
                 {% if etablissement.latestInformations.genre.id != 1 %}
                     Nb. de préventionnistes/visite : {{ donnees_pratiques.nbPreventionnistes }}<br/>
                 {% endif %}
-                {% dump(donnees_pratiques) %}
                 {% if donnees_pratiques.dureeVisite is not null %}
                     Durée d'une visite : {{ donnees_pratiques.dureeVisite|date('H:i') }}
                 {% else %}
