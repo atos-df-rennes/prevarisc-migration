@@ -68,6 +68,7 @@
                 <li>
                     <strong>
                         {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ etablissement.latestInformations.type.libelle ~ '.png') %}
+
                         {% if asset_exist(etablissement_type_asset_path) %}
                             <img src="{{ etablissement_type_asset_path }}" title="{{ etablissement.latestInformations.type.libelle }}" />&nbsp;-&nbsp;
                         {% else %}
@@ -78,16 +79,14 @@
                     </strong>
                 </li>
                 {% for type_activite in etablissement.latestInformations.typesActivitesSecondaires %}
+                    {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ type_activite.type.libelle ~ '.png') %}
                     <li>
-                        {% set type_activite_asset_path = asset('/images/types/b/icone-type-' ~ type_activite.type.libelle ~ '.png') %}
-
-                        <img src="/images/types/b/icone-type-{{ type_activite.type.libelle }}.png" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
-                        {% if icone_type_etablissement_exists('') %}
-                            <img src="/images/types/b/icone-type-{{ type_activite.type.libelle }}.png" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
+                        {% if asset_exist(etablissement_type_asset_path) %}
+                            <img src="{{ asset(etablissement_type_asset_path) }}" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
                         {% else %}
                             {{ type_activite.type.libelle }}&nbsp;-&nbsp;
                         {% endif %}
-                        {{ type_activite.type.libelle }}
+                        {{ type_activite.activite.libelle }}
                     </li>
                 {% endfor %}
             </ul>
