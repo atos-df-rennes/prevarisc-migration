@@ -1,6 +1,6 @@
 <a href="#" class="thumbnail text-center" style="width: 75px; font-size: .7em; float: left; overflow: hidden;">
     {{ avatar(user.id, 'medium') }}
     <div class="caption" style="padding: 1px">
-        {{ user.informations.grade|upper }} {{ user.informations.nom|upper }} {{ user.informations.prenom|upper }}}
+        {{ user.informations.grade|upper }} {{ user.informations.nom|upper }} {{ user.informations.prenom|capitalize }}}
     </div>
 </a>
