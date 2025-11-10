@@ -83,11 +83,11 @@
 
                         <img src="/images/types/b/icone-type-{{ type_activite.type.libelle }}.png" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
                         {% if icone_type_etablissement_exists('') %}
-                            <img src="/images/types/b/icone-type-{{ type_activite.libelle }}.png" title="{{ type_activite.libelle }}" />&nbsp;-&nbsp;
+                            <img src="/images/types/b/icone-type-{{ type_activite.type.libelle }}.png" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
                         {% else %}
-                            {{ type_activite.libelle }}&nbsp;-&nbsp;
+                            {{ type_activite.type.libelle }}&nbsp;-&nbsp;
                         {% endif %}
-                        {{ type_activite.libelle }}
+                        {{ type_activite.type.libelle }}
                     </li>
                 {% endfor %}
             </ul>
