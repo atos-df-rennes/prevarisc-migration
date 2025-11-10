@@ -7,6 +7,7 @@ use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
+use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
@@ -32,10 +33,15 @@ class EtablissementController extends AbstractController
      * @var EtablissementPieceJointeRepository
      */
     private $etablissementPieceJointeRepository;
+    /**
+     * @var EtablissementAdresseRepository
+     */
+    private $etablissementAdresseRepository;
 
-    public function __construct(EtablissementPieceJointeRepository $etablissementPieceJointeRepository)
+    public function __construct(EtablissementPieceJointeRepository $etablissementPieceJointeRepository, EtablissementAdresseRepository $etablissementAdresseRepository)
     {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
+        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
     }
 
     /**
@@ -50,19 +56,28 @@ class EtablissementController extends AbstractController
         DataStore $dataStore,
         SerializerInterface $serializer
     ): Response {
+        // Récupération des données de l'établissement
         $data = $etablissementService->get($id);
         $etablissement = $data['etablissement'];
 
+        // Récupération des couches cartographiques
         $couchesCartographiques = $coucheCartoRepository->findAll();
+        $couchesCartographiquesJson = $serializer->serialize($couchesCartographiques, 'json');
 
+        // Récupération de la périodicité par défaut
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
 
+        // Récupération de la périodicité affichée
         $periodicity = $etablissementService->getDisplayedPeriodicity($etablissement);
 
+        // Récupération des adresses de l'établissement
+        $adresses = $this->etablissementAdresseRepository->get($etablissement->getId());
+
+        // Récupération des groupements de communes liés à la commune de l'établissement
         $groupementsDeCommunes = [];
-        if (0 !== $etablissement->getAdresses()->count()) {
+        if (0 !== count($adresses)) {
             $groupementsDeCommunes = $groupementRepository->findByNumInsee(
-                $etablissement->getAdresses()->first()->getCommune()->getId()
+                current($adresses)->getCommune()->getId()
             );
         }
 
@@ -71,8 +86,8 @@ class EtablissementController extends AbstractController
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
-            'couches_cartographiques' => $serializer->serialize($couchesCartographiques, 'json'),
-
+            'couches_cartographiques' => $couchesCartographiquesJson,
+            'adresses' => $adresses,
             'default_periodicite' => $defaultPeriodicite,
             'periodicity' => $periodicity,
             'groupements_de_communes' => $groupementsDeCommunes,
@@ -87,7 +102,7 @@ class EtablissementController extends AbstractController
                 'nbPreventionnistes' => $data['nbPrevCalcule'],
                 'dureeVisite' => $data['dureeVisiteCalculee'],
             ]
-            //            'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
+            // TODO: gestion role :  'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
         ]);
     }
 

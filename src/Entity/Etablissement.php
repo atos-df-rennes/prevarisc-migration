@@ -62,6 +62,12 @@ class Etablissement
      */
     private $adresses;
 
+
+    /**
+     * @var array
+     */
+    private $parentAdresses = [];
+
     /**
      * @var ?string
      *
@@ -98,7 +104,7 @@ class Etablissement
     private $nbPrev;
 
     /**
-     * @var ?string
+     * @var ?\DateTime
      *
      * @ORM\Column(name="DUREEVISITE_ETABLISSEMENT", type="time", nullable=true)
      */
@@ -338,6 +344,18 @@ class Etablissement
         return $this;
     }
 
+    public function getParentAdresses(): array
+    {
+        return $this->parentAdresses;
+    }
+
+    public function setParentAdresses(array $parentAdresses): self
+    {
+        $this->parentAdresses = $parentAdresses;
+
+        return $this;
+    }
+
     public function getNumero(): ?string
     {
         return $this->numero;
@@ -398,12 +416,12 @@ class Etablissement
         return $this;
     }
 
-    public function getDureeVisite(): ?string
+    public function getDureeVisite(): ?\DateTime
     {
         return $this->dureeVisite;
     }
 
-    public function setDureeVisite(?string $dureeVisite): self
+    public function setDureeVisite(?\DateTime $dureeVisite): self
     {
         $this->dureeVisite = $dureeVisite;
 

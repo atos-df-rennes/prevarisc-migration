@@ -8,12 +8,14 @@ use App\Dto\Historique\DonneeHistorique;
 use App\Dto\Historique\Informations;
 use App\Dto\Historique\LastAvis;
 use App\Dto\Historique\LastInformations;
+use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\EtablissementPieceJointe;
 use App\Entity\Genre;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
@@ -42,12 +44,16 @@ final class Etablissement
     private $parameterBag;
 
     public function __construct(
+        EtablissementRepository            $etablissementRepository,
+        DossierRepository                  $dossierRepository,
+        AvisDerogationsRepository          $avisDerogationsRepository,
+        LoggerInterface                    $logger,
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore,
-        ParameterBagInterface $parameterBag
+        DataStore                          $dataStore,
+        ParameterBagInterface              $parameterBag
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
@@ -92,7 +98,7 @@ final class Etablissement
         if ($dossierDonnantAvis instanceof Dossier) {
             $avis = $dossierDonnantAvis->getAvisCommission();
             $result['facteurDangerositeId'] = $dossierDonnantAvis->getFacteurDangerosite();
-            $result['avisId'] = $avis ? $avis->getId() : null;
+            $result['avisId'] = $avis instanceof Avis ? $avis->getId() : null;
         }
 
         // Récupération des dates de visite

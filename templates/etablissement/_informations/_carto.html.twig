@@ -10,20 +10,20 @@
     {% if diapo|length > 0 %}
         <li class="tabs-right"><a href="#diaporama-tab-pane" data-toggle="tab">Diaporama</a></li>
     {% endif %}
-    {% if etablissement.adresses|length > 0 and key_ign is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if adresses|length > 0 and key_ign is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#geoportail" data-toggle="tab">Carte IGN</a></li>
     {% endif %}
-    {% if etablissement.adresses|length > 0 and key_googlemap is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if adresses|length > 0 and key_googlemap is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#googlemap" data-toggle="tab">Carte Google</a></li>
     {% endif %}
-    {% if etablissement.adresses|length > 0 and geoconcept_url is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if adresses|length > 0 and geoconcept_url is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#geoconcept" data-toggle="tab">Carte GeoConcept</a></li>
     {% endif %}
 </ul>
 <div id="reponse-modal" class="modal fade"></div>
 <div class="tab-content">
     <!-- Carte IGN -->
-    {% if etablissement.adresses|length > 0 and key_ign is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if adresses|length > 0 and key_ign is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <div id="geoportail" class="tab-pane active" style="height: 350px; max-height: 350px;">
             <div id="geoportail-container" style="height: 100%; max-height: 100%;"></div>
 
@@ -34,14 +34,14 @@
                 viewer = initViewer('geoportail-container',
                     '{{ key_ign }}',
                     [
-                        {{ etablissement.adresses[0].longitude }},
-                        {{ etablissement.adresses[0].latitude }}
+                        {{ adresses[0].longitude }},
+                        {{ adresses[0].latitude }}
                     ],
                     "<b>{{ etablissement.latestInformations.libelle|e('html_attr') }}</b><br/>" +
-                    "{{ etablissement.adresses[0].numero }}, " +
-                    "{{ etablissement.adresses[0].rue.libelle|e('html_attr') }}<br/>" +
-                    "{{ etablissement.adresses[0].commune.codePostal }} " +
-                    "{{ etablissement.adresses[0].commune.libelle }}",
+                    "{{ adresses[0].numero }}, " +
+                    "{{ adresses[0].rue.libelle|e('html_attr') }}<br/>" +
+                    "{{ adresses[0].commune.codePostal }} " +
+                    "{{ adresses[0].commune.libelle }}",
                     '{{ autoconf_path }}'
                 );
 
@@ -59,7 +59,7 @@
         </div>
     {% endif %}
 
-    {% if etablissement.adresses|length > 0 and geoconcept_url is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if adresses|length > 0 and geoconcept_url is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         {% set projection = parameter('app.geoconcept_projection') %}
         {% set token = parameter('app.geoconcept_token') %}
         {% set app_id = parameter('app.geoconcept_app_id') %}
@@ -81,7 +81,7 @@
                     {% endif %}
 
                     var points = [];
-                    {% for adresse in etablissement.adresses %}
+                    {% for adresse in adresses %}
                     {% if adresse.latitude and adresse.longitude %}
                     points.push({
                         lat: {{ adresse.latitude }},
@@ -102,7 +102,7 @@
         </div>
     {% endif %}
 
-    {% if etablissement.adresses|length > 0 and key_googlemap is not empty and etablissement.adresses[0].latitude is not null and etablissement.adresses[0].longitude is not null %}
+    {% if adresses|length > 0 and key_googlemap is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <div id="googlemap" class="tab-pane in" style="height: 350px; max-height: 350px;">
             <div id="googlemap-container"  style="height: 100%; max-height: 100%;"></div>
             <script type="text/javascript"
@@ -110,7 +110,7 @@
             </script>
             <script type="text/javascript">
                 function initialize() {
-                    var point = new google.maps.LatLng({{ etablissement.adresses[0].latitude }}, {{ etablissement.adresses[0].longitude }});
+                    var point = new google.maps.LatLng({{ adresses[0].latitude }}, {{ adresses[0].longitude }});
                     var map = new google.maps.Map(document.getElementById("googlemap-container"), {
                         center: point,
                         zoom: 12
@@ -123,10 +123,10 @@
 
                     var infowindow = new google.maps.InfoWindow({
                         content:
-                            "{{ etablissement.adresses[0].numero }}, " +
-                            "{{ etablissement.adresses[0].rue.libelle }} <br />" +
-                            "{{ etablissement.adresses[0].commune.codePostal }} " +
-                            "{{ etablissement.adresses[0].commune.libelle }} "
+                            "{{ adresses[0].numero }}, " +
+                            "{{ adresses[0].rue.libelle }} <br />" +
+                            "{{ adresses[0].commune.codePostal }} " +
+                            "{{ adresses[0].commune.libelle }} "
                     });
                     infowindow.open(map,marker);
                 };
@@ -199,7 +199,7 @@
     {% endif %}
 </div>
 
-{% if etablissement.adresses|length > 0 %}
+{% if adresses|length > 0 %}
     <h4 class="h4_subtitle">Adresse</h4>
     <dl class="dl-horizontal">
         <dt>Adresses</dt>
@@ -212,7 +212,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for adresse in etablissement.adresses %}
+                {% for adresse in adresses %}
                     <tr>
                         <td>{{ '%s %s %s %s '|format(adresse.numero, adresse.rue.libelle, adresse.complement, adresse.commune.codePostal)|lower ~ adresse.commune.libelle|capitalize }}</td>
                         <td>Adresse postale</td>
