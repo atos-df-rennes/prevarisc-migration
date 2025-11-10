@@ -1,9 +1,153 @@
-<tr {% if etablissement is null %}id="prototype_etablissements_enfants" class="hide prototypes"{% else %}class="etablissement_enfant"{% endif %}>
-    <td>
-        <span>{{ etablissement.latestInformations.libelle }}</span>
-        <input type="hidden" value="{{ etablissement.id }}" name="ID_FILS_ETABLISSEMENT[]">
-    </td>
-    <td>
-        <small><a href="#" onclick="this.closest('tr').remove(); return false;">Retirer</a></small>
-    </td>
-</tr>
+{# Template pour afficher un établissement lié dans une liste #}
+{% set derniere_information = etablissement.informations.last %}
+{% set genre_id = derniere_information ? derniere_information.genre.id : null %}
+{% set statut_id = derniere_information ? derniere_information.statut.id : null %}
+{% set nb_enfants = etablissement.fils|length %}
+
+{# Récupération du dernier dossier avec avis pour l'établissement #}
+{% set dernier_avis_dossier = null %}
+{% dump(etablissement.dossiers) %}
+{% for dossier in etablissement.dossiers %}
+    {% if dossier.avisCommission %}
+        {% set dernier_avis_dossier = dossier %}
+    {% endif %}
+{% endfor %}
+
+
+<li id="{{ etablissement.id }}"
+    class="etablissement{% if nb_enfants > 0 %}slide{% endif %}"
+    {% if statut_id == 1 or statut_id == 3 %}style="opacity: 0.5;"{% endif %}
+>
+
+    <div class="pull-left">
+
+        {# Affichage du libellé du type #}
+        <small style="display: inline-block; width: 65px">
+            <strong>
+            {% if derniere_information and derniere_information.type %}
+                {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ derniere_information.type.libelle ~ '.png') %}
+                {% if asset_exist(etablissement_type_asset_path) %}
+                    <img src="{{ etablissement_type_asset_path }}" title="{{ derniere_information.type.libelle }}" />&nbsp;-&nbsp;
+                {% else %}
+                    {{ derniere_information.type.libelle }}&nbsp;-&nbsp;
+                {% endif %}
+            {% endif %}
+            {% if derniere_information and derniere_information.genre %}
+                {{ derniere_information.genre.libelle|slice(0, 4)|upper }}
+            {% endif %}
+            </strong>
+        </small>
+
+        {# Nom de l'établissement #}
+        <span class="nom-etablissement">
+            <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
+                {% if derniere_information and derniere_information.libelle %}
+                    {{ derniere_information.libelle }}
+                {% else %}
+                    <em class="text-muted">Libellé non renseigné</em>
+                {% endif %}
+                <small>
+                    {% if derniere_information %}
+                        {# Affichage de la commune selon le genre #}
+                        {% if genre_id == 1 %}
+                            {# Site : afficher la commune de l'enfant avec le plus grand effectif #}
+                            {% set adresses = etablissement.adresses %}
+                            {% if adresses|length > 0 %}
+                                {% set premiere_adresse = adresses|first %}
+                                {% if premiere_adresse.commune %}
+                                    - {{ premiere_adresse.commune.libelle }}
+                                {% endif %}
+                            {% endif %}
+                        {% elseif genre_id == 3 %}
+                            {# Cellule : afficher la commune du parent #}
+                            {% set parent = etablissement.parent %}
+                            {% if parent %}
+                                {% set parent_adresses = parent.adresses %}
+                                {% if parent_adresses|length > 0 %}
+                                    {% set parent_premiere_adresse = parent_adresses|first %}
+                                    {% if parent_premiere_adresse.commune %}
+                                        - {{ parent_premiere_adresse.commune.libelle }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            {# Par défaut : afficher la commune de l'établissement #}
+                            {% set adresses = etablissement.adresses %}
+                            {% if adresses|length > 0 %}
+                                {% set premiere_adresse = adresses|first %}
+                                {% if premiere_adresse.commune %}
+                                    - {{ premiere_adresse.commune.libelle }}
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </small>
+            </a>
+        </span>
+
+        {# Icône de chargement des enfants (si il y'en a, et si on est en mode niveau) #}
+        {% if nb_enfants > 0 %}
+            <span class="load d-none"><img src="/images/load.gif" alt="Chargement ..." /></span>
+        {% endif %}
+
+        {# Gestion de la date d'avis #}
+        {% if dernier_avis_dossier %}
+            {% set date_visite = dernier_avis_dossier.dateVisite %}
+            {% set date_commission = dernier_avis_dossier.dateCommission %}
+            {% if date_visite %}
+                {% set date_avis = date_visite %}
+            {% elseif date_commission %}
+                {% set date_avis = date_commission %}
+            {% else %}
+                {% set date_avis = null %}
+            {% endif %}
+        {% else %}
+            {% set date_avis = null %}
+        {% endif %}
+
+    </div>
+
+    <div class="pull-right">
+
+        {# Avis #}
+        {% if dernier_avis_dossier %}
+            {% set avis = dernier_avis_dossier.avisCommission %}
+            {% set differe_avis = dernier_avis_dossier.avisDiffere %}
+
+            {% if differe_avis == 1 %}
+                <span class="avis" style="background-color: #3a87ad; font-size: .7em;">Avis différé</span>
+            {% elseif avis %}
+                {% if avis.id == 1 %}
+                    <span class="avis F" style="font-size: .7em">
+                        Favorable {% if genre_id != 3 %}à l'exploitation{% endif %}
+                        <small>
+                            {% if date_avis %}
+                                (Date de l'avis : {{ date_avis|format_date('short') }})
+                            {% endif %}
+                        </small>
+                    </span>
+                {% elseif avis.id == 2 %}
+                    <span class="avis D" style="font-size: .7em">
+                        Défavorable {% if genre_id != 3 %}à l'exploitation{% endif %}
+                        <small>
+                            {% if date_avis %}
+                                (Date de l'avis : {{ date_avis|format_date('short') }})
+                            {% endif %}
+                        </small>
+                    </span>
+                {% endif %}
+            {% elseif genre_id != 1 %}
+                <span class="avis" style="font-size: .7em">Avis d'exploitation indisponible</span>
+            {% endif %}
+
+            {# Alerte sur le fait que la visite fait partie d'un échéancier de travaux #}
+            {# TODO: Implémenter la détection de l'échéancier de travaux #}
+        {% elseif genre_id != 1 %}
+            <span class="avis" style="font-size: .7em">Avis d'exploitation indisponible</span>
+        {% endif %}
+
+    </div>
+
+    <div style="clear: both"></div>
+
+</li>
