@@ -62,7 +62,6 @@ class Etablissement
      */
     private $adresses;
 
-
     /**
      * @var array
      */

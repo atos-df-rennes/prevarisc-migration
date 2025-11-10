@@ -47,13 +47,9 @@ final class Etablissement
         EtablissementRepository            $etablissementRepository,
         DossierRepository                  $dossierRepository,
         AvisDerogationsRepository          $avisDerogationsRepository,
-        LoggerInterface                    $logger,
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore                          $dataStore,
-        ParameterBagInterface              $parameterBag
+        DataStore $dataStore,
+        ParameterBagInterface $parameterBag
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;

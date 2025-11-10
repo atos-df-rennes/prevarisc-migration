@@ -33,6 +33,7 @@ class EtablissementController extends AbstractController
      * @var EtablissementPieceJointeRepository
      */
     private $etablissementPieceJointeRepository;
+
     /**
      * @var EtablissementAdresseRepository
      */

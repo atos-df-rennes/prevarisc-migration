@@ -25,9 +25,9 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
     /**
      * Récupère les informations liées à un établissement en fonction de son identifiant.
      *
-     * @param int $idEtablissement L'identifiant de l'établissement.
+     * @param int $idEtablissement L'identifiant de l'établissement
      *
-     * @return array Les informations de l'établissement ou un tableau vide si aucun résultat n'est trouvé.
+     * @return array les informations de l'établissement ou un tableau vide si aucun résultat n'est trouvé
      */
     public function get(int $idEtablissement): array
     {
@@ -47,8 +47,6 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
         if (!$genre) {
             return [];
         }
-
-        dump($genre, $genre->getLibelle());
 
         switch ($genre->getId()) {
             // Adresse d'un site
@@ -82,9 +80,9 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
     /**
      * Récupère les informations des enfants d'un établissement donnés ainsi que leurs effectifs.
      *
-     * @param int $idEtablissement Identifiant de l'établissement parent.
+     * @param int $idEtablissement identifiant de l'établissement parent
      *
-     * @return array Résultat contenant les informations sur les enfants (ID, effectif public, effectif personnel).
+     * @return array résultat contenant les informations sur les enfants (ID, effectif public, effectif personnel)
      */
     private function getEnfantsAvecEffectifs(int $idEtablissement): array
     {
@@ -106,7 +104,7 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
      * @param array $enfants Liste d'enfants contenant les informations d'effectif.
      *                       Chaque enfant doit être un tableau avec les clés 'effectifPublic' (int) et/ou 'effectifPersonnel' (int).
      *
-     * @return array L'enfant avec le plus grand effectif total (somme d'effectifPublic et effectifPersonnel).
+     * @return array L'enfant avec le plus grand effectif total (somme d'effectifPublic et effectifPersonnel)
      */
     private function getEnfantAvecMaxEffectif(array $enfants): array
     {
@@ -130,9 +128,9 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
      * Parcourt la hiérarchie des parents d'un établissement pour trouver le parent racine.
      * Retourne null si l'établissement fourni est déjà à la racine.
      *
-     * @param Etablissement $etablissement L'établissement pour lequel chercher le parent racine.
+     * @param Etablissement $etablissement L'établissement pour lequel chercher le parent racine
      *
-     * @return Etablissement|null Le parent racine si trouvé, ou null si l'établissement est déjà à la racine.
+     * @return Etablissement|null le parent racine si trouvé, ou null si l'établissement est déjà à la racine
      */
     private function getParentRacine(Etablissement $etablissement): ?Etablissement
     {
@@ -150,9 +148,9 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
     /**
      * Récupère les adresses avec leurs détails associés pour un établissement donné.
      *
-     * @param int $idEtablissement Identifiant de l'établissement pour lequel récupérer les adresses.
+     * @param int $idEtablissement identifiant de l'établissement pour lequel récupérer les adresses
      *
-     * @return array Retourne un tableau contenant les adresses avec leurs données associées (commune, rue, type de rue).
+     * @return array retourne un tableau contenant les adresses avec leurs données associées (commune, rue, type de rue)
      */
     private function getAdressesAvecDetails(int $idEtablissement): array
     {
