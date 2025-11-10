@@ -25,8 +25,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ],
             'filters' => [
                 'dossier_non_supprime' => [
-                    'class' => \App\Doctrine\DossierFilter::class,
-                    'enabled' => false,
+                    'class' => \App\Doctrine\DossierSupprimeFilter::class,
+                    'enabled' => true,
                 ],
             ]
         ],
