@@ -15,7 +15,6 @@ use App\Entity\EtablissementPieceJointe;
 use App\Entity\Genre;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
-use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
@@ -67,7 +66,7 @@ final class Etablissement
     public function get(int $idEtablissement): array
     {
         // Récupération de l'établissement avec toutes les données jointes
-        $etablissement = $this->etablissementRepository->findByIdWithJoinedData($idEtablissement);
+        $etablissement = $this->etablissementRepository->find($idEtablissement);
 
         // Si l'établissement n'existe pas ou est supprimé, on génère une erreur
         if (!$etablissement || null !== $etablissement->getDateSuppression()) {
