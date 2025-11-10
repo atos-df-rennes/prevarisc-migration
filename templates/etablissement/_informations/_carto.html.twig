@@ -293,19 +293,19 @@
     <!-- Date de dernière visite -->
     {% if last_visite is not empty %}
         <dt>Dernière VP</dt>
-        <dd><p>{{ last_visite|date('d/m/Y') }}</p></dd>
+        <dd><p>{{ last_visite|format_date('long') }}</p></dd>
     {% endif %}
 
     <!-- Date de prochaine visite-->
     {% if next_visite is not empty %}
         <dt>Prochaine VP</dt>
-        <dd><p>{{ next_visite|date('d/m/Y') }}</p></dd>
+        <dd><p>{{ next_visite|format_date(pattern='MMMM Y', locale='fr') }}</p></dd>
     {% endif %}
 
     <!-- Date de PC initial -->
     {% if pc_initial is not empty %}
         <dt>Date PC Initial</dt>
-        <dd><p>{{ pc_initial|date('d/m/Y') }}</p></dd>
+        <dd><p>{{ pc_initial|format_date('long') }}</p></dd>
     {% endif %}
 
     <!-- Présence DUS -->
