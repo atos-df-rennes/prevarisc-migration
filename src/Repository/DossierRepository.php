@@ -98,6 +98,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function getLastVisitePeriodique(int $idEtablissement, bool $useDateCommissionForPeriodicity = false): ?array
     {
+        $this->getEntityManager()->getFilters()->enable('dossier_non_supprime');
+
         $queryBuilder = $this->createQueryBuilder('dossier');
 
         if ($useDateCommissionForPeriodicity) {

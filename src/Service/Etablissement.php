@@ -89,7 +89,7 @@ final class Etablissement
 
         // Récupération de l'avis de l'établissement
         $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
-        if ($dossierDonnantAvis) {
+        if ($dossierDonnantAvis instanceof Dossier) {
             $avis = $dossierDonnantAvis->getAvisCommission();
             $result['facteurDangerositeId'] = $dossierDonnantAvis->getFacteurDangerosite();
             $result['avisId'] = $avis ? $avis->getId() : null;

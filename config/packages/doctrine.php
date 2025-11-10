@@ -23,6 +23,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     'alias' => 'App',
                 ],
             ],
+            'filters' => [
+                'dossier_non_supprime' => [
+                    'class' => \App\Doctrine\DossierFilter::class,
+                    'enabled' => false,
+                ],
+            ]
         ],
     ]);
 };
