@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Commune;
 use App\Entity\Etablissement;
+use App\Entity\EtablissementAdresse;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
@@ -30,16 +32,22 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class EtablissementController extends AbstractController
 {
+    /** @var EtablissementPieceJointeRepository  */
     private $etablissementPieceJointeRepository;
 
+    /** @var EtablissementAdresseRepository  */
     private $etablissementAdresseRepository;
 
+    /** @var DossierRepository  */
     private $dossierRepository;
 
+    /** @var EtablissementService  */
     private $etablissementService;
 
+    /** @var EtablissementRepository  */
     private $etablissementRepository;
 
+    /** @var EntityManagerInterface  */
     private $entityManager;
 
     public function __construct(
@@ -85,9 +93,12 @@ class EtablissementController extends AbstractController
         // Récupération des groupements de communes liés à la commune de l'établissement
         $groupementsDeCommunes = [];
         if (0 !== count($adresses)) {
-            $groupementsDeCommunes = $groupementRepository->findByNumInsee(
-                current($adresses)->getCommune()->getId()
-            );
+            $firstAddress = current($adresses);
+            if ($firstAddress instanceof EtablissementAdresse && $firstAddress->getCommune() instanceof Commune) {
+                $groupementsDeCommunes = $groupementRepository->findByNumInsee(
+                    $firstAddress->getCommune()->getId()
+                );
+            }
         }
 
         // Récupération des pièces jointes de type plan et diaporama
