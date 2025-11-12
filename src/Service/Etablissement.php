@@ -69,25 +69,30 @@ final class Etablissement
         $useDateCommissionForPeriodicity = $this->parameterBag->get('app.relance_periodicite_commission');
         $lastVisiteDossier = $this->dossierRepository->getLastVisitePeriodique($etablissement->getId(), $useDateCommissionForPeriodicity);
 
-        $dates = [
-            'lastVisite' => null,
-            'nextVisite' => null,
-        ];
+        $dateLastVisite = $lastVisiteDossier['date_relance'] ?? null;
+        $dateNextVisite = null;
 
-        if ($lastVisiteDossier && $lastVisiteDossier['date_relance']) {
-            $dateLastVisite = $lastVisiteDossier['date_relance'];
-            $dates['lastVisite'] = $dateLastVisite;
-
-            $informations = $etablissement->getLatestInformations();
-            $periodicite = $informations->getPeriodicite();
-            if ($periodicite && $periodicite > 0) {
-                $dateNextVisite = clone $dateLastVisite;
-                $dateNextVisite->modify(sprintf('+%d months', $periodicite));
-                $dates['nextVisite'] = $dateNextVisite;
-            }
+        // Si aucune date de dernière visite n'est trouvée, retourner null pour les deux dates
+        if (!$dateLastVisite instanceof \DateTimeInterface) {
+            return [
+                'lastVisite' => null,
+                'nextVisite' => null,
+            ];
         }
 
-        return $dates;
+        $informations = $etablissement->getLatestInformations();
+        $periodicite = $informations->getPeriodicite();
+
+        if ($periodicite && $periodicite > 0) {
+            /** @var \DateTime $dateNextVisite */
+            $dateNextVisite = clone $dateLastVisite;
+            $dateNextVisite->modify(sprintf('+%d months', $periodicite));
+        }
+
+        return [
+            'lastVisite' => $dateLastVisite,
+            'nextVisite' => $dateNextVisite,
+        ];
     }
 
     public function getHistorique(int $id): Informations
