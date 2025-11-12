@@ -40,7 +40,7 @@ class EtablissementInformations
     private $date;
 
     /**
-     * @var int
+     * @var ?bool
      *
      * @ORM\Column(name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
      */
@@ -54,7 +54,7 @@ class EtablissementInformations
     private $periodicite;
 
     /**
-     * @var int
+     * @var bool
      *
      * @ORM\Column(name="ICPE_ETABLISSEMENTINFORMATIONS", type="boolean")
      */
@@ -327,12 +327,12 @@ class EtablissementInformations
         return $this;
     }
 
-    public function getLocalSommeil(): ?int
+    public function getLocalSommeil(): bool
     {
-        return $this->localSommeil;
+        return $this->localSommeil ?? false;
     }
 
-    public function setLocalSommeil(?int $localSommeil): self
+    public function setLocalSommeil(?bool $localSommeil): self
     {
         $this->localSommeil = $localSommeil;
 
@@ -353,7 +353,7 @@ class EtablissementInformations
 
     public function getIcpe(): bool
     {
-        return $this->icpe ?? false;
+        return $this->icpe;
     }
 
     public function setIcpe(bool $icpe): self
@@ -365,7 +365,7 @@ class EtablissementInformations
 
     public function getR14320(): bool
     {
-        return $this->r14320 ?? false;
+        return $this->r14320;
     }
 
     public function setR14320(bool $r14320): self
@@ -377,7 +377,7 @@ class EtablissementInformations
 
     public function getDroitPublic(): bool
     {
-        return $this->droitPublic ?? false;
+        return $this->droitPublic;
     }
 
     public function setDroitPublic(bool $droitPublic): self
