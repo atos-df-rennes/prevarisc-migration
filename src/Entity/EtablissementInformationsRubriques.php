@@ -13,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 class EtablissementInformationsRubriques
 {
     /**
+     * @var int
+     *
      * @ORM\Id
      *
      * @ORM\GeneratedValue
@@ -22,26 +24,36 @@ class EtablissementInformationsRubriques
     private $id;
 
     /**
+     * @var int
+     *
      * @ORM\Column(name="NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE", type="integer")
      */
     private $numero;
 
     /**
+     * @var float
+     *
      * @ORM\Column(name="VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="float")
      */
     private $valeur;
 
     /**
+     * @var string
+     *
      * @ORM\Column(name="NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="string", length=500)
      */
     private $nom;
 
     /**
+     * @var int
+     *
      * @ORM\Column(name="ID_RUBRIQUE",type="smallint")
      */
     private $rubrique;
 
     /**
+     * @var string
+     *
      * @ORM\Column(name="CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="string", length=50)
      */
     private $classement;
