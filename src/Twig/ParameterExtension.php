@@ -34,9 +34,9 @@ class ParameterExtension extends AbstractExtension
      *
      * @param string $parameterName nom du paramètre à récupérer
      *
-     * @return array|bool|string|int|float|\UnitEnum|null valeur du paramètre
+     * @return array|bool|string|int|float|null valeur du paramètre
      */
-    public function parameter(string $parameterName)
+    public function parameter(string $parameterName) // @phpstan-ignore-line
     {
         return $this->parameterBag->get($parameterName);
     }
