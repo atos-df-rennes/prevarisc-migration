@@ -472,7 +472,7 @@ final class Etablissement
     /**
      * Calcule les données pratiques selon le genre de l'établissement.
      *
-     * @return array{nbPrevCalcule: ?int, dureeVisiteCalculee: ?string}
+     * @return array{nbPreventionnistes: ?int, dureeVisite: ?\DateTime}
      */
     public function calculateDonneesPratiques(EtablissementEntity $etablissement): array
     {
@@ -482,20 +482,28 @@ final class Etablissement
 
         // Site (genre 1)
         if (1 === $genreId) {
-            $dureeTotale = 0;
+            $dureeVisiteTotal = (new \DateTime())->setTime(0, 0, 0);
+
             foreach ($etablissement->getFils() as $enfant) {
                 $dureeVisite = $enfant->getDureeVisite();
                 $nbPrev = $enfant->getNbPrev();
 
-                if ($dureeVisite && $nbPrev) {
-                    $dureeEtablissement = strtotime($dureeVisite) - strtotime('00:00:00');
-                    $dureeTotale += $nbPrev * $dureeEtablissement;
+                if ($dureeVisite instanceof \DateTimeInterface && $nbPrev) {
+                    $hours = (int) $dureeVisite->format('H');
+                    $minutes = (int) $dureeVisite->format('i');
+                    $seconds = (int) $dureeVisite->format('s');
+
+                    $intervalDureeVisite = new \DateInterval(
+                        sprintf('PT%dH%dM%dS', $hours * $nbPrev, $minutes * $nbPrev, $seconds * $nbPrev)
+                    );
+
+                    $dureeVisiteTotal->add($intervalDureeVisite);
                 }
             }
 
             return [
                 'nbPreventionnistes' => null,
-                'dureeVisite' => gmdate('H:i:s', $dureeTotale),
+                'dureeVisite' => $dureeVisiteTotal,
             ];
         }
 
