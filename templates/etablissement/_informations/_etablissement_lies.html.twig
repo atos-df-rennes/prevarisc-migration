@@ -1,12 +1,11 @@
 {# Template pour afficher un établissement lié dans une liste #}
-{% set derniere_information = etablissement.informations.last %}
+{% set derniere_information = etablissement.latestInformations %}
 {% set genre_id = derniere_information ? derniere_information.genre.id : null %}
 {% set statut_id = derniere_information ? derniere_information.statut.id : null %}
 {% set nb_enfants = etablissement.fils|length %}
 
 {# Récupération du dernier dossier avec avis pour l'établissement #}
 {% set dernier_avis_dossier = null %}
-{% dump(etablissement.dossiers) %}
 {% for dossier in etablissement.dossiers %}
     {% if dossier.avisCommission %}
         {% set dernier_avis_dossier = dossier %}
@@ -87,7 +86,7 @@
 
         {# Icône de chargement des enfants (si il y'en a, et si on est en mode niveau) #}
         {% if nb_enfants > 0 %}
-            <span class="load d-none"><img src="/images/load.gif" alt="Chargement ..." /></span>
+            <span class="load d-none"><img src="{{ asset('/images/load.gif') }} alt="Chargement ..." /></span>
         {% endif %}
 
         {# Gestion de la date d'avis #}
