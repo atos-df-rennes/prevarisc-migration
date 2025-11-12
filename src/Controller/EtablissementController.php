@@ -7,6 +7,7 @@ use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
@@ -38,18 +39,23 @@ class EtablissementController extends AbstractController
      * @var EtablissementAdresseRepository
      */
     private $etablissementAdresseRepository;
+    /**
+     * @var DossierRepository
+     */
+    private $dossierRepository;
 
-    public function __construct(EtablissementPieceJointeRepository $etablissementPieceJointeRepository, EtablissementAdresseRepository $etablissementAdresseRepository)
+    public function __construct(EtablissementPieceJointeRepository $etablissementPieceJointeRepository, EtablissementAdresseRepository $etablissementAdresseRepository, DossierRepository $dossierRepository)
     {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
+        $this->dossierRepository = $dossierRepository;
     }
 
     /**
      * @Route("/etablissement/{id}/informations", name="etablissement_informations")
      */
     public function informations(
-        int $id,
+        Etablissement $etablissement,
         CoucheCartoRepository $coucheCartoRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
@@ -57,10 +63,6 @@ class EtablissementController extends AbstractController
         DataStore $dataStore,
         SerializerInterface $serializer
     ): Response {
-        // Récupération des données de l'établissement
-        $data = $etablissementService->get($id);
-        $etablissement = $data['etablissement'];
-
         // Récupération des couches cartographiques
         $couchesCartographiques = $coucheCartoRepository->findAll();
         $couchesCartographiquesJson = $serializer->serialize($couchesCartographiques, 'json');
@@ -82,8 +84,12 @@ class EtablissementController extends AbstractController
             );
         }
 
+        // Récupération des pièces jointes de type plan et diaporama
         $diapoPlans = $this->etablissementPieceJointeRepository->getPlans($etablissement);
         $diapo = $this->etablissementPieceJointeRepository->getDiaporama($etablissement);
+
+        // Récupération des dates de visite
+        $datesVisites = $etablissementService->getDatesVisites($etablissement);
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
@@ -95,14 +101,11 @@ class EtablissementController extends AbstractController
             'store' => $dataStore,
             'diapo_plans' => $diapoPlans,
             'diapo' => $diapo,
-            'last_visite' => $data['lastVisite'],
-            'next_visite' => $data['nextVisite'],
-            'pc_initial' => $data['pcInitial'],
-            'presence_dus' => $data['presenceDus'],
-            'donnees_pratiques' => [
-                'nbPreventionnistes' => $data['nbPrevCalcule'],
-                'dureeVisite' => $data['dureeVisiteCalculee'],
-            ]
+            'last_visite' => $datesVisites['lastVisite'],
+            'next_visite' => $datesVisites['nextVisite'],
+            'pc_initial' => $this->dossierRepository->getPCInitial($etablissement),
+            'presence_dus' => $etablissementService->hasContactDus($etablissement),
+            'donnees_pratiques' => $etablissementService->calculateDonneesPratiques($etablissement)
             // TODO: gestion role :  'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
         ]);
     }

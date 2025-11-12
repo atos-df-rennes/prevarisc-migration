@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -132,24 +133,25 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * Récupère le PC initial d'un établissement.
      */
-    public function getPCInitial(int $idEtablissement): ?array
+    public function getPCInitial(Etablissement $etablissement): ?\DateTime
     {
         $queryBuilder = $this->createQueryBuilder('d');
 
         $queryBuilder
-            ->select('d.dateInsert AS date')
             ->join('d.etablissements', 'e')
             ->join('d.type', 'dt')
             ->join('d.nature', 'dn')
             ->where('e.id = :idEtablissement')
             ->andWhere('dt.id = 1') // Type étude
             ->andWhere('dn.id = 1') // Nature PC
-            ->setParameter('idEtablissement', $idEtablissement)
+            ->setParameter('idEtablissement', $etablissement->getId())
             ->orderBy('d.dateInsert', 'ASC')
             ->setMaxResults(1)
         ;
 
-        return $queryBuilder->getQuery()->getOneOrNullResult();
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
+
+        return $result->getDateInsert() ?? null;
     }
 
     /**

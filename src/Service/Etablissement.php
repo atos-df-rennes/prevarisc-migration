@@ -59,83 +59,39 @@ final class Etablissement
     }
 
     /**
-     * Récupération d'un établissement avec toutes ses informations connexes.
+     * Récupère les dates de la dernière visite et de la prochaine visite pour un établissement donné.
      *
-     * @throws \Exception si l'établissement n'existe pas ou si la dernière fiche d'informations n'existe pas
+     * @param EtablissementEntity $etablissement L'entité représentant l'établissement.
+     *
+     * @return array{lastVisite: \DateTimeInterface|null, nextVisite: \DateTimeInterface|null}
+     * Tableau contenant deux clés :
+     * - lastVisite : la date de la dernière visite si disponible, null sinon.
+     * - nextVisite : la date estimée de la prochaine visite si disponible, null sinon.
      */
-    public function get(int $idEtablissement): array
+    public function getDatesVisites(EtablissementEntity $etablissement): array
     {
-        // Récupération de l'établissement avec toutes les données jointes
-        $etablissement = $this->etablissementRepository->find($idEtablissement);
+        $useDateCommissionForPeriodicity = $this->parameterBag->get('app.relance_periodicite_commission');
+        $lastVisiteDossier = $this->dossierRepository->getLastVisitePeriodique($etablissement->getId(), $useDateCommissionForPeriodicity);
 
-        // Si l'établissement n'existe pas ou est supprimé, on génère une erreur
-        if (!$etablissement || null !== $etablissement->getDateSuppression()) {
-            throw new \Exception("L'établissement n'existe pas.");
-        }
-
-        // On récupère la dernière fiche d'informations de l'établissement
-        $informations = $etablissement->getLatestInformations();
-        if (!$informations) {
-            throw new \Exception("La fiche d'informations de l'établissement n'existe pas.");
-        }
-
-        $result = [
-            'etablissement' => $etablissement,
-            'facteurDangerositeId' => null,
-            'avisId' => null,
+        $dates = [
             'lastVisite' => null,
             'nextVisite' => null,
-            'pcInitial' => null,
         ];
-
-        // Récupération de l'avis de l'établissement
-        $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
-        if ($dossierDonnantAvis instanceof Dossier) {
-            $avis = $dossierDonnantAvis->getAvisCommission();
-            $result['facteurDangerositeId'] = $dossierDonnantAvis->getFacteurDangerosite();
-            $result['avisId'] = $avis instanceof Avis ? $avis->getId() : null;
-        }
-
-        // Récupération des dates de visite
-        $useDateCommissionForPeriodicity = $this->parameterBag->get('app.relance_periodicite_commission');
-        $lastVisiteDossier = $this->dossierRepository->getLastVisitePeriodique($idEtablissement, $useDateCommissionForPeriodicity);
 
         if ($lastVisiteDossier && $lastVisiteDossier['date_relance']) {
             $dateLastVisite = $lastVisiteDossier['date_relance'];
-            $result['lastVisite'] = $dateLastVisite;
+            $dates['lastVisite'] = $dateLastVisite;
 
+            $informations = $etablissement->getLatestInformations();
             $periodicite = $informations->getPeriodicite();
             if ($periodicite && $periodicite > 0) {
                 $dateNextVisite = clone $dateLastVisite;
                 $dateNextVisite->modify(sprintf('+%d months', $periodicite));
-                $result['nextVisite'] = $dateNextVisite;
+                $dates['nextVisite'] = $dateNextVisite;
             }
         }
 
-        // Récupération de la date de PC initial
-        $pcInitialDossier = $this->dossierRepository->getPCInitial($idEtablissement);
-        if ($pcInitialDossier) {
-            $result['pcInitial'] = $pcInitialDossier['date'];
-        }
-
-        // Présence d'avis différé
-        $result['presenceAvisDiffere'] = $this->dossierRepository->hasAvisDiffere($idEtablissement);
-
-        // Présence d'écheancier
-        $result['presenceEcheancier'] = $this->dossierRepository->hasEcheancier($idEtablissement);
-
-        // Calcul de la périodicité
-        $result['periodiciteCalculee'] = $this->calculatePeriodiciteForEntity($etablissement);
-
-        // Calcul des données pratiques (nbPrev et dureeVisite)
-        $donneesPratiques = $this->calculateDonneesPratiques($etablissement);
-        $result['nbPrevCalcule'] = $donneesPratiques['nbPrevCalcule'];
-        $result['dureeVisiteCalculee'] = $donneesPratiques['dureeVisiteCalculee'];
-
-        // Récupération de l'indicateur de présence d'un DUS (ID_FONCTION = 8)
-        $result['presenceDus'] = $this->hasContactDus($etablissement);
-
-        return $result;
+        return $dates;
     }
 
     public function getHistorique(int $id): Informations
@@ -586,7 +542,7 @@ final class Etablissement
      *
      * @return array{nbPrevCalcule: ?int, dureeVisiteCalculee: ?string}
      */
-    private function calculateDonneesPratiques(EtablissementEntity $etablissement): array
+    public function calculateDonneesPratiques(EtablissementEntity $etablissement): array
     {
         $informations = $etablissement->getLatestInformations();
         $genre = $informations->getGenre();
@@ -606,22 +562,22 @@ final class Etablissement
             }
 
             return [
-                'nbPrevCalcule' => null,
-                'dureeVisiteCalculee' => gmdate('H:i:s', $dureeTotale),
+                'nbPreventionnistes' => null,
+                'dureeVisite' => gmdate('H:i:s', $dureeTotale),
             ];
         }
 
         // Cellule (genre 3) ou autres genres
         return [
-            'nbPrevCalcule' => $etablissement->getNbPrev(),
-            'dureeVisiteCalculee' => $etablissement->getDureeVisite(),
+            'nbPreventionnistes' => $etablissement->getNbPrev(),
+            'dureeVisite' => $etablissement->getDureeVisite(),
         ];
     }
 
     /**
      * Vérifie la présence d'un DUS (ID_FONCTION = 8) dans les contacts.
      */
-    private function hasContactDus(EtablissementEntity $etablissement): bool
+    public function hasContactDus(EtablissementEntity $etablissement): bool
     {
         $allContacts = $etablissement->getContacts()->toArray();
 
