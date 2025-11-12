@@ -19,7 +19,7 @@
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
         <li>
-            <a href="{{ '/etablissement/index/id/' ~ etablissement.id }}">
+            <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 Général
             </a>
@@ -102,7 +102,7 @@
             {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
                     {# @todo: Faire la popup au survol du lien #}
-                    <a href="{{ '/etablissement/index/id/' ~ parent.id }}">
+                    <a href="{{ path('etablissement_informations', {id: parent.id}) }}">
                         {{ parent.informations.last.libelle }}
                     </a> -
                 {% endfor %}
