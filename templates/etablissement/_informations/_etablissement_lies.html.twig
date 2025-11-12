@@ -4,14 +4,6 @@
 {% set statut_id = derniere_information ? derniere_information.statut.id : null %}
 {% set nb_enfants = etablissement.fils|length %}
 
-{# Récupération du dernier dossier avec avis pour l'établissement #}
-{% set dernier_avis_dossier = null %}
-{% for dossier in etablissement.dossiers %}
-    {% if dossier.avisCommission %}
-        {% set dernier_avis_dossier = dossier %}
-    {% endif %}
-{% endfor %}
-
 
 <li id="{{ etablissement.id }}"
     class="etablissement{% if nb_enfants > 0 %}slide{% endif %}"
@@ -90,9 +82,9 @@
         {% endif %}
 
         {# Gestion de la date d'avis #}
-        {% if dernier_avis_dossier %}
-            {% set date_visite = dernier_avis_dossier.dateVisite %}
-            {% set date_commission = dernier_avis_dossier.dateCommission %}
+        {% if etablissement.dossierDonnantAvis %}
+            {% set date_visite = etablissement.dossierDonnantAvis.dateVisite %}
+            {% set date_commission = etablissement.dossierDonnantAvis.dateCommission %}
             {% if date_visite %}
                 {% set date_avis = date_visite %}
             {% elseif date_commission %}
@@ -109,9 +101,9 @@
     <div class="pull-right">
 
         {# Avis #}
-        {% if dernier_avis_dossier %}
-            {% set avis = dernier_avis_dossier.avisCommission %}
-            {% set differe_avis = dernier_avis_dossier.avisDiffere %}
+        {% if etablissement.dossierDonnantAvis %}
+            {% set avis = etablissement.dossierDonnantAvis.avisCommission %}
+            {% set differe_avis = etablissement.dossierDonnantAvis.avisDiffere %}
 
             {% if differe_avis == 1 %}
                 <span class="avis" style="background-color: #3a87ad; font-size: .7em;">Avis différé</span>
