@@ -322,8 +322,6 @@ final class Etablissement
             }
 
             if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
-                // @fixme: Créer un DTO pour corriger l'erreur PHPStan
-                /* @phpstan-ignore-next-line */
                 $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
@@ -469,73 +467,6 @@ final class Etablissement
         }
 
         return $periodicityString;
-    }
-
-    /**
-     * Calcule la périodicité pour une entité établissement.
-     */
-    private function calculatePeriodiciteForEntity(EtablissementEntity $etablissement): ?int
-    {
-        $informations = $etablissement->getLatestInformations();
-        $genre = $informations->getGenre();
-        $genreId = $genre instanceof Genre ? $genre->getId() : null;
-        $periodicite = $informations->getPeriodicite();
-
-        // Site (genre 1)
-        if (1 === $genreId) {
-            foreach ($etablissement->getFils() as $enfant) {
-                $enfantInfos = $enfant->getLatestInformations();
-                if (!$enfantInfos) {
-                    continue;
-                }
-
-                $enfantGenre = $enfantInfos->getGenre();
-                if (!$enfantGenre) {
-                    continue;
-                }
-
-                if (2 !== $enfantGenre->getId()) {
-                    continue;
-                }
-
-                $periodiciteEnfant = $enfantInfos->getPeriodicite();
-                if (null === $periodiciteEnfant) {
-                    continue;
-                }
-
-                if (0 === $periodiciteEnfant) {
-                    continue;
-                }
-
-                $enfantStatut = $enfantInfos->getStatut();
-                if (!$enfantStatut) {
-                    continue;
-                }
-
-                if (2 !== $enfantStatut->getId()) {
-                    continue;
-                }
-
-                if (null === $periodicite || $periodicite > $periodiciteEnfant) {
-                    $periodicite = $periodiciteEnfant;
-                }
-            }
-        }
-
-        // Cellule (genre 3) avec parents
-        if (3 === $genreId && null !== $etablissement->getParent()) {
-            $currentEtablissement = $etablissement;
-            while (null !== $currentEtablissement->getParent()) {
-                $currentEtablissement = $currentEtablissement->getParent();
-            }
-
-            $lastParentInfos = $currentEtablissement->getLatestInformations();
-            if ($lastParentInfos) {
-                $periodicite = $lastParentInfos->getPeriodicite();
-            }
-        }
-
-        return $periodicite;
     }
 
     /**
