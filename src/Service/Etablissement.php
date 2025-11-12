@@ -8,7 +8,6 @@ use App\Dto\Historique\DonneeHistorique;
 use App\Dto\Historique\Informations;
 use App\Dto\Historique\LastAvis;
 use App\Dto\Historique\LastInformations;
-use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\EtablissementPieceJointe;
@@ -61,12 +60,9 @@ final class Etablissement
     /**
      * Récupère les dates de la dernière visite et de la prochaine visite pour un établissement donné.
      *
-     * @param EtablissementEntity $etablissement L'entité représentant l'établissement.
+     * @param EtablissementEntity $etablissement L'entité représentant l'établissement
      *
      * @return array{lastVisite: \DateTimeInterface|null, nextVisite: \DateTimeInterface|null}
-     * Tableau contenant deux clés :
-     * - lastVisite : la date de la dernière visite si disponible, null sinon.
-     * - nextVisite : la date estimée de la prochaine visite si disponible, null sinon.
      */
     public function getDatesVisites(EtablissementEntity $etablissement): array
     {

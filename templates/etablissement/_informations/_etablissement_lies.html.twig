@@ -4,7 +4,6 @@
 {% set statut_id = derniere_information ? derniere_information.statut.id : null %}
 {% set nb_enfants = etablissement.fils|length %}
 
-
 <li id="{{ etablissement.id }}"
     class="etablissement{% if nb_enfants > 0 %}slide{% endif %}"
     {% if statut_id == 1 or statut_id == 3 %}style="opacity: 0.5;"{% endif %}

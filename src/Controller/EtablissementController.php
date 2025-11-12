@@ -30,25 +30,32 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class EtablissementController extends AbstractController
 {
-    /**
-     * @var EtablissementPieceJointeRepository
-     */
     private $etablissementPieceJointeRepository;
 
-    /**
-     * @var EtablissementAdresseRepository
-     */
     private $etablissementAdresseRepository;
-    /**
-     * @var DossierRepository
-     */
+
     private $dossierRepository;
 
-    public function __construct(EtablissementPieceJointeRepository $etablissementPieceJointeRepository, EtablissementAdresseRepository $etablissementAdresseRepository, DossierRepository $dossierRepository)
-    {
+    private $etablissementService;
+
+    private $etablissementRepository;
+
+    private $entityManager;
+
+    public function __construct(
+        EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
+        EtablissementAdresseRepository $etablissementAdresseRepository,
+        DossierRepository $dossierRepository,
+        EtablissementService $etablissementService,
+        EtablissementRepository $etablissementRepository,
+        EntityManagerInterface $entityManager
+    ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
         $this->dossierRepository = $dossierRepository;
+        $this->etablissementService = $etablissementService;
+        $this->etablissementRepository = $etablissementRepository;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -59,7 +66,6 @@ class EtablissementController extends AbstractController
         CoucheCartoRepository $coucheCartoRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
-        EtablissementService $etablissementService,
         DataStore $dataStore,
         SerializerInterface $serializer
     ): Response {
@@ -71,7 +77,7 @@ class EtablissementController extends AbstractController
         $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
 
         // Récupération de la périodicité affichée
-        $periodicity = $etablissementService->getDisplayedPeriodicity($etablissement);
+        $periodicity = $this->etablissementService->getDisplayedPeriodicity($etablissement);
 
         // Récupération des adresses de l'établissement
         $adresses = $this->etablissementAdresseRepository->get($etablissement->getId());
@@ -89,7 +95,7 @@ class EtablissementController extends AbstractController
         $diapo = $this->etablissementPieceJointeRepository->getDiaporama($etablissement);
 
         // Récupération des dates de visite
-        $datesVisites = $etablissementService->getDatesVisites($etablissement);
+        $datesVisites = $this->etablissementService->getDatesVisites($etablissement);
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
@@ -104,8 +110,8 @@ class EtablissementController extends AbstractController
             'last_visite' => $datesVisites['lastVisite'],
             'next_visite' => $datesVisites['nextVisite'],
             'pc_initial' => $this->dossierRepository->getPCInitial($etablissement),
-            'presence_dus' => $etablissementService->hasContactDus($etablissement),
-            'donnees_pratiques' => $etablissementService->calculateDonneesPratiques($etablissement)
+            'presence_dus' => $this->etablissementService->hasContactDus($etablissement),
+            'donnees_pratiques' => $this->etablissementService->calculateDonneesPratiques($etablissement)
             // TODO: gestion role :  'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
         ]);
     }
@@ -115,9 +121,9 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function historique(Etablissement $etablissement, EtablissementService $etablissementService): Response
+    public function historique(Etablissement $etablissement): Response
     {
-        $historique = $etablissementService->getHistorique($etablissement->getId());
+        $historique = $this->etablissementService->getHistorique($etablissement->getId());
 
         return $this->render('etablissement/historique.html.twig', [
             'etablissement' => $etablissement,
@@ -130,9 +136,9 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function textesApplicables(Etablissement $etablissement, EtablissementService $etablissementService): Response
+    public function textesApplicables(Etablissement $etablissement): Response
     {
-        $etablissementData = $etablissementService->getTextesApplicables($etablissement->getId());
+        $etablissementData = $this->etablissementService->getTextesApplicables($etablissement->getId());
 
         return $this->render('etablissement/textes_applicables.html.twig', [
             'etablissement' => $etablissement,
@@ -145,14 +151,14 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
-    public function editTextesApplicables(Request $request, Etablissement $etablissement, EtablissementRepository $etablissementRepository, EntityManagerInterface $entityManager): Response
+    public function editTextesApplicables(Request $request, Etablissement $etablissement): Response
     {
-        $textesApplicablesEtablissementData = $etablissementRepository->getTextesApplicablesByType($etablissement->getId());
+        $textesApplicablesEtablissementData = $this->etablissementRepository->getTextesApplicablesByType($etablissement->getId());
         $form = $this->createForm(TextesApplicablesEtablissementType::class, $textesApplicablesEtablissementData);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Les textes applicables ont bien été mis à jour.');
 
@@ -170,9 +176,9 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function avisDerogations(Etablissement $etablissement, EtablissementService $etablissementService): Response
+    public function avisDerogations(Etablissement $etablissement): Response
     {
-        $historiqueAvisDerogations = $etablissementService->getAvisDerogations($etablissement->getId());
+        $historiqueAvisDerogations = $this->etablissementService->getAvisDerogations($etablissement->getId());
         $derogationsOriginales = $etablissement->getDescriptifDerogation();
 
         return $this->render('etablissement/avis_derogations.html.twig', [
@@ -187,10 +193,10 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function piecesJointes(Etablissement $etablissement, EtablissementService $etablissementService): Response
+    public function piecesJointes(Etablissement $etablissement): Response
     {
-        $image_pjs = $etablissementService->getPJImages($etablissement->getId());
-        $doc_pjs = $etablissementService->getAutresPJs($etablissement->getId());
+        $image_pjs = $this->etablissementService->getPJImages($etablissement->getId());
+        $doc_pjs = $this->etablissementService->getAutresPJs($etablissement->getId());
 
         return $this->render('etablissement/pieces_jointes.html.twig', [
             'image_pjs' => $image_pjs,
@@ -204,9 +210,9 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function contacts(Etablissement $etablissement, EtablissementRepository $etablissementRepository): Response
+    public function contacts(Etablissement $etablissement): Response
     {
-        $contacts = $etablissementRepository->findContactsOrderedByNom($etablissement->getId());
+        $contacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
 
         if (null !== $contacts) {
             $contacts = $contacts->getContacts();
@@ -217,7 +223,7 @@ class EtablissementController extends AbstractController
         $etablissementsParents = $etablissement->getParents();
 
         foreach ($etablissementsParents as $parent) {
-            $contactsParent = $etablissementRepository->findContactsOrderedByNom($parent->getId());
+            $contactsParent = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
 
             if (null === $contactsParent) {
                 continue;
@@ -242,7 +248,7 @@ class EtablissementController extends AbstractController
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
-    public function addContact(Request $request, Etablissement $etablissement, EntityManagerInterface $entityManager): Response
+    public function addContact(Request $request, Etablissement $etablissement): Response
     {
         $contact = new UtilisateurInformations();
 
@@ -252,9 +258,9 @@ class EtablissementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($contact);
+            $this->entityManager->persist($contact);
             $etablissement->addContact($contact);
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le contact a bien été ajouté.');
 
@@ -274,7 +280,6 @@ class EtablissementController extends AbstractController
     public function addExistingContact(
         Request $request,
         Etablissement $etablissement,
-        EntityManagerInterface $entityManager,
         UtilisateurInformationsRepository $utilisateurInformationsRepository
     ): Response {
         $contactIdsString = $request->request->get('contacts');
@@ -299,7 +304,7 @@ class EtablissementController extends AbstractController
             $etablissement->addContact($contact);
         }
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
 
@@ -317,7 +322,6 @@ class EtablissementController extends AbstractController
     public function deleteContact(
         Etablissement $etablissement,
         UtilisateurInformations $contact,
-        EntityManagerInterface $entityManager,
         Contact $contactService
     ): Response {
         // Suppression de l'association.
@@ -325,10 +329,10 @@ class EtablissementController extends AbstractController
 
         // Suppression définitive du contact
         if (!$contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
-            $entityManager->remove($contact);
+            $this->entityManager->remove($contact);
         }
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'Le contact a bien été supprimé.');
 
