@@ -54,23 +54,23 @@ class EtablissementInformations
     private $periodicite;
 
     /**
-     * @var bool
+     * @var ?bool
      *
-     * @ORM\Column(name="ICPE_ETABLISSEMENTINFORMATIONS", type="boolean")
+     * @ORM\Column(name="ICPE_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
      */
     private $icpe;
 
     /**
-     * @var bool
+     * @var ?bool
      *
-     * @ORM\Column(name="R14320_ETABLISSEMENTINFORMATIONS", type="boolean")
+     * @ORM\Column(name="R14320_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
      */
     private $r14320;
 
     /**
-     * @var bool
+     * @var ?bool
      *
-     * @ORM\Column(name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS", type="boolean")
+     * @ORM\Column(name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
      */
     private $droitPublic;
 
@@ -353,7 +353,7 @@ class EtablissementInformations
 
     public function getIcpe(): bool
     {
-        return $this->icpe;
+        return $this->icpe ?? false;
     }
 
     public function setIcpe(bool $icpe): self
@@ -365,7 +365,7 @@ class EtablissementInformations
 
     public function getR14320(): bool
     {
-        return $this->r14320;
+        return $this->r14320 ?? false;
     }
 
     public function setR14320(bool $r14320): self
@@ -377,7 +377,7 @@ class EtablissementInformations
 
     public function getDroitPublic(): bool
     {
-        return $this->droitPublic;
+        return $this->droitPublic ?? false;
     }
 
     public function setDroitPublic(bool $droitPublic): self
