@@ -53,7 +53,7 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
             ->leftJoin('etablissement_pj.pieceJointe', 'pj')
             ->where('pj.extension IN (:extensions)')
             ->andWhere('etablissement_pj.placement = 1')
-            ->andWhere('etablissement_pj.pieceJointe = :etablissement')
+            ->andWhere('etablissement_pj.etablissement = :etablissement')
             ->setParameter('etablissement', $etablissement->getId())
             ->setParameter('extensions', ['.jpg', '.JPG', '.jpeg', '.png'])
         ;
@@ -68,7 +68,7 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
             ->leftJoin('etablissement_pj.pieceJointe', 'pj')
             ->where('pj.extension IN (:extensions)')
             ->andWhere('etablissement_pj.placement = 2')
-            ->andWhere('etablissement_pj.pieceJointe = :etablissement')
+            ->andWhere('etablissement_pj.etablissement = :etablissement')
             ->setParameter('etablissement', $etablissement->getId())
             ->setParameter('extensions', ['.jpg', '.JPG', '.png'])
         ;

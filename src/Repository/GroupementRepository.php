@@ -26,8 +26,6 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
      * Récupère tous les groupements, avec la possibilité de filtrer par numéro INSEE de la ville.
      * Remplace la méthode findAll($num_insee) du legacy (@see ).
      *
-     * @see
-     *
      * @param string|null $num_insee numéro INSEE pour filtrer les groupements par ville
      *
      * @return Groupement[] liste des groupements triés par libellé en ordre croissant, ou filtrés par ville si le numéro INSEE est fourni
