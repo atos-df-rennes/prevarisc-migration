@@ -167,15 +167,6 @@ class EtablissementInformations
     private $activite;
 
     /**
-     * @var ?Commission
-     *
-     * @ORM\ManyToOne(targetEntity=Commission::class)
-     *
-     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
-     */
-    private $commission;
-
-    /**
      * @var ?EtablissementCategorie
      *
      * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
@@ -192,15 +183,6 @@ class EtablissementInformations
      * @ORM\JoinColumn(name="ID_CLASSE", referencedColumnName="ID_CLASSE", nullable=true, options={"unsigned":true})
      */
     private $classe;
-
-    /**
-     * @var ?Classement
-     *
-     * @ORM\ManyToOne(targetEntity=Classement::class)
-     *
-     * @ORM\JoinColumn(name="ID_CLASSEMENT", referencedColumnName="ID_CLASSEMENT", nullable=true, options={"unsigned":true})
-     */
-    private $classement;
 
     /**
      * @var ?Famille
@@ -527,18 +509,6 @@ class EtablissementInformations
     public function setActivite(?EtablissementActivite $activite): self
     {
         $this->activite = $activite;
-
-        return $this;
-    }
-
-    public function getCommission(): ?Commission
-    {
-        return $this->commission;
-    }
-
-    public function setCommission(?Commission $commission): self
-    {
-        $this->commission = $commission;
 
         return $this;
     }
