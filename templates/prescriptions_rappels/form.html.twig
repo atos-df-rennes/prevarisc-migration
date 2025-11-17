@@ -53,7 +53,7 @@
             {% for association_field in form.associations %}
                 <li>
                     {{ form_errors(association_field) }}
-                    {{ form_widget(association_field) }}
+                    {{ form_widget(association_field, {attr: {class: 'collection-item-wrapper'}}) }}
                 </li>
             {% endfor %}
         </ul>
