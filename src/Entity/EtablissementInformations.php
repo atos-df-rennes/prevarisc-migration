@@ -94,11 +94,11 @@ class EtablissementInformations
     private $famille;
 
     /**
-     * @var ?UtilisateurInformations
+     * @var ?Utilisateur
      *
-     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
      *
-     * @ORM\JoinColumn(name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true, options={"unsigned":true})
+     * @ORM\JoinColumn(name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEUR", nullable=true, options={"unsigned":true})
      */
     private $utilisateur;
 
@@ -137,6 +137,33 @@ class EtablissementInformations
      * @ORM\OneToMany(targetEntity=EtablissementInformationsTypesActivitesSecondaires::class, mappedBy="etablissementInformations", orphanRemoval=true)
      */
     private $typesActivitesSecondaires;
+
+    /**
+     * @var ?EtablissementActivite
+     *
+     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
+     *
+     * @ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", nullable=true, options={"unsigned":true})
+     */
+    private $typeActivite;
+
+    /**
+     * @var ?Classement
+     *
+     * @ORM\ManyToOne(targetEntity=Classement::class)
+     *
+     * @ORM\JoinColumn(name="ID_CLASSEMENT", referencedColumnName="ID_CLASSEMENT", nullable=true, options={"unsigned":true})
+     */
+    private $classement;
+
+    /**
+     * @var ?Commission
+     *
+     * @ORM\ManyToOne(targetEntity=Commission::class)
+     *
+     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
+     */
+    private $commission;
 
     public function __construct()
     {
@@ -246,12 +273,12 @@ class EtablissementInformations
         return $this;
     }
 
-    public function getUtilisateur(): ?UtilisateurInformations
+    public function getUtilisateur(): ?Utilisateur
     {
         return $this->utilisateur;
     }
 
-    public function setUtilisateur(?UtilisateurInformations $utilisateur): self
+    public function setUtilisateur(?Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
 
@@ -346,6 +373,42 @@ class EtablissementInformations
         if ($this->typesActivitesSecondaires->removeElement($typesActivitesSecondaire) && $typesActivitesSecondaire->getEtablissementInformations() === $this) {
             $typesActivitesSecondaire->setEtablissementInformations(null);
         }
+
+        return $this;
+    }
+
+    public function getTypeActivite(): ?EtablissementActivite
+    {
+        return $this->typeActivite;
+    }
+
+    public function setTypeActivite(?EtablissementActivite $typeActivite): self
+    {
+        $this->typeActivite = $typeActivite;
+
+        return $this;
+    }
+
+    public function getClassement(): ?Classement
+    {
+        return $this->classement;
+    }
+
+    public function setClassement(?Classement $classement): self
+    {
+        $this->classement = $classement;
+
+        return $this;
+    }
+
+    public function getCommission(): ?Commission
+    {
+        return $this->commission;
+    }
+
+    public function setCommission(?Commission $commission): self
+    {
+        $this->commission = $commission;
 
         return $this;
     }

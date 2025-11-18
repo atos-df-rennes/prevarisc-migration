@@ -1,0 +1,67 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des rappels réglementaires{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-9">
+            <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> Gestion des rappels réglementaires
+        </div>
+        <div class="col-md-3 text-right">
+            <!-- Espace réservé pour un contenu futur -->
+        </div>
+    </div>
+
+    <h3 class="page-header">
+        Gestion des rappels réglementaires
+    </h3>
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <a class="btn btn-default" href="{{ path('admin_prescriptions_rappels_add') }}"><i class="glyphicon glyphicon-plus"></i>&nbsp;Ajouter une prescription</a>
+        </div>
+    </div>
+
+    <h3>Pour les études</h3>
+    <ul>
+        {% for presc_etude in listePrescEtude %}
+            {{ _self.rappel_reg(presc_etude.prescription, presc_etude.associations) }}
+        {% endfor %}
+    </ul>
+
+    <h3>Pour les visites</h3>
+    <ul>
+        {% for presc_visite in listePrescVisite %}
+            {{ _self.rappel_reg(presc_visite.prescription, presc_visite.associations) }}
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% macro rappel_reg(rappel, associations) %}
+    <li class="table-responsive" id="prescriptionDossier_{{ rappel.id }}" style="list-style-type:none; margin-bottom:15px;">
+        <table class="table">
+            {% set nb_assoc = associations|length %}
+            {% for association in associations %}
+                <tr>
+                    <td class="col-xs-2">{{ association.texte.libelle }}</td>
+                    <td class="col-xs-2">{{ association.article.libelle }}</td>
+                    {% if loop.first %}
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-6">
+                            {{ rappel.libelle|nl2br }}
+                        </td>
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1">
+                            {% if rappel.visible == 1 %}
+                                <img src="{{ asset('images/visible.gif') }}" alt="visible" title="Visible" />
+                            {% else %}
+                                <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" title="Non visible" />
+                            {% endif %}
+                        </td>
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1" >
+                            <a class="btn btn-default" href="{{ path('admin_prescriptions_rappels_edit', {rappelReg: rappel.id}) }}">Modifier</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    </li>
+{% endmacro %}

@@ -1,0 +1,55 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% form_theme form '_form_theme.html.twig' %}
+
+{% set texte_liste = app.request.get('texteListe') %}
+
+{% if texte_liste is null %}
+    {% set title = 'Ajout d\'un nouveau texte' %}
+{% else %}
+    {% set title = 'Modification d\'un texte existant' %}
+{% endif %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des textes / {{ title }}{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a>
+            <i class="glyphicon glyphicon-chevron-right"></i>{{ title }}
+        </div>
+    </div>
+
+    <h3 class="page-header">{{ title }}</h3>
+
+    {{ form_start(form) }}
+        <div class="row text-right">
+            <div class="col-sm-12">
+                <a class="btn btn-default" href="{{ path('admin_prescriptions_textes') }}">
+                    {% if texte_liste is null %}
+                        Retourner à la liste des textes
+                    {% else %}
+                        Annuler la modification
+                    {% endif %}
+                </a>
+                <input type="submit" class="btn btn-success" value="Sauvegarder" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.libelle) }}
+                {{ form_row(form.visible) }}
+            </div>
+        </div>
+
+        {% if texte_liste is not null %}
+            <div class="text-center">
+                <a class="btn btn-warning" href="{{ path('admin_prescriptions_textes_suppression', {texteListe: texte_liste.id}) }}">
+                    Supprimer le texte et le remplacer par un autre
+                </a>
+            </div>
+        {% endif %}
+    {{ form_end(form) }}
+{% endblock %}

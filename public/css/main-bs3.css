@@ -426,9 +426,11 @@ h4.h4_subtitle input {
 
 /* Contacts */
 .fiche_contact {
+  display: inline-block;
   border: 1px dotted #818183;
   padding: 20px 20px 20px 20px;
-  margin-bottom: 20px;
+  width: 500px;
+  margin: 5px;
 }
 .fiche_contact_nom {
   font-family: Verdana;
@@ -457,13 +459,21 @@ h4.h4_subtitle input {
   display: block;
   float: right;
 }
-.fiche_edit img {
+.fiche_edit {
   float: right;
+}
+.fiche_edit button {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .fiche_delete {
   float: right;
-  color: #9b9b9b;
   margin: 0 0 0 3px;
+}
+.fiche_delete button {
+  padding-top: 0;
+  padding-bottom: 0;
+  color: #9b9b9b;
 }
 .fiche_contact_nom a {
   color: #9b9b9b;
@@ -801,6 +811,10 @@ ul#gestionCommissionMenu li.active {
   border-left: none;
   padding: 12px 5px 12px 15px;
   color: #555;
+}
+
+.nav-tabs-with-margin-bottom {
+  margin-bottom: 20px;
 }
 
 .dashboard .panel {
@@ -1263,6 +1277,10 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
   gap: 1.5rem;
 }
 
+.panel.panel-formulaire-perso .panel-body.panel-body-hidden {
+  display: none;
+}
+
 .panel.panel-formulaire-perso .date {
   background-color: #fff;
 }
@@ -1343,4 +1361,15 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 .control-label + .checkbox {
   margin-top: 0;
 }
-  
+
+/* Ressources spécialisées */
+.table-ressources-specialisees > tbody > tr > td {
+  vertical-align: middle;
+}
+.ui-multiselect-checkboxes label > span {
+  margin-left: 0.5em;
+}
+#resource-dossier-modal .ui-multiselect,
+#resource-ets-modal .ui-multiselect {
+  display: block;
+}

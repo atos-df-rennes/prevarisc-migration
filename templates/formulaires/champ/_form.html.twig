@@ -1,0 +1,61 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Informations sur le champ {% if enfant is defined %}enfant{% endif %}</h3>
+    </div>
+    <div class="panel-body">
+        {% if
+            enfant is not defined
+            and valeur_champ_fusion is defined
+            and valeur_champ_fusion is not null
+            and champ.type.type != 'Parent'
+        %}
+            {{ include('formulaires/champ/_valeur_fusion.html.twig') }}
+        {% endif %}
+
+        {{ form_start(form_champ) }}
+            {{ form_row(form_champ.nom) }}
+            {{ form_row(form_champ.type) }}
+            {{ form_row(form_champ.tableau) }}
+
+            {% do form_champ.valeursListe.setRendered %}
+            <fieldset id="{{ enfant is defined ? 'fieldset_valeurs_liste_enfant' : 'fieldset_valeurs_liste' }}">
+                <legend>Valeurs de la liste</legend>
+
+                <ul id="{{ enfant is defined ? 'champ_valeurs_liste_enfant' : 'champ_valeurs_liste' }}"
+                    class="list-unstyled mt-4 remove-collection-widget"
+                    data-prototype="{{ form_widget(form_champ.valeursListe.vars.prototype)|e }}"
+                    data-widget-tags="{{ '<li></li>'|e }}"
+                    data-widget-counter="{{ form_champ.valeursListe|length }}">
+                    {% for valeur_liste_field in form_champ.valeursListe %}
+                        <li>
+                            {{ form_errors(valeur_liste_field) }}
+                            {{ form_widget(valeur_liste_field, {attr: {class: 'collection-item-wrapper'}}) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="text-center">
+                    <button type="button"
+                            class="btn btn-default add-collection-widget"
+                            data-list-selector="#{{ enfant is defined ? 'champ_valeurs_liste_enfant' : 'champ_valeurs_liste' }}">Ajouter une valeur</button>
+                </div>
+            </fieldset>
+
+            <div class="pull-right">
+                <button type="submit" class="btn btn-success">
+                    {% if champ is not defined %}
+                        Ajouter
+                    {% else %}
+                        Sauvegarder
+                    {% endif %}
+                </button>
+            </div>
+        {{ form_end(form_champ) }}
+    </div>
+</div>
+
+<datalist id="{{ enfant is defined ? 'champ-valeurs-liste-enfant' : 'champ-valeurs-liste' }}">
+    {% for champ_valeur_liste in champ_valeurs_liste %}
+        <option value="{{ champ_valeur_liste.valeur }}"></option>
+    {% endfor %}
+</datalist>

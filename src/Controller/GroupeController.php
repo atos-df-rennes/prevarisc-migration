@@ -3,12 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\Groupe;
+use App\Entity\Privileges;
+use App\Entity\Resources;
 use App\Form\GroupeType;
 use App\Form\MatriceDesDroitsType;
+use App\Form\RessourceSpecialiseeDossierType;
+use App\Form\RessourceSpecialiseeEtablissementType;
 use App\Repository\GroupeRepository;
+use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
+use App\Security\Voter\DossierVoter;
+use App\Security\Voter\EtablissementVoter;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierNameGenerator;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerator;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
+use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,6 +33,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GroupeController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/admin/groupes/{id}/utilisateurs", name="admin_groupe_index")
      */
@@ -46,9 +67,8 @@ class GroupeController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($groupe);
-            $entityManager->flush();
+            $this->entityManager->persist($groupe);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le groupe a bien été ajouté.');
 
@@ -62,35 +82,6 @@ class GroupeController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
-     */
-    public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
-    {
-        $groupes = $groupeRepository->findAll();
-
-        $form = $this->createForm(MatriceDesDroitsType::class, ['groupes' => $groupes]);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
-            foreach ($groupes as $groupe) {
-                $entityManager->persist($groupe);
-            }
-
-            $entityManager->flush();
-
-            $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
-
-            return $this->redirectToRoute('admin_groupe_manage_privileges');
-        }
-
-        return $this->render('groupe/matrice_droits.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
      * @Route("/admin/groupes/{id}/modifier", name="admin_groupe_edit")
      */
     public function modifier(Request $request, Groupe $groupe): Response
@@ -99,8 +90,7 @@ class GroupeController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le groupe a bien été modifié.');
 
@@ -129,15 +119,147 @@ class GroupeController extends AbstractController
         $utilisateurs = $utilisateurRepository->findBy(['groupe' => $groupeId]);
         $groupeParDefaut = $groupeRepository->find(1);
 
-        $entityManager = $this->getDoctrine()->getManager();
         foreach ($utilisateurs as $utilisateur) {
             $utilisateur->setGroupe($groupeParDefaut);
-            $entityManager->flush();
         }
 
-        $groupeRepository->remove($groupe);
+        $this->entityManager->flush();
+
+        $this->entityManager->remove($groupe);
+        $this->entityManager->flush();
+
         $this->addFlash('success', 'Le groupe a bien été supprimé.');
 
         return $this->redirectToRoute('admin_utilisateurs_index');
+    }
+
+    /**
+     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
+     */
+    public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
+    {
+        $groupes = $groupeRepository->findAll();
+
+        $form = $this->createForm(MatriceDesDroitsType::class, ['groupes' => $groupes]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
+
+            return $this->redirect('/legacy/admin/groupes/matrice-des-droits');
+        }
+
+        return $this->render('groupe/matrice_droits.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees", name="admin_groupe_ressources_specialisees")
+     */
+    public function ressourcesSpecialisees(ResourcesRepository $resourcesRepository): Response
+    {
+        $ressourceDossierForm = $this->createForm(RessourceSpecialiseeDossierType::class, null, [
+            'action' => $this->generateUrl('admin_groupe_ressources_specialisees_add_dossier'),
+        ]);
+        $ressourceEtablissementForm = $this->createForm(RessourceSpecialiseeEtablissementType::class, null, [
+            'action' => $this->generateUrl('admin_groupe_ressources_specialisees_add_etablissement'),
+        ]);
+
+        return $this->render('groupe/ressources_specialisees/index.html.twig', [
+            'ressources_dossier' => $resourcesRepository->findRessourcesSpecialiseesDossier(),
+            'ressources_etablissement' => $resourcesRepository->findRessourcesSpecialiseesEtablissement(),
+            'form_dossier' => $ressourceDossierForm->createView(),
+            'form_etablissement' => $ressourceEtablissementForm->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees/{id}/supprimer", name="admin_groupe_ressources_specialisees_delete", methods={"DELETE"})
+     */
+    public function supprimerRessourceSpecialisee(Resources $resources): RedirectResponse
+    {
+        $this->entityManager->remove($resources);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+    }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees/dossier/ajouter", name="admin_groupe_ressources_specialisees_add_dossier", methods={"POST"}))
+     */
+    public function ajouterRessourceSpecialiseeDossier(Request $request, RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator): RedirectResponse
+    {
+        $resource = new Resources();
+
+        $name = RessourcesSpecialiseesDossierNameGenerator::fromRequest($request);
+        $text = $ressourcesSpecialiseesDossierTextGenerator->fromRequest($request);
+
+        $resource->setName($name);
+        $resource->setText($text);
+
+        $this->entityManager->persist($resource);
+        $this->entityManager->flush();
+
+        $privilegeLecture = new Privileges();
+        $privilegeLecture->setName(DossierVoter::LECTURE);
+        $privilegeLecture->setText('Lecture');
+        $privilegeLecture->setResource($resource);
+
+        $privilegeModification = new Privileges();
+        $privilegeModification->setName(DossierVoter::MODIFICATION);
+        $privilegeModification->setText('Modifier');
+        $privilegeModification->setResource($resource);
+
+        $privilegeVerrouillage = new Privileges();
+        $privilegeVerrouillage->setName(DossierVoter::VERROUILLAGE);
+        $privilegeVerrouillage->setText("Verrouillage d'un dossier");
+        $privilegeVerrouillage->setResource($resource);
+
+        $this->entityManager->persist($privilegeLecture);
+        $this->entityManager->persist($privilegeModification);
+        $this->entityManager->persist($privilegeVerrouillage);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'La ressource spécialisée a bien été ajoutée.');
+
+        return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+    }
+
+    /**
+     * @Route("/admin/groupes/ressources-specialisees/etablissement/ajouter", name="admin_groupe_ressources_specialisees_add_etablissement", methods={"POST"}))
+     */
+    public function ajouterRessourceSpecialiseeEtablissement(Request $request, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator): RedirectResponse
+    {
+        $resource = new Resources();
+
+        $name = RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request);
+        $text = $ressourcesSpecialiseesEtablissementTextGenerator->fromRequest($request);
+
+        $resource->setName($name);
+        $resource->setText($text);
+
+        $this->entityManager->persist($resource);
+        $this->entityManager->flush();
+
+        $privilegeLecture = new Privileges();
+        $privilegeLecture->setName(EtablissementVoter::LECTURE);
+        $privilegeLecture->setText('Lecture');
+        $privilegeLecture->setResource($resource);
+
+        $privilegeModification = new Privileges();
+        $privilegeModification->setName(EtablissementVoter::MODIFICATION);
+        $privilegeModification->setText('Modifier');
+        $privilegeModification->setResource($resource);
+
+        $this->entityManager->persist($privilegeLecture);
+        $this->entityManager->persist($privilegeModification);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'La ressource spécialisée a bien été ajoutée.');
+
+        return $this->redirectToRoute('admin_groupe_ressources_specialisees');
     }
 }

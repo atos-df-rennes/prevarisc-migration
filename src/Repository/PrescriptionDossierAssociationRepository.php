@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionDossierAssociation;
+use App\Entity\PrescriptionTexteListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -45,5 +47,43 @@ class PrescriptionDossierAssociationRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Remplace tous les textes d'une entité PrescriptionDossierAssociation par un nouveau texte.
+     *
+     * @param PrescriptionTexteListe $oldText L'ancien texte à remplacer
+     * @param PrescriptionTexteListe $newText le nouveau texte à appliquer
+     */
+    public function replaceAllTexts(PrescriptionTexteListe $oldText, PrescriptionTexteListe $newText): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionDossierAssociation::class, 'pda')
+            ->set('pda.texte', ':newText')
+            ->where('pda.texte = :oldText')
+            ->setParameter('newText', $newText)
+            ->setParameter('oldText', $oldText)
+            ->getQuery()
+            ->execute()
+        ;
+    }
+
+    /**
+     * Remplace toutes les occurrences d'un article par un autre dans les associations de dossier de prescription.
+     *
+     * @param PrescriptionArticleListe $oldArticle L'article existant à remplacer
+     * @param PrescriptionArticleListe $newArticle le nouvel article à associer
+     */
+    public function replaceAllArticles(PrescriptionArticleListe $oldArticle, PrescriptionArticleListe $newArticle): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->update(PrescriptionDossierAssociation::class, 'pda')
+            ->set('pda.article', ':newArticle')
+            ->where('pda.article = :oldArticle')
+            ->setParameter('newArticle', $newArticle)
+            ->setParameter('oldArticle', $oldArticle)
+            ->getQuery()
+            ->execute()
+        ;
     }
 }

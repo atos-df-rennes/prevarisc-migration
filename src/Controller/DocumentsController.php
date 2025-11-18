@@ -43,8 +43,7 @@ class DocumentsController extends AbstractController
         // @TODO: Faire ça dans un service
         foreach ($commissions as $commission) {
             if (
-                null === $commission->getId()
-                || null === $commission->getLibelle()
+                in_array(null, [$commission->getId(), $commission->getLibelle()], true)
                 || null === $commission->getType()
                 || null === $commission->getType()->getLibelle()
             ) {
@@ -88,8 +87,7 @@ class DocumentsController extends AbstractController
 
         foreach ($commissions as $commission) {
             if (
-                null === $commission->getId()
-                || null === $commission->getLibelle()
+                in_array(null, [$commission->getId(), $commission->getLibelle()], true)
                 || null === $commission->getType()
                 || null === $commission->getType()->getLibelle()
             ) {

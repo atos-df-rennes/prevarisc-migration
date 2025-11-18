@@ -42,3 +42,15 @@
 .form-horizontal .control-group .controls {
     overflow-x: auto;
 }
+
+@media (min-width: 980px) {
+    .hidden-desktop {
+        display: none;
+    }
+}
+
+#show-toc {
+    position: fixed;
+    bottom: 20px;
+    right: 70px;
+}

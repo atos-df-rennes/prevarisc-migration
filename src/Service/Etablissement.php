@@ -10,11 +10,12 @@ use App\Dto\Historique\LastAvis;
 use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
+use App\Entity\EtablissementPieceJointe;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
-use Doctrine\ORM\EntityNotFoundException;
-use Psr\Log\LoggerInterface;
+use App\Service\DataStore\DataStore;
 
 final class Etablissement
 {
@@ -24,22 +25,27 @@ final class Etablissement
     /** @var DossierRepository */
     private $dossierRepository;
 
+    /** @var EtablissementPieceJointeRepository */
+    private $etablissementPJRepository;
+
+    /** @var DataStore */
+    private $dataStore;
+
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
-
-    /** @var LoggerInterface */
-    private $logger;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
-        LoggerInterface $logger
+        EtablissementPieceJointeRepository $etablissementPJRepository,
+        DataStore $dataStore
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->logger = $logger;
+        $this->etablissementPJRepository = $etablissementPJRepository;
+        $this->dataStore = $dataStore;
     }
 
     public function getHistorique(int $id): Informations
@@ -51,7 +57,6 @@ final class Etablissement
         $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
         $historiqueInformations->setAvis($historiqueDossiers);
 
-        // @todo: Le traitement des avis derogations sera traitée dans l'onglet concerné
         return $historiqueInformations;
     }
 
@@ -79,10 +84,10 @@ final class Etablissement
             }
 
             if (null !== $auteur) {
-                try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
-                } catch (EntityNotFoundException $entityNotFoundException) {
-                    $this->logger->error($entityNotFoundException->getMessage());
+                $auteurInformations = $auteur->getInformations();
+
+                if (null !== $auteurInformations) {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
                 }
             }
 
@@ -214,10 +219,10 @@ final class Etablissement
             $infosAuteur = null;
 
             if (null !== $auteur) {
-                try {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteur->getNom().' '.$auteur->getPrenom());
-                } catch (EntityNotFoundException $entityNotFoundException) {
-                    $this->logger->error($entityNotFoundException->getMessage());
+                $auteurInformations = $auteur->getInformations();
+
+                if (null !== $auteurInformations) {
+                    $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
                 }
             }
 
@@ -270,6 +275,8 @@ final class Etablissement
             }
 
             if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
+                // @fixme: Créer un DTO pour corriger l'erreur PHPStan
+                /* @phpstan-ignore-next-line */
                 $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
@@ -283,6 +290,56 @@ final class Etablissement
         }
 
         return $textesApplicables;
+    }
+
+    /**
+     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     */
+    public function getPJImages(int $id): array
+    {
+        $images = $this->etablissementPJRepository->getPjByType($id, ['.jpg', '.jpeg', '.png', '.gif']);
+
+        return $this->filtrePJs($images);
+    }
+
+    /**
+     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     */
+    public function getAutresPJs(int $id): array
+    {
+        $pjs = $this->etablissementPJRepository->getPjByType($id, ['.jpg', '.jpeg', '.png', '.gif'], true);
+
+        return $this->filtrePJs($pjs);
+    }
+
+    /**
+     * @param EtablissementPieceJointe[] $pjs
+     *
+     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     */
+    private function filtrePJs(array $pjs): array
+    {
+        $store = $this->dataStore;
+        $pjsFiltrees = array_filter(
+            $pjs,
+            function (EtablissementPieceJointe $pj) use ($store): bool {
+                $path = '';
+                if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
+                    $path = $store->getFilePath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
+                }
+
+                return '' !== $path && is_readable($path);
+            }
+        );
+
+        return array_map(function (EtablissementPieceJointe $pj) use ($store): array {
+            $path = '';
+            if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
+                $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
+            }
+
+            return [$pj, $path ?? ''];
+        }, $pjsFiltrees);
     }
 
     /**

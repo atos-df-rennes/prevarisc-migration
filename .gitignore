@@ -1,3 +1,8 @@
+###> Config IDE ###
+.idea
+.vscode
+###< Config IDE ###
+
 ###> symfony/framework-bundle ###
 /.env
 /.env.local
@@ -22,3 +27,4 @@
 
 /tools/vendor/
 .php-cs-fixer.cache
+.twig-cs-fixer.cache

@@ -1,0 +1,63 @@
+<div class="fiche_contact">
+    <p class="fiche_contact_nom">
+        {{ contact.nom ~ ' ' ~ contact.prenom }}
+
+        {% if can_edit %}
+            <span class="fiche_delete" title="Supprimer">
+                <button type="button" class="btn btn-link delete-contact-button" data-toggle="modal" data-target="#dialog-delete-contact" data-id="{{ etablissement.id }}" data-contact-id="{{ contact.id }}">&times;</button>
+            </span>
+            <span class="fiche_edit" title="Modifier">
+                <button type="button" class="btn btn-link edit-contact-button" data-toggle="modal" data-target="#ajout-contact" data-id="{{ etablissement.id }}" data-contact-id="{{ contact.id }}">
+                    <img src="{{ asset('images/pen.png') }}" alt="Modifier" />
+                </button>
+            </span>
+        {% endif %}
+    </p>
+
+    <p class="fiche_contact_fonction">
+        {{ contact.fonction.libelle }}
+
+        {% if contact.societe %}
+            - {{ contact.societe }}
+        {% endif %}
+    </p>
+
+    <ul class='list-unstyled'>
+        <li>
+            <span>Téléphone</span>
+            <span class="valeur">
+                {{ contact.telephoneFixe }}
+
+                {% if contact.telephonePortable %}
+                    / {{ contact.telephonePortable }}
+                {% endif %}
+            </span>
+        </li>
+        <li>
+            <span>Fax</span>
+            <span class="valeur">{{ contact.telephoneFax }}</span>
+        </li>
+        <li>
+            <span>Courriel</span>
+            <span class="valeur">
+                <a href="mailto:{{ contact.mail }}">{{ contact.mail }}</a>
+            </span>
+        </li>
+        <li>
+            <span>Site web</span>
+            <span class="valeur">
+                <a href="{{ contact.siteWeb }}">{{ contact.siteWeb }}</a>
+            </span>
+        </li>
+        <li>
+            <span>Adresse</span>
+            <span class="valeur">
+                {{ contact.numeroAdresse ~ ' ' ~ contact.rueAdresse ~ ' ' ~ contact.codePostalAdresse ~ ' ' ~ contact.villeAdresse }}
+            </span>
+        </li>
+        <li>
+            <span>Observations</span>
+            <span class="valeur">{{ contact.observations }}</span>
+        </li>
+    </ul>
+</div>

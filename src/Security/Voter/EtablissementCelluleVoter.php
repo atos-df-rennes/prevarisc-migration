@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Security\Voter;
+
+use App\Entity\Etablissement;
+use App\Repository\PrivilegesRepository;
+use App\Repository\ResourcesRepository;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+
+class EtablissementCelluleVoter extends EtablissementVoter
+{
+    public const ID_CELLULE = 3;
+
+    /**
+     * @var ResourcesRepository
+     */
+    private $resourcesRepository;
+
+    /**
+     * @var PrivilegesRepository
+     */
+    private $privilegesRepository;
+
+    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
+    {
+        $this->resourcesRepository = $resourcesRepository;
+        $this->privilegesRepository = $privilegesRepository;
+    }
+
+    protected function supports($attribute, $subject): bool
+    {
+        return parent::supports($attribute, $subject)
+            && parent::isSubjectGenreAllowed($subject, self::ID_CELLULE);
+    }
+
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    {
+        if (!parent::voteOnAttribute($attribute, $subject, $token)) {
+            return false;
+        }
+
+        /** @var Etablissement $subject */
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule($subject->getLatestInformations()->getTypeActivite());
+        if ([] === $resources) {
+            return false;
+        }
+
+        /** @var \Doctrine\Common\Collections\Collection<int, \App\Entity\Privileges> $userPrivileges */
+        /** @phpstan-ignore-next-line */
+        $userPrivileges = $token->getUser()->getGroupe()->getPrivileges();
+
+        foreach ($resources as $resource) {
+            $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
+
+            if ($privilege && $userPrivileges->contains($privilege)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}

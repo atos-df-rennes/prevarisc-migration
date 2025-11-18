@@ -1,0 +1,67 @@
+<div class="row rubriques">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Informations sur la rubrique</h3>
+            </div>
+
+            <div class="panel-body">
+                {{ form_start(forms[formulaire.nomInterne]) }}
+                    {{ form_row(forms[formulaire.nomInterne].nom) }}
+                    {{ form_row(forms[formulaire.nomInterne].defaultDisplay) }}
+
+                    <input type="hidden" name="formulaire" value="{{ formulaire.nomInterne }}" />
+
+                    <button type="submit" class="btn btn-success pull-right">Ajouter</button>
+                {{ form_end(forms[formulaire.nomInterne]) }}
+            </div>
+        </div>
+    </div>
+
+    {% if formulaire.rubriques|length > 0 %}
+        <div class="col-md-7 col-md-offset-1 saved-rubriques">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Liste des rubriques</h3>
+                </div>
+
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Nom</th>
+                        <th>Affichage par défaut</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="capsule-rubrique-{{ formulaire.id }}" class="grp">
+                        {% for rubrique in formulaire.rubriques %}
+                            <tr id="{{ rubrique.id }}">
+                                <td class='tdMove'><span class="glyphicon glyphicon-move"></span></td>
+                                <td>{{ rubrique.nom }}</td>
+                                <td id='default-display'>
+                                    {% if rubrique.defaultDisplay %}
+                                        <div class="text-center">
+                                            <span class="glyphicon glyphicon-ok"></span>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td id='actions'>
+                                    <div class='text-center'>
+                                        <a href="{{ path('admin_formulaires_edit_rubrique', {formulaire: formulaire.id, rubrique: rubrique.id}) }}">
+                                            <span title='Modifier' class="glyphicon glyphicon-pencil"></span>
+                                        </a>
+                                        <button data-url="{{ path('admin_formulaires_delete_rubrique', {id: rubrique.id}) }}" data-nom="{{ rubrique.nom }}" class="btn btn-link delete-rubrique" data-toggle="modal" data-target="#modal-delete-rubrique">
+                                            <span title='Supprimer' class='glyphicon glyphicon-trash'></span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>

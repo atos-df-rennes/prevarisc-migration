@@ -4,9 +4,9 @@ namespace App\Repository;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\UtilisateurInformations;
+use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,35 +17,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Dossier[]    findAll()
  * @method Dossier[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class DossierRepository extends ServiceEntityRepository
+class DossierRepository extends ServiceEntityRepository implements HasContacts
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Dossier::class);
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Dossier $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Dossier $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
     }
 
     public function findDeleted(): array
@@ -97,5 +73,22 @@ class DossierRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * Retourne le nombre de dossiers ayant comme contact celui passé en paramètre.
+     */
+    public function findNumberByContacts(UtilisateurInformations $contact): int
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $query = $queryBuilder
+            ->select('COUNT(d.id)')
+            ->join('d.contacts', 'c')
+            ->where('c.id = :id')
+            ->setParameter('id', $contact->getId())
+            ->getQuery()
+        ;
+
+        return $query->getSingleScalarResult();
     }
 }

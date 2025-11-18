@@ -1,0 +1,20 @@
+<form class="modal fade contact" id="ajout-contact-existant" tabindex="-1" role="search" aria-labelledby="contactModalLabel" aria-hidden="true" action="{{ path('etablissement_contacts_add_existing', {id: etablissement.id}) }}" method='post'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                <h4 class="modal-title" id="contactModalLabel">Ajouter un contact existant</h4>
+            </div>
+            <div class="modal-body" style='min-height: 100px; overflow-y: visible'>
+                <div class="form-group col-xs-10">
+                    <label for="contact-select">Nom du contact à ajouter</label>
+                    <input type='text' id="contact-select" name="contacts" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <input type='submit' id='submit' value='Ajouter' class='btn btn-success' />
+            </div>
+        </div>
+    </div>
+</form>

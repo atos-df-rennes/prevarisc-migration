@@ -7,9 +7,16 @@
         "marcocesarato/php-conventional-changelog": "^1.17",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-symfony": "^2.0",
-        "phpmetrics/phpmetrics": "^2.9"
+        "phpmetrics/phpmetrics": "^2.9",
+        "tombenevides/dump-linter": "^1.0",
+        "vincentlanglet/twig-cs-fixer": "^3.10"
     },
-    "minimum-stability": "dev",
+    "autoload": {
+      "psr-4": {
+        "App\\Linter\\": "../linter/"
+      }
+    },
+  "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
         "ramsey/conventional-commits": {
@@ -40,5 +47,8 @@
         "allow-plugins": {
             "phpstan/extension-installer": true
         }
+    },
+    "require-dev": {
+        "symplify/config-transformer": "^12.4"
     }
 }

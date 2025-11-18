@@ -1,0 +1,40 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des prescriptions / Gestion des textes{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> Gestion des textes
+        </div>
+    </div>
+
+    <h3 class="page-header">
+        Gestion des textes
+    </h3>
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <a class="btn btn-default" href="{{ path('admin_prescriptions_textes_add') }}"><i class="glyphicon glyphicon-plus"></i>&nbsp;Ajouter un texte</a>
+        </div>
+    </div>
+
+    <br/>
+
+    {% for texte in liste_textes %}
+        {% if texte.id != 1 %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% if texte.visible == 1 %}
+                        <img src="{{ asset('images/visible.gif') }}" alt="visible" />
+                    {% else %}
+                        <img src="{{ asset('images/nonvisible.gif') }}" alt="non visible" />
+                    {% endif %}
+                    <a class="btn btn-default" href="{{ path('admin_prescriptions_textes_edit', {texteListe: texte.id}) }}"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Modifier</a>
+                    {{ texte.libelle }}
+                </div>
+            </div>
+            <br/>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

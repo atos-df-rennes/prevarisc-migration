@@ -105,11 +105,11 @@ class Dossier
     private $dateVisite;
 
     /**
-     * @var ?UtilisateurInformations
+     * @var ?Utilisateur
      *
-     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
+     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
      *
-     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true)
+     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEUR", nullable=true)
      */
     private $createur;
 
@@ -240,6 +240,20 @@ class Dossier
      * @ORM\OneToMany(targetEntity=PrescriptionDossier::class, mappedBy="dossier", orphanRemoval=true)
      */
     private $prescriptions;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="VERROU_DOSSIER", type="boolean", nullable=true)
+     */
+    private $verrou;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="VERROU_USER_DOSSIER", type="bigint", nullable=true)
+     */
+    private $utilisateurVerrou;
 
     public function __construct()
     {
@@ -395,12 +409,12 @@ class Dossier
         return $this;
     }
 
-    public function getCreateur(): ?UtilisateurInformations
+    public function getCreateur(): ?Utilisateur
     {
         return $this->createur;
     }
 
-    public function setCreateur(?UtilisateurInformations $createur): self
+    public function setCreateur(?Utilisateur $createur): self
     {
         $this->createur = $createur;
 
@@ -762,6 +776,30 @@ class Dossier
         if ($this->prescriptions->removeElement($prescription) && $prescription->getDossier() === $this) {
             $prescription->setDossier(null);
         }
+
+        return $this;
+    }
+
+    public function getVerrou(): ?bool
+    {
+        return $this->verrou;
+    }
+
+    public function setVerrou(?bool $verrou): self
+    {
+        $this->verrou = $verrou;
+
+        return $this;
+    }
+
+    public function getUtilisateurVerrou(): ?int
+    {
+        return $this->utilisateurVerrou;
+    }
+
+    public function setUtilisateurVerrou(?int $utilisateurVerrou): self
+    {
+        $this->utilisateurVerrou = $utilisateurVerrou;
 
         return $this;
     }

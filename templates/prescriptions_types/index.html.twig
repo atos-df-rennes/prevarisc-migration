@@ -1,0 +1,139 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / Gestion des prescriptions{% endblock %}
+
+{% block body %}
+    <ul class="nav nav-pills nav-justified">
+        <li role="presentation"><a href="{{ path('admin_prescriptions_rappels') }}">Gestion des rappels réglementaires</a></li>
+        <li role="presentation"><a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a></li>
+        <li role="presentation"><a href="{{ path('admin_prescriptions_articles') }}">Gestion des articles</a></li>
+    </ul>
+
+    <h3 class="page-header">
+        Gestion des prescriptions types
+    </h3>
+
+    <div class="row mb-4">
+        <div class="col-md-12 text-right">
+            <button type="button" class="btn btn-default ajax-modal-trigger" data-target="#modal-prescription" data-content="{{ path('admin_prescriptions_types_categorie_ajouter') }}">Ajouter une catégorie</button>
+        </div>
+    </div>
+
+    <div class="overflow-x-scroll">
+        <ul class="nav nav-tabs classement-categorie w-max-cont" role="tablist">
+            {% for category in categories %}
+                <li role="presentation" {% if loop.first %}class="active"{% endif %} data-id="{{ category.id }}">
+                    <a href="#categorie_{{ category.id }}" aria-controls="categorie_{{ category.id }}" role="tab" data-toggle="tab"
+                    >
+                        {{ category.libelle }}
+                        <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                data-content="{{ path('admin_prescriptions_types_textes_ajouter', {categorie: category.id}) }}"
+                                data-target="#modal-prescription" title="Ajouter un texte">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="tab-content">
+        {% for category in categories %}
+            <div role="tabpanel"
+                 class="tab-pane {% if loop.first %}active{% endif %} mt-4"
+                 id="categorie_{{ category.id }}"
+                 data-content="{{ path('admin_prescriptions_types_textes_voir', {categorie: category.id}) }}"
+            ></div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    {% if sans_categories|length > 0 %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Sans catégories</h4>
+            </div>
+            <div class="panel-body">
+                {{ include('prescriptions_types/_voir_prescriptions_type.html.twig', {prescriptions: sans_categories}, false) }}
+            </div>
+        </div>
+    {% endif %}
+
+    {{ include('prescriptions_types/_modal_ajout.html.twig') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $(document).on('click', '[data-toggle]', function(e) {
+                const href = $(e.target).attr('href') ?? $(e.target).parent().attr('href')
+                const $tabContent = $(href)
+                $.ajax({
+                    type: "GET",
+                    url: $tabContent.data('content'),
+                    success: function (msg) {
+                        const $body = $tabContent.find('> .panel-body')
+
+                        if($body.length) {
+                            $body.html(msg);
+                        } else {
+                            $tabContent.html(msg);
+                        }
+                    },
+                });
+            });
+
+            $('[data-toggle="tab"]:first').click();
+
+            $(document).on('click', '.ajax-modal-trigger', function () {
+                const $target = $($(this).data('target'));
+                const url = $(this).data('content')
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: function (msg) {
+                        $target.find('.modal-content').html(msg);
+                    },
+                    error: function () {
+                        $target.find('.modal-content').html(`<div class="modal-body"><div class="alert alert-danger">Une erreur est survenue. Veuillez réessayer</div></div>`);
+                    },
+                    complete: function () {
+                        $target.modal('show');
+                    }
+                });
+            });
+
+            $(".classement-categorie").sortable({
+                axis: 'x',
+                update: function(event, ui) {
+
+                    let list = []
+                    $(this).find('li').each(function (index, el) {
+                        list.push(el.dataset.id)
+                    })
+
+                    var data = {
+                        "type": "categorie",
+                        "order": list
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/admin/prescriptions/changement-ordre",
+                        data: data,
+                        beforeSend: function(){
+                            $(this).disableSelection();
+                        },
+                        success: function(msg){
+                            $(this).enableSelection();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

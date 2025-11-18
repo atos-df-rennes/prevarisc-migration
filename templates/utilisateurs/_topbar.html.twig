@@ -15,7 +15,9 @@
     <li {% if app.request.get('_route') is same as('admin_groupe_add') %}class="active"{% endif %}>
         <a href="{{ path('admin_groupe_add') }}">Créer un groupe</a>
     </li>
-    <li {% if app.request.get('_route') is same as('admin_groupe_manage_privileges') %}class="active"{% endif %}>
+    <li {% if app.request.get('_route') is same as('admin_groupe_manage_privileges')
+            or app.request.get('_route') is same as ('admin_groupe_ressources_specialisees')
+        %}class="active"{% endif %}>
         <a href="{{ path('admin_groupe_manage_privileges') }}">Gérer les droits des groupes</a>
     </li>
 </ul>

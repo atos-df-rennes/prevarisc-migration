@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Etablissement;
+use App\Entity\UtilisateurInformations;
+use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,35 +16,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Etablissement[]    findAll()
  * @method Etablissement[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class EtablissementRepository extends ServiceEntityRepository
+class EtablissementRepository extends ServiceEntityRepository implements HasContacts
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Etablissement::class);
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Etablissement $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Etablissement $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
     }
 
     /**
@@ -130,5 +106,42 @@ class EtablissementRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * Retourne l'établissement demandé avec la liste des contacts ordonnée par nom.
+     */
+    public function findContactsOrderedByNom(int $id): ?Etablissement
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->addSelect('c')
+            ->addSelect('f')
+            ->join('e.contacts', 'c')
+            ->join('c.fonction', 'f')
+            ->where('e.id = :id')
+            ->orderBy('c.nom', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery()
+        ;
+
+        return $query->getOneOrNullResult();
+    }
+
+    /**
+     * Retourne le nombre d'établissements ayant comme contact celui passé en paramètre.
+     */
+    public function findNumberByContacts(UtilisateurInformations $contact): int
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+        $query = $queryBuilder
+            ->select('COUNT(e.id)')
+            ->join('e.contacts', 'c')
+            ->where('c.id = :id')
+            ->setParameter('id', $contact->getId())
+            ->getQuery()
+        ;
+
+        return $query->getSingleScalarResult();
     }
 }

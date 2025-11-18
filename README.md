@@ -24,6 +24,7 @@ Consultez la [documentation dédiée](docs/guide.md).
 - **MySQL**: Utilisé en version 5.6 pour les migrations
 - **JavaScript** : Utilisé avec [jQuery](https://jquery.com/)
 - **Bootstrap** : Utilisé en [version 3](https://getbootstrap.com/docs/3.4/)
+- **LibreOffice** : Utilisé en version 7.x pour l'édition des documents (Les dernières versions ne sont actuellement pas compatibles)
 
 ## Installation
 

@@ -26,7 +26,7 @@ class Avis
     /**
      * @var string
      *
-     * @ORM\Column(name="LIBELLE_AVIS", type="string", length=30, nullable=false)
+     * @ORM\Column(name="LIBELLE_AVIS", type="string", length=75, nullable=false)
      */
     private $libelle;
 
