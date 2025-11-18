@@ -2,11 +2,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Get the ul that holds the collection of tags
     const collectionHolder = document.querySelector('.remove-collection-widget');
+    const orderCollectionHolder = document.querySelector('.order-collection-widget');
 
     if(collectionHolder) {
-        // add a delete link to all of the existing tag form li elements
+        // add a delete link to all the existing tag form li elements
         collectionHolder.querySelectorAll('li').forEach(
             (el) => addTagFormDeleteLink(el)
+        );
+    }
+
+    if (orderCollectionHolder) {
+        orderCollectionHolder.querySelectorAll('li').forEach(
+            (el) => addTagFormOrderButton(el)
         );
     }
 
@@ -58,4 +65,13 @@ function addTagFormDeleteLink(element) {
         // remove the li for the tag form
         element.remove();
     });
+}
+
+function addTagFormOrderButton(element) {
+    const buttonWrapper = document.createElement('span');
+    buttonWrapper.classList.add('tdMove');
+
+    buttonWrapper.innerHTML = '<i class="glyphicon glyphicon-move"></i>';
+
+    element.firstElementChild.prepend(buttonWrapper);
 }
