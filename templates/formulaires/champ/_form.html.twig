@@ -22,12 +22,12 @@
                 <legend>Valeurs de la liste</legend>
 
                 <ul id="{{ enfant is defined ? 'champ_valeurs_liste_enfant' : 'champ_valeurs_liste' }}"
-                    class="list-unstyled mt-4 remove-collection-widget"
+                    class="list-unstyled mt-4 grp remove-collection-widget order-collection-widget"
                     data-prototype="{{ form_widget(form_champ.valeursListe.vars.prototype)|e }}"
                     data-widget-tags="{{ '<li></li>'|e }}"
                     data-widget-counter="{{ form_champ.valeursListe|length }}">
                     {% for valeur_liste_field in form_champ.valeursListe %}
-                        <li>
+                        <li id="{{ valeur_liste_field.vars.value.id }}">
                             {{ form_errors(valeur_liste_field) }}
                             {{ form_widget(valeur_liste_field, {attr: {class: 'collection-item-wrapper'}}) }}
                         </li>
