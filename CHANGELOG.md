@@ -4,6 +4,50 @@
 
 <!--- END HEADER -->
 
+## [2.8.8](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.7...v2.8.8) (18-11-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Ajout de la gestion des erreurs avec un logger dans LastActionSubscriber ([055526](https://github.com/atos-df-rennes/prevarisc-migration/commit/05552666b36e23eb6c0acce7d71d509512456cbd))
+* Correction de la condition d'activation du menu "Gestion des prescriptions" ([3d9ceb](https://github.com/atos-df-rennes/prevarisc-migration/commit/3d9ceb3df49fada627bea68e63189b32e83318f2))
+* Remplacement de balises `<i>` par `<span>` pour les icônes glyphicon ([f8147b](https://github.com/atos-df-rennes/prevarisc-migration/commit/f8147b89e27f99beb0ebd95ee315c5c3e53621d2))
+
+##### Etablissement
+
+* Affichage des informations utilisateur sur l'historique (#79) ([e6dac8](https://github.com/atos-df-rennes/prevarisc-migration/commit/e6dac87311ee6bb513a6656b46d4869f758f096f))
+
+##### Platau
+
+* Permet l'utilisation d'un fichier de configuration spécifique à un environnement (#85) ([108c15](https://github.com/atos-df-rennes/prevarisc-migration/commit/108c15ca3d422499ee7ad585b636f4ac09c6118e))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="25" height="25"> Migration
+
+
+##### Administration
+
+* Gestion des champs des formulaires personnalisés (#80) ([06d0ed](https://github.com/atos-df-rennes/prevarisc-migration/commit/06d0ed3160fe20d191f512ea1c0e4bb2fa88eba6))
+* Permissions avancées pour les établissements et les dossiers (#83) ([199040](https://github.com/atos-df-rennes/prevarisc-migration/commit/199040e460fc52689753318deb1987dde05cab1a))
+* Gestion des rubriques des formulaires personnalisés (#76) ([33c7c6](https://github.com/atos-df-rennes/prevarisc-migration/commit/33c7c67a0383d9fb0cc0613f9631f3212d0ae940))
+* Gestion des prescriptions types (#69) ([85f2fc](https://github.com/atos-df-rennes/prevarisc-migration/commit/85f2fc3b2df6622661af6bc408d02d06b568360b))
+* Gestion des formulaires personnalisés (#68) ([633639](https://github.com/atos-df-rennes/prevarisc-migration/commit/633639d1c8a313292802aa27105cf394809b708f))
+
+##### Dossier
+
+* Verrouillage et déverrouillage (#67) ([a2b33c](https://github.com/atos-df-rennes/prevarisc-migration/commit/a2b33cbc2fef96315bb28a491b6f9407303ff593))
+
+##### Etablissement
+
+* Onglet contacts (#65) ([43d0f0](https://github.com/atos-df-rennes/prevarisc-migration/commit/43d0f07a122b5cfc1e89db42a625c46cc6240153))
+* Affichage des pièces jointes (#64) ([aa5403](https://github.com/atos-df-rennes/prevarisc-migration/commit/aa5403c856d97683ba5d0497551c4d552a6ab2e4))
+
+##### Prescriptions
+
+* Ajout et modification des rappels réglementaires (#63) ([73a0e2](https://github.com/atos-df-rennes/prevarisc-migration/commit/73a0e23a9276d5c623e67a9cba90f6e999cb83e5))
+* Ajout, modification et suppression des textes (#58) ([dd6c24](https://github.com/atos-df-rennes/prevarisc-migration/commit/dd6c249711cc617cdcdb0ea9f41ecdb9024128ef))
+
+
+---
+
 ## [2.8.7](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.5...v2.8.7) (04-11-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
