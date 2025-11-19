@@ -46,8 +46,8 @@
                 {% if etablissement.latestInformations.genre.id == 1 %}
                     <i class="glyphicon glyphicon-info-sign" title="Périodicité la plus contraignante des fils ERP"></i>
                 {% endif %}
-                {% if etablissement.latestInformations.genre.id in [2, 5] and etablissement.latestInformations.periodicite != default_periodicite %}
-                    <i class="glyphicon glyphicon-exclamation-sign" title="Periodicite non standard"></i>
+                {% if etablissement.latestInformations.genre.id in [2, 5] and etablissement.latestInformations.periodicite != default_periodicite.periodicite %}
+                    <i class="glyphicon glyphicon-exclamation-sign" title="Périodicité non standard"></i>
                 {% endif %}
                 {{ periodicity }}
             </p>
@@ -58,7 +58,7 @@
 <!-- Activités de l'établissement -->
 {% if etablissement.latestInformations.genre.id in [2, 3] %}
     <h4 class="h4_subtitle">Activités {% if etablissement.latestInformations.localSommeil and etablissement.latestInformations.genre.id == 2 %}
-            <span class="badge badge-info pull-right">Présence de locaux à sommeil</span>
+            <span class="label label-primary pull-right">Présence de locaux à sommeil</span>
         {% endif %}</h4>
     <dl class="dl-horizontal">
         <!-- Type et activités -->

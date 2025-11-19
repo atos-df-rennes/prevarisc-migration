@@ -73,11 +73,15 @@ final class Etablissement
         $dateNextVisite = null;
 
         // Si aucune date de dernière visite n'est trouvée, retourner null pour les deux dates
-        if (!$dateLastVisite instanceof \DateTimeInterface) {
+        if (null === $dateLastVisite) {
             return [
                 'lastVisite' => null,
                 'nextVisite' => null,
             ];
+        }
+
+        if (!$dateLastVisite instanceof \DateTimeInterface) {
+            $dateLastVisite = new \DateTime($dateLastVisite);
         }
 
         $informations = $etablissement->getLatestInformations();
