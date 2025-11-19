@@ -17,7 +17,7 @@
             {% if derniere_information and derniere_information.type %}
                 {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ derniere_information.type.libelle ~ '.png') %}
                 {% if asset_exist(etablissement_type_asset_path) %}
-                    <img src="{{ etablissement_type_asset_path }}" title="{{ derniere_information.type.libelle }}" />&nbsp;-&nbsp;
+                    <img src="{{ etablissement_type_asset_path }}" title="{{ derniere_information.type.libelle }}" alt="Type {{ derniere_information.type.libelle }}" />&nbsp;-&nbsp;
                 {% else %}
                     {{ derniere_information.type.libelle }}&nbsp;-&nbsp;
                 {% endif %}
@@ -77,7 +77,7 @@
 
         {# Icône de chargement des enfants (si il y'en a, et si on est en mode niveau) #}
         {% if nb_enfants > 0 %}
-            <span class="load hidden"><img src="{{ asset('/images/load.gif') }} alt="Chargement ..." /></span>
+            <span class="load hidden"><img src="{{ asset('/images/load.gif') }}" alt="Chargement ..." /></span>
         {% endif %}
 
         {# Gestion de la date d'avis #}
@@ -112,7 +112,9 @@
                         Favorable {% if genre_id != 3 %}à l'exploitation{% endif %}
                         <small>
                             {% if date_avis %}
-                                (Date de l'avis : {{ date_avis|format_date('short') }})
+                                (Date de l'avis : {{ date_avis|date('d/m/Y') }})
+                            {% else %}
+                                (Pas de date)
                             {% endif %}
                         </small>
                     </span>
@@ -121,7 +123,9 @@
                         Défavorable {% if genre_id != 3 %}à l'exploitation{% endif %}
                         <small>
                             {% if date_avis %}
-                                (Date de l'avis : {{ date_avis|format_date('short') }})
+                                (Date de l'avis : {{ date_avis|date('d/m/Y') }})
+                            {% else %}
+                                (Pas de date)
                             {% endif %}
                         </small>
                     </span>

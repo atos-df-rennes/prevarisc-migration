@@ -133,37 +133,37 @@
     {% endif %}
 {% endif %}
 
-                {% if etablissement.latestInformations.genre.id in [7] %}
-                    <h4 class="h4_subtitle">Nombre d'emplacements</h4>
-                    <dl class="dl-horizontal champ_effectif_camping index_camping">
-                        <dt>Mobil-homes ou habitations</dt>
-                        <dd>
-                            <p>{{ etablissement.latestInformations.effectifHabitation }}</p>
-                        </dd>
+{% if etablissement.latestInformations.genre.id in [7] %}
+    <h4 class="h4_subtitle">Nombre d'emplacements</h4>
+    <dl class="dl-horizontal champ_effectif_camping index_camping">
+        <dt>Mobil-homes ou habitations</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifHabitation }}</p>
+        </dd>
 
-                        <dt>Autocaravanes</dt>
-                        <dd>
-                            <p>{{ etablissement.latestInformations.effectifCaravane }}</p>
-                        </dd>
+        <dt>Autocaravanes</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifCaravane }}</p>
+        </dd>
 
-                        <dt>Emplacements nus</dt>
-                        <dd>
-                            <p>{{ etablissement.latestInformations.effectifEmplacementNu }}</p>
-                        </dd>
+        <dt>Emplacements nus</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifEmplacementNu }}</p>
+        </dd>
 
-                        <dt>Autres emplacements</dt>
-                        <dd>
-                            <p>{{ etablissement.latestInformations.effectifDivers }}</p>
-                        </dd>
+        <dt>Autres emplacements</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifDivers }}</p>
+        </dd>
 
-                        <dt>&nbsp;</dt><dd><hr></dd>
+        <dt>&nbsp;</dt><dd><hr></dd>
 
-                        <dt>Total</dt>
-                        <dd>
-                            <p>{{ etablissement.latestInformations.effectifHabitation + etablissement.latestInformations.effectifCaravane + etablissement.latestInformations.effectifEmplacementNu + etablissement.latestInformations.effectifDivers }}</p>
-                        </dd>
-                    </dl>
-                {% endif %}
+        <dt>Total</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifHabitation + etablissement.latestInformations.effectifCaravane + etablissement.latestInformations.effectifEmplacementNu + etablissement.latestInformations.effectifDivers }}</p>
+        </dd>
+    </dl>
+{% endif %}
 
 <!-- Les effectifs -->
 {% if etablissement.latestInformations.genre.id in [2, 3, 5, 6] %}
