@@ -49,9 +49,9 @@ final class Version20250220144606 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('DELETE FROM `privileges` WHERE `id_privilege` = 216');
         $this->addSql('DELETE FROM `privileges` WHERE `id_privilege` = 215');
-        $this->addSql('DELETE FROM `resources` WHERE `id_privilege` = 203');
+        $this->addSql('DELETE FROM `resources` WHERE `id_resource` = 203');
         $this->addSql('DELETE FROM `privileges` WHERE `id_privilege` = 214');
-        $this->addSql('DELETE FROM `resources` WHERE `id_privilege` = 202');
+        $this->addSql('DELETE FROM `resources` WHERE `id_resource` = 202');
         $this->addSql('DROP TABLE IF EXISTS `avisderogations`');
     }
 }

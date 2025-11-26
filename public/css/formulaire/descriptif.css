@@ -43,7 +43,7 @@
     overflow-x: auto;
 }
 
-@media (min-width: 980px) {
+@media (min-width: 1200px) {
     .hidden-desktop {
         display: none;
     }
