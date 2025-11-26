@@ -40,7 +40,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->join('d.etablissements', 'e')
             ->join('e.informations', 'ei')
             ->where($queryBuilder->expr()->isNotNull('d.dateSuppression'))
-            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e.id)')
+            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e)')
             ->orderBy('d.dateSuppression', 'DESC')
             ->getQuery()
         ;
