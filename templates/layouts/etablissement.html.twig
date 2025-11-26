@@ -111,7 +111,6 @@
         <h2 class='page-header'>
             {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
-                    {# @todo: Faire la popup au survol du lien #}
                     <a href="{{ path('etablissement_informations', {id: parent.id}) }}">
                         {{ parent.informations.last.libelle }}
                     </a> -
@@ -144,7 +143,6 @@
                 Présence d'un dossier avec avis differé
             </p>
         {% else %}
-            {# @todo: Il manque le facteur de criticité/signalement #}
             {% if etablissement.dossierDonnantAvis is not null %}
                 {% if etablissement.dossierDonnantAvis.avisCommission %}
                     {% set label_color = 'default' %}
@@ -159,6 +157,11 @@
 
                         {% if etablissement.informations|last.genre.id is not same as(3) %}
                             à l'exploitation
+                        {% endif %}
+
+                        {# @todo: Il manque le plugin signalement au lieu de criticité #}
+                        {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(2) and etablissement.dossierDonnantAvis.facteurDangerosite > 0 %}
+                            - Facteur de criticité : {{ etablissement.dossierDonnantAvis.facteurDangerosite }}
                         {% endif %}
                     </span>
                 {% else %}

@@ -131,6 +131,7 @@ function bindEtsPopup($elem) {
                 html += "<a href='/etablissement/" + ets_id + "/informations' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
                 e.popover('destroy');
+                // @fixme: ça ne fonctionne pas
                 e.popover({html: true, content: html}).popover('show');
             });
         },
