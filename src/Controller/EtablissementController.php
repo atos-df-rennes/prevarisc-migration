@@ -125,7 +125,6 @@ class EtablissementController extends AbstractController
             'pc_initial' => $this->dossierRepository->getPCInitial($etablissement),
             'presence_dus' => $this->etablissementService->hasContactDus($etablissement),
             'donnees_pratiques' => $this->etablissementService->calculateDonneesPratiques($etablissement)
-            // TODO: gestion role :  'is_allowed_delete_etablissement' => $isAllowedDeleteEtablissement,
         ]);
     }
 

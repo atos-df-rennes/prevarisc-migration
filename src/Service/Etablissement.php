@@ -438,7 +438,7 @@ final class Etablissement
      *
      * @param EtablissementEntity $etablissement L'entité de l'établissement concerné
      *
-     * @return string la chaîne représentant la périodicité au format "X mois", "X ans", ou "X ans et Y mois"
+     * @return string|null la chaîne représentant la périodicité au format "X mois", "X ans", ou "X ans et Y mois"
      */
     public function getDisplayedPeriodicity(EtablissementEntity $etablissement): ?string
     {
