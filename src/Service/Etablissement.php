@@ -42,9 +42,9 @@ final class Etablissement
     private $parameterBag;
 
     public function __construct(
-        EtablissementRepository            $etablissementRepository,
-        DossierRepository                  $dossierRepository,
-        AvisDerogationsRepository          $avisDerogationsRepository,
+        EtablissementRepository $etablissementRepository,
+        DossierRepository $dossierRepository,
+        AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
         DataStore $dataStore,
         ParameterBagInterface $parameterBag
@@ -440,13 +440,44 @@ final class Etablissement
      *
      * @return string la chaîne représentant la périodicité au format "X mois", "X ans", ou "X ans et Y mois"
      */
-    public function getDisplayedPeriodicity(EtablissementEntity $etablissement): string
+    public function getDisplayedPeriodicity(EtablissementEntity $etablissement): ?string
     {
         $numberOfMonthsInAYear = 12;
 
         $information = $etablissement->getLatestInformations();
 
         $periodicity = $information->getPeriodicite();
+        $genre = $information->getGenre()->getId();
+        if (1 === $genre) {
+            foreach ($etablissement->getFils() as $enfant) {
+                $informationsEnfant = $enfant->getLatestInformations();
+
+                if ($informationsEnfant->getGenre()->getId() !== 2) {
+                    continue;
+                }
+
+                if ($informationsEnfant->getStatut()->getId() !== 2) {
+                    continue;
+                }
+
+                $periodiciteEnfant = $informationsEnfant->getPeriodicite();
+
+                if (null === $periodiciteEnfant || 0 === $periodiciteEnfant) {
+                    continue;
+                }
+
+                if (null === $periodicity || $periodicity > $periodiciteEnfant) {
+                    $periodicity = $periodiciteEnfant;
+                }
+            }
+        } elseif (3 === $genre && ($parent = $etablissement->getParent()) !== null) {
+            $periodicity = $parent->getLatestInformations()->getPeriodicite();
+        }
+
+        if ($periodicity === null) {
+            return null;
+        }
+
         $periodicityUnit = 'mois';
         $periodicityString = sprintf('%s %s', $periodicity, $periodicityUnit);
 
