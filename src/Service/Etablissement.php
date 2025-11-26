@@ -476,17 +476,19 @@ final class Etablissement
                     throw new \InvalidArgumentException(\sprintf("Le statut de l'établissement %d n'est pas renseigné.", $enfant->getId()));
                 }
 
-                if ($informationsEnfantGenre->getId() !== 2) {
+                if (2 !== $informationsEnfantGenre->getId()) {
                     continue;
                 }
 
-                if ($informationsEnfantStatut->getId() !== 2) {
+                if (2 !== $informationsEnfantStatut->getId()) {
                     continue;
                 }
 
                 $periodiciteEnfant = $informationsEnfant->getPeriodicite();
-
-                if (null === $periodiciteEnfant || 0 === $periodiciteEnfant) {
+                if (null === $periodiciteEnfant) {
+                    continue;
+                }
+                if (0 === $periodiciteEnfant) {
                     continue;
                 }
 
@@ -498,7 +500,7 @@ final class Etablissement
             $periodicity = $parent->getLatestInformations()->getPeriodicite();
         }
 
-        if ($periodicity === null) {
+        if (null === $periodicity) {
             return null;
         }
 

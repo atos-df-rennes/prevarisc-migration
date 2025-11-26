@@ -69,7 +69,7 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
             }
 
             $isAllowedDeleteEtablissementVote = $this->privilegeVoter->vote($token, $etablissement, ['delete_etablissement']);
-            $isAllowedDeleteEtablissement = $isAllowedDeleteEtablissementVote === VoterInterface::ACCESS_GRANTED;
+            $isAllowedDeleteEtablissement = VoterInterface::ACCESS_GRANTED === $isAllowedDeleteEtablissementVote;
 
             $event->getRequest()->attributes->set('is_allowed_delete_etablissement', $isAllowedDeleteEtablissement);
 
