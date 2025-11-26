@@ -32,22 +32,22 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class EtablissementController extends AbstractController
 {
-    /** @var EtablissementPieceJointeRepository  */
+    /** @var EtablissementPieceJointeRepository */
     private $etablissementPieceJointeRepository;
 
-    /** @var EtablissementAdresseRepository  */
+    /** @var EtablissementAdresseRepository */
     private $etablissementAdresseRepository;
 
-    /** @var DossierRepository  */
+    /** @var DossierRepository */
     private $dossierRepository;
 
-    /** @var EtablissementService  */
+    /** @var EtablissementService */
     private $etablissementService;
 
-    /** @var EtablissementRepository  */
+    /** @var EtablissementRepository */
     private $etablissementRepository;
 
-    /** @var EntityManagerInterface  */
+    /** @var EntityManagerInterface */
     private $entityManager;
 
     public function __construct(

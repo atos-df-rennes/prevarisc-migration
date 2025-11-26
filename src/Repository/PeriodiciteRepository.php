@@ -52,9 +52,9 @@ class PeriodiciteRepository extends ServiceEntityRepository
     /**
      * Génère une chaîne spécifique pour un établissement donné en fonction de ses informations.
      *
-     * @param array $etablissement tableau associatif contenant les informations de l'établissement
+     * @param Etablissement $etablissement tableau associatif contenant les informations de l'établissement
      *
-     * @return string|null renvoie une chaîne spécifique si les conditions sont remplies, sinon null
+     * @return Periodicite|null renvoie une chaîne spécifique si les conditions sont remplies, sinon null
      */
     public function gn4ForEtablissement(Etablissement $etablissement): ?Periodicite
     {
@@ -66,35 +66,11 @@ class PeriodiciteRepository extends ServiceEntityRepository
 
         $type = self::ID_GENRE_ETABLISSEMENT === $information->getGenre()->getId() ? $information->getType() : $information->getClasse();
 
-        return $this->gn4($information->getCategorie()->getId(), $type->getId(), $information->getLocalSommeil());
-    }
+        $categorieId = 0;
+        if (($categorie = $information->getCategorie()) !== null) {
+            $categorieId = $categorie->getId();
+        }
 
-    // /**
-    //  * @return Periodicite[] Returns an array of Periodicite objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        return $this->gn4($categorieId, $type->getId(), $information->getLocalSommeil());
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Periodicite
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
