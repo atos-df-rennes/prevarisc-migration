@@ -488,6 +488,7 @@ final class Etablissement
                 if (null === $periodiciteEnfant) {
                     continue;
                 }
+
                 if (0 === $periodiciteEnfant) {
                     continue;
                 }

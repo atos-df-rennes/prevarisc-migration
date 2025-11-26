@@ -109,8 +109,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                     'CASE WHEN dossier.dateCommission >= dossier.dateVisite THEN dossier.dateCommission ELSE dossier.dateVisite END AS date_relance'
                 );
                 $queryBuilder->orderBy('date_relance', 'DESC');
-            }
-            else {
+            } else {
                 $queryBuilder->addSelect('dossier.dateVisite AS date_relance');
                 $queryBuilder->orderBy('dossier.dateVisite', 'DESC');
             }
