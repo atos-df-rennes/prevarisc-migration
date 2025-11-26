@@ -141,21 +141,20 @@
             <div id="diaporama" class="carousel slide">
                 <ol class="carousel-indicators">
                     {% for item in diapo %}
-                        <li class="{{ loop.first ? 'active' }}" data-target="#{{ item.id }}" data-slide-to="{{ loop.index0 }}"></li>
+                        <li class="{{ loop.first ? 'active' }}" data-target="#{{ item.pieceJointe.id }}" data-slide-to="{{ loop.index0 }}"></li>
                     {% endfor %}
                 </ol>
                 <!-- Carousel items -->
                 <div class="carousel-inner" style="background-color: #333">
-                    {% for item in etablissement.diapo %}
+                    {% for item in diapo %}
                         <div class="item {{ loop.first ? 'active' }}">
-                            {# {% set EXTENSION_PIECEJOINTE == '.jpg' %} #}
                             <img style="margin: 0 auto; width: auto; height: 350px; max-height: 350px;"
-                                 src="{{ store.getURLPath(item, 'etablissement_miniature', etablissement.general.id) }}"
-                                 alt="{{ item.nom|e('html_attr') }}"
+                                 src="{{ store.getURLPath(item.pieceJointe, 'etablissement_miniature', etablissement.id) }}"
+                                 alt="{{ item.pieceJointe.nom|e('html_attr') }}"
                             />
                             <div class="carousel-caption">
-                                <h4>{{ item.nom }}</h4>
-                                <p>{{ item.description }}</p>
+                                <h4>{{ item.pieceJointe.nom }}</h4>
+                                <p>{{ item.pieceJointe.description }}</p>
                             </div>
                         </div>
                     {% endfor %}
@@ -172,21 +171,20 @@
             <div id="plans" class="carousel slide">
                 <ol class="carousel-indicators">
                     {% for item in diapo_plans %}
-                        <li class="{{ loop.first ? 'active' }}" data-target="#{{ item.id }}" data-slide-to="{{ loop.index0 }}"></li>
+                        <li class="{{ loop.first ? 'active' }}" data-target="#{{ item.pieceJointe.id }}" data-slide-to="{{ loop.index0 }}"></li>
                     {% endfor %}
                 </ol>
                 <!-- Carousel items -->
                 <div class="carousel-inner" style="background-color: #333">
-                    {% for item in etablissement.diapo_plans %}
+                    {% for item in diapo_plans %}
                         <div class="item {{ loop.first ? 'active' }}" >
-                            {# {% set item.EXTENSION_PIECEJOINTE = '.jpg' %} #}
                             <img style="margin: 0 auto; width: auto; height: 350px; max-height: 350px;"
-                                 src="{{ store.getURLPath(item, 'etablissement_miniature', etablissement.general.id) }}"
-                                 alt="{{ item.nom|e('html_attr') }}"
+                                 src="{{ store.getURLPath(item.pieceJointe, 'etablissement_miniature', etablissement.id) }}"
+                                 alt="{{ item.pieceJointe.nom|e('html_attr') }}"
                             />
                             <div class="carousel-caption">
-                                <h4>{{ item.nom }}</h4>
-                                <p>{{ item.description }}</p>
+                                <h4>{{ item.pieceJointe.nom }}</h4>
+                                <p>{{ item.pieceJointe.description }}</p>
                             </div>
                         </div>
                     {% endfor %}

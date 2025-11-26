@@ -6,7 +6,7 @@
         <p>
             <strong>{{ etablissement.latestInformations.genre.libelle }}</strong>
             {% if etablissement.latestInformations.icpe %}
-                <span class="badge badge-info">ICPE</span>
+                <span class="label label-primary">ICPE</span>
             {% endif %}
         </p>
     </dd>
@@ -105,7 +105,7 @@
 <!-- Rubriques -->
 {% if etablissement.latestInformations.icpe %}
     <h4 class="h4_subtitle">Rubriques ICPE</h4>
-    {% if etablissement.rubriques|length == 0 %}
+    {% if etablissement.latestInformations.rubriquesIcpe|length == 0 %}
         <p class="text-muted text-center">Pas de rubriques disponible</p>
     {% else %}
         <table class="table table-condensed">
@@ -200,7 +200,7 @@
         </dd>
 
         <!-- Effectif justifant le classement (que pour les 5ème catégorie) -->
-        {% if etablissement.latestInformations.categorie.id == 5 %}
+        {% if etablissement.latestInformations.categorie is not null and etablissement.latestInformations.categorie.id == 5 %}
             <dt>Justifiant le classement</dt>
             <dd>
                 <p>{{ etablissement.latestInformations.effectifJustifiantClassement }}</p>
