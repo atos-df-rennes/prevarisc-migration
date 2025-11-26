@@ -68,6 +68,8 @@ class EtablissementController extends AbstractController
 
     /**
      * @Route("/etablissement/{id}/informations", name="etablissement_informations")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function informations(
         Etablissement $etablissement,
