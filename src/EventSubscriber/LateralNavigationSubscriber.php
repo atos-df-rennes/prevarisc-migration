@@ -6,13 +6,12 @@ use App\Controller\EtablissementController;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use App\Security\Voter\PrivilegeVoter;
-use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Symfony\Component\Security\Core\Security;
 
@@ -55,11 +54,11 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
             $etablissement = $this->etablissementRepository->find($idEtablissement);
 
             if (null === $etablissement) {
-                throw new EntityNotFoundException(\sprintf("L'établissement ayant pour identifiant %s n'existe pas.", $idEtablissement));
+                throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s n'existe pas.", $idEtablissement));
             }
 
             if (null !== $etablissement->getDateSuppression()) {
-                throw new AccessDeniedException(\sprintf("L'établissement ayant pour identifiant %s a été supprimé et n'est pas accessible.", $idEtablissement));
+                throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s a été supprimé et n'est pas accessible.", $idEtablissement));
             }
 
             $token = $this->security->getToken();

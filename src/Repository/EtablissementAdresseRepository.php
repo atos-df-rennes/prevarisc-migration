@@ -92,7 +92,7 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
             ->join('e.parents', 'ep')
             ->join('e.informations', 'ei')
             ->where('ep.id = :etablissementId')
-            ->andWhere('ei.date = (SELECT MAX(ei2.date) FROM App\Entity\EtablissementInformations ei2 WHERE ei2.etablissement = e.id)')
+            ->andWhere('ei.date = (SELECT MAX(ei2.date) FROM App\Entity\EtablissementInformations ei2 WHERE ei2.etablissement = e)')
             ->setParameter('etablissementId', $idEtablissement);
 
         return $qb->getQuery()->getResult();

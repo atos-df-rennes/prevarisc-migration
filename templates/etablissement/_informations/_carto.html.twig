@@ -86,7 +86,7 @@
                     points.push({
                         lat: {{ adresse.latitude }},
                         lon: {{ adresse.longitude }},
-                        description: "{{ adresse.numero ~ ' ' ~ adresse.rue.libelle ~ ' ' ~ adresse.commune.codePostal ~ ' ' ~ adresse.commune.libelle|e('html_attr') }} <br />"
+                        description: "{{ (adresse.numero ~ ' ' ~ adresse.rue.libelle ~ ' ' ~ adresse.commune.codePostal ~ ' ' ~ adresse.commune.libelle)|e('html_attr') }} <br />"
                             + "long={{ adresse.longitude }}, lat={{ adresse.latitude }}"
                     });
                     {% endif %}

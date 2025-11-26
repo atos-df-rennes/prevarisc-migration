@@ -98,36 +98,47 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function getLastVisitePeriodique(int $idEtablissement, bool $useDateCommissionForPeriodicity = false): ?array
     {
-        $this->getEntityManager()->getFilters()->enable('dossier_non_supprime');
+        $filters = $this->getEntityManager()->getFilters();
+        $filters->enable('dossier_non_supprime');
 
-        $queryBuilder = $this->createQueryBuilder('dossier');
+        try {
+            $queryBuilder = $this->createQueryBuilder('dossier');
 
-        if ($useDateCommissionForPeriodicity) {
-            $queryBuilder->addSelect(
-                'CASE WHEN dossier.dateCommission >= dossier.dateVisite THEN dossier.dateCommission ELSE dossier.dateVisite END AS date_relance'
-            );
-            $queryBuilder->orderBy('date_relance', 'DESC');
-        } else {
-            $queryBuilder->addSelect('dossier.dateVisite AS date_relance');
-            $queryBuilder->orderBy('dossier.dateVisite', 'DESC');
+            if ($useDateCommissionForPeriodicity) {
+                $queryBuilder->addSelect(
+                    'CASE WHEN dossier.dateCommission >= dossier.dateVisite THEN dossier.dateCommission ELSE dossier.dateVisite END AS date_relance'
+                );
+                $queryBuilder->orderBy('date_relance', 'DESC');
+            }
+            else {
+                $queryBuilder->addSelect('dossier.dateVisite AS date_relance');
+                $queryBuilder->orderBy('dossier.dateVisite', 'DESC');
+            }
+
+            $queryBuilder
+                ->join('dossier.etablissements', 'etablissement')
+                ->join('dossier.type', 'type')
+                ->join('dossier.nature', 'nature')
+                ->where('etablissement.id = :idEtablissement')
+                ->andWhere('type.id IN (:types)')
+                ->andWhere('dossier.avisCommission > 0')
+                ->andWhere('nature.id IN (:natures)')
+                ->setParameter('idEtablissement', $idEtablissement)
+                ->setParameter('types', [2, 3]) // Visite et Groupe de visite
+                ->setParameter('natures', [
+                    21,
+                    26,
+                    47,
+                    48
+                ]) // Natures périodiques
+            ;
+
+            $queryBuilder->setMaxResults(1);
+
+            return $queryBuilder->getQuery()->getOneOrNullResult();
+        } finally {
+            $filters->disable('dossier_non_supprime');
         }
-
-        $queryBuilder
-            ->join('dossier.etablissements', 'etablissement')
-            ->join('dossier.type', 'type')
-            ->join('dossier.nature', 'nature')
-            ->where('etablissement.id = :idEtablissement')
-            ->andWhere('type.id IN (:types)')
-            ->andWhere('dossier.avisCommission > 0')
-            ->andWhere('nature.id IN (:natures)')
-            ->setParameter('idEtablissement', $idEtablissement)
-            ->setParameter('types', [2, 3]) // Visite et Groupe de visite
-            ->setParameter('natures', [21, 26, 47, 48]) // Natures périodiques
-        ;
-
-        $queryBuilder->setMaxResults(1);
-
-        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
     /**
@@ -152,46 +163,5 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $result = $queryBuilder->getQuery()->getOneOrNullResult();
 
         return null === $result ? null : $result->getDateInsert();
-    }
-
-    /**
-     * Vérifie si un établissement a un dossier avec avis différé.
-     */
-    public function hasAvisDiffere(int $idEtablissement): bool
-    {
-        $queryBuilder = $this->createQueryBuilder('d');
-
-        $queryBuilder
-            ->select('COUNT(d.id)')
-            ->join('d.etablissements', 'e')
-            ->where('e.id = :idEtablissement')
-            ->andWhere('d.avisDiffere = 1')
-            ->setParameter('idEtablissement', $idEtablissement)
-        ;
-
-        $count = $queryBuilder->getQuery()->getSingleScalarResult();
-
-        return $count > 0;
-    }
-
-    /**
-     * Vérifie si un établissement a un dossier de type écheancier.
-     */
-    public function hasEcheancier(int $idEtablissement): bool
-    {
-        $queryBuilder = $this->createQueryBuilder('d');
-
-        $queryBuilder
-            ->select('COUNT(d.id)')
-            ->join('d.etablissements', 'e')
-            ->join('d.nature', 'dn')
-            ->where('e.id = :idEtablissement')
-            ->andWhere('dn.id = 46') // Nature échéancier
-            ->setParameter('idEtablissement', $idEtablissement)
-        ;
-
-        $count = $queryBuilder->getQuery()->getSingleScalarResult();
-
-        return $count > 0;
     }
 }
