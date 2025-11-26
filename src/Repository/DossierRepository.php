@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -39,7 +40,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->join('d.etablissements', 'e')
             ->join('e.informations', 'ei')
             ->where($queryBuilder->expr()->isNotNull('d.dateSuppression'))
-            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e.id)')
+            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e)')
             ->orderBy('d.dateSuppression', 'DESC')
             ->getQuery()
         ;
@@ -90,5 +91,76 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         return $query->getSingleScalarResult();
+    }
+
+    /**
+     * Récupère la dernière visite périodique d'un établissement.
+     */
+    public function getLastVisitePeriodique(int $idEtablissement, bool $useDateCommissionForPeriodicity = false): ?array
+    {
+        $filters = $this->getEntityManager()->getFilters();
+        $filters->enable('dossier_non_supprime');
+
+        try {
+            $queryBuilder = $this->createQueryBuilder('dossier');
+
+            if ($useDateCommissionForPeriodicity) {
+                $queryBuilder->addSelect(
+                    'CASE WHEN dossier.dateCommission >= dossier.dateVisite THEN dossier.dateCommission ELSE dossier.dateVisite END AS date_relance'
+                );
+                $queryBuilder->orderBy('date_relance', 'DESC');
+            } else {
+                $queryBuilder->addSelect('dossier.dateVisite AS date_relance');
+                $queryBuilder->orderBy('dossier.dateVisite', 'DESC');
+            }
+
+            $queryBuilder
+                ->join('dossier.etablissements', 'etablissement')
+                ->join('dossier.type', 'type')
+                ->join('dossier.nature', 'nature')
+                ->where('etablissement.id = :idEtablissement')
+                ->andWhere('type.id IN (:types)')
+                ->andWhere('dossier.avisCommission > 0')
+                ->andWhere('nature.id IN (:natures)')
+                ->setParameter('idEtablissement', $idEtablissement)
+                ->setParameter('types', [2, 3]) // Visite et Groupe de visite
+                ->setParameter('natures', [
+                    21,
+                    26,
+                    47,
+                    48
+                ]) // Natures périodiques
+            ;
+
+            $queryBuilder->setMaxResults(1);
+
+            return $queryBuilder->getQuery()->getOneOrNullResult();
+        } finally {
+            $filters->disable('dossier_non_supprime');
+        }
+    }
+
+    /**
+     * Récupère le PC initial d'un établissement.
+     */
+    public function getPCInitial(Etablissement $etablissement): ?\DateTime
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+
+        $queryBuilder
+            ->join('d.etablissements', 'e')
+            ->join('d.type', 'dt')
+            ->join('d.nature', 'dn')
+            ->where('e.id = :idEtablissement')
+            ->andWhere('dt.id = 1') // Type étude
+            ->andWhere('dn.id = 1') // Nature PC
+            ->setParameter('idEtablissement', $etablissement->getId())
+            ->orderBy('d.dateInsert', 'ASC')
+            ->setMaxResults(1)
+        ;
+
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
+
+        return null === $result ? null : $result->getDateInsert();
     }
 }

@@ -70,6 +70,41 @@ class Etablissement
     private $numero;
 
     /**
+     * @var ?string
+     *
+     * @ORM\Column(name="TELEPHONE_ETABLISSEMENT", type="string", length=20, nullable=true)
+     */
+    private $telephone;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="FAX_ETABLISSEMENT", type="string", length=20, nullable=true)
+     */
+    private $fax;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="COURRIEL_ETABLISSEMENT", type="string", length=75, nullable=true)
+     */
+    private $courriel;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="NBPREV_ETABLISSEMENT", type="smallint", nullable=true)
+     */
+    private $nbPrev;
+
+    /**
+     * @var ?\DateTime
+     *
+     * @ORM\Column(name="DUREEVISITE_ETABLISSEMENT", type="time", nullable=true)
+     */
+    private $dureeVisite;
+
+    /**
      * @var Collection<int, Etablissement>
      *
      * @ORM\JoinTable(
@@ -311,6 +346,66 @@ class Etablissement
     public function setNumero(?string $numero): self
     {
         $this->numero = $numero;
+
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): self
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getFax(): ?string
+    {
+        return $this->fax;
+    }
+
+    public function setFax(?string $fax): self
+    {
+        $this->fax = $fax;
+
+        return $this;
+    }
+
+    public function getCourriel(): ?string
+    {
+        return $this->courriel;
+    }
+
+    public function setCourriel(?string $courriel): self
+    {
+        $this->courriel = $courriel;
+
+        return $this;
+    }
+
+    public function getNbPrev(): ?int
+    {
+        return $this->nbPrev;
+    }
+
+    public function setNbPrev(?int $nbPrev): self
+    {
+        $this->nbPrev = $nbPrev;
+
+        return $this;
+    }
+
+    public function getDureeVisite(): ?\DateTime
+    {
+        return $this->dureeVisite;
+    }
+
+    public function setDureeVisite(?\DateTime $dureeVisite): self
+    {
+        $this->dureeVisite = $dureeVisite;
 
         return $this;
     }

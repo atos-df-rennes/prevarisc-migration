@@ -1,0 +1,277 @@
+<!-- Classement de l'établissement -->
+<h4 class="h4_subtitle">Classement</h4>
+<dl class="dl-horizontal">
+    <dt>Genre</dt>
+    <dd>
+        <p>
+            <strong>{{ etablissement.latestInformations.genre.libelle }}</strong>
+            {% if etablissement.latestInformations.icpe %}
+                <span class="label label-primary">ICPE</span>
+            {% endif %}
+        </p>
+    </dd>
+
+    {% if etablissement.latestInformations.genre.id in [2, 3] and etablissement.latestInformations.categorie is not null %}
+        <dt>Catégorie</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.categorie.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if etablissement.latestInformations.genre.id == 4 %}
+        <dt>Famille</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.famille.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if etablissement.latestInformations.genre.id == 5 %}
+        <dt>Classe</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.classe.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if etablissement.latestInformations.genre.id == 10 %}
+        <dt>Classement</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.classement.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if etablissement.latestInformations.genre.id in [1, 2, 3, 5] and periodicity is not null %}
+        <dt>Périodicité</dt>
+        <dd>
+            <p>
+                {% if etablissement.latestInformations.genre.id == 1 %}
+                    <i class="glyphicon glyphicon-info-sign" title="Périodicité la plus contraignante des fils ERP"></i>
+                {% endif %}
+                {% if etablissement.latestInformations.genre.id in [2, 5] and etablissement.latestInformations.periodicite != default_periodicite.periodicite %}
+                    <i class="glyphicon glyphicon-exclamation-sign" title="Périodicité non standard"></i>
+                {% endif %}
+                {{ periodicity }}
+            </p>
+        </dd>
+    {% endif %}
+</dl>
+
+<!-- Activités de l'établissement -->
+{% if etablissement.latestInformations.genre.id in [2, 3] %}
+    <h4 class="h4_subtitle">Activités {% if etablissement.latestInformations.localSommeil and etablissement.latestInformations.genre.id == 2 %}
+            <span class="label label-primary pull-right">Présence de locaux à sommeil</span>
+        {% endif %}</h4>
+    <dl class="dl-horizontal">
+        <!-- Type et activités -->
+        <dt>Types & activités</dt>
+        <dd>
+            <ul class="list-unstyled">
+                <li>
+                    <strong>
+                        {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ etablissement.latestInformations.type.libelle ~ '.png') %}
+
+                        {% if asset_exist(etablissement_type_asset_path) %}
+                            <img src="{{ etablissement_type_asset_path }}" title="{{ etablissement.latestInformations.type.libelle }}" />&nbsp;-&nbsp;
+                        {% else %}
+                            {{ etablissement.latestInformations.type.libelle }}&nbsp;-&nbsp;
+                        {% endif %}
+
+                        {{ etablissement.latestInformations.typeActivite.libelle }}
+                    </strong>
+                </li>
+                {% for type_activite in etablissement.latestInformations.typesActivitesSecondaires %}
+                    {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ type_activite.type.libelle ~ '.png') %}
+                    <li>
+                        {% if asset_exist(etablissement_type_asset_path) %}
+                            <img src="{{ asset(etablissement_type_asset_path) }}" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
+                        {% else %}
+                            {{ type_activite.type.libelle }}&nbsp;-&nbsp;
+                        {% endif %}
+                        {{ type_activite.activite.libelle }}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if etablissement.latestInformations.r14320 %}
+                <p>Le <strong>R143-20</strong> est appliqué sur cet établissement.</p>
+            {% endif %}
+            {% if etablissement.latestInformations.genre.id in [2] %}
+                {% if etablissement.latestInformations.droitPublic %}
+                    <p>Le <strong>R143-16</strong> est appliqué sur cet établissement (droit public).</p>
+                {% endif %}
+            {% endif %}
+        </dd>
+    </dl>
+{% endif %}
+
+<!-- Rubriques -->
+{% if etablissement.latestInformations.icpe %}
+    <h4 class="h4_subtitle">Rubriques ICPE</h4>
+    {% if etablissement.latestInformations.rubriquesIcpe|length == 0 %}
+        <p class="text-muted text-center">Pas de rubriques disponible</p>
+    {% else %}
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>Rubrique</th>
+                <th>Numéro</th>
+                <th>Nom</th>
+                <th>Valeur</th>
+                <th>Classement</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rubrique_icpe in etablissement.latestInformations.rubriquesIcpe %}
+                <tr>
+                    <td>{{ rubrique_icpe.rubrique == 1 ? 'Substance' : (rubrique_icpe.rubrique == 2 ? 'Activité' : (rubrique_icpe.rubrique == 3 ? 'IED' : 'Produits dangereux')) }}</td>
+                    <td>{{ rubrique_icpe.numero }}</td>
+                    <td>{{ rubrique_icpe.nom }}</td>
+                    <td>{{ rubrique_icpe.valeur }}</td>
+                    <td>{{ rubrique_icpe.classement }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
+{% if etablissement.latestInformations.genre.id in [7] %}
+    <h4 class="h4_subtitle">Nombre d'emplacements</h4>
+    <dl class="dl-horizontal champ_effectif_camping index_camping">
+        <dt>Mobil-homes ou habitations</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifHabitation }}</p>
+        </dd>
+
+        <dt>Autocaravanes</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifCaravane }}</p>
+        </dd>
+
+        <dt>Emplacements nus</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifEmplacementNu }}</p>
+        </dd>
+
+        <dt>Autres emplacements</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifDivers }}</p>
+        </dd>
+
+        <dt>&nbsp;</dt><dd><hr></dd>
+
+        <dt>Total</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifHabitation + etablissement.latestInformations.effectifCaravane + etablissement.latestInformations.effectifEmplacementNu + etablissement.latestInformations.effectifDivers }}</p>
+        </dd>
+    </dl>
+{% endif %}
+
+<!-- Les effectifs -->
+{% if etablissement.latestInformations.genre.id in [2, 3, 5, 6] %}
+    <h4 class="h4_subtitle">Les effectifs</h4>
+    <dl class="dl-horizontal">
+        <!-- Effectif public -->
+        {% if etablissement.latestInformations.genre.id in [2, 3, 5] %}
+            <dt>Public</dt>
+            <dd>
+                <p>{{ etablissement.latestInformations.effectifPublic }}</p>
+            </dd>
+        {% endif %}
+
+        <!-- Effectif personnel -->
+        <dt>Personnel</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifPersonnel }}</p>
+        </dd>
+
+        <!-- Effectif hebergé -->
+        {% if etablissement.latestInformations.localSommeil and etablissement.latestInformations.genre.id == 2 %}
+            <dt>Dont hebergé</dt>
+            <dd>
+                <p>{{ etablissement.latestInformations.effectifHeberge }}</p>
+            </dd>
+        {% endif %}
+
+        <dt>&nbsp;</dt><dd><hr></dd>
+
+        <!-- Effectif total -->
+        <dt>Total</dt>
+        <dd>
+            <p>{{ etablissement.latestInformations.effectifPublic + etablissement.latestInformations.effectifPersonnel }}</p>
+        </dd>
+
+        <!-- Effectif justifant le classement (que pour les 5ème catégorie) -->
+        {% if etablissement.latestInformations.categorie is not null and etablissement.latestInformations.categorie.id == 5 %}
+            <dt>Justifiant le classement</dt>
+            <dd>
+                <p>{{ etablissement.latestInformations.effectifJustifiantClassement }}</p>
+            </dd>
+        {% endif %}
+    </dl>
+{% endif %}
+
+<!-- Plan -->
+{% if etablissement.latestInformations.genre.id in [2, 3, 5, 6] %}
+    <h4 class="h4_subtitle">Plans d'intervention</h4>
+    {% if etablissement.latestInformations.plans|length == 0 %}
+        <p class="text-muted text-center">Pas de plans disponible</p>
+    {% else %}
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>Type de plan</th>
+                <th>Numéro du plan</th>
+                <th>Date</th>
+                <th>A mettre à jour</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for plan in etablissement.latestInformations.plans %}
+                <tr>
+                    <td>{{ plan.type.libelle }}</td>
+                    <td>{{ plan.numero }}</td>
+                    <td>{{ plan.date|date('d/m/Y') }}</td>
+                    <td>{{ plan.aMettreAJour ? 'A jour' : 'Pas à jour' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
+<!-- Etablissement lié -->
+{% if etablissement.fils|length > 0 %}
+    <h4 class="h4_subtitle">
+        <label for="filterLinkedEts">
+            Établissements liés <small>{{ etablissement.fils|length > 0 ? '(' ~ etablissement.fils|length ~ ')' }}</small>
+        </label>
+        <input type="text" class="form-control" id="filterLinkedEts" placeholder="Filtrer les établissements" />
+    </h4>
+    <ul class="recherche_liste list-unstyled no_slide" style="max-height: 500px; overflow-y: scroll;">
+        {% for etablissement_fils in etablissement.fils %}
+            {{ include('etablissement/_informations/_etablissement_lies.html.twig', {etablissement: etablissement_fils}) }}
+        {% endfor %}
+    </ul>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterInput = document.getElementById('filterLinkedEts');
+
+            if (filterInput) {
+                filterInput.addEventListener('keyup', function() {
+                    const searchString = this.value.toLowerCase();
+                    const listContainer = this.parentElement.nextElementSibling;
+                    const listItems = listContainer.querySelectorAll('li');
+
+                    listItems.forEach(function(item) {
+                        const text = item.textContent.toLowerCase();
+                        if (text.indexOf(searchString) !== -1) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+{% endif %}

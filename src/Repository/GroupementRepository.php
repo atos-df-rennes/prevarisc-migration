@@ -13,7 +13,6 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @method Groupement|null find($id, $lockMode = null, $lockVersion = null)
  * @method Groupement|null findOneBy(array $criteria, array $orderBy = null)
- * @method Groupement[]    findAll()
  * @method Groupement[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class GroupementRepository extends ServiceEntityRepository implements HasContacts
@@ -21,6 +20,23 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Groupement::class);
+    }
+
+    /**
+     * Récupère tous les groupements, avec la possibilité de filtrer par numéro INSEE de la ville.
+     * Remplace la méthode findAll($num_insee) du legacy (@see ).
+     *
+     * @param string|null $num_insee numéro INSEE pour filtrer les groupements par ville
+     *
+     * @return Groupement[] liste des groupements triés par libellé en ordre croissant, ou filtrés par ville si le numéro INSEE est fourni
+     */
+    public function findByNumInsee(?string $num_insee = null): array
+    {
+        if (null !== $num_insee) {
+            return $this->getGroupementParVille($num_insee);
+        }
+
+        return $this->findBy([], ['libelle' => 'ASC']);
     }
 
     /**
@@ -38,5 +54,27 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
         ;
 
         return $query->getSingleScalarResult();
+    }
+
+    /**
+     * Retourne une liste de groupements associés à une ville identifiée par son code INSEE.
+     *
+     * @param string $codeInsee code INSEE de la commune
+     *
+     * @return Groupement[] liste des groupements correspondant, triés par type et libellé
+     */
+    public function getGroupementParVille(string $codeInsee): array
+    {
+        $qb = $this->createQueryBuilder('groupement')
+            ->leftJoin('groupement.communes', 'communes')
+            ->leftJoin('groupement.type', 'type')
+            ->addSelect('type.libelle')
+            ->where('communes.id = :codeInsee')
+            ->setParameter('codeInsee', $codeInsee)
+            ->orderBy('type.id', 'ASC')
+            ->addOrderBy('groupement.libelle', 'ASC')
+        ;
+
+        return $qb->getQuery()->getResult();
     }
 }

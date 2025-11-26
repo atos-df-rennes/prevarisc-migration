@@ -11,11 +11,14 @@ use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\EtablissementPieceJointe;
+use App\Entity\EtablissementStatut;
+use App\Entity\Genre;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class Etablissement
 {
@@ -34,18 +37,71 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
+    /**
+     * @var ParameterBagInterface
+     */
+    private $parameterBag;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore
+        DataStore $dataStore,
+        ParameterBagInterface $parameterBag
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
         $this->etablissementPJRepository = $etablissementPJRepository;
         $this->dataStore = $dataStore;
+        $this->parameterBag = $parameterBag;
+    }
+
+    /**
+     * Récupère les dates de la dernière visite et de la prochaine visite pour un établissement donné.
+     *
+     * @param EtablissementEntity $etablissement L'entité représentant l'établissement
+     *
+     * @return array{lastVisite: \DateTimeInterface|null, nextVisite: \DateTimeInterface|null}
+     */
+    public function getDatesVisites(EtablissementEntity $etablissement): array
+    {
+        $useDateCommissionForPeriodicity = $this->parameterBag->get('app.relance_periodicite_commission');
+        $lastVisiteDossier = $this->dossierRepository->getLastVisitePeriodique($etablissement->getId(), $useDateCommissionForPeriodicity);
+
+        $dateLastVisite = $lastVisiteDossier['date_relance'] ?? null;
+        $dateNextVisite = null;
+
+        // Si aucune date de dernière visite n'est trouvée, retourner null pour les deux dates
+        if (null === $dateLastVisite) {
+            return [
+                'lastVisite' => null,
+                'nextVisite' => null,
+            ];
+        }
+
+        if (!$dateLastVisite instanceof \DateTimeInterface) {
+            if (!\is_string($dateLastVisite)) {
+                throw new \InvalidArgumentException('La date de dernière visite doit être une chaîne de caractères.');
+            }
+
+            $dateLastVisite = new \DateTime($dateLastVisite);
+        }
+
+        $informations = $etablissement->getLatestInformations();
+        $periodicite = $informations->getPeriodicite();
+
+        if ($periodicite && $periodicite > 0) {
+            /** @var \DateTime $dateNextVisite */
+            $dateNextVisite = clone $dateLastVisite;
+            $dateNextVisite->modify(sprintf('+%d months', $periodicite));
+        }
+
+        return [
+            'lastVisite' => $dateLastVisite,
+            'nextVisite' => $dateNextVisite,
+        ];
     }
 
     public function getHistorique(int $id): Informations
@@ -382,5 +438,165 @@ final class Etablissement
         }
 
         return $avisDerogations;
+    }
+
+    /**
+     * Calcule et retourne la périodicité affichée sous forme textuelle pour un établissement donné.
+     *
+     * @param EtablissementEntity $etablissement L'entité de l'établissement concerné
+     *
+     * @return string|null la chaîne représentant la périodicité au format "X mois", "X ans", ou "X ans et Y mois"
+     */
+    public function getDisplayedPeriodicity(EtablissementEntity $etablissement): ?string
+    {
+        $numberOfMonthsInAYear = 12;
+
+        $information = $etablissement->getLatestInformations();
+
+        $periodicity = $information->getPeriodicite();
+        $genre = $information->getGenre();
+
+        if (!$genre instanceof Genre) {
+            throw new \InvalidArgumentException(\sprintf("Le genre de l'établissement %d n'est pas renseigné.", $etablissement->getId()));
+        }
+
+        $genreId = $genre->getId();
+
+        if (1 === $genreId) {
+            foreach ($etablissement->getFils() as $enfant) {
+                $informationsEnfant = $enfant->getLatestInformations();
+                $informationsEnfantGenre = $informationsEnfant->getGenre();
+                $informationsEnfantStatut = $informationsEnfant->getStatut();
+
+                if (!$informationsEnfantGenre instanceof Genre) {
+                    throw new \InvalidArgumentException(\sprintf("Le genre de l'établissement %d n'est pas renseigné.", $enfant->getId()));
+                }
+
+                if (!$informationsEnfantStatut instanceof EtablissementStatut) {
+                    throw new \InvalidArgumentException(\sprintf("Le statut de l'établissement %d n'est pas renseigné.", $enfant->getId()));
+                }
+
+                if (2 !== $informationsEnfantGenre->getId()) {
+                    continue;
+                }
+
+                if (2 !== $informationsEnfantStatut->getId()) {
+                    continue;
+                }
+
+                $periodiciteEnfant = $informationsEnfant->getPeriodicite();
+                if (null === $periodiciteEnfant) {
+                    continue;
+                }
+
+                if (0 === $periodiciteEnfant) {
+                    continue;
+                }
+
+                if (null === $periodicity || $periodicity > $periodiciteEnfant) {
+                    $periodicity = $periodiciteEnfant;
+                }
+            }
+        } elseif (3 === $genreId && ($parent = $etablissement->getParent()) !== null) {
+            $periodicity = $parent->getLatestInformations()->getPeriodicite();
+        }
+
+        if (null === $periodicity) {
+            return null;
+        }
+
+        $periodicityUnit = 'mois';
+        $periodicityString = sprintf('%s %s', $periodicity, $periodicityUnit);
+
+        if (!$this->parameterBag->get('app.periodicite_annees')) {
+            return $periodicityString;
+        }
+
+        if ($periodicity < $numberOfMonthsInAYear) {
+            return $periodicityString;
+        }
+
+        $periodicityYear = intdiv($periodicity, $numberOfMonthsInAYear);
+        $periodicityUnit = 1 === $periodicityYear ? 'an' : 'ans';
+
+        $periodicityString = sprintf('%d %s', $periodicityYear, $periodicityUnit);
+
+        $remainder = $periodicity % $numberOfMonthsInAYear;
+        $remainderUnit = 'mois';
+
+        if (0 !== $remainder) {
+            return sprintf('%s et %s %s', $periodicityString, $remainder, $remainderUnit);
+        }
+
+        return $periodicityString;
+    }
+
+    /**
+     * Calcule les données pratiques selon le genre de l'établissement.
+     *
+     * @return array{nbPreventionnistes: ?int, dureeVisite: ?\DateTime}
+     */
+    public function calculateDonneesPratiques(EtablissementEntity $etablissement): array
+    {
+        $informations = $etablissement->getLatestInformations();
+        $genre = $informations->getGenre();
+        $genreId = $genre instanceof Genre ? $genre->getId() : null;
+
+        // Site (genre 1)
+        if (1 === $genreId) {
+            $dureeVisiteTotal = (new \DateTime())->setTime(0, 0, 0);
+
+            foreach ($etablissement->getFils() as $enfant) {
+                $dureeVisite = $enfant->getDureeVisite();
+                $nbPrev = $enfant->getNbPrev();
+
+                if ($dureeVisite instanceof \DateTimeInterface && $nbPrev) {
+                    $hours = (int) $dureeVisite->format('H');
+                    $minutes = (int) $dureeVisite->format('i');
+                    $seconds = (int) $dureeVisite->format('s');
+
+                    $intervalDureeVisite = new \DateInterval(
+                        sprintf('PT%dH%dM%dS', $hours * $nbPrev, $minutes * $nbPrev, $seconds * $nbPrev)
+                    );
+
+                    $dureeVisiteTotal->add($intervalDureeVisite);
+                }
+            }
+
+            return [
+                'nbPreventionnistes' => null,
+                'dureeVisite' => $dureeVisiteTotal,
+            ];
+        }
+
+        // Cellule (genre 3) ou autres genres
+        return [
+            'nbPreventionnistes' => $etablissement->getNbPrev(),
+            'dureeVisite' => $etablissement->getDureeVisite(),
+        ];
+    }
+
+    /**
+     * Vérifie la présence d'un DUS (ID_FONCTION = 8) dans les contacts.
+     */
+    public function hasContactDus(EtablissementEntity $etablissement): bool
+    {
+        $allContacts = $etablissement->getContacts()->toArray();
+
+        // Récupération des contacts des parents
+        $currentEtablissement = $etablissement;
+        while (null !== $currentEtablissement->getParent()) {
+            $parent = $currentEtablissement->getParent();
+            $allContacts = array_merge($allContacts, $parent->getContacts()->toArray());
+            $currentEtablissement = $parent;
+        }
+
+        foreach ($allContacts as $contact) {
+            if ($contact->getFonction() && 8 === $contact->getFonction()->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

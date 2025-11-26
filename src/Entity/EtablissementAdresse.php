@@ -69,6 +69,15 @@ class EtablissementAdresse
      */
     private $etablissement;
 
+    /**
+     * @var ?AdresseRue
+     *
+     * @ORM\OneToOne(targetEntity=AdresseRue::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinColumn(name="ID_RUE", referencedColumnName="ID_RUE", nullable=true, options={"unsigned":true})
+     */
+    private $rue;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -142,6 +151,18 @@ class EtablissementAdresse
     public function setEtablissement(?Etablissement $etablissement): self
     {
         $this->etablissement = $etablissement;
+
+        return $this;
+    }
+
+    public function getRue(): ?AdresseRue
+    {
+        return $this->rue;
+    }
+
+    public function setRue(?AdresseRue $rue): self
+    {
+        $this->rue = $rue;
 
         return $this;
     }

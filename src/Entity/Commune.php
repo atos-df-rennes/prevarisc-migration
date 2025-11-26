@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Commune
 {
     /**
-     * @var string
+     * @var string Numéro INSEE de la commune
      *
      * @ORM\Id
      *
