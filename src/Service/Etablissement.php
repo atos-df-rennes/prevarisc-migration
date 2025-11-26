@@ -11,6 +11,7 @@ use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\EtablissementPieceJointe;
+use App\Entity\EtablissementStatut;
 use App\Entity\Genre;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
@@ -81,6 +82,10 @@ final class Etablissement
         }
 
         if (!$dateLastVisite instanceof \DateTimeInterface) {
+            if (!\is_string($dateLastVisite)) {
+                throw new \InvalidArgumentException('La date de dernière visite doit être une chaîne de caractères.');
+            }
+
             $dateLastVisite = new \DateTime($dateLastVisite);
         }
 
@@ -326,6 +331,8 @@ final class Etablissement
             }
 
             if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
+                // @fixme: Créer un DTO pour corriger l'erreur PHPStan
+                /* @phpstan-ignore-next-line */
                 $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
@@ -447,16 +454,33 @@ final class Etablissement
         $information = $etablissement->getLatestInformations();
 
         $periodicity = $information->getPeriodicite();
-        $genre = $information->getGenre()->getId();
-        if (1 === $genre) {
+        $genre = $information->getGenre();
+
+        if (!$genre instanceof Genre) {
+            throw new \InvalidArgumentException(\sprintf("Le genre de l'établissement %d n'est pas renseigné.", $etablissement->getId()));
+        }
+
+        $genreId = $genre->getId();
+
+        if (1 === $genreId) {
             foreach ($etablissement->getFils() as $enfant) {
                 $informationsEnfant = $enfant->getLatestInformations();
+                $informationsEnfantGenre = $informationsEnfant->getGenre();
+                $informationsEnfantStatut = $informationsEnfant->getStatut();
 
-                if ($informationsEnfant->getGenre()->getId() !== 2) {
+                if (!$informationsEnfantGenre instanceof Genre) {
+                    throw new \InvalidArgumentException(\sprintf("Le genre de l'établissement %d n'est pas renseigné.", $enfant->getId()));
+                }
+
+                if (!$informationsEnfantStatut instanceof EtablissementStatut) {
+                    throw new \InvalidArgumentException(\sprintf("Le statut de l'établissement %d n'est pas renseigné.", $enfant->getId()));
+                }
+
+                if ($informationsEnfantGenre->getId() !== 2) {
                     continue;
                 }
 
-                if ($informationsEnfant->getStatut()->getId() !== 2) {
+                if ($informationsEnfantStatut->getId() !== 2) {
                     continue;
                 }
 
@@ -470,7 +494,7 @@ final class Etablissement
                     $periodicity = $periodiciteEnfant;
                 }
             }
-        } elseif (3 === $genre && ($parent = $etablissement->getParent()) !== null) {
+        } elseif (3 === $genreId && ($parent = $etablissement->getParent()) !== null) {
             $periodicity = $parent->getLatestInformations()->getPeriodicite();
         }
 
