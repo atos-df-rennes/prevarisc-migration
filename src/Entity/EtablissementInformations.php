@@ -158,15 +158,6 @@ class EtablissementInformations
     private $type;
 
     /**
-     * @var ?EtablissementActivite
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", nullable=true, options={"unsigned":true})
-     */
-    private $activite;
-
-    /**
      * @var ?EtablissementCategorie
      *
      * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
@@ -497,18 +488,6 @@ class EtablissementInformations
     public function setType(?EtablissementType $type): self
     {
         $this->type = $type;
-
-        return $this;
-    }
-
-    public function getActivite(): ?EtablissementActivite
-    {
-        return $this->activite;
-    }
-
-    public function setActivite(?EtablissementActivite $activite): self
-    {
-        $this->activite = $activite;
 
         return $this;
     }
