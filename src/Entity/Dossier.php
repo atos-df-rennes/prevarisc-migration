@@ -269,6 +269,15 @@ class Dossier
      */
     private $utilisateurVerrou;
 
+    /**
+     * @var ?PlatauConsultation
+     *
+     * @ORM\OneToOne(targetEntity=PlatauConsultation::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinColumn(name="ID_PLATAU", referencedColumnName="ID_PLATAU", options={"fixed":true})
+     */
+    private $consultationPlatau;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -844,6 +853,18 @@ class Dossier
     public function setUtilisateurVerrou(?int $utilisateurVerrou): self
     {
         $this->utilisateurVerrou = $utilisateurVerrou;
+
+        return $this;
+    }
+
+    public function getConsultationPlatau(): ?PlatauConsultation
+    {
+        return $this->consultationPlatau;
+    }
+
+    public function setConsultationPlatau(?PlatauConsultation $consultationPlatau): self
+    {
+        $this->consultationPlatau = $consultationPlatau;
 
         return $this;
     }

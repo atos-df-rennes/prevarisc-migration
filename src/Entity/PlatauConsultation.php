@@ -19,7 +19,7 @@ class PlatauConsultation
      *
      * @ORM\Column(name="ID_PLATAU", type="string", length=11, nullable=false, options={"fixed":true})
      */
-    private $identifiantPlatau;
+    private $identifiant;
 
     /**
      * @var ?string
@@ -56,14 +56,14 @@ class PlatauConsultation
      */
     private $dateReponseAttendue;
 
-    public function getIdentifiantPlatau(): ?string
+    public function getIdentifiant(): ?string
     {
-        return $this->identifiantPlatau;
+        return $this->identifiant;
     }
 
-    public function setIdentifiantPlatau(string $identifiantPlatau): self
+    public function setIdentifiant(string $identifiant): self
     {
-        $this->identifiantPlatau = $identifiantPlatau;
+        $this->identifiant = $identifiant;
 
         return $this;
     }

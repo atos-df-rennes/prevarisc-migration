@@ -2,6 +2,7 @@
 
 {% block title %}Dossier{% endblock %}
 
+{# @todo: Compléter #}
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
         <li {% if app.request.get('_route') is same as('dossier_index') %}class="active"{% endif %}>
@@ -17,7 +18,7 @@
             </a>
         </li>
         <li>
-            <a href="{{ '/piece-jointe/voir/id/' ~ dossier.id }}">
+            <a href="{{ '/dossier/piece-jointe/id/' ~ dossier.id }}">
                 <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
                 Pièces jointes
             </a>
@@ -41,31 +42,32 @@
 {% block body_structure %}
     <div id="ligne_informations">
         <h2 class='page-header'>
-{#            {% if dossier.etablissement is not null %}#}
-{#                <a href="{{ path('etablissement_informations', {id: dossier.etablissement.id}) }}">#}
-{#                    {{ dossier.etablissement.informations|last.libelle }}#}
-{#                </a> -#}
-{#            {% endif %}#}
+            <p>
+                <span>{{ dossier.type.libelle }}</span>
 
-            Dossier
+                {% if dossier.dateSuppression is not null %}
+                    <span class='label label-danger'>
+                        DOSSIER SUPPRIME
+                    </span>
+                {% endif %}
+            </p>
 
-            {% if dossier.objet %}
-                - {{ dossier.objet }}
+            {% if dossier.objet or dossier.consultationPlatau is not null %}
+                <p>
+                    {% if dossier.objet %}
+                        <small>{{ dossier.objet|nl2br }}</small>
+                    {% endif %}
+
+                    {% if dossier.consultationPlatau is not null %}
+                        <strong class="dossier__identifiant-platau label label-info">CONSULTATION PLATAU : {{ dossier.consultationPlatau.identifiant }}</strong>
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            {% if dossier.etablissements|length > 0 %}
+                {{ include('layouts/dossier/_informations_etablissements.html.twig') }}
             {% endif %}
         </h2>
-
-        {% if dossier.avisCommission %}
-            {% set label_color = 'default' %}
-            {% if dossier.avisCommission.id is same as(1) %}
-                {% set label_color = 'success' %}
-            {% elseif dossier.avisCommission.id is same as(2) %}
-                {% set label_color = 'danger' %}
-            {% endif %}
-
-            <span class="{{ 'label label-' ~ label_color }}">
-                Avis de la commission : {{ dossier.avisCommission.libelle }}
-            </span>
-        {% endif %}
     </div>
 
     <div class="row">

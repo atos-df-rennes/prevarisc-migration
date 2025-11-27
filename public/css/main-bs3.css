@@ -385,11 +385,6 @@ a.thumbnail + a.thumbnail {
   margin-bottom: 15px;
 }
 
-#ligne_informations p, #ligne_informations div {
-
-  display: inline;
-}
-
 #ligne_informations #libelle {
   font-size: 1.7em;
   position: relative;
@@ -397,6 +392,20 @@ a.thumbnail + a.thumbnail {
   font-weight: normal;
   display: inline;
   line-height: 0.8em;
+}
+
+#infosEtabs {
+  line-height: 20px;
+}
+
+.infosEtabs__button-link,
+.infosEtabs__button-link:hover {
+  text-decoration: none;
+  color: black;
+}
+
+.infosEtabs__button-link .glyphicon {
+  font-size: 14px;
 }
 
 #tabs h4,
