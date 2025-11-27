@@ -15,7 +15,6 @@
 {% set libelle_descriptif = app.request.attributes.get('libelle_descriptif')|default('Descriptif') %}
 {% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
 {% set has_avis_derogations = app.request.attributes.get('has_avis_derogations') ?? false %}
-{% set is_allowed_delete_etablissement = app.request.attributes.get('is_allowed_delete_etablissement') ?? false %}
 
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
@@ -95,7 +94,7 @@
             </a>
         </li>
 
-        {% if is_allowed_delete_etablissement and app.request.get('_route') is same as('etablissement_informations') %}
+        {% if is_granted('delete_etablissement') and app.request.get('_route') is same as('etablissement_informations') %}
             <li>
                 <a id="suppressionEtablissement" href="#">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
