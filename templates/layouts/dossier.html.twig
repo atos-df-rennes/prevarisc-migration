@@ -46,13 +46,30 @@
             </li>
         {% endif %}
 
-        {# @todo: Vérifications techniques #}
-        {# @todo: Effectifs et dégagements #}
-
-        {# @todo: Ajouter la vérification du droit avis-derogation #}
-        {% if dossier.type.id == 1 %}
+        {# Visite et Groupe de visite #}
+        {% if is_granted('verifications_techniques') and dossier.type.id in [2, 3] %}
             <li>
-                <a href="{{ '/dossier/avis-et-derogations/id' ~ dossier.id }}">
+                <a href="{{ '/dossier/verifications-techniques/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {# @todo: Mettre le nom custom #}
+                    Vérifications techniques
+                </a>
+            </li>
+        {% endif %}
+
+        {% if is_granted('effectifs_degagements_doss') and dossier.type.id == 1 %}
+            <li>
+                <a href="{{ '/dossier/effectifs-degagements-dossier/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {# @todo: Mettre le nom custom #}
+                    Effectifs et dégagements
+                </a>
+            </li>
+        {% endif %}
+
+        {% if is_granted('avis_derogations') and dossier.type.id == 1 %}
+            <li>
+                <a href="{{ '/dossier/avis-et-derogations/id/' ~ dossier.id }}">
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                     Avis et dérogations
 
@@ -113,13 +130,22 @@
             </a>
         </li>
 
-        {# @todo: Ajouter le rétablissement de dossier + privilège #}
-        {% if app.request.get('_route') is same as('dossier_index') %}
+        {# @todo: Ajouter l'ordre du jour #}
+
+        {# @todo: Ajouter le rétablissement de dossier + verrou #}
+        {% if is_granted('delete_dossier') and app.request.get('_route') is same as('dossier_index') %}
             <li>
-                <a id="suppressionDossier" href="#">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    Supprimer le dossier
-                </a>
+                {% if dossier.dateSuppression is not null %}
+                    <a id="retablissementDossier" href="{{ '/dossier/retablir-dossier/idDossier/' ~ dossier.id }}">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        Rétablir le dossier
+                    </a>
+                {% else %}
+                    <a id="suppressionDossier" href="#">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        Supprimer le dossier
+                    </a>
+                {% endif %}
             </li>
         {% endif %}
     </ul>

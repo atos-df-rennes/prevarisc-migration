@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\DossierRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -373,11 +374,15 @@ class Dossier
     }
 
     /**
+     * Par défaut, ne récupère pas les établissements qui ont été supprimés.
+     *
      * @return Collection<int, Etablissement>
      */
     public function getEtablissements(): Collection
     {
-        return $this->etablissements;
+        $criteria = Criteria::create()->andWhere(Criteria::expr()->isNull('dateSuppression'));
+
+        return $this->etablissements->matching($criteria);
     }
 
     public function addEtablissement(Etablissement $etablissement): self
