@@ -1,280 +1,129 @@
-{% extends 'base.html.twig' %}
+{% extends 'layouts/dossier.html.twig' %}
 
-{% block title %}
-    {% if action == 'new' %}
-        Nouveau dossier
-    {% else %}
-        Dossier n°{{ dossier.id }} - {{ dossier.objet|default('Sans objet') }}
-    {% endif %}
-{% endblock %}
+{% block title %}{{ parent() }} / Informations du dossier{% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="page-header">
-                {% if action == 'new' %}
-                    <i class="fa fa-plus-circle"></i> Nouveau dossier
-                {% else %}
-                    <i class="fa fa-folder-open"></i> Dossier n°{{ dossier.id }}
+<div id='dossier'>
+    <div class='pull-right'>
+        <a class='btn btn-default' href="/dossier/edit/id/{{ dossier.id }}">Modifier la fiche</a>
+    </div>
+
+    <h3>Fiche d'informations générales</h3>
+
+    <div class='row'>
+        <div class='col-md-12'>
+            <dl class='dl-horizontal'>
+                <dt>Type</dt>
+                <dd><p>{{ dossier.type.libelle }}</p></dd>
+
+                {% if dossier.nature is not null %}
+                    <dt>Nature</dt>
+                    <dd>
+                        <ul class='unstyled'>
+                            <li><strong>{{ dossier.nature.libelle }}</strong></li>
+                        </ul>
+                    </dd>
                 {% endif %}
-            </h1>
 
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    {{ message }}
-                </div>
-            {% endfor %}
+                <dt>Date d'insertion</dt>
+                <dd><p>{{ dossier.dateInsert|date('d/m/Y') }}</p></dd>
 
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-danger alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    {{ message }}
-                </div>
-            {% endfor %}
+                {% if dossier.objet %}
+                    <dt>Objet</dt>
+                    <dd><p>{{ dossier.objet }}</p></dd>
+                {% endif %}
 
-            {# Informations de verrouillage #}
-            {% if dossier.verrou and userInfoVerrou %}
-                <div class="alert alert-warning">
-                    <i class="fa fa-lock"></i>
-                    Ce dossier est actuellement verrouillé par {{ userInfoVerrou.informations.nom }} {{ userInfoVerrou.informations.prenom }}.
-                    {% if dossier.utilisateurVerrou == user.id %}
-                        <a href="{{ path('dossier_deverrouiller', {id: dossier.id}) }}" class="btn btn-sm btn-warning">
-                            <i class="fa fa-unlock"></i> Déverrouiller
-                        </a>
-                    {% endif %}
-                </div>
-            {% elseif action == 'edit' %}
-                <div class="mb-3">
-                    <a href="{{ path('dossier_verrouiller', {id: dossier.id}) }}" class="btn btn-warning">
-                        <i class="fa fa-lock"></i> Verrouiller ce dossier
-                    </a>
-                </div>
-            {% endif %}
+                {% if dossier.dateVisite %}
+                    <dt>Date de visite</dt>
+                    <dd><p>{{ dossier.dateVisite|date('d/m/Y') }}</p></dd>
+                {% endif %}
 
-            {# En-tête établissement #}
-            {% if enteteEtab %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            <i class="fa fa-building"></i> Établissement
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        <p><strong>{{ enteteEtab.libelle|default('Sans nom') }}</strong></p>
-                        {% for adresse in enteteEtab.adresses %}
-                            <p>{{ adresse.commune.libelle }}</p>
+{#                {% if dossier.commission %}#}
+{#                    <dt>Commission concernée</dt>#}
+{#                    <dd><p>{{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }})</p></dd>#}
+{#                {% endif %}#}
+
+                {% if dossier.avisCommission %}
+                    <dt>Avis de la commission</dt>
+                    <dd>
+                        <span class='avis {{ dossier.avisCommission.libelle[:1]|lower }}'>
+                            {{ dossier.avisCommission.libelle }}
+                        </span>
+                    </dd>
+                {% endif %}
+
+                {% if dossier.avisDiffere %}
+                    <dt>Avis différé</dt>
+                    <dd><p>Oui</p></dd>
+                {% endif %}
+
+                {% if dossier.facteurDangerosite is not null %}
+                    <dt>Facteur de criticité</dt>
+                    <dd><p>{{ dossier.facteurDangerosite }}</p></dd>
+                {% endif %}
+
+                {% if dossier.preventionnistes is not empty %}
+                    <dt>Préventionniste(s)</dt>
+                    <dd>
+                        {% for preventionniste in dossier.preventionnistes %}
+                            <div class='media' style='display: inline-block; margin-right: 10px;'>
+                                <span class='media-object pull-left'>
+                                    <img src='/images/avatar.png' alt='Avatar' style='width: 32px; height: 32px;' />
+                                </span>
+                                <div class='media-body'>
+                                    {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
+                                </div>
+                            </div>
                         {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
+                    </dd>
+                {% endif %}
 
-            {# Formulaire du dossier #}
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        <i class="fa fa-info-circle"></i> Informations générales
-                    </h3>
-                </div>
-                <div class="panel-body">
-                    {{ form_start(form, {attr: {class: 'form-horizontal'}}) }}
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            {# Type de dossier #}
-                            <div class="form-group">
-                                {{ form_label(form.type, null, {label_attr: {class: 'col-sm-4 control-label'}}) }}
-                                <div class="col-sm-8">
-                                    {{ form_widget(form.type) }}
-                                    {{ form_errors(form.type) }}
-                                </div>
-                            </div>
-
-                            {# Nature du dossier #}
-                            <div class="form-group">
-                                {{ form_label(form.nature, null, {label_attr: {class: 'col-sm-4 control-label'}}) }}
-                                <div class="col-sm-8">
-                                    {{ form_widget(form.nature) }}
-                                    {{ form_errors(form.nature) }}
-                                </div>
-                            </div>
-
-                            {# Date d'insertion #}
-                            <div class="form-group">
-                                {{ form_label(form.dateInsert, null, {label_attr: {class: 'col-sm-4 control-label'}}) }}
-                                <div class="col-sm-8">
-                                    {{ form_widget(form.dateInsert) }}
-                                    {{ form_errors(form.dateInsert) }}
-                                </div>
-                            </div>
-
-                            {# Date de visite #}
-                            <div class="form-group">
-                                {{ form_label(form.dateVisite, null, {label_attr: {class: 'col-sm-4 control-label'}}) }}
-                                <div class="col-sm-8">
-                                    {{ form_widget(form.dateVisite) }}
-                                    {{ form_errors(form.dateVisite) }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            {# Avis de la commission #}
-                            <div class="form-group">
-                                {{ form_label(form.avisCommission, null, {label_attr: {class: 'col-sm-4 control-label'}}) }}
-                                <div class="col-sm-8">
-                                    {{ form_widget(form.avisCommission) }}
-                                    {{ form_errors(form.avisCommission) }}
-                                </div>
-                            </div>
-
-                            {# Avis différé #}
-                            <div class="form-group">
-                                <div class="col-sm-offset-4 col-sm-8">
-                                    <div class="checkbox">
-                                        <label>
-                                            {{ form_widget(form.avisDiffere) }}
-                                        </label>
-                                    </div>
-                                    {{ form_errors(form.avisDiffere) }}
-                                </div>
-                            </div>
-
-                            {# Facteur de dangerosité #}
-                            <div class="form-group">
-                                {{ form_label(form.facteurDangerosite, null, {label_attr: {class: 'col-sm-4 control-label'}}) }}
-                                <div class="col-sm-8">
-                                    {{ form_widget(form.facteurDangerosite) }}
-                                    {{ form_errors(form.facteurDangerosite) }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {# Objet #}
-                    <div class="form-group">
-                        {{ form_label(form.objet, null, {label_attr: {class: 'col-sm-2 control-label'}}) }}
-                        <div class="col-sm-10">
-                            {{ form_widget(form.objet) }}
-                            {{ form_errors(form.objet) }}
-                        </div>
-                    </div>
-
-                    {# Boutons d'action #}
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-save"></i> Enregistrer
-                            </button>
-                            {% if action == 'edit' %}
-                                <a href="{{ path('etablissement_informations', {id: enteteEtab.id}) }}" class="btn btn-default">
-                                    <i class="fa fa-times"></i> Annuler
-                                </a>
-                                {% if isAllowedDeleteDossier %}
-                                    <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#confirmDeleteModal">
-                                        <i class="fa fa-trash"></i> Supprimer
-                                    </button>
-                                {% endif %}
-                            {% else %}
-                                <a href="{{ path('etablissement_informations', {id: enteteEtab.id|default(0)}) }}" class="btn btn-default">
-                                    <i class="fa fa-times"></i> Annuler
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    {{ form_end(form) }}
-                </div>
-            </div>
-
-            {# Informations complémentaires en mode édition #}
-            {% if action == 'edit' %}
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            <i class="fa fa-list"></i> Informations complémentaires
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        <dl class="dl-horizontal">
-                            <dt>Créé le :</dt>
-                            <dd>{{ dossier.dateInsert|date('d/m/Y à H:i') }}</dd>
-
-                            {% if dossier.createur %}
-                                <dt>Créé par :</dt>
-                                <dd>{{ dossier.createur.informations.nom }} {{ dossier.createur.informations.prenom }}</dd>
-                            {% endif %}
-
-                            <dt>Préventionnistes :</dt>
-                            <dd>
-                                {% if dossier.preventionnistes|length > 0 %}
-                                    <ul class="list-unstyled">
-                                        {% for preventionniste in dossier.preventionnistes %}
-                                            <li>
-                                                {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <em>Aucun préventionniste associé</em>
-                                {% endif %}
-                            </dd>
-
-                            <dt>Établissements liés :</dt>
-                            <dd>
-                                {% if etablissements|length > 0 %}
-                                    <ul class="list-unstyled">
-                                        {% for etablissement in etablissements %}
-                                            <li>
-                                                <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
-                                                    {{ etablissement.informations.first.libelle|default('Sans nom') }}
-                                                </a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <em>Aucun établissement lié</em>
-                                {% endif %}
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            {% endif %}
+                {% if etablissements is not empty %}
+                    <dt>Établissement(s) lié(s)</dt>
+                    <dd>
+                        <ul class='unstyled'>
+                            {% for etablissement in etablissements %}
+                                <li>
+                                    <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
+                                        {{ etablissement.informations|last.libelle }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </dd>
+                {% endif %}
+            </dl>
         </div>
     </div>
 </div>
 
-{# Modal de confirmation de suppression #}
-{% if action == 'edit' and isAllowedDeleteDossier %}
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title">Confirmer la suppression</h4>
-                </div>
-                <div class="modal-body">
-                    <p>Êtes-vous sûr de vouloir supprimer ce dossier ?</p>
-                    <p class="text-danger"><strong>Cette action est irréversible.</strong></p>
-                </div>
-                <div class="modal-footer">
-                    <form method="post" action="{{ path('dossier_supprimer', {id: dossier.id}) }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ dossier.id) }}">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fa fa-trash"></i> Supprimer
-                        </button>
-                    </form>
-                </div>
+<!-- Boite de confirmation de la suppression (cachée par défaut) -->
+<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                <h3>Confirmation de la suppression</h3>
+            </div>
+
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le dossier ? </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <a href="/dossier/delete/id/{{ dossier.id }}" class="btn btn-success">Confirmer</a>
             </div>
         </div>
     </div>
-{% endif %}
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // fenetre de confirmation de la suppression
+        $("#suppressionDossier").click(function(){
+            $('#confirm-modal').modal({show:true});
+        });
+    });
+</script>
 {% endblock %}

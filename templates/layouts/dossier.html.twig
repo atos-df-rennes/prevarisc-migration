@@ -1,0 +1,76 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Dossier{% endblock %}
+
+{% block lateral_navigation %}
+    <ul class='nav nav-tabs nav-stacked menu_dashboard'>
+        <li {% if app.request.get('_route') is same as('dossier_index') %}class="active"{% endif %}>
+            <a href="{{ path('dossier_index', {id: dossier.id}) }}">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                Informations générales
+            </a>
+        </li>
+        <li>
+            <a href="{{ '/dossier/textes-applicables/id/' ~ dossier.id }}">
+                <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
+                Textes applicables
+            </a>
+        </li>
+        <li>
+            <a href="{{ '/piece-jointe/voir/id/' ~ dossier.id }}">
+                <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
+                Pièces jointes
+            </a>
+        </li>
+        <li class="nav-header">Actions</li>
+        <li>
+            <a href="{{ '/dossier/rapport/id/' ~ dossier.id }}">
+                <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                Rapport
+            </a>
+        </li>
+        <li>
+            <a id="suppressionDossier" href="#">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                Supprimer le dossier
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block body_structure %}
+    <div id="ligne_informations">
+        <h2 class='page-header'>
+{#            {% if dossier.etablissement is not null %}#}
+{#                <a href="{{ path('etablissement_informations', {id: dossier.etablissement.id}) }}">#}
+{#                    {{ dossier.etablissement.informations|last.libelle }}#}
+{#                </a> -#}
+{#            {% endif %}#}
+
+            Dossier
+
+            {% if dossier.objet %}
+                - {{ dossier.objet }}
+            {% endif %}
+        </h2>
+
+        {% if dossier.avisCommission %}
+            {% set label_color = 'default' %}
+            {% if dossier.avisCommission.id is same as(1) %}
+                {% set label_color = 'success' %}
+            {% elseif dossier.avisCommission.id is same as(2) %}
+                {% set label_color = 'danger' %}
+            {% endif %}
+
+            <span class="{{ 'label label-' ~ label_color }}">
+                Avis de la commission : {{ dossier.avisCommission.libelle }}
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
