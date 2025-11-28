@@ -3,6 +3,7 @@
 namespace App\Service\Commission;
 
 use App\Dto\Commission\CommissionDocument;
+use App\Entity\Commission;
 use App\Service\Documents;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
@@ -22,9 +23,9 @@ final class CommissionDocumentBuilder
     }
 
     /**
-     * @param \App\Entity\Commission[] $commissions
+     * @param Commission[] $commissions
      *
-     * @return \App\Dto\Commission\CommissionDocument[]
+     * @return CommissionDocument[]
      */
     public function buildWithCommissions(array $commissions): array
     {

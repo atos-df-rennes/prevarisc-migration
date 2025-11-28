@@ -2,6 +2,8 @@
 
 namespace App\Dto\Commission;
 
+use App\Dto\Document;
+
 final class CommissionDocument
 {
     /** @var int */
@@ -13,11 +15,11 @@ final class CommissionDocument
     /** @var string */
     private $type;
 
-    /** @var \App\Dto\Document[]|null */
+    /** @var Document[]|null */
     private $documents;
 
     /**
-     * @param \App\Dto\Document[]|null $documents
+     * @param Document[]|null $documents
      */
     public function __construct(int $id, string $nom, string $type, ?array $documents)
     {
@@ -43,7 +45,7 @@ final class CommissionDocument
     }
 
     /**
-     * @return \App\Dto\Document[]|null
+     * @return Document[]|null
      */
     public function getDocuments(): ?array
     {
