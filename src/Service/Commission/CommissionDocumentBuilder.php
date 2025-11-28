@@ -34,7 +34,7 @@ final class CommissionDocumentBuilder
             $commissionId = $commission->getId();
             $commissionLibelle = $commission->getLibelle();
             $commissionType = $commission->getType();
-            $commissionTypeLibelle = null !== $commission->getType() ? $commissionType->getLibelle() : null;
+            $commissionTypeLibelle = null !== $commissionType ? $commissionType->getLibelle() : null;
 
             if (in_array(null, [$commissionId, $commissionLibelle, $commissionType, $commissionTypeLibelle], true)) {
                 $this->logger->error("La commission n'a pas été trouvée.", [
@@ -49,10 +49,10 @@ final class CommissionDocumentBuilder
 
             try {
                 $documents[] = new CommissionDocument(
-                    $commission->getId(),
-                    $commission->getLibelle(),
-                    $commission->getType()->getLibelle(),
-                    $this->documents->findForCommission($commission->getId())
+                    $commissionId,
+                    $commissionLibelle,
+                    $commissionTypeLibelle,
+                    $this->documents->findForCommission($commissionId)
                 );
             } catch (DirectoryNotFoundException $directoryNotFoundException) {
                 $this->logger->error($directoryNotFoundException->getMessage(), [
@@ -63,9 +63,9 @@ final class CommissionDocumentBuilder
                 ]);
 
                 $documents[] = new CommissionDocument(
-                    $commission->getId(),
-                    $commission->getLibelle(),
-                    $commission->getType()->getLibelle(),
+                    $commissionId,
+                    $commissionLibelle,
+                    $commissionTypeLibelle,
                     null
                 );
             }
