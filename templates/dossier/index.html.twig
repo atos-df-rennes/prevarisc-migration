@@ -1,11 +1,11 @@
 {% extends 'layouts/dossier.html.twig' %}
 
-{% block title %}{{ parent() }} / Informations du dossier{% endblock %}
+{% block title %}{{ parent() }} / Informations générales{% endblock %}
 
 {% block body %}
 <div id='dossier'>
     <div class='pull-right'>
-        <a class='btn btn-default' href="/dossier/edit/id/{{ dossier.id }}">Modifier la fiche</a>
+        <a class='btn btn-default' href="/dossier/edit/id/{{ dossier.id }}">Modifier le dossier</a>
     </div>
 
     <h3>Fiche d'informations générales</h3>
@@ -38,10 +38,10 @@
                     <dd><p>{{ dossier.dateVisite|date('d/m/Y') }}</p></dd>
                 {% endif %}
 
-{#                {% if dossier.commission %}#}
-{#                    <dt>Commission concernée</dt>#}
-{#                    <dd><p>{{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }})</p></dd>#}
-{#                {% endif %}#}
+{# {% if dossier.commission %} #}
+{# <dt>Commission concernée</dt> #}
+{# <dd><p>{{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }})</p></dd> #}
+{# {% endif %} #}
 
                 {% if dossier.avisCommission %}
                     <dt>Avis de la commission</dt>
