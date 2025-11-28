@@ -11,14 +11,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services = $containerConfigurator->services();
 
-    $envDatastore = getenv('PREVARISC_DATASTORE_ADAPTER');
-    if ($envDatastore === 'Plugin_HashedFileDataStore') {
-        $serviceDatastore = 'App\Service\DataStore\HashedFileDataStore';
-    }
-    else {
-        $serviceDatastore = 'App\Service\DataStore\SimpleFileDataStore';
-    }
-
     $services->defaults()
         ->autowire()
         ->autoconfigure()
@@ -27,7 +19,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$realDataPath', '%app.files_path%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
-        ->bind(\App\Service\DataStore\DataStore::class, ref($serviceDatastore))
         ;
 
 

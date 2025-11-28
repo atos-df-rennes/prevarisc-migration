@@ -65,7 +65,6 @@ class SimpleFileDataStore implements DataStore
 
         return implode(DIRECTORY_SEPARATOR, [
             $directory,
-            //            !empty($piece_jointe) ? $piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'] : '',
             $piece_jointe->getId().$piece_jointe->getExtension(),
         ]);
     }
@@ -75,7 +74,6 @@ class SimpleFileDataStore implements DataStore
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;
 
         return implode(DIRECTORY_SEPARATOR, [
-            //            DATA_PATH, 'uploads', $type, $piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'],
             $this->dataPath, 'uploads', $type, $piece_jointe->getId().$piece_jointe->getExtension(),
         ]);
     }
