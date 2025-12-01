@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class LateralNavigationSubscriber implements EventSubscriberInterface
+class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
 {
     /** @var EtablissementRepository */
     private $etablissementRepository;

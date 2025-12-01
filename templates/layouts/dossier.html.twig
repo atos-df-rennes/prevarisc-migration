@@ -2,7 +2,13 @@
 
 {% block title %}Dossier{% endblock %}
 
-{# @todo: Compléter #}
+{#
+    Les variables sont settées par un EventSubscriber.
+    @see src/EventSubscriber/LateralNavigationSubscriber.php
+#}
+{% set libelle_verifications_techniques = app.request.attributes.get('libelle_verifications_techniques')|default('Vérifications techniques') %}
+{% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
+
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
         <li {% if app.request.get('_route') is same as('dossier_index') %}class="active"{% endif %}>
@@ -51,8 +57,7 @@
             <li>
                 <a href="{{ '/dossier/verifications-techniques/id/' ~ dossier.id }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-                    {# @todo: Mettre le nom custom #}
-                    Vérifications techniques
+                    {{ libelle_verifications_techniques }}
                 </a>
             </li>
         {% endif %}
@@ -61,8 +66,7 @@
             <li>
                 <a href="{{ '/dossier/effectifs-degagements-dossier/id/' ~ dossier.id }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-                    {# @todo: Mettre le nom custom #}
-                    Effectifs et dégagements
+                    {{ libelle_effectifs_degagements }}
                 </a>
             </li>
         {% endif %}
@@ -121,7 +125,19 @@
 
         <li class="nav-header">Actions</li>
 
-        {# @todo: Ajouter le verrouillage/déverrouillage #}
+        {% if is_granted('verrouillage_dossier', dossier) %}
+            <li>
+                {% if not dossier.verrou or dossier.verrou is null %}
+                    <a class="sep" href="{{ path('dossier_verrouiller', {id: dossier.id}) }}">
+                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Verrouiller
+                    </a>
+                {% else %}
+                    <a class="sep" href="{{ path('dossier_deverrouiller', {id: dossier.id}) }}">
+                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Déverrouiller
+                    </a>
+                {% endif %}
+            </li>
+        {% endif %}
 
         <li>
             <a href="{{ '/dossier/rapport/id/' ~ dossier.id }}">
@@ -131,9 +147,29 @@
         </li>
 
         {# @todo: Ajouter l'ordre du jour #}
+{#        {% if#}
+{#            not dossier.verrou#}
+{#            and app.request.get('_route') is same as('dossier_index')#}
+{#        %}#}
+{#            <li>#}
+{#                <a class="sep" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ dossier.id }}">#}
+{#                    <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Afficher ordre du jour#}
+{#                </a>#}
+{#            </li>#}
+{#        {% endif %}#}
+{#        <?php if (!$verrou && ($this->idDateCommissionAffect != null)) : ?>#}
+{#        <li>#}
+{#            <a class="sep" href='/calendrier-des-commissions/gestionodj/dateCommId/<?= $this->idDateCommissionAffect; ?>'>#}
+{#                <i class='icon-calendar icon-black'></i> Afficher ordre du jour#}
+{#            </a>#}
+{#        </li>#}
+{#        <?php endif ?>#}
 
-        {# @todo: Ajouter le rétablissement de dossier + verrou #}
-        {% if is_granted('delete_dossier') and app.request.get('_route') is same as('dossier_index') %}
+        {% if
+            not dossier.verrou
+            and is_granted('delete_dossier')
+            and app.request.get('_route') is same as('dossier_index')
+        %}
             <li>
                 {% if dossier.dateSuppression is not null %}
                     <a id="retablissementDossier" href="{{ '/dossier/retablir-dossier/idDossier/' ~ dossier.id }}">
@@ -176,7 +212,7 @@
                 </p>
             {% endif %}
 
-            {% if dossier.etablissements|length > 0 %}
+            {% if dossier.etablissements %}
                 {{ include('layouts/dossier/_informations_etablissements.html.twig') }}
             {% endif %}
         </h2>

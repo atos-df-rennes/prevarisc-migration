@@ -20,6 +20,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * Affichage et édition des informations générales d'un dossier.
      *
@@ -176,11 +184,12 @@ class DossierController extends AbstractController
         ]);
     }
 
-    // @todo: Ajouter la vérification du privilège verrouillage de dossier
     /**
      * @Route("/dossier/{id}/verrouiller", name="dossier_verrouiller")
+     *
+     * @IsGranted("verrouillage_dossier", subject="dossier")
      */
-    public function verrouiller(Request $request, Dossier $dossier, EntityManagerInterface $entityManager): Response
+    public function verrouiller(Request $request, Dossier $dossier): Response
     {
         $referer = $request->headers->get('referer');
 
@@ -193,15 +202,17 @@ class DossierController extends AbstractController
         $user = $this->getUser();
         $dossier->setUtilisateurVerrou($user->getId());
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->redirect($referer);
     }
 
     /**
      * @Route("/dossier/{id}/deverrouiller", name="dossier_deverrouiller")
+     *
+     * @IsGranted("verrouillage_dossier", subject="dossier")
      */
-    public function deverrouiller(Request $request, Dossier $dossier, EntityManagerInterface $entityManager): Response
+    public function deverrouiller(Request $request, Dossier $dossier): Response
     {
         $referer = $request->headers->get('referer');
 
@@ -212,7 +223,7 @@ class DossierController extends AbstractController
         $dossier->setVerrou(false);
         $dossier->setUtilisateurVerrou(null);
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->redirect($referer);
     }

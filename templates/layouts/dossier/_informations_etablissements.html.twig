@@ -54,7 +54,7 @@
                         <span class="avis">Avis indisponible</span>
                     {% endif %}
 
-                    {% if etablissement.latestInformations.preventionnistes is not empty %}
+                    {% if etablissement.latestInformations.preventionnistes %}
                         <small>
                             ({{ etablissement.latestInformations.preventionnistes|map(p => "#{p.informations.nom} #{p.informations.prenom}")|join(', ') }})
                         </small>
