@@ -55,7 +55,7 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
             }
 
             $dossierAffectation = $this->dossierAffectationRepository->findOneBy(['dossier' => $dossier]);
-            $dateCommission = $dossierAffectation->getDateCommission();
+            $dateCommission = null !== $dossierAffectation ? $dossierAffectation->getDateCommission() : null;
             $idDateCommission = $this->dateAffectation->getIdDateCommission($dossier, $dateCommission);
 
             $event->getRequest()->attributes->set('id_date_commission', $idDateCommission);
