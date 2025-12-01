@@ -15,7 +15,7 @@ class ChampNamerTest extends TestCase
         $this->assertSame($expected, ChampNamer::getFullFusionName($baseObject, $options));
     }
 
-    public function fusionNameProvider(): array
+    public static function fusionNameProvider(): array
     {
         return [
             'simple field with rubrique' => ['descriptifEtablissement', ['Ma Rubrique', 'Mon Champ'], 'descriptifEtablissement-ma_rubrique-mon_champ'],
@@ -32,7 +32,7 @@ class ChampNamerTest extends TestCase
         $this->assertSame($expected, ChampNamer::getLoopName($initialName));
     }
 
-    public function loopNameProvider(): array
+    public static function loopNameProvider(): array
     {
         return [
             'simple field' => ['descriptif Rubrique Un champ', 'DescriptifRubriqueUnChamp'],
