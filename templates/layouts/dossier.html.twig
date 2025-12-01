@@ -8,6 +8,7 @@
 #}
 {% set libelle_verifications_techniques = app.request.attributes.get('libelle_verifications_techniques')|default('Vérifications techniques') %}
 {% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
+{% set id_date_commission = app.request.attributes.get('id_date_commission')|default(null) %}
 
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
@@ -147,23 +148,17 @@
         </li>
 
         {# @todo: Ajouter l'ordre du jour #}
-{#        {% if#}
-{#            not dossier.verrou#}
-{#            and app.request.get('_route') is same as('dossier_index')#}
-{#        %}#}
-{#            <li>#}
-{#                <a class="sep" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ dossier.id }}">#}
-{#                    <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Afficher ordre du jour#}
-{#                </a>#}
-{#            </li>#}
-{#        {% endif %}#}
-{#        <?php if (!$verrou && ($this->idDateCommissionAffect != null)) : ?>#}
-{#        <li>#}
-{#            <a class="sep" href='/calendrier-des-commissions/gestionodj/dateCommId/<?= $this->idDateCommissionAffect; ?>'>#}
-{#                <i class='icon-calendar icon-black'></i> Afficher ordre du jour#}
-{#            </a>#}
-{#        </li>#}
-{#        <?php endif ?>#}
+        {% if
+            not dossier.verrou
+            and id_date_commission is not null
+            and app.request.get('_route') is same as('dossier_index')
+        %}
+            <li>
+                <a class="sep" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ id_date_commission }}">
+                    <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Afficher ordre du jour
+                </a>
+            </li>
+        {% endif %}
 
         {% if
             not dossier.verrou

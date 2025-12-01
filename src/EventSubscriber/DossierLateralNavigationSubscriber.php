@@ -3,21 +3,39 @@
 namespace App\EventSubscriber;
 
 use App\Controller\DossierController;
-use App\Controller\EtablissementController;
 use App\Repository\CapsuleRubriqueRepository;
+use App\Repository\DossierAffectationRepository;
+use App\Repository\DossierRepository;
+use App\Service\DateAffectation;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class DossierLateralNavigationSubscriber implements EventSubscriberInterface
 {
+    /** @var DossierRepository */
+    private $dossierRepository;
+
+    /** @var DossierAffectationRepository */
+    private $dossierAffectationRepository;
+
     /** @var CapsuleRubriqueRepository */
     private $capsuleRubriqueRepository;
 
+    /** @var DateAffectation */
+    private $dateAffectation;
+
     public function __construct(
-        CapsuleRubriqueRepository $capsuleRubriqueRepository
+        DossierRepository $dossierRepository,
+        DossierAffectationRepository $dossierAffectationRepository,
+        CapsuleRubriqueRepository $capsuleRubriqueRepository,
+        DateAffectation $dateAffectation
     ) {
+        $this->dossierRepository = $dossierRepository;
+        $this->dossierAffectationRepository = $dossierAffectationRepository;
         $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
+        $this->dateAffectation = $dateAffectation;
     }
 
     public function onKernelController(ControllerEvent $event): void
@@ -29,6 +47,19 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
         }
 
         if ($controller instanceof DossierController) {
+            $idDossier = filter_var($event->getRequest()->attributes->get('id'), FILTER_VALIDATE_INT);
+            $dossier = $this->dossierRepository->find($idDossier);
+
+            if (null === $dossier) {
+                throw new NotFoundHttpException(\sprintf("Le dossier ayant pour identifiant %s n'existe pas.", $idDossier));
+            }
+
+            $dossierAffectation = $this->dossierAffectationRepository->findOneBy(['dossier' => $dossier]);
+            $dateCommission = $dossierAffectation->getDateCommission();
+            $idDateCommission = $this->dateAffectation->getIdDateCommission($dossier, $dateCommission);
+
+            $event->getRequest()->attributes->set('id_date_commission', $idDateCommission);
+
             $capsuleVerificationsTechniques = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifVerificationsTechniques']);
             $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsDossier']);
             $event->getRequest()->attributes->set('libelle_verifications_techniques', null !== $capsuleVerificationsTechniques ? $capsuleVerificationsTechniques->getNom() : 'Vérifications techniques');
