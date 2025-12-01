@@ -5,13 +5,13 @@ namespace App\Controller;
 use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
+use App\Service\Commission\CommissionDocumentBuilder;
 use App\Service\Documents;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -35,43 +35,13 @@ class DocumentsController extends AbstractController
     /**
      * @Route("/admin/documents", name="admin_documents")
      */
-    public function index(Documents $documents, CommissionRepository $commissionRepository): Response
+    public function index(Documents $documents, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder): Response
     {
         $commissions = $commissionRepository->findAll();
-        $commissionsAsArray = [];
-
-        // @TODO: Faire ça dans un service
-        foreach ($commissions as $commission) {
-            if (
-                in_array(null, [$commission->getId(), $commission->getLibelle()], true)
-                || null === $commission->getType()
-                || null === $commission->getType()->getLibelle()
-            ) {
-                $this->logger->error("La commission n'a pas été trouvée.");
-
-                continue;
-            }
-
-            try {
-                $commissionsAsArray[$commission->getId()] = [
-                    'nom' => $commission->getLibelle(),
-                    'type' => $commission->getType()->getLibelle(),
-                    'documents' => $documents->findForCommission($commission->getId())
-                ];
-            } catch (DirectoryNotFoundException $directoryNotFoundException) {
-                $this->logger->error($directoryNotFoundException->getMessage());
-
-                $commissionsAsArray[$commission->getId()] = [
-                    'nom' => $commission->getLibelle(),
-                    'type' => $commission->getType()->getLibelle(),
-                    'documents' => null,
-                ];
-            }
-        }
 
         return $this->render('documents/index.html.twig', [
             'visibles_apres_verrouillage' => $documents->findForCommission(0),
-            'commissions' => $commissionsAsArray,
+            'commissions' => $commissionDocumentBuilder->buildWithCommissions($commissions),
         ]);
     }
 
