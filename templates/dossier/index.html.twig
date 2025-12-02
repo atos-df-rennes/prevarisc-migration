@@ -10,91 +10,123 @@
 
     <h3>Fiche d'informations générales</h3>
 
-    <div class='row'>
-        <div class='col-md-12'>
-            <dl class='dl-horizontal'>
-                <dt>Type</dt>
-                <dd><p>{{ dossier.type.libelle }}</p></dd>
+    <ul class='list-unstyled'>
+        <li class='row' style='margin-bottom:20px;'>
+            <div class='left libelle col-md-3'>Type</div>
+            <div class='right value col-md-9'>
+                {{ dossier.type.libelle }}
+            </div>
+        </li>
 
-                {% if dossier.nature is not null %}
-                    <dt>Nature</dt>
-                    <dd>
-                        <ul class='unstyled'>
-                            <li><strong>{{ dossier.nature.libelle }}</strong></li>
-                        </ul>
-                    </dd>
-                {% endif %}
+        {% if dossier.nature is not null %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Nature</div>
+                <div class='right value col-md-9'>
+                    <ul class='list-unstyled'>
+                        <li><strong>{{ dossier.nature.libelle }}</strong></li>
+                    </ul>
+                </div>
+            </li>
+        {% endif %}
 
-                <dt>Date d'insertion</dt>
-                <dd><p>{{ dossier.dateInsert|date('d/m/Y') }}</p></dd>
+        <li class='row' style='margin-bottom:20px;'>
+            <div class='left libelle col-md-3'>Date d'insertion</div>
+            <div class='right value col-md-9'>
+                {{ dossier.dateInsert|date('d/m/Y') }}
+            </div>
+        </li>
 
-                {% if dossier.objet %}
-                    <dt>Objet</dt>
-                    <dd><p>{{ dossier.objet }}</p></dd>
-                {% endif %}
+        {% if dossier.objet %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Objet</div>
+                <div class='right value col-md-9'>
+                    {{ dossier.objet|nl2br }}
+                </div>
+            </li>
+        {% endif %}
 
-                {% if dossier.dateVisite %}
-                    <dt>Date de visite</dt>
-                    <dd><p>{{ dossier.dateVisite|date('d/m/Y') }}</p></dd>
-                {% endif %}
+        {% if dossier.dateVisite %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Date de visite</div>
+                <div class='right value col-md-9'>
+                    {{ dossier.dateVisite|date('d/m/Y') }}
+                </div>
+            </li>
+        {% endif %}
 
 {# {% if dossier.commission %} #}
-{# <dt>Commission concernée</dt> #}
-{# <dd><p>{{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }})</p></dd> #}
+{#     <li class='row' style='margin-bottom:20px;'> #}
+{#         <div class='left libelle col-md-3'>Commission concernée</div> #}
+{#         <div class='right value col-md-9'> #}
+{#             {{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }}) #}
+{#         </div> #}
+{#     </li> #}
 {# {% endif %} #}
 
-                {% if dossier.avisCommission %}
-                    <dt>Avis de la commission</dt>
-                    <dd>
-                        <span class='avis {{ dossier.avisCommission.libelle[:1]|lower }}'>
-                            {{ dossier.avisCommission.libelle }}
-                        </span>
-                    </dd>
-                {% endif %}
+        {% if dossier.avisCommission %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Avis de la commission</div>
+                <div class='right value col-md-9'>
+                    <span class='avis {{ dossier.avisCommission.libelle[:1]|lower }}'>
+                        {{ dossier.avisCommission.libelle }}
+                    </span>
+                </div>
+            </li>
+        {% endif %}
 
-                {% if dossier.avisDiffere %}
-                    <dt>Avis différé</dt>
-                    <dd><p>Oui</p></dd>
-                {% endif %}
+        {% if dossier.avisDiffere %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Diffère l'avis</div>
+                <div class='right value col-md-9'>
+                    <input type='checkbox' checked disabled>
+                </div>
+            </li>
+        {% endif %}
 
-                {% if dossier.facteurDangerosite is not null %}
-                    <dt>Facteur de criticité</dt>
-                    <dd><p>{{ dossier.facteurDangerosite }}</p></dd>
-                {% endif %}
+        {% if dossier.facteurDangerosite is not null %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Facteur de criticité</div>
+                <div class='right value col-md-9'>
+                    <span class='factDange'>{{ dossier.facteurDangerosite }}</span>
+                </div>
+            </li>
+        {% endif %}
 
-                {% if dossier.preventionnistes is not empty %}
-                    <dt>Préventionniste(s)</dt>
-                    <dd>
-                        {% for preventionniste in dossier.preventionnistes %}
-                            <div class='media' style='display: inline-block; margin-right: 10px;'>
-                                <span class='media-object pull-left'>
-                                    <img src='/images/avatar.png' alt='Avatar' style='width: 32px; height: 32px;' />
-                                </span>
-                                <div class='media-body'>
-                                    {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
-                                </div>
+        {% if dossier.preventionnistes is not empty %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
+                <div class='right value col-md-9'>
+                    {% for preventionniste in dossier.preventionnistes %}
+                        <div class='media' style='display: inline-block; margin-right: 10px;'>
+                            <span class='media-object pull-left'>
+                                <img src='/images/avatar.png' alt='Avatar' style='width: 32px; height: 32px;' />
+                            </span>
+                            <div class='media-body'>
+                                {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
                             </div>
-                        {% endfor %}
-                    </dd>
-                {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </li>
+        {% endif %}
 
-                {% if etablissements is not empty %}
-                    <dt>Établissement(s) lié(s)</dt>
-                    <dd>
-                        <ul class='unstyled'>
-                            {% for etablissement in etablissements %}
-                                <li>
-                                    <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
-                                        {{ etablissement.informations|last.libelle }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </dd>
-                {% endif %}
-            </dl>
-        </div>
-    </div>
+        {% if etablissements is not empty %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Établissement(s) lié(s)</div>
+                <div class='right value col-md-9'>
+                    <ul class='list-unstyled'>
+                        {% for etablissement in etablissements %}
+                            <li>
+                                <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
+                                    {{ etablissement.informations|last.libelle }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+        {% endif %}
+    </ul>
 </div>
 
 <!-- Boite de confirmation de la suppression (cachée par défaut) -->
