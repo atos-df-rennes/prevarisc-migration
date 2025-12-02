@@ -7,6 +7,7 @@ use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Service\DateAffectation;
+use App\Service\Dossier;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -26,16 +27,21 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
     /** @var DateAffectation */
     private $dateAffectation;
 
+    /** @var Dossier */
+    private $serviceDossier;
+
     public function __construct(
         DossierRepository $dossierRepository,
         DossierAffectationRepository $dossierAffectationRepository,
         CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        DateAffectation $dateAffectation
+        DateAffectation $dateAffectation,
+        Dossier $serviceDossier
     ) {
         $this->dossierRepository = $dossierRepository;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
         $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
         $this->dateAffectation = $dateAffectation;
+        $this->serviceDossier = $serviceDossier;
     }
 
     public function onKernelController(ControllerEvent $event): void
@@ -59,6 +65,8 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
             $idDateCommission = $this->dateAffectation->getIdDateCommission($dossier, $dateCommission);
 
             $event->getRequest()->attributes->set('id_date_commission', $idDateCommission);
+
+            $event->getRequest()->attributes->set('nombre_nouvelles_pieces_jointes', $this->serviceDossier->nombreNouvellesPiecesJointes($dossier));
 
             $capsuleVerificationsTechniques = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifVerificationsTechniques']);
             $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsDossier']);

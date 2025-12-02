@@ -163,4 +163,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return null === $result ? null : $result->getDateInsert();
     }
+
+    public function findNombreNouvellesPieces(Dossier $dossier, ?\DateTime $dateDerniereVisitePage): int
+    {
+        $query = $this->createQueryBuilder('d')
+            ->select('COUNT(p)')
+            ->join('d.piecesJointes', 'dpj')
+            ->join('dpj.pieceJointe', 'p')
+            ->where('d.id = :idDossier')
+            ->andWhere('p.dateNotification >= :dateDerniereVisitePage')
+            ->setParameter('idDossier', $dossier->getId())
+            ->setParameter('dateDerniereVisitePage', $dateDerniereVisitePage)
+        ;
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

@@ -9,6 +9,7 @@
 {% set libelle_verifications_techniques = app.request.attributes.get('libelle_verifications_techniques')|default('Vérifications techniques') %}
 {% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
 {% set id_date_commission = app.request.attributes.get('id_date_commission')|default(null) %}
+{% set nombre_nouvelles_pieces_jointes = app.request.attributes.get('nombre_nouvelles_pieces_jointes')|default(0) %}
 
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
@@ -121,6 +122,12 @@
             <a href="{{ '/dossier/piece-jointe/id/' ~ dossier.id }}">
                 <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
                 Pièces jointes
+
+                {% if nombre_nouvelles_pieces_jointes > 0 %}
+                    <div class="label label-danger pull-right">
+                        {{ nombre_nouvelles_pieces_jointes }}
+                    </div>
+                {% endif %}
             </a>
         </li>
 
@@ -147,7 +154,6 @@
             </a>
         </li>
 
-        {# @todo: Ajouter l'ordre du jour #}
         {% if
             not dossier.verrou
             and id_date_commission is not null
