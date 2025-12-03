@@ -563,6 +563,7 @@ class Dossier
      */
     private $dateSignature;
 
+    // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -1448,7 +1449,7 @@ class Dossier
         return $this;
     }
 
-    public function getNePeutSePrononcer(): ?bool
+    public function hasNePeutSePrononcer(): ?bool
     {
         return $this->nePeutSePrononcer;
     }
