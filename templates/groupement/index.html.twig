@@ -35,35 +35,33 @@
     </div>
 </div>
 
-<br />
-
-<!-- affichage des onglets et de leur contenu -->
-<form id='form' method='post'>
-    <input type='hidden' id='id_gpt' name='id_gpt' value='0' />
-    <div id='content'><p><strong>Pas de groupement disponible ...</strong></p></div>
+{# Zone d'affichage des onglets et de leur contenu #}
+<form id="form" method="post">
+    <input type="hidden" id="id_gpt" name="id_gpt" value="0" />
+    <div id="content"><p><strong>Pas de groupement disponible ...</strong></p></div>
 </form>
 
-<div id='confirm' class='ui-helper-hidden'>
+<div id="confirm" class="ui-helper-hidden">
     <p>Confirmez vous la suppression du groupement ? (cette action est irreversible)</p>
 </div>
 
-<div id='add' class='ui-helper-hidden'>
-    <form id='add-groupement'>
+<div id="add" class="ui-helper-hidden">
+    <form id="add-groupement">
         <dl>
             <!-- Libellé du groupement -->
             <dt>Libellé du groupement</dt>
-            <dd><input type='text' id='nom_groupement' name='nom_groupement' size=30 /></dd>
+            <dd><input type="text" id="nom_groupement" name="nom_groupement" size=30 /></dd>
 
             <!-- Type du groupement-->
             <dt>Type</dt>
             <dd>
-                <select id='type_groupement' name='type_groupement'>
+                <select id="type_groupement" name="type_groupement">
                 {% for type in admin_groupement_types %}
-                    <option id='{{ type.id }}' value='{{ type.id }}'>{{ type.libelle }}</option>
+                    <option id="{{ type.id }}" value="{{ type.id }}">{{ type.libelle }}</option>
                 {% endfor %}
                 </select>
             </dd>
-            <input type='hidden' name='id_gpt' value='0' />
+            <input type="hidden" name="id_gpt" value="0" />
         </dl>
     </form>
 </div>
@@ -229,9 +227,9 @@
 
 {% else %}
 
-<div class='grid_16'>
+<div class="grid_16">
     <h2>
-        <i class='sprite sprite-application_view_columns'></i>
+        <i class="sprite sprite-application_view_columns"></i>
         Groupements de communes
     </h2>
     <p><strong>Il n'y a pas de communes dans la base de données.</strong></p>
