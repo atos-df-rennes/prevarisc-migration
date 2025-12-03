@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @Route(requirements={"id"="\d+"})
+ *
  * @IsGranted("admin")
  */
 class GroupementController extends AbstractController
@@ -31,7 +33,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/groupement/", name="groupement_index")
+     * @Route("/admin/groupement/", name="admin_groupement")
      */
     public function index(GroupementTypeRepository $groupementTypeRepository, CommuneRepository $communeRepository): Response
     {
@@ -40,13 +42,13 @@ class GroupementController extends AbstractController
 
         return $this->render('groupement/index.html.twig', [
             'title' => 'Groupements de communes',
-            'groupement_types' => $groupementTypes,
+            'admin_groupement_types' => $groupementTypes,
             'communes' => $communes,
         ]);
     }
 
     /**
-     * @Route("/groupement/display", name="groupement_display")
+     * @Route("/admin/groupement/display", name="admin_groupement_display")
      */
     public function display(Request $request, GroupementRepository $groupementRepository, CommuneRepository $communeRepository, GroupementTypeRepository $groupementTypeRepository, UtilisateurRepository $utilisateurRepository): Response
     {
@@ -81,7 +83,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/groupement/view", name="groupement_view")
+     * @Route("/admin/groupement/view", name="admin_groupement_view")
      */
     public function view(Request $request, GroupementRepository $groupementRepository): Response
     {
@@ -101,7 +103,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/groupement/add", name="groupement_add", methods={"POST"})
+     * @Route("/admin/groupement/add", name="admin_groupement_add", methods={"POST"})
      */
     public function add(Request $request, CommuneRepository $communeRepository, UtilisateurRepository $utilisateurRepository): JsonResponse
     {
@@ -192,7 +194,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/groupement/delete", name="groupement_delete")
+     * @Route("/admin/groupement/delete", name="admin_groupement_delete")
      */
     public function delete(Request $request, GroupementRepository $groupementRepository): Response
     {
@@ -213,11 +215,11 @@ class GroupementController extends AbstractController
             $this->addFlash('error', $exception->getMessage());
         }
 
-        return $this->redirectToRoute('groupement_index');
+        return $this->redirectToRoute('admin_groupement_index');
     }
 
     /**
-     * @Route("/groupement/add-type", name="groupement_add_type", methods={"POST"})
+     * @Route("/admin/groupement/add-type", name="admin_groupement_add_type", methods={"POST"})
      */
     public function addType(Request $request): Response
     {
@@ -245,7 +247,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/groupement/preventionniste", name="groupement_preventionniste", methods={"POST"})
+     * @Route("/admin/groupement/preventionniste", name="admin_groupement_preventionniste", methods={"POST"})
      */
     public function preventionniste(Request $request): Response
     {

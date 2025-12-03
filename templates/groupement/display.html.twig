@@ -125,7 +125,7 @@
     //réaffecter un préventioiste
     $("#preventionniste").click(function() {
         $.ajax({
-            url: "{{ path('groupement_preventionniste') }}",
+            url: "{{ path('admin_groupement_preventionniste') }}",
             data: "groupement=" + $("#gpt option:selected").text(),
             type: "POST",
             beforeSend: function() {

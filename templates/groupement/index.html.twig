@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'layouts/admin.html.twig' %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -14,7 +14,7 @@
     <!-- Selection du groupement -->
     <select id="gpt" class="bigger" style="width: 400px">
         <option value="0">Nouveau groupement</option>
-        {% for type in groupement_types %}
+        {% for type in admin_groupement_types %}
             <optgroup id="gpt_{{ type.id }}" label="{{ type.libelle }}">
                 {% for groupement in type.groupements %}
                     <option value="{{ groupement.id }}">{{ groupement.libelle }}</option>
@@ -53,7 +53,7 @@
             <dt>Type</dt>
             <dd>
                 <select id='type_groupement' name='type_groupement'>
-                {% for type in groupement_types %}
+                {% for type in admin_groupement_types %}
                     <option id='{{ type.id }}' value='{{ type.id }}'>{{ type.libelle }}</option>
                 {% endfor %}
                 </select>
@@ -80,7 +80,7 @@
                 class: 'btn btn-danger',
                 click: function() {
                     $.ajax({
-                        url: "{{ path('groupement_delete') }}?id=" + $("#gpt option:selected").val(),
+                        url: "{{ path('admin_groupement_delete') }}?id=" + $("#gpt option:selected").val(),
                         beforeSend: function() {
                             $("#remove").button("disable");
                         },
@@ -122,7 +122,7 @@
                 class: 'btn btn-success',
                 click: function() {
                     $.ajax({
-                        url: "{{ path('groupement_add') }}",
+                        url: "{{ path('admin_groupement_add') }}",
                         type: "post",
                         data: $("#add-groupement").serialize(),
                         success: function(result) {
@@ -159,7 +159,7 @@
 
         // On envoit le tout en ajax
         $.ajax({
-            url: "{{ path('groupement_add') }}",
+            url: "{{ path('admin_groupement_add') }}",
             type: "post",
             data: $("#form").serialize() + "&" + $("#formulaire_contact").serialize(),
             beforeSend: function() {
@@ -192,7 +192,7 @@
                 $("#delete").button("enable");
 
             $.ajax({
-                url: "{{ path('groupement_display') }}?id=" + $("#gpt").val(),
+                url: "{{ path('admin_groupement_display') }}?id=" + $("#gpt").val(),
                 beforeSend: function() {
                     $("#form > #content").css("opacity", 0.5);
                 },
