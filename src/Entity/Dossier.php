@@ -352,11 +352,18 @@ class Dossier
     private $dateReponse;
 
     /**
-     * @var bool
+     * @var ?bool
      *
-     * @ORM\Column(name="HORSDELAI_DOSSIER", type="boolean")
+     * @ORM\Column(name="HORSDELAI_DOSSIER", type="boolean", nullable=true)
      */
     private $horsDelai;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="ABSQUORUM_DOSSIER", type="boolean", nullable=true)
+     */
+    private $absenceDeQuorum;
 
     public function __construct()
     {
@@ -1079,9 +1086,21 @@ class Dossier
         return $this->horsDelai;
     }
 
-    public function setHorsDelai(bool $horsDelai): self
+    public function setHorsDelai(?bool $horsDelai): self
     {
         $this->horsDelai = $horsDelai;
+
+        return $this;
+    }
+
+    public function getAbsenceDeQuorum(): ?bool
+    {
+        return $this->absenceDeQuorum;
+    }
+
+    public function setAbsenceDeQuorum(?bool $absenceDeQuorum): self
+    {
+        $this->absenceDeQuorum = $absenceDeQuorum;
 
         return $this;
     }

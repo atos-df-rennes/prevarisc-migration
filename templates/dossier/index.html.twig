@@ -150,6 +150,13 @@
                 </li>
             {% endif %}
 
+            {% if dossier.absenceDeQuorum %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Absence de quorum</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
             {% if dossier.avis %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>
