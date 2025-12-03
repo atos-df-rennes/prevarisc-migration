@@ -365,6 +365,13 @@ class Dossier
      */
     private $absenceDeQuorum;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DELAIPRESC_DOSSIER", type="date", nullable=true)
+     */
+    private $dateLimitePrescription;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -1101,6 +1108,18 @@ class Dossier
     public function setAbsenceDeQuorum(?bool $absenceDeQuorum): self
     {
         $this->absenceDeQuorum = $absenceDeQuorum;
+
+        return $this;
+    }
+
+    public function getDateLimitePrescription(): ?\DateTimeInterface
+    {
+        return $this->dateLimitePrescription;
+    }
+
+    public function setDateLimitePrescription(?\DateTimeInterface $dateLimitePrescription): self
+    {
+        $this->dateLimitePrescription = $dateLimitePrescription;
 
         return $this;
     }

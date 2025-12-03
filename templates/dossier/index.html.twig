@@ -172,6 +172,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.dateLimitePrescription %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date avant laquelle les prescriptions doivent être levées</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateLimitePrescription|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.avisCommission %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Avis de la commission</div>
