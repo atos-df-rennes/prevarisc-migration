@@ -16,7 +16,7 @@
 <div id="save_div" class="row">
     {# Selection du groupement #}
     <div class="form-group col-md-5">
-        <select id="gpt" class="form-control">
+        <select id="gpt" aria-label="Choisir le groupement de communes">
             {% for type in admin_groupement_types %}
                 <optgroup id="gpt_{{ type.id }}" label="{{ type.libelle }}">
                     {% for groupement in type.groupements %}
@@ -78,6 +78,10 @@
 
         setTimeout(() => notifElement.classList.add('hide'), 5000)
     }
+
+    new TomSelect("#gpt",{
+        create: true,
+    });
 
     $("#confirm").dialog({
         title: "Suppression d'un groupement",
