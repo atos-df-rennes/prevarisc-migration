@@ -86,14 +86,14 @@
                 </li>
             {% endif %}
 
-    {# {% if dossier.commission %} #}
-    {# <li class='row'> #}
-    {# <div class='left libelle col-md-3'>Commission concernée</div> #}
-    {# <div class='right value col-md-9'> #}
-    {# {{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }}) #}
-    {# </div> #}
-    {# </li> #}
-    {# {% endif %} #}
+            {% if dossier.commission %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Commission concernée</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }})
+                    </div>
+                </li>
+            {% endif %}
 
             {% if dossier.avisCommission %}
                 <li class='row'>

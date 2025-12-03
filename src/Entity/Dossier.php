@@ -293,6 +293,15 @@ class Dossier
      */
     private $dateReception;
 
+    /**
+     * @var ?\App\Entity\Commission
+     *
+     * @ORM\ManyToOne(targetEntity=Commission::class)
+     *
+     * @ORM\JoinColumn(name="COMMISSION_DOSSIER", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
+     */
+    private $commission;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -908,6 +917,18 @@ class Dossier
     public function setDateReception(?\DateTimeInterface $dateReception): self
     {
         $this->dateReception = $dateReception;
+
+        return $this;
+    }
+
+    public function getCommission(): ?Commission
+    {
+        return $this->commission;
+    }
+
+    public function setCommission(?Commission $commission): self
+    {
+        $this->commission = $commission;
 
         return $this;
     }
