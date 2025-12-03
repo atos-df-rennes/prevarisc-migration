@@ -279,6 +279,13 @@ class Dossier
      */
     private $consultationPlatau;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DEMANDEUR_DOSSIER", type="text", nullable=true)
+     */
+    private $demandeur;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -870,6 +877,18 @@ class Dossier
     public function setConsultationPlatau(?PlatauConsultation $consultationPlatau): self
     {
         $this->consultationPlatau = $consultationPlatau;
+
+        return $this;
+    }
+
+    public function getDemandeur(): ?string
+    {
+        return $this->demandeur;
+    }
+
+    public function setDemandeur(?string $demandeur): self
+    {
+        $this->demandeur = $demandeur;
 
         return $this;
     }

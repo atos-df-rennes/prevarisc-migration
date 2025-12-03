@@ -3,159 +3,173 @@
 {% block title %}{{ parent() }} / Informations générales{% endblock %}
 
 {% block body %}
-<div id='dossier'>
-    <div class='pull-right'>
-        <a class='btn btn-default' href="/dossier/edit/id/{{ dossier.id }}">Modifier le dossier</a>
+    <div id='dossierInfos'>
+        {% if not dossier.verrou %}
+            <div class='pull-right'>
+                <a class='btn btn-default' href="{{ path('dossier_edit', {id: dossier.id}) }}">Modifier le dossier</a>
+            </div>
+        {% endif %}
+
+        <h3>Informations générales</h3>
+
+        <section>
+            <h4>Informations sur Plat'AU</h4>
+        </section>
+
+        <section>
+            <h4>Type et nature du dossier</h4>
+
+            <ul class='list-unstyled'>
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Type</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.type.libelle }}
+                    </div>
+                </li>
+
+                {% if dossier.nature is not null %}
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>Nature</div>
+                        <div class='right value col-md-9'>
+                            <strong>{{ dossier.nature.libelle }}</strong>
+                        </div>
+                    </li>
+                {% endif %}
+            </ul>
+        </section>
+
+        <section>
+            <h4>Informations sur le dossier</h4>
+        </section>
+
+        <ul class='list-unstyled'>
+            <li class='row'>
+                <div class='left libelle col-md-3'>Date de création du dossier</div>
+                <div class='right value col-md-9'>
+                    {{ dossier.dateInsert|date('d/m/Y') }} par : {{ dossier.createur.informations.nom }} {{ dossier.createur.informations.prenom }}
+                </div>
+            </li>
+
+            {% if dossier.objet %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Objet</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.objet|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.demandeur %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Demandeur</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.demandeur }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateVisite %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Date de visite</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.dateVisite|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
+    {# {% if dossier.commission %} #}
+    {# <li class='row'> #}
+    {# <div class='left libelle col-md-3'>Commission concernée</div> #}
+    {# <div class='right value col-md-9'> #}
+    {# {{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }}) #}
+    {# </div> #}
+    {# </li> #}
+    {# {% endif %} #}
+
+            {% if dossier.avisCommission %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Avis de la commission</div>
+                    <div class='right value col-md-9'>
+                        <span class='avis {{ dossier.avisCommission.libelle[:1]|lower }}'>
+                            {{ dossier.avisCommission.libelle }}
+                        </span>
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.avisDiffere %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Diffère l'avis</div>
+                    <div class='right value col-md-9'>
+                        <input type='checkbox' checked disabled>
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if
+                dossier.facteurDangerosite is not null
+                and dossier.facteurDangerosite > 0
+            %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Facteur de criticité</div>
+                    <div class='right value col-md-9'>
+                        <span class='factDange'>{{ dossier.facteurDangerosite }}</span>
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.preventionnistes is not empty %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
+                    <div class='right value col-md-9'>
+                        {% for preventionniste in dossier.preventionnistes %}
+                            <div class='media' style='display: inline-block; margin-right: 10px;'>
+                                <span class='media-object pull-left'>
+                                    <img src='/images/avatar.png' alt='Avatar' style='width: 32px; height: 32px;' />
+                                </span>
+                                <div class='media-body'>
+                                    {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
     </div>
 
-    <h3>Fiche d'informations générales</h3>
-
-    <ul class='list-unstyled'>
-        <li class='row' style='margin-bottom:20px;'>
-            <div class='left libelle col-md-3'>Type</div>
-            <div class='right value col-md-9'>
-                {{ dossier.type.libelle }}
-            </div>
-        </li>
-
-        {% if dossier.nature is not null %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Nature</div>
-                <div class='right value col-md-9'>
-                    <ul class='list-unstyled'>
-                        <li><strong>{{ dossier.nature.libelle }}</strong></li>
-                    </ul>
+    <!-- Boite de confirmation de la suppression (cachée par défaut) -->
+    <div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h3>Confirmation de la suppression</h3>
                 </div>
-            </li>
-        {% endif %}
 
-        <li class='row' style='margin-bottom:20px;'>
-            <div class='left libelle col-md-3'>Date d'insertion</div>
-            <div class='right value col-md-9'>
-                {{ dossier.dateInsert|date('d/m/Y') }}
-            </div>
-        </li>
-
-        {% if dossier.objet %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Objet</div>
-                <div class='right value col-md-9'>
-                    {{ dossier.objet|nl2br }}
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le dossier ? </p>
                 </div>
-            </li>
-        {% endif %}
 
-        {% if dossier.dateVisite %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Date de visite</div>
-                <div class='right value col-md-9'>
-                    {{ dossier.dateVisite|date('d/m/Y') }}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <a href="/dossier/delete/id/{{ dossier.id }}" class="btn btn-success">Confirmer</a>
                 </div>
-            </li>
-        {% endif %}
-
-{# {% if dossier.commission %} #}
-{#     <li class='row' style='margin-bottom:20px;'> #}
-{#         <div class='left libelle col-md-3'>Commission concernée</div> #}
-{#         <div class='right value col-md-9'> #}
-{#             {{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }}) #}
-{#         </div> #}
-{#     </li> #}
-{# {% endif %} #}
-
-        {% if dossier.avisCommission %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Avis de la commission</div>
-                <div class='right value col-md-9'>
-                    <span class='avis {{ dossier.avisCommission.libelle[:1]|lower }}'>
-                        {{ dossier.avisCommission.libelle }}
-                    </span>
-                </div>
-            </li>
-        {% endif %}
-
-        {% if dossier.avisDiffere %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Diffère l'avis</div>
-                <div class='right value col-md-9'>
-                    <input type='checkbox' checked disabled>
-                </div>
-            </li>
-        {% endif %}
-
-        {% if dossier.facteurDangerosite is not null %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Facteur de criticité</div>
-                <div class='right value col-md-9'>
-                    <span class='factDange'>{{ dossier.facteurDangerosite }}</span>
-                </div>
-            </li>
-        {% endif %}
-
-        {% if dossier.preventionnistes is not empty %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
-                <div class='right value col-md-9'>
-                    {% for preventionniste in dossier.preventionnistes %}
-                        <div class='media' style='display: inline-block; margin-right: 10px;'>
-                            <span class='media-object pull-left'>
-                                <img src='/images/avatar.png' alt='Avatar' style='width: 32px; height: 32px;' />
-                            </span>
-                            <div class='media-body'>
-                                {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </li>
-        {% endif %}
-
-        {% if etablissements is not empty %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Établissement(s) lié(s)</div>
-                <div class='right value col-md-9'>
-                    <ul class='list-unstyled'>
-                        {% for etablissement in etablissements %}
-                            <li>
-                                <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
-                                    {{ etablissement.informations|last.libelle }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </li>
-        {% endif %}
-    </ul>
-</div>
-
-<!-- Boite de confirmation de la suppression (cachée par défaut) -->
-<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
-                <h3>Confirmation de la suppression</h3>
-            </div>
-
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer le dossier ? </p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                <a href="/dossier/delete/id/{{ dossier.id }}" class="btn btn-success">Confirmer</a>
             </div>
         </div>
     </div>
-</div>
+{% endblock %}
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        // fenetre de confirmation de la suppression
-        $("#suppressionDossier").click(function(){
-            $('#confirm-modal').modal({show:true});
-        });
-    });
-</script>
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // fenetre de confirmation de la suppression
+            $("#suppressionDossier").click(function(e) {
+                e.preventDefault()
+                $('#confirm-modal').modal({show:true})
+            })
+        })
+    </script>
 {% endblock %}

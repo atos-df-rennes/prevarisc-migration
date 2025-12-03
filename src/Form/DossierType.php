@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,14 +21,6 @@ class DossierType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('objet', TextareaType::class, [
-                'label' => 'Objet',
-                'required' => false,
-                'attr' => [
-                    'rows' => 3,
-                    'class' => 'form-control',
-                ],
-            ])
             ->add('type', EntityType::class, [
                 'label' => 'Type de dossier',
                 'class' => DossierTypeEntity::class,
@@ -47,6 +40,19 @@ class DossierType extends AbstractType
             ->add('dateInsert', DateType::class, [
                 'label' => "Date d'insertion",
                 'widget' => 'single_text',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('objet', TextareaType::class, [
+                'label' => 'Objet',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('demandeur', TextType::class, [
+                'label' => 'Demandeur',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
@@ -72,7 +78,7 @@ class DossierType extends AbstractType
             ->add('facteurDangerosite', IntegerType::class, [
                 'label' => 'Facteur de dangerosité',
                 'required' => false,
-                'attr' => ['class' => 'form-control', 'min' => 0],
+                'attr' => ['class' => 'form-control'],
             ])
         ;
     }
