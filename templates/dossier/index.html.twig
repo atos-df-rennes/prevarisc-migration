@@ -205,27 +205,6 @@
                 </li>
             {% endif %}
 
-            {% if dossier.avisDiffere %}
-                <li class='row'>
-                    <div class='left libelle col-md-3'>Diffère l'avis</div>
-                    <div class='right value col-md-9'>
-                        <input type='checkbox' checked disabled>
-                    </div>
-                </li>
-            {% endif %}
-
-            {% if
-                dossier.facteurDangerosite is not null
-                and dossier.facteurDangerosite > 0
-            %}
-                <li class='row'>
-                    <div class='left libelle col-md-3'>Facteur de criticité</div>
-                    <div class='right value col-md-9'>
-                        <span class='factDange'>{{ dossier.facteurDangerosite }}</span>
-                    </div>
-                </li>
-            {% endif %}
-
             {% if dossier.preventionnistes is not empty %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
