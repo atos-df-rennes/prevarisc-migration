@@ -194,6 +194,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.facteurDangerosite > 0 %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Facteur de criticité</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.facteurDangerosite }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.horsDelai %}
                 <li class="row">
                     <div class="left libelle col-md-3">Hors délai</div>
