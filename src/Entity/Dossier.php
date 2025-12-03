@@ -302,6 +302,13 @@ class Dossier
      */
     private $commission;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEMAIRIE_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateMairie;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -929,6 +936,18 @@ class Dossier
     public function setCommission(?Commission $commission): self
     {
         $this->commission = $commission;
+
+        return $this;
+    }
+
+    public function getDateMairie(): ?\DateTimeInterface
+    {
+        return $this->dateMairie;
+    }
+
+    public function setDateMairie(?\DateTimeInterface $dateMairie): self
+    {
+        $this->dateMairie = $dateMairie;
 
         return $this;
     }
