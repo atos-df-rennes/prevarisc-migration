@@ -34,8 +34,15 @@ class DossierController extends AbstractController
      * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
      */
     public function index(Dossier $dossier): Response {
+        // @todo: Ajouter "Ne peut se prononcer" et "Incomplet"
+        $afficherAvis = !$dossier->getAbsenceDeQuorum()
+            && !$dossier->getHorsDelai()
+            && !$dossier->getAvisDiffere()
+        ;
+
         return $this->render('dossier/index.html.twig', [
             'dossier' => $dossier,
+            'afficher_avis' => $afficherAvis
         ]);
     }
 

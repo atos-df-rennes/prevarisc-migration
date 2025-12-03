@@ -150,6 +150,20 @@
                 </li>
             {% endif %}
 
+            {% if dossier.horsDelai %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Hors délai</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
+            {% if dossier.avisDiffere %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Diffère l'avis</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
             {% if dossier.absenceDeQuorum %}
                 <li class="row">
                     <div class="left libelle col-md-3">Absence de quorum</div>
@@ -181,7 +195,7 @@
                 </li>
             {% endif %}
 
-            {% if dossier.avisCommission %}
+            {% if dossier.avisCommission and afficher_avis %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Avis de la commission</div>
                     <div class='right value col-md-9'>
@@ -209,13 +223,6 @@
                     <div class="right value col-md-9">
                         {{ dossier.echeancierTravaux|date('d/m/Y') }}
                     </div>
-                </li>
-            {% endif %}
-
-            {% if dossier.horsDelai %}
-                <li class="row">
-                    <div class="left libelle col-md-3">Hors délai</div>
-                    <div class="right value col-md-9">Oui</div>
                 </li>
             {% endif %}
 
