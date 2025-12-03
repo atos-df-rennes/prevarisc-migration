@@ -68,6 +68,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.dateReception %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date de réception SDIS</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateReception|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.dateVisite %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Date de visite</div>

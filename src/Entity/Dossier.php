@@ -286,6 +286,13 @@ class Dossier
      */
     private $demandeur;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATESDIS_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateReception;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -889,6 +896,18 @@ class Dossier
     public function setDemandeur(?string $demandeur): self
     {
         $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    public function getDateReception(): ?\DateTimeInterface
+    {
+        return $this->dateReception;
+    }
+
+    public function setDateReception(?\DateTimeInterface $dateReception): self
+    {
+        $this->dateReception = $dateReception;
 
         return $this;
     }

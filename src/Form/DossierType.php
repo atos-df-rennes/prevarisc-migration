@@ -18,6 +18,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DossierType extends AbstractType
 {
+    // @todo: Séparer en plusieurs FormTypes ?
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -53,6 +54,12 @@ class DossierType extends AbstractType
             ])
             ->add('demandeur', TextType::class, [
                 'label' => 'Demandeur',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('dateReception', DateType::class, [
+                'label' => 'Date de réception SDIS',
+                'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
