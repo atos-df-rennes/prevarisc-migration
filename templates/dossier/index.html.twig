@@ -203,6 +203,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.echeancierTravaux %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Echéancier de travaux / Schéma de mise en sécurité</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.echeancierTravaux|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.horsDelai %}
                 <li class="row">
                     <div class="left libelle col-md-3">Hors délai</div>

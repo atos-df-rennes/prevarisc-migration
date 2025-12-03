@@ -372,6 +372,13 @@ class Dossier
      */
     private $dateLimitePrescription;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="ECHEANCIERTRAV_DOSSIER", type="date", nullable=true)
+     */
+    private $echeancierTravaux;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -1120,6 +1127,18 @@ class Dossier
     public function setDateLimitePrescription(?\DateTimeInterface $dateLimitePrescription): self
     {
         $this->dateLimitePrescription = $dateLimitePrescription;
+
+        return $this;
+    }
+
+    public function getEcheancierTravaux(): ?\DateTimeInterface
+    {
+        return $this->echeancierTravaux;
+    }
+
+    public function setEcheancierTravaux(?\DateTimeInterface $echeancierTravaux): self
+    {
+        $this->echeancierTravaux = $echeancierTravaux;
 
         return $this;
     }
