@@ -309,6 +309,13 @@ class Dossier
      */
     private $dateMairie;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATESECRETARIAT_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateSecretariat;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -948,6 +955,18 @@ class Dossier
     public function setDateMairie(?\DateTimeInterface $dateMairie): self
     {
         $this->dateMairie = $dateMairie;
+
+        return $this;
+    }
+
+    public function getDateSecretariat(): ?\DateTimeInterface
+    {
+        return $this->dateSecretariat;
+    }
+
+    public function setDateSecretariat(?\DateTimeInterface $dateSecretariat): self
+    {
+        $this->dateSecretariat = $dateSecretariat;
 
         return $this;
     }
