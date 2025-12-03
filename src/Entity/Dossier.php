@@ -316,6 +316,13 @@ class Dossier
      */
     private $dateSecretariat;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="SERVICEINSTRUC_DOSSIER", type="string", length=255, nullable=true)
+     */
+    private $serviceInstructeur;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -967,6 +974,18 @@ class Dossier
     public function setDateSecretariat(?\DateTimeInterface $dateSecretariat): self
     {
         $this->dateSecretariat = $dateSecretariat;
+
+        return $this;
+    }
+
+    public function getServiceInstructeur(): ?string
+    {
+        return $this->serviceInstructeur;
+    }
+
+    public function setServiceInstructeur(?string $serviceInstructeur): self
+    {
+        $this->serviceInstructeur = $serviceInstructeur;
 
         return $this;
     }

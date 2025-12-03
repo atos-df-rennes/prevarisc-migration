@@ -108,11 +108,11 @@
                 </li>
             {% endif %}
 
-            {% if dossier.dateVisite %}
-                <li class='row'>
-                    <div class='left libelle col-md-3'>Date de visite</div>
-                    <div class='right value col-md-9'>
-                        {{ dossier.dateVisite|date('d/m/Y') }}
+            {% if dossier.serviceInstructeur %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Service instructeur</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.serviceInstructeur }}
                     </div>
                 </li>
             {% endif %}
@@ -122,6 +122,30 @@
                     <div class='left libelle col-md-3'>Commission concernée</div>
                     <div class='right value col-md-9'>
                         {{ dossier.commission.libelle }} ({{ dossier.commission.type.libelle }})
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateCommission %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Date de commission en salle</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.dateCommission|date('d/m/Y') }}
+
+                        {% if id_date_commission %}
+                            <a class="ml-2" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ id_date_commission }}" title="Afficher l'ordre du jour">
+                                <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateVisite %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Date de visite</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.dateVisite|date('d/m/Y') }}
                     </div>
                 </li>
             {% endif %}
