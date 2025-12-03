@@ -204,14 +204,7 @@
                     <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
                     <div class='right value col-md-9'>
                         {% for preventionniste in dossier.preventionnistes %}
-                            <div class='media' style='display: inline-block; margin-right: 10px;'>
-                                <span class='media-object pull-left'>
-                                    <img src='/images/avatar.png' alt='Avatar' style='width: 32px; height: 32px;' />
-                                </span>
-                                <div class='media-body'>
-                                    {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}
-                                </div>
-                            </div>
+                            {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
                         {% endfor %}
                     </div>
                 </li>

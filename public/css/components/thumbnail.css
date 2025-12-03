@@ -1,0 +1,9 @@
+.thumbnail.thumbnail-user {
+  display: inline-block;
+  width: 75px;
+  font-size: .7em;
+}
+
+.thumbnail.thumbnail-user .caption {
+  padding: 1px;
+}
