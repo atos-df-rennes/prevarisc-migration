@@ -344,6 +344,13 @@ class Dossier
      */
     private $observations;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEREP_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateReponse;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -1043,6 +1050,18 @@ class Dossier
     public function setObservations(?string $observations): self
     {
         $this->observations = $observations;
+
+        return $this;
+    }
+
+    public function getDateReponse(): ?\DateTimeInterface
+    {
+        return $this->dateReponse;
+    }
+
+    public function setDateReponse(?\DateTimeInterface $dateReponse): self
+    {
+        $this->dateReponse = $dateReponse;
 
         return $this;
     }

@@ -196,6 +196,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.dateReponse %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Date de réponse</div>
+                    <div class='right value col-md-9'>
+                        {{ dossier.dateReponse|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.avisDiffere %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Diffère l'avis</div>
