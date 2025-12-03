@@ -178,6 +178,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.analyseDeRisque %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Analyse de risque</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.analyseDeRisque|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.avisDiffere %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Diffère l'avis</div>

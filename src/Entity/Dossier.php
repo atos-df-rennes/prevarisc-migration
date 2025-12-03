@@ -330,6 +330,13 @@ class Dossier
      */
     private $avis;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="ANOMALIE_DOSSIER", type="text", nullable=true)
+     */
+    private $analyseDeRisque;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -1005,6 +1012,18 @@ class Dossier
     public function setAvis(?Avis $avis): self
     {
         $this->avis = $avis;
+
+        return $this;
+    }
+
+    public function getAnalyseDeRisque(): ?string
+    {
+        return $this->analyseDeRisque;
+    }
+
+    public function setAnalyseDeRisque(?string $analyseDeRisque): self
+    {
+        $this->analyseDeRisque = $analyseDeRisque;
 
         return $this;
     }
