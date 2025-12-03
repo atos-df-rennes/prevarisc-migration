@@ -29,11 +29,22 @@ class DossierController extends AbstractController
     }
 
     /**
-     * Affichage et édition des informations générales d'un dossier.
+     * Affichage des informations générales d'un dossier (lecture seule).
      *
-     * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
      */
-    public function index(
+    public function index(Dossier $dossier): Response {
+        return $this->render('dossier/index.html.twig', [
+            'dossier' => $dossier,
+        ]);
+    }
+
+    /**
+     * Édition des informations générales d'un dossier.
+     *
+     * @Route("/dossier/{id}/modifier", name="dossier_edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     */
+    public function edit(
         Request $request,
         Dossier $dossier,
         DossierTypeRepository $dossierTypeRepository,
@@ -90,7 +101,7 @@ class DossierController extends AbstractController
             $userInfoVerrou = $utilisateurRepository->find($dossier->getUtilisateurVerrou());
         }
 
-        return $this->render('dossier/index.html.twig', [
+        return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
             'dossierTypes' => $dossierTypes,
@@ -102,7 +113,6 @@ class DossierController extends AbstractController
             'isAllowedChangeAvis' => $isAllowedChangeAvis,
             'isAllowedDeleteDossier' => $isAllowedDeleteDossier,
             'userInfoVerrou' => $userInfoVerrou,
-            'action' => 'edit',
         ]);
     }
 

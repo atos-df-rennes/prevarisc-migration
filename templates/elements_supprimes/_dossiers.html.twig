@@ -36,7 +36,7 @@
                         <div class="deleted-element__name">
                             <div class="deleted-element__name_informations">
                                 <a
-                                        href="{{ '/dossier/index/id/' ~ dossier.id }}"
+                                        href="{{ path('dossier_index', {id: dossier.id}) }}"
                                         {% if dossier.objet|length > 70 %}
                                             title="{{ dossier.objet }}"
                                         {% endif %}
