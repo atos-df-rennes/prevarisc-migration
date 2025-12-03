@@ -1,0 +1,229 @@
+<!-- Onglet -->
+<div id='tabs'>
+    <ul>
+        <li id='general'><a href='#tabs-1'>Général</a></li>
+        <li id='prev'><a href='#tabs-2'>Préventionnistes affectés</a></li>
+        <li id='coordonnee'><a href='#tabs-3'>Coordonnées</a></li>
+        <li id='contact'><a href='#tabs-4'>Contacts liés au groupement</a></li>
+    </ul>
+
+    <!-- Partie générale -->
+    <div id="tabs-1">
+        <dl class='dl-horizontal'>
+            <!-- Libellé du groupement -->
+            <dt>Libellé du groupement</dt>
+            <dd><input type='text' id='nom_groupement' name='nom_groupement' value='{{ libelle|e('html_attr') }}' size=30 /></dd>
+
+            <!-- Type du groupement-->
+            <dt>Type</dt>
+            <dd>
+                <select id='type_groupement' name='type_groupement'>
+                {% for t in types %}
+                    <option id="{{ t.id }}" value="{{ t.id }}" {% if t.id == type %}selected{% endif %}>{{ t.libelle }}</option>
+                {% endfor %}
+                </select>
+            </dd>
+
+            <!-- Liste des villes -->
+            <dt>Villes du groupement</dt>
+            <dd>
+                <select id='liste_villes' multiple size=20 class='pull-left' style='height: 300px; width: 30%;'>
+                    {% for ville in villes %}
+                        <option id='{{ ville.id }}' value='{{ ville.id }}'>{{ ville.id }} {{ ville.libelle }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="pull-left btn-group btn-group-vertical" style='padding: 20px;'>
+                    <button id='add_ville' type="button" class="btn"><i class="icon-chevron-right"></i></button>
+                    <button id='remove_ville' type="button" class="btn"><i class="icon-chevron-left"></i></button>
+                </div>
+
+                <select id='villes_groupement' name='villes[]' class='pull-left' multiple size=20 style='height: 300px; width: 30%;'>
+                    {% if ville_du_groupement is iterable %}
+                        {% for ville in ville_du_groupement %}
+                            <option id='{{ ville.id }}' value='{{ ville.id }}'>{{ ville.id }} {{ ville.libelle }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </dd>
+        </dl>
+    </div>
+
+    <!-- Partie des préventionnistes -->
+    <div id="tabs-2">
+        <br />
+        <!-- Ajouter un préventionniste -->
+        <input type='text' size='60' id='preventionnistes-autocomplete' value='' class='input-xlarge' placeholder="Saisissez le nom d'un préventionniste ..." />
+
+        {% if preventionnistes|length > 0 %}
+            <button
+                id='preventionniste'
+                class='btn btn-info'
+                type='button'
+                style='margin-bottom: 10px;'
+                data-loading-text="Affectation <img src='/images/load.gif' />"
+            >
+                Affecter aux établissements
+            </button>
+            <span id='preventionniste-notification' class='ui-state-highlight ui-helper-hidden' style='padding: .5em;'>
+                Les préventionnistes ont été affectés.
+            </span>
+        {% endif %}
+
+        <!-- Afficher la liste des prev. -->
+        <ul class='liste_informations' id='liste_prev'>
+            {% for preventionniste in preventionnistes %}
+                <li id='prev_{{ preventionniste.id }}'>
+                    <span><a href='{{ path('utilisateur_profile', {uid: preventionniste.id}) }}'>{{ preventionniste.informations.grade }} {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}</a></span>
+                    <span class='action' style='float: right'><a style='text-decoration: none;' href='javascript:void(0)' onclick="$(this).parent().parent().remove()">&times;</a></span>
+                    <input type='hidden' name='prev[]' value='{{ preventionniste.id }}' />
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Coordonnées -->
+    <div id='tabs-3'>
+        <dl class='dl-horizontal'>
+            <dt>Nom</dt>
+            <dd><input type='text' name='NOM_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.nom : '' }}' /></dd>
+
+            <dt>Prénom</dt>
+            <dd><input type='text' name='PRENOM_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.prenom : '' }}' /></dd>
+
+            <dt>Téléphone fixe</dt>
+            <dd><input type='text' name='TELFIXE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.telephoneFixe : '' }}' /></dd>
+
+            <dt>Téléphone portable</dt>
+            <dd><input type='text' name='TELPORTABLE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.telephonePortable : '' }}' /></dd>
+
+            <dt>Fax</dt>
+            <dd><input type='text' name='TELFAX_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.telephoneFax : '' }}' /></dd>
+
+            <dt>Email</dt>
+            <dd><input type='text' name='MAIL_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.mail : '' }}' /></dd>
+
+            <dt>Numéro adresse</dt>
+            <dd><input type='text' name='NUMEROADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.numeroAdresse : '' }}' /></dd>
+
+            <dt>Rue</dt>
+            <dd><input type='text' name='RUEADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.rueAdresse : '' }}' /></dd>
+
+            <dt>Code postal</dt>
+            <dd><input type='text' name='CPADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.codePostalAdresse : '' }}' /></dd>
+
+            <dt>Ville</dt>
+            <dd><input type='text' name='VILLEADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.villeAdresse : '' }}' /></dd>
+        </dl>
+    </div>
+
+    <!-- Partie contact -->
+    <div id="tabs-4"></div>
+</div>
+
+<script type="text/javascript">
+    //réaffecter un préventioiste
+    $("#preventionniste").click(function() {
+        $.ajax({
+            url: "{{ path('groupement_preventionniste') }}",
+            data: "groupement=" + $("#gpt option:selected").text(),
+            type: "POST",
+            beforeSend: function() {
+                $("#preventionniste").button('loading')
+            },
+            success: function() {
+                $("#preventionniste").button('reset')
+                $('#preventionniste-notification').show()
+                setTimeout(function() {
+                    $("#preventionniste-notification").fadeOut();
+                }, 2500)
+            },
+        })
+    });
+
+    // Onglets
+    $("#tabs").tabs();
+
+    // Ajouter une ville
+    $("#add_ville").click(function() {
+        $('#liste_villes option:selected').each(function() {
+            $("#villes_groupement").append($("<option></option>").val($(this).val()).html($(this).text()));
+            $(this).attr("disabled","disabled").removeAttr("selected");
+        });
+        $('#liste_villes').change();
+        return false;
+    });
+
+    // Enlever une ville
+    $("#remove_ville").click(function() {
+        $('#villes_groupement option:selected').each(function() {
+            $(this).remove();
+            $("#liste_villes option[value=" + $(this).val() + "]").removeAttr("disabled");
+        });
+        $('#liste_villes').change();
+        $('#villes_groupement').change();
+        return false;
+    });
+
+    // Gestion des boutons du milieux
+    $("#liste_villes, #villes_groupement").change(function() {
+        if($(this).children(":selected").size() == 0)
+            $((($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville")).button("disable");
+        else
+            $((($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville")).button("enable");
+    });
+
+    // Partie prev ----------------------------------------------------------------------------------------------------------------
+
+    // Auto-complétion des préventionnistes
+    $("#preventionnistes-autocomplete").typeahead({
+        minLength: 3,
+        source: function(query, process) {
+            return $.ajax({
+                url: "/api/1.0/search/users",
+                type: 'post',
+                data: {
+                    name: query,
+                    fonctions: 13,
+                    limit: 100,
+                },
+                success: function (result) {
+                    preventionnistes = [];
+                    $.each(result.response.results, function (i, preventionniste) {
+                        preventionnistes.push("<span data-id='" + preventionniste.uid + "'>" + preventionniste.NOM_UTILISATEURINFORMATIONS + " " + preventionniste.PRENOM_UTILISATEURINFORMATIONS + "</span>");
+                    });
+
+                    process(preventionnistes);
+                }
+            });
+        },
+        highlighter: function (item) {
+            libelle = $($.parseHTML(item)).last().text();
+            libelle = libelle.replace(new RegExp('(' + this.query + ')', 'gi'), "<strong>$1</strong>");
+            html = $.parseHTML(item);
+            $(html).last().text(libelle);
+            html = $(html).text();
+            return item.replace(item, html);
+        },
+        updater: function (item) {
+            var nom = $($.parseHTML(item)).last().text();
+            var id = $($.parseHTML(item)).last().data('id');
+
+            $("#liste_prev").append("<li><span class='action' style='float: right'><a style='text-decoration: none;' href='' onclick='$(this).parent().parent().remove(); return false;'>&times;</a></span>"
+                + "<span class='valeur'><a href='{{ path('utilisateur_profile', {uid: ''}) }}" + id + "'>" + nom + "</a></span>"
+                + "<input type='hidden' name='prev[]' value='" + id + "' /></li>");
+
+            return;
+        }
+    });
+
+    // Partie Contact ----------------------------------------------------------------------------------------------------------------
+    {% if groupement %}
+    $("#tabs-4").load("{{ path('contact_index') }}?item=groupement&id={{ groupement.id }}");
+    {% endif %}
+
+    // On cache les villes déjà selectionnées
+    $("#villes_groupement option").each(function() {
+        $("#liste_villes option[id='" + $(this).attr("id") + "']").attr("disabled","disabled");
+    });
+</script>

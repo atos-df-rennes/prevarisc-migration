@@ -46,7 +46,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNatu
 
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resourceAll, $resourceSpecific]);
 
-        $privilegesRepository->method('findOneBy')->willReturnCallback(function ($criteria) use ($privilegeSpecific, $resourceSpecific): ?MockObject {
+        $privilegesRepository->method('findOneBy')->willReturnCallback(function (array $criteria) use ($privilegeSpecific, $resourceSpecific): ?MockObject {
             if ($criteria['resource'] === $resourceSpecific) {
                 return $privilegeSpecific;
             }
