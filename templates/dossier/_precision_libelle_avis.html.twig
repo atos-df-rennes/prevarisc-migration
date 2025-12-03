@@ -1,0 +1,13 @@
+{% if dossier.type.id == 1 %}
+    {% if dossier.nature.id in [7, 16, 17, 19] %}
+        à l'exploitation
+    {% else %}
+        à l'étude
+    {% endif %}
+{% else %}
+    {% if dossier.nature.id in [20, 25] %}
+        à la réception de travaux
+    {% else %}
+        à l'exploitation
+    {% endif %}
+{% endif %}

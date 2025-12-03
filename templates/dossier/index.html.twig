@@ -150,12 +150,29 @@
                 </li>
             {% endif %}
 
+            {% if dossier.avis %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>
+                        Avis du {% if dossier.type.id == 3 %}groupe de visite{% else %}rapporteur{% endif %}
+                    </div>
+                    <div class='right value col-md-9'>
+                        <span class='avis {{ dossier.avis.libelle[:1] }}'>
+                            {{ dossier.avis.libelle }}
+
+                            {{ include('dossier/_precision_libelle_avis.html.twig') }}
+                        </span>
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.avisCommission %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Avis de la commission</div>
                     <div class='right value col-md-9'>
-                        <span class='avis {{ dossier.avisCommission.libelle[:1]|lower }}'>
+                        <span class='avis {{ dossier.avisCommission.libelle[:1] }}'>
                             {{ dossier.avisCommission.libelle }}
+
+                            {{ include('dossier/_precision_libelle_avis.html.twig') }}
                         </span>
                     </div>
                 </li>

@@ -323,6 +323,13 @@ class Dossier
      */
     private $serviceInstructeur;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Avis::class)
+     *
+     * @ORM\JoinColumn(name="AVIS_DOSSIER", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
+     */
+    private $avis;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -986,6 +993,18 @@ class Dossier
     public function setServiceInstructeur(?string $serviceInstructeur): self
     {
         $this->serviceInstructeur = $serviceInstructeur;
+
+        return $this;
+    }
+
+    public function getAvis(): ?Avis
+    {
+        return $this->avis;
+    }
+
+    public function setAvis(?Avis $avis): self
+    {
+        $this->avis = $avis;
 
         return $this;
     }
