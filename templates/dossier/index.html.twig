@@ -187,6 +187,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.observations %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Observations</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.observations|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.avisDiffere %}
                 <li class='row'>
                     <div class='left libelle col-md-3'>Diffère l'avis</div>

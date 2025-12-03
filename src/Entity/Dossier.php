@@ -337,6 +337,13 @@ class Dossier
      */
     private $analyseDeRisque;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="OBSERVATION_DOSSIER", type="text", nullable=true)
+     */
+    private $observations;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -1024,6 +1031,18 @@ class Dossier
     public function setAnalyseDeRisque(?string $analyseDeRisque): self
     {
         $this->analyseDeRisque = $analyseDeRisque;
+
+        return $this;
+    }
+
+    public function getObservations(): ?string
+    {
+        return $this->observations;
+    }
+
+    public function setObservations(?string $observations): self
+    {
+        $this->observations = $observations;
 
         return $this;
     }
