@@ -177,15 +177,6 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.descriptifAnalyseRisque %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Descriptif analyse de risque</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.descriptifAnalyseRisque|nl2br }}
-                        </div>
-                    </li>
-                {% endif %}
-
                 {% if dossier.reglesDerogation %}
                     <li class="row">
                         <div class="left libelle col-md-3">Règles auxquelles il est demandé de déroger</div>
@@ -256,13 +247,6 @@
                 {% if dossier.absenceDeQuorum %}
                     <li class="row">
                         <div class="left libelle col-md-3">Absence de quorum</div>
-                        <div class="right value col-md-9">Oui</div>
-                    </li>
-                {% endif %}
-
-                {% if dossier.celluleNonExploitee %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Cellule non exploitée</div>
                         <div class="right value col-md-9">Oui</div>
                     </li>
                 {% endif %}
@@ -417,24 +401,6 @@
                         <div class="left libelle col-md-3">Chargé de sécurité (T)</div>
                         <div class="right value col-md-9">
                             {{ dossier.chargeSecurite|nl2br }}
-                        </div>
-                    </li>
-                {% endif %}
-
-                {% if dossier.dureeDeplacement %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Durée de déplacement</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.dureeDeplacement }}
-                        </div>
-                    </li>
-                {% endif %}
-
-                {% if dossier.gravitePrescription %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Gravité prescription</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.gravitePrescription|nl2br }}
                         </div>
                     </li>
                 {% endif %}
