@@ -5,28 +5,33 @@
 {% block body %}
 {% if communes|length > 0 %}
 
-<span id='notif' class='alert alert-info' style='padding: 0.3em; display:none'></span>
+<span id="notif" class="alert alert-info hide"></span>
 
-<p class='pull-right'><br/><a href='#' id='new' class='btn'>Créer un nouveau groupement</a></p>
-<h3 class='page-header'>Groupements de communes</h3>
+<div class="pull-right">
+    <a href="#" id="new" class="btn">Créer un nouveau groupement</a>
+</div>
 
-<div id='save_div'>
-    <!-- Selection du groupement -->
-    <select id="gpt" class="bigger" style="width: 400px">
-        <option value="0">Nouveau groupement</option>
-        {% for type in admin_groupement_types %}
-            <optgroup id="gpt_{{ type.id }}" label="{{ type.libelle }}">
-                {% for groupement in type.groupements %}
-                    <option value="{{ groupement.id }}">{{ groupement.libelle }}</option>
-                {% endfor %}
-            </optgroup>
-        {% endfor %}
-    </select>
+<h3 class="page-header">Groupements de communes</h3>
 
-    <!-- Icones -->
-    <div class="btn-group" style='margin-bottom: 10px;'>
-        <a id='save' href='#' class='btn btn-success'>Sauvegarder le groupement</a>
-        <a id='delete' href='#' class='btn btn-warning'>Supprimer le groupement</a>
+<div id="save_div" class="row">
+    {# Selection du groupement #}
+    <div class="form-group col-md-5">
+        <select id="gpt" class="form-control">
+            {% for type in admin_groupement_types %}
+                <optgroup id="gpt_{{ type.id }}" label="{{ type.libelle }}">
+                    {% for groupement in type.groupements %}
+                        <option value="{{ groupement.id }}">{{ groupement.libelle }}</option>
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+    </div>
+    {# Boutons d'actions #}
+    <div class="form-group col-md-7">
+        <div class="btn-group" style="margin-bottom: 10px;">
+            <a id="save" href="#" class="btn btn-success">Sauvegarder le groupement</a>
+            <a id="delete" href="#" class="btn btn-danger">Supprimer le groupement</a>
+        </div>
     </div>
 </div>
 
