@@ -351,6 +351,13 @@ class Dossier
      */
     private $dateReponse;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="HORSDELAI_DOSSIER", type="boolean")
+     */
+    private $horsDelai;
+
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -368,6 +375,7 @@ class Dossier
         $this->documentsConsultes = new ArrayCollection();
         $this->piecesJointes = new ArrayCollection();
         $this->prescriptions = new ArrayCollection();
+        $this->horsDelai = false;
     }
 
     public function getId(): ?int
@@ -1062,6 +1070,18 @@ class Dossier
     public function setDateReponse(?\DateTimeInterface $dateReponse): self
     {
         $this->dateReponse = $dateReponse;
+
+        return $this;
+    }
+
+    public function getHorsDelai(): ?bool
+    {
+        return $this->horsDelai;
+    }
+
+    public function setHorsDelai(bool $horsDelai): self
+    {
+        $this->horsDelai = $horsDelai;
 
         return $this;
     }

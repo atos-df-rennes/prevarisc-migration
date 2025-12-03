@@ -178,6 +178,13 @@
                 </li>
             {% endif %}
 
+            {% if dossier.horsDelai %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Hors délai</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
             {% if dossier.analyseDeRisque %}
                 <li class="row">
                     <div class="left libelle col-md-3">Analyse de risque</div>
