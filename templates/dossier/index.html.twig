@@ -150,6 +150,15 @@
                 </li>
             {% endif %}
 
+            {% if dossier.incomplet is not null %}
+                <li class="row">
+                    <div class="left libelle col-md-3">État du dossier</div>
+                    <div class="right value col-md-9">
+                        <strong>{{ dossier.incomplet ? 'Incomplet' : 'Complet' }}</strong>
+                    </div>
+                </li>
+            {% endif %}
+
             {% if dossier.horsDelai %}
                 <li class="row">
                     <div class="left libelle col-md-3">Hors délai</div>
@@ -249,6 +258,212 @@
                     <div class='left libelle col-md-3'>Date de réponse</div>
                     <div class='right value col-md-9'>
                         {{ dossier.dateReponse|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.lieuReunion %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Lieu réunion</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.lieuReunion|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateEnvoiTransit %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date d'envoi/transit</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateEnvoiTransit|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateReceptionRvrat %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date de réception du RVRAT et attestation solidité</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateReceptionRvrat|date('d/m/Y') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.descriptifAnalyseRisque %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Descriptif analyse de risque</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.descriptifAnalyseRisque|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.reglesDerogation %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Règles auxquelles il est demandé de déroger</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.reglesDerogation|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.justificationDerogation %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Justification de la dérogation</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.justificationDerogation|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.mesuresCompensatoires %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Mesures compensatoires proposées</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.mesuresCompensatoires|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.mesuresComplementaires %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Mesures complémentaires à respecter</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.mesuresComplementaires|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.incomplet %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Dossier incomplet</div>
+                    <div class="right value col-md-9">Oui{% if dossier.dateIncomplet %} - Date : {{ dossier.dateIncomplet|date('d/m/Y') }}{% endif %}</div>
+                </li>
+            {% endif %}
+
+            {% if dossier.nePeutSePrononcer %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Ne peut se prononcer</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
+            {% if dossier.celluleNonExploitee %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Cellule non exploitée</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
+            {% if dossier.datePrefecture %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date réception préfecture</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.datePrefecture|date('d/m/Y H:i') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateTransfertCommission %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date de transfert à la commission compétente</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateTransfertCommission|date('d/m/Y H:i') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateReceptionCommission %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date de réception à la commission compétente</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateReceptionCommission|date('d/m/Y H:i') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateReunion %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date réunion</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateReunion|date('d/m/Y H:i') }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.operationSdis %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Opération (intervention) SDIS</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
+            {% if dossier.rcci %}
+                <li class="row">
+                    <div class="left libelle col-md-3">RCCI (oui/non) lien rapport</div>
+                    <div class="right value col-md-9">Oui</div>
+                </li>
+            {% endif %}
+
+            {% if dossier.rex %}
+                <li class="row">
+                    <div class="left libelle col-md-3">REX</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.rex|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.chargeSecurite %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Chargé de sécurité (T)</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.chargeSecurite|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dureeDeplacement %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Durée de déplacement</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dureeDeplacement }} minutes
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.gravitePrescription %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Gravité prescription</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.gravitePrescription|nl2br }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.numeroIntervention %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Numéro d'intervention</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.numeroIntervention }}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateIntervention %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date et heure d'intervention</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateIntervention|date('d/m/Y H:i') }}{% if dossier.dureeIntervention %} - Durée : {{ dossier.dureeIntervention|date('H:i') }}{% endif %}
+                    </div>
+                </li>
+            {% endif %}
+
+            {% if dossier.dateSignature %}
+                <li class="row">
+                    <div class="left libelle col-md-3">Date de signature</div>
+                    <div class="right value col-md-9">
+                        {{ dossier.dateSignature|date('d/m/Y') }}
                     </div>
                 </li>
             {% endif %}

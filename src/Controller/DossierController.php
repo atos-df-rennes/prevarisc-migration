@@ -35,9 +35,10 @@ class DossierController extends AbstractController
      */
     public function index(Dossier $dossier): Response {
         // @todo: Ajouter "Ne peut se prononcer" et "Incomplet"
-        $afficherAvis = !$dossier->getAbsenceDeQuorum()
-            && !$dossier->getHorsDelai()
-            && !$dossier->getAvisDiffere()
+        $afficherAvis = !$dossier->hasAbsenceDeQuorum()
+            && !$dossier->isHorsDelai()
+            && !$dossier->hasAvisDiffere()
+            && !$dossier->isIncomplet()
         ;
 
         return $this->render('dossier/index.html.twig', [
@@ -104,7 +105,7 @@ class DossierController extends AbstractController
 
         // Informations sur le verrouillage
         $userInfoVerrou = null;
-        if ($dossier->getVerrou() && $dossier->getUtilisateurVerrou()) {
+        if ($dossier->hasVerrou() && $dossier->getUtilisateurVerrou()) {
             $userInfoVerrou = $utilisateurRepository->find($dossier->getUtilisateurVerrou());
         }
 
