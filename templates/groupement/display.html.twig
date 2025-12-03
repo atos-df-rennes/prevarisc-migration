@@ -1,24 +1,24 @@
 <!-- Onglet -->
-<div id='tabs'>
+<div id="tabs">
     <ul class="nav nav-tabs">
-        <li id='general' role="presentation" class="active"><a href='#tabs-1' data-toggle="tab">Général</a></li>
-        <li id='prev' role="presentation"><a href='#tabs-2' data-toggle="tab">Préventionnistes affectés</a></li>
-        <li id='coordonnee' role="presentation"><a href='#tabs-3' data-toggle="tab">Coordonnées</a></li>
-        <li id='contact' role="presentation"><a href='#tabs-4' data-toggle="tab">Contacts liés au groupement</a></li>
+        <li id="general" role="presentation" class="active"><a href="#tabs-1" data-toggle="tab">Général</a></li>
+        <li id="prev" role="presentation"><a href="#tabs-2" data-toggle="tab">Préventionnistes affectés</a></li>
+        <li id="coordonnee" role="presentation"><a href="#tabs-3" data-toggle="tab">Coordonnées</a></li>
+        <li id="contact" role="presentation"><a href="#tabs-4" data-toggle="tab">Contacts liés au groupement</a></li>
     </ul>
 
     <div class="tab-content">
         <!-- Partie générale -->
         <div id="tabs-1" role="tabpanel" class="tab-pane active" >
-            <dl class='dl-horizontal'>
+            <dl class="dl-horizontal">
                 <!-- Libellé du groupement -->
                 <dt>Libellé du groupement</dt>
-                <dd><input type='text' id='nom_groupement' name='nom_groupement' value='{{ libelle|e('html_attr') }}' size=30 /></dd>
+                <dd><input type="text" id="nom_groupement" name="nom_groupement" value="{{ libelle|e("html_attr") }}" size=30 /></dd>
 
                 <!-- Type du groupement-->
                 <dt>Type</dt>
                 <dd>
-                    <select id='type_groupement' name='type_groupement'>
+                    <select id="type_groupement" name="type_groupement">
                     {% for t in types %}
                         <option id="{{ t.id }}" value="{{ t.id }}" {% if t.id == type %}selected{% endif %}>{{ t.libelle }}</option>
                     {% endfor %}
@@ -28,21 +28,21 @@
                 <!-- Liste des villes -->
                 <dt>Villes du groupement</dt>
                 <dd>
-                    <select id='liste_villes' multiple size=20 class='pull-left' style='height: 300px; width: 30%;'>
+                    <select id="liste_villes" multiple size=20 class="pull-left" style="height: 300px; width: 30%;">
                         {% for ville in villes %}
-                            <option id='{{ ville.id }}' value='{{ ville.id }}'>{{ ville.id }} {{ ville.libelle }}</option>
+                            <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
                         {% endfor %}
                     </select>
 
-                    <div class="pull-left btn-group btn-group-vertical" style='padding: 20px;'>
-                        <button id='add_ville' type="button" class="btn"><i class="icon-chevron-right"></i></button>
-                        <button id='remove_ville' type="button" class="btn"><i class="icon-chevron-left"></i></button>
+                    <div class="pull-left btn-group btn-group-vertical" style="padding: 20px;">
+                        <button id="add_ville" type="button" class="btn"><i class="icon-chevron-right"></i></button>
+                        <button id="remove_ville" type="button" class="btn"><i class="icon-chevron-left"></i></button>
                     </div>
 
-                    <select id='villes_groupement' name='villes[]' class='pull-left' multiple size=20 style='height: 300px; width: 30%;'>
+                    <select id="villes_groupement" name="villes[]" class="pull-left" multiple size=20 style="height: 300px; width: 30%;">
                         {% if ville_du_groupement is iterable %}
                             {% for ville in ville_du_groupement %}
-                                <option id='{{ ville.id }}' value='{{ ville.id }}'>{{ ville.id }} {{ ville.libelle }}</option>
+                                <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
                             {% endfor %}
                         {% endif %}
                     </select>
@@ -54,67 +54,67 @@
         <div id="tabs-2" role="tabpanel" class="tab-pane">
             <br />
             <!-- Ajouter un préventionniste -->
-            <input type='text' size='60' id='preventionnistes-autocomplete' value='' class='input-xlarge' placeholder="Saisissez le nom d'un préventionniste ..." />
+            <input type="text" size="60" id="preventionnistes-autocomplete" value="" class="input-xlarge" placeholder="Saisissez le nom d'un préventionniste ..." />
 
             {% if preventionnistes|length > 0 %}
                 <button
-                    id='preventionniste'
-                    class='btn btn-info'
-                    type='button'
-                    style='margin-bottom: 10px;'
-                    data-loading-text="Affectation <img src='/images/load.gif' />"
+                    id="preventionniste"
+                    class="btn btn-info"
+                    type="button"
+                    style="margin-bottom: 10px;"
+                    data-loading-text="Affectation <img src="/images/load.gif" />"
                 >
                     Affecter aux établissements
                 </button>
-                <span id='preventionniste-notification' class='ui-state-highlight ui-helper-hidden' style='padding: .5em;'>
+                <span id="preventionniste-notification" class="ui-state-highlight ui-helper-hidden" style="padding: .5em;">
                     Les préventionnistes ont été affectés.
                 </span>
             {% endif %}
 
             <!-- Afficher la liste des prev. -->
-            <ul class='liste_informations' id='liste_prev'>
+            <ul class="liste_informations" id="liste_prev">
                 {% for preventionniste in preventionnistes %}
-                    <li id='prev_{{ preventionniste.id }}'>
-                        <span><a href='{{ path('utilisateur_profile', {uid: preventionniste.id}) }}'>{{ preventionniste.informations.grade }} {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}</a></span>
-                        <span class='action' style='float: right'><a style='text-decoration: none;' href='javascript:void(0)' onclick="$(this).parent().parent().remove()">&times;</a></span>
-                        <input type='hidden' name='prev[]' value='{{ preventionniste.id }}' />
+                    <li id="prev_{{ preventionniste.id }}">
+                        <span><a href="{{ path("utilisateur_profile", {uid: preventionniste.id}) }}">{{ preventionniste.informations.grade }} {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}</a></span>
+                        <span class="action" style="float: right"><a style="text-decoration: none;" href="javascript:void(0)" onclick="$(this).parent().parent().remove()">&times;</a></span>
+                        <input type="hidden" name="prev[]" value="{{ preventionniste.id }}" />
                     </li>
                 {% endfor %}
             </ul>
         </div>
 
         <!-- Coordonnées -->
-        <div id='tabs-3' role="tabpanel" class="tab-pane">
-            <dl class='dl-horizontal'>
+        <div id="tabs-3" role="tabpanel" class="tab-pane">
+            <dl class="dl-horizontal">
                 <dt>Nom</dt>
-                <dd><input type='text' name='NOM_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.nom : '' }}' /></dd>
+                <dd><input type="text" name="NOM_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.nom : "" }}" /></dd>
 
                 <dt>Prénom</dt>
-                <dd><input type='text' name='PRENOM_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.prenom : '' }}' /></dd>
+                <dd><input type="text" name="PRENOM_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.prenom : "" }}" /></dd>
 
                 <dt>Téléphone fixe</dt>
-                <dd><input type='text' name='TELFIXE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.telephoneFixe : '' }}' /></dd>
+                <dd><input type="text" name="TELFIXE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.telephoneFixe : "" }}" /></dd>
 
                 <dt>Téléphone portable</dt>
-                <dd><input type='text' name='TELPORTABLE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.telephonePortable : '' }}' /></dd>
+                <dd><input type="text" name="TELPORTABLE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.telephonePortable : "" }}" /></dd>
 
                 <dt>Fax</dt>
-                <dd><input type='text' name='TELFAX_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.telephoneFax : '' }}' /></dd>
+                <dd><input type="text" name="TELFAX_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.telephoneFax : "" }}" /></dd>
 
                 <dt>Email</dt>
-                <dd><input type='text' name='MAIL_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.mail : '' }}' /></dd>
+                <dd><input type="text" name="MAIL_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.mail : "" }}" /></dd>
 
                 <dt>Numéro adresse</dt>
-                <dd><input type='text' name='NUMEROADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.numeroAdresse : '' }}' /></dd>
+                <dd><input type="text" name="NUMEROADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.numeroAdresse : "" }}" /></dd>
 
                 <dt>Rue</dt>
-                <dd><input type='text' name='RUEADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.rueAdresse : '' }}' /></dd>
+                <dd><input type="text" name="RUEADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.rueAdresse : "" }}" /></dd>
 
                 <dt>Code postal</dt>
-                <dd><input type='text' name='CPADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.codePostalAdresse : '' }}' /></dd>
+                <dd><input type="text" name="CPADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.codePostalAdresse : "" }}" /></dd>
 
                 <dt>Ville</dt>
-                <dd><input type='text' name='VILLEADRESSE_UTILISATEURINFORMATIONS' value='{{ user_info ? user_info.villeAdresse : '' }}' /></dd>
+                <dd><input type="text" name="VILLEADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.villeAdresse : "" }}" /></dd>
             </dl>
         </div>
 
@@ -127,7 +127,7 @@
     //réaffecter un préventionniste
     $("#preventionniste").click(function() {
         $.ajax({
-            url: "{{ path('admin_groupement_preventionniste') }}",
+            url: "{{ path("admin_groupement_preventionniste") }}",
             data: "groupement=" + $("#gpt option:selected").text(),
             type: "POST",
             beforeSend: function() {
@@ -135,7 +135,7 @@
             },
             success: function() {
                 $("#preventionniste").button('reset')
-                $('#preventionniste-notification').show()
+                $("#preventionniste-notification").show()
                 setTimeout(function() {
                     $("#preventionniste-notification").fadeOut();
                 }, 2500)
@@ -145,22 +145,22 @@
 
     // Ajouter une ville
     $("#add_ville").click(function() {
-        $('#liste_villes option:selected').each(function() {
+        $("#liste_villes option:selected").each(function() {
             $("#villes_groupement").append($("<option></option>").val($(this).val()).html($(this).text()));
             $(this).attr("disabled","disabled").removeAttr("selected");
         });
-        $('#liste_villes').change();
+        $("#liste_villes").change();
         return false;
     });
 
     // Enlever une ville
     $("#remove_ville").click(function() {
-        $('#villes_groupement option:selected').each(function() {
+        $("#villes_groupement option:selected").each(function() {
             $(this).remove();
             $("#liste_villes option[value=" + $(this).val() + "]").removeAttr("disabled");
         });
-        $('#liste_villes').change();
-        $('#villes_groupement').change();
+        $("#liste_villes").change();
+        $("#villes_groupement").change();
         return false;
     });
 
@@ -181,7 +181,7 @@
     //     source: function(query, process) {
     //         return $.ajax({
     //             url: "/api/1.0/search/users",
-    //             type: 'post',
+    //             type: "post",
     //             data: {
     //                 name: query,
     //                 fonctions: 13,
