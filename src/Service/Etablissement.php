@@ -11,7 +11,6 @@ use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\EtablissementPieceJointe;
-use App\Entity\Genre;
 use App\Entity\PieceJointe;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
