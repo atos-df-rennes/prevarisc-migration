@@ -7,7 +7,7 @@ L'application utilise un système de DataStore pour gérer le stockage des fichi
 1. **SimpleFileDataStore** : Stockage simple sans hash (par défaut)
 2. **HashedFileDataStore** : Stockage avec structure hashée (recommandé pour production)
 
-> **💡 Note importante** : Le système utilise une résolution **runtime** du DataStore, permettant un changement de configuration sans recompilation du conteneur Symfony. Seul un redémarrage d'Apache et optionnellement un `cache:clear` sont nécessaires.
+> **💡 Note importante** : Le système utilise une résolution **runtime** du DataStore, permettant un changement de configuration sans recompilation du conteneur Symfony. Seul un redémarrage d'Apache est nécessaire.
 
 ## Configuration
 
@@ -48,9 +48,8 @@ Le CompilerPass est enregistré dans la méthode `build()` du Kernel, conformém
 
 ### Avantages de cette approche
 
-✅ **Pas de recompilation nécessaire** : Le changement de variable d'environnement est pris en compte au prochain redémarrage d'Apache  
-✅ **Production-ready** : Fonctionne de manière robuste en environnement de production  
-✅ **Simplicité opérationnelle** : Seul un simple `php bin/console cache:clear` est nécessaire après redémarrage Apache  
+✅ **Pas de recompilation nécessaire** : Le changement de variable d'environnement est pris en compte au prochain redémarrage d'Apache
+✅ **Production-ready** : Fonctionne de manière robuste en environnement de production 
 ✅ **Pas de manipulation complexe** : Aucun script spécifique ou suppression manuelle de cache requis
 
 ### Procédure de changement en production
@@ -60,9 +59,6 @@ Après modification de la variable dans `apache/httpd-prevarisc-config.conf` :
 ```bash
 # 1. Redémarrer Apache (pour charger la nouvelle variable)
 service apache2 restart
-
-# 2. Vider le cache Symfony (optionnel mais recommandé)
-php bin/console cache:clear
 ```
 
 C'est tout ! Le nouveau DataStore sera utilisé immédiatement.
