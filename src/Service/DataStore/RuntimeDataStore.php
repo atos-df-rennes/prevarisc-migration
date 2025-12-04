@@ -6,6 +6,16 @@ namespace App\Service\DataStore;
 
 use App\Entity\PieceJointe;
 
+/**
+ * Proxy/wrapper for lazy-loading the actual DataStore implementation at runtime.
+ *
+ * This class uses a DataStoreFactory to instantiate the underlying DataStore only when needed,
+ * following the lazy initialization pattern. It delegates all DataStore interface methods to
+ * the real DataStore instance, which is created on first use.
+ *
+ * This architectural pattern helps to defer resource-intensive initialization and allows
+ * for flexible runtime selection of the DataStore implementation.
+ */
 class RuntimeDataStore implements DataStore
 {
     /** @var DataStoreFactory */
