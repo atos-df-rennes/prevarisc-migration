@@ -22,15 +22,20 @@ class SimpleFileDataStore implements DataStore
     protected $etablissementRepository;
 
     /** @var string */
-    protected $realDataPath;
+    protected $dataPath;
 
     /** @var string */
-    protected $dataPath;
+    protected $realDataPath;
 
     /**
      * @param array<string>|null $options
      */
-    public function __construct(EtablissementRepository $etablissementRepository, ?array $options = null)
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        string $dataPath,
+        string $realDataPath,
+        ?array $options = null
+    )
     {
         $this->types = [
             'etablissement' => 'pieces jointes',
@@ -47,8 +52,8 @@ class SimpleFileDataStore implements DataStore
         }
 
         $this->etablissementRepository = $etablissementRepository;
-        $this->realDataPath = getenv('PREVARISC_REAL_DATA_PATH') ?: __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'data';
-        $this->dataPath = getenv('PREVARISC_DATA_PATH') ?: DIRECTORY_SEPARATOR.'data';
+        $this->dataPath = $dataPath;
+        $this->realDataPath = $realDataPath ?: __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'data';
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string

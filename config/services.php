@@ -19,7 +19,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$realDataPath', '%app.files_path%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
-        ;
+    ;
 
 
     $services->load('App\\', __DIR__ . '/../src/')
@@ -42,4 +42,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
+
+    $services->set('App\Service\DataStore\DataStoreFactory')
+        ->arg('$adapter', '%app.datastore_adapter%');
 };

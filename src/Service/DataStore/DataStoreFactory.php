@@ -11,19 +11,34 @@ class DataStoreFactory
     /** @var EtablissementRepository */
     private $etablissementRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository)
+    /** @var string */
+    private $adapter;
+
+    /** @var string */
+    protected $dataPath;
+
+    /** @var string */
+    protected $realDataPath;
+
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        string $adapter,
+        string $dataPath,
+        string $realDataPath
+    )
     {
         $this->etablissementRepository = $etablissementRepository;
+        $this->adapter = $adapter;
+        $this->dataPath = $dataPath;
+        $this->realDataPath = $realDataPath;
     }
 
     public function create(): DataStore
     {
-        $adapter = getenv('PREVARISC_DATASTORE_ADAPTER') ?: 'Plugin_SimpleFileDataStore';
-
-        if ('Plugin_HashedFileDataStore' === $adapter) {
-            return new HashedFileDataStore($this->etablissementRepository);
+        if ('Plugin_HashedFileDataStore' === $this->adapter) {
+            return new HashedFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath);
         }
 
-        return new SimpleFileDataStore($this->etablissementRepository);
+        return new SimpleFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath);
     }
 }
