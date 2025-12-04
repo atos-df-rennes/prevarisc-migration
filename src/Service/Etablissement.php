@@ -45,14 +45,14 @@ final class Etablissement
         AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
         DataStore $dataStore,
-        LoggerInterface $logger
+        LoggerInterface $datastoreLogger
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
         $this->etablissementPJRepository = $etablissementPJRepository;
         $this->dataStore = $dataStore;
-        $this->logger = $logger;
+        $this->logger = $datastoreLogger;
     }
 
     public function getHistorique(int $id): Informations
