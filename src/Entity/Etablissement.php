@@ -526,7 +526,7 @@ class Etablissement
     public function hasAvisDiffere(): bool
     {
         $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
-            return $dossier->getAvisDiffere()
+            return $dossier->hasAvisDiffere()
                 && null === $dossier->getDateSuppression();
         });
 
