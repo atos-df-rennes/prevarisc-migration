@@ -47,6 +47,34 @@ class GroupementController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/admin/groupement/creation", name="admin_groupement_creation")
+     */
+    public function create(Request $request): Response
+    {
+        $groupement = new Groupement();
+
+        $form = $this->createForm(GroupementFormType::class, $groupement, [
+            'action' => $this->generateUrl('admin_groupement_creation'),
+            'scopes' => ['create']
+        ]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+            $this->entityManager->persist($groupement);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le groupement '.$groupement->getLibelle().' a été créé.');
+
+            return $this->redirectToRoute('admin_groupement');
+        }
+
+        return $this->render('groupement/ajout.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     /**
      * @Route("/admin/groupement/display", name="admin_groupement_display")
      */
