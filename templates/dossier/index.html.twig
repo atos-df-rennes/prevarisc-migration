@@ -214,12 +214,28 @@
                     </li>
                 {% endif %}
 
-                {# @todo: Ajouter les documents manquants #}
                 {% if dossier_fields_service.shouldDisplayField(dossier, 'INCOMPLET') and dossier.incomplet is not null %}
                     <li class="row">
                         <div class="left libelle col-md-3">État du dossier</div>
                         <div class="right value col-md-9">
                             <strong>{{ dossier.incomplet ? 'Incomplet' : 'Complet' }}</strong>
+
+                            {% if dossier.incomplet and dossier.documentsManquants is not empty %}
+                                <br><br>
+                                {% for document_manquant in dossier.documentsManquants %}
+                                    <strong>Incomplet le {{ document_manquant.date|date('d/m/Y') }}</strong>
+                                    <br>
+                                    {{ document_manquant.documentManquant|nl2br }}
+                                    {% if document_manquant.dateReception %}
+                                        <br>
+                                        <span style="color: green;">
+                                            Réception document(s) le {{ document_manquant.dateReception|date('d/m/Y') }}
+                                        </span>
+                                        <br>
+                                    {% endif %}
+                                    <br>
+                                {% endfor %}
+                            {% endif %}
                         </div>
                     </li>
                 {% endif %}
