@@ -7,6 +7,7 @@ use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use App\Entity\DossierType;
 use App\Service\DateAffectation;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 // @todo: Mettre des fixtures avec une base de test au lieu des mocks.
@@ -68,6 +69,81 @@ final class DateAffectationTest extends KernelTestCase
         $dateCommission = $this->createDateCommissionOfType(3);
 
         $this->assertSame(null, $this->dateAffectation->getIdDateCommission($dossier, $dateCommission));
+    }
+
+    public function testGetWithEtudeAndNullDateCommissionLogsError(): void
+    {
+        // Pour une étude, on s'attend à un retour, donc une date de commission null doit logger une erreur
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('La date de commission est null.', ['id_dossier' => 1]);
+
+        $dateAffectation = new DateAffectation($logger);
+        $dossier = $this->createDossierOfType(1);
+
+        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, null));
+    }
+
+    public function testGetWithVisiteAndNullDateCommissionLogsError(): void
+    {
+        // Pour une visite, si la date de commission est null, on log une erreur
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('La date de commission est null.', ['id_dossier' => 1]);
+
+        $dateAffectation = new DateAffectation($logger);
+        $dossier = $this->createDossierOfType(2);
+
+        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, null));
+    }
+
+    public function testGetWithVisiteAndNullTypeEvenementLogsError(): void
+    {
+        // Pour une visite, si le type d'événement est null, on log une erreur
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Le type d\'événement de la date de commission est null.', [
+                'id_dossier' => 1,
+                'id_date_commission' => 2
+            ]);
+
+        $dateAffectation = new DateAffectation($logger);
+        $dossier = $this->createDossierOfType(2);
+        $dateCommission = $this->createDateCommissionOfType();
+
+        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, $dateCommission));
+    }
+
+    public function testGetWithNullDossierTypeLogsError(): void
+    {
+        // Si le type du dossier est null, on log une erreur
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Le type de dossier est null.', ['id_dossier' => 1]);
+
+        $dateAffectation = new DateAffectation($logger);
+        $dossier = $this->createConfiguredMock(Dossier::class, ['getId' => 1, 'getType' => null]);
+        $dateCommission = $this->createDateCommissionOfType();
+
+        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, $dateCommission));
+    }
+
+    public function testGetWithDossierTypeNotHandled(): void
+    {
+        // Type de dossier non géré (par exemple type 4) : retourne null sans log d'erreur
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())
+            ->method('error');
+
+        $dateAffectation = new DateAffectation($logger);
+        $dossier = $this->createDossierOfType(4);
+        $dateCommission = $this->createDateCommissionOfType(1);
+
+        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, $dateCommission));
     }
 
     private function createDossierOfType(int $typeId): Dossier
