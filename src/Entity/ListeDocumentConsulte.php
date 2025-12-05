@@ -65,6 +65,11 @@ class ListeDocumentConsulte
      */
     private $ordre;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $visible;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -138,6 +143,18 @@ class ListeDocumentConsulte
     public function setOrdre(int $ordre): self
     {
         $this->ordre = $ordre;
+
+        return $this;
+    }
+
+    public function getVisible(): ?bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): self
+    {
+        $this->visible = $visible;
 
         return $this;
     }

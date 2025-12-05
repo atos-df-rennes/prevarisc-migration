@@ -1,0 +1,17 @@
+{{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    {{ form_row(form.libelle) }}
+
+    <hr class="clear">
+
+    {{ form_row(form.visite) }}
+    {{ form_row(form.etude) }}
+    {{ form_row(form.receptionTravaux) }}
+    {{ form_row(form.avantOuverture) }}
+    {{ form_row(form.visible) }}
+
+    <div class="modal-footer">
+        {{ form_widget(form.submit) }}
+    </div>
+{{ form_end(form) }}
