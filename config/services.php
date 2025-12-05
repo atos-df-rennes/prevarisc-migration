@@ -45,4 +45,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Service\DataStore\DataStoreFactory')
         ->arg('$adapter', '%app.datastore_adapter%');
+
+    $services->set('App\Service\Etablissement')
+        ->arg('$logger', ref('monolog.logger.datastore'));
 };
