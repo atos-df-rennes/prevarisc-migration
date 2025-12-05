@@ -11,14 +11,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services = $containerConfigurator->services();
 
-    $envDatastore = getenv('PREVARISC_DATASTORE_ADAPTER');
-    if ($envDatastore === 'Plugin_HashedFileDataStore') {
-        $serviceDatastore = 'App\Service\DataStore\HashedFileDataStore';
-    }
-    else {
-        $serviceDatastore = 'App\Service\DataStore\SimpleFileDataStore';
-    }
-
     $services->defaults()
         ->autowire()
         ->autoconfigure()
@@ -27,8 +19,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$realDataPath', '%app.files_path%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
-        ->bind(\App\Service\DataStore\DataStore::class, ref($serviceDatastore))
-        ;
+    ;
 
 
     $services->load('App\\', __DIR__ . '/../src/')
@@ -51,4 +42,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
+
+    $services->set('App\Service\DataStore\DataStoreFactory')
+        ->arg('$adapter', '%app.datastore_adapter%');
+
+    $services->set('App\Service\Etablissement')
+        ->arg('$logger', ref('monolog.logger.datastore'));
 };

@@ -11,11 +11,13 @@ use App\Dto\Historique\LastInformations;
 use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\EtablissementPieceJointe;
+use App\Entity\PieceJointe;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
+use Psr\Log\LoggerInterface;
 
 final class Etablissement
 {
@@ -34,18 +36,23 @@ final class Etablissement
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
         EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore
+        DataStore $dataStore,
+        LoggerInterface $logger
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
         $this->etablissementPJRepository = $etablissementPJRepository;
         $this->dataStore = $dataStore;
+        $this->logger = $logger;
     }
 
     public function getHistorique(int $id): Informations
@@ -324,8 +331,17 @@ final class Etablissement
             $pjs,
             function (EtablissementPieceJointe $pj) use ($store): bool {
                 $path = '';
+
                 if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                     $path = $store->getFilePath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
+                }
+
+                if ('' === $path || !is_readable($path)) {
+                    $piece = $pj->getPieceJointe();
+                    $this->logger->warning('La pièce jointe n\'est pas accessible en lecture.', [
+                        'path' => $path,
+                        'filename' => $piece instanceof PieceJointe ? $piece->getNom().$piece->getExtension() : 'Nom de la pièce inconnu',
+                    ]);
                 }
 
                 return '' !== $path && is_readable($path);
@@ -334,6 +350,7 @@ final class Etablissement
 
         return array_map(function (EtablissementPieceJointe $pj) use ($store): array {
             $path = '';
+
             if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                 $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
             }
