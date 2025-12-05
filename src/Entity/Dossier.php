@@ -294,7 +294,7 @@ class Dossier
     private $dateReception;
 
     /**
-     * @var ?\App\Entity\Commission
+     * @var ?Commission
      *
      * @ORM\ManyToOne(targetEntity=Commission::class)
      *
@@ -324,7 +324,7 @@ class Dossier
     private $serviceInstructeur;
 
     /**
-     * @var ?\App\Entity\Avis
+     * @var ?Avis
      *
      * @ORM\ManyToOne(targetEntity=Avis::class)
      *

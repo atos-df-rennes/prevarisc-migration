@@ -38,7 +38,6 @@
             </ul>
         </section>
 
-        {# @todo: Faire une passe sur les champs inutilisés et les supprimer #}
         <section>
             <h4>Informations sur le dossier</h4>
 
@@ -369,7 +368,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.operationSdis is not null %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'OPERSDIS') and dossier.operationSdis is not null %}
                     <li class="row">
                         <div class="left libelle col-md-3">Opération (intervention) SDIS</div>
                         <div class="right value col-md-9">
@@ -378,7 +377,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.rcci is not null %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'RCCI') and dossier.rcci is not null %}
                     <li class="row">
                         <div class="left libelle col-md-3">RCCI (oui/non) lien rapport</div>
                         <div class="right value col-md-9">
@@ -387,7 +386,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.rex %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'REX') and dossier.rex %}
                     <li class="row">
                         <div class="left libelle col-md-3">REX</div>
                         <div class="right value col-md-9">
@@ -396,7 +395,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.chargeSecurite %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'CHARGESEC') and dossier.chargeSecurite %}
                     <li class="row">
                         <div class="left libelle col-md-3">Chargé de sécurité (T)</div>
                         <div class="right value col-md-9">
@@ -405,7 +404,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.numeroIntervention %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'NUMINTERV') and dossier.numeroIntervention %}
                     <li class="row">
                         <div class="left libelle col-md-3">Numéro d'intervention</div>
                         <div class="right value col-md-9">
@@ -414,7 +413,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateIntervention %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEINTERV') and dossier.dateIntervention %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date et heure d'intervention</div>
                         <div class="right value col-md-9">
@@ -423,7 +422,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dureeIntervention %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DUREEINTERV') and dossier.dureeIntervention %}
                     <li class="row">
                         <div class="left libelle col-md-3">Durée intervention</div>
                         <div class="right value col-md-9">
@@ -432,7 +431,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateSignature %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATESIGN') and dossier.dateSignature %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de signature</div>
                         <div class="right value col-md-9">
