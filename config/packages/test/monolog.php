@@ -25,5 +25,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'level' => 'debug',
             ],
         ],
+        'channels' => [
+            'datastore',
+        ]
     ]);
 };
