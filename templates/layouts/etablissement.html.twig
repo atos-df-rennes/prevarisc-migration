@@ -108,7 +108,7 @@
 {% block body_structure %}
     <div id="ligne_informations">
         <h2 class='page-header'>
-            {% if parents_etablissement %}
+            {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
                     <a href="{{ path('etablissement_informations', {id: parent.id}) }}">
                         {{ parent.informations.last.libelle }}

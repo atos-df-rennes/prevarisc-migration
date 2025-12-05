@@ -78,7 +78,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier_fields_service.shouldDisplayField(dossier, 'NUMDOCURBA') and dossier.documentsUrbanisme %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'NUMDOCURBA') and dossier.documentsUrbanisme is not empty %}
                     <li class="row">
                         <div class="left libelle col-md-3">Numéro(s) document(s) d'urbanisme</div>
                         <div class="right value col-md-9">
