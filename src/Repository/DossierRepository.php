@@ -164,7 +164,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         return null === $result ? null : $result->getDateInsert();
     }
 
-    public function findNombreNouvellesPieces(Dossier $dossier, ?\DateTime $dateDerniereVisitePage): int
+    public function findNombreNouvellesPieces(Dossier $dossier, ?\DateTimeInterface $dateDerniereVisitePage): int
     {
         $query = $this->createQueryBuilder('d')
             ->select('COUNT(p)')
