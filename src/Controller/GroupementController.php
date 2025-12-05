@@ -3,8 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Groupement;
-use App\Entity\GroupementType;
+use App\Entity\GroupementType as GroupementTypeEntity;
 use App\Entity\UtilisateurInformations;
+use App\Form\GroupementType as GroupementFormType;
 use App\Repository\CommuneRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\GroupementTypeRepository;
@@ -27,18 +28,24 @@ class GroupementController extends AbstractController
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
+    /** @var CommuneRepository */
+    private $communeRepository;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        CommuneRepository $communeRepository
+    ) {
         $this->entityManager = $entityManager;
+        $this->communeRepository = $communeRepository;
     }
 
     /**
      * @Route("/admin/groupement/", name="admin_groupement")
      */
-    public function index(GroupementTypeRepository $groupementTypeRepository, CommuneRepository $communeRepository): Response
+    public function index(GroupementTypeRepository $groupementTypeRepository): Response
     {
         $groupementTypes = $groupementTypeRepository->findAll();
-        $communes = $communeRepository->findAll();
+        $communes = $this->communeRepository->findAll();
 
         return $this->render('groupement/index.html.twig', [
             'title' => 'Groupements de communes',
@@ -76,37 +83,31 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/display", name="admin_groupement_display")
+     * @Route("/admin/groupement/modifier", name="admin_groupement_modifier")
      */
-    public function display(Request $request, GroupementRepository $groupementRepository, CommuneRepository $communeRepository, GroupementTypeRepository $groupementTypeRepository, UtilisateurRepository $utilisateurRepository): Response
+    public function form(Request $request, GroupementRepository $groupementRepository): Response
     {
-        $communes = $communeRepository->findAll();
-        $types = $groupementTypeRepository->findAll();
-
-        $groupement = null;
-        $preventionnistes = [];
-        $villesDuGroupement = [];
-        $userInfo = null;
-
         $id = $request->query->get('id');
-        if ($id && 0 != $id) {
-            $groupement = $groupementRepository->find($id);
-            if ($groupement) {
-                $preventionnistes = $groupement->getPreventionnistes();
-                $villesDuGroupement = $groupement->getCommunes();
-                $userInfo = $groupement->getInformations();
-            }
+        $groupement = $groupementRepository->find($id);
+
+        if ($groupement === null){
+            $groupement = new Groupement();
         }
+
+        $communes = $this->communeRepository->findAll();
+        $form = $this->createForm(GroupementFormType::class, $groupement, [
+            'scopes' => [
+                GroupementFormType::SCOPE_GENERAL,
+                GroupementFormType::SCOPE_AFFECTATIONS,
+                GroupementFormType::SCOPE_COORDONNEES
+            ]
+        ]);
+
 
         return $this->render('groupement/display.html.twig', [
             'villes' => $communes,
-            'types' => $types,
+            'form' => $form->createView(),
             'groupement' => $groupement,
-            'libelle' => $groupement ? $groupement->getLibelle() : '',
-            'type' => $groupement && $groupement->getType() ? $groupement->getType()->getId() : null,
-            'preventionnistes' => $preventionnistes,
-            'ville_du_groupement' => $villesDuGroupement,
-            'user_info' => $userInfo,
         ]);
     }
 
@@ -177,7 +178,7 @@ class GroupementController extends AbstractController
             $groupement->setLibelle($nomGroupement);
 
             $typeId = $request->request->get('type_groupement');
-            $type = $this->entityManager->getRepository(GroupementType::class)->find($typeId);
+            $type = $this->entityManager->getRepository(GroupementTypeEntity::class)->find($typeId);
             $groupement->setType($type);
 
             $this->entityManager->persist($groupement);
@@ -258,7 +259,7 @@ class GroupementController extends AbstractController
                 throw new \Exception('Libellé invalide');
             }
 
-            $groupementType = new GroupementType();
+            $groupementType = new GroupementTypeEntity();
             $groupementType->setLibelle($libelle);
 
             $this->entityManager->persist($groupementType);

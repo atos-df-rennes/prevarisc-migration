@@ -109,114 +109,116 @@
                     },
                 });
             });
-        })
 
-        $("#confirm").dialog({
-            title: "Suppression d'un groupement",
-            resizable: false,
-            draggable: false,
-            height: 'auto',
-            width: 500,
-            autoOpen: false,
-            modal: true,
-            buttons: [
-                {
-                    text: 'Supprimer le groupement',
-                    class: 'btn btn-danger',
-                    click: function() {
-                        $.ajax({
-                            url: "{{ path('admin_groupement_delete') }}?id=" + $("#gpt option:selected").val(),
-                            beforeSend: function() {
-                                $("#remove").button("disable");
-                            },
-                            success: function(result) {
-                                $("#remove").button("enable");
-                                notify("Le groupement a bien été supprimé.")
 
-                                $("#gpt option:selected").remove();
-                                $("#gpt option:first").attr("selected", "selected");
-                                $("#gpt").change();
+            $("#confirm").dialog({
+                title: "Suppression d'un groupement",
+                resizable: false,
+                draggable: false,
+                height: 'auto',
+                width: 500,
+                autoOpen: false,
+                modal: true,
+                buttons: [
+                    {
+                        text: 'Supprimer le groupement',
+                        class: 'btn btn-danger',
+                        click: function() {
+                            $.ajax({
+                                url: "{{ path('admin_groupement_delete') }}?id=" + $("#gpt option:selected").val(),
+                                beforeSend: function() {
+                                    $("#remove").button("disable");
+                                },
+                                success: function(result) {
+                                    $("#remove").button("enable");
+                                    notify("Le groupement a bien été supprimé.")
 
-                                $("#confirm").dialog("close");
-                            }
-                        });
+                                    $("#gpt option:selected").remove();
+                                    $("#gpt option:first").attr("selected", "selected");
+                                    $("#gpt").change();
+
+                                    $("#confirm").dialog("close");
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'Annuler',
+                        class: 'btn',
+                        click: function() {
+                            $("#confirm").dialog("close");
+                        }
                     }
-                },
-                {
-                    text: 'Annuler',
-                    class: 'btn',
-                    click: function() {
-                        $("#confirm").dialog("close");
-                    }
-                }
-            ]
-        });
-
-        // Boutons de la toolbar
-        $("#new").button({
-            icons: { primary: "ui-icon-plus" }
-        }).click(function() {
-            $('#add').find("input").val('');
-            $("#add").dialog("open");
-        });
-
-        $("#save").click(function() {
-            // Selection de toutes les villes pour les passer dans le formulaire
-            $("#villes_groupement option").each(function(){ $(this).attr("selected", true); });
-
-            // On envoit le tout en ajax
-            $.ajax({
-                url: "{{ path('admin_groupement_add') }}",
-                type: "post",
-                data: $("#form").serialize() + "&" + $("#formulaire_contact").serialize(),
-                beforeSend: function() {
-                    $("#save").button("disable");
-                },
-                success: function(result) {
-                    $("#save").button("enable");
-                    notify("Le groupement a bien été mis à jour.");
-                    $("select#gpt option:selected").remove();
-                    $("select#gpt > optgroup#gpt_" + result["type"]).append($("<option></option>").val(result["id"]).html(result["libelle"]).attr("selected", "selected"));
-                    $("select#gpt").change();
-                }
+                ]
             });
 
-            // On deselectionne les villes
-            $("#villes_groupement option").each(function(){ $(this).attr("selected", false); });
-        });
+            // Boutons de la toolbar
+            $("#new").button({
+                icons: { primary: "ui-icon-plus" }
+            }).click(function() {
+                $('#add').find("input").val('');
+                $("#add").dialog("open");
+            });
 
-        $("#delete").click(function() {
-            $("#confirm").dialog("open");
-        });
+            $("#save").click(function() {
+                // Selection de toutes les villes pour les passer dans le formulaire
+                $("#villes_groupement option").each(function(){ $(this).attr("selected", true); });
 
-        // Gestion des évenements de la liste déroulante
-        $("#gpt").change(function() {
-            if($("#gpt").val() != null) {
-                if($("#gpt").val() == 0)
-                    $("#delete").button("disable");
-                else
-                    $("#delete").button("enable");
-
-                const $content = $("#form > #content");
-
+                // On envoit le tout en ajax
                 $.ajax({
-                    url: "{{ path('admin_groupement_modifier') }}?id=" + $("#gpt").val(),
+                    url: "{{ path('admin_groupement_add') }}",
+                    type: "post",
+                    data: $("#form").serialize() + "&" + $("#formulaire_contact").serialize(),
                     beforeSend: function() {
-                        $content.css("opacity", 0.5);
+                        $("#save").button("disable");
                     },
                     success: function(result) {
-                        $content.html(result);
-                        $content.css("opacity", 1);
+                        $("#save").button("enable");
+                        notify("Le groupement a bien été mis à jour.");
+                        $("select#gpt option:selected").remove();
+                        $("select#gpt > optgroup#gpt_" + result["type"]).append($("<option></option>").val(result["id"]).html(result["libelle"]).attr("selected", "selected"));
+                        $("select#gpt").change();
                     }
                 });
 
-                $("#id_gpt").val($("#gpt").val());
-                $("#save").button("enable");
-            } else {
-                $("#save").button("disable");
-            }
-        });
+                // On deselectionne les villes
+                $("#villes_groupement option").each(function(){ $(this).attr("selected", false); });
+            });
 
-        $("#gpt").change();
+            $("#delete").click(function() {
+                $("#confirm").dialog("open");
+            });
+
+            // Gestion des évenements de la liste déroulante
+            $groupementSelect = $("#gpt");
+            $groupementSelect.change(function() {
+                if($groupementSelect.val() != null) {
+                    if($groupementSelect.val() == 0)
+                        $("#delete").button("disable");
+                    else
+                        $("#delete").button("enable");
+
+                    const $content = $("#form > #content");
+
+                    $.ajax({
+                        url: "{{ path('admin_groupement_modifier') }}?id=" + $groupementSelect.val(),
+                        beforeSend: function() {
+                            $content.css("opacity", 0.5);
+                        },
+                        success: function(result) {
+                            $content.html(result);
+                            $content.css("opacity", 1);
+                        }
+                    });
+
+                    $("#id_gpt").val($groupementSelect.val());
+                    $("#save").button("enable");
+                } else {
+                    $("#save").button("disable");
+                }
+            });
+
+            $groupementSelect.change();
+        })
     </script>
 {% endblock %}

@@ -10,59 +10,65 @@
     <div class="tab-content">
         <!-- Partie générale -->
         <div id="tabs-1" role="tabpanel" class="tab-pane active" >
-            <dl class="dl-horizontal">
-                <!-- Libellé du groupement -->
-                <dt>Libellé du groupement</dt>
-                <dd><input type="text" id="nom_groupement" name="nom_groupement" value="{{ libelle|e("html_attr") }}" size=30 /></dd>
+            <div class="form-group">
+                {{ form_label(form.libelle, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.libelle, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.libelle) }}
+            </div>
 
-                <!-- Type du groupement-->
-                <dt>Type</dt>
-                <dd>
-                    <select id="type_groupement" name="type_groupement">
-                    {% for t in types %}
-                        <option id="{{ t.id }}" value="{{ t.id }}" {% if t.id == type %}selected{% endif %}>{{ t.libelle }}</option>
+            <div class="form-group">
+                {{ form_label(form.type, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.type, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.type) }}
+            </div>
+
+
+            <div class="form-group">
+                {% do form.communes.setRendered %}
+                <label class="control-label" for="villes_groupement">Villes du groupement</label>
+                <div class="clearfix"></div>
+
+                <select id="liste_villes" multiple size=20 class="pull-left" style="height: 300px; width: 30%;">
+                    {% for ville in villes %}
+                        <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
                     {% endfor %}
-                    </select>
-                </dd>
+                </select>
 
-                <!-- Liste des villes -->
-                <dt>Villes du groupement</dt>
-                <dd>
-                    <select id="liste_villes" multiple size=20 class="pull-left" style="height: 300px; width: 30%;">
-                        {% for ville in villes %}
+                <div class="pull-left btn-group btn-group-vertical" style="padding: 20px;">
+                    <button id="add_ville" type="button" class="btn"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                    <button id="remove_ville" type="button" class="btn"><span class="glyphicon glyphicon-chevron-left"></span></button>
+                </div>
+
+                <select id="villes_groupement" name="communes[]" class="pull-left" multiple size=20 style="height: 300px; width: 30%;">
+                    {% if groupement.communes is iterable %}
+                        {% for ville in groupement.communes %}
                             <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
                         {% endfor %}
-                    </select>
-
-                    <div class="pull-left btn-group btn-group-vertical" style="padding: 20px;">
-                        <button id="add_ville" type="button" class="btn"><i class="icon-chevron-right"></i></button>
-                        <button id="remove_ville" type="button" class="btn"><i class="icon-chevron-left"></i></button>
-                    </div>
-
-                    <select id="villes_groupement" name="villes[]" class="pull-left" multiple size=20 style="height: 300px; width: 30%;">
-                        {% if ville_du_groupement is iterable %}
-                            {% for ville in ville_du_groupement %}
-                                <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
-                            {% endfor %}
-                        {% endif %}
-                    </select>
-                </dd>
-            </dl>
+                    {% endif %}
+                </select>
+            </div>
+{#            <div class="form-group">#}
+{#                {{ form_label(form.communes, null, {label_attr: {class: 'control-label'}}) }}#}
+{#                {{ form_widget(form.communes, {attr: {class: 'form-control', style: 'height: 300px;'}}) }}#}
+{#                {{ form_errors(form.communes) }}#}
+{#            </div>#}
         </div>
 
         <!-- Partie des préventionnistes -->
         <div id="tabs-2" role="tabpanel" class="tab-pane">
-            <br />
-            <!-- Ajouter un préventionniste -->
-            <input type="text" size="60" id="preventionnistes-autocomplete" value="" class="input-xlarge" placeholder="Saisissez le nom d'un préventionniste ..." />
+            <div class="form-group">
+                {{ form_label(form.preventionnistes, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.preventionnistes, {attr: {class: 'form-control', size: 10}}) }}
+                {{ form_errors(form.preventionnistes) }}
+            </div>
 
-            {% if preventionnistes|length > 0 %}
+            {% if groupement and groupement.preventionnistes|length > 0 %}
                 <button
                     id="preventionniste"
                     class="btn btn-info"
                     type="button"
                     style="margin-bottom: 10px;"
-                    data-loading-text="Affectation <img src="/images/load.gif" />"
+                    data-loading-text="Affectation <img src='/images/load.gif' />"
                 >
                     Affecter aux établissements
                 </button>
@@ -70,52 +76,90 @@
                     Les préventionnistes ont été affectés.
                 </span>
             {% endif %}
-
-            <!-- Afficher la liste des prev. -->
-            <ul class="liste_informations" id="liste_prev">
-                {% for preventionniste in preventionnistes %}
-                    <li id="prev_{{ preventionniste.id }}">
-                        <span><a href="{{ path("utilisateur_profile", {uid: preventionniste.id}) }}">{{ preventionniste.informations.grade }} {{ preventionniste.informations.nom }} {{ preventionniste.informations.prenom }}</a></span>
-                        <span class="action" style="float: right"><a style="text-decoration: none;" href="javascript:void(0)" onclick="$(this).parent().parent().remove()">&times;</a></span>
-                        <input type="hidden" name="prev[]" value="{{ preventionniste.id }}" />
-                    </li>
-                {% endfor %}
-            </ul>
         </div>
 
         <!-- Coordonnées -->
         <div id="tabs-3" role="tabpanel" class="tab-pane">
-            <dl class="dl-horizontal">
-                <dt>Nom</dt>
-                <dd><input type="text" name="NOM_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.nom : "" }}" /></dd>
 
-                <dt>Prénom</dt>
-                <dd><input type="text" name="PRENOM_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.prenom : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.societe, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.societe, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.societe) }}
+            </div>
 
-                <dt>Téléphone fixe</dt>
-                <dd><input type="text" name="TELFIXE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.telephoneFixe : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.nom, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.nom, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.nom) }}
+            </div>
 
-                <dt>Téléphone portable</dt>
-                <dd><input type="text" name="TELPORTABLE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.telephonePortable : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.prenom, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.prenom, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.prenom) }}
+            </div>
 
-                <dt>Fax</dt>
-                <dd><input type="text" name="TELFAX_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.telephoneFax : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.telephoneFixe, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.telephoneFixe, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.telephoneFixe) }}
+            </div>
 
-                <dt>Email</dt>
-                <dd><input type="text" name="MAIL_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.mail : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.telephonePortable, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.telephonePortable, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.telephonePortable) }}
+            </div>
 
-                <dt>Numéro adresse</dt>
-                <dd><input type="text" name="NUMEROADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.numeroAdresse : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.telephoneFax, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.telephoneFax, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.telephoneFax) }}
+            </div>
 
-                <dt>Rue</dt>
-                <dd><input type="text" name="RUEADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.rueAdresse : "" }}" /></dd>
+            <div class="form-group">
+                {{ form_label(form.informations.mail, null, {label_attr: {class: 'control-label'}}) }}
+                {{ form_widget(form.informations.mail, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.mail) }}
+            </div>
+            <fieldset>
+                <div class="form-group">
+                    {{ form_label(form.informations.numeroAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.numeroAdresse, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.numeroAdresse) }}
+                </div>
 
-                <dt>Code postal</dt>
-                <dd><input type="text" name="CPADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.codePostalAdresse : "" }}" /></dd>
+                <div class="form-group">
+                    {{ form_label(form.informations.rueAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.rueAdresse, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.rueAdresse) }}
+                </div>
 
-                <dt>Ville</dt>
-                <dd><input type="text" name="VILLEADRESSE_UTILISATEURINFORMATIONS" value="{{ user_info ? user_info.villeAdresse : "" }}" /></dd>
-            </dl>
+                <div class="form-group">
+                    {{ form_label(form.informations.codePostalAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.codePostalAdresse, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.codePostalAdresse) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.informations.villeAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.villeAdresse, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.villeAdresse) }}
+                </div>
+            </fieldset>
+
+            <div class="form-group">
+                {{ form_label(form.informations.observations, null, {label: 'Observations'}) }}
+                {{ form_widget(form.informations.observations, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.observations) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.informations.siteWeb) }}
+                {{ form_widget(form.informations.siteWeb, {attr: {class: 'form-control'}}) }}
+                {{ form_errors(form.informations.siteWeb) }}
+            </div>
+
         </div>
 
         <!-- Partie contact -->
@@ -123,11 +167,13 @@
     </div>
 </div>
 
+{{ form_rest(form) }}
+
 <script type="text/javascript">
     //réaffecter un préventionniste
     $("#preventionniste").click(function() {
         $.ajax({
-            url: "{{ path("admin_groupement_preventionniste") }}",
+            url: "{{ path('admin_groupement_preventionniste') }}",
             data: "groupement=" + $("#gpt option:selected").text(),
             type: "POST",
             beforeSend: function() {
@@ -143,87 +189,8 @@
         })
     });
 
-    // Ajouter une ville
-    $("#add_ville").click(function() {
-        $("#liste_villes option:selected").each(function() {
-            $("#villes_groupement").append($("<option></option>").val($(this).val()).html($(this).text()));
-            $(this).attr("disabled","disabled").removeAttr("selected");
-        });
-        $("#liste_villes").change();
-        return false;
-    });
-
-    // Enlever une ville
-    $("#remove_ville").click(function() {
-        $("#villes_groupement option:selected").each(function() {
-            $(this).remove();
-            $("#liste_villes option[value=" + $(this).val() + "]").removeAttr("disabled");
-        });
-        $("#liste_villes").change();
-        $("#villes_groupement").change();
-        return false;
-    });
-
-    // Gestion des boutons du milieux
-    $("#liste_villes, #villes_groupement").change(function() {
-        if($(this).children(":selected").size() == 0)
-            $((($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville")).button("disable");
-        else
-            $((($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville")).button("enable");
-    });
-
-    // Partie prev ----------------------------------------------------------------------------------------------------------------
-
-    // Auto-complétion des préventionnistes
-    // TODO: Remplacer par TomSelect
-    // $("#preventionnistes-autocomplete").typeahead({
-    //     minLength: 3,
-    //     source: function(query, process) {
-    //         return $.ajax({
-    //             url: "/api/1.0/search/users",
-    //             type: "post",
-    //             data: {
-    //                 name: query,
-    //                 fonctions: 13,
-    //                 limit: 100,
-    //             },
-    //             success: function (result) {
-    //                 preventionnistes = [];
-    //                 $.each(result.response.results, function (i, preventionniste) {
-    //                     preventionnistes.push("<span data-id='" + preventionniste.uid + "'>" + preventionniste.NOM_UTILISATEURINFORMATIONS + " " + preventionniste.PRENOM_UTILISATEURINFORMATIONS + "</span>");
-    //                 });
-    //
-    //                 process(preventionnistes);
-    //             }
-    //         });
-    //     },
-    //     highlighter: function (item) {
-    //         libelle = $($.parseHTML(item)).last().text();
-    //         libelle = libelle.replace(new RegExp('(' + this.query + ')', 'gi'), "<strong>$1</strong>");
-    //         html = $.parseHTML(item);
-    //         $(html).last().text(libelle);
-    //         html = $(html).text();
-    //         return item.replace(item, html);
-    //     },
-    //     updater: function (item) {
-    //         var nom = $($.parseHTML(item)).last().text();
-    //         var id = $($.parseHTML(item)).last().data('id');
-    //
-    //         $("#liste_prev").append("<li><span class='action' style='float: right'><a style='text-decoration: none;' href='' onclick='$(this).parent().parent().remove(); return false;'>&times;</a></span>"
-    //             + "<span class='valeur'><a href='/user/profile/uid/" + id + "'>" + nom + "</a></span>"
-    //             + "<input type='hidden' name='prev[]' value='" + id + "' /></li>");
-    //
-    //         return;
-    //     }
-    // });
-
     // Partie Contact ----------------------------------------------------------------------------------------------------------------
-    {% if groupement %}
+    {% if groupement and groupement.id %}
     $("#tabs-4").load("/contact?item=groupement&id={{ groupement.id }}");
     {% endif %}
-
-    // On cache les villes déjà selectionnées
-    $("#villes_groupement option").each(function() {
-        $("#liste_villes option[id='" + $(this).attr("id") + "']").attr("disabled","disabled");
-    });
 </script>
