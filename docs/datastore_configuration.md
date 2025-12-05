@@ -20,7 +20,7 @@ Le choix du DataStore se fait via la variable d'environnement `PREVARISC_DATASTO
 
 ### Configuration dans Apache
 
-La variable d'environnement est définie dans le fichier `apache/httpd-prevarisc-config.conf` (ligne 87) :
+La variable d'environnement est définie dans le fichier `apache/httpd-prevarisc-config.conf` :
 
 ```apache
 SetEnv PREVARISC_DATASTORE_ADAPTER "Plugin_HashedFileDataStore"
