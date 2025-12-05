@@ -51,6 +51,11 @@
             <a href="{{ path('admin_textes_applicables') }}"><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
         </li>
 
+        <li {% if app.request.get('_route') is same as('admin_documents_manquants') %}class="active"{% endif %}>
+            <a href='{{ path('admin_documents_manquants') }}'><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
+                Gestion des documents manquants</a>
+        </li>
+
         <li class="nav-header">Paramétrage du logiciel</li>
 
         <li {% if app.request.get('_route') is same as('admin_tableau_des_periodicites') %}class="active"{% endif %}>

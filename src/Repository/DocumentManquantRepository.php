@@ -46,4 +46,12 @@ class DocumentManquantRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    public function findAllSorted(): array
+    {
+        return $this->createQueryBuilder('dm')
+            ->orderBy('dm.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
