@@ -8,9 +8,11 @@ use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
+use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\DateAffectation;
 use App\Service\DossierFieldsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -34,8 +36,12 @@ class DossierController extends AbstractController
      *
      * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
      */
-    public function index(Dossier $dossier, DossierFieldsService $dossierFieldsService): Response
-    {
+    public function index(
+        Dossier $dossier,
+        DossierFieldsService $dossierFieldsService,
+        DateAffectation $dateAffectation,
+        DossierAffectationRepository $dossierAffectationRepository
+    ): Response {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
             && !$dossier->isHorsDelai()
             && !$dossier->hasAvisDiffere()
@@ -43,10 +49,15 @@ class DossierController extends AbstractController
             && !$dossier->hasNePeutSePrononcer()
         ;
 
+        $affectation = $dossierAffectationRepository->findOneBy(['dossier' => $dossier]);
+        $dateCommissionAffectation = $affectation ? $affectation->getDateCommission() : null;
+        $idDateCommission = $dateAffectation->getIdDateCommission($dossier, $dateCommissionAffectation);
+
         return $this->render('dossier/index.html.twig', [
             'dossier' => $dossier,
             'afficher_avis' => $afficherAvis,
-            'dossier_fields_service' => $dossierFieldsService
+            'dossier_fields_service' => $dossierFieldsService,
+            'id_date_commission' => $idDateCommission,
         ]);
     }
 

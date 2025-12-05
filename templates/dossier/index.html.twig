@@ -42,14 +42,16 @@
             <h4>Informations sur le dossier</h4>
 
             <ul class='list-unstyled'>
-                <li class='row'>
-                    <div class='left libelle col-md-3'>Date de création du dossier</div>
-                    <div class='right value col-md-9'>
-                        {{ dossier.dateInsert|date('d/m/Y') }} par : {{ dossier.createur.informations.nom }} {{ dossier.createur.informations.prenom }}
-                    </div>
-                </li>
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEINSERT') %}
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>Date de création du dossier</div>
+                        <div class='right value col-md-9'>
+                            {{ dossier.dateInsert|date('d/m/Y') }} par : {{ dossier.createur.informations.nom }} {{ dossier.createur.informations.prenom }}
+                        </div>
+                    </li>
+                {% endif %}
 
-                {% if dossier.objet %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'OBJET') and dossier.objet %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Objet</div>
                         <div class='right value col-md-9'>
@@ -58,7 +60,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.demandeur %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DEMANDEUR') and dossier.demandeur %}
                     <li class="row">
                         <div class="left libelle col-md-3">Demandeur</div>
                         <div class="right value col-md-9">
@@ -67,7 +69,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.lieuReunion %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'LIEUREUNION') and dossier.lieuReunion %}
                     <li class="row">
                         <div class="left libelle col-md-3">Lieu réunion</div>
                         <div class="right value col-md-9">
@@ -76,7 +78,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.documentsUrbanisme %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'NUMDOCURBA') and dossier.documentsUrbanisme %}
                     <li class="row">
                         <div class="left libelle col-md-3">Numéro(s) document(s) d'urbanisme</div>
                         <div class="right value col-md-9">
@@ -89,7 +91,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateMairie %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEMAIRIE') and dossier.dateMairie %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de réception mairie</div>
                         <div class="right value col-md-9">
@@ -98,7 +100,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateSecretariat %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATESECRETARIAT') and dossier.dateSecretariat %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de réception secrétariat SDIS</div>
                         <div class="right value col-md-9">
@@ -107,7 +109,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateEnvoiTransit %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEENVTRANSIT') and dossier.dateEnvoiTransit %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date d'envoi/transit</div>
                         <div class="right value col-md-9">
@@ -116,7 +118,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateReception %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATESDIS') and dossier.dateReception %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de réception SDIS</div>
                         <div class="right value col-md-9">
@@ -125,7 +127,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.serviceInstructeur %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'SERVICEINSTRUC') and dossier.serviceInstructeur %}
                     <li class="row">
                         <div class="left libelle col-md-3">Service instructeur</div>
                         <div class="right value col-md-9">
@@ -134,7 +136,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.commission %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'COMMISSION') and dossier.commission %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Commission concernée</div>
                         <div class='right value col-md-9'>
@@ -143,7 +145,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateVisite %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEVISITE') and dossier.dateVisite %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Date de visite</div>
                         <div class='right value col-md-9'>
@@ -152,7 +154,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateReceptionRvrat %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATERVRAT') and dossier.dateReceptionRvrat %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de réception du RVRAT et attestation solidité et MO</div>
                         <div class="right value col-md-9">
@@ -161,7 +163,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateCommission %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATECOMM') and dossier.dateCommission %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Date de commission en salle</div>
                         <div class='right value col-md-9'>
@@ -176,7 +178,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.reglesDerogation %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'REGLEDEROG') and dossier.reglesDerogation %}
                     <li class="row">
                         <div class="left libelle col-md-3">Règles auxquelles il est demandé de déroger</div>
                         <div class="right value col-md-9">
@@ -185,7 +187,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.justificationDerogation %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'JUSTIFDEROG') and dossier.justificationDerogation %}
                     <li class="row">
                         <div class="left libelle col-md-3">Justification de la dérogation</div>
                         <div class="right value col-md-9">
@@ -194,7 +196,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.mesuresCompensatoires %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'MESURESCOMPENS') and dossier.mesuresCompensatoires %}
                     <li class="row">
                         <div class="left libelle col-md-3">Mesures compensatoires proposées</div>
                         <div class="right value col-md-9">
@@ -203,7 +205,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.mesuresComplementaires %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'MESURESCOMPLE') and dossier.mesuresComplementaires %}
                     <li class="row">
                         <div class="left libelle col-md-3">Mesures complémentaires à respecter</div>
                         <div class="right value col-md-9">
@@ -213,7 +215,7 @@
                 {% endif %}
 
                 {# @todo: Ajouter les documents manquants #}
-                {% if dossier.incomplet is not null %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'INCOMPLET') and dossier.incomplet is not null %}
                     <li class="row">
                         <div class="left libelle col-md-3">État du dossier</div>
                         <div class="right value col-md-9">
@@ -222,35 +224,35 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.horsDelai %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'HORSDELAI') and dossier.horsDelai %}
                     <li class="row">
                         <div class="left libelle col-md-3">Hors délai</div>
                         <div class="right value col-md-9">Oui</div>
                     </li>
                 {% endif %}
 
-                {% if dossier.avisDiffere %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DIFFEREAVIS') and dossier.avisDiffere %}
                     <li class="row">
                         <div class="left libelle col-md-3">Diffère l'avis</div>
                         <div class="right value col-md-9">Oui</div>
                     </li>
                 {% endif %}
 
-                {% if dossier.nePeutSePrononcer %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'NPSP') and dossier.nePeutSePrononcer %}
                     <li class="row">
                         <div class="left libelle col-md-3">Ne peut se prononcer</div>
                         <div class="right value col-md-9">Oui</div>
                     </li>
                 {% endif %}
 
-                {% if dossier.absenceDeQuorum %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'ABSQUORUM') and dossier.absenceDeQuorum %}
                     <li class="row">
                         <div class="left libelle col-md-3">Absence de quorum</div>
                         <div class="right value col-md-9">Oui</div>
                     </li>
                 {% endif %}
 
-                {% if dossier.avis %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'AVIS') and dossier.avis %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>
                             Avis du {% if dossier.type.id == 3 %}groupe de visite{% else %}rapporteur{% endif %}
@@ -265,7 +267,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateLimitePrescription %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DELAIPRESC') and dossier.dateLimitePrescription %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date avant laquelle les prescriptions doivent être levées</div>
                         <div class="right value col-md-9">
@@ -274,7 +276,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.avisCommission and afficher_avis %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'AVIS_COMMISSION') and dossier.avisCommission and afficher_avis %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Avis de la commission</div>
                         <div class='right value col-md-9'>
@@ -314,7 +316,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.observations %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'OBSERVATION') and dossier.observations %}
                     <li class="row">
                         <div class="left libelle col-md-3">Observations</div>
                         <div class="right value col-md-9">
@@ -323,7 +325,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.datePrefecture %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEPREF') and dossier.datePrefecture %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date réception préfecture</div>
                         <div class="right value col-md-9">
@@ -332,7 +334,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateReponse %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEREP') and dossier.dateReponse %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Date de réponse</div>
                         <div class='right value col-md-9'>
@@ -341,7 +343,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateTransfertCommission %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATETRANSFERTCOMM') and dossier.dateTransfertCommission %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de transfert à la commission compétente</div>
                         <div class="right value col-md-9">
@@ -350,7 +352,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateReceptionCommission %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATERECEPTIONCOMM') and dossier.dateReceptionCommission %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date de réception à la commission compétente</div>
                         <div class="right value col-md-9">
@@ -359,7 +361,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.dateReunion %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DATEREUN') and dossier.dateReunion %}
                     <li class="row">
                         <div class="left libelle col-md-3">Date réunion</div>
                         <div class="right value col-md-9">
@@ -440,7 +442,43 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.preventionnistes is not empty %}
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'COORDSSI') and dossier.coordSSI %}
+                    <li class="row">
+                        <div class="left libelle col-md-3">Coordonnées SSI</div>
+                        <div class="right value col-md-9">
+                            {{ dossier.coordSSI|nl2br }}
+                        </div>
+                    </li>
+                {% endif %}
+
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DESCGEN') and dossier.descriptionGenerale %}
+                    <li class="row">
+                        <div class="left libelle col-md-3">Description générale</div>
+                        <div class="right value col-md-9">
+                            {{ dossier.descriptionGenerale|nl2br }}
+                        </div>
+                    </li>
+                {% endif %}
+
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'DESCEFF') and dossier.descriptionEffectif %}
+                    <li class="row">
+                        <div class="left libelle col-md-3">Description de l'effectif</div>
+                        <div class="right value col-md-9">
+                            {{ dossier.descriptionEffectif|nl2br }}
+                        </div>
+                    </li>
+                {% endif %}
+
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'NUMCHRONO') and dossier.numeroChronologique %}
+                    <li class="row">
+                        <div class="left libelle col-md-3">Numéro chronologique</div>
+                        <div class="right value col-md-9">
+                            {{ dossier.numeroChronologique }}
+                        </div>
+                    </li>
+                {% endif %}
+
+                {% if dossier_fields_service.shouldDisplayField(dossier, 'PREVENTIONNISTE') and dossier.preventionnistes is not empty %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
                         <div class='right value col-md-9'>
