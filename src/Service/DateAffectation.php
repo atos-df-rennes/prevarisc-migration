@@ -41,10 +41,6 @@ final class DateAffectation
         }
 
         if (null === $dateCommission) {
-            $this->logger->error('La date de commission est null.', [
-                'id_dossier' => $dossierId
-            ]);
-
             return null;
         }
 

@@ -73,11 +73,9 @@ final class DateAffectationTest extends KernelTestCase
 
     public function testGetWithEtudeAndNullDateCommissionLogsError(): void
     {
-        // Pour une étude, on s'attend à un retour, donc une date de commission null doit logger une erreur
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error')
-            ->with('La date de commission est null.', ['id_dossier' => 1]);
+        $logger->expects($this->never())
+            ->method('error');
 
         $dateAffectation = new DateAffectation($logger);
         $dossier = $this->createDossierOfType(1);
@@ -87,11 +85,9 @@ final class DateAffectationTest extends KernelTestCase
 
     public function testGetWithVisiteAndNullDateCommissionLogsError(): void
     {
-        // Pour une visite, si la date de commission est null, on log une erreur
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error')
-            ->with('La date de commission est null.', ['id_dossier' => 1]);
+        $logger->expects($this->never())
+            ->method('error');
 
         $dateAffectation = new DateAffectation($logger);
         $dossier = $this->createDossierOfType(2);
