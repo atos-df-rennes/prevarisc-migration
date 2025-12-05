@@ -442,42 +442,6 @@
                     </li>
                 {% endif %}
 
-                {% if dossier_fields_service.shouldDisplayField(dossier, 'COORDSSI') and dossier.coordSSI %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Coordonnées SSI</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.coordSSI|nl2br }}
-                        </div>
-                    </li>
-                {% endif %}
-
-                {% if dossier_fields_service.shouldDisplayField(dossier, 'DESCGEN') and dossier.descriptionGenerale %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Description générale</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.descriptionGenerale|nl2br }}
-                        </div>
-                    </li>
-                {% endif %}
-
-                {% if dossier_fields_service.shouldDisplayField(dossier, 'DESCEFF') and dossier.descriptionEffectif %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Description de l'effectif</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.descriptionEffectif|nl2br }}
-                        </div>
-                    </li>
-                {% endif %}
-
-                {% if dossier_fields_service.shouldDisplayField(dossier, 'NUMCHRONO') and dossier.numeroChronologique %}
-                    <li class="row">
-                        <div class="left libelle col-md-3">Numéro chronologique</div>
-                        <div class="right value col-md-9">
-                            {{ dossier.numeroChronologique }}
-                        </div>
-                    </li>
-                {% endif %}
-
                 {% if dossier_fields_service.shouldDisplayField(dossier, 'PREVENTIONNISTE') and dossier.preventionnistes is not empty %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
