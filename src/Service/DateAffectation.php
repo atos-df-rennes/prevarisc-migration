@@ -35,30 +35,22 @@ final class DateAffectation
 
         $dossierTypeId = $dossierType->getId();
 
-        // Pour les études (type 1), on s'attend toujours à un retour
-        if (1 === $dossierTypeId) {
-            if (null === $dateCommission) {
-                $this->logger->error('La date de commission est null.', [
-                    'id_dossier' => $dossierId
-                ]);
+        // Types non gérés (autres que 1, 2 ou 3)
+        if (!in_array($dossierTypeId, [1, 2, 3], true)) {
+            return null;
+        }
 
-                return null;
-            }
+        if (null === $dateCommission) {
+            $this->logger->error('La date de commission est null.', [
+                'id_dossier' => $dossierId
+            ]);
 
-            return $dateCommission->getId();
+            return null;
         }
 
         // Pour les visites et groupes de visites (types 2 et 3),
-        // on s'attend à un retour seulement si le type d'événement est 1 (commission en salle)
+        // on vérifie d'abord le type d'événement
         if (in_array($dossierTypeId, [2, 3], true)) {
-            if (null === $dateCommission) {
-                $this->logger->error('La date de commission est null.', [
-                    'id_dossier' => $dossierId
-                ]);
-
-                return null;
-            }
-
             $dateCommissionTypeEvenement = $dateCommission->getTypeEvenement();
             if (null === $dateCommissionTypeEvenement) {
                 $this->logger->error('Le type d\'événement de la date de commission est null.', [
@@ -69,12 +61,14 @@ final class DateAffectation
                 return null;
             }
 
-            $dateCommissionTypeId = $dateCommissionTypeEvenement->getId();
-            if (1 === $dateCommissionTypeId) {
-                return $dateCommission->getId();
+            // On ne s'attend à un retour que si le type d'événement est 1 (commission en salle)
+            if (1 !== $dateCommissionTypeEvenement->getId()) {
+                return null;
             }
         }
 
-        return null;
+        // Ici, on a soit une étude (type 1), soit une visite/groupe (types 2 ou 3) avec type événement 1
+        // Dans tous ces cas, on s'attend à une date de commission
+        return $dateCommission->getId();
     }
 }
