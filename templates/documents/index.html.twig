@@ -73,7 +73,7 @@
     </div>
 
     {% set type_commission = null %}
-    {% for id_commission, informations_commission in commissions %}
+    {% for informations_commission in commissions %}
         {% if informations_commission.type is not same as(type_commission) %}
             <h4>{{ informations_commission.type }}</h4>
 
@@ -81,7 +81,13 @@
         {% endif %}
 
         <div class="col-xs-12">
-            <h5>{{ informations_commission.nom }} {% if informations_commission.documents is not null %}<span class="badge">{{ informations_commission.documents|length }}</span>{% endif %}</h5>
+            <h5>
+                {{ informations_commission.nom }}
+
+                {% if informations_commission.documents is not null %}
+                    <span class="badge">{{ informations_commission.documents|length }}</span>
+                {% endif %}
+            </h5>
 
             {% if informations_commission.documents is not null %}
                 {% if informations_commission.documents|length > 0 %}
@@ -96,7 +102,7 @@
                         {% for document in informations_commission.documents %}
                             <tr>
                                 <td><a href="{{ document.filepath }}">{{ document.filename }}</a></td>
-                                <td><button type="button" class="btn btn-link btn-xs supp" id="{{ document.filename }}" data-comm-id="{{ id_commission }}" data-toggle="modal" data-target="#dialog-supp">Suppression du document</button></td>
+                                <td><button type="button" class="btn btn-link btn-xs supp" id="{{ document.filename }}" data-comm-id="{{ informations_commission.id }}" data-toggle="modal" data-target="#dialog-supp">Suppression du document</button></td>
                             </tr>
                         {% endfor %}
                         </tbody>
