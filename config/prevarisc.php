@@ -79,6 +79,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_MAIL_ENABLED)', 0);
     $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');
 
+    $parameters->set('env(PREVARISC_DATASTORE_ADAPTER)', 'Plugin_SimpleFileDataStore');
+
+    $parameters->set('app.datastore_adapter', '%env(string:PREVARISC_DATASTORE_ADAPTER)%');
+
     $parameters->set('env(PREVARISC_DATA_PATH)', '/data');
     $parameters->set('app.data_path', '%env(string:PREVARISC_DATA_PATH)%');
 

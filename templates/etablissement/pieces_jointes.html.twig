@@ -30,7 +30,7 @@
                     {% for piecejointe in doc_pjs %}
                         <tr>
                             <td>
-                                <a href='{{ absolute_url(piecejointe.1) }}' target='_blank' >
+                                <a href="{{ '/piece-jointe/get/id/' ~ etablissement.id ~ '/idpj/' ~ piecejointe.0.pieceJointe.id ~ '/type/etablissement' }}" target='_blank' >
                                     {{ piecejointe.0.pieceJointe.nom }}{{ piecejointe.0.pieceJointe.extension }}
                                 </a>
                             </td>
