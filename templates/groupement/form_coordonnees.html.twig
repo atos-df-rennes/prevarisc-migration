@@ -1,0 +1,89 @@
+{{ form_start(form, {'attr': {'id': 'form-coordonnees'}, 'action': path('admin_groupement_form_scope', {'scope': 'coordonnees'}) ~ '?id=' ~ groupement.id}) }}
+
+<div class="form-group">
+    {{ form_label(form.informations.societe, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.societe, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.societe) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.nom, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.nom, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.nom) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.prenom, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.prenom, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.prenom) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.telephoneFixe, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.telephoneFixe, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.telephoneFixe) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.telephonePortable, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.telephonePortable, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.telephonePortable) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.telephoneFax, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.telephoneFax, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.telephoneFax) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.mail, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.informations.mail, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.mail) }}
+</div>
+
+<fieldset>
+    <div class="form-group">
+        {{ form_label(form.informations.numeroAdresse, null, {label_attr: {class: 'control-label'}}) }}
+        {{ form_widget(form.informations.numeroAdresse, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.informations.numeroAdresse) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.informations.rueAdresse, null, {label_attr: {class: 'control-label'}}) }}
+        {{ form_widget(form.informations.rueAdresse, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.informations.rueAdresse) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.informations.codePostalAdresse, null, {label_attr: {class: 'control-label'}}) }}
+        {{ form_widget(form.informations.codePostalAdresse, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.informations.codePostalAdresse) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.informations.villeAdresse, null, {label_attr: {class: 'control-label'}}) }}
+        {{ form_widget(form.informations.villeAdresse, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.informations.villeAdresse) }}
+    </div>
+</fieldset>
+
+<div class="form-group">
+    {{ form_label(form.informations.observations, null, {label: 'Observations'}) }}
+    {{ form_widget(form.informations.observations, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.observations) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.informations.siteWeb) }}
+    {{ form_widget(form.informations.siteWeb, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.informations.siteWeb) }}
+</div>
+
+{{ form_rest(form) }}
+
+<div class="form-group">
+    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+</div>
+
+{{ form_end(form) }}

@@ -83,9 +83,9 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/modifier", name="admin_groupement_modifier")
+     * @Route("/admin/groupement/display", name="admin_groupement_display")
      */
-    public function form(Request $request, GroupementRepository $groupementRepository): Response
+    public function display(Request $request, GroupementRepository $groupementRepository): Response
     {
         $id = $request->query->get('id');
         $groupement = $groupementRepository->find($id);
@@ -94,21 +94,54 @@ class GroupementController extends AbstractController
             $groupement = new Groupement();
         }
 
-        $communes = $this->communeRepository->findAll();
-        $form = $this->createForm(GroupementFormType::class, $groupement, [
-            'scopes' => [
-                GroupementFormType::SCOPE_GENERAL,
-                GroupementFormType::SCOPE_AFFECTATIONS,
-                GroupementFormType::SCOPE_COORDONNEES
-            ]
-        ]);
-
-
         return $this->render('groupement/display.html.twig', [
-            'villes' => $communes,
-            'form' => $form->createView(),
             'groupement' => $groupement,
         ]);
+    }
+
+    /**
+     * @Route("/admin/groupement/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
+     */
+    public function formByScope(string $scope, Request $request, GroupementRepository $groupementRepository): Response
+    {
+        $id = $request->query->get('id');
+        $groupement = $groupementRepository->find($id);
+
+        if (!$groupement) {
+            throw $this->createNotFoundException('Groupement non trouvé');
+        }
+
+
+        $form = $this->createForm(GroupementFormType::class, $groupement, [
+            'scopes' => [$scope]
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => 'Le groupement a été mis à jour.'
+                ]);
+            }
+
+            $this->addFlash('success', 'Le groupement a été mis à jour.');
+            return $this->redirectToRoute('admin_groupement');
+        }
+
+        $templateData = [
+            'form' => $form->createView(),
+            'groupement' => $groupement,
+        ];
+
+        if ($scope === 'general') {
+            $templateData['villes'] = $this->communeRepository->findAll();
+        }
+
+        return $this->render("groupement/form_{$scope}.html.twig", $templateData);
     }
 
     /**

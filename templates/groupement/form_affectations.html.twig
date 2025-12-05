@@ -1,0 +1,52 @@
+{{ form_start(form, {'attr': {'id': 'form-affectations'}, 'action': path('admin_groupement_form_scope', {'scope': 'affectations'}) ~ '?id=' ~ groupement.id}) }}
+
+<div class="form-group">
+    {{ form_label(form.preventionnistes, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.preventionnistes, {attr: {class: 'form-control', size: 10}}) }}
+    {{ form_errors(form.preventionnistes) }}
+</div>
+
+{% if groupement and groupement.preventionnistes|length > 0 %}
+    <button
+        id="preventionniste"
+        class="btn btn-info"
+        type="button"
+        style="margin-bottom: 10px;"
+        data-loading-text="Affectation <img src='/images/load.gif' />"
+    >
+        Affecter aux établissements
+    </button>
+    <span id="preventionniste-notification" class="ui-state-highlight ui-helper-hidden" style="padding: .5em;">
+        Les préventionnistes ont été affectés.
+    </span>
+{% endif %}
+
+{{ form_rest(form) }}
+
+<div class="form-group">
+    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+</div>
+
+{{ form_end(form) }}
+
+{% if groupement and groupement.preventionnistes|length > 0 %}
+<script type="text/javascript">
+    $("#preventionniste").click(function() {
+        $.ajax({
+            url: "{{ path('admin_groupement_preventionniste') }}",
+            data: "groupement=" + {{ groupement.id }},
+            type: "POST",
+            beforeSend: function() {
+                $("#preventionniste").button('loading')
+            },
+            success: function() {
+                $("#preventionniste").button('reset')
+                $("#preventionniste-notification").show()
+                setTimeout(function() {
+                    $("#preventionniste-notification").fadeOut();
+                }, 2500)
+            },
+        })
+    });
+</script>
+{% endif %}

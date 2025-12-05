@@ -36,6 +36,7 @@
 {# Zone d'affichage des onglets et de leur contenu #}
 <form id="form" method="post">
     <input type="hidden" id="id_gpt" name="id_gpt" value="0" />
+{#    {{ include 'groupement/display.html.twig' }}#}
     <div id="content"><p><strong>Pas de groupement disponible ...</strong></p></div>
 </form>
 
@@ -201,7 +202,7 @@
                     const $content = $("#form > #content");
 
                     $.ajax({
-                        url: "{{ path('admin_groupement_modifier') }}?id=" + $groupementSelect.val(),
+                        url: "{{ path('admin_groupement_display') }}?id=" + $groupementSelect.val(),
                         beforeSend: function() {
                             $content.css("opacity", 0.5);
                         },

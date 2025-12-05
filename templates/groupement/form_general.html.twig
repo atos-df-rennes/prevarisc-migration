@@ -1,0 +1,46 @@
+{{ form_start(form, {'attr': {'id': 'form-general'}, 'action': path('admin_groupement_form_scope', {'scope': 'general'}) ~ '?id=' ~ groupement.id}) }}
+
+<div class="form-group">
+    {{ form_label(form.libelle, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.libelle, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.libelle) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.type, null, {label_attr: {class: 'control-label'}}) }}
+    {{ form_widget(form.type, {attr: {class: 'form-control'}}) }}
+    {{ form_errors(form.type) }}
+</div>
+
+<div class="form-group">
+    {% do form.communes.setRendered %}
+    <label class="control-label" for="villes_groupement">Villes du groupement</label>
+    <div class="clearfix"></div>
+
+    <select id="liste_villes" multiple size=20 class="pull-left" style="height: 300px; width: 30%;">
+        {% for ville in villes %}
+            <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
+        {% endfor %}
+    </select>
+
+    <div class="pull-left btn-group btn-group-vertical" style="padding: 20px;">
+        <button id="add_ville" type="button" class="btn"><span class="glyphicon glyphicon-chevron-right"></span></button>
+        <button id="remove_ville" type="button" class="btn"><span class="glyphicon glyphicon-chevron-left"></span></button>
+    </div>
+
+    <select id="villes_groupement" name="communes[]" class="pull-left" multiple size=20 style="height: 300px; width: 30%;">
+        {% if groupement.communes is iterable %}
+            {% for ville in groupement.communes %}
+                <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+</div>
+
+{{ form_rest(form) }}
+
+<div class="form-group">
+    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+</div>
+
+{{ form_end(form) }}
