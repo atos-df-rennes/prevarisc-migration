@@ -8,7 +8,7 @@
 <span id="notif" class="alert alert-info hide"></span>
 
 <div class="pull-right">
-    <button id="btn-ajout" class="btn" data-toggle="modal" data-target="#ajout-groupement">Créer un nouveau groupement</button>
+    <button id="btn-ajout" class="btn btn-default" data-toggle="modal" data-target="#ajout-groupement">Créer un nouveau groupement</button>
 </div>
 
 <h3 class="page-header">Groupements de communes</h3>
@@ -74,9 +74,7 @@
 
         document.addEventListener("DOMContentLoaded", function(event) {
             // Initialisation du select avec TomSelect
-            new TomSelect("#gpt",{
-                create: true,
-            });
+            new TomSelect("#gpt");
 
             // Boite de dialogue d'ajout de groupement
             $("#btn-ajout").click(function(event) {
@@ -140,30 +138,29 @@
             // Gestion des évenements de la liste déroulante
             $groupementSelect = $("#gpt");
             $groupementSelect.change(function() {
-                if($groupementSelect.val() != null) {
-                    if($groupementSelect.val() == 0)
-                        $("#delete").button("disable");
-                    else
-                        $("#delete").button("enable");
-
-                    const $content = $("#form > #content");
-
-                    $.ajax({
-                        url: "{{ path('admin_groupement_display', {'id': 0}) }}".replace('0', $groupementSelect.val()),
-                        beforeSend: function() {
-                            $content.css("opacity", 0.5);
-                        },
-                        success: function(result) {
-                            $content.html(result);
-                            $content.css("opacity", 1);
-                        }
-                    });
-
-                    $("#id_gpt").val($groupementSelect.val());
-                    $("#save").button("enable");
-                } else {
-                    $("#save").button("disable");
+                if($groupementSelect.val() === null) {
+                    return
                 }
+
+                if($groupementSelect.val() == 0)
+                    $("#delete").button("disable");
+                else
+                    $("#delete").button("enable");
+
+                const $content = $("#form > #content");
+
+                $.ajax({
+                    url: "{{ path('admin_groupement_display', {'id': 0}) }}".replace('0', $groupementSelect.val()),
+                    beforeSend: function() {
+                        $content.css("opacity", 0.5);
+                    },
+                    success: function(result) {
+                        $content.html(result);
+                        $content.css("opacity", 1);
+                    }
+                });
+
+                $("#id_gpt").val($groupementSelect.val());
             });
 
             $groupementSelect.change();
