@@ -104,6 +104,13 @@ class GroupementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
+
+            if ($reaffectationAutomatique == '1') {
+                dump('Réaffectation automatique activée');
+                // TODO: Implémenter le comportement de réaffectation automatique
+            }
+
             $this->entityManager->flush();
 
             if ($request->isXmlHttpRequest()) {
@@ -291,19 +298,6 @@ class GroupementController extends AbstractController
 
             return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    /**
-     * @Route("/admin/groupement/preventionniste", name="admin_groupement_preventionniste", methods={"POST"})
-     */
-    public function preventionniste(Request $request): Response
-    {
-        $request->request->get('groupement');
-
-        // TODO: Implémenter la logique de réaffectation des préventionnistes
-        // Nécessite la migration du service Service_GroupementCommunes
-
-        return new JsonResponse(['success' => true]);
     }
 
     private function populateUtilisateurInformations(UtilisateurInformations $informations, Request $request): void

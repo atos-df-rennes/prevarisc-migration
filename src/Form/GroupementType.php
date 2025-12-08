@@ -10,6 +10,7 @@ use App\Entity\UtilisateurInformations;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -62,25 +63,31 @@ class GroupementType extends AbstractType
         }
 
         if(in_array(self::SCOPE_AFFECTATIONS, $scopes) ) {
-            $builder->add('preventionnistes', EntityType::class, [
-                'class' => Utilisateur::class,
-                'choice_label' => function (Utilisateur $utilisateur): string {
-                    $info = $utilisateur->getInformations();
+            $builder
+                ->add('preventionnistes', EntityType::class, [
+                    'class' => Utilisateur::class,
+                    'choice_label' => function (Utilisateur $utilisateur): string {
+                        $info = $utilisateur->getInformations();
 
-                    return $info instanceof UtilisateurInformations ? ($info->getGrade() . ' ' . $info->getNom() . ' ' . $info->getPrenom()) : $utilisateur->getUsername();
-                },
-                'label' => 'Préventionnistes affectés',
-                'multiple' => true,
-                'required' => false,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('u')
-                        ->innerJoin('u.informations', 'i')
-                        ->innerJoin('i.fonction', 'f')
-                        ->where('i.id = :fonction')
-                        ->setParameter('fonction', 13)
-                        ->orderBy('u.id', 'ASC');
-                },
-            ]);
+                        return $info instanceof UtilisateurInformations ? ($info->getGrade() . ' ' . $info->getNom() . ' ' . $info->getPrenom()) : $utilisateur->getUsername();
+                    },
+                    'label' => 'Préventionnistes affectés',
+                    'multiple' => true,
+                    'required' => false,
+                    'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('u')
+                            ->innerJoin('u.informations', 'i')
+                            ->innerJoin('i.fonction', 'f')
+                            ->where('i.id = :fonction')
+                            ->setParameter('fonction', 13)
+                            ->orderBy('u.id', 'ASC');
+                    },
+                ])
+                ->add('reaffectationAutomatique', HiddenType::class, [
+                    'mapped' => false,
+                    'required' => false,
+                ])
+            ;
         }
 
         if(in_array(self::SCOPE_COORDONNEES, $scopes) ) {

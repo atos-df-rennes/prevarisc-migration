@@ -11,19 +11,9 @@
 {{ form_rest(form) }}
 
 <div class="form-group text-right">
-    {% if groupement and groupement.preventionnistes|length > 0 %}
-        <button
-                id="preventionniste"
-                class="btn btn-default"
-                type="button"
-                data-loading-text="Affectation <img src='/images/load.gif' />"
-        >
-            Affecter aux établissements
-        </button>
-        <span id="preventionniste-notification" class="ui-state-highlight ui-helper-hidden" style="padding: .5em;">
-        Les préventionnistes ont été affectés.
-    </span>
-    {% endif %}
+    <button id="preventionniste" type="button" class="btn btn-default">
+        Affecter aux établissements
+    </button>
     <button type="submit" class="btn btn-primary">Sauvegarder</button>
 </div>
 
@@ -37,24 +27,10 @@
         });
 
         $("#preventionniste").click(function () {
-
-            $.ajax({
-                url: "{{ path('admin_groupement_preventionniste') }}",
-                data: "groupement=" + {{ groupement.id }},
-                type: "POST",
-                beforeSend: function () {
-                    $("#preventionniste").button('loading')
-                },
-                success: function () {
-                    $("#preventionniste").button('reset')
-                    $("#preventionniste-notification").show()
-                    setTimeout(function () {
-                        $("#preventionniste-notification").fadeOut();
-                    }, 2500)
-                },
-            })
+            var form = $("#form-affectations");
+            form.find("#groupement_reaffectationAutomatique").val('1');
+            form.submit();
         });
-
     });
 </script>
 
