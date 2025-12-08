@@ -27,8 +27,7 @@
         </select>
     </div>
     {# Boutons d'actions #}
-    <div class="form-group col-md-7">
-        <a id="save" href="#" class="btn btn-primary">Sauvegarder le groupement</a>
+    <div class="form-group col-md-7 text-right">
         <a id="delete" href="#" class="btn btn-danger">Supprimer le groupement</a>
     </div>
 </div>
@@ -44,26 +43,6 @@
     <p>Confirmez vous la suppression du groupement ? (cette action est irreversible)</p>
 </div>
 
-<div id="add" class="ui-helper-hidden">
-    <form id="add-groupement">
-        <dl>
-            <!-- Libellé du groupement -->
-            <dt>Libellé du groupement</dt>
-            <dd><input type="text" id="nom_groupement" name="nom_groupement" size=30 /></dd>
-
-            <!-- Type du groupement-->
-            <dt>Type</dt>
-            <dd>
-                <select id="type_groupement" name="type_groupement">
-                {% for type in admin_groupement_types %}
-                    <option id="{{ type.id }}" value="{{ type.id }}">{{ type.libelle }}</option>
-                {% endfor %}
-                </select>
-            </dd>
-            <input type="hidden" name="id_gpt" value="0" />
-        </dl>
-    </form>
-</div>
 {% else %}
 
 <div class="grid_16">
@@ -94,11 +73,12 @@
         }
 
         document.addEventListener("DOMContentLoaded", function(event) {
-            // Your code to run since DOM is loaded and ready
+            // Initialisation du select avec TomSelect
             new TomSelect("#gpt",{
                 create: true,
             });
 
+            // Boite de dialogue d'ajout de groupement
             $("#btn-ajout").click(function(event) {
                 const target = event.target.dataset.target;
                 $.ajax({
@@ -111,7 +91,7 @@
                 });
             });
 
-
+            // Boite de dialogue de confirmation de suppression
             $("#confirm").dialog({
                 title: "Suppression d'un groupement",
                 resizable: false,
@@ -151,39 +131,6 @@
                         }
                     }
                 ]
-            });
-
-            // Boutons de la toolbar
-            $("#new").button({
-                icons: { primary: "ui-icon-plus" }
-            }).click(function() {
-                $('#add').find("input").val('');
-                $("#add").dialog("open");
-            });
-
-            $("#save").click(function() {
-                // Selection de toutes les villes pour les passer dans le formulaire
-                $("#villes_groupement option").each(function(){ $(this).attr("selected", true); });
-
-                // On envoit le tout en ajax
-                $.ajax({
-                    url: "{{ path('admin_groupement_add') }}",
-                    type: "post",
-                    data: $("#form").serialize() + "&" + $("#formulaire_contact").serialize(),
-                    beforeSend: function() {
-                        $("#save").button("disable");
-                    },
-                    success: function(result) {
-                        $("#save").button("enable");
-                        notify("Le groupement a bien été mis à jour.");
-                        $("select#gpt option:selected").remove();
-                        $("select#gpt > optgroup#gpt_" + result["type"]).append($("<option></option>").val(result["id"]).html(result["libelle"]).attr("selected", "selected"));
-                        $("select#gpt").change();
-                    }
-                });
-
-                // On deselectionne les villes
-                $("#villes_groupement option").each(function(){ $(this).attr("selected", false); });
             });
 
             $("#delete").click(function() {

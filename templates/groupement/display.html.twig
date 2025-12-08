@@ -7,7 +7,7 @@
         <li id="contact" role="presentation"><a href="#tabs-4" data-toggle="tab">Contacts liés au groupement</a></li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content mt-3">
         <!-- Partie générale -->
         <div id="tabs-1" role="tabpanel" class="tab-pane active" data-scope="general">
             <p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>
@@ -115,25 +115,6 @@
             }
         }
 
-        function attachGeneralHandlers() {
-            // Boutons d'ajout/suppression de villes
-            $("#add_ville").off('click').on('click', function() {
-                $("#liste_villes option:selected").each(function() {
-                    var option = $(this).clone();
-                    $("#villes_groupement").append(option);
-                    $(this).remove();
-                });
-            });
-
-            $("#remove_ville").off('click').on('click', function() {
-                $("#villes_groupement option:selected").each(function() {
-                    var option = $(this).clone();
-                    $("#liste_villes").append(option);
-                    $(this).remove();
-                });
-            });
-        }
-
         function notify(text) {
             // Utiliser la fonction notify existante du parent
             if (typeof window.parent.notify === 'function') {
@@ -147,6 +128,7 @@
         }
     });
 
+    // TODO: Voir utilité
     // Partie Contact
     {% if groupement and groupement.id %}
     $("#tabs-4").load("/contact?item=groupement&id={{ groupement.id }}");
