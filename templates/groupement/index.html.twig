@@ -202,7 +202,7 @@
                     const $content = $("#form > #content");
 
                     $.ajax({
-                        url: "{{ path('admin_groupement_display') }}?id=" + $groupementSelect.val(),
+                        url: "{{ path('admin_groupement_display', {'id': 0}) }}".replace('0', $groupementSelect.val()),
                         beforeSend: function() {
                             $content.css("opacity", 0.5);
                         },

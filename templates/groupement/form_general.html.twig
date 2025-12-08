@@ -1,4 +1,4 @@
-{{ form_start(form, {'attr': {'id': 'form-general'}, 'action': path('admin_groupement_form_scope', {'scope': 'general'}) ~ '?id=' ~ groupement.id}) }}
+{{ form_start(form, {'attr': {'id': 'form-general'}, 'action': path('admin_groupement_form_scope', {'id': groupement.id, 'scope': 'general'}) }) }}
 
 <div class="form-group">
     {{ form_label(form.libelle, null, {label_attr: {class: 'control-label'}}) }}

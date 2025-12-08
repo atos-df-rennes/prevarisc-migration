@@ -50,8 +50,7 @@
             var tabPane = $('#tabs-' + getScopeTabNumber(scope));
             
             $.ajax({
-                url: "{{ path('admin_groupement_form_scope', {'scope': 'general'}) }}".replace('general', scope),
-                data: { id: groupementId },
+                url: "{{ path('admin_groupement_form_scope', {'id': groupement.id ?? 0, 'scope': 'general'}) }}".replace('general', scope),
                 type: "GET",
                 beforeSend: function() {
                     tabPane.html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>');

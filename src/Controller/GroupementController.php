@@ -83,35 +83,20 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/display", name="admin_groupement_display")
+     * @Route("/admin/groupement/display/{id}", name="admin_groupement_display")
      */
-    public function display(Request $request, GroupementRepository $groupementRepository): Response
+    public function display(Groupement $groupement): Response
     {
-        $id = $request->query->get('id');
-        $groupement = $groupementRepository->find($id);
-
-        if ($groupement === null){
-            $groupement = new Groupement();
-        }
-
         return $this->render('groupement/display.html.twig', [
             'groupement' => $groupement,
         ]);
     }
 
     /**
-     * @Route("/admin/groupement/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
+     * @Route("/admin/groupement/form/{id}/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
      */
-    public function formByScope(string $scope, Request $request, GroupementRepository $groupementRepository): Response
+    public function formByScope(Groupement $groupement, string $scope, Request $request, GroupementRepository $groupementRepository): Response
     {
-        $id = $request->query->get('id');
-        $groupement = $groupementRepository->find($id);
-
-        if (!$groupement) {
-            throw $this->createNotFoundException('Groupement non trouvé');
-        }
-
-
         $form = $this->createForm(GroupementFormType::class, $groupement, [
             'scopes' => [$scope]
         ]);
