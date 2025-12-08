@@ -4,6 +4,16 @@
 
 <!--- END HEADER -->
 
+## [2.8.11](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.10...v2.8.11) (08-12-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Corrige l'application des droits aux répertoires de cache (#97) ([fc1ede](https://github.com/atos-df-rennes/prevarisc-migration/commit/fc1ede725669a003a13932951576e16707431e61))
+* Résolution du datastore au runtime (#95) ([1e9b3a](https://github.com/atos-df-rennes/prevarisc-migration/commit/1e9b3a0ff31a46df42dfa6282af2f18cebb71ea5))
+
+
+---
+
 ## [2.8.8](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.7...v2.8.8) (18-11-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
