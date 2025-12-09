@@ -22,102 +22,50 @@ class PlatauTempsRestantTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testCalculateDaysDifference(): void
+    /**
+     * @dataProvider calculateProvider
+     */
+    public function testCalculate(string $dateModifier, string $expectedResult): void
     {
-        $limitDate = new \DateTime((new \DateTime('now +5 days'))->format('Y-m-d'));
+        $limitDate = new \DateTime((new \DateTime($dateModifier))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
-        $this->assertSame('5 jours', $result);
+        $this->assertSame($expectedResult, $result);
     }
 
-    public function testCalculateOneDayDifference(): void
+    public function calculateProvider(): array
     {
-        $limitDate = new \DateTime((new \DateTime('now +1 day'))->format('Y-m-d'));
-
-        $result = $this->service->calculate($limitDate);
-
-        $this->assertSame('1 jour', $result);
+        return [
+            'future limit date days' => ['now +5 days', '5 jours'],
+            'future limit date one day' => ['now +1 day', '1 jour'],
+            'future limit date months' => ['now +2 months', '2 mois'],
+            'future limit date years' => ['now +1 year', '1 an'],
+            'future limit date multiple years' => ['now +2 years', '2 ans'],
+            'future limit date combined' => ['now +1 year +2 months +3 days', '1 an et 2 mois et 3 jours'],
+            'past limit date days' => ['now -5 days', '- 5 jours'],
+        ];
     }
 
-    public function testCalculateMonthsDifference(): void
+    /**
+     * @dataProvider getCouleurTempsRestantProvider
+     */
+    public function testGetCouleurTempsRestant(string $dateModifier, string $expectedColor): void
     {
-        $limitDate = new \DateTime((new \DateTime('now +2 months'))->format('Y-m-d'));
-
-        $result = $this->service->calculate($limitDate);
-
-        $this->assertSame('2 mois', $result);
-    }
-
-    public function testCalculateYearsDifference(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now +1 year'))->format('Y-m-d'));
-
-        $result = $this->service->calculate($limitDate);
-
-        $this->assertSame('1 an', $result);
-    }
-
-    public function testCalculateMultipleYearsDifference(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now +2 years'))->format('Y-m-d'));
-
-        $result = $this->service->calculate($limitDate);
-
-        $this->assertSame('2 ans', $result);
-    }
-
-    public function testCalculateCombinedDifference(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now +1 year +2 months +3 days'))->format('Y-m-d'));
-
-        $result = $this->service->calculate($limitDate);
-
-        $this->assertSame('1 an et 2 mois et 3 jours', $result);
-    }
-
-    public function testCalculateNegativeDifference(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now -5 days'))->format('Y-m-d'));
-
-        $result = $this->service->calculate($limitDate);
-
-        $this->assertSame('- 5 jours', $result);
-    }
-
-    public function testGetCouleurTempsRestantReturnsDefaultWhenPastDate(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now -1 day'))->format('Y-m-d'));
+        $limitDate = new \DateTime((new \DateTime($dateModifier))->format('Y-m-d'));
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
-        $this->assertSame('default', $result);
+        $this->assertSame($expectedColor, $result);
     }
 
-    public function testGetCouleurTempsRestantReturnsSuccessWhenMoreThan6Months(): void
+    public function getCouleurTempsRestantProvider(): array
     {
-        $limitDate = new \DateTime((new \DateTime('now +7 months'))->format('Y-m-d'));
-
-        $result = $this->service->getCouleurTempsRestant($limitDate);
-
-        $this->assertSame('success', $result);
-    }
-
-    public function testGetCouleurTempsRestantReturnsWarningWhenBetween3And6Months(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now +5 months'))->format('Y-m-d'));
-
-        $result = $this->service->getCouleurTempsRestant($limitDate);
-
-        $this->assertSame('warning', $result);
-    }
-
-    public function testGetCouleurTempsRestantReturnsImportantWhenLessThan3Months(): void
-    {
-        $limitDate = new \DateTime((new \DateTime('now +2 months'))->format('Y-m-d'));
-
-        $result = $this->service->getCouleurTempsRestant($limitDate);
-
-        $this->assertSame('important', $result);
+        return [
+            'past date returns default' => ['now -1 day', 'default'],
+            'more than 6 months returns success' => ['now +7 months', 'success'],
+            'between 3 and 6 months returns warning' => ['now +5 months', 'warning'],
+            'less than 3 months returns important' => ['now +2 months', 'important'],
+        ];
     }
 }
