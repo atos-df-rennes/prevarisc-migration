@@ -24,8 +24,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateDaysDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+5 days');
+        $limitDate = new \DateTime((new \DateTime('now +5 days'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -34,8 +33,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateOneDayDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+1 day');
+        $limitDate = new \DateTime((new \DateTime('now +1 day'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -44,8 +42,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateMonthsDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+2 months');
+        $limitDate = new \DateTime((new \DateTime('now +2 months'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -54,8 +51,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateYearsDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+1 year');
+        $limitDate = new \DateTime((new \DateTime('now +1 year'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -64,8 +60,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateMultipleYearsDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+2 years');
+        $limitDate = new \DateTime((new \DateTime('now +2 years'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -74,8 +69,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateCombinedDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+1 year +2 months +3 days');
+        $limitDate = new \DateTime((new \DateTime('now +1 year +2 months +3 days'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -84,8 +78,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testCalculateNegativeDifference(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('-5 days');
+        $limitDate = new \DateTime((new \DateTime('now -5 days'))->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -94,8 +87,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testGetCouleurTempsRestantReturnsDefaultWhenPastDate(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('-1 day');
+        $limitDate = new \DateTime((new \DateTime('now -1 day'))->format('Y-m-d'));
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
@@ -104,8 +96,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testGetCouleurTempsRestantReturnsSuccessWhenMoreThan6Months(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+7 months');
+        $limitDate = new \DateTime((new \DateTime('now +7 months'))->format('Y-m-d'));
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
@@ -114,8 +105,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testGetCouleurTempsRestantReturnsWarningWhenBetween3And6Months(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+5 months');
+        $limitDate = new \DateTime((new \DateTime('now +5 months'))->format('Y-m-d'));
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
@@ -124,8 +114,7 @@ class PlatauTempsRestantServiceTest extends TestCase
 
     public function testGetCouleurTempsRestantReturnsImportantWhenLessThan3Months(): void
     {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+2 months');
+        $limitDate = new \DateTime((new \DateTime('now +2 months'))->format('Y-m-d'));
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 

@@ -14,9 +14,8 @@ class PlatauTempsRestantService
             return null;
         }
 
-        $now = (new \DateTime())->setTime(0, 0, 0);
         $limit = new \DateTime($limitDate->format('Y-m-d H:i:s'));
-        $limit->setTime(0, 0, 0);
+        $now = (new \DateTime())->setTime(0, 0, 0);
 
         $diff = $now->diff($limit);
 
@@ -53,9 +52,8 @@ class PlatauTempsRestantService
 
     public function getCouleurTempsRestant(\DateTimeInterface $limitDate): string
     {
-        $now = (new \DateTime())->setTime(0, 0, 0);
         $limit = new \DateTime($limitDate->format('Y-m-d H:i:s'));
-        $limit->setTime(0, 0, 0);
+        $now = (new \DateTime())->setTime(0, 0, 0);
 
         $diff = $now->diff($limit);
 
