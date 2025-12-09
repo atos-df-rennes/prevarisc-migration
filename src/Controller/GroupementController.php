@@ -54,7 +54,6 @@ class GroupementController extends AbstractController
         ]);
     }
 
-
     /**
      * @Route("/admin/groupement/creation", name="admin_groupement_creation")
      */
@@ -68,7 +67,7 @@ class GroupementController extends AbstractController
         ]);
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($groupement);
             $this->entityManager->flush();
 
@@ -106,8 +105,7 @@ class GroupementController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
 
-            if ($reaffectationAutomatique == '1') {
-                dump('Réaffectation automatique activée');
+            if ('1' == $reaffectationAutomatique) {
                 // TODO: Implémenter le comportement de réaffectation automatique
             }
 
@@ -121,6 +119,7 @@ class GroupementController extends AbstractController
             }
 
             $this->addFlash('success', 'Le groupement a été mis à jour.');
+
             return $this->redirectToRoute('admin_groupement');
         }
 
@@ -129,11 +128,11 @@ class GroupementController extends AbstractController
             'groupement' => $groupement,
         ];
 
-        if ($scope === 'general') {
+        if ('general' === $scope) {
             $templateData['villes'] = $this->communeRepository->findAll();
         }
 
-        return $this->render("groupement/form_{$scope}.html.twig", $templateData);
+        return $this->render(sprintf('groupement/form_%s.html.twig', $scope), $templateData);
     }
 
     /**

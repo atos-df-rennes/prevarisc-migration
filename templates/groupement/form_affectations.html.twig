@@ -1,6 +1,6 @@
 {% form_theme form with ['form_div_layout.html.twig'] only %}
 
-{{ form_start(form, {'attr': {'id': 'form-affectations'}, 'action': path('admin_groupement_form_scope', {'id': groupement.id, 'scope': 'affectations'}) }) }}
+{{ form_start(form, {attr: {id: 'form-affectations'}, action: path('admin_groupement_form_scope', {id: groupement.id, scope: 'affectations'})}) }}
 
 <div class="form-group">
     {{ form_label(form.preventionnistes) }}
@@ -19,7 +19,6 @@
 
 {{ form_end(form) }}
 
-
 <script type="text/javascript">
     $(document).ready(function() {
         new TomSelect("#groupement_preventionnistes", {
@@ -33,4 +32,3 @@
         });
     });
 </script>
-

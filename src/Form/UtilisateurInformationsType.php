@@ -17,15 +17,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class UtilisateurInformationsType extends AbstractType
 {
     public const SCOPE_GRADE = 'grade';
+
     public const SCOPE_FONCTION = 'fonction';
+
     public const SCOPE_ADRESSE = 'adresse';
+
     public const SCOPE_SOCIETE = 'societe';
 
     /**
      * Construit le formulaire en ajoutant différents champs selon les options et portées fournies.
      *
-     * @param FormBuilderInterface $builder Instance utilisée pour ajouter les champs au formulaire.
-     * @param array $options Options passées lors de la création du formulaire, notamment les portées spécifiques.
+     * @param FormBuilderInterface $builder instance utilisée pour ajouter les champs au formulaire
+     * @param array                $options options passées lors de la création du formulaire, notamment les portées spécifiques
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

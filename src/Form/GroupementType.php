@@ -18,9 +18,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class GroupementType extends AbstractType
 {
     public const SCOPE_CREATE = 'create';
+
     public const SCOPE_GENERAL = 'general';
+
     public const SCOPE_AFFECTATIONS = 'affectations';
+
     public const SCOPE_COORDONNEES = 'coordonnees';
+
     public const SCOPE_CONTACTS = 'contacts';
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -46,7 +50,7 @@ class GroupementType extends AbstractType
             ;
         }
 
-        if( in_array(self::SCOPE_GENERAL, $scopes) )  {
+        if (in_array(self::SCOPE_GENERAL, $scopes)) {
             $builder->add('communes', EntityType::class, [
                 'class' => Commune::class,
                 'choice_label' => function (Commune $commune): string {
@@ -62,14 +66,14 @@ class GroupementType extends AbstractType
             ]);
         }
 
-        if(in_array(self::SCOPE_AFFECTATIONS, $scopes) ) {
+        if (in_array(self::SCOPE_AFFECTATIONS, $scopes)) {
             $builder
                 ->add('preventionnistes', EntityType::class, [
                     'class' => Utilisateur::class,
                     'choice_label' => function (Utilisateur $utilisateur): string {
                         $info = $utilisateur->getInformations();
 
-                        return $info instanceof UtilisateurInformations ? ($info->getGrade() . ' ' . $info->getNom() . ' ' . $info->getPrenom()) : $utilisateur->getUsername();
+                        return $info instanceof UtilisateurInformations ? ($info->getGrade().' '.$info->getNom().' '.$info->getPrenom()) : $utilisateur->getUsername();
                     },
                     'label' => 'Préventionnistes affectés',
                     'multiple' => true,
@@ -90,7 +94,7 @@ class GroupementType extends AbstractType
             ;
         }
 
-        if(in_array(self::SCOPE_COORDONNEES, $scopes) ) {
+        if (in_array(self::SCOPE_COORDONNEES, $scopes)) {
             $builder->add('informations', UtilisateurInformationsType::class, [
                 'label' => 'Coordonnées du groupement',
                 'required' => false,
