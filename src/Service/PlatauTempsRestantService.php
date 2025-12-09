@@ -60,7 +60,7 @@ class PlatauTempsRestantService
         $diff = $now->diff($limit);
 
         if (1 === $diff->invert) {
-            return 'inverse';
+            return 'default';
         }
 
         if ($diff->y > 0 || $diff->m > self::SEUIL_OK) {

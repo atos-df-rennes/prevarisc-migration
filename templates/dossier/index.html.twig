@@ -50,7 +50,7 @@
                             {% endif %}
 
                             {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ERREUR') %}
-                                <i class='icon-warning-sign'></i>
+                                <span class='glyphicon glyphicon-warning-sign'></span>
                             {% endif %}
                             {% set statut_pec_label = platau.statut_pec %}
                             {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') %}
@@ -73,7 +73,7 @@
 
                             {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') and dossier.incomplet is null %}
                                 <div>
-                                    <i class='icon-info-sign'></i>
+                                    <span class='glyphicon glyphicon-info-sign'></span>
                                     L'état du dossier est actuellement inconnu dans Prevarisc. Veuillez modifier le dossier pour le renseigner.
                                 </div>
                             {% endif %}
@@ -95,7 +95,7 @@
                             {% endif %}
 
                             {% if platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_ERREUR') %}
-                                <i class='icon-warning-sign'></i>
+                                <span class='glyphicon glyphicon-warning-sign'></span>
                             {% endif %}
                             {% set statut_avis_label = platau.statut_avis %}
                             {% if platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_COURS') %}
