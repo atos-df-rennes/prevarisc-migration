@@ -107,7 +107,7 @@ class GroupementController extends AbstractController
             $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
 
             if ('1' == $reaffectationAutomatique) {
-                $groupementCommunes->reaffectationPreventioniste($groupement->getLibelle());
+                $groupementCommunes->reaffectationPreventioniste($groupement);
             }
 
             $this->entityManager->flush();

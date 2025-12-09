@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\EtablissementInformations;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,142 +22,192 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_UTILISATEUR: int}>
+     * @param int $genre Type d'établissement : 1 = Site, 2 = Établissement, 3 = Cellule
+     *
+     * @return array<int, array{etablissementInformations: EtablissementInformations, utilisateurId: int}>
      */
-    public function getEtablissementsPreventioniste(string $groupement): array
+    public function getWithPreventionnistes(string $groupement, int $genre): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT ei.ID_ETABLISSEMENTINFORMATIONS, u.ID_UTILISATEUR
-                FROM etablissementinformations ei
-                INNER JOIN etablissement e ON e.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                INNER JOIN etablissementadresse ea ON ea.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                INNER JOIN groupementcommune gc ON gc.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
-                INNER JOIN groupement g ON g.ID_GROUPEMENT = gc.ID_GROUPEMENT
-                INNER JOIN groupementpreventionniste gp ON gp.ID_GROUPEMENT = g.ID_GROUPEMENT
-                INNER JOIN utilisateur u ON u.ID_UTILISATEUR = gp.ID_UTILISATEUR
-                WHERE ei.ID_GENRE = 2
-                AND g.LIBELLE_GROUPEMENT = :groupement
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )
-                GROUP BY ei.ID_ETABLISSEMENTINFORMATIONS, u.ID_UTILISATEUR';
+        $subQb = $this->createQueryBuilder('ei2');
+        $subQb->select('MAX(ei2.dateEtablissementinformations)')
+            ->where('ei2.etablissement = ei.etablissement');
 
-        return $conn->fetchAllAssociative($sql, ['groupement' => $groupement]);
-    }
+        $qb = $this->createQueryBuilder('ei');
+        $qb->select('ei', 'u.id AS utilisateurId')
+            ->innerJoin('ei.etablissement', 'e');
 
-    /**
-     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_UTILISATEUR: int}>
-     */
-    public function getCellulesPreventioniste(string $groupement): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT ei.ID_ETABLISSEMENTINFORMATIONS, u.ID_UTILISATEUR
-                FROM etablissementinformations ei
-                INNER JOIN etablissement e ON e.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                INNER JOIN etablissementlie el ON el.ID_FILS_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                INNER JOIN etablissement pere ON pere.ID_ETABLISSEMENT = el.ID_ETABLISSEMENT
-                INNER JOIN etablissementadresse ea ON ea.ID_ETABLISSEMENT = pere.ID_ETABLISSEMENT
-                INNER JOIN groupementcommune gc ON gc.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
-                INNER JOIN groupement g ON g.ID_GROUPEMENT = gc.ID_GROUPEMENT
-                INNER JOIN groupementpreventionniste gp ON gp.ID_GROUPEMENT = g.ID_GROUPEMENT
-                INNER JOIN utilisateur u ON u.ID_UTILISATEUR = gp.ID_UTILISATEUR
-                WHERE ei.ID_GENRE = 3
-                AND g.LIBELLE_GROUPEMENT = :groupement
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )
-                GROUP BY ei.ID_ETABLISSEMENTINFORMATIONS, u.ID_UTILISATEUR';
-
-        return $conn->fetchAllAssociative($sql, ['groupement' => $groupement]);
-    }
-
-    /**
-     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_UTILISATEUR: int}>
-     */
-    public function getSitesPreventioniste(string $groupement): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT ei.ID_ETABLISSEMENTINFORMATIONS, u.ID_UTILISATEUR
-                FROM etablissementinformations ei
-                INNER JOIN etablissement e ON e.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                INNER JOIN etablissementlie el ON el.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                INNER JOIN etablissement fils ON fils.ID_ETABLISSEMENT = el.ID_FILS_ETABLISSEMENT
-                INNER JOIN etablissementadresse ea ON ea.ID_ETABLISSEMENT = fils.ID_ETABLISSEMENT
-                INNER JOIN groupementcommune gc ON gc.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
-                INNER JOIN groupement g ON g.ID_GROUPEMENT = gc.ID_GROUPEMENT
-                INNER JOIN groupementpreventionniste gp ON gp.ID_GROUPEMENT = g.ID_GROUPEMENT
-                INNER JOIN utilisateur u ON u.ID_UTILISATEUR = gp.ID_UTILISATEUR
-                WHERE ei.ID_GENRE = 1
-                AND g.LIBELLE_GROUPEMENT = :groupement
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )
-                GROUP BY ei.ID_ETABLISSEMENTINFORMATIONS, u.ID_UTILISATEUR';
-
-        return $conn->fetchAllAssociative($sql, ['groupement' => $groupement]);
-    }
-
-    public function deleteEtablissementsPreventioniste(string $groupement): void
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'DELETE ep.* FROM etablissementinformationspreventionniste ep
-        INNER JOIN etablissementinformations ei ON ep.ID_ETABLISSEMENTINFORMATIONS = ei.ID_ETABLISSEMENTINFORMATIONS AND ei.DATE_ETABLISSEMENTINFORMATIONS = (SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT)
-        INNER JOIN `etablissementadresse` AS `ea` ON ea.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-        INNER JOIN `groupementcommune` AS `gc` ON gc.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
-        INNER JOIN `groupement` AS `g` ON g.ID_GROUPEMENT = gc.ID_GROUPEMENT
-        WHERE g.LIBELLE_GROUPEMENT = :groupement';
-
-        $conn->executeStatement($sql, ['groupement' => $groupement]);
-    }
-
-    public function deleteCellulesPreventioniste(string $groupement): void
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'DELETE ep.* FROM etablissementinformationspreventionniste ep
-        INNER JOIN etablissementinformations ei ON ep.ID_ETABLISSEMENTINFORMATIONS = ei.ID_ETABLISSEMENTINFORMATIONS AND ei.DATE_ETABLISSEMENTINFORMATIONS = (SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT)
-        INNER JOIN `etablissementlie` AS `el` ON el.ID_FILS_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-        INNER JOIN `etablissement` AS `pere` ON pere.ID_ETABLISSEMENT = el.ID_ETABLISSEMENT
-        INNER JOIN `etablissementadresse` AS `ea` ON ea.ID_ETABLISSEMENT = pere.ID_ETABLISSEMENT
-        INNER JOIN `groupementcommune` AS `gc` ON gc.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
-        INNER JOIN `groupement` AS `g` ON g.ID_GROUPEMENT = gc.ID_GROUPEMENT
-        WHERE g.LIBELLE_GROUPEMENT = :groupement';
-
-        $conn->executeStatement($sql, ['groupement' => $groupement]);
-    }
-
-    public function deleteSitesPreventioniste(string $groupement): void
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'DELETE ep.* FROM etablissementinformationspreventionniste ep
-        INNER JOIN etablissementinformations ei ON ep.ID_ETABLISSEMENTINFORMATIONS = ei.ID_ETABLISSEMENTINFORMATIONS AND ei.DATE_ETABLISSEMENTINFORMATIONS = (SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT)
-        INNER JOIN `etablissementlie` AS `el` ON el.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-        INNER JOIN `etablissement` AS `fils` ON fils.ID_ETABLISSEMENT = el.ID_FILS_ETABLISSEMENT
-        INNER JOIN `etablissementadresse` AS `ea` ON ea.ID_ETABLISSEMENT = fils.ID_ETABLISSEMENT
-        INNER JOIN `groupementcommune` AS `gc` ON gc.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
-        INNER JOIN `groupement` AS `g` ON g.ID_GROUPEMENT = gc.ID_GROUPEMENT
-        WHERE g.LIBELLE_GROUPEMENT = :groupement';
-
-        $conn->executeStatement($sql, ['groupement' => $groupement]);
-    }
-
-    /**
-     * @param array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_UTILISATEUR: int}> $valeur
-     */
-    public function addPreventioniste(array $valeur): void
-    {
-        if (empty($valeur)) {
-            return;
+        // Joins spécifiques selon le type
+        switch ($genre) {
+            case 1: // Sites
+                $qb->innerJoin('e.etablissementLies', 'el')
+                    ->innerJoin('el.filsEtablissement', 'fils')
+                    ->innerJoin('fils.adresses', 'ea');
+                break;
+            case 3: // Cellules
+                $qb->innerJoin('e.etablissementLiesFils', 'el')
+                    ->innerJoin('el.etablissement', 'pere')
+                    ->innerJoin('pere.adresses', 'ea');
+                break;
+            case 2: // Établissements
+            default:
+                $qb->innerJoin('e.adresses', 'ea');
+                break;
         }
 
-        $conn = $this->getEntityManager()->getConnection();
-        foreach ($valeur as $val) {
-            $conn->insert('etablissementinformationspreventionniste', $val);
+        $qb->innerJoin('ea.commune', 'c')
+            ->innerJoin('c.groupementCommunes', 'gc')
+            ->innerJoin('gc.groupement', 'g')
+            ->innerJoin('g.groupementPreventionnistes', 'gp')
+            ->innerJoin('gp.utilisateur', 'u')
+            ->where('ei.genre = :genre')
+            ->andWhere('g.libelleGroupement = :groupement')
+            ->andWhere($qb->expr()->eq('ei.dateEtablissementinformations', '('.$subQb->getDQL().')'))
+            ->setParameter('genre', $genre)
+            ->setParameter('groupement', $groupement);
+
+        $results = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($results as $result) {
+            $data[] = [
+                'etablissementInformations' => $result[0],
+                'utilisateurId' => $result['utilisateurId'],
+            ];
         }
+
+        return $data;
+    }
+
+    /**
+     * @return array<int, array{etablissementInformations: EtablissementInformations, utilisateurId: int}>
+     */
+    public function getEtablissementsWithPreventionnistes(string $groupement): array
+    {
+        return $this->getWithPreventionnistes($groupement, 2);
+    }
+
+    /**
+     * @return array<int, array{etablissementInformations: EtablissementInformations, utilisateurId: int}>
+     */
+    public function getCellulesWithPreventionnistes(string $groupement): array
+    {
+        return $this->getWithPreventionnistes($groupement, 3);
+    }
+
+    /**
+     * @return array<int, array{etablissementInformations: EtablissementInformations, utilisateurId: int}>
+     */
+    public function getSitesWithPreventionnistes(string $groupement): array
+    {
+        return $this->getWithPreventionnistes($groupement, 1);
+    }
+
+    /**
+     * @param array<string> $communesNumInsee
+     *
+     * @return EtablissementInformations[]
+     */
+    public function findByCommunes(array $communesNumInsee, bool $filterByLastDate = false): array
+    {
+        if (empty($communesNumInsee)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('ei');
+        $qb->select('ei')
+            ->innerJoin('ei.etablissement', 'e')
+            ->innerJoin('e.adresses', 'ea')
+            ->innerJoin('ea.commune', 'c')
+            ->where('c.id IN (:communes)')
+            ->setParameter('communes', $communesNumInsee);
+
+        if ($filterByLastDate) {
+            $subQb = $this->createQueryBuilder('ei2');
+            $subQb->select('MAX(ei2.date)')
+                ->where('ei2.etablissement = ei.etablissement');
+
+            $qb->andWhere($qb->expr()->eq('ei.dateEtablissementinformations', '('.$subQb->getDQL().')'));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param EtablissementInformations[] $etablissementInformations
+     *
+     * @return EtablissementInformations[]
+     */
+    public function filterLastInformations(array $etablissementInformations): array
+    {
+        $etablissementInfosByEtablissement = [];
+
+        foreach ($etablissementInformations as $etablissementInfo) {
+            $etablissement = $etablissementInfo->getEtablissement();
+            if (null === $etablissement) {
+                continue;
+            }
+
+            $etablissementId = $etablissement->getId();
+            $date = $etablissementInfo->getDate();
+
+            if (!isset($etablissementInfosByEtablissement[$etablissementId])) {
+                $etablissementInfosByEtablissement[$etablissementId] = $etablissementInfo;
+            } else {
+                $currentDate = $etablissementInfosByEtablissement[$etablissementId]->getDate();
+                if ($date > $currentDate) {
+                    $etablissementInfosByEtablissement[$etablissementId] = $etablissementInfo;
+                }
+            }
+        }
+
+        return array_values($etablissementInfosByEtablissement);
+    }
+
+    /**
+     * @param array<string> $communesNumInsee
+     *
+     * @return EtablissementInformations[]
+     */
+    public function findCellulesByCommunes(array $communesNumInsee): array
+    {
+        if (empty($communesNumInsee)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('ei');
+        $qb->select('ei')
+            ->innerJoin('ei.etablissement', 'e')
+            ->innerJoin('e.etablissementLiesFils', 'el')
+            ->innerJoin('el.etablissement', 'pere')
+            ->innerJoin('pere.adresses', 'ea')
+            ->innerJoin('ea.commune', 'c')
+            ->where('c.id IN (:communes)')
+            ->setParameter('communes', $communesNumInsee);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param array<string> $communesNumInsee
+     *
+     * @return EtablissementInformations[]
+     */
+    public function findSitesByCommunes(array $communesNumInsee): array
+    {
+        if (empty($communesNumInsee)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('ei');
+        $qb->select('ei')
+            ->innerJoin('ei.etablissement', 'e')
+            ->innerJoin('e.etablissementLies', 'el')
+            ->innerJoin('el.filsEtablissement', 'fils')
+            ->innerJoin('fils.adresses', 'ea')
+            ->innerJoin('ea.commune', 'c')
+            ->where('c.id IN (:communes)')
+            ->setParameter('communes', $communesNumInsee);
+
+        return $qb->getQuery()->getResult();
     }
 }
