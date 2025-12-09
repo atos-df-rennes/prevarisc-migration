@@ -11,6 +11,7 @@ use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\PlatauTempsRestantService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +34,7 @@ class DossierController extends AbstractController
      *
      * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
      */
-    public function index(Dossier $dossier): Response
+    public function index(Dossier $dossier, PlatauTempsRestantService $platauTempsRestantService): Response
     {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
             && !$dossier->isHorsDelai()
@@ -42,9 +43,32 @@ class DossierController extends AbstractController
             && !$dossier->hasNePeutSePrononcer()
         ;
 
+        $platauData = null;
+        $consultationPlatau = $dossier->getConsultationPlatau();
+
+        if (null !== $consultationPlatau) {
+            $tempsRestant = $platauTempsRestantService->calculate($consultationPlatau->getDateReponseAttendue());
+            $couleurTempsRestant = null;
+
+            if (null !== $tempsRestant && null !== $consultationPlatau->getDateReponseAttendue()) {
+                $couleurTempsRestant = $platauTempsRestantService->getCouleurTempsRestant($consultationPlatau->getDateReponseAttendue());
+            }
+
+            $platauData = [
+                'identifiant' => $consultationPlatau->getIdentifiant(),
+                'temps_restant' => $tempsRestant,
+                'couleur_temps_restant' => $couleurTempsRestant,
+                'statut_pec' => $consultationPlatau->getStatutPriseEnCompte(),
+                'date_pec' => $consultationPlatau->getDatePriseEnCompte(),
+                'statut_avis' => $consultationPlatau->getStatutAvis(),
+                'date_avis' => $consultationPlatau->getDateAvis(),
+            ];
+        }
+
         return $this->render('dossier/index.html.twig', [
             'dossier' => $dossier,
             'afficher_avis' => $afficherAvis,
+            'platau' => $platauData,
         ]);
     }
 

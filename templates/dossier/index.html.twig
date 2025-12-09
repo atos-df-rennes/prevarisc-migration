@@ -12,11 +12,114 @@
 
         <h3>Informations générales</h3>
 
-        <section>
-            <h4>Informations sur Plat'AU</h4>
+        {% if platau is not null %}
+            <section>
+                <h4>Informations sur Plat'AU</h4>
 
-            {# @todo: ajouter les informations Plat'AU #}
-        </section>
+                <ul class='list-unstyled'>
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>Identifiant de la consultation</div>
+                        <div class='right value col-md-9'>
+                            {{ platau.identifiant }}
+                        </div>
+                    </li>
+
+                    {% if platau.temps_restant is not null %}
+                        <li class='row'>
+                            <div class='left libelle col-md-3'>Temps restant pour une réponse</div>
+                            <div class='right value col-md-9'>
+                                <span class='label label-{{ platau.couleur_temps_restant }}'>
+                                    {{ platau.temps_restant }}
+                                </span>
+                            </div>
+                        </li>
+                    {% endif %}
+
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>Prise en compte métier</div>
+                        <div class='right value col-md-9'>
+                            {% set class_pec = 'text-muted' %}
+                            {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') %}
+                                {% set class_pec = 'text-info' %}
+                            {% elseif platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::PRISE_EN_COMPTE') %}
+                                {% set class_pec = 'text-success' %}
+                            {% elseif platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::A_RENVOYER') %}
+                                {% set class_pec = 'text-warning' %}
+                            {% elseif platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ERREUR') %}
+                                {% set class_pec = 'text-error' %}
+                            {% endif %}
+
+                            {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ERREUR') %}
+                                <i class='icon-warning-sign'></i>
+                            {% endif %}
+                            {% set statut_pec_label = platau.statut_pec %}
+                            {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') %}
+                                {% set statut_pec_label = 'En attente de complétude sur Prevarisc' %}
+                            {% elseif platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::PRISE_EN_COMPTE') %}
+                                {% set statut_pec_label = "Prise en compte sur Plat'AU" %}
+                            {% elseif platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::A_RENVOYER') %}
+                                {% set statut_pec_label = "Prise en compte sur Plat'AU (en attente de renvoi)" %}
+                            {% elseif platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ERREUR') %}
+                                {% set statut_pec_label = "En erreur sur Plat'AU" %}
+                            {% else %}
+                                {% set statut_pec_label = 'Statut inconnu' %}
+                            {% endif %}
+                            <span id='statut-pec' class='{{ class_pec }}'>
+                                {{ statut_pec_label }}
+                            </span>
+                            {% if platau.date_pec is not null %}
+                                le {{ platau.date_pec|date('d/m/Y') }}
+                            {% endif %}
+
+                            {% if platau.statut_pec == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') and dossier.incomplet is null %}
+                                <div>
+                                    <i class='icon-info-sign'></i>
+                                    L'état du dossier est actuellement inconnu dans Prevarisc. Veuillez modifier le dossier pour le renseigner.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </li>
+
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>Avis</div>
+                        <div class='right value col-md-9'>
+                            {% set class_avis = 'text-muted' %}
+                            {% if platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_COURS') %}
+                                {% set class_avis = 'text-info' %}
+                            {% elseif platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::TRAITE') %}
+                                {% set class_avis = 'text-success' %}
+                            {% elseif platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::A_RENVOYER') %}
+                                {% set class_avis = 'text-warning' %}
+                            {% elseif platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_ERREUR') %}
+                                {% set class_avis = 'text-error' %}
+                            {% endif %}
+
+                            {% if platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_ERREUR') %}
+                                <i class='icon-warning-sign'></i>
+                            {% endif %}
+                            {% set statut_avis_label = platau.statut_avis %}
+                            {% if platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_COURS') %}
+                                {% set statut_avis_label = 'En attente de complétude sur Prevarisc' %}
+                            {% elseif platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::TRAITE') %}
+                                {% set statut_avis_label = "Traité sur Plat'AU" %}
+                            {% elseif platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::A_RENVOYER') %}
+                                {% set statut_avis_label = "Traité sur Plat'AU (en attente de renvoi)" %}
+                            {% elseif platau.statut_avis == constant('App\\Enum\\PlatauStatutAvisEnum::EN_ERREUR') %}
+                                {% set statut_avis_label = "En erreur sur Plat'AU" %}
+                            {% else %}
+                                {% set statut_avis_label = 'Statut inconnu' %}
+                            {% endif %}
+                            <span id='statut-avis' class='{{ class_avis }}'>
+                                {{ statut_avis_label }}
+                            </span>
+                            {% if platau.date_avis is not null %}
+                                le {{ platau.date_avis|date('d/m/Y') }}
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        {% endif %}
 
         <section>
             <h4>Type et nature du dossier</h4>
