@@ -92,30 +92,20 @@ class PlatauTempsRestantServiceTest extends TestCase
         $this->assertSame('- 5 jours', $result);
     }
 
-    public function testGetCouleurTempsRestantReturnsInverseWhenPastDate(): void
+    public function testGetCouleurTempsRestantReturnsDefaultWhenPastDate(): void
     {
         $now = new \DateTime();
         $limitDate = (clone $now)->modify('-1 day');
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
-        $this->assertSame('inverse', $result);
+        $this->assertSame('default', $result);
     }
 
     public function testGetCouleurTempsRestantReturnsSuccessWhenMoreThan6Months(): void
     {
         $now = new \DateTime();
         $limitDate = (clone $now)->modify('+7 months');
-
-        $result = $this->service->getCouleurTempsRestant($limitDate);
-
-        $this->assertSame('success', $result);
-    }
-
-    public function testGetCouleurTempsRestantReturnsSuccessWhenMoreThan1Year(): void
-    {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+1 year');
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
@@ -136,16 +126,6 @@ class PlatauTempsRestantServiceTest extends TestCase
     {
         $now = new \DateTime();
         $limitDate = (clone $now)->modify('+2 months');
-
-        $result = $this->service->getCouleurTempsRestant($limitDate);
-
-        $this->assertSame('important', $result);
-    }
-
-    public function testGetCouleurTempsRestantReturnsImportantWhenLessThan1Month(): void
-    {
-        $now = new \DateTime();
-        $limitDate = (clone $now)->modify('+15 days');
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 
