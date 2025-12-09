@@ -177,7 +177,7 @@ Simplifier la syntaxe Twig et éviter de passer le service `DossierFieldsService
 namespace App\Twig;
 
 use App\Entity\Dossier;
-use App\Service\DossierFieldsService;
+use App\Service\DossierFields;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -185,7 +185,7 @@ class DossierExtension extends AbstractExtension
 {
     private $dossierFieldsService;
 
-    public function __construct(DossierFieldsService $dossierFieldsService)
+    public function __construct(DossierFields $dossierFieldsService)
     {
         $this->dossierFieldsService = $dossierFieldsService;
     }

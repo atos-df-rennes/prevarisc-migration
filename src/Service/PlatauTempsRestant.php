@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-class PlatauTempsRestantService
+class PlatauTempsRestant
 {
     public const SEUIL_OK = 6;
 

@@ -4,17 +4,17 @@ namespace App\Tests\Service;
 
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
-use App\Service\DossierFieldsService;
+use App\Service\DossierFields;
 use PHPUnit\Framework\TestCase;
 
-class DossierFieldsServiceTest extends TestCase
+class DossierFieldsTest extends TestCase
 {
-    /** @var DossierFieldsService */
+    /** @var DossierFields */
     private $service;
 
     protected function setUp(): void
     {
-        $this->service = new DossierFieldsService();
+        $this->service = new DossierFields();
     }
 
     public function testShouldDisplayFieldReturnsTrueForOperationSdisInIntervention(): void

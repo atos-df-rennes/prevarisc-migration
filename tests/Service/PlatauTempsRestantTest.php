@@ -2,17 +2,17 @@
 
 namespace App\Tests\Service;
 
-use App\Service\PlatauTempsRestantService;
+use App\Service\PlatauTempsRestant;
 use PHPUnit\Framework\TestCase;
 
-class PlatauTempsRestantServiceTest extends TestCase
+class PlatauTempsRestantTest extends TestCase
 {
-    /** @var PlatauTempsRestantService */
+    /** @var PlatauTempsRestant */
     private $service;
 
     protected function setUp(): void
     {
-        $this->service = new PlatauTempsRestantService();
+        $this->service = new PlatauTempsRestant();
     }
 
     public function testCalculateReturnNullWhenLimitDateIsNull(): void
