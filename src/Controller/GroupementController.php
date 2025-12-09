@@ -10,6 +10,7 @@ use App\Repository\CommuneRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\GroupementTypeRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\GroupementCommunes;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -94,7 +95,7 @@ class GroupementController extends AbstractController
     /**
      * @Route("/admin/groupement/form/{id}/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
      */
-    public function formByScope(Groupement $groupement, string $scope, Request $request, GroupementRepository $groupementRepository): Response
+    public function formByScope(Groupement $groupement, string $scope, Request $request, GroupementCommunes $groupementCommunes): Response
     {
         $form = $this->createForm(GroupementFormType::class, $groupement, [
             'scopes' => [$scope]
@@ -106,7 +107,7 @@ class GroupementController extends AbstractController
             $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
 
             if ('1' == $reaffectationAutomatique) {
-                // TODO: Implémenter le comportement de réaffectation automatique
+                $groupementCommunes->reaffectationPreventioniste($groupement->getLibelle());
             }
 
             $this->entityManager->flush();
