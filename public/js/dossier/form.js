@@ -119,15 +119,16 @@
         // Liste des champs potentiellement conditionnels
         const conditionalFields = [
             'objet',
-            'dateVisite',
-            'lieuReunion',
+            'dateInsert',
             'demandeur',
+            'lieuReunion',
+            'dateReunion',
+            'dateVisite',
             'dateReception',
+            'observationDossier',
             'avisCommission',
             'avisDiffere',
             'facteurDangerosite',
-            'dateInsert',
-            'observationDossier',
             // Ajouter d'autres champs au fur et à mesure
         ];
 

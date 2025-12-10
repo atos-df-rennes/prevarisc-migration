@@ -101,6 +101,14 @@ class DossierType extends AbstractType
             ])
 
             // Champs spécifiques réunions (natures 31, 32, 43)
+            ->add('demandeur', TextType::class, [
+                'label' => 'Demandeur',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'id' => 'dossier_demandeur',
+                ],
+            ])
             ->add('lieuReunion', TextType::class, [
                 'label' => 'Lieu de réunion',
                 'required' => false,
@@ -109,12 +117,13 @@ class DossierType extends AbstractType
                     'id' => 'dossier_lieuReunion',
                 ],
             ])
-            ->add('demandeur', TextType::class, [
-                'label' => 'Demandeur',
+            ->add('dateReunion', DateType::class, [
+                'label' => 'Date de réunion',
+                'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control',
-                    'id' => 'dossier_demandeur',
+                    'class' => 'form-control datepicker',
+                    'id' => 'dossier_dateReunion',
                 ],
             ])
         ;

@@ -34,8 +34,8 @@
 
 | Legacy | Symfony | Propriété | Description |
 |--------|---------|-----------|-------------|
-| `DATEREUN` | `dateVisite` | `$dateVisite` | Date de réunion |
-| `DATEVISITE` | `dateVisite` | `$dateVisite` | Date de visite/réunion |
+| `DATEREUN` | `dateReunion` | `$dateReunion` | Date de réunion (réunions uniquement) |
+| `DATEVISITE` | `dateVisite` | `$dateVisite` | Date de visite (visites uniquement) |
 | `LIEUREUNION` | `lieuReunion` | `$lieuReunion` | Lieu de réunion |
 | `DEMANDEUR` | `demandeur` | `$demandeur` | Demandeur |
 | `DATEREP` | `dateReception` | `$dateReception` | Date réception SDIS |

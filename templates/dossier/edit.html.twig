@@ -13,13 +13,14 @@
 
 {% block body %}
 <div id='dossierInfos'>
-    <h3>Modifier les informations générales</h3>
+    <h3>Informations générales</h3>
 
     {# Configuration des champs pour JavaScript #}
     <div data-fields-config='{{ fieldsConfig|raw }}' style="display:none;"></div>
 
     {{ form_start(form, {attr: {id: 'editDossier', name: 'editDossier'}}) }}
 
+    <h4>Type et nature du dossier</h4>
     <ul class='list-unstyled'>
         <li class='row' style='margin-bottom:20px;'>
             <div class='left libelle col-md-3'>Type</div>
@@ -93,7 +94,17 @@
             </li>
         {% endif %}
 
-        {# Champs spécifiques réunions #}
+        {# Champs spécifiques réunions (ordre: demandeur, lieuReunion, dateReunion, observationDossier, dateReception) #}
+        {% if form.demandeur is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-demandeur'>
+                <div class='left libelle col-md-3'>Demandeur</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.demandeur) }}
+                    {{ form_errors(form.demandeur) }}
+                </div>
+            </li>
+        {% endif %}
+
         {% if form.lieuReunion is defined %}
             <li class='row' style='margin-bottom:20px;' id='field-lieuReunion'>
                 <div class='left libelle col-md-3'>Lieu de réunion</div>
@@ -104,12 +115,32 @@
             </li>
         {% endif %}
 
-        {% if form.demandeur is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-demandeur'>
-                <div class='left libelle col-md-3'>Demandeur</div>
+        {% if form.dateReunion is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-dateReunion'>
+                <div class='left libelle col-md-3'>Date de réunion</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.demandeur) }}
-                    {{ form_errors(form.demandeur) }}
+                    {{ form_widget(form.dateReunion) }}
+                    {{ form_errors(form.dateReunion) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {% if form.observationDossier is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-observationDossier'>
+                <div class='left libelle col-md-3'>Observations</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.observationDossier) }}
+                    {{ form_errors(form.observationDossier) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {% if form.dateReception is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-dateReception'>
+                <div class='left libelle col-md-3'>Date de réception</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateReception) }}
+                    {{ form_errors(form.dateReception) }}
                 </div>
             </li>
         {% endif %}
