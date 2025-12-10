@@ -22,12 +22,12 @@ class PlatauStatutAvisEnum
 
     public const EN_ERREUR = 'in_error';
 
-    public static function getLabel(?string $enumValue): ?string
+    public static function getLabel(?string $enumValue): string
     {
         if (null === $enumValue) {
             $enumValue = self::INCONNU;
         }
 
-        return self::LABELS[$enumValue] ?? null;
+        return self::LABELS[$enumValue] ?? self::LABELS[self::INCONNU];
     }
 }

@@ -31,6 +31,7 @@ class PlatauExtensionTest extends TestCase
     {
         return [
             'null returns inconnu' => [null, 'Statut inconnu'],
+            'statut non défini returns inconnu' => ['toto', 'Statut inconnu'],
             'EN_ATTENTE' => [PlatauStatutPecEnum::EN_ATTENTE, 'En attente de complétude sur Prevarisc'],
             'PRISE_EN_COMPTE' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, "Prise en compte sur Plat'AU"],
             'A_RENVOYER' => [PlatauStatutPecEnum::A_RENVOYER, "Prise en compte sur Plat'AU (en attente de renvoi)"],
@@ -52,6 +53,7 @@ class PlatauExtensionTest extends TestCase
     {
         return [
             'null returns text-muted' => [null, 'text-muted'],
+            'statut non défini returns text-muted' => ['toto', 'text-muted'],
             'EN_ATTENTE returns text-info' => [PlatauStatutPecEnum::EN_ATTENTE, 'text-info'],
             'PRISE_EN_COMPTE returns text-success' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, 'text-success'],
             'A_RENVOYER returns text-warning' => [PlatauStatutPecEnum::A_RENVOYER, 'text-warning'],
@@ -73,6 +75,7 @@ class PlatauExtensionTest extends TestCase
     {
         return [
             'null returns inconnu' => [null, 'Statut inconnu'],
+            'statut non défini returns inconnu' => ['toto', 'Statut inconnu'],
             'EN_COURS' => [PlatauStatutAvisEnum::EN_COURS, 'En attente de complétude sur Prevarisc'],
             'TRAITE' => [PlatauStatutAvisEnum::TRAITE, "Traité sur Plat'AU"],
             'A_RENVOYER' => [PlatauStatutAvisEnum::A_RENVOYER, "Traité sur Plat'AU (en attente de renvoi)"],
@@ -94,6 +97,7 @@ class PlatauExtensionTest extends TestCase
     {
         return [
             'null returns text-muted' => [null, 'text-muted'],
+            'statut non défini returns text-muted' => ['toto', 'text-muted'],
             'EN_COURS returns text-info' => [PlatauStatutAvisEnum::EN_COURS, 'text-info'],
             'TRAITE returns text-success' => [PlatauStatutAvisEnum::TRAITE, 'text-success'],
             'A_RENVOYER returns text-warning' => [PlatauStatutAvisEnum::A_RENVOYER, 'text-warning'],
