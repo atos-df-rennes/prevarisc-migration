@@ -2,9 +2,21 @@
 
 {% block title %}{{ parent() }} / Modifier les informations générales{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/dossier/form.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 <div id='dossierInfos'>
     <h3>Modifier les informations générales</h3>
+
+    {# Configuration des champs pour JavaScript (Phase future: récupérer depuis le serveur) #}
+    <div data-fields-config='{}' style="display:none;"></div>
 
     {{ form_start(form, {attr: {id: 'editDossier', name: 'editDossier'}}) }}
 

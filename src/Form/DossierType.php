@@ -18,9 +18,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DossierType extends AbstractType
 {
-    // @todo: Séparer en plusieurs FormTypes ?
+    // @todo: Séparer en plusieurs FormTypes selon le type de dossier (Phase future)
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isEdit = $options['is_edit'];
+
         $builder
             ->add('type', EntityType::class, [
                 'label' => 'Type de dossier',
@@ -28,7 +30,12 @@ class DossierType extends AbstractType
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner un type',
                 'required' => true,
-                'attr' => ['class' => 'form-control'],
+                'disabled' => $isEdit, // Désactivé en édition
+                'attr' => [
+                    'class' => 'form-control',
+                    'id' => 'dossier_type',
+                    'data-action' => 'change',
+                ],
             ])
             ->add('nature', EntityType::class, [
                 'label' => 'Nature du dossier',
@@ -36,7 +43,12 @@ class DossierType extends AbstractType
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner une nature',
                 'required' => true,
-                'attr' => ['class' => 'form-control'],
+                'disabled' => $isEdit, // Désactivé en édition
+                'attr' => [
+                    'class' => 'form-control',
+                    'id' => 'dossier_nature',
+                    'data-action' => 'change',
+                ],
             ])
             ->add('dateInsert', DateType::class, [
                 'label' => "Date d'insertion",
@@ -94,6 +106,12 @@ class DossierType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Dossier::class,
+            'is_edit' => false, // Par défaut, mode création
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id' => 'dossier_form',
         ]);
+
+        $resolver->setAllowedTypes('is_edit', 'bool');
     }
 }

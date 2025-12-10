@@ -176,4 +176,31 @@ class DossierFields
 
         return self::LISTE_CHAMPS[$idNature];
     }
+
+    /**
+     * Retourne la liste complète des champs par nature sous forme de tableau associatif.
+     * Utilisé pour générer le JSON pour le JavaScript.
+     *
+     * @return array<int, list<string>>
+     */
+    public function getAllFieldsByNature(): array
+    {
+        return self::LISTE_CHAMPS;
+    }
+
+    /**
+     * Retourne les champs d'une nature spécifique.
+     *
+     * @return array<string>
+     */
+    public function getFieldsForNature(int $natureId): array
+    {
+        $idNature = (string) $natureId;
+
+        if (!isset(self::LISTE_CHAMPS[$idNature])) {
+            return [];
+        }
+
+        return self::LISTE_CHAMPS[$idNature];
+    }
 }
