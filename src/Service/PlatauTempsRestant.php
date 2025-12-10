@@ -8,12 +8,8 @@ final class PlatauTempsRestant
 
     public const SEUIL_WARN = 3;
 
-    public function calculate(?\DateTimeInterface $limitDate): ?string
+    public function calculate(\DateTimeInterface $limitDate): string
     {
-        if (null === $limitDate) {
-            return null;
-        }
-
         $limit = new \DateTime($limitDate->format('Y-m-d H:i:s'));
         $now = (new \DateTime())->setTime(0, 0, 0);
 

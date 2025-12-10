@@ -15,13 +15,6 @@ class PlatauTempsRestantTest extends TestCase
         $this->service = new PlatauTempsRestant();
     }
 
-    public function testCalculateReturnNullWhenLimitDateIsNull(): void
-    {
-        $result = $this->service->calculate(null);
-
-        $this->assertNull($result);
-    }
-
     /**
      * @dataProvider calculateProvider
      */
