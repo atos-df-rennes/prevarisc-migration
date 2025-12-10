@@ -20,132 +20,129 @@
 
     {{ form_start(form, {attr: {id: 'editDossier', name: 'editDossier'}}) }}
 
-    <h4>Type et nature du dossier</h4>
-    <ul class='list-unstyled'>
-        <li class='row' style='margin-bottom:20px;'>
-            <div class='left libelle col-md-3'>Type</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.type) }}
-                {{ form_errors(form.type) }}
-            </div>
-        </li>
+    <section>
+        <h4>Type et nature du dossier</h4>
+        <ul class='list-unstyled'>
+            <li class='row'>
+                <div class='left libelle col-md-3'>{{ form_label(form.type) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.type) }}
+                    {{ form_errors(form.type) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;'>
-            <div class='left libelle col-md-3'>Nature</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.nature) }}
-                {{ form_errors(form.nature) }}
-            </div>
-        </li>
-    </ul>
+            <li class='row'>
+                <div class='left libelle col-md-3'>{{ form_label(form.nature) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.nature) }}
+                    {{ form_errors(form.nature) }}
+                </div>
+            </li>
+        </ul>
+    </section>
 
-    <h4>Informations sur le dossier</h4>
-    <ul class='list-unstyled'>
-        <li class='row' style='margin-bottom:20px;' id='field-dateInsert'>
-            <div class='left libelle col-md-3'>Date d'insertion</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.dateInsert) }}
-                {{ form_errors(form.dateInsert) }}
-            </div>
-        </li>
+    <section>
+        <h4>Informations sur le dossier</h4>
+        <ul class='list-unstyled'>
+            <li class='row' id='field-dateInsert'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateInsert) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateInsert) }}
+                    {{ form_errors(form.dateInsert) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-objet'>
-            <div class='left libelle col-md-3'>Objet</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.objet) }}
-                {{ form_errors(form.objet) }}
-            </div>
-        </li>
+            <li class='row' id='field-objet'>
+                <div class='left libelle col-md-3'>{{ form_label(form.objet) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.objet) }}
+                    {{ form_errors(form.objet) }}
+                </div>
+            </li>
 
-        {# Champs réunions #}
-        <li class='row' style='margin-bottom:20px;' id='field-dateReunion'>
-            <div class='left libelle col-md-3'>Date de réunion</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.dateReunion) }}
-                {{ form_errors(form.dateReunion) }}
-            </div>
-        </li>
+            <li class='row' id='field-demandeur'>
+                <div class='left libelle col-md-3'>{{ form_label(form.demandeur) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.demandeur) }}
+                    {{ form_errors(form.demandeur) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-dateReponse'>
-            <div class='left libelle col-md-3'>Date de réponse</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.dateReponse) }}
-                {{ form_errors(form.dateReponse) }}
-            </div>
-        </li>
+            <li class='row' id='field-lieuReunion'>
+                <div class='left libelle col-md-3'>{{ form_label(form.lieuReunion) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.lieuReunion) }}
+                    {{ form_errors(form.lieuReunion) }}
+                </div>
+            </li>
 
-        {# Champs autres types (visites, études, etc.) - masqués par défaut #}
-        <li class='row' style='margin-bottom:20px;' id='field-dateVisite'>
-            <div class='left libelle col-md-3'>Date de visite</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.dateVisite) }}
-                {{ form_errors(form.dateVisite) }}
-            </div>
-        </li>
+            <li class='row' id='field-observations'>
+                <div class='left libelle col-md-3'>{{ form_label(form.observations) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.observations) }}
+                    {{ form_errors(form.observations) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-avisCommission'>
-            <div class='left libelle col-md-3'>Avis de la commission</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.avisCommission) }}
-                {{ form_errors(form.avisCommission) }}
-            </div>
-        </li>
+            <li class='row' id='field-dateReponse'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateReponse) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateReponse) }}
+                    {{ form_errors(form.dateReponse) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-avisDiffere'>
-            <div class='left libelle col-md-3'>Diffère l'avis</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.avisDiffere) }}
-                {{ form_errors(form.avisDiffere) }}
-            </div>
-        </li>
+            <li class='row' id='field-dateReunion'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateReunion) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateReunion) }}
+                    {{ form_errors(form.dateReunion) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-facteurDangerosite'>
-            <div class='left libelle col-md-3'>Facteur de criticité</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.facteurDangerosite) }}
-                {{ form_errors(form.facteurDangerosite) }}
-            </div>
-        </li>
-    </ul>
+            {# Champs autres types (visites, études, etc.) - masqués par défaut #}
+            <li class='row' id='field-dateVisite'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateVisite) }}
+                    {{ form_errors(form.dateVisite) }}
+                </div>
+            </li>
 
-    <h4>Préventionnistes</h4>
-    <ul class='list-unstyled'>
-        <li class='row' style='margin-bottom:20px;' id='field-preventionnistes'>
-            <div class='left libelle col-md-3'>Préventionnistes</div>
-            <div class='right form col-md-9'>
-                <p class='form-control-static text-muted'>
-                    <em>Fonctionnalité en cours d'implémentation (autocomplete multi-sélection)</em>
-                </p>
-            </div>
-        </li>
-    </ul>
+            <li class='row' id='field-avisCommission'>
+                <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avisCommission) }}
+                    {{ form_errors(form.avisCommission) }}
+                </div>
+            </li>
 
-    <h4>Informations complémentaires</h4>
-    <ul class='list-unstyled'>
-        <li class='row' style='margin-bottom:20px;' id='field-demandeur'>
-            <div class='left libelle col-md-3'>Demandeur</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.demandeur) }}
-                {{ form_errors(form.demandeur) }}
-            </div>
-        </li>
+            <li class='row' id='field-avisDiffere'>
+                <div class='left libelle col-md-3'>{{ form_label(form.avisDiffere) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avisDiffere) }}
+                    {{ form_errors(form.avisDiffere) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-lieuReunion'>
-            <div class='left libelle col-md-3'>Lieu de réunion</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.lieuReunion) }}
-                {{ form_errors(form.lieuReunion) }}
-            </div>
-        </li>
+            <li class='row' id='field-facteurDangerosite'>
+                <div class='left libelle col-md-3'>{{ form_label(form.facteurDangerosite) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.facteurDangerosite) }}
+                    {{ form_errors(form.facteurDangerosite) }}
+                </div>
+            </li>
 
-        <li class='row' style='margin-bottom:20px;' id='field-observations'>
-            <div class='left libelle col-md-3'>Observations</div>
-            <div class='right form col-md-9'>
-                {{ form_widget(form.observations) }}
-                {{ form_errors(form.observations) }}
-            </div>
-        </li>
-    </ul>
+            <li class='row' id='field-preventionnistes'>
+                <div class='left libelle col-md-3'>Préventionnistes</div>
+                <div class='right form col-md-9'>
+                    <p class='form-control-static text-muted'>
+                        <em>Fonctionnalité en cours d'implémentation (autocomplete multi-sélection)</em>
+                    </p>
+                </div>
+            </li>
+        </ul>
+    </section>
 
     {# Les champs non rendus explicitement seront affichés ici (hidden, csrf, etc.) #}
     {{ form_rest(form) }}

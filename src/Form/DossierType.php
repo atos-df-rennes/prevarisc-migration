@@ -25,7 +25,7 @@ class DossierType extends AbstractType
 
         $builder
             ->add('type', EntityType::class, [
-                'label' => 'Type de dossier',
+                'label' => 'Type',
                 'class' => DossierTypeEntity::class,
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner un type',
@@ -38,7 +38,7 @@ class DossierType extends AbstractType
                 ],
             ])
             ->add('nature', EntityType::class, [
-                'label' => 'Nature du dossier',
+                'label' => 'Nature',
                 'class' => DossierNatureListe::class,
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner une nature',
@@ -51,7 +51,7 @@ class DossierType extends AbstractType
                 ],
             ])
             ->add('dateInsert', DateType::class, [
-                'label' => "Date d'insertion",
+                'label' => "Date de création du dossier",
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
@@ -117,7 +117,7 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control datepicker',
+                    'class' => 'form-control',
                     'id' => 'dossier_dateReunion',
                 ],
             ])
@@ -126,7 +126,7 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control datepicker',
+                    'class' => 'form-control',
                     'id' => 'dossier_dateReponse',
                 ],
             ])
