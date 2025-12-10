@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\DTO;
+namespace App\Tests\Dto;
 
-use App\DTO\PlatauTempsRestantInfo;
+use App\Dto\PlatauTempsRestantInfo;
 use PHPUnit\Framework\TestCase;
 
 class PlatauTempsRestantInfoTest extends TestCase

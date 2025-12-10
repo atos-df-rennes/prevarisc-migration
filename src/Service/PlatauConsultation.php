@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\DTO\PlatauTempsRestantInfo;
+use App\Dto\PlatauTempsRestantInfo;
 use App\Entity\PlatauConsultation as PlatauConsultationEntity;
 use App\Enum\PlatauStatutAvisEnum;
 

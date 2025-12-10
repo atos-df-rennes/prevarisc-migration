@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 /**
  * Value Object représentant les informations de temps restant pour une consultation Plat'AU.
