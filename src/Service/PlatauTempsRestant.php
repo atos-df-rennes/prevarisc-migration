@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-class PlatauTempsRestant
+final class PlatauTempsRestant
 {
     public const SEUIL_OK = 6;
 
@@ -69,6 +69,6 @@ class PlatauTempsRestant
             return 'warning';
         }
 
-        return 'important';
+        return 'danger';
     }
 }

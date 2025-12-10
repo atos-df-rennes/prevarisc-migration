@@ -65,7 +65,7 @@ class PlatauTempsRestantTest extends TestCase
             'past date returns default' => ['now -1 day', 'default'],
             'more than 6 months returns success' => ['now +7 months', 'success'],
             'between 3 and 6 months returns warning' => ['now +5 months', 'warning'],
-            'less than 3 months returns important' => ['now +2 months', 'important'],
+            'less than 3 months returns important' => ['now +2 months', 'danger'],
         ];
     }
 }

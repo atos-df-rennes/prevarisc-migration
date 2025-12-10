@@ -2,24 +2,23 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\PlatauConsultation;
+use App\Entity\PlatauConsultation as PlatauConsultationEntity;
 use App\Enum\PlatauStatutAvisEnum;
-use App\Service\PlatauConsultationService;
-use App\Service\PlatauTempsRestant;
-use PHPUnit\Framework\TestCase;
+use App\Enum\PlatauStatutPecEnum;
+use App\Service\PlatauConsultation;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class PlatauConsultationServiceTest extends TestCase
+class PlatauConsultationTest extends KernelTestCase
 {
-    /** @var PlatauTempsRestant */
-    private $platauTempsRestantService;
-
-    /** @var PlatauConsultationService */
+    /** @var PlatauConsultation */
     private $service;
 
     protected function setUp(): void
     {
-        $this->platauTempsRestantService = $this->createMock(PlatauTempsRestant::class);
-        $this->service = new PlatauConsultationService($this->platauTempsRestantService);
+        self::bootKernel();
+
+        $container = self::$container;
+        $this->service = $container->get(PlatauConsultation::class);
     }
 
     public function testGetTempsRestantInfoRetourneEmptyQuandConsultationNull(): void
@@ -31,7 +30,7 @@ class PlatauConsultationServiceTest extends TestCase
 
     public function testGetTempsRestantInfoRetourneEmptyQuandDateReponseAttendueNull(): void
     {
-        $consultation = new PlatauConsultation();
+        $consultation = new PlatauConsultationEntity();
         $consultation->setDateReponseAttendue(null);
 
         $info = $this->service->getTempsRestantInfo($consultation);
@@ -41,7 +40,7 @@ class PlatauConsultationServiceTest extends TestCase
 
     public function testGetTempsRestantInfoRetourneEmptyQuandAvisTraite(): void
     {
-        $consultation = new PlatauConsultation();
+        $consultation = new PlatauConsultationEntity();
         $consultation->setDateReponseAttendue(new \DateTime('+10 days'));
         $consultation->setStatutAvis(PlatauStatutAvisEnum::TRAITE);
 
@@ -52,7 +51,7 @@ class PlatauConsultationServiceTest extends TestCase
 
     public function testGetTempsRestantInfoRetourneEmptyQuandAvisArenvoyer(): void
     {
-        $consultation = new PlatauConsultation();
+        $consultation = new PlatauConsultationEntity();
         $consultation->setDateReponseAttendue(new \DateTime('+10 days'));
         $consultation->setStatutAvis(PlatauStatutAvisEnum::A_RENVOYER);
 
@@ -64,27 +63,15 @@ class PlatauConsultationServiceTest extends TestCase
     public function testGetTempsRestantInfoCalculeQuandAvisNonTraite(): void
     {
         $dateAttendue = new \DateTime('+15 days');
-        $consultation = new PlatauConsultation();
+        $consultation = new PlatauConsultationEntity();
         $consultation->setDateReponseAttendue($dateAttendue);
         $consultation->setStatutAvis(PlatauStatutAvisEnum::EN_COURS);
-
-        $this->platauTempsRestantService
-            ->expects($this->once())
-            ->method('calculate')
-            ->with($dateAttendue)
-            ->willReturn('15 jours');
-
-        $this->platauTempsRestantService
-            ->expects($this->once())
-            ->method('getCouleurTempsRestant')
-            ->with($dateAttendue)
-            ->willReturn('success');
 
         $info = $this->service->getTempsRestantInfo($consultation);
 
         $this->assertTrue($info->hasInfo());
         $this->assertSame('15 jours', $info->getTempsRestant());
-        $this->assertSame('success', $info->getCouleur());
+        $this->assertSame('danger', $info->getCouleur());
     }
 
     public function testGetPlatauDataForViewRetourneNullQuandConsultationNull(): void
@@ -100,37 +87,29 @@ class PlatauConsultationServiceTest extends TestCase
         $datePec = new \DateTime('-1 day');
         $dateAvis = new \DateTime('now');
 
-        $consultation = new PlatauConsultation();
+        $consultation = new PlatauConsultationEntity();
         $consultation->setIdentifiant('PLATAU-123');
         $consultation->setDateReponseAttendue($dateAttendue);
-        $consultation->setStatutPriseEnCompte('taken_into_account');
+        $consultation->setStatutPriseEnCompte(PlatauStatutPecEnum::PRISE_EN_COMPTE);
         $consultation->setDatePriseEnCompte($datePec);
         $consultation->setStatutAvis(PlatauStatutAvisEnum::EN_COURS);
         $consultation->setDateAvis($dateAvis);
-
-        $this->platauTempsRestantService
-            ->method('calculate')
-            ->willReturn('5 jours');
-
-        $this->platauTempsRestantService
-            ->method('getCouleurTempsRestant')
-            ->willReturn('warning');
 
         $data = $this->service->getPlatauDataForView($consultation);
 
         $this->assertIsArray($data);
         $this->assertSame('PLATAU-123', $data['identifiant']);
         $this->assertSame('5 jours', $data['temps_restant']);
-        $this->assertSame('warning', $data['couleur_temps_restant']);
+        $this->assertSame('danger', $data['couleur_temps_restant']);
         $this->assertSame('taken_into_account', $data['statut_pec']);
         $this->assertSame($datePec, $data['date_pec']);
-        $this->assertSame(PlatauStatutAvisEnum::EN_COURS, $data['statut_avis']);
+        $this->assertSame('in_progress', $data['statut_avis']);
         $this->assertSame($dateAvis, $data['date_avis']);
     }
 
     public function testGetPlatauDataForViewSansTempsRestantQuandAvisTraite(): void
     {
-        $consultation = new PlatauConsultation();
+        $consultation = new PlatauConsultationEntity();
         $consultation->setIdentifiant('PLATAU-456');
         $consultation->setDateReponseAttendue(new \DateTime('+5 days'));
         $consultation->setStatutAvis(PlatauStatutAvisEnum::TRAITE);

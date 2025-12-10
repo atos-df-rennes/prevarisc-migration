@@ -11,7 +11,7 @@ use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
-use App\Service\PlatauConsultationService;
+use App\Service\PlatauConsultation;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,7 +34,7 @@ class DossierController extends AbstractController
      *
      * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
      */
-    public function index(Dossier $dossier, PlatauConsultationService $platauConsultationService): Response
+    public function index(Dossier $dossier, PlatauConsultation $platauConsultationService): Response
     {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
             && !$dossier->isHorsDelai()

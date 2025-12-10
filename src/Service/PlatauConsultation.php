@@ -3,14 +3,14 @@
 namespace App\Service;
 
 use App\DTO\PlatauTempsRestantInfo;
-use App\Entity\PlatauConsultation;
+use App\Entity\PlatauConsultation as PlatauConsultationEntity;
 use App\Enum\PlatauStatutAvisEnum;
 
 /**
  * Service métier pour la gestion des consultations Plat'AU.
  * Centralise la logique d'affichage et de traitement.
  */
-class PlatauConsultationService
+final class PlatauConsultation
 {
     /** @var PlatauTempsRestant */
     private $platauTempsRestantService;
@@ -26,7 +26,7 @@ class PlatauConsultationService
      * - La date de réponse attendue n'est pas définie
      * - L'avis a déjà été envoyé (statut treated, to_export ou unknown).
      */
-    public function getTempsRestantInfo(?PlatauConsultation $consultation): PlatauTempsRestantInfo
+    public function getTempsRestantInfo(?PlatauConsultationEntity $consultation): PlatauTempsRestantInfo
     {
         if (null === $consultation) {
             return PlatauTempsRestantInfo::empty();
@@ -53,11 +53,9 @@ class PlatauConsultationService
     /**
      * Prépare les données Plat'AU pour l'affichage dans les templates.
      *
-     * @param PlatauConsultation|null $consultation
-     *
      * @return array<string, mixed>|null
      */
-    public function getPlatauDataForView($consultation): ?array
+    public function getPlatauDataForView(?PlatauConsultationEntity $consultation): ?array
     {
         if (null === $consultation) {
             return null;

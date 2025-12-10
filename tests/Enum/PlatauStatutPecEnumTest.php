@@ -53,7 +53,7 @@ class PlatauStatutPecEnumTest extends TestCase
     {
         $result = PlatauStatutPecEnum::getLabel('invalid_status');
 
-        $this->assertNull($result);
+        $this->assertSame('Statut inconnu', $result);
     }
 
     public function testConstantValues(): void

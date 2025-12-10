@@ -53,7 +53,7 @@ class PlatauStatutAvisEnumTest extends TestCase
     {
         $result = PlatauStatutAvisEnum::getLabel('invalid_status');
 
-        $this->assertNull($result);
+        $this->assertSame('Statut inconnu', $result);
     }
 
     public function testConstantValues(): void
