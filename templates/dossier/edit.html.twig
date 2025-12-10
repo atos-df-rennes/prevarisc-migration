@@ -92,6 +92,39 @@
                 </div>
             </li>
 
+            {# Champs courriers (natures 49-55) #}
+            <li class='row' style='margin-bottom:20px;' id='field-dateMairie'>
+                <div class='left libelle col-md-3'>Date réception mairie</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateMairie) }}
+                    {{ form_errors(form.dateMairie) }}
+                </div>
+            </li>
+
+            <li class='row' style='margin-bottom:20px;' id='field-dateEnvoiTransit'>
+                <div class='left libelle col-md-3'>Date envoi / transit</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateEnvoiTransit) }}
+                    {{ form_errors(form.dateEnvoiTransit) }}
+                </div>
+            </li>
+
+            <li class='row' style='margin-bottom:20px;' id='field-dateTransfertCommission'>
+                <div class='left libelle col-md-3'>Date transfert commission</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateTransfertCommission) }}
+                    {{ form_errors(form.dateTransfertCommission) }}
+                </div>
+            </li>
+
+            <li class='row' style='margin-bottom:20px;' id='field-dateReceptionCommission'>
+                <div class='left libelle col-md-3'>Date réception commission</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateReceptionCommission) }}
+                    {{ form_errors(form.dateReceptionCommission) }}
+                </div>
+            </li>
+
             <li class='row' id='field-dateReunion'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateReunion) }}</div>
                 <div class='right form col-md-9'>

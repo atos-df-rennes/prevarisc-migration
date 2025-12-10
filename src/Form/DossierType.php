@@ -51,7 +51,7 @@ class DossierType extends AbstractType
                 ],
             ])
             ->add('dateInsert', DateType::class, [
-                'label' => "Date de création du dossier",
+                'label' => 'Date de création du dossier',
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
@@ -137,6 +137,44 @@ class DossierType extends AbstractType
                     'rows' => 3,
                     'class' => 'form-control',
                     'id' => 'dossier_observations',
+                ],
+            ])
+
+            // Champs spécifiques courriers (natures 49, 51, 52, 53, 54, 55)
+            ->add('dateMairie', DateType::class, [
+                'label' => 'Date réception mairie',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control datepicker',
+                    'id' => 'dossier_dateMairie',
+                ],
+            ])
+            ->add('dateEnvoiTransit', DateType::class, [
+                'label' => 'Date envoi / transit',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control datepicker',
+                    'id' => 'dossier_dateEnvoiTransit',
+                ],
+            ])
+            ->add('dateTransfertCommission', DateType::class, [
+                'label' => 'Date transfert commission',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control datepicker',
+                    'id' => 'dossier_dateTransfertCommission',
+                ],
+            ])
+            ->add('dateReceptionCommission', DateType::class, [
+                'label' => 'Date réception commission',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control datepicker',
+                    'id' => 'dossier_dateReceptionCommission',
                 ],
             ])
         ;

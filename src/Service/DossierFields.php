@@ -101,19 +101,20 @@ class DossierFields
         // Téléphonique - OK
         // Legacy: DATEINSERT, OBJET, DATEREUN, DATEREP, PREVENTIONNISTE, DEMANDEUR, OBSERVATION
         '43' => ['dateInsert', 'objet', 'dateReunion', 'dateReponse', 'preventionnistes', 'demandeur', 'observations'],
-        // COURRIER/COURRIEL
+        // COURRIER/COURRIEL (noms Symfony standardisés)
         // Lettre - OK
-        '52' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
+        // Legacy: DATEINSERT, OBJET, NUMCHRONO, DATEMAIRIE, PREVENTIONNISTE, DATEREP, DATEENVTRANSIT, PREVENTIONNISTE, DATESDIS, DEMANDEUR, DATETRANSFERTCOMM, DATERECEPTIONCOMM, OBSERVATION
+        '52' => ['dateInsert', 'objet', 'dateMairie', 'dateReponse', 'dateEnvoiTransit', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // Mise en demeure - OK
-        '55' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
+        '55' => ['dateInsert', 'objet', 'dateMairie', 'dateReponse', 'dateEnvoiTransit', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // Avis écrit motivé - OK
-        '51' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
+        '51' => ['dateInsert', 'objet', 'dateMairie', 'dateReponse', 'dateEnvoiTransit', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // Consultation PLU - OK
-        '53' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
+        '53' => ['dateInsert', 'objet', 'dateMairie', 'dateReponse', 'dateEnvoiTransit', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // Rapport d'organisme agréé - OK
-        '49' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
-        // Demande de renseignements
-        '54' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
+        '49' => ['dateInsert', 'objet', 'dateMairie', 'dateReponse', 'dateEnvoiTransit', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
+        // Demande de renseignements - OK
+        '54' => ['dateInsert', 'objet', 'dateMairie', 'dateReponse', 'dateEnvoiTransit', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // Demande de visite périodique
         '59' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de visite technique
