@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Dossier;
 use App\Entity\Utilisateur;
-use App\Enum\PlatauStatutAvisEnum;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
@@ -12,7 +11,7 @@ use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
-use App\Service\PlatauTempsRestant;
+use App\Service\PlatauConsultationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,7 +34,7 @@ class DossierController extends AbstractController
      *
      * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
      */
-    public function index(Dossier $dossier, PlatauTempsRestant $platauTempsRestantService): Response
+    public function index(Dossier $dossier, PlatauConsultationService $platauConsultationService): Response
     {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
             && !$dossier->isHorsDelai()
@@ -44,32 +43,7 @@ class DossierController extends AbstractController
             && !$dossier->hasNePeutSePrononcer()
         ;
 
-        $platauData = null;
-        $consultationPlatau = $dossier->getConsultationPlatau();
-
-        if (null !== $consultationPlatau) {
-            $statutAvis = $consultationPlatau->getStatutAvis();
-            $tempsRestant = null;
-            $couleurTempsRestant = null;
-
-            if (PlatauStatutAvisEnum::TRAITE !== $statutAvis) {
-                $tempsRestant = $platauTempsRestantService->calculate($consultationPlatau->getDateReponseAttendue());
-
-                if (null !== $tempsRestant && null !== $consultationPlatau->getDateReponseAttendue()) {
-                    $couleurTempsRestant = $platauTempsRestantService->getCouleurTempsRestant($consultationPlatau->getDateReponseAttendue());
-                }
-            }
-
-            $platauData = [
-                'identifiant' => $consultationPlatau->getIdentifiant(),
-                'temps_restant' => $tempsRestant,
-                'couleur_temps_restant' => $couleurTempsRestant,
-                'statut_pec' => $consultationPlatau->getStatutPriseEnCompte(),
-                'date_pec' => $consultationPlatau->getDatePriseEnCompte(),
-                'statut_avis' => $statutAvis,
-                'date_avis' => $consultationPlatau->getDateAvis(),
-            ];
-        }
+        $platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
 
         return $this->render('dossier/index.html.twig', [
             'dossier' => $dossier,

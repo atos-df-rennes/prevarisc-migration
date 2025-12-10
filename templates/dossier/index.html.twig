@@ -38,23 +38,23 @@
                     <li class='row'>
                         <div class='left libelle col-md-3'>Prise en compte métier</div>
                         <div class='right value col-md-9'>
-                            {% include 'dossier/_platau_statut.html.twig' with {
-                                'type': 'pec',
-                                'statut': platau.statut_pec,
-                                'date_pec': platau.date_pec,
-                                'dossier_incomplet': dossier.incomplet
-                            } %}
+                            {{ include('dossier/_platau_statut.html.twig', {
+                                type: 'pec',
+                                statut: platau.statut_pec,
+                                date_pec: platau.date_pec,
+                                dossier_incomplet: dossier.incomplet,
+                            }) }}
                         </div>
                     </li>
 
                     <li class='row'>
                         <div class='left libelle col-md-3'>Avis</div>
                         <div class='right value col-md-9'>
-                            {% include 'dossier/_platau_statut.html.twig' with {
-                                'type': 'avis',
-                                'statut': platau.statut_avis,
-                                'date_avis': platau.date_avis
-                            } %}
+                            {{ include('dossier/_platau_statut.html.twig', {
+                                type: 'avis',
+                                statut: platau.statut_avis,
+                                date_avis: platau.date_avis,
+                            }) }}
                         </div>
                     </li>
                 </ul>
