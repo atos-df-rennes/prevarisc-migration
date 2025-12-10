@@ -37,8 +37,11 @@
                 {{ form_errors(form.nature) }}
             </div>
         </li>
+    </ul>
 
-        <li class='row' style='margin-bottom:20px;'>
+    <h4>Informations sur le dossier</h4>
+    <ul class='list-unstyled'>
+        <li class='row' style='margin-bottom:20px;' id='field-dateInsert'>
             <div class='left libelle col-md-3'>Date d'insertion</div>
             <div class='right form col-md-9'>
                 {{ form_widget(form.dateInsert) }}
@@ -46,7 +49,7 @@
             </div>
         </li>
 
-        <li class='row' style='margin-bottom:20px;'>
+        <li class='row' style='margin-bottom:20px;' id='field-objet'>
             <div class='left libelle col-md-3'>Objet</div>
             <div class='right form col-md-9'>
                 {{ form_widget(form.objet) }}
@@ -54,96 +57,94 @@
             </div>
         </li>
 
-        {% if form.dateVisite is defined %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Date de visite</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateVisite) }}
-                    {{ form_errors(form.dateVisite) }}
-                </div>
-            </li>
-        {% endif %}
+        {# Champs réunions #}
+        <li class='row' style='margin-bottom:20px;' id='field-dateReunion'>
+            <div class='left libelle col-md-3'>Date de réunion</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.dateReunion) }}
+                {{ form_errors(form.dateReunion) }}
+            </div>
+        </li>
 
-        {% if form.avisCommission is defined %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Avis de la commission</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.avisCommission) }}
-                    {{ form_errors(form.avisCommission) }}
-                </div>
-            </li>
-        {% endif %}
+        <li class='row' style='margin-bottom:20px;' id='field-dateReception'>
+            <div class='left libelle col-md-3'>Date de réception</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.dateReception) }}
+                {{ form_errors(form.dateReception) }}
+            </div>
+        </li>
 
-        {% if form.avisDiffere is defined %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Diffère l'avis</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.avisDiffere) }}
-                    {{ form_errors(form.avisDiffere) }}
-                </div>
-            </li>
-        {% endif %}
+        {# Champs autres types (visites, études, etc.) - masqués par défaut #}
+        <li class='row' style='margin-bottom:20px;' id='field-dateVisite'>
+            <div class='left libelle col-md-3'>Date de visite</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.dateVisite) }}
+                {{ form_errors(form.dateVisite) }}
+            </div>
+        </li>
 
-        {% if form.facteurDangerosite is defined %}
-            <li class='row' style='margin-bottom:20px;'>
-                <div class='left libelle col-md-3'>Facteur de criticité</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.facteurDangerosite) }}
-                    {{ form_errors(form.facteurDangerosite) }}
-                </div>
-            </li>
-        {% endif %}
+        <li class='row' style='margin-bottom:20px;' id='field-avisCommission'>
+            <div class='left libelle col-md-3'>Avis de la commission</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.avisCommission) }}
+                {{ form_errors(form.avisCommission) }}
+            </div>
+        </li>
 
-        {# Champs spécifiques réunions (ordre: demandeur, lieuReunion, dateReunion, observationDossier, dateReception) #}
-        {% if form.demandeur is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-demandeur'>
-                <div class='left libelle col-md-3'>Demandeur</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.demandeur) }}
-                    {{ form_errors(form.demandeur) }}
-                </div>
-            </li>
-        {% endif %}
+        <li class='row' style='margin-bottom:20px;' id='field-avisDiffere'>
+            <div class='left libelle col-md-3'>Diffère l'avis</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.avisDiffere) }}
+                {{ form_errors(form.avisDiffere) }}
+            </div>
+        </li>
 
-        {% if form.lieuReunion is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-lieuReunion'>
-                <div class='left libelle col-md-3'>Lieu de réunion</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.lieuReunion) }}
-                    {{ form_errors(form.lieuReunion) }}
-                </div>
-            </li>
-        {% endif %}
+        <li class='row' style='margin-bottom:20px;' id='field-facteurDangerosite'>
+            <div class='left libelle col-md-3'>Facteur de criticité</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.facteurDangerosite) }}
+                {{ form_errors(form.facteurDangerosite) }}
+            </div>
+        </li>
+    </ul>
 
-        {% if form.dateReunion is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-dateReunion'>
-                <div class='left libelle col-md-3'>Date de réunion</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateReunion) }}
-                    {{ form_errors(form.dateReunion) }}
-                </div>
-            </li>
-        {% endif %}
+    <h4>Préventionnistes</h4>
+    <ul class='list-unstyled'>
+        <li class='row' style='margin-bottom:20px;' id='field-preventionnistes'>
+            <div class='left libelle col-md-3'>Préventionnistes</div>
+            <div class='right form col-md-9'>
+                <p class='form-control-static text-muted'>
+                    <em>Fonctionnalité en cours d'implémentation (autocomplete multi-sélection)</em>
+                </p>
+            </div>
+        </li>
+    </ul>
 
-        {% if form.observationDossier is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-observationDossier'>
-                <div class='left libelle col-md-3'>Observations</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.observationDossier) }}
-                    {{ form_errors(form.observationDossier) }}
-                </div>
-            </li>
-        {% endif %}
+    <h4>Informations complémentaires</h4>
+    <ul class='list-unstyled'>
+        <li class='row' style='margin-bottom:20px;' id='field-demandeur'>
+            <div class='left libelle col-md-3'>Demandeur</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.demandeur) }}
+                {{ form_errors(form.demandeur) }}
+            </div>
+        </li>
 
-        {% if form.dateReception is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-dateReception'>
-                <div class='left libelle col-md-3'>Date de réception</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateReception) }}
-                    {{ form_errors(form.dateReception) }}
-                </div>
-            </li>
-        {% endif %}
+        <li class='row' style='margin-bottom:20px;' id='field-lieuReunion'>
+            <div class='left libelle col-md-3'>Lieu de réunion</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.lieuReunion) }}
+                {{ form_errors(form.lieuReunion) }}
+            </div>
+        </li>
+
+        <li class='row' style='margin-bottom:20px;' id='field-observationDossier'>
+            <div class='left libelle col-md-3'>Observations</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.observationDossier) }}
+                {{ form_errors(form.observationDossier) }}
+            </div>
+        </li>
     </ul>
 
     {# Les champs non rendus explicitement seront affichés ici (hidden, csrf, etc.) #}

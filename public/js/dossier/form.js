@@ -118,17 +118,18 @@
     function hideAllConditionalFields() {
         // Liste des champs potentiellement conditionnels
         const conditionalFields = [
-            'objet',
             'dateInsert',
-            'demandeur',
-            'lieuReunion',
+            'objet',
             'dateReunion',
-            'dateVisite',
             'dateReception',
-            'observationDossier',
+            'dateVisite',
             'avisCommission',
             'avisDiffere',
             'facteurDangerosite',
+            'preventionnistes',
+            'demandeur',
+            'lieuReunion',
+            'observationDossier',
             // Ajouter d'autres champs au fur et à mesure
         ];
 
