@@ -11,6 +11,7 @@ use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\DossierFields;
 use App\Service\PlatauConsultation;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -67,9 +68,12 @@ class DossierController extends AbstractController
         CommissionTypeRepository $commissionTypeRepository,
         CommissionRepository $commissionRepository,
         EtablissementRepository $etablissementRepository,
-        UtilisateurRepository $utilisateurRepository
+        UtilisateurRepository $utilisateurRepository,
+        DossierFields $dossierFieldsService
     ): Response {
-        $form = $this->createForm(DossierType::class, $dossier);
+        $form = $this->createForm(DossierType::class, $dossier, [
+            'is_edit' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -116,6 +120,9 @@ class DossierController extends AbstractController
             $userInfoVerrou = $utilisateurRepository->find($dossier->getUtilisateurVerrou());
         }
 
+        // Configuration des champs pour JavaScript
+        $fieldsConfig = json_encode($dossierFieldsService->getAllFieldsByNature());
+
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
@@ -128,6 +135,7 @@ class DossierController extends AbstractController
             'isAllowedChangeAvis' => $isAllowedChangeAvis,
             'isAllowedDeleteDossier' => $isAllowedDeleteDossier,
             'userInfoVerrou' => $userInfoVerrou,
+            'fieldsConfig' => $fieldsConfig,
         ]);
     }
 

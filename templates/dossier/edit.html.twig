@@ -15,8 +15,8 @@
 <div id='dossierInfos'>
     <h3>Modifier les informations générales</h3>
 
-    {# Configuration des champs pour JavaScript (Phase future: récupérer depuis le serveur) #}
-    <div data-fields-config='{}' style="display:none;"></div>
+    {# Configuration des champs pour JavaScript #}
+    <div data-fields-config='{{ fieldsConfig|raw }}' style="display:none;"></div>
 
     {{ form_start(form, {attr: {id: 'editDossier', name: 'editDossier'}}) }}
 
@@ -89,6 +89,27 @@
                 <div class='right form col-md-9'>
                     {{ form_widget(form.facteurDangerosite) }}
                     {{ form_errors(form.facteurDangerosite) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {# Champs spécifiques réunions #}
+        {% if form.lieuVisite is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-lieuVisite'>
+                <div class='left libelle col-md-3'>Lieu de réunion</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.lieuVisite) }}
+                    {{ form_errors(form.lieuVisite) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {% if form.demandeur is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-demandeur'>
+                <div class='left libelle col-md-3'>Demandeur</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.demandeur) }}
+                    {{ form_errors(form.demandeur) }}
                 </div>
             </li>
         {% endif %}

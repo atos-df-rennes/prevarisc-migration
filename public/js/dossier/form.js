@@ -15,6 +15,25 @@
     let fieldsConfig = {};
 
     /**
+     * Mapping des noms de champs legacy vers Symfony
+     * Permet de convertir les noms utilisés dans DossierFields vers les noms de formulaire
+     */
+    const fieldMapping = {
+        'DATEINSERT': 'dateInsert',
+        'OBJET': 'objet',
+        'DATEREUN': 'dateVisite',
+        'DATEVISITE': 'dateVisite',
+        'LIEUREUNION': 'lieuVisite',
+        'DATEREP': 'dateReception',
+        'PREVENTIONNISTE': 'preventionnistes', // Collection, traité séparément
+        'DEMANDEUR': 'demandeur',
+        'OBSERVATION': 'observationDossier',
+        'HORSDELAI': 'horsDelai',
+        'DATESIGNATURE': 'dateSignature',
+        // Ajouter d'autres mappings au fur et à mesure
+    };
+
+    /**
      * Initialisation au chargement du DOM
      */
     document.addEventListener('DOMContentLoaded', function() {
@@ -106,8 +125,10 @@
         hideAllConditionalFields();
 
         // Afficher les champs appropriés
-        fieldsToShow.forEach(function(fieldName) {
-            showField(fieldName);
+        fieldsToShow.forEach(function(legacyFieldName) {
+            // Convertir le nom legacy vers le nom Symfony
+            const symfonyFieldName = fieldMapping[legacyFieldName] || legacyFieldName.toLowerCase();
+            showField(symfonyFieldName);
         });
     }
 
@@ -119,11 +140,12 @@
         const conditionalFields = [
             'objet',
             'dateVisite',
+            'lieuVisite',
+            'demandeur',
+            'dateReception',
             'avisCommission',
             'avisDiffere',
             'facteurDangerosite',
-            'dateReception',
-            'demandeur',
             'dateInsert',
             // Ajouter d'autres champs au fur et à mesure
         ];
