@@ -1,7 +1,31 @@
 # Plan de migration incrémental - Édition des dossiers
 
 **Date :** 10 décembre 2025  
-**Objectif :** Migration de la fonctionnalité d'édition/création de dossiers depuis Zend v1 vers Symfony 4
+**Objectif :** Migration de la fonctionnalité d'édition/création de dossiers depuis Zend v1 vers Symfony 4  
+**Dernière mise à jour :** 10 décembre 2025 - 17h15
+
+---
+
+## 📊 État d'avancement
+
+### ✅ Phases terminées
+
+| Phase | Description | Natures | Commit | Date |
+|-------|-------------|---------|--------|------|
+| **Phase 0** | Infrastructure de base | - | `feat(dossier): infrastructure édition Phase 0` | 10/12/2025 |
+| **Phase 1** | Réunions (Type 4) | 31, 32, 43 | `fix(dossier): corrections systématiques Phase 1` | 10/12/2025 |
+| **Phase 2** | Courriers/Courriels (Type 7) | 49-55, 57-60, 65 | `feat(dossier): ajout natures courriers manquantes` | 10/12/2025 |
+
+**Total : 15 natures opérationnelles** (3 réunions + 12 courriers)
+
+### ⏳ Phases à réaliser
+
+| Phase | Description | Natures estimées | Priorité |
+|-------|-------------|------------------|----------|
+| **Phase 3** | Visites périodiques | 21, 28-29 | Haute |
+| **Phase 4** | Études simples (PC/AT) | 1-13 | Moyenne |
+| **Phase 5** | Interventions | 37-39 | Moyenne |
+| **Phase 6** | Autres types | Variables | Basse |
 
 ---
 
