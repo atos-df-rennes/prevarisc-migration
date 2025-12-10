@@ -121,6 +121,7 @@
             'dateInsert',
             'objet',
             'dateReunion',
+            'dateReponse',
             'dateReception',
             'dateVisite',
             'avisCommission',
@@ -129,7 +130,7 @@
             'preventionnistes',
             'demandeur',
             'lieuReunion',
-            'observationDossier',
+            'observations',
             // Ajouter d'autres champs au fur et à mesure
         ];
 

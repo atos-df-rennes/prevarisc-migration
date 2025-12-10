@@ -92,15 +92,15 @@ class DossierFields
         // Inopinéee - OK
         '29' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // REUNION (noms Symfony standardisés)
-        // Locaux SDIS - OK  
+        // Locaux SDIS - OK
         // Legacy: DATEINSERT, OBJET, DATEREUN, DATEREP, PREVENTIONNISTE, DEMANDEUR, OBSERVATION
-        '31' => ['dateInsert', 'objet', 'dateReunion', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
+        '31' => ['dateInsert', 'objet', 'dateReunion', 'dateReponse', 'preventionnistes', 'demandeur', 'observations'],
         // Exterieur SDIS - OK
         // Legacy: DATEINSERT, OBJET, LIEUREUNION, DATEREUN, DATEREP, PREVENTIONNISTE, DEMANDEUR, OBSERVATION
-        '32' => ['dateInsert', 'objet', 'lieuReunion', 'dateReunion', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
+        '32' => ['dateInsert', 'objet', 'lieuReunion', 'dateReunion', 'dateReponse', 'preventionnistes', 'demandeur', 'observations'],
         // Téléphonique - OK
         // Legacy: DATEINSERT, OBJET, DATEREUN, DATEREP, PREVENTIONNISTE, DEMANDEUR, OBSERVATION
-        '43' => ['dateInsert', 'objet', 'dateReunion', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
+        '43' => ['dateInsert', 'objet', 'dateReunion', 'dateReponse', 'preventionnistes', 'demandeur', 'observations'],
         // COURRIER/COURRIEL
         // Lettre - OK
         '52' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],

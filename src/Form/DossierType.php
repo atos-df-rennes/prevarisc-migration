@@ -64,11 +64,6 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-            ->add('demandeur', TextType::class, [
-                'label' => 'Demandeur',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
             ->add('dateReception', DateType::class, [
                 'label' => 'Date de réception SDIS',
                 'widget' => 'single_text',
@@ -124,6 +119,24 @@ class DossierType extends AbstractType
                 'attr' => [
                     'class' => 'form-control datepicker',
                     'id' => 'dossier_dateReunion',
+                ],
+            ])
+            ->add('dateReponse', DateType::class, [
+                'label' => 'Date de réponse',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control datepicker',
+                    'id' => 'dossier_dateReponse',
+                ],
+            ])
+            ->add('observations', TextareaType::class, [
+                'label' => 'Observations',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                    'id' => 'dossier_observations',
                 ],
             ])
         ;

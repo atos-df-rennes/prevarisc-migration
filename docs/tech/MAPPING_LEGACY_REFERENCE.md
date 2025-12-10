@@ -28,10 +28,10 @@
 | `DATEINSERT` | `DATEINSERT_DOSSIER` | `dateInsert` | `\DateTimeInterface` | Date création |
 | `OBJET` | `OBJET_DOSSIER` | `objet` | `string` | Objet |
 | `DATEREUN` | `DATEREUN_DOSSIER` | `dateReunion` | `\DateTimeInterface` | Date de la réunion |
-| `DATEREP` | `DATEREP_DOSSIER` | `dateReception` | `\DateTimeInterface` | Date réception SDIS |
+| `DATEREP` | `DATEREP_DOSSIER` | `dateReponse` | `\DateTimeInterface` | Date de réponse |
 | `PREVENTIONNISTE` | table `dossierpreventionniste` | `preventionnistes` | `Collection` | Préventionnistes liés |
 | `DEMANDEUR` | `DEMANDEUR_DOSSIER` | `demandeur` | `string` | Demandeur |
-| `OBSERVATION` | `OBSERVATION_DOSSIER` | `observationDossier` | `string` | Observations |
+| `OBSERVATION` | `OBSERVATION_DOSSIER` | `observations` | `string` | Observations |
 
 ### Nature 32 : Réunion de chantier extérieur SDIS
 
@@ -138,14 +138,14 @@ Identique à nature 31.
 - **DATEVISITE** (`dateVisite`) : Utilisé pour les visites (type 2, 3)
 - ⚠️ Ce sont deux champs distincts dans la BDD
 
-### 2. DATEREP = dateReception (PAS dateReponse)
-- **DATEREP** → `dateReception` (date de réception au SDIS)
-- **DATESDIS** → `dateReponse` (date de réponse du SDIS)
-- ⚠️ Ne pas confondre !
+### 2. DATEREP = dateReponse (PAS dateReception)
+- **DATEREP** → `dateReponse` (DATEREP_DOSSIER - date de réponse)
+- **DATESDIS** → `dateReponse` (DATESDIS_DOSSIER - date réponse SDIS)
+- ⚠️ Ne pas confondre avec dateReception (autre champ) !
 
-### 3. OBSERVATION = observationDossier
-- **OBSERVATION** → `observationDossier` (OBSERVATION_DOSSIER)
-- Pas `observations` (qui est une autre propriété)
+### 3. OBSERVATION = observations
+- **OBSERVATION** → `observations` (OBSERVATION_DOSSIER)
+- ⚠️ Propriété = `$observations` (pas `$observationDossier`)
 
 ### 4. PREVENTIONNISTE = preventionnistes (collection)
 - **PREVENTIONNISTE** → `preventionnistes` (relation ManyToMany)
