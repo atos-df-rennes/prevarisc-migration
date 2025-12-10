@@ -142,38 +142,38 @@ class DossierType extends AbstractType
 
             // Champs spécifiques courriers (natures 49, 51, 52, 53, 54, 55)
             ->add('dateMairie', DateType::class, [
-                'label' => 'Date réception mairie',
+                'label' => 'Date de réception mairie',
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control datepicker',
+                    'class' => 'form-control',
                     'id' => 'dossier_dateMairie',
                 ],
             ])
             ->add('dateEnvoiTransit', DateType::class, [
-                'label' => 'Date envoi / transit',
+                'label' => "Date d'envoi / transit",
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control datepicker',
+                    'class' => 'form-control',
                     'id' => 'dossier_dateEnvoiTransit',
                 ],
             ])
             ->add('dateTransfertCommission', DateType::class, [
-                'label' => 'Date transfert commission',
+                'label' => 'Date de transfert à la commission compétente',
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control datepicker',
+                    'class' => 'form-control',
                     'id' => 'dossier_dateTransfertCommission',
                 ],
             ])
             ->add('dateReceptionCommission', DateType::class, [
-                'label' => 'Date réception commission',
+                'label' => 'Date de réception à la commission compétente',
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control datepicker',
+                    'class' => 'form-control',
                     'id' => 'dossier_dateReceptionCommission',
                 ],
             ])
