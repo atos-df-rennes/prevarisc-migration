@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Dossier;
 use App\Entity\Utilisateur;
+use App\Enum\PlatauStatutAvisEnum;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
@@ -47,11 +48,16 @@ class DossierController extends AbstractController
         $consultationPlatau = $dossier->getConsultationPlatau();
 
         if (null !== $consultationPlatau) {
-            $tempsRestant = $platauTempsRestantService->calculate($consultationPlatau->getDateReponseAttendue());
+            $statutAvis = $consultationPlatau->getStatutAvis();
+            $tempsRestant = null;
             $couleurTempsRestant = null;
 
-            if (null !== $tempsRestant && null !== $consultationPlatau->getDateReponseAttendue()) {
-                $couleurTempsRestant = $platauTempsRestantService->getCouleurTempsRestant($consultationPlatau->getDateReponseAttendue());
+            if (PlatauStatutAvisEnum::TRAITE !== $statutAvis) {
+                $tempsRestant = $platauTempsRestantService->calculate($consultationPlatau->getDateReponseAttendue());
+
+                if (null !== $tempsRestant && null !== $consultationPlatau->getDateReponseAttendue()) {
+                    $couleurTempsRestant = $platauTempsRestantService->getCouleurTempsRestant($consultationPlatau->getDateReponseAttendue());
+                }
             }
 
             $platauData = [
@@ -60,7 +66,7 @@ class DossierController extends AbstractController
                 'couleur_temps_restant' => $couleurTempsRestant,
                 'statut_pec' => $consultationPlatau->getStatutPriseEnCompte(),
                 'date_pec' => $consultationPlatau->getDatePriseEnCompte(),
-                'statut_avis' => $consultationPlatau->getStatutAvis(),
+                'statut_avis' => $statutAvis,
                 'date_avis' => $consultationPlatau->getDateAvis(),
             ];
         }
