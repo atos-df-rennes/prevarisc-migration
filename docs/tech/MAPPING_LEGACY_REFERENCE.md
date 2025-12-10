@@ -96,14 +96,29 @@ Identique à nature 31.
 
 ---
 
-## Champs courriers (Type 7) - Pour référence future
+## Champs courriers (Type 7)
+
+### Courriers/Courriels complets (natures 49-55, 57-60, 65)
+
+**Legacy complet :** `DATEINSERT, OBJET, NUMCHRONO, DATEMAIRIE, PREVENTIONNISTE, DATEREP, DATEENVTRANSIT, DATESDIS, DEMANDEUR, DATETRANSFERTCOMM, DATERECEPTIONCOMM, OBSERVATION`
 
 | Legacy | Colonne BDD | Symfony | Description |
 |--------|-------------|---------|-------------|
+| `DATEMAIRIE` | `DATEMAIRIE_DOSSIER` | `dateMairie` | Date réception mairie |
+| `DATEREP` | `DATEREP_DOSSIER` | `dateReponse` | Date de réponse |
 | `DATEENVTRANSIT` | `DATEENVTRANSIT_DOSSIER` | `dateEnvoiTransit` | Date envoi/transit |
-| `DATEPREF` | `DATEPREF_DOSSIER` | `datePrefecture` | Date réception préfecture |
+| `DATESDIS` | `DATESDIS_DOSSIER` | `dateReception` | Date réception SDIS |
 | `DATETRANSFERTCOMM` | `DATETRANSFERTCOMM_DOSSIER` | `dateTransfertCommission` | Date transfert commission |
 | `DATERECEPTIONCOMM` | `DATERECEPTIONCOMM_DOSSIER` | `dateReceptionCommission` | Date réception commission |
+| `NUMCHRONO` | - | - | ⚠️ Non implémenté (absent de l'entité) |
+
+**Ordre Symfony :** `dateInsert`, `objet`, `dateMairie`, `dateEnvoiTransit`, `dateReponse`, `dateReception`, `demandeur`, `dateTransfertCommission`, `dateReceptionCommission`, `preventionnistes`, `observations`
+
+### Autres champs courriers
+
+| Legacy | Colonne BDD | Symfony | Description |
+|--------|-------------|---------|-------------|
+| `DATEPREF` | `DATEPREF_DOSSIER` | `datePrefecture` | Date réception préfecture |
 
 ---
 
@@ -138,10 +153,10 @@ Identique à nature 31.
 - **DATEVISITE** (`dateVisite`) : Utilisé pour les visites (type 2, 3)
 - ⚠️ Ce sont deux champs distincts dans la BDD
 
-### 2. DATEREP = dateReponse (PAS dateReception)
+### 2. DATEREP vs DATESDIS (deux champs distincts)
 - **DATEREP** → `dateReponse` (DATEREP_DOSSIER - date de réponse)
-- **DATESDIS** → `dateReponse` (DATESDIS_DOSSIER - date réponse SDIS)
-- ⚠️ Ne pas confondre avec dateReception (autre champ) !
+- **DATESDIS** → `dateReception` (DATESDIS_DOSSIER - date réception SDIS)
+- ⚠️ Ce sont deux propriétés distinctes dans l'entité !
 
 ### 3. OBSERVATION = observations
 - **OBSERVATION** → `observations` (OBSERVATION_DOSSIER)

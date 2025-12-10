@@ -115,18 +115,19 @@ class DossierFields
         '49' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // Demande de renseignements - OK
         '54' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
-        // Demande de visite périodique
-        '59' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
-        // Demande de visite technique
-        '57' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
-        // Demande de visite inopinée
-        '58' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
-        // Demande de visite hors programme
-        '50' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
-        // Demande de visite de réception
-        '60' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
-        // Autorisation de travaux
-        '65' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
+        // Demande de visite périodique - OK
+        // Legacy: DATEINSERT, OBJET, NUMCHRONO, DATEMAIRIE, PREVENTIONNISTE, DATEREP, DATEENVTRANSIT, PREVENTIONNISTE, DATESDIS, DEMANDEUR, DATETRANSFERTCOMM, DATERECEPTIONCOMM, OBSERVATION
+        '59' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
+        // Demande de visite technique - OK
+        '57' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
+        // Demande de visite inopinée - OK
+        '58' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
+        // Demande de visite hors programme - OK
+        '50' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
+        // Demande de visite de réception - OK
+        '60' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
+        // Autorisation de travaux - OK
+        '65' => ['dateInsert', 'objet', 'dateMairie', 'dateEnvoiTransit', 'dateReponse', 'dateReception', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'preventionnistes', 'observations'],
         // INTERVENTION
         // Incendie - OK
         '37' => ['dateInsert', 'objet', 'operationSdis', 'rcci', 'rex', 'numeroIntervention', 'dateIntervention', 'dureeIntervention', 'dateReception', 'preventionnistes', 'observationDossier'],
