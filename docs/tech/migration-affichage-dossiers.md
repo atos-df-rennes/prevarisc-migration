@@ -46,6 +46,7 @@ Migration de la fonctionnalité d'affichage des informations générales des dos
 - Affichage des documents manquants avec dates de réception
 - Calcul de la visibilité de l'avis de commission
 - Lien vers l'ordre du jour de la date de commission
+- ✅ **Affichage des informations Plat'AU** (statuts, dates, temps restant)
 
 ---
 
@@ -87,7 +88,11 @@ Migration de la fonctionnalité d'affichage des informations générales des dos
 |-----------|------|---------|
 | **DossierFieldsService** | Détermine les champs à afficher selon la nature | `src/Service/DossierFieldsService.php` |
 | **DateAffectation** | Calcule l'ID de date de commission | `src/Service/DateAffectation.php` |
+| **PlatauConsultation** | Service métier pour les consultations Plat'AU | `src/Service/PlatauConsultation.php` |
+| **PlatauTempsRestant** | Calcule le temps restant et la couleur | `src/Service/PlatauTempsRestant.php` |
+| **PlatauTempsRestantInfo** | Value Object (DTO) pour temps restant + couleur | `src/Dto/PlatauTempsRestantInfo.php` |
 | **DossierExtension** | Extension Twig avec filtre custom | `src/Twig/DossierExtension.php` |
+| **PlatauExtension** | Extension Twig pour Plat'AU (filtres labels/classes) | `src/Twig/PlatauExtension.php` |
 | **DossierController** | Contrôleur principal | `src/Controller/DossierController.php` |
 | **Template principal** | Vue d'affichage | `templates/dossier/index.html.twig` |
 | **Partial documents** | Sous-template pour documents manquants | `templates/dossier/_documents_manquants.html.twig` |
@@ -289,6 +294,210 @@ Fichier : `tests/Service/DateAffectationTest.php`
 
 ---
 
+## Services Plat'AU
+
+### Service PlatauConsultation
+
+#### Responsabilité
+
+Service métier de haut niveau gérant la logique d'affichage des consultations Plat'AU. Centralise la logique pour éviter de la dupliquer dans les contrôleurs.
+
+#### Signatures
+
+```php
+public function getTempsRestantInfo(?PlatauConsultationEntity $consultation): PlatauTempsRestantInfo
+
+public function getPlatauDataForView(?PlatauConsultationEntity $consultation): ?array
+```
+
+#### Logique métier `getTempsRestantInfo()`
+
+```
+SI consultation est null
+    RETOURNER PlatauTempsRestantInfo::empty()
+
+SI dateReponseAttendue est null
+    RETOURNER PlatauTempsRestantInfo::empty()
+
+SI avis est traité (TRAITE, A_RENVOYER ou INCONNU)
+    RETOURNER PlatauTempsRestantInfo::empty()
+
+// Cas nominal : calculer le temps restant
+tempsRestant = platauTempsRestantService.calculate(dateReponseAttendue)
+couleur = platauTempsRestantService.getCouleurTempsRestant(dateReponseAttendue)
+
+RETOURNER new PlatauTempsRestantInfo(tempsRestant, couleur)
+```
+
+#### Méthode `getPlatauDataForView()`
+
+Prépare un tableau associatif avec toutes les données Plat'AU pour le template Twig.
+
+**Retour :**
+```php
+[
+    'identifiant' => string,
+    'temps_restant' => ?string,              // null si avis envoyé
+    'couleur_temps_restant' => ?string,      // null si avis envoyé
+    'statut_pec' => string,
+    'date_pec' => ?\DateTimeInterface,
+    'statut_avis' => string,
+    'date_avis' => ?\DateTimeInterface,
+]
+```
+
+#### Points clés
+
+1. **Séparation des responsabilités** : Le service gère la logique métier, pas le contrôleur
+2. **Réutilisabilité** : Utilisable dans d'autres contextes (API, exports, etc.)
+3. **Type Safety** : Utilise le DTO `PlatauTempsRestantInfo` pour grouper temps/couleur
+
+### Service PlatauTempsRestant
+
+#### Responsabilité
+
+Service technique de calcul du temps restant et de la couleur associée. Ne gère **aucune** logique métier.
+
+#### Signatures
+
+```php
+public function calculate(\DateTimeInterface $limitDate): string
+
+public function getCouleurTempsRestant(\DateTimeInterface $limitDate): string
+```
+
+#### Algorithme `calculate()`
+
+```
+1. Convertir limitDate en DateTime (début de journée)
+2. Créer now en DateTime (début de journée)
+3. Calculer diff = now.diff(limitDate)
+
+4. Construire readableDiff:
+   - SI diff.y > 0 : ajouter "X an(s)"
+   - SI diff.m > 0 : ajouter "X mois"
+   - SI diff.d > 0 : ajouter "X jour(s)"
+   
+5. SI diff.invert == 1 (date passée):
+      RETOURNER "- " + readableDiff
+   SINON:
+      RETOURNER readableDiff
+```
+
+**Exemples de retour :**
+- `"15 jours"`
+- `"2 mois et 5 jours"`
+- `"1 an et 3 mois"`
+- `"- 10 jours"` (délai dépassé)
+
+#### Algorithme `getCouleurTempsRestant()`
+
+```
+SI date dépassée (invert == 1)
+    RETOURNER 'default'  // Gris
+
+SI plus de 6 mois restants (y > 0 OU m > 6)
+    RETOURNER 'success'  // Vert
+
+SI entre 3 et 6 mois restants (m > 3)
+    RETOURNER 'warning'  // Orange
+
+SINON (moins de 3 mois)
+    RETOURNER 'danger'   // Rouge
+```
+
+**Constantes :**
+- `SEUIL_OK = 6` (mois)
+- `SEUIL_WARN = 3` (mois)
+
+#### Points clés
+
+1. **Type Safety renforcé** : `\DateTimeInterface` non-nullable en paramètre (pas de `null`)
+2. **Calculs en jours calendaires** : Utilise `setTime(0, 0, 0)` pour ignorer les heures
+3. **Pas de gestion du null** : Responsabilité du service appelant (`PlatauConsultation`)
+
+### DTO PlatauTempsRestantInfo
+
+#### Motivation
+
+Value Object regroupant le **temps restant** et sa **couleur associée** (Bootstrap label class).
+
+**Problème résolu :**
+- ❌ Avant : Deux appels séparés au service, gestion manuelle du null
+- ✅ Après : Un seul objet encapsulant les deux notions liées
+
+#### Structure
+
+```php
+final class PlatauTempsRestantInfo
+{
+    private $tempsRestant;  // ?string
+    private $couleur;       // ?string
+    
+    public function __construct($tempsRestant, $couleur)
+    public static function empty(): self
+    public function getTempsRestant(): ?string
+    public function getCouleur(): ?string
+    public function hasInfo(): bool
+}
+```
+
+#### Usage
+
+```php
+// Cas nominal
+$info = $platauConsultationService->getTempsRestantInfo($consultation);
+
+if ($info->hasInfo()) {
+    echo "Il reste " . $info->getTempsRestant();
+    echo " (couleur: " . $info->getCouleur() . ")";
+}
+
+// Cas sans info (avis envoyé)
+$info = PlatauTempsRestantInfo::empty();
+$info->hasInfo();  // false
+```
+
+#### Avantages
+
+1. **Couplage temps/couleur** : Les deux notions sont intrinsèquement liées
+2. **Immutabilité** : `final` class, pas de setters
+3. **Factory method** : `empty()` pour éviter `new PlatauTempsRestantInfo(null, null)`
+4. **Semantic** : `hasInfo()` plus clair que `$tempsRestant !== null`
+
+### Tests
+
+#### `tests/Service/PlatauConsultationTest.php`
+
+**Scénarios testés :**
+- ✅ Consultation null → retourne empty
+- ✅ Date réponse attendue null → retourne empty
+- ✅ Avis traité → retourne empty
+- ✅ Avis à renvoyer → retourne empty
+- ✅ Avis en cours → calcule temps restant + couleur
+- ✅ `getPlatauDataForView()` avec consultation complète
+- ✅ `getPlatauDataForView()` sans temps restant (avis traité)
+
+#### `tests/Service/PlatauTempsRestantTest.php`
+
+**Scénarios testés :**
+- ✅ Calcul avec dates futures (jours, mois, années, combinaisons)
+- ✅ Calcul avec date passée (préfixe "- ")
+- ✅ Couleur pour date passée → `default`
+- ✅ Couleur pour > 6 mois → `success`
+- ✅ Couleur pour 3-6 mois → `warning`
+- ✅ Couleur pour < 3 mois → `danger`
+
+#### `tests/Dto/PlatauTempsRestantInfoTest.php`
+
+**Scénarios testés :**
+- ✅ Constructor et getters
+- ✅ Factory `empty()`
+- ✅ `hasInfo()` retourne false si temps restant null
+- ✅ `hasInfo()` retourne true si temps restant présent
+
+---
+
 ## Templates
 
 ### Template principal : `index.html.twig`
@@ -299,10 +508,33 @@ Fichier : `tests/Service/DateAffectationTest.php`
 {% extends 'layouts/dossier.html.twig' %}
 
 {% block body %}
-    <section>
-        <h4>Informations sur Plat'AU</h4>
-        {# @todo: intégration Plat'AU #}
-    </section>
+    {% if platau %}
+        <section>
+            <h4>Informations sur Plat'AU</h4>
+            <ul class='list-unstyled'>
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Identifiant Plat'AU</div>
+                    <div class='right value col-md-9'>{{ platau.identifiant }}</div>
+                </li>
+                
+                {# Statut et date prise en compte #}
+                
+                {# Temps restant (affiché uniquement si avis non envoyé) #}
+                {% if platau.temps_restant is not null %}
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>Temps restant pour une réponse</div>
+                        <div class='right value col-md-9'>
+                            <span class='label label-{{ platau.couleur_temps_restant }}'>
+                                {{ platau.temps_restant }}
+                            </span>
+                        </div>
+                    </li>
+                {% endif %}
+                
+                {# Statut et date avis #}
+            </ul>
+        </section>
+    {% endif %}
 
     <section>
         <h4>Type et nature du dossier</h4>
@@ -389,8 +621,10 @@ Fichier : `tests/Service/DateAffectationTest.php`
 **Code :**
 
 ```php
-public function index(Dossier $dossier): Response
-{
+public function index(
+    Dossier $dossier, 
+    PlatauConsultation $platauConsultationService
+): Response {
     $afficherAvis = !$dossier->hasAbsenceDeQuorum()
         && !$dossier->isHorsDelai()
         && !$dossier->hasAvisDiffere()
@@ -398,9 +632,13 @@ public function index(Dossier $dossier): Response
         && !$dossier->hasNePeutSePrononcer()
     ;
 
+    $platauData = $platauConsultationService
+        ->getPlatauDataForView($dossier->getConsultationPlatau());
+
     return $this->render('dossier/index.html.twig', [
         'dossier' => $dossier,
         'afficher_avis' => $afficherAvis,
+        'platau' => $platauData,
     ]);
 }
 ```
@@ -408,6 +646,7 @@ public function index(Dossier $dossier): Response
 **Variables passées au template :**
 - `dossier` : L'entité Dossier
 - `afficher_avis` : Boolean indiquant si l'avis de commission doit être affiché
+- `platau` : Array|null contenant les données Plat'AU (voir `PlatauConsultation::getPlatauDataForView()`)
 
 **Variables ajoutées par le Subscriber :**
 - `id_date_commission` : ID de la date de commission (pour le lien ODJ)
@@ -467,10 +706,15 @@ $event->getRequest()->attributes
 
 | Outil | Commande | Résultat |
 |-------|----------|----------|
-| **PHPStan** | `castor symfony:analyse` | ✅ 0 erreur (231 fichiers) |
+| **PHPStan** | `castor symfony:analyse` | ✅ 0 erreur (242 fichiers) |
 | **PHP CS Fixer** | `castor symfony:cs` | ✅ Code conforme |
-| **Twig CS Fixer** | `castor symfony:cs` | ✅ 103 templates conformes |
-| **PHPUnit** | `castor symfony:test` | ✅ 123 tests, 149 assertions |
+| **Twig CS Fixer** | `castor symfony:cs` | ✅ 104 templates conformes |
+| **PHPUnit** | `castor symfony:test` | ✅ 194 tests, 235 assertions |
+
+**Tests Plat'AU ajoutés :**
+- 8 tests pour `PlatauConsultationTest`
+- 11 tests pour `PlatauTempsRestantTest`
+- 4 tests pour `PlatauTempsRestantInfoTest`
 
 ---
 
@@ -534,6 +778,69 @@ $event->getRequest()->attributes
 - ✅ Facilite le debug (seuls les cas problématiques sont loggés)
 - ✅ Performance (moins d'écritures disque)
 
+### 6. Service métier PlatauConsultation au lieu de logique dans le contrôleur
+
+**Choix :** Extraire toute la logique Plat'AU dans un service dédié
+
+**Alternatives considérées :**
+- Logique directement dans le contrôleur ❌
+- Appels multiples au service PlatauTempsRestant ❌
+- Helper Twig ❌
+
+**Justification :**
+- ✅ **SRP** : Le contrôleur reste simple (1 ligne de logique Plat'AU)
+- ✅ **Testabilité** : 100% de couverture des scénarios métier
+- ✅ **Réutilisabilité** : Utilisable dans API, exports, commandes CLI
+- ✅ **Type Safety** : DTO `PlatauTempsRestantInfo` pour grouper temps + couleur
+
+**Impact sur le contrôleur :**
+
+```php
+// ❌ Avant : 26 lignes de logique métier dans le contrôleur
+if (null !== $consultationPlatau) {
+    $statutAvis = $consultationPlatau->getStatutAvis();
+    $tempsRestant = null;
+    $couleurTempsRestant = null;
+    
+    if (PlatauStatutAvisEnum::TRAITE !== $statutAvis) {
+        $tempsRestant = $service->calculate(...);
+        if (null !== $tempsRestant && ...) {
+            $couleurTempsRestant = $service->getCouleurTempsRestant(...);
+        }
+    }
+    // ... construction du tableau
+}
+
+// ✅ Après : 1 ligne
+$platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+```
+
+### 7. Value Object PlatauTempsRestantInfo
+
+**Choix :** Grouper temps restant et couleur dans un DTO
+
+**Alternatives considérées :**
+- Deux propriétés séparées dans un tableau ❌
+- Deux appels séparés au service ❌
+
+**Justification :**
+- ✅ **Couplage sémantique** : La couleur dépend du temps restant, ils sont liés
+- ✅ **Factory method** : `empty()` pour les cas sans info
+- ✅ **Type Safety** : `hasInfo()` plus explicite que `$temps !== null`
+- ✅ **Immutabilité** : Classe `final`, pas de setters
+
+### 8. Suppression du paramètre nullable dans PlatauTempsRestant::calculate()
+
+**Choix :** Signature `calculate(\DateTimeInterface $limitDate): string` au lieu de `calculate(?\DateTimeInterface $limitDate): ?string`
+
+**Justification :**
+- ✅ **Type Safety renforcé** : Impossible de passer null
+- ✅ **Séparation des responsabilités** : 
+  - `PlatauConsultation` gère les cas métier (null, avis traité)
+  - `PlatauTempsRestant` fait **toujours** le calcul
+- ✅ **Moins de tests** : Pas besoin de tester le cas null
+- ✅ **API plus claire** : Retourne toujours une string, pas de null à gérer
+
 ---
 
 ## Améliorations futures
@@ -545,7 +852,8 @@ Voir le document : `SUGGESTIONS_AMELIORATION_AFFICHAGE_DOSSIER.md`
 **Priorités :**
 1. ✅ Macros Twig pour réduire la verbosité
 2. ✅ Amélioration de l'accessibilité (WCAG 2.1)
-3. ⏳ Groupement des vérifications de champs
+3. ✅ Affichage des informations Plat'AU (**Terminé**)
+4. ⏳ Groupement des vérifications de champs
 
 ### Moyen terme
 
@@ -615,5 +923,34 @@ docker compose exec app bin/console debug:twig
 
 **Auteur :** Équipe de développement Prevarisc  
 **Date de création :** 5 décembre 2025  
-**Dernière mise à jour :** 5 décembre 2025  
-**Version du document :** 1.0
+**Dernière mise à jour :** 10 décembre 2025  
+**Version du document :** 1.1
+
+---
+
+## Changelog
+
+### Version 1.1 (10 décembre 2025)
+
+**Ajouts :**
+- ✅ Section complète sur les services Plat'AU
+- ✅ Documentation du service `PlatauConsultation`
+- ✅ Documentation du service `PlatauTempsRestant`
+- ✅ Documentation du DTO `PlatauTempsRestantInfo`
+- ✅ Choix technique : extraction logique métier du contrôleur
+- ✅ Choix technique : Value Object pour temps restant + couleur
+- ✅ Choix technique : Type Safety avec paramètres non-nullables
+- ✅ Tests ajoutés : 23 tests pour les services Plat'AU
+
+**Modifications :**
+- Mise à jour du contrôleur `DossierController::index()`
+- Mise à jour du template `index.html.twig`
+- Mise à jour des statistiques de validation (242 fichiers, 194 tests)
+
+### Version 1.0 (5 décembre 2025)
+
+**Initial :**
+- Documentation initiale de la migration
+- Services DossierFields et DateAffectation
+- Templates et contrôleur
+- Tests unitaires

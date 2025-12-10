@@ -73,7 +73,26 @@ La page est organisée en **3 sections principales** :
 
 #### 1. Informations sur Plat'AU
 
-> **Note :** Cette section sera complétée lors de l'intégration avec la plateforme Plat'AU.
+Cette section affiche les informations de synchronisation avec la plateforme Plat'AU (si le dossier est lié).
+
+**Champs affichés :**
+
+| Champ | Description |
+|-------|-------------|
+| **Identifiant Plat'AU** | Identifiant unique de la consultation |
+| **Statut prise en compte métier** | État de la PEC (En attente / Prise en compte / À renvoyer / En erreur) |
+| **Date prise en compte** | Date de la prise en compte métier |
+| **Temps restant pour une réponse** | Délai restant avant échéance (avec code couleur) |
+| **Statut avis** | État de l'avis (En cours / Traité / À renvoyer / En erreur) |
+| **Date de l'avis** | Date d'envoi de l'avis sur Plat'AU |
+
+**Codes couleur pour le temps restant :**
+- 🟢 **Vert** : Plus de 6 mois restants
+- 🟡 **Orange** : Entre 3 et 6 mois restants
+- 🔴 **Rouge** : Moins de 3 mois restants
+- ⚪ **Gris** : Délai dépassé ou avis déjà envoyé
+
+> **Note :** Le temps restant n'est affiché que tant que l'avis n'a pas été envoyé sur Plat'AU.
 
 #### 2. Type et nature du dossier
 
@@ -380,6 +399,35 @@ En cas d'**absence de quorum** :
 - Le dossier est reporté à une prochaine commission
 - L'avis de commission ne s'affiche pas
 
+### Que signifient les statuts Plat'AU ?
+
+#### Statut prise en compte métier (PEC)
+
+| Statut | Signification |
+|--------|---------------|
+| **En attente** | La PEC n'a pas encore été envoyée à Plat'AU |
+| **Prise en compte** | La PEC a été envoyée et validée par Plat'AU |
+| **À renvoyer** | La PEC doit être renvoyée (après modification) |
+| **En erreur** | Erreur lors de l'envoi (contacter le support) |
+
+#### Statut avis
+
+| Statut | Signification |
+|--------|---------------|
+| **En cours** | L'avis n'a pas encore été envoyé à Plat'AU |
+| **Traité** | L'avis a été envoyé et validé par Plat'AU |
+| **À renvoyer** | L'avis doit être renvoyé (après modification) |
+| **En erreur** | Erreur lors de l'envoi (contacter le support) |
+
+### Pourquoi le temps restant n'apparaît-il plus ?
+
+Le **temps restant pour une réponse** n'est affiché que si :
+- ✅ Le dossier est lié à une consultation Plat'AU
+- ✅ Une date de réponse attendue est définie
+- ✅ L'avis n'a **pas encore été envoyé** sur Plat'AU
+
+Une fois l'avis envoyé (statut "Traité"), le temps restant disparaît car l'échéance n'a plus de sens.
+
 ### Comment savoir quand le dossier passera en commission ?
 
 **Méthode 1 :** Regarder le champ **"Date de commission en salle"**
@@ -454,6 +502,26 @@ Si vous constatez :
 ---
 
 **Document réalisé par :** Équipe Prevarisc  
-**Version :** 1.0  
-**Dernière mise à jour :** 5 décembre 2025
+**Version :** 1.1  
+**Dernière mise à jour :** 10 décembre 2025
+
+---
+
+## Historique des versions
+
+### Version 1.1 (10 décembre 2025)
+
+**Nouveautés :**
+- ✅ **Intégration Plat'AU complète** dans la section "Informations sur Plat'AU"
+- ✅ Affichage des statuts de prise en compte et d'avis
+- ✅ Affichage du temps restant avec code couleur
+- ✅ Ajout de la FAQ sur les statuts Plat'AU
+- ✅ Explication du fonctionnement du temps restant
+
+### Version 1.0 (5 décembre 2025)
+
+**Initial :**
+- Documentation utilisateur complète
+- Guide d'utilisation de la page de consultation
+- FAQ détaillée
 
