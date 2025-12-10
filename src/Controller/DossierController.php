@@ -33,6 +33,8 @@ class DossierController extends AbstractController
      * Affichage des informations générales d'un dossier (lecture seule).
      *
      * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
      */
     public function index(Dossier $dossier, PlatauConsultation $platauConsultationService): Response
     {
