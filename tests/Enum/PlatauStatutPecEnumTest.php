@@ -7,61 +7,35 @@ use PHPUnit\Framework\TestCase;
 
 class PlatauStatutPecEnumTest extends TestCase
 {
-    public function testGetLabelReturnsCorrectLabelForInconnu(): void
+    /** @dataProvider labelProvider */
+    public function testGetLabelReturnsCorrectValueForStatus(?string $status, string $expected): void
     {
-        $result = PlatauStatutPecEnum::getLabel(PlatauStatutPecEnum::INCONNU);
-
-        $this->assertSame('Statut inconnu', $result);
+        $this->assertSame($expected, PlatauStatutPecEnum::getLabel($status));
     }
 
-    public function testGetLabelReturnsCorrectLabelForEnAttente(): void
+    public static function labelProvider(): \Generator
     {
-        $result = PlatauStatutPecEnum::getLabel(PlatauStatutPecEnum::EN_ATTENTE);
-
-        $this->assertSame('En attente de complétude sur Prevarisc', $result);
+        yield 'inconnu' => [PlatauStatutPecEnum::INCONNU, 'Statut inconnu'];
+        yield 'en attente' => [PlatauStatutPecEnum::EN_ATTENTE, 'En attente de complétude sur Prevarisc'];
+        yield 'prise en compte' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, "Prise en compte sur Plat'AU"];
+        yield 'renvoi' => [PlatauStatutPecEnum::A_RENVOYER, "Prise en compte sur Plat'AU (en attente de renvoi)"];
+        yield 'en erreur' => [PlatauStatutPecEnum::EN_ERREUR, "En erreur sur Plat'AU"];
+        yield 'null' => [null, 'Statut inconnu'];
+        yield 'invalide' => ['invalid_status', 'Statut inconnu'];
     }
 
-    public function testGetLabelReturnsCorrectLabelForPriseEnCompte(): void
+    /** @dataProvider constantProvider */
+    public function testConstantValues(string $constant, string $expected): void
     {
-        $result = PlatauStatutPecEnum::getLabel(PlatauStatutPecEnum::PRISE_EN_COMPTE);
-
-        $this->assertSame("Prise en compte sur Plat'AU", $result);
+        $this->assertSame($expected, $constant);
     }
 
-    public function testGetLabelReturnsCorrectLabelForARenvoyer(): void
+    public static function constantProvider(): \Generator
     {
-        $result = PlatauStatutPecEnum::getLabel(PlatauStatutPecEnum::A_RENVOYER);
-
-        $this->assertSame("Prise en compte sur Plat'AU (en attente de renvoi)", $result);
-    }
-
-    public function testGetLabelReturnsCorrectLabelForEnErreur(): void
-    {
-        $result = PlatauStatutPecEnum::getLabel(PlatauStatutPecEnum::EN_ERREUR);
-
-        $this->assertSame("En erreur sur Plat'AU", $result);
-    }
-
-    public function testGetLabelReturnsInconnuLabelWhenNullProvided(): void
-    {
-        $result = PlatauStatutPecEnum::getLabel(null);
-
-        $this->assertSame('Statut inconnu', $result);
-    }
-
-    public function testGetLabelReturnsNullForInvalidValue(): void
-    {
-        $result = PlatauStatutPecEnum::getLabel('invalid_status');
-
-        $this->assertSame('Statut inconnu', $result);
-    }
-
-    public function testConstantValues(): void
-    {
-        $this->assertSame('unknown', PlatauStatutPecEnum::INCONNU);
-        $this->assertSame('awaiting', PlatauStatutPecEnum::EN_ATTENTE);
-        $this->assertSame('taken_into_account', PlatauStatutPecEnum::PRISE_EN_COMPTE);
-        $this->assertSame('to_export', PlatauStatutPecEnum::A_RENVOYER);
-        $this->assertSame('in_error', PlatauStatutPecEnum::EN_ERREUR);
+        yield 'inconnu' => [PlatauStatutPecEnum::INCONNU, 'unknown'];
+        yield 'en attente' => [PlatauStatutPecEnum::EN_ATTENTE, 'awaiting'];
+        yield 'prise en compte' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, 'taken_into_account'];
+        yield 'à renvoyer' => [PlatauStatutPecEnum::A_RENVOYER, 'to_export'];
+        yield 'en erreur' => [PlatauStatutPecEnum::EN_ERREUR, 'in_error'];
     }
 }

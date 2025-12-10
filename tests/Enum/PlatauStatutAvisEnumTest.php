@@ -7,61 +7,35 @@ use PHPUnit\Framework\TestCase;
 
 class PlatauStatutAvisEnumTest extends TestCase
 {
-    public function testGetLabelReturnsCorrectLabelForInconnu(): void
+    /** @dataProvider labelProvider */
+    public function testGetLabelReturnsCorrectValueForStatus(?string $status, string $expected): void
     {
-        $result = PlatauStatutAvisEnum::getLabel(PlatauStatutAvisEnum::INCONNU);
-
-        $this->assertSame('Statut inconnu', $result);
+        $this->assertSame($expected, PlatauStatutAvisEnum::getLabel($status));
     }
 
-    public function testGetLabelReturnsCorrectLabelForEnCours(): void
+    public static function labelProvider(): \Generator
     {
-        $result = PlatauStatutAvisEnum::getLabel(PlatauStatutAvisEnum::EN_COURS);
-
-        $this->assertSame('En attente de complétude sur Prevarisc', $result);
+        yield 'inconnu' => [PlatauStatutAvisEnum::INCONNU, 'Statut inconnu'];
+        yield 'en cours' => [PlatauStatutAvisEnum::EN_COURS, 'En attente de complétude sur Prevarisc'];
+        yield 'traité' => [PlatauStatutAvisEnum::TRAITE, 'Traité sur Plat\'AU'];
+        yield 'renvoi' => [PlatauStatutAvisEnum::A_RENVOYER, 'Traité sur Plat\'AU (en attente de renvoi)'];
+        yield 'en erreur' => [PlatauStatutAvisEnum::EN_ERREUR, "En erreur sur Plat'AU"];
+        yield 'null' => [null, 'Statut inconnu'];
+        yield 'invalide' => ['invalid_status', 'Statut inconnu'];
     }
 
-    public function testGetLabelReturnsCorrectLabelForTraite(): void
+    /** @dataProvider constantProvider */
+    public function testConstantValues(string $constant, string $expected): void
     {
-        $result = PlatauStatutAvisEnum::getLabel(PlatauStatutAvisEnum::TRAITE);
-
-        $this->assertSame('Traité sur Plat\'AU', $result);
+        $this->assertSame($expected, $constant);
     }
 
-    public function testGetLabelReturnsCorrectLabelForARenvoyer(): void
+    public static function constantProvider(): \Generator
     {
-        $result = PlatauStatutAvisEnum::getLabel(PlatauStatutAvisEnum::A_RENVOYER);
-
-        $this->assertSame('Traité sur Plat\'AU (en attente de renvoi)', $result);
-    }
-
-    public function testGetLabelReturnsCorrectLabelForEnErreur(): void
-    {
-        $result = PlatauStatutAvisEnum::getLabel(PlatauStatutAvisEnum::EN_ERREUR);
-
-        $this->assertSame("En erreur sur Plat'AU", $result);
-    }
-
-    public function testGetLabelReturnsInconnuLabelWhenNullProvided(): void
-    {
-        $result = PlatauStatutAvisEnum::getLabel(null);
-
-        $this->assertSame('Statut inconnu', $result);
-    }
-
-    public function testGetLabelReturnsNullForInvalidValue(): void
-    {
-        $result = PlatauStatutAvisEnum::getLabel('invalid_status');
-
-        $this->assertSame('Statut inconnu', $result);
-    }
-
-    public function testConstantValues(): void
-    {
-        $this->assertSame('unknown', PlatauStatutAvisEnum::INCONNU);
-        $this->assertSame('in_progress', PlatauStatutAvisEnum::EN_COURS);
-        $this->assertSame('treated', PlatauStatutAvisEnum::TRAITE);
-        $this->assertSame('to_export', PlatauStatutAvisEnum::A_RENVOYER);
-        $this->assertSame('in_error', PlatauStatutAvisEnum::EN_ERREUR);
+        yield 'inconnu' => [PlatauStatutAvisEnum::INCONNU, 'unknown'];
+        yield 'en cours' => [PlatauStatutAvisEnum::EN_COURS, 'in_progress'];
+        yield 'traité' => [PlatauStatutAvisEnum::TRAITE, 'treated'];
+        yield 'à renvoyer' => [PlatauStatutAvisEnum::A_RENVOYER, 'to_export'];
+        yield 'en erreur' => [PlatauStatutAvisEnum::EN_ERREUR, 'in_error'];
     }
 }
