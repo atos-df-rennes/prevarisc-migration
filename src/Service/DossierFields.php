@@ -12,85 +12,85 @@ class DossierFields
     private const LISTE_CHAMPS = [
         // ETUDES
         // PC - OK
-        '1' => ['type', 'DATEINSERT', 'OBJET', 'NUMDOCURBA', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'COORDSSI', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '1' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // AT - OK
-        '2' => ['type', 'DATEINSERT', 'OBJET', 'NUMDOCURBA', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'COORDSSI', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '2' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Dérogation - OK
-        '3' => ['type', 'DATEINSERT', 'OBJET', 'NUMDOCURBA', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'JUSTIFDEROG', 'MESURESCOMPENS', 'MESURESCOMPLE', 'DESCEFF', 'DATECOMM', 'AVIS', 'COORDSSI', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'REGLEDEROG', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '3' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'justificationDerogation', 'mesuresCompensatoires', 'mesuresComplementaires', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'reglesDerogation', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Cahier des charges fonctionnel du SSI - OK
-        '4' => ['type', 'DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DATECOMM', 'AVIS', 'COORDSSI', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '4' => ['type', 'dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Cahier des charges de type T - OK
-        '5' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '5' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Salon type T - OK
-        '6' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'CHARGESEC', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '6' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'chargeSecurite', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // RVRMD (diag sécu) => Levée de prescriptions - OK
-        '7' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '7' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Documents divers - OK
-        '8' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEPREF', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '8' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'datePrefecture', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Changement de DUS - OK
-        '9' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '9' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Suivi organisme formation SSIAP - OK
-        '10' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'AVIS', 'DATESDIS', 'DATEPREF', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '10' => ['dateInsert', 'objet', 'numeroChronologique', 'avis', 'dateReponse', 'datePrefecture', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Demande de registre de sécurité CTS - OK
-        '11' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEPREF', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '11' => ['dateInsert', 'objet', 'numeroChronologique', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'datePrefecture', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Demande d'implantation CTS < 6mois - OK
-        '12' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '12' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Demande d'implantation CTS > 6mois - OK
-        '13' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '13' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Permis d'aménager - OK
-        '14' => ['DATEINSERT', 'OBJET', 'NUMDOCURBA', 'NUMCHRONO', 'COMMISSION', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '14' => ['dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'commission', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Permis de démolir - OK
-        '15' => ['DATEINSERT', 'OBJET', 'NUMDOCURBA', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '15' => ['dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // CR de visite des organismes d'ins.... - OK
-        '16' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEPREF', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '16' => ['dateInsert', 'objet', 'numeroChronologique', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'datePrefecture', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Etude suite a un avis ne se prononce pas - OK MAIS VOIR POUR PARTICULARITé TABLEAU
-        '17' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '17' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Utilisation exceptionnelle de locaux - OK
-        '18' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '18' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Levée de réserves - OK
-        '19' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '19' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'avisCommission', 'observationDossier'],
         // Echéncier de travaux - OK
-        '46' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '46' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Déclaration préalable
-        '30' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION', 'NUMDOCURBA'],
+        '30' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier', 'documentsUrbanisme'],
         // RVRMD diag sécu
-        '33' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '33' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Autorisation d'une ICPE - OK
-        '61' => ['type', 'DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'COORDSSI', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '61' => ['type', 'dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Certificats d'urbanisme (CU) - OK
-        '62' => ['type', 'DATEINSERT', 'OBJET', 'NUMDOCURBA', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'COORDSSI', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '62' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Demande d'organisation de manifestation temporaire - OK
-        '63' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'SERVICEINSTRUC', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '63' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // Déclassement / Reclassement - OK
-        '66' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'DATESECRETARIAT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'AVIS', 'DATESDIS', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'DEMANDEUR', 'INCOMPLET', 'HORSDELAI', 'AVIS_COMMISSION', 'OBSERVATION'],
+        '66' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observationDossier'],
         // VISITE DE COMMISSION
         // Réception de travaux - OK
-        '20' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'NPSP', 'AVIS_COMMISSION', 'OBSERVATION', 'DATERVRAT', 'DELAIPRESC'],
+        '20' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observationDossier', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Avant ouverture - OK
-        '47' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'ABSQUORUM', 'NPSP', 'AVIS_COMMISSION', 'OBSERVATION', 'DATERVRAT', 'DELAIPRESC'],
+        '47' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observationDossier', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
-        '21' => ['DATEINSERT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
+        '21' => ['dateInsert', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // Chantier - OK
-        '22' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION', 'DELAIPRESC'],
+        '22' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'observationDossier', 'dateLimitePrescription'],
         // Controle - OK
-        '23' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
+        '23' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // Inopinéee - OK
-        '24' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
+        '24' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // Visite conseil - OK
-        '64' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION', 'DELAIPRESC'],
+        '64' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'observationDossier', 'dateLimitePrescription'],
         // GROUPE DE VISITE
         // Réception de travaux - OK
-        '25' => ['type', 'DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'NPSP', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DATERVRAT', 'DELAIPRESC'],
+        '25' => ['type', 'dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Avant ouverture - OK
-        '48' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'NPSP', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DATERVRAT', 'DELAIPRESC'],
+        '48' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
-        '26' => ['DATEINSERT', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
+        '26' => ['dateInsert', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // Chantier - OK
-        '27' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATEVISITE', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION', 'DELAIPRESC'],
+        '27' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'observationDossier', 'dateLimitePrescription'],
         // Controle - OK
-        '28' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
+        '28' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // Inopinéee - OK
-        '29' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
+        '29' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observationDossier', 'dateLimitePrescription'],
         // REUNION (noms Symfony standardisés)
         // Locaux SDIS - OK
         '31' => ['dateInsert', 'objet', 'dateVisite', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
@@ -100,47 +100,47 @@ class DossierFields
         '43' => ['dateInsert', 'objet', 'dateVisite', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
         // COURRIER/COURRIEL
         // Lettre - OK
-        '52' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '52' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Mise en demeure - OK
-        '55' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '55' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Avis écrit motivé - OK
-        '51' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '51' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Consultation PLU - OK
-        '53' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '53' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Rapport d'organisme agréé - OK
-        '49' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '49' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de renseignements
-        '54' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '54' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de visite périodique
-        '59' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '59' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de visite technique
-        '57' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '57' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de visite inopinée
-        '58' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '58' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de visite hors programme
-        '50' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '50' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Demande de visite de réception
-        '60' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '60' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // Autorisation de travaux
-        '65' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
+        '65' => ['dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'preventionnistes', 'dateReception', 'dateEnvoiTransit', 'preventionnistes', 'dateReponse', 'demandeur', 'dateTransfertCommission', 'dateReceptionCommission', 'observationDossier'],
         // INTERVENTION
         // Incendie - OK
-        '37' => ['DATEINSERT', 'OBJET', 'OPERSDIS', 'RCCI', 'REX', 'NUMINTERV', 'DATEINTERV', 'DUREEINTERV', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '37' => ['dateInsert', 'objet', 'operationSdis', 'rcci', 'rex', 'numeroIntervention', 'dateIntervention', 'dureeIntervention', 'dateReception', 'preventionnistes', 'observationDossier'],
         // SAP - OK
-        '38' => ['DATEINSERT', 'OBJET', 'OPERSDIS', 'REX', 'NUMINTERV', 'DATEINTERV', 'DUREEINTERV', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '38' => ['dateInsert', 'objet', 'operationSdis', 'rex', 'numeroIntervention', 'dateIntervention', 'dureeIntervention', 'dateReception', 'preventionnistes', 'observationDossier'],
         // Intervention div - OK
-        '39' => ['DATEINSERT', 'OBJET', 'OPERSDIS', 'REX', 'NUMINTERV', 'DATEINTERV', 'DUREEINTERV', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '39' => ['dateInsert', 'objet', 'operationSdis', 'rex', 'numeroIntervention', 'dateIntervention', 'dureeIntervention', 'dateReception', 'preventionnistes', 'observationDossier'],
         // ARRETE
         // Ouverture - OK
-        '40' => ['DATEINSERT', 'DATESIGN', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '40' => ['dateInsert', 'DATESIGN', 'dateReception', 'preventionnistes', 'observationDossier'],
         // Fermeture - OK
-        '41' => ['DATEINSERT', 'OBJET', 'DATESIGN', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '41' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observationDossier'],
         // Mise en demeure - OK
-        '42' => ['DATEINSERT', 'OBJET', 'DATESIGN', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '42' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observationDossier'],
         // Utilisation exceptionnelle de locaux - OK
-        '44' => ['DATEINSERT', 'OBJET', 'DATESIGN', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '44' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observationDossier'],
         // Courrier - OK
-        '45' => ['DATEINSERT', 'OBJET', 'DATESIGN', 'DATEREP', 'PREVENTIONNISTE', 'OBSERVATION'],
+        '45' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observationDossier'],
     ];
 
     /**

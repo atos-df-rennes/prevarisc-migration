@@ -168,13 +168,24 @@
      * @returns {HTMLElement|null}
      */
     function findFieldRow(fieldId) {
+        // D'abord chercher par ID de ligne direct
+        let row = document.querySelector('#field-' + fieldId.replace('dossier_', ''));
+        if (row) {
+            return row;
+        }
+
+        // Sinon chercher le champ et remonter au parent li
         const field = document.querySelector('#' + fieldId);
         if (!field) {
+            console.debug('Champ non trouvé:', fieldId);
             return null;
         }
 
         // Remonter jusqu'à la <li> parente
         let parent = field.closest('li.row');
+        if (!parent) {
+            console.debug('Pas de <li> parent pour:', fieldId);
+        }
         return parent;
     }
 
