@@ -105,7 +105,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier|should_display_field('DEMANDEUR') and dossier.demandeur %}
+                {% if dossier|should_display_field('demandeur') and dossier.demandeur %}
                     <li class="row">
                         <div class="left libelle col-md-3">Demandeur</div>
                         <div class="right value col-md-9">
@@ -114,7 +114,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier|should_display_field('LIEUREUNION') and dossier.lieuReunion %}
+                {% if dossier|should_display_field('lieuReunion') and dossier.lieuReunion %}
                     <li class="row">
                         <div class="left libelle col-md-3">Lieu réunion</div>
                         <div class="right value col-md-9">
@@ -190,7 +190,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier|should_display_field('DATEVISITE') and dossier.dateVisite %}
+                {% if dossier|should_display_field('dateVisite') and dossier.dateVisite %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Date de visite</div>
                         <div class='right value col-md-9'>
@@ -362,7 +362,7 @@
                     </li>
                 {% endif %}
 
-                {% if dossier|should_display_field('OBSERVATION') and dossier.observations %}
+                {% if dossier|should_display_field('observationDossier') and dossier.observations %}
                     <li class="row">
                         <div class="left libelle col-md-3">Observations</div>
                         <div class="right value col-md-9">

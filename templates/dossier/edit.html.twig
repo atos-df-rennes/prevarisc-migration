@@ -94,12 +94,12 @@
         {% endif %}
 
         {# Champs spécifiques réunions #}
-        {% if form.lieuVisite is defined %}
-            <li class='row' style='margin-bottom:20px;' id='field-lieuVisite'>
+        {% if form.lieuReunion is defined %}
+            <li class='row' style='margin-bottom:20px;' id='field-lieuReunion'>
                 <div class='left libelle col-md-3'>Lieu de réunion</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.lieuVisite) }}
-                    {{ form_errors(form.lieuVisite) }}
+                    {{ form_widget(form.lieuReunion) }}
+                    {{ form_errors(form.lieuReunion) }}
                 </div>
             </li>
         {% endif %}

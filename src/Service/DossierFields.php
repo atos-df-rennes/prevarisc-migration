@@ -91,13 +91,13 @@ class DossierFields
         '28' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'COORDSSI', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
         // Inopinéee - OK
         '29' => ['DATEINSERT', 'OBJET', 'COMMISSION', 'DESCGEN', 'DESCEFF', 'DATECOMM', 'DATEVISITE', 'AVIS', 'DATEREP', 'PREVENTIONNISTE', 'DIFFEREAVIS', 'ABSQUORUM', 'AVIS_COMMISSION', 'OBSERVATION', 'DELAIPRESC'],
-        // REUNION
+        // REUNION (noms Symfony standardisés)
         // Locaux SDIS - OK
-        '31' => ['DATEINSERT', 'OBJET', 'DATEREUN', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'OBSERVATION'],
+        '31' => ['dateInsert', 'objet', 'dateVisite', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
         // Exterieur SDIS - OK
-        '32' => ['DATEINSERT', 'OBJET', 'LIEUREUNION', 'DATEREUN', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'OBSERVATION'],
+        '32' => ['dateInsert', 'objet', 'lieuReunion', 'dateVisite', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
         // Téléphonique - OK
-        '43' => ['DATEINSERT', 'OBJET', 'DATEREUN', 'DATEREP', 'PREVENTIONNISTE', 'DEMANDEUR', 'OBSERVATION'],
+        '43' => ['dateInsert', 'objet', 'dateVisite', 'dateReception', 'preventionnistes', 'demandeur', 'observationDossier'],
         // COURRIER/COURRIEL
         // Lettre - OK
         '52' => ['DATEINSERT', 'OBJET', 'NUMCHRONO', 'DATEMAIRIE', 'PREVENTIONNISTE', 'DATEREP', 'DATEENVTRANSIT', 'PREVENTIONNISTE', 'DATESDIS', 'DEMANDEUR', 'DATETRANSFERTCOMM', 'DATERECEPTIONCOMM', 'OBSERVATION'],
