@@ -147,12 +147,12 @@ class DossierAffichageComparisonTest extends WebTestCase
 
         $this->compareAffichageWithLegacy($dossier, [
             'dateInsert' => 'Date de création du dossier',
-            'commission' => 'Commission',
+            'commission' => 'Commission concernée',
             'descriptifGeneral' => 'Descriptif général',
             'descriptifEffectifs' => 'Descriptif effectif',
             'dateVisite' => 'Date de visite',
             'dateReponse' => 'Date de réponse',
-            'preventionnistes' => 'Préventionniste(s)',
+            'preventionnistes' => 'Préventionniste(s) du dossier',
             'avisDiffere' => 'Avis différé',
             'absenceDeQuorum' => 'Absence de quorum',
             'avis' => 'Avis du rapporteur',
@@ -163,14 +163,14 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour visite avec avis (nature 28).
+     * Test de comparaison pour visite de contrôle (nature 28 - groupe de visite).
      *
      * Champs attendus basés sur le legacy :
      * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE,
      * AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM,
      * AVIS_COMMISSION, OBSERVATION, DELAIPRESC
      */
-    public function testAffichageVisiteAvecAvis(): void
+    public function testAffichageVisiteControle(): void
     {
         $dossier = $this->getDossierByNature(28);
 
@@ -181,15 +181,15 @@ class DossierAffichageComparisonTest extends WebTestCase
         $this->compareAffichageWithLegacy($dossier, [
             'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
-            'commission' => 'Commission',
+            'commission' => 'Commission concernée',
             'descriptifGeneral' => 'Descriptif général',
             'descriptifEffectifs' => 'Descriptif effectif',
-            'dateCommission' => 'Date passage en commission',
+            'dateCommission' => 'Date de commission en salle',
             'dateVisite' => 'Date de visite',
             'avis' => 'Avis du rapporteur',
             'coordonneesSsi' => 'Coordonnées SSI',
             'dateReponse' => 'Date de réponse',
-            'preventionnistes' => 'Préventionniste(s)',
+            'preventionnistes' => 'Préventionniste(s) du dossier',
             'avisDiffere' => 'Avis différé',
             'absenceDeQuorum' => 'Absence de quorum',
             'avisCommission' => 'Avis de la commission',
@@ -199,7 +199,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour visite inopinée (nature 29).
+     * Test de comparaison pour visite inopinée (nature 29 - groupe de visite).
      *
      * Champs attendus basés sur le legacy :
      * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE,
@@ -217,14 +217,14 @@ class DossierAffichageComparisonTest extends WebTestCase
         $this->compareAffichageWithLegacy($dossier, [
             'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
-            'commission' => 'Commission',
+            'commission' => 'Commission concernée',
             'descriptifGeneral' => 'Descriptif général',
             'descriptifEffectifs' => 'Descriptif effectif',
-            'dateCommission' => 'Date passage en commission',
+            'dateCommission' => 'Date de commission en salle',
             'dateVisite' => 'Date de visite',
             'avis' => 'Avis du rapporteur',
             'dateReponse' => 'Date de réponse',
-            'preventionnistes' => 'Préventionniste(s)',
+            'preventionnistes' => 'Préventionniste(s) du dossier',
             'avisDiffere' => 'Avis différé',
             'absenceDeQuorum' => 'Absence de quorum',
             'avisCommission' => 'Avis de la commission',
@@ -264,19 +264,28 @@ class DossierAffichageComparisonTest extends WebTestCase
         $warnings = [];
 
         foreach ($expectedFields as $property => $expectedLabel) {
-            // Récupérer la valeur de la propriété
+            // Récupérer la valeur de la propriété en essayant différents prefixes
             $getter = 'get'.ucfirst($property);
+            $hasser = 'has'.ucfirst($property);
+            $isser = 'is'.ucfirst($property);
 
-            if (!method_exists($dossier, $getter)) {
+            $value = null;
+            if (method_exists($dossier, $getter)) {
+                $value = $dossier->$getter();
+            } elseif (method_exists($dossier, $hasser)) {
+                $value = $dossier->$hasser();
+            } elseif (method_exists($dossier, $isser)) {
+                $value = $dossier->$isser();
+            } else {
                 $errors[] = sprintf(
-                    '❌ Propriété "%s" : getter "%s()" n\'existe pas dans l\'entité Dossier',
+                    '❌ Propriété "%s" : aucun getter trouvé (%s(), %s() ou %s())',
                     $property,
-                    $getter
+                    $getter,
+                    $hasser,
+                    $isser
                 );
                 continue;
             }
-
-            $value = $dossier->$getter();
 
             // Si la valeur est nulle, vérifier que le champ n'est PAS affiché
             if (null === $value || '' === $value) {
