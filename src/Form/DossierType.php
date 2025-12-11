@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Avis;
+use App\Entity\Commission;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierType as DossierTypeEntity;
@@ -64,6 +65,38 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
+            ->add('descriptifGeneral', TextareaType::class, [
+                'label' => 'Descriptif général',
+                'required' => false,
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('descriptifEffectifs', TextareaType::class, [
+                'label' => 'Descriptif effectif',
+                'required' => false,
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('coordonneesSsi', TextareaType::class, [
+                'label' => 'Coordonnées SSI',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('commission', EntityType::class, [
+                'label' => 'Commission',
+                'class' => Commission::class,
+                'choice_label' => 'libelle',
+                'placeholder' => 'Sélectionner une commission',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
             ->add('dateReception', DateType::class, [
                 'label' => 'Date de réception SDIS',
                 'widget' => 'single_text',
@@ -76,6 +109,12 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
+            ->add('dateLimitePrescription', DateType::class, [
+                'label' => 'Délai levée prescriptions',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
             ->add('avisCommission', EntityType::class, [
                 'label' => 'Avis de la commission',
                 'class' => Avis::class,
@@ -84,8 +123,21 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
+            ->add('avis', EntityType::class, [
+                'label' => 'Avis du rapporteur',
+                'class' => Avis::class,
+                'choice_label' => 'libelle',
+                'placeholder' => 'Sélectionner un avis',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Avis différé',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input'],
+            ])
+            ->add('absenceDeQuorum', CheckboxType::class, [
+                'label' => 'Absence de quorum',
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
             ])

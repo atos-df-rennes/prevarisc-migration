@@ -84,7 +84,7 @@ class DossierEditVisitesTest extends WebTestCase
         }
 
         // Vérifier que les champs sont pré-remplis avec les valeurs actuelles
-        if ($dossier->getCommission()) {
+        if (null !== $dossier->getCommission()) {
             $commissionField = $crawler->filter('select[name="dossier[commission]"] option[selected]');
             $this->assertGreaterThan(
                 0,
