@@ -68,6 +68,119 @@
                 </div>
             </li>
 
+            <li class='row' id='field-commission'>
+                <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.commission) }}
+                    {{ form_errors(form.commission) }}
+                </div>
+            </li>
+
+            {# @todo: A voir si utiliser, à priori non #}
+            <li class='row' id='field-descriptifGeneral'>
+                <div class='left libelle col-md-3'>{{ form_label(form.descriptifGeneral) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.descriptifGeneral) }}
+                    {{ form_errors(form.descriptifGeneral) }}
+                </div>
+            </li>
+
+            {# @todo: A voir si utiliser, à priori non #}
+            <li class='row' id='field-descriptifEffectifs'>
+                <div class='left libelle col-md-3'>{{ form_label(form.descriptifEffectifs) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.descriptifEffectifs) }}
+                    {{ form_errors(form.descriptifEffectifs) }}
+                </div>
+            </li>
+
+            {# @todo: A voir si utiliser, à priori non #}
+            <li class='row' id='field-coordonneesSsi'>
+                <div class='left libelle col-md-3'>{{ form_label(form.coordonneesSsi) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.coordonneesSsi) }}
+                    {{ form_errors(form.coordonneesSsi) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-dateVisite'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateVisite) }}
+                    {{ form_errors(form.dateVisite) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-avisDiffere'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avisDiffere) }}
+                    {{ form_label(form.avisDiffere) }}
+                    {{ form_errors(form.avisDiffere) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-absenceDeQuorum'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.absenceDeQuorum) }}
+                    {{ form_label(form.absenceDeQuorum) }}
+                    {{ form_errors(form.absenceDeQuorum) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-avis'>
+                <div class='left libelle col-md-3'>{{ form_label(form.avis) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avis) }}
+                    {{ form_errors(form.avis) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-dateLimitePrescription'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateLimitePrescription) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateLimitePrescription) }}
+                    {{ form_errors(form.dateLimitePrescription) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-avisCommission'>
+                <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avisCommission) }}
+                    {{ form_errors(form.avisCommission) }}
+                </div>
+            </li>
+
+            {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
+            {# @todo: Il faut que le JS soit aussi déclenché à l'affichage de la page. Pas seulement au changement sur le select #}
+            <li class='row' id='field-facteurDangerosite'>
+                <div class='left libelle col-md-3'>{{ form_label(form.facteurDangerosite) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.facteurDangerosite) }}
+                    {{ form_errors(form.facteurDangerosite) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-echeancierTravaux'>
+                <div class='left libelle col-md-3'>{{ form_label(form.echeancierTravaux) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.echeancierTravaux) }}
+                    {{ form_errors(form.echeancierTravaux) }}
+                </div>
+            </li>
+
+            {# @todo: Manque Analyse de risque #}
+
+            <li class='row' id='field-observations'>
+                <div class='left libelle col-md-3'>{{ form_label(form.observations) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.observations) }}
+                    {{ form_errors(form.observations) }}
+                </div>
+            </li>
+
             <li class='row' id='field-dateMairie'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateMairie) }}</div>
                 <div class='right form col-md-9'>
@@ -100,6 +213,14 @@
                 </div>
             </li>
 
+            <li class='row' id='field-dateReponse'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateReponse) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateReponse) }}
+                    {{ form_errors(form.dateReponse) }}
+                </div>
+            </li>
+
             <li class='row' id='field-dateTransfertCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateTransfertCommission) }}</div>
                 <div class='right form col-md-9'>
@@ -124,56 +245,6 @@
                 </div>
             </li>
 
-            <li class='row' id='field-preventionnistes'>
-                <div class='left libelle col-md-3'>Préventionnistes</div>
-                <div class='right form col-md-9'>
-                    <p class='form-control-static text-muted'>
-                        <em>Fonctionnalité en cours d'implémentation (autocomplete multi-sélection)</em>
-                    </p>
-                </div>
-            </li>
-
-            {# Champs spécifiques visites (natures 21, 28, 29) #}
-            <li class='row' id='field-commission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.commission) }}
-                    {{ form_errors(form.commission) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-descriptifGeneral'>
-                <div class='left libelle col-md-3'>{{ form_label(form.descriptifGeneral) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.descriptifGeneral) }}
-                    {{ form_errors(form.descriptifGeneral) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-descriptifEffectifs'>
-                <div class='left libelle col-md-3'>{{ form_label(form.descriptifEffectifs) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.descriptifEffectifs) }}
-                    {{ form_errors(form.descriptifEffectifs) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-coordonneesSsi'>
-                <div class='left libelle col-md-3'>{{ form_label(form.coordonneesSsi) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.coordonneesSsi) }}
-                    {{ form_errors(form.coordonneesSsi) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dateVisite'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateVisite) }}
-                    {{ form_errors(form.dateVisite) }}
-                </div>
-            </li>
-
             {# dateCommission - Nature 28, 29 seulement - à activer plus tard
             <li class='row' id='field-dateCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
@@ -184,87 +255,12 @@
             </li>
             #}
 
-            <li class='row' id='field-dateReponse'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateReponse) }}</div>
+            <li class='row' id='field-preventionnistes'>
+                <div class='left libelle col-md-3'>Préventionnistes</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.dateReponse) }}
-                    {{ form_errors(form.dateReponse) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-avis'>
-                <div class='left libelle col-md-3'>{{ form_label(form.avis) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.avis) }}
-                    {{ form_errors(form.avis) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-avisCommission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.avisCommission) }}
-                    {{ form_errors(form.avisCommission) }}
-                </div>
-            </li>
-
-            {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
-            <li class='row' id='field-facteurDangerosite'>
-                <div class='left libelle col-md-3'>{{ form_label(form.facteurDangerosite) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.facteurDangerosite) }}
-                    {{ form_errors(form.facteurDangerosite) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-echeancierTravaux'>
-                <div class='left libelle col-md-3'>{{ form_label(form.echeancierTravaux) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.echeancierTravaux) }}
-                    {{ form_errors(form.echeancierTravaux) }}
-                </div>
-            </li>
-
-            {# Checkboxes #}
-            <li class='row' id='field-avisDiffere'>
-                <div class='left libelle col-md-3'></div>
-                <div class='right form col-md-9'>
-                    <div class='checkbox'>
-                        <label>
-                            {{ form_widget(form.avisDiffere) }}
-                            {{ form_label(form.avisDiffere) }}
-                        </label>
-                    </div>
-                    {{ form_errors(form.avisDiffere) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-absenceDeQuorum'>
-                <div class='left libelle col-md-3'></div>
-                <div class='right form col-md-9'>
-                    <div class='checkbox'>
-                        <label>
-                            {{ form_widget(form.absenceDeQuorum) }}
-                            {{ form_label(form.absenceDeQuorum) }}
-                        </label>
-                    </div>
-                    {{ form_errors(form.absenceDeQuorum) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-observations'>
-                <div class='left libelle col-md-3'>{{ form_label(form.observations) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.observations) }}
-                    {{ form_errors(form.observations) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dateLimitePrescription'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateLimitePrescription) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateLimitePrescription) }}
-                    {{ form_errors(form.dateLimitePrescription) }}
+                    <p class='form-control-static text-muted'>
+                        <em>Fonctionnalité en cours d'implémentation (autocomplete multi-sélection)</em>
+                    </p>
                 </div>
             </li>
         </ul>
