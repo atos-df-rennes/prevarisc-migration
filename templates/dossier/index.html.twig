@@ -491,7 +491,7 @@
                 {% if dossier|should_display_field('preventionnistes') and dossier.preventionnistes is not empty %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>Préventionniste(s) du dossier</div>
-                        <div class='right value col-md-9'>
+                        <div class='right value col-md-9 thumbnail-container'>
                             {% for preventionniste in dossier.preventionnistes %}
                                 {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
                             {% endfor %}

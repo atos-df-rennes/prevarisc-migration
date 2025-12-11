@@ -1,7 +1,15 @@
+.thumbnail-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+
 .thumbnail.thumbnail-user {
   display: inline-block;
   width: 85px;
   font-size: .7em;
+  margin-bottom: 0;
+  align-self: stretch;
 }
 
 .thumbnail.thumbnail-user .caption {
