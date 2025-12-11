@@ -132,7 +132,7 @@ class DossierType extends AbstractType
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('avisDiffere', CheckboxType::class, [
-                'label' => 'Avis différé',
+                'label' => 'Diffère l\'avis',
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
             ])
@@ -143,6 +143,12 @@ class DossierType extends AbstractType
             ])
             ->add('facteurDangerosite', IntegerType::class, [
                 'label' => 'Facteur de dangerosité',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('echeancierTravaux', DateType::class, [
+                'label' => 'Échéancier de travaux',
+                'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])

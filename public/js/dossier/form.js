@@ -46,8 +46,102 @@
         // Attacher les événements
         attachEvents();
 
+        // Initialiser les comportements spécifiques
+        initConditionalBehaviors();
+
         // Afficher les champs appropriés au chargement (mode édition)
         updateFieldsVisibility();
+    }
+
+    /**
+     * Initialise les comportements conditionnels spécifiques
+     */
+    function initConditionalBehaviors() {
+        handleAvisCommissionChange();
+        handleCommissionForVisites();
+    }
+
+    /**
+     * Gère l'affichage des champs conditionnels selon l'avis de commission
+     */
+    function handleAvisCommissionChange() {
+        const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
+        if (!avisCommissionSelect) {
+            return;
+        }
+
+        function toggleFacteurEcheancier() {
+            const selectedAvisId = avisCommissionSelect.value;
+            const facteurRow = findFieldRow('dossier_facteurDangerosite');
+            const echeancierRow = findFieldRow('dossier_echeancierTravaux');
+
+            // ID 2 = Défavorable
+            if (selectedAvisId === '2') {
+                if (facteurRow) facteurRow.style.display = '';
+                if (echeancierRow) echeancierRow.style.display = '';
+            } else {
+                if (facteurRow) facteurRow.style.display = 'none';
+                if (echeancierRow) echeancierRow.style.display = 'none';
+                // Réinitialiser les valeurs
+                const facteurInput = document.querySelector('#dossier_facteurDangerosite');
+                const echeancierInput = document.querySelector('#dossier_echeancierTravaux');
+                if (facteurInput) facteurInput.value = '';
+                if (echeancierInput) echeancierInput.value = '';
+            }
+        }
+
+        avisCommissionSelect.addEventListener('change', toggleFacteurEcheancier);
+        // Déclencher au chargement
+        toggleFacteurEcheancier();
+    }
+
+    /**
+     * Désactive le champ commission pour les visites (types 2 et 3)
+     */
+    function handleCommissionForVisites() {
+        const typeSelect = document.querySelector('#dossier_type');
+        const commissionSelect = document.querySelector('#dossier_commission');
+        
+        if (!typeSelect || !commissionSelect) {
+            return;
+        }
+
+        function toggleCommission() {
+            const typeId = typeSelect.value;
+            const commissionRow = findFieldRow('dossier_commission');
+            
+            // Types 2 et 3 = Visites
+            if (typeId === '2' || typeId === '3') {
+                commissionSelect.disabled = true;
+                commissionSelect.classList.add('disabled-field');
+                
+                // Ajouter message d'aide s'il n'existe pas
+                if (commissionRow && !commissionRow.querySelector('.commission-help')) {
+                    const helpText = document.createElement('small');
+                    helpText.className = 'form-text text-muted commission-help';
+                    helpText.textContent = 'La commission est liée à la date de visite. Modifier la date de visite pour changer de commission.';
+                    const widgetDiv = commissionRow.querySelector('.right.form');
+                    if (widgetDiv) {
+                        widgetDiv.appendChild(helpText);
+                    }
+                }
+            } else {
+                commissionSelect.disabled = false;
+                commissionSelect.classList.remove('disabled-field');
+                
+                // Retirer message d'aide
+                if (commissionRow) {
+                    const helpText = commissionRow.querySelector('.commission-help');
+                    if (helpText) {
+                        helpText.remove();
+                    }
+                }
+            }
+        }
+
+        typeSelect.addEventListener('change', toggleCommission);
+        // Initial
+        toggleCommission();
     }
 
     /**
@@ -128,13 +222,22 @@
             'dateTransfertCommission',
             'dateReceptionCommission',
             'dateVisite',
+            'dateCommission',
+            'avis',
             'avisCommission',
             'avisDiffere',
+            'absenceDeQuorum',
             'facteurDangerosite',
+            'echeancierTravaux',
             'preventionnistes',
             'demandeur',
             'lieuReunion',
             'observations',
+            'descriptifGeneral',
+            'descriptifEffectifs',
+            'coordonneesSsi',
+            'commission',
+            'dateLimitePrescription',
             // Ajouter d'autres champs au fur et à mesure
         ];
 
