@@ -130,6 +130,107 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
+     * Test de comparaison pour visite périodique (nature 21)
+     * 
+     * Champs attendus basés sur le legacy :
+     * DATEINSERT, COMMISSION, DESCGEN, DESCEFF, DATEVISITE, DATEREP, 
+     * PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS, AVIS_COMMISSION, 
+     * OBSERVATION, DELAIPRESC
+     */
+    public function testAffichageVisitePeriodique(): void
+    {
+        $dossier = $this->getDossierByNature(21);
+
+        if (null === $dossier) {
+            $this->markTestSkipped('Aucun dossier de nature 21 en base de données');
+        }
+
+        // Note: On teste uniquement les champs déjà présents dans l'entité Dossier
+        // DESCGEN et DESCEFF seront ajoutés plus tard si nécessaires
+        $this->compareAffichageWithLegacy($dossier, [
+            'dateInsert' => 'Date de création du dossier',
+            'commission' => 'Commission',
+            'dateVisite' => 'Date de visite',
+            'dateReponse' => 'Date de réponse',
+            'preventionnistes' => 'Préventionniste(s)',
+            'avisDiffere' => 'Avis différé',
+            'absenceDeQuorum' => 'Absence de quorum',
+            'avis' => 'Avis du rapporteur',
+            'avisCommission' => 'Avis de la commission',
+            'observations' => 'Observations',
+            'dateLimitePrescription' => 'Délai levée prescriptions',
+        ]);
+    }
+
+    /**
+     * Test de comparaison pour visite avec avis (nature 28)
+     * 
+     * Champs attendus basés sur le legacy :
+     * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
+     * AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, 
+     * AVIS_COMMISSION, OBSERVATION, DELAIPRESC
+     */
+    public function testAffichageVisiteAvecAvis(): void
+    {
+        $dossier = $this->getDossierByNature(28);
+
+        if (null === $dossier) {
+            $this->markTestSkipped('Aucun dossier de nature 28 en base de données');
+        }
+
+        // Note: DESCGEN, DESCEFF et COORDSSI seront ajoutés plus tard si nécessaires
+        $this->compareAffichageWithLegacy($dossier, [
+            'dateInsert' => 'Date de création du dossier',
+            'objet' => 'Objet',
+            'commission' => 'Commission',
+            'dateCommission' => 'Date passage en commission',
+            'dateVisite' => 'Date de visite',
+            'avis' => 'Avis du rapporteur',
+            'dateReponse' => 'Date de réponse',
+            'preventionnistes' => 'Préventionniste(s)',
+            'avisDiffere' => 'Avis différé',
+            'absenceDeQuorum' => 'Absence de quorum',
+            'avisCommission' => 'Avis de la commission',
+            'observations' => 'Observations',
+            'dateLimitePrescription' => 'Délai levée prescriptions',
+        ]);
+    }
+
+    /**
+     * Test de comparaison pour visite inopinée (nature 29)
+     * 
+     * Champs attendus basés sur le legacy :
+     * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
+     * AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS_COMMISSION, 
+     * OBSERVATION, DELAIPRESC
+     */
+    public function testAffichageVisiteInopinee(): void
+    {
+        $dossier = $this->getDossierByNature(29);
+
+        if (null === $dossier) {
+            $this->markTestSkipped('Aucun dossier de nature 29 en base de données');
+        }
+
+        // Note: DESCGEN et DESCEFF seront ajoutés plus tard si nécessaires
+        $this->compareAffichageWithLegacy($dossier, [
+            'dateInsert' => 'Date de création du dossier',
+            'objet' => 'Objet',
+            'commission' => 'Commission',
+            'dateCommission' => 'Date passage en commission',
+            'dateVisite' => 'Date de visite',
+            'avis' => 'Avis du rapporteur',
+            'dateReponse' => 'Date de réponse',
+            'preventionnistes' => 'Préventionniste(s)',
+            'avisDiffere' => 'Avis différé',
+            'absenceDeQuorum' => 'Absence de quorum',
+            'avisCommission' => 'Avis de la commission',
+            'observations' => 'Observations',
+            'dateLimitePrescription' => 'Délai levée prescriptions',
+        ]);
+    }
+
+    /**
      * Compare l'affichage Symfony avec les données attendues du legacy
      *
      * @param Dossier $dossier
