@@ -50,6 +50,27 @@ class Dossier
     private $objet;
 
     /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCGEN_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifGeneral;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCEFF_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifEffectifs;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="COORDSSI_DOSSIER", type="text", nullable=true)
+     */
+    private $coordonneesSsi;
+
+    /**
      * @var DossierType
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
@@ -622,6 +643,42 @@ class Dossier
     public function setObjet(?string $objet): self
     {
         $this->objet = $objet;
+
+        return $this;
+    }
+
+    public function getDescriptifGeneral(): ?string
+    {
+        return $this->descriptifGeneral;
+    }
+
+    public function setDescriptifGeneral(?string $descriptifGeneral): self
+    {
+        $this->descriptifGeneral = $descriptifGeneral;
+
+        return $this;
+    }
+
+    public function getDescriptifEffectifs(): ?string
+    {
+        return $this->descriptifEffectifs;
+    }
+
+    public function setDescriptifEffectifs(?string $descriptifEffectifs): self
+    {
+        $this->descriptifEffectifs = $descriptifEffectifs;
+
+        return $this;
+    }
+
+    public function getCoordonneesSsi(): ?string
+    {
+        return $this->coordonneesSsi;
+    }
+
+    public function setCoordonneesSsi(?string $coordonneesSsi): self
+    {
+        $this->coordonneesSsi = $coordonneesSsi;
 
         return $this;
     }

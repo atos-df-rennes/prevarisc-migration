@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Test de comparaison automatisée entre affichage Legacy vs Symfony
+ * Test de comparaison automatisée entre affichage Legacy vs Symfony.
  *
  * Objectif: Garantir que l'affichage Symfony est 100% ISO avec le legacy
  * pour tous les champs et toutes les natures de dossiers.
@@ -29,7 +29,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Crée un client authentifié avec le compte root/root
+     * Crée un client authentifié avec le compte root/root.
      */
     private function createAuthenticatedClient()
     {
@@ -61,7 +61,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour une nature de type Réunion (31)
+     * Test de comparaison pour une nature de type Réunion (31).
      */
     public function testAffichageReunionLocauxSdis(): void
     {
@@ -83,7 +83,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour une nature de type Réunion (32)
+     * Test de comparaison pour une nature de type Réunion (32).
      */
     public function testAffichageReunionExterieurSdis(): void
     {
@@ -105,7 +105,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour courrier (nature 52 - Lettre)
+     * Test de comparaison pour courrier (nature 52 - Lettre).
      */
     public function testAffichageCourrierLettre(): void
     {
@@ -119,7 +119,7 @@ class DossierAffichageComparisonTest extends WebTestCase
             'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
             'dateMairie' => 'Date de réception mairie',
-            'dateEnvoiTransit' => 'Date d\'envoi/transit',
+            'dateEnvoiTransit' => "Date d'envoi/transit",
             'dateReponse' => 'Date de réponse',
             'dateReception' => 'Date de réception SDIS',
             'demandeur' => 'Demandeur',
@@ -130,11 +130,11 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour visite périodique (nature 21)
-     * 
+     * Test de comparaison pour visite périodique (nature 21).
+     *
      * Champs attendus basés sur le legacy :
-     * DATEINSERT, COMMISSION, DESCGEN, DESCEFF, DATEVISITE, DATEREP, 
-     * PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS, AVIS_COMMISSION, 
+     * DATEINSERT, COMMISSION, DESCGEN, DESCEFF, DATEVISITE, DATEREP,
+     * PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS, AVIS_COMMISSION,
      * OBSERVATION, DELAIPRESC
      */
     public function testAffichageVisitePeriodique(): void
@@ -145,11 +145,11 @@ class DossierAffichageComparisonTest extends WebTestCase
             $this->markTestSkipped('Aucun dossier de nature 21 en base de données');
         }
 
-        // Note: On teste uniquement les champs déjà présents dans l'entité Dossier
-        // DESCGEN et DESCEFF seront ajoutés plus tard si nécessaires
         $this->compareAffichageWithLegacy($dossier, [
             'dateInsert' => 'Date de création du dossier',
             'commission' => 'Commission',
+            'descriptifGeneral' => 'Descriptif général',
+            'descriptifEffectifs' => 'Descriptif effectif',
             'dateVisite' => 'Date de visite',
             'dateReponse' => 'Date de réponse',
             'preventionnistes' => 'Préventionniste(s)',
@@ -163,11 +163,11 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour visite avec avis (nature 28)
-     * 
+     * Test de comparaison pour visite avec avis (nature 28).
+     *
      * Champs attendus basés sur le legacy :
-     * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
-     * AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, 
+     * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE,
+     * AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM,
      * AVIS_COMMISSION, OBSERVATION, DELAIPRESC
      */
     public function testAffichageVisiteAvecAvis(): void
@@ -178,14 +178,16 @@ class DossierAffichageComparisonTest extends WebTestCase
             $this->markTestSkipped('Aucun dossier de nature 28 en base de données');
         }
 
-        // Note: DESCGEN, DESCEFF et COORDSSI seront ajoutés plus tard si nécessaires
         $this->compareAffichageWithLegacy($dossier, [
             'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
             'commission' => 'Commission',
+            'descriptifGeneral' => 'Descriptif général',
+            'descriptifEffectifs' => 'Descriptif effectif',
             'dateCommission' => 'Date passage en commission',
             'dateVisite' => 'Date de visite',
             'avis' => 'Avis du rapporteur',
+            'coordonneesSsi' => 'Coordonnées SSI',
             'dateReponse' => 'Date de réponse',
             'preventionnistes' => 'Préventionniste(s)',
             'avisDiffere' => 'Avis différé',
@@ -197,11 +199,11 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Test de comparaison pour visite inopinée (nature 29)
-     * 
+     * Test de comparaison pour visite inopinée (nature 29).
+     *
      * Champs attendus basés sur le legacy :
-     * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
-     * AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS_COMMISSION, 
+     * DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE,
+     * AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS_COMMISSION,
      * OBSERVATION, DELAIPRESC
      */
     public function testAffichageVisiteInopinee(): void
@@ -212,11 +214,12 @@ class DossierAffichageComparisonTest extends WebTestCase
             $this->markTestSkipped('Aucun dossier de nature 29 en base de données');
         }
 
-        // Note: DESCGEN et DESCEFF seront ajoutés plus tard si nécessaires
         $this->compareAffichageWithLegacy($dossier, [
             'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
             'commission' => 'Commission',
+            'descriptifGeneral' => 'Descriptif général',
+            'descriptifEffectifs' => 'Descriptif effectif',
             'dateCommission' => 'Date passage en commission',
             'dateVisite' => 'Date de visite',
             'avis' => 'Avis du rapporteur',
@@ -231,9 +234,8 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Compare l'affichage Symfony avec les données attendues du legacy
+     * Compare l'affichage Symfony avec les données attendues du legacy.
      *
-     * @param Dossier $dossier
      * @param array $expectedFields Mapping propriété => label affiché
      */
     private function compareAffichageWithLegacy(Dossier $dossier, array $expectedFields): void
@@ -263,7 +265,7 @@ class DossierAffichageComparisonTest extends WebTestCase
 
         foreach ($expectedFields as $property => $expectedLabel) {
             // Récupérer la valeur de la propriété
-            $getter = 'get' . ucfirst($property);
+            $getter = 'get'.ucfirst($property);
 
             if (!method_exists($dossier, $getter)) {
                 $errors[] = sprintf(
@@ -287,6 +289,7 @@ class DossierAffichageComparisonTest extends WebTestCase
                         $expectedLabel
                     );
                 }
+
                 continue;
             }
 
@@ -353,7 +356,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Vérifie si un champ est affiché dans le DOM
+     * Vérifie si un champ est affiché dans le DOM.
      */
     private function isFieldDisplayed(Crawler $crawler, string $property): bool
     {
@@ -366,9 +369,10 @@ class DossierAffichageComparisonTest extends WebTestCase
         }
 
         // Chercher un élément qui contient ce libellé dans une div.libelle
-        $libelle = $crawler->filter('.list-unstyled li .libelle')->reduce(function (Crawler $node) use ($labelMapping) {
+        $libelle = $crawler->filter('.list-unstyled li .libelle')->reduce(function (Crawler $node) use ($labelMapping): bool {
             $text = trim($node->text());
-            return $text === $labelMapping || stripos($text, $labelMapping) !== false;
+
+            return $text === $labelMapping || false !== stripos($text, $labelMapping);
         });
 
         return $libelle->count() > 0;
@@ -376,7 +380,7 @@ class DossierAffichageComparisonTest extends WebTestCase
 
     // @todo: Utiliser la fonction d'au-dessus
     /**
-     * Récupère le label affiché pour un champ
+     * Récupère le label affiché pour un champ.
      */
     private function getFieldLabel(Crawler $crawler, string $property): ?string
     {
@@ -387,16 +391,17 @@ class DossierAffichageComparisonTest extends WebTestCase
         }
 
         // Chercher le libellé dans les div.libelle
-        $libelle = $crawler->filter('.list-unstyled li .libelle')->reduce(function (Crawler $node) use ($labelMapping) {
+        $libelle = $crawler->filter('.list-unstyled li .libelle')->reduce(function (Crawler $node) use ($labelMapping): bool {
             $text = trim($node->text());
-            return $text === $labelMapping || stripos($text, $labelMapping) !== false;
+
+            return $text === $labelMapping || false !== stripos($text, $labelMapping);
         });
 
         return $libelle->count() > 0 ? trim($libelle->first()->text()) : null;
     }
 
     /**
-     * Mapping entre les propriétés de l'entité et les labels affichés dans le template
+     * Mapping entre les propriétés de l'entité et les labels affichés dans le template.
      */
     private function getLabelForProperty(string $property): ?string
     {
@@ -409,7 +414,7 @@ class DossierAffichageComparisonTest extends WebTestCase
             'dateReponse' => 'Date de réponse',
             'dateMairie' => 'Date de réception mairie',
             'dateSecretariat' => 'Date de réception secrétariat SDIS',
-            'dateEnvoiTransit' => 'Date d\'envoi/transit',
+            'dateEnvoiTransit' => "Date d'envoi/transit",
             'dateReception' => 'Date de réception SDIS',
             'dateVisite' => 'Date de visite',
             'dateTransfertCommission' => 'Date de transfert commission',
@@ -421,7 +426,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Récupère la valeur affichée pour un champ
+     * Récupère la valeur affichée pour un champ.
      */
     private function getFieldValue(Crawler $crawler, string $property): ?string
     {
@@ -440,14 +445,15 @@ class DossierAffichageComparisonTest extends WebTestCase
 
             if ($libelle->count() > 0) {
                 $text = trim($libelle->text());
-                if ($text === $labelMapping || stripos($text, $labelMapping) !== false) {
+                if ($text === $labelMapping || false !== stripos($text, $labelMapping)) {
                     $value = $rowCrawler->filter('.value');
                     if ($value->count() > 0) {
                         $fullText = trim($value->text());
                         // Pour dateInsert, on extrait seulement la date (avant "par :")
-                        if ($property === 'dateInsert' && strpos($fullText, 'par :') !== false) {
+                        if ('dateInsert' === $property && false !== strpos($fullText, 'par :')) {
                             return trim(explode('par :', $fullText)[0]);
                         }
+
                         return $fullText;
                     }
                 }
@@ -458,9 +464,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Formate une valeur pour l'affichage (dates, etc.)
-     *
-     * @param mixed $value
+     * Formate une valeur pour l'affichage (dates, etc.).
      */
     private function formatValueForDisplay($value): string
     {
@@ -472,15 +476,11 @@ class DossierAffichageComparisonTest extends WebTestCase
             return $value ? 'Oui' : 'Non';
         }
 
-        if (is_object($value) && method_exists($value, '__toString')) {
-            return (string) $value;
-        }
-
         return (string) $value;
     }
 
     /**
-     * Affiche un rapport détaillé de la comparaison
+     * Affiche un rapport détaillé de la comparaison.
      */
     private function displayComparisonReport(
         Dossier $dossier,
@@ -503,16 +503,18 @@ class DossierAffichageComparisonTest extends WebTestCase
         if (!empty($errors)) {
             echo "--- ERREURS CRITIQUES ---\n";
             foreach ($errors as $error) {
-                echo $error . "\n";
+                echo $error."\n";
             }
+
             echo "\n";
         }
 
         if (!empty($warnings)) {
             echo "--- AVERTISSEMENTS ---\n";
             foreach ($warnings as $warning) {
-                echo $warning . "\n";
+                echo $warning."\n";
             }
+
             echo "\n";
         }
 
@@ -524,7 +526,7 @@ class DossierAffichageComparisonTest extends WebTestCase
     }
 
     /**
-     * Récupère un dossier par sa nature
+     * Récupère un dossier par sa nature.
      */
     private function getDossierByNature(int $natureId): ?Dossier
     {
