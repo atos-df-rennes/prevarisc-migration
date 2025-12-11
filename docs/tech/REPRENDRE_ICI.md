@@ -1,13 +1,13 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 11 décembre 2025  
-**Session précédente :** 10 décembre 2025
+**Date :** 11 décembre 2025 - 16h00  
+**Session précédente :** 11 décembre 2025 - Matin
 
 ---
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles (15)
+### Natures opérationnelles - Affichage ET Édition (15)
 
 **Réunions (3) :**
 - 31, 32, 43 ✅
@@ -15,186 +15,212 @@
 **Courriers (12) :**
 - 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65 ✅
 
+### Améliorations session du matin
+
+**Entité Dossier enrichie** :
+- ✅ `descriptifGeneral` (DESCGEN_DOSSIER)
+- ✅ `descriptifEffectifs` (DESCEFF_DOSSIER)  
+- ✅ `coordonneesSsi` (COORDSSI_DOSSIER)
+
+**DossierFields corrigé** :
+- ✅ `observationDossier` → `observations`
+- ✅ Natures 21, 28, 29 : `dateReception` → `dateReponse`
+
+**Tests fonctionnels améliorés** :
+- ✅ Support `has*()` et `is*()` pour booléens
+- ✅ Labels corrects (Commission concernée, etc.)
+- ✅ Nouveau test comparaison Legacy vs Symfony
+
 ---
 
-## 🎯 Prochaine étape : Phase 3 - Visites périodiques
+## 🎯 Phase 3 : Visites périodiques - ÉDITION
+
+### Approche TDD validée
+
+**Stratégie** :
+1. ✍️ **Écrire test fonctionnel** pour l'édition → Échec (RED)
+2. 🔧 **Implémenter** le code (FormType, template, JS) → Succès (GREEN)
+3. ♻️ **Refactorer** et valider (PHPStan, CS)
+4. 📝 **Commit**
 
 ### Natures à implémenter (3)
 
-| Nature | Libellé | Complexité |
-|--------|---------|------------|
-| **21** | Visite périodique | Moyenne |
-| **28** | Visite avec avis | Moyenne |
-| **29** | Visite inopinée | Moyenne |
+| Nature | Libellé | Type | Priorité |
+|--------|---------|------|----------|
+| **21** | Périodique | Visite de commission | 1️⃣ |
+| **28** | Contrôle | Groupe de visite | 2️⃣ |
+| **29** | Inopinée | Groupe de visite | 3️⃣ |
 
-### Champs legacy à récupérer
+### Champs attendus (basés sur le legacy)
 
-```bash
-# Commande pour voir les champs exacts
-grep -E "'(21|28|29)'" prevarisc/application/controllers/DossierController.php
+#### Nature 21 - Visite périodique
+```
+DATEINSERT, COMMISSION, DESCGEN, DESCEFF, DATEVISITE, DATEREP, 
+PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS, AVIS_COMMISSION, 
+OBSERVATION, DELAIPRESC
 ```
 
-### Nouveaux champs attendus
+**Champs Symfony** :
+- `dateInsert`, `commission`, `descriptifGeneral`, `descriptifEffectifs`
+- `dateVisite`, `dateReponse`, `preventionnistes`
+- `avisDiffere`, `absenceDeQuorum`
+- `avis`, `avisCommission`, `observations`
+- `dateLimitePrescription`
 
-Champs spécifiques visites (à vérifier dans le legacy) :
-- `commission` : EntityType (relation avec Commission)
-- `dateVisite` : Date de visite (≠ dateReunion)
-- `dateCommission` : Date passage en commission
-- `avis` : Avis rapporteur
-- `avisCommission` : Avis commission
-- `avisDiffere` : Checkbox
-- `absenceDeQuorum` : Checkbox
-- `nePeutSePrononcer` : Checkbox
-- `incomplet` : Checkbox
-- `horsDelai` : Checkbox
-- `dateReceptionRvrat` : Date réception RVRAT
-- `dateLimitePrescription` : Date limite prescriptions
+#### Nature 28 - Visite de contrôle (groupe)
+```
+DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
+AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, 
+AVIS_COMMISSION, OBSERVATION, DELAIPRESC
+```
 
-### Étapes de réalisation
+**Champs Symfony** :
+- Nature 21 + `objet`, `dateCommission`, `coordonneesSsi`
 
-1. ✅ **Analyser le legacy**
-   ```bash
-   grep "'21'" prevarisc/application/controllers/DossierController.php
-   grep "'28'" prevarisc/application/controllers/DossierController.php
-   grep "'29'" prevarisc/application/controllers/DossierController.php
-   ```
+#### Nature 29 - Visite inopinée (groupe)
+```
+DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
+AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS_COMMISSION, 
+OBSERVATION, DELAIPRESC
+```
 
-2. ✅ **Vérifier l'entité**
-   ```bash
-   grep -i "dateVisite\|commission\|avisCommission" src/Entity/Dossier.php
-   ```
-
-3. ✅ **Mettre à jour DossierFields.php**
-   - Ajouter les champs pour natures 21, 28, 29
-   - Respecter l'ordre du legacy
-   - Utiliser les noms Symfony (camelCase)
-
-4. ✅ **Ajouter champs manquants au FormType**
-   - `commission` (EntityType)
-   - `dateVisite`
-   - `dateCommission`
-   - `avis` (EntityType)
-   - `avisCommission` (EntityType)
-   - Checkboxes (avisDiffere, absenceDeQuorum, etc.)
-   - Dates spécifiques (dateReceptionRvrat, dateLimitePrescription)
-
-5. ✅ **Mettre à jour le template**
-   - Ajouter les champs avec IDs
-   - Section spécifique pour les avis ?
-
-6. ✅ **Mettre à jour JavaScript**
-   - Ajouter champs dans `conditionalFields`
-
-7. ✅ **Valider**
-   ```bash
-   castor symfony:analyse
-   castor symfony:cs
-   ```
-
-8. ✅ **Commit**
-   ```bash
-   git add -A
-   git commit -m "feat(dossier): édition visites périodiques (natures 21, 28, 29) - Phase 3"
-   ```
+**Champs Symfony** :
+- Nature 28 - `coordonneesSsi`
 
 ---
 
-## 📋 Checklist rapide
+## 📋 Plan d'action Nature 21
 
-Avant de démarrer :
-- [ ] Lire `AVANCEMENT_EDITION_DOSSIER.md` (résumé complet)
-- [ ] Lire `MAPPING_LEGACY_REFERENCE.md` (mapping des champs)
-- [ ] Se remémorer les pièges : DATEREP vs DATESDIS, dateReunion vs dateVisite
+### 1. Test fonctionnel (RED) ✍️
 
-Pendant le développement :
-- [ ] Toujours vérifier le legacy en premier
-- [ ] Toujours vérifier les propriétés de l'entité
-- [ ] Utiliser les noms Symfony (camelCase), jamais legacy (UPPERCASE)
-- [ ] Respecter l'ordre des champs du legacy
+**Créer** : `tests/Functional/DossierEditVisitesTest.php`
 
-Après chaque nature :
-- [ ] PHPStan : `castor symfony:analyse`
-- [ ] CS : `castor symfony:cs`
-- [ ] Test visuel : Changement type/nature
-- [ ] Commit
+Test doit vérifier :
+- [ ] GET `/dossier/{id}/modifier` affiche le formulaire
+- [ ] Tous les champs attendus sont présents
+- [ ] Champs pré-remplis avec valeurs actuelles
+- [ ] POST sauvegarde correctement
+- [ ] Redirection après sauvegarde
+- [ ] Données persistées en base
+
+**Lancer** : Test doit échouer (champs manquants)
+
+### 2. Implémentation (GREEN) 🔧
+
+#### DossierType.php
+Ajouter champs pour nature 21 :
+```php
+- descriptifGeneral (TextareaType)
+- descriptifEffectifs (TextareaType)
+- avisDiffere (CheckboxType)
+- absenceDeQuorum (CheckboxType)
+```
+
+#### edit.html.twig
+Ajouter blocs d'affichage conditionnel
+
+#### form.js
+Ajouter dans `conditionalFields` :
+```javascript
+21: ['commission', 'descriptifGeneral', 'descriptifEffectifs', 
+     'dateVisite', 'preventionnistes', 'avisDiffere', 
+     'absenceDeQuorum', 'avis', 'avisCommission', 
+     'observations', 'dateLimitePrescription']
+```
+
+**Lancer** : Test doit passer ✅
+
+### 3. Validation ✅
+
+```bash
+castor symfony:analyse
+castor symfony:cs
+castor symfony:test
+```
+
+### 4. Commit 📝
+
+```bash
+git add -A
+git commit -m "feat(dossier): édition visite périodique (nature 21) - Phase 3
+
+TDD:
+- Test fonctionnel d'édition pour nature 21
+- Ajout champs descriptifGeneral, descriptifEffectifs
+- Ajout checkboxes avisDiffere, absenceDeQuorum
+- Configuration JavaScript conditionnelle
+- Tests passent ✅"
+```
 
 ---
 
 ## 🔑 Commandes utiles
 
-### Voir les champs legacy d'une nature
+### Tests
 ```bash
-grep "'XX'" prevarisc/application/controllers/DossierController.php
-```
+# Test spécifique
+castor symfony:test tests/Functional/DossierEditVisitesTest.php --filter testEditVisitePeriodique
 
-### Vérifier une propriété dans l'entité
-```bash
-grep -i "nomPropriete" src/Entity/Dossier.php
-```
-
-### Vérifier colonne BDD
-```bash
-grep "NOM_COLONNE" src/Entity/Dossier.php
+# Tous les tests
+castor symfony:test
 ```
 
 ### Validation
 ```bash
 castor symfony:analyse  # PHPStan
-castor symfony:cs       # Coding Style
+castor symfony:cs       # Rector + CS Fixer
 ```
 
-### Git
+### Debug
 ```bash
-git status
-git add -A
-git commit -m "feat(dossier): message"
-git log --oneline -5
+# Voir les champs d'une nature
+grep "'21'" src/Service/DossierFields.php
 ```
 
 ---
 
-## 📚 Fichiers importants
+## 📚 Fichiers clés
 
 | Fichier | Usage |
 |---------|-------|
-| `src/Service/DossierFields.php` | Configuration champs par nature |
+| `tests/Functional/DossierEditVisitesTest.php` | **Tests TDD** (à créer) |
 | `src/Form/DossierType.php` | Définition formulaire |
 | `templates/dossier/edit.html.twig` | Template édition |
-| `public/js/dossier/form.js` | JavaScript affichage dynamique |
-| `src/Entity/Dossier.php` | Entité (vérifier propriétés) |
-| `docs/tech/MAPPING_LEGACY_REFERENCE.md` | Mapping legacy→Symfony |
-| `docs/tech/AVANCEMENT_EDITION_DOSSIER.md` | Avancement détaillé |
+| `public/js/dossier/form.js` | JavaScript conditionnel |
+| `src/Service/DossierFields.php` | Config champs (affichage) |
+| `src/Entity/Dossier.php` | Entité (propriétés OK ✅) |
 
 ---
 
 ## ⚠️ Rappels importants
 
-### Pièges connus
+### Nommage Symfony (camelCase)
+✅ **Utiliser** : `dateVisite`, `descriptifGeneral`, `avisDiffere`  
+❌ **Ne PAS utiliser** : `DATEVISITE`, `DESCGEN`, `DIFFEREAVIS`
 
-**DATEREP vs DATESDIS :**
-- `DATEREP` → `dateReponse` (date de réponse)
-- `DATESDIS` → `dateReception` (date réception SDIS)
+### Booléens
+- Convention : `has*()` et `is*()` dans l'entité
+- Affichage : Seulement si `true`
+- Édition : Checkbox toujours présente
 
-**dateReunion vs dateVisite :**
-- `DATEREUN` → `dateReunion` (réunions - type 4)
-- `DATEVISITE` → `dateVisite` (visites - types 2, 3)
-
-**observations :**
-- Propriété : `$observations` (pas `$observationDossier`)
-
-### Nommage strict
-
-✅ **Utiliser :** `dateInsert`, `dateReponse`, `observations`  
-❌ **Ne PAS utiliser :** `DATEINSERT`, `DATEREP`, `OBSERVATION`
+### DATEREP vs DATESDIS
+- `DATEREP` → `dateReponse` ✅ (pour visites)
+- `DATESDIS` → `dateReception` (pour études)
 
 ---
 
 ## 🎯 Objectif de la session
 
-Implémenter **Phase 3 : Visites périodiques (natures 21, 28, 29)**
+**Implémenter l'édition des 3 natures de visites périodiques en TDD**
 
-**Résultat attendu :** 18 natures opérationnelles (15 actuelles + 3 nouvelles)
+**Résultat attendu** :
+- 18 natures opérationnelles (15 actuelles + 3 nouvelles)
+- Tests d'édition passent pour 21, 28, 29
+- Code validé (PHPStan + CS)
+
+**Ordre** : Nature 21 → 28 → 29
 
 ---
 
-Bon courage ! 💪
+Prêt pour le TDD ! 🚀 On commence par **écrire le test** pour la nature 21 !
+
