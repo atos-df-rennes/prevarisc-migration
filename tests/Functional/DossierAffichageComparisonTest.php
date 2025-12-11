@@ -287,10 +287,10 @@ class DossierAffichageComparisonTest extends WebTestCase
                 continue;
             }
 
-            // Si la valeur est nulle, vérifier que le champ n'est PAS affiché
-            if (null === $value || '' === $value) {
-                $fieldDisplayed = $this->isFieldDisplayed($crawler, $property);
+            $fieldDisplayed = $this->isFieldDisplayed($crawler, $property);
 
+            // Si la valeur est nulle, vérifier que le champ n'est PAS affiché
+            if (null === $value || '' === $value || false === $value) {
                 if ($fieldDisplayed) {
                     $warnings[] = sprintf(
                         '⚠️  Champ "%s" (%s) : affiché alors que la valeur est vide/null',
@@ -303,8 +303,6 @@ class DossierAffichageComparisonTest extends WebTestCase
             }
 
             // Vérifier que le champ EST affiché
-            $fieldDisplayed = $this->isFieldDisplayed($crawler, $property);
-
             if (!$fieldDisplayed) {
                 $errors[] = sprintf(
                     '❌ Champ "%s" (%s) : NON affiché alors qu\'il contient une valeur',
@@ -387,7 +385,6 @@ class DossierAffichageComparisonTest extends WebTestCase
         return $libelle->count() > 0;
     }
 
-    // @todo: Utiliser la fonction d'au-dessus
     /**
      * Récupère le label affiché pour un champ.
      */
@@ -429,6 +426,8 @@ class DossierAffichageComparisonTest extends WebTestCase
             'dateTransfertCommission' => 'Date de transfert commission',
             'dateReceptionCommission' => 'Date de réception commission',
             'observations' => 'Observations',
+            'commission' => 'Commission concernée',
+            'preventionnistes' => 'Préventionniste(s) du dossier',
         ];
 
         return $mapping[$property] ?? null;
