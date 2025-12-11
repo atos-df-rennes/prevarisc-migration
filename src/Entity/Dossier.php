@@ -858,6 +858,11 @@ class Dossier
         return $this->avisDiffere;
     }
 
+    public function getAvisDiffere(): ?bool
+    {
+        return $this->avisDiffere;
+    }
+
     public function setAvisDiffere(?bool $avisDiffere): self
     {
         $this->avisDiffere = $avisDiffere;
@@ -1353,6 +1358,11 @@ class Dossier
     }
 
     public function hasAbsenceDeQuorum(): ?bool
+    {
+        return $this->absenceDeQuorum;
+    }
+
+    public function getAbsenceDeQuorum(): ?bool
     {
         return $this->absenceDeQuorum;
     }
