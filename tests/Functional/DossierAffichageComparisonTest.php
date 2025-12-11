@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Test de comparaison automatisée entre affichage Legacy vs Symfony
- * 
+ *
  * Objectif: Garantir que l'affichage Symfony est 100% ISO avec le legacy
  * pour tous les champs et toutes les natures de dossiers.
  */
@@ -19,27 +20,46 @@ class DossierAffichageComparisonTest extends WebTestCase
 {
     /** @var EntityManagerInterface */
     private $entityManager;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        self::bootKernel();
-        $this->entityManager = self::$container->get('doctrine')->getManager();
+        $kernel = self::bootKernel();
+        $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
     }
-    
+
     /**
-     * Crée un client authentifié
+     * Crée un client authentifié avec le compte root/root
      */
     private function createAuthenticatedClient()
     {
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => 'prevarisc_user',
-            'PHP_AUTH_PW'   => 'prevarisc',
-        ]);
-        
+        // S'assurer que le kernel est arrêté avant de créer un client
+        if (null !== self::$kernel) {
+            self::ensureKernelShutdown();
+        }
+
+        $client = static::createClient();
+
+        // Récupérer l'utilisateur root depuis la base de données
+        $user = $this->entityManager
+            ->getRepository(Utilisateur::class)
+            ->findOneBy(['username' => 'root']);
+
+        if (null === $user) {
+            throw new \RuntimeException('Utilisateur root introuvable en base de données');
+        }
+
+        // Simuler la session Zend_Auth directement dans $_SESSION
+        // pour que LegacySessionAuthenticator fonctionne
+        $_SESSION['Zend_Auth'] = [
+            'storage' => [
+                'USERNAME_UTILISATEUR' => 'root'
+            ]
+        ];
+
         return $client;
     }
-    
+
     /**
      * Test de comparaison pour une nature de type Réunion (31)
      */
@@ -47,101 +67,103 @@ class DossierAffichageComparisonTest extends WebTestCase
     {
         // Récupérer un dossier de nature 31 existant
         $dossier = $this->getDossierByNature(31);
-        
+
         if (null === $dossier) {
             $this->markTestSkipped('Aucun dossier de nature 31 en base de données');
         }
-        
+
         $this->compareAffichageWithLegacy($dossier, [
-            'dateInsert' => 'Date de création',
+            'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
-            'dateReunion' => 'Date de réunion',
+            'dateReunion' => 'Date réunion',
             'dateReponse' => 'Date de réponse',
             'demandeur' => 'Demandeur',
             'observations' => 'Observations',
         ]);
     }
-    
+
     /**
      * Test de comparaison pour une nature de type Réunion (32)
      */
     public function testAffichageReunionExterieurSdis(): void
     {
         $dossier = $this->getDossierByNature(32);
-        
+
         if (null === $dossier) {
             $this->markTestSkipped('Aucun dossier de nature 32 en base de données');
         }
-        
+
         $this->compareAffichageWithLegacy($dossier, [
-            'dateInsert' => 'Date de création',
+            'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
-            'lieuReunion' => 'Lieu de réunion',
-            'dateReunion' => 'Date de réunion',
+            'lieuReunion' => 'Lieu réunion',
+            'dateReunion' => 'Date réunion',
             'dateReponse' => 'Date de réponse',
             'demandeur' => 'Demandeur',
             'observations' => 'Observations',
         ]);
     }
-    
+
     /**
      * Test de comparaison pour courrier (nature 52 - Lettre)
      */
     public function testAffichageCourrierLettre(): void
     {
         $dossier = $this->getDossierByNature(52);
-        
+
         if (null === $dossier) {
             $this->markTestSkipped('Aucun dossier de nature 52 en base de données');
         }
-        
+
         $this->compareAffichageWithLegacy($dossier, [
-            'dateInsert' => 'Date de création',
+            'dateInsert' => 'Date de création du dossier',
             'objet' => 'Objet',
-            'dateMairie' => 'Date réception mairie',
-            'dateEnvoiTransit' => 'Date envoi / transit',
+            'dateMairie' => 'Date de réception mairie',
+            'dateEnvoiTransit' => 'Date d\'envoi/transit',
             'dateReponse' => 'Date de réponse',
-            'dateReception' => 'Date réception SDIS',
+            'dateReception' => 'Date de réception SDIS',
             'demandeur' => 'Demandeur',
-            'dateTransfertCommission' => 'Date transfert commission',
-            'dateReceptionCommission' => 'Date réception commission',
+            'dateTransfertCommission' => 'Date de transfert commission',
+            'dateReceptionCommission' => 'Date de réception commission',
             'observations' => 'Observations',
         ]);
     }
-    
+
     /**
      * Compare l'affichage Symfony avec les données attendues du legacy
-     * 
+     *
      * @param Dossier $dossier
      * @param array $expectedFields Mapping propriété => label affiché
      */
     private function compareAffichageWithLegacy(Dossier $dossier, array $expectedFields): void
     {
-        // Créer un client
-        $client = static::createClient();
-        $client->disableReboot(); // Éviter le reboot du kernel entre les requêtes
-        
-        // Pour ce test, on utilise le mode test qui devrait avoir l'authentification désactivée
-        // Si cela ne fonctionne pas, on pourra marquer le test comme skippé
+        // Créer un client authentifié
+        $client = $this->createAuthenticatedClient();
+
+        // Accéder à la page du dossier
         $crawler = $client->request('GET', sprintf('/dossier/%d', $dossier->getId()));
-        
-        // Si redirection vers login, skip le test (authentification requise)
+
+        // Si redirection, vérifier si c'est vers la page de login
         if ($client->getResponse()->isRedirect()) {
-            $this->markTestSkipped('Authentification requise - test non exécutable dans cet environnement');
+            $location = $client->getResponse()->headers->get('Location');
+            $this->fail(sprintf(
+                'Redirection inattendue vers %s - L\'authentification root/root a échoué',
+                $location
+            ));
         }
-        
+
         $this->assertResponseIsSuccessful(sprintf(
             'La page /dossier/%d ne répond pas correctement',
             $dossier->getId()
         ));
-        
+
         $errors = [];
         $warnings = [];
-        
+
         foreach ($expectedFields as $property => $expectedLabel) {
             // Récupérer la valeur de la propriété
             $getter = 'get' . ucfirst($property);
-            
+
             if (!method_exists($dossier, $getter)) {
                 $errors[] = sprintf(
                     '❌ Propriété "%s" : getter "%s()" n\'existe pas dans l\'entité Dossier',
@@ -150,13 +172,13 @@ class DossierAffichageComparisonTest extends WebTestCase
                 );
                 continue;
             }
-            
+
             $value = $dossier->$getter();
-            
+
             // Si la valeur est nulle, vérifier que le champ n'est PAS affiché
             if (null === $value || '' === $value) {
                 $fieldDisplayed = $this->isFieldDisplayed($crawler, $property);
-                
+
                 if ($fieldDisplayed) {
                     $warnings[] = sprintf(
                         '⚠️  Champ "%s" (%s) : affiché alors que la valeur est vide/null',
@@ -166,10 +188,10 @@ class DossierAffichageComparisonTest extends WebTestCase
                 }
                 continue;
             }
-            
+
             // Vérifier que le champ EST affiché
             $fieldDisplayed = $this->isFieldDisplayed($crawler, $property);
-            
+
             if (!$fieldDisplayed) {
                 $errors[] = sprintf(
                     '❌ Champ "%s" (%s) : NON affiché alors qu\'il contient une valeur',
@@ -178,10 +200,10 @@ class DossierAffichageComparisonTest extends WebTestCase
                 );
                 continue;
             }
-            
+
             // Vérifier le label
             $displayedLabel = $this->getFieldLabel($crawler, $property);
-            
+
             if (null === $displayedLabel) {
                 $errors[] = sprintf(
                     '❌ Champ "%s" : label introuvable (attendu: "%s")',
@@ -196,11 +218,11 @@ class DossierAffichageComparisonTest extends WebTestCase
                     trim($displayedLabel)
                 );
             }
-            
+
             // Vérifier la valeur affichée
             $displayedValue = $this->getFieldValue($crawler, $property);
             $expectedValue = $this->formatValueForDisplay($value);
-            
+
             if (null === $displayedValue) {
                 $errors[] = sprintf(
                     '❌ Champ "%s" : valeur introuvable dans le DOM',
@@ -215,10 +237,10 @@ class DossierAffichageComparisonTest extends WebTestCase
                 );
             }
         }
-        
+
         // Afficher le rapport
         $this->displayComparisonReport($dossier, $expectedFields, $errors, $warnings);
-        
+
         // Le test échoue si des erreurs critiques sont détectées
         $this->assertEmpty($errors, sprintf(
             "❌ ÉCHEC: %d erreur(s) détectée(s) pour le dossier #%d (nature %d)\n%s",
@@ -228,41 +250,115 @@ class DossierAffichageComparisonTest extends WebTestCase
             implode("\n", $errors)
         ));
     }
-    
+
     /**
      * Vérifie si un champ est affiché dans le DOM
      */
     private function isFieldDisplayed(Crawler $crawler, string $property): bool
     {
-        // Chercher le champ via l'ID du conteneur
-        $fieldContainer = $crawler->filter(sprintf('#field-%s', $property));
-        
-        return $fieldContainer->count() > 0;
+        // Les champs sont dans des <li class='row'> avec une div.libelle et une div.value
+        // On cherche le libelle correspondant au champ
+        $labelMapping = $this->getLabelForProperty($property);
+
+        if (null === $labelMapping) {
+            return false;
+        }
+
+        // Chercher un élément qui contient ce libellé dans une div.libelle
+        $libelle = $crawler->filter('.list-unstyled li .libelle')->reduce(function (Crawler $node) use ($labelMapping) {
+            $text = trim($node->text());
+            return $text === $labelMapping || stripos($text, $labelMapping) !== false;
+        });
+
+        return $libelle->count() > 0;
     }
-    
+
+    // @todo: Utiliser la fonction d'au-dessus
     /**
      * Récupère le label affiché pour un champ
      */
     private function getFieldLabel(Crawler $crawler, string $property): ?string
     {
-        $label = $crawler->filter(sprintf('#field-%s .libelle', $property));
-        
-        return $label->count() > 0 ? $label->text() : null;
+        $labelMapping = $this->getLabelForProperty($property);
+
+        if (null === $labelMapping) {
+            return null;
+        }
+
+        // Chercher le libellé dans les div.libelle
+        $libelle = $crawler->filter('.list-unstyled li .libelle')->reduce(function (Crawler $node) use ($labelMapping) {
+            $text = trim($node->text());
+            return $text === $labelMapping || stripos($text, $labelMapping) !== false;
+        });
+
+        return $libelle->count() > 0 ? trim($libelle->first()->text()) : null;
     }
-    
+
+    /**
+     * Mapping entre les propriétés de l'entité et les labels affichés dans le template
+     */
+    private function getLabelForProperty(string $property): ?string
+    {
+        $mapping = [
+            'dateInsert' => 'Date de création du dossier',
+            'objet' => 'Objet',
+            'demandeur' => 'Demandeur',
+            'lieuReunion' => 'Lieu réunion',
+            'dateReunion' => 'Date réunion',
+            'dateReponse' => 'Date de réponse',
+            'dateMairie' => 'Date de réception mairie',
+            'dateSecretariat' => 'Date de réception secrétariat SDIS',
+            'dateEnvoiTransit' => 'Date d\'envoi/transit',
+            'dateReception' => 'Date de réception SDIS',
+            'dateVisite' => 'Date de visite',
+            'dateTransfertCommission' => 'Date de transfert commission',
+            'dateReceptionCommission' => 'Date de réception commission',
+            'observations' => 'Observations',
+        ];
+
+        return $mapping[$property] ?? null;
+    }
+
     /**
      * Récupère la valeur affichée pour un champ
      */
     private function getFieldValue(Crawler $crawler, string $property): ?string
     {
-        $value = $crawler->filter(sprintf('#field-%s .form-control-static', $property));
-        
-        return $value->count() > 0 ? $value->text() : null;
+        $labelMapping = $this->getLabelForProperty($property);
+
+        if (null === $labelMapping) {
+            return null;
+        }
+
+        // Chercher la ligne correspondante
+        $rows = $crawler->filter('.list-unstyled li.row');
+
+        foreach ($rows as $row) {
+            $rowCrawler = new Crawler($row);
+            $libelle = $rowCrawler->filter('.libelle');
+
+            if ($libelle->count() > 0) {
+                $text = trim($libelle->text());
+                if ($text === $labelMapping || stripos($text, $labelMapping) !== false) {
+                    $value = $rowCrawler->filter('.value');
+                    if ($value->count() > 0) {
+                        $fullText = trim($value->text());
+                        // Pour dateInsert, on extrait seulement la date (avant "par :")
+                        if ($property === 'dateInsert' && strpos($fullText, 'par :') !== false) {
+                            return trim(explode('par :', $fullText)[0]);
+                        }
+                        return $fullText;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
-    
+
     /**
      * Formate une valeur pour l'affichage (dates, etc.)
-     * 
+     *
      * @param mixed $value
      */
     private function formatValueForDisplay($value): string
@@ -270,18 +366,18 @@ class DossierAffichageComparisonTest extends WebTestCase
         if ($value instanceof \DateTimeInterface) {
             return $value->format('d/m/Y');
         }
-        
+
         if (is_bool($value)) {
             return $value ? 'Oui' : 'Non';
         }
-        
+
         if (is_object($value) && method_exists($value, '__toString')) {
             return (string) $value;
         }
-        
+
         return (string) $value;
     }
-    
+
     /**
      * Affiche un rapport détaillé de la comparaison
      */
@@ -293,16 +389,16 @@ class DossierAffichageComparisonTest extends WebTestCase
     ): void {
         echo "\n";
         echo "================================================================\n";
-        echo sprintf("📊 RAPPORT DE COMPARAISON - Dossier #%d (Nature %d)\n", 
-            $dossier->getId(), 
+        echo sprintf("📊 RAPPORT DE COMPARAISON - Dossier #%d (Nature %d)\n",
+            $dossier->getId(),
             $dossier->getNature()->getId()
         );
         echo "================================================================\n\n";
-        
+
         echo sprintf("✅ Champs attendus : %d\n", count($expectedFields));
         echo sprintf("❌ Erreurs critiques : %d\n", count($errors));
         echo sprintf("⚠️  Avertissements : %d\n\n", count($warnings));
-        
+
         if (!empty($errors)) {
             echo "--- ERREURS CRITIQUES ---\n";
             foreach ($errors as $error) {
@@ -310,7 +406,7 @@ class DossierAffichageComparisonTest extends WebTestCase
             }
             echo "\n";
         }
-        
+
         if (!empty($warnings)) {
             echo "--- AVERTISSEMENTS ---\n";
             foreach ($warnings as $warning) {
@@ -318,14 +414,14 @@ class DossierAffichageComparisonTest extends WebTestCase
             }
             echo "\n";
         }
-        
+
         if (empty($errors) && empty($warnings)) {
             echo "✅ PARFAIT ! Tous les champs sont conformes au legacy.\n";
         }
-        
+
         echo "================================================================\n\n";
     }
-    
+
     /**
      * Récupère un dossier par sa nature
      */
