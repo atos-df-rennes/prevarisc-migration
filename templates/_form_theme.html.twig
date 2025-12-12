@@ -7,3 +7,16 @@
 {% block form_group_class -%}
     col-sm-8
 {%- endblock form_group_class %}
+
+{# Custom widget pour les champs TomSelect - retire form-control qui conflicte avec le wrapper TomSelect #}
+{% block choice_widget_collapsed %}
+    {% set has_tomselect = attr['class'] is defined and 'tomselect-ajax' in attr['class'] %}
+    
+    {% if has_tomselect %}
+        {# Pour TomSelect, on retire form-control et on garde seulement tomselect-ajax #}
+        {% set attr = attr|merge({'class': attr['class']|replace({'form-control': ''})|trim}) %}
+    {% endif %}
+    
+    {{ parent() }}
+{% endblock choice_widget_collapsed %}
+
