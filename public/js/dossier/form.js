@@ -395,7 +395,7 @@
     /**
      * Gère l'affichage/masquage des champs avis selon les checkboxes cochées
      * Logique legacy:
-     * - Si aucune checkbox hideavis cochée → affiche selon type
+     * - Si aucune checkbox hideavis cochée → affiche selon nature (si dans fieldsConfig)
      * - Si au moins une checkbox cochée:
      *   - Si c'est autre que absquorum/npsp → cache AVIS rapporteur
      *   - Si c'est seulement absquorum/npsp → affiche AVIS rapporteur
@@ -403,11 +403,13 @@
      */
     function handleHideAvisCheckboxes() {
         const typeSelect = document.querySelector('#dossier_type');
-        if (!typeSelect) {
+        const natureSelect = document.querySelector('#dossier_nature');
+        if (!typeSelect || !natureSelect) {
             return;
         }
 
         const typeDossier = typeSelect.value;
+        const natureDossier = natureSelect.value;
         const avisDiffereChecked = document.querySelector('#dossier_avisDiffere')?.checked || false;
         const absenceQuorumChecked = document.querySelector('#dossier_absenceDeQuorum')?.checked || false;
 
@@ -416,17 +418,20 @@
 
         const anyHideAvisChecked = avisDiffereChecked || absenceQuorumChecked;
 
-        // Si aucune checkbox hideavis n'est cochée, afficher les avis selon le type
+        // Vérifier si les champs sont dans la configuration de la nature
+        const natureFields = fieldsConfig[natureDossier] || [];
+        const hasAvisInNature = natureFields.includes('avis');
+        const hasAvisCommissionInNature = natureFields.includes('avisCommission');
+
+        // Si aucune checkbox hideavis n'est cochée, afficher selon la nature
         if (!anyHideAvisChecked) {
-            if (typeDossier === '1') { // Étude
-                if (avisRow) avisRow.style.display = '';
-                if (avisCommissionRow) avisCommissionRow.style.display = '';
-            } else if (typeDossier === '2') { // Visite
-                if (avisRow) avisRow.style.display = 'none';
-                if (avisCommissionRow) avisCommissionRow.style.display = '';
-            } else if (typeDossier === '3') { // Groupe de visites
-                if (avisRow) avisRow.style.display = '';
-                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            // Afficher avis rapporteur si présent dans la nature
+            if (avisRow) {
+                avisRow.style.display = hasAvisInNature ? '' : 'none';
+            }
+            // Afficher avis commission si présent dans la nature
+            if (avisCommissionRow) {
+                avisCommissionRow.style.display = hasAvisCommissionInNature ? '' : 'none';
             }
         } else {
             // Au moins une checkbox hideavis est cochée
@@ -451,8 +456,10 @@
                     }
                 }
             } else {
-                // Seulement absence de quorum : on affiche l'avis du rapporteur
-                if (avisRow) avisRow.style.display = '';
+                // Seulement absence de quorum : on affiche l'avis du rapporteur (si dans la nature)
+                if (avisRow && hasAvisInNature) {
+                    avisRow.style.display = '';
+                }
             }
         }
     }
