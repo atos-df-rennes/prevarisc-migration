@@ -372,16 +372,10 @@
 
     /**
      * Initialise les comportements des checkboxes spécifiques
-     * - hideavis : cache/affiche les champs avis
-     * - delaipresc : affiche/cache le champ date limite prescriptions
+     * Note: avisDiffere n'a PAS la classe hideavis dans le legacy
+     * Seules absenceDeQuorum et npsp ont cette classe
      */
     function initCheckboxBehaviors() {
-        // Checkbox "Avis différé"
-        const avisDiffereCheckbox = document.querySelector('#dossier_avisDiffere');
-        if (avisDiffereCheckbox) {
-            avisDiffereCheckbox.addEventListener('change', handleHideAvisCheckboxes);
-        }
-
         // Checkbox "Absence de quorum"
         const absenceQuorumCheckbox = document.querySelector('#dossier_absenceDeQuorum');
         if (absenceQuorumCheckbox) {
@@ -395,8 +389,10 @@
     /**
      * Gère l'affichage/masquage des champs avis selon les checkboxes cochées
      * Logique legacy:
+     * - avisDiffere n'a PAS la classe hideavis → ne cache RIEN
+     * - Seules absenceDeQuorum et npsp ont hideavis
      * - Si aucune checkbox hideavis cochée → affiche selon nature (si dans fieldsConfig)
-     * - Si au moins une checkbox cochée:
+     * - Si au moins une checkbox hideavis cochée:
      *   - Si c'est autre que absquorum/npsp → cache AVIS rapporteur
      *   - Si c'est seulement absquorum/npsp → affiche AVIS rapporteur
      *   - Dans tous les cas → cache AVIS commission
@@ -410,13 +406,10 @@
 
         const typeDossier = typeSelect.value;
         const natureDossier = natureSelect.value;
-        const avisDiffereChecked = document.querySelector('#dossier_avisDiffere')?.checked || false;
         const absenceQuorumChecked = document.querySelector('#dossier_absenceDeQuorum')?.checked || false;
 
         const avisRow = findFieldRow('dossier_avis');
         const avisCommissionRow = findFieldRow('dossier_avisCommission');
-
-        const anyHideAvisChecked = avisDiffereChecked || absenceQuorumChecked;
 
         // Vérifier si les champs sont dans la configuration de la nature
         const natureFields = fieldsConfig[natureDossier] || [];
@@ -424,7 +417,7 @@
         const hasAvisCommissionInNature = natureFields.includes('avisCommission');
 
         // Si aucune checkbox hideavis n'est cochée, afficher selon la nature
-        if (!anyHideAvisChecked) {
+        if (!absenceQuorumChecked) {
             // Afficher avis rapporteur si présent dans la nature
             if (avisRow) {
                 avisRow.style.display = hasAvisInNature ? '' : 'none';
@@ -434,7 +427,7 @@
                 avisCommissionRow.style.display = hasAvisCommissionInNature ? '' : 'none';
             }
         } else {
-            // Au moins une checkbox hideavis est cochée
+            // Au moins une checkbox hideavis est cochée (absenceQuorum)
             // Toujours cacher l'avis de la commission
             if (avisCommissionRow) {
                 avisCommissionRow.style.display = 'none';
@@ -444,22 +437,9 @@
                 }
             }
 
-            // Pour l'avis du rapporteur :
-            // Si c'est autre chose que seulement absquorum/npsp → on cache
-            // Donc: si avisDiffere est coché → on cache
-            if (avisDiffereChecked) {
-                if (avisRow) {
-                    avisRow.style.display = 'none';
-                    const avisSelect = document.querySelector('#dossier_avis');
-                    if (avisSelect) {
-                        avisSelect.value = '';
-                    }
-                }
-            } else {
-                // Seulement absence de quorum : on affiche l'avis du rapporteur (si dans la nature)
-                if (avisRow && hasAvisInNature) {
-                    avisRow.style.display = '';
-                }
+            // Pour absenceQuorum seul : on affiche l'avis du rapporteur (si dans la nature)
+            if (avisRow && hasAvisInNature) {
+                avisRow.style.display = '';
             }
         }
     }

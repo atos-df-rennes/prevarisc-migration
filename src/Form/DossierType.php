@@ -134,7 +134,7 @@ class DossierType extends AbstractType
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',
                 'required' => false,
-                'attr' => ['class' => 'form-check-input hideavis'],
+                'attr' => ['class' => 'form-check-input'],
             ])
             ->add('absenceDeQuorum', CheckboxType::class, [
                 'label' => 'Absence de quorum',
