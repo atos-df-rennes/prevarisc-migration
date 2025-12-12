@@ -70,16 +70,14 @@ class DossierEditNature21Test extends WebTestCase
 
         $labels = [
             'Date de création du dossier',
-            'Commission',
-            'Descriptif général',
-            'Descriptif effectifs',
+            'Commission concernée',
             'Date de visite',
             'Date de réponse',
             'Préventionnistes',
             'Avis du rapporteur',
             'Avis de la commission',
             'Observations',
-            'Délai levée prescriptions',
+            'Date avant laquelle les prescriptions doivent être levées',
         ];
 
         $content = $client->getResponse()->getContent();

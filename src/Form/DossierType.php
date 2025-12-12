@@ -90,7 +90,7 @@ class DossierType extends AbstractType
                 ],
             ])
             ->add('commission', EntityType::class, [
-                'label' => 'Commission',
+                'label' => 'Commission concernée',
                 'class' => Commission::class,
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner une commission',
@@ -110,7 +110,7 @@ class DossierType extends AbstractType
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('dateLimitePrescription', DateType::class, [
-                'label' => 'Délai levée prescriptions',
+                'label' => 'Date avant laquelle les prescriptions doivent être levées',
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
