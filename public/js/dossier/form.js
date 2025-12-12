@@ -48,6 +48,9 @@
         
         // Initialiser les boutons "Aujourd'hui"
         initTodayButtons();
+        
+        // Initialiser TomSelect sur les multiselect
+        initTomSelectFields();
 
         // Afficher les champs appropriés au chargement (mode édition)
         updateFieldsVisibility();
@@ -575,3 +578,22 @@
     }
 
 })();
+
+    /**
+     * Initialise TomSelect sur les champs multiselect (Phase 1 - sans autocomplete)
+     * Phase 2: Ajout de l'autocomplete AJAX
+     */
+    function initTomSelectFields() {
+        const tomSelectFields = document.querySelectorAll('.tomselect-ajax');
+        
+        tomSelectFields.forEach(field => {
+            // Pour Phase 1, TomSelect simple sans AJAX
+            // Les options doivent être déjà présentes dans le select
+            new TomSelect(field, {
+                plugins: ['remove_button'],
+                persist: false,
+                create: false,
+                maxItems: null  // Pas de limite
+            });
+        });
+    }

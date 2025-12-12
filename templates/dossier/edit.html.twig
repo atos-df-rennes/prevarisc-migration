@@ -238,11 +238,14 @@
             #}
 
             <li class='row' id='field-preventionnistes'>
-                <div class='left libelle col-md-3'>Préventionnistes</div>
+                <div class='left libelle col-md-3'>{{ form_label(form.preventionnistes) }}</div>
                 <div class='right form col-md-9'>
-                    <p class='form-control-static text-muted'>
-                        <em>Fonctionnalité en cours d'implémentation (autocomplete multi-sélection)</em>
-                    </p>
+                    {{ form_widget(form.preventionnistes, {
+                        attr: {
+                            class: 'form-control tomselect-ajax',
+                        },
+                    }) }}
+                    {{ form_errors(form.preventionnistes) }}
                 </div>
             </li>
         </ul>

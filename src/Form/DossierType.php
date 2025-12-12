@@ -7,6 +7,7 @@ use App\Entity\Commission;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierType as DossierTypeEntity;
+use App\Entity\Utilisateur;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -243,6 +244,16 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                     'id' => 'dossier_dateReceptionCommission',
                 ],
+            ])
+
+            // Préventionnistes (multiselect)
+            ->add('preventionnistes', EntityType::class, [
+                'label' => 'Préventionnistes',
+                'class' => Utilisateur::class,
+                'choice_label' => 'username',
+                'multiple' => true,
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
             ])
         ;
     }
