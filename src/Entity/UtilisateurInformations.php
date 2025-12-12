@@ -381,6 +381,27 @@ class UtilisateurInformations
         return $this;
     }
 
+    /**
+     * Retourne le nom complet (Nom Prénom)
+     * Fallback sur le nom ou prénom seul si l'un des deux est vide.
+     */
+    public function getFullName(): string
+    {
+        if ($this->nom && $this->prenom) {
+            return trim($this->nom.' '.$this->prenom);
+        }
+
+        if ($this->nom) {
+            return $this->nom;
+        }
+
+        if ($this->prenom) {
+            return $this->prenom;
+        }
+
+        return '';
+    }
+
     public function getFonction(): ?Fonction
     {
         return $this->fonction;

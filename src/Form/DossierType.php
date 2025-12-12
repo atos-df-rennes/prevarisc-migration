@@ -252,27 +252,22 @@ class DossierType extends AbstractType
                 'label' => 'Préventionnistes',
                 'class' => Utilisateur::class,
                 'query_builder' => function (UtilisateurRepository $repository) {
-                    return $repository->createQueryBuilder('u')
-                        ->innerJoin('u.informations', 'i')
-                        ->innerJoin('i.fonction', 'f')
-                        ->where('f.libelle = :preventionniste OR f.libelle LIKE :preventionniste_pattern')
-                        ->setParameter('preventionniste', 'Préventionniste')
-                        ->setParameter('preventionniste_pattern', '%préventionniste%')
-                        ->andWhere('u.actif = true')
-                        ->orderBy('i.nom', 'ASC')
-                        ->addOrderBy('i.prenom', 'ASC');
+                    return $repository->createPreventionnistesQueryBuilder();
                 },
                 'choice_label' => function (Utilisateur $user): string {
                     $info = $user->getInformations();
-                    if ($info && ($info->getNom() || $info->getPrenom())) {
-                        return trim($info->getNom().' '.$info->getPrenom());
+                    if (null !== $info) {
+                        $fullName = $info->getFullName();
+                        if ('' !== $fullName && '0' !== $fullName) {
+                            return $fullName;
+                        }
                     }
 
                     return $user->getUsername();
                 },
                 'multiple' => true,
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'attr' => ['class' => 'tomselect-ajax'],
             ])
         ;
     }
