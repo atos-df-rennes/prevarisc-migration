@@ -74,7 +74,7 @@ class DossierType extends AbstractType
                 ],
             ])
             ->add('descriptifEffectifs', TextareaType::class, [
-                'label' => 'Descriptif effectif',
+                'label' => 'Descriptif effectifs',
                 'required' => false,
                 'attr' => [
                     'rows' => 5,
