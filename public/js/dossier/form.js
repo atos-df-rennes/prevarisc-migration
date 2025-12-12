@@ -43,17 +43,8 @@
             }
         }
 
-        // Attacher les événements
+        // Attacher les événements (préparé pour Phase 2)
         attachEvents();
-
-        // Initialiser les comportements spécifiques
-        initConditionalBehaviors();
-        
-        // Initialiser les comportements pour les checkboxes
-        initCheckboxBehaviors();
-        
-        // Initialiser les labels d'avis dynamiques
-        initAvisLabels();
         
         // Initialiser les boutons "Aujourd'hui"
         initTodayButtons();
@@ -61,22 +52,25 @@
         // Afficher les champs appropriés au chargement (mode édition)
         updateFieldsVisibility();
         
-        // Appliquer la logique d'affichage des avis APRÈS updateFieldsVisibility
-        // pour s'assurer que les champs sont déjà visibles/cachés selon la nature
-        handleHideAvisCheckboxes();
+        // Initialiser les labels d'avis au chargement
+        initAvisLabelsOnLoad();
     }
 
     /**
-     * Initialise les comportements conditionnels spécifiques
+     * PHASE 2 - Comportements conditionnels spécifiques (désactivés pour Phase 1)
+     * Ces fonctions seront réactivées lors de la Phase 2 pour gérer les interactions dynamiques
      */
+    /* 
     function initConditionalBehaviors() {
         handleAvisCommissionChange();
         handleCommissionForVisites();
     }
+    */
 
     /**
-     * Gère l'affichage des champs conditionnels selon l'avis de commission
+     * PHASE 2 - Gestion de l'affichage des champs conditionnels (désactivé pour Phase 1)
      */
+    /*
     function handleAvisCommissionChange() {
         const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
         if (!avisCommissionSelect) {
@@ -107,6 +101,7 @@
         // Déclencher au chargement
         toggleFacteurEcheancier();
     }
+    */
 
     /**
      * Désactive le champ commission pour les visites (types 2 et 3)
@@ -375,146 +370,75 @@
     };
 
     /**
-     * Initialise les comportements des checkboxes spécifiques
-     * Note: avisDiffere n'a PAS la classe hideavis dans le legacy
-     * Seules absenceDeQuorum et npsp ont cette classe
+     * PHASE 2 - Comportements des checkboxes (désactivé pour Phase 1)
+     * Seront réactivés lors de la Phase 2
      */
+    /*
     function initCheckboxBehaviors() {
-        // Checkbox "Absence de quorum"
         const absenceQuorumCheckbox = document.querySelector('#dossier_absenceDeQuorum');
         if (absenceQuorumCheckbox) {
             absenceQuorumCheckbox.addEventListener('change', handleHideAvisCheckboxes);
         }
-        
-        // Note: handleHideAvisCheckboxes() sera appelé à la fin de initForm()
-        // après updateFieldsVisibility() pour s'assurer que les champs sont déjà affichés
     }
 
-    /**
-     * Gère l'affichage/masquage des champs avis selon les checkboxes cochées
-     * Logique legacy:
-     * - avisDiffere n'a PAS la classe hideavis → ne cache RIEN
-     * - Seules absenceDeQuorum et npsp ont hideavis
-     * - Si aucune checkbox hideavis cochée → affiche selon nature (si dans fieldsConfig)
-     * - Si au moins une checkbox hideavis cochée:
-     *   - Si c'est autre que absquorum/npsp → cache AVIS rapporteur
-     *   - Si c'est seulement absquorum/npsp → affiche AVIS rapporteur
-     *   - Dans tous les cas → cache AVIS commission
-     */
     function handleHideAvisCheckboxes() {
+        // Logique à implémenter en Phase 2
+    }
+    */
+
+    /**
+     * Initialise les labels d'avis au chargement de la page (Phase 1 - statique)
+     * Note: En Phase 2, cette fonction deviendra dynamique (réagira aux changements de type/nature)
+     */
+    function initAvisLabelsOnLoad() {
         const typeSelect = document.querySelector('#dossier_type');
         const natureSelect = document.querySelector('#dossier_nature');
+        
         if (!typeSelect || !natureSelect) {
             return;
         }
 
         const typeDossier = typeSelect.value;
         const natureDossier = natureSelect.value;
-        const absenceQuorumChecked = document.querySelector('#dossier_absenceDeQuorum')?.checked || false;
+        let addText = '';
 
-        const avisRow = findFieldRow('dossier_avis');
-        const avisCommissionRow = findFieldRow('dossier_avisCommission');
-
-        // Vérifier si les champs sont dans la configuration de la nature
-        const natureFields = fieldsConfig[natureDossier] || [];
-        const hasAvisInNature = natureFields.includes('avis');
-        const hasAvisCommissionInNature = natureFields.includes('avisCommission');
-
-        // Si aucune checkbox hideavis n'est cochée, afficher selon la nature
-        if (!absenceQuorumChecked) {
-            // Afficher avis rapporteur si présent dans la nature
-            if (avisRow) {
-                avisRow.style.display = hasAvisInNature ? '' : 'none';
+        if (typeDossier === '1') { // Étude
+            if (['19', '7', '17', '16'].includes(natureDossier)) {
+                addText = ' à l\'exploitation';
+            } else {
+                addText = ' à l\'étude';
             }
-            // Afficher avis commission si présent dans la nature
-            if (avisCommissionRow) {
-                avisCommissionRow.style.display = hasAvisCommissionInNature ? '' : 'none';
-            }
-        } else {
-            // Au moins une checkbox hideavis est cochée (absenceQuorum)
-            // Toujours cacher l'avis de la commission
-            if (avisCommissionRow) {
-                avisCommissionRow.style.display = 'none';
-                const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
-                if (avisCommissionSelect) {
-                    avisCommissionSelect.value = '';
-                }
-            }
-
-            // Pour absenceQuorum seul : on affiche l'avis du rapporteur (si dans la nature)
-            if (avisRow && hasAvisInNature) {
-                avisRow.style.display = '';
+        } else if (typeDossier === '2' || typeDossier === '3') { // Visite ou Groupe de visites
+            if (['20', '25'].includes(natureDossier)) {
+                addText = ' à la réception des travaux';
+            } else if (['21', '23', '24', '26', '28', '29'].includes(natureDossier)) {
+                addText = ' à l\'exploitation';
+            } else {
+                addText = ' à l\'exploitation';
             }
         }
-    }
 
-    /**
-     * Initialise les labels d'avis dynamiques selon la nature et le type
-     */
-    function initAvisLabels() {
-        const typeSelect = document.querySelector('#dossier_type');
-        const natureSelect = document.querySelector('#dossier_nature');
-        
-        if (!typeSelect || !natureSelect) {
-            return;
-        }
+        // Mettre à jour les options des selects avis (une seule fois au chargement)
+        const avisSelect = document.querySelector('#dossier_avis');
+        const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
 
-        function updateAvisLabels() {
-            const typeDossier = typeSelect.value;
-            const natureDossier = natureSelect.value;
-            let addText = '';
-
-            if (typeDossier === '1') { // Étude
-                if (['19', '7', '17', '16'].includes(natureDossier)) {
-                    addText = ' à l\'exploitation';
-                } else {
-                    addText = ' à l\'étude';
-                }
-            } else if (typeDossier === '2' || typeDossier === '3') { // Visite ou Groupe de visites
-                if (['20', '25'].includes(natureDossier)) {
-                    addText = ' à la réception des travaux';
-                } else if (['21', '23', '24', '26', '28', '29'].includes(natureDossier)) {
-                    // Pour les visites périodiques/contrôle/inopinées, ajouter "à l'exploitation"
-                    // Note: le genre devrait être vérifié mais nous n'avons pas cette info ici
-                    addText = ' à l\'exploitation';
-                } else {
-                    addText = ' à l\'exploitation';
-                }
-            }
-
-            // Mettre à jour les options des selects avis
-            const avisSelect = document.querySelector('#dossier_avis');
-            const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
-
-            [avisSelect, avisCommissionSelect].forEach(select => {
-                if (!select) return;
+        [avisSelect, avisCommissionSelect].forEach(select => {
+            if (!select) return;
+            
+            Array.from(select.options).forEach(option => {
+                if (option.value === '' || option.value === '0') return;
                 
-                Array.from(select.options).forEach(option => {
-                    if (option.value === '' || option.value === '0') return;
-                    
-                    let baseText = option.getAttribute('data-base-text');
-                    if (!baseText) {
-                        // Sauvegarder le texte de base la première fois
-                        baseText = option.text.replace(/ à l'.*$/, '').replace(/ à la.*$/, '');
-                        option.setAttribute('data-base-text', baseText);
-                    }
-                    
-                    if (option.value === '6') {
-                        // "Pas d'avis" - pas de suffixe
-                        option.text = baseText;
-                    } else {
-                        option.text = baseText + addText;
-                    }
-                });
+                // Extraire le texte de base (sans suffixe)
+                let baseText = option.text.replace(/ à l'.*$/, '').replace(/ à la.*$/, '');
+                
+                if (option.value === '6') {
+                    // "Pas d'avis" - pas de suffixe
+                    option.text = baseText;
+                } else {
+                    option.text = baseText + addText;
+                }
             });
-        }
-
-        // Attacher les événements
-        typeSelect.addEventListener('change', updateAvisLabels);
-        natureSelect.addEventListener('change', updateAvisLabels);
-        
-        // Initialiser au chargement
-        updateAvisLabels();
+        });
     }
 
     /**
