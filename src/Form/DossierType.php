@@ -251,7 +251,7 @@ class DossierType extends AbstractType
             ->add('preventionnistes', EntityType::class, [
                 'label' => 'Préventionnistes',
                 'class' => Utilisateur::class,
-                'query_builder' => function ($repository) {
+                'query_builder' => function (UtilisateurRepository $repository) {
                     return $repository->createQueryBuilder('u')
                         ->innerJoin('u.informations', 'i')
                         ->innerJoin('i.fonction', 'f')
