@@ -54,6 +54,9 @@
         
         // Initialiser les labels d'avis au chargement
         initAvisLabelsOnLoad();
+        
+        // Appliquer la logique d'affichage des avis selon les checkboxes cochées (au chargement)
+        applyHideAvisLogicOnLoad();
     }
 
     /**
@@ -439,6 +442,72 @@
                 }
             });
         });
+    }
+
+    /**
+     * Applique la logique d'affichage/masquage des avis au chargement (Phase 1 - statique)
+     * Reproduit la fonction afficherCacherAvis() du legacy mais sans les listeners dynamiques
+     * 
+     * Logique legacy :
+     * - Si aucune checkbox .hideavis cochée → affiche selon type
+     * - Si au moins une checkbox .hideavis cochée :
+     *   - Si c'est autre que absquorum/npsp → cache AVIS rapporteur
+     *   - Si c'est seulement absquorum/npsp → affiche AVIS rapporteur
+     *   - Dans tous les cas → cache AVIS_COMMISSION
+     */
+    function applyHideAvisLogicOnLoad() {
+        const typeSelect = document.querySelector('#dossier_type');
+        if (!typeSelect) {
+            return;
+        }
+
+        const typeDossier = typeSelect.value;
+        
+        // Sélectionner toutes les checkboxes .hideavis cochées
+        const hideAvisCheckboxes = document.querySelectorAll('.hideavis:checked');
+        
+        const avisRow = findFieldRow('dossier_avis');
+        const avisCommissionRow = findFieldRow('dossier_avisCommission');
+
+        if (hideAvisCheckboxes.length === 0) {
+            // Aucune checkbox hideavis cochée → afficher selon type
+            if (typeDossier === '1') { // Étude
+                if (avisRow) avisRow.style.display = '';
+                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            } else if (typeDossier === '2') { // Visite
+                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            } else if (typeDossier === '3') { // Groupe de visites
+                if (avisRow) avisRow.style.display = '';
+                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            }
+        } else {
+            // Au moins une checkbox hideavis est cochée
+            
+            // Vérifier si ce sont d'autres checkboxes que absquorum/npsp
+            let hasOtherThanAbsquorumNpsp = false;
+            hideAvisCheckboxes.forEach(checkbox => {
+                if (!checkbox.classList.contains('absquorum') && !checkbox.classList.contains('npsp')) {
+                    hasOtherThanAbsquorumNpsp = true;
+                }
+            });
+            
+            if (hasOtherThanAbsquorumNpsp) {
+                // Cache l'avis du rapporteur
+                if (avisRow) {
+                    avisRow.style.display = 'none';
+                }
+            } else {
+                // Seulement absquorum/npsp → affiche l'avis du rapporteur
+                if (avisRow) {
+                    avisRow.style.display = '';
+                }
+            }
+            
+            // Dans tous les cas, cache l'avis de la commission
+            if (avisCommissionRow) {
+                avisCommissionRow.style.display = 'none';
+            }
+        }
     }
 
     /**
