@@ -1,7 +1,7 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 11 décembre 2025 - 17h00  
-**Session précédente :** 11 décembre 2025 - Après-midi (Phase 3 démarrée)
+**Date :** 12 décembre 2025 - 16h54  
+**Session précédente :** 11 décembre 2025 - Fin d'après-midi (Phase 3 - Nature 21 TERMINÉE)
 
 ---
 
@@ -16,80 +16,89 @@
 - 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65 ✅
 
 **Visites (1) :**
-- **21 (Périodique) ✅ - Implémentée en TDD aujourd'hui !**
+- **21 (Périodique) ✅ - TERMINÉE À 100% avec tous les ajustements appliqués !**
 
-### Session après-midi : Nature 21 en TDD
+### Session 11 décembre : Nature 21 - Développement complet
 
-**Phase RED** ✅
-- Test fonctionnel créé (`DossierEditVisitesTest`)
-- Test échoue comme prévu
-- Commit
-
-**Phase GREEN** ✅  
+**Implémentation** ✅
 - 7 champs ajoutés au FormType
-- Test passe (20 assertions)
-- PHPStan + CS ✅
-- Commit
+- Template Bootstrap complet (15 champs explicites)
+- JavaScript comportements (avis défavorable + commission disabled)
+- Label corrigé ("Diffère l'avis")
+- Champs conditionnels (facteurDangerosite + echeancierTravaux)
 
-**Phase REFACTOR** ✅
-- Documentation complète des ajustements nécessaires
-- Guide d'implémentation pour natures suivantes
+**Validation** ✅
+- PHPStan : 0 erreur
+- CS Fixer : 0 erreur
+- Twig CS : 0 erreur
+- Vérification manuelle visuelle : OK
+- Commits : 86cba7b → f3eed2a (7 commits)
 
 ### Documentation créée
 
-1. **AJUSTEMENTS_NATURE_21.md** : Points à corriger
-2. **GUIDE_IMPLEMENTATION_VISITES.md** : Guide complet avec code
+1. **NATURE_21_FINALE.md** : État final complet (100% opérationnel)
+2. **AJUSTEMENTS_APPLIQUES_NATURE_21.md** : Détails des ajustements
+3. **GUIDE_IMPLEMENTATION_VISITES.md** : Guide technique réutilisable
+
+### Approche actuelle
+
+⚠️ **Pas de TDD pour l'instant** : Approche simplifiée avec affichage statique + JavaScript + vérification manuelle. Les tests automatisés seront ajoutés ultérieurement.
 
 ---
 
-## ⚠️ Points identifiés à ajuster
+## ✅ Tous les ajustements Nature 21 appliqués !
 
-### Nature 21 - À corriger avant natures 28/29
+1. **Labels** ✅
+   - `avisDiffere` : "Diffère l'avis" (corrigé)
 
-1. **Ordre des champs** ❌
-   - Actuel : incohérent
-   - Attendu : ordre du legacy (voir GUIDE_IMPLEMENTATION_VISITES.md)
-
-2. **Labels incorrects** ❌
-   - `avisDiffere` : "Avis différé" → "Diffère l'avis"
-
-3. **Template** ❌
+2. **Template Bootstrap** ✅
    - Structure : label gauche (col-md-3) / champ droite (col-md-9)
-   - Groupement par sections (panels Bootstrap)
+   - 15 champs rendus explicitement
+   - Doublons supprimés
+   - IDs corrects pour JavaScript
 
-4. **Champs conditionnels manquants** ❌
-   - `facteurDangerosite` : si avis commission = Défavorable (ID=2)
-   - `echeancierTravaux` : si avis commission = Défavorable (ID=2)
+3. **Champs conditionnels** ✅
+   - `facteurDangerosite` : affiché si avis défavorable (ID=2)
+   - `echeancierTravaux` : affiché si avis défavorable (ID=2)
 
-5. **JavaScript** ❌
-   - Commission disabled pour types 2 et 3 (visites)
-   - Affichage conditionnel facteur/échéancier
+4. **JavaScript** ✅
+   - Commission disabled pour types 2 et 3 (visites) + message
+   - Affichage conditionnel facteur/échéancier via `handleAvisCommissionChange()`
+   - 9 champs ajoutés dans `hideAllConditionalFields`
+
+5. **Validation** ✅
+   - 20 assertions passent
+   - PHPStan : 0 erreur
+   - CS Fixer : 0 erreur
+   - Twig CS : 0 erreur
 
 ---
 
-## 🎯 Prochaine étape : Ajustements + Natures 28 & 29
+## 🎯 Prochaine étape : Natures 28 & 29
 
-### Plan de travail
+### Nature 21 : BASE SOLIDE ✅
 
-#### 1. Appliquer les ajustements à Nature 21
+**Tout est prêt pour réutilisation** :
+- ✅ FormType complet (tous champs visites)
+- ✅ Template structure Bootstrap
+- ✅ JavaScript comportements
+- ✅ Documentation détaillée
 
-**Voir fichier** : `docs/tech/dossier/GUIDE_IMPLEMENTATION_VISITES.md`
+### Plan de travail (Affichage statique + JavaScript)
 
-**À faire** :
-- [ ] Corriger label `avisDiffere`
-- [ ] Réorganiser ordre des champs dans FormType
-- [ ] Vérifier facteurDangerosite et echeancierTravaux
-- [ ] Créer structure template propre
-- [ ] Implémenter JavaScript (avis défavorable + commission)
-- [ ] Tester visuellement
+⚠️ **Approche simplifiée** : Pas de TDD pour l'instant (trop complexe)
+- Affichage statique des formulaires
+- JavaScript pour comportements dynamiques
+- Vérification manuelle visuelle
+- Tests automatisés reportés à plus tard
 
-#### 2. Implémenter Nature 28 (Visite contrôle)
+#### 1. Implémenter Nature 28 (Visite contrôle)
 
 **Champs spécifiques vs Nature 21** :
 - ✅ Tous les champs de nature 21
-- ➕ `objet`
-- ➕ `dateCommission`
-- ➕ `coordonneesSsi`
+- ➕ `objet` (déjà dans FormType, à activer dans template)
+- ➕ `dateCommission` (déjà dans FormType, commenté dans template)
+- ➕ `coordonneesSsi` (déjà dans FormType et template)
 
 **Ordre** (legacy) :
 ```
@@ -98,17 +107,19 @@ AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM,
 AVIS_COMMISSION, OBSERVATION, DELAIPRESC
 ```
 
-**Démarche TDD** :
-1. Copier/adapter test nature 21
-2. Lancer → RED
-3. Ajuster conditionalFields
-4. Lancer → GREEN
-5. Valider + Commit
+**Démarche** :
+1. Ajuster DossierFields (ajouter nature 28 avec bons champs)
+2. Décommenter dateCommission dans template
+3. Activer objet dans template
+4. Valider PHPStan + CS
+5. Test manuel visuel
+6. Commit
 
-#### 3. Implémenter Nature 29 (Visite inopinée)
+#### 2. Implémenter Nature 29 (Visite inopinée)
 
 **Différence vs Nature 28** :
-- Nature 28 - `coordonneesSsi` (ce champ n'existe pas pour 29)
+- Nature 28 - `coordonneesSsi` 
+- (nature 29 n'a PAS coordonneesSsi)
 
 **Ordre** (legacy) :
 ```
@@ -117,7 +128,12 @@ AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS_COMMISSION,
 OBSERVATION, DELAIPRESC
 ```
 
-**Démarche TDD** : Même que nature 28
+**Démarche** :
+1. Ajuster DossierFields (nature 29 sans coordonneesSsi)
+2. Template déjà OK (champs conditionnels)
+3. Valider PHPStan + CS
+4. Test manuel visuel
+5. Commit
 
 ---
 
@@ -200,26 +216,31 @@ grep -i "diffère\|criticité" prevarisc/application/views/scripts/dossier/index
 
 **Finaliser Phase 3 : Visites périodiques**
 
-1. ✅ **Ajuster Nature 21**
-   - Template structure Bootstrap
-   - JavaScript comportements
-   - Labels corrects
-   - Ordre champs
+1. ✅ **Nature 21 : TERMINÉE à 100%**
+   - Template structure Bootstrap ✅
+   - JavaScript comportements ✅
+   - Labels corrects ✅
+   - Ordre champs ✅
+   - Champs conditionnels ✅
+   - Validation complète ✅
 
-2. ✅ **Implémenter Nature 28** (TDD)
-   - Test RED
-   - Code GREEN
-   - Validation
+2. ⏳ **Implémenter Nature 28** (Affichage statique)
+   - Configuration DossierFields
+   - Activation champs template (objet + dateCommission)
+   - Validation PHPStan + CS
+   - Vérification manuelle
 
-3. ✅ **Implémenter Nature 29** (TDD)
-   - Test RED
-   - Code GREEN
-   - Validation
+3. ⏳ **Implémenter Nature 29** (Affichage statique)
+   - Configuration DossierFields
+   - Validation PHPStan + CS
+   - Vérification manuelle
 
 **Résultat attendu** :
-- 18 natures opérationnelles (16 actuelles + 2 nouvelles)
-- Nature 21 100% conforme legacy
-- Code propre et testé
+- **18 natures opérationnelles** (16 actuelles + 2 nouvelles)
+- Nature 21, 28, 29 : 100% conformes legacy en affichage
+- Code propre validé
+- JavaScript fonctionnel
+- **Phase 3 TERMINÉE !**
 
 ---
 
@@ -259,6 +280,6 @@ grep -i "diffère\|criticité" prevarisc/application/views/scripts/dossier/index
 
 **Tout est documenté pour reprendre efficacement ! 🚀**
 
-**Prochaine session** : Ajuster nature 21 → Nature 28 → Nature 29 → TERMINÉ Phase 3 ! 💪
+**Prochaine session** : Nature 28 → Nature 29 → **Phase 3 TERMINÉE !** 💪
 
 

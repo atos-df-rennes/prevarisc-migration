@@ -2,7 +2,7 @@
 
 **Projet :** Migration Zend v1 → Symfony 4  
 **Fonctionnalité :** Édition/Création des dossiers  
-**Dernière mise à jour :** 10 décembre 2025 - 17h15
+**Dernière mise à jour :** 12 décembre 2025 - 16h54
 
 ---
 
@@ -10,16 +10,17 @@
 
 ### Statistiques
 
-- **Natures implémentées :** 15 / ~70 (21%)
+- **Natures implémentées :** 16 / ~70 (23%)
 - **Phases terminées :** 2 / 6+
-- **Temps estimé restant :** ~5-7 jours de développement
+- **Phase en cours :** Phase 3 (Visites périodiques)
+- **Temps estimé restant :** ~5 jours de développement
 
 ### Types de dossiers
 
 | Type | Libellé | Natures totales | Natures OK | Status |
 |------|---------|-----------------|------------|--------|
 | **Type 1** | Étude | ~13 | 0 | ⏳ TODO |
-| **Type 2** | Visite | ~10 | 0 | ⏳ TODO |
+| **Type 2** | Visite | ~10 | **1** | 🟡 EN COURS (1/10) |
 | **Type 3** | Visite avec avis | ~5 | 0 | ⏳ TODO |
 | **Type 4** | Réunion | 3 | **3** | ✅ TERMINÉ |
 | **Type 5** | Intervention | ~5 | 0 | ⏳ TODO |
@@ -130,33 +131,64 @@ dateReceptionCommission, preventionnistes, observations
 
 ---
 
-## ⏳ Phases à réaliser
+## 🔄 Phase en cours
 
-### Phase 3 : Visites périodiques - Type 2
+### Phase 3 : Visites périodiques - Type 2 (11-12 décembre 2025)
 
 **Priorité :** Haute  
 **Complexité :** Moyenne  
-**Natures cibles :** 21, 28, 29
+**Natures cibles :** 21 ✅, 28 ⏳, 29 ⏳
 
-**Nouveaux champs attendus :**
-- `commission` : Select commission
-- `dateVisite` : Date de visite (≠ dateReunion)
-- `dateCommission` : Date passage commission
-- `avisDiffere` : Checkbox avis différé
-- `horsDelai` : Checkbox hors délai
-- `dateReceptionRvrat` : Date réception RVRAT
-- `dateLimitePrescription` : Date échéance levée prescriptions
-- `incomplet` : Checkbox dossier incomplet
-- `avisCommission` : Select avis commission
-- `absenceDeQuorum` : Checkbox absence quorum
-- `nePeutSePrononcer` : Checkbox ne peut se prononcer
+**Statut :** 1/3 terminée (33%)
 
-**Difficulté :**
-- Gestion des relations avec commission (EntityType)
-- Affichage conditionnel section avis selon checkboxes
-- Plusieurs dates à gérer (visite + commission)
+#### Nature 21 (Visite périodique) ✅ TERMINÉE
+
+**Commits :** 86cba7b → f3eed2a (7 commits)
+
+**Développement complet** :
+1. Implémentation : 7 champs ajoutés au FormType
+2. Template : 15 champs rendus explicitement (Bootstrap)
+3. JavaScript : Comportements conditionnels (avis défavorable + commission)
+4. Ajustements : Labels, champs conditionnels, validation
+
+**Champs implémentés (15)** :
+```
+dateInsert, commission, descriptifGeneral, descriptifEffectifs, 
+dateVisite, dateReponse, preventionnistes, avisDiffere, 
+absenceDeQuorum, avis, avisCommission, observations, 
+dateLimitePrescription
++ conditionnels : facteurDangerosite, echeancierTravaux
+```
+
+**Ajustements appliqués** :
+- ✅ Labels corrigés (`avisDiffere` = "Diffère l'avis")
+- ✅ Template Bootstrap structure complète (15 champs explicites)
+- ✅ Champs conditionnels (facteur + échéancier si avis défavorable)
+- ✅ JavaScript : commission disabled pour visites + comportements avis
+- ✅ 0 erreur PHPStan, CS Fixer, Twig CS
+
+**Documentation** :
+- `NATURE_21_FINALE.md` : État complet
+- `AJUSTEMENTS_APPLIQUES_NATURE_21.md` : Détails ajustements
+- `GUIDE_IMPLEMENTATION_VISITES.md` : Guide réutilisable
+
+**Résultat** : Nature 21 100% opérationnelle et conforme legacy ! 🎉
+
+#### Natures 28 & 29 : À venir
+
+**Nature 28 (Visite contrôle)** :
+- Champs nature 21 + `objet` + `dateCommission` + `coordonneesSsi`
+- FormType déjà complet ✅
+- Template : décommenter dateCommission + activer objet
+- JavaScript déjà fonctionnel ✅
+
+**Nature 29 (Visite inopinée)** :
+- Nature 28 sans `coordonneesSsi`
+- Même démarche TDD
 
 ---
+
+## ⏳ Phases à réaliser
 
 ### Phase 4 : Études simples - Type 1
 
@@ -210,8 +242,11 @@ dateReceptionCommission, preventionnistes, observations
 | Fichier | Description | Status |
 |---------|-------------|--------|
 | `PLAN_MIGRATION_EDITION_DOSSIER.md` | Plan général incrémental | ✅ À jour |
-| `AVANCEMENT_EDITION_DOSSIER.md` | Suivi d'avancement (ce fichier) | ✅ Créé |
-| `MAPPING_LEGACY_REFERENCE.md` | Mapping complet legacy → Symfony | ✅ À jour |
+| `AVANCEMENT_EDITION_DOSSIER.md` | Suivi d'avancement (ce fichier) | ✅ Mis à jour 12/12 |
+| `MAPPING_CHAMPS_DOSSIER.md` | Mapping complet legacy → Symfony | ✅ À jour |
+| `NATURE_21_FINALE.md` | État final nature 21 (100%) | ✅ Créé 11/12 |
+| `AJUSTEMENTS_APPLIQUES_NATURE_21.md` | Détails ajustements nature 21 | ✅ Créé 11/12 |
+| `GUIDE_IMPLEMENTATION_VISITES.md` | Guide réutilisable visites | ✅ Créé 11/12 |
 
 ### Fichiers guides
 
@@ -222,7 +257,7 @@ dateReceptionCommission, preventionnistes, observations
 
 ---
 
-## 🔑 Points clés pour reprendre demain
+## 🔑 Points clés pour reprendre
 
 ### Infrastructure en place
 
@@ -231,25 +266,36 @@ dateReceptionCommission, preventionnistes, observations
 - Principe : Affichage dynamique basé sur configuration JSON
 - Configuration : Passée via `data-fields-config` dans le template
 - Champs gérés : Liste dans `conditionalFields`
+- **Nouveaux comportements** :
+  - `handleAvisCommissionChange()` : Facteur + échéancier si avis défavorable
+  - `handleCommissionForVisites()` : Commission disabled pour types 2/3
 
 ✅ **Service DossierFields :**
 - Fichier : `src/Service/DossierFields.php`
 - Méthode principale : `getFieldsForNature(int $nature): array`
 - Retourne : Liste des champs à afficher pour une nature donnée
 - Noms : Toujours en camelCase Symfony (pas de legacy)
+- **Nature 21 configurée** ✅
 
 ✅ **Template de base :**
 - Fichier : `templates/dossier/edit.html.twig`
-- Structure : Sections H4 (Type/nature, Infos, Préventionnistes, Infos complémentaires)
+- Structure : Sections H4 + listes `<ul>` / `<li>` Bootstrap
 - Champs : Tous avec ID `field-{nomChamp}` pour JavaScript
+- **Nature 21** : 15 champs rendus explicitement (structure col-md-3/9)
+
+✅ **FormType complet :**
+- Fichier : `src/Form/DossierType.php`
+- **Tous les champs visites** déjà présents
+- Nature 28/29 : juste activer dans template + DossierFields
 
 ### Bonnes pratiques établies
 
 1. **Nommage :** Toujours utiliser les noms Symfony (camelCase), jamais les noms legacy (UPPERCASE)
-2. **Mapping :** Documenté dans `MAPPING_LEGACY_REFERENCE.md` (référence uniquement)
+2. **Mapping :** Documenté dans `MAPPING_CHAMPS_DOSSIER.md` (référence uniquement)
 3. **Ordre des champs :** Suivre strictement l'ordre du legacy (vérifié dans DossierController.php)
 4. **Validation :** PHPStan + CS après chaque phase
 5. **Commits :** Un commit par phase ou correction importante
+6. **Approche :** Affichage statique + JavaScript + vérification manuelle (TDD reporté)
 
 ### Pièges à éviter
 
@@ -268,6 +314,13 @@ dateReceptionCommission, preventionnistes, observations
 - Legacy : `OBSERVATION_DOSSIER`
 - Symfony : `observations`
 
+⚠️ **facteurDangerosite vs facteurCriticite :**
+- Propriété correcte : `facteurDangerosite` (Integer)
+- ❌ Pas `facteurCriticite` !
+
+⚠️ **echeancierTravaux :**
+- Type : Date (pas Textarea !)
+
 ### Chaîne de vérification complète
 
 Pour chaque nouvelle nature à implémenter :
@@ -275,11 +328,11 @@ Pour chaque nouvelle nature à implémenter :
 1. ✅ Vérifier legacy : `grep "'XX'" prevarisc/application/controllers/DossierController.php`
 2. ✅ Vérifier entité : Propriétés et colonnes BDD exactes
 3. ✅ Mettre à jour `DossierFields.php` : Bon ordre + bons noms Symfony
-4. ✅ Ajouter champs `FormType` si nécessaire
-5. ✅ Mettre à jour template : Champs avec IDs
-6. ✅ Mettre à jour JavaScript : `conditionalFields`
+4. ✅ Ajouter champs `FormType` si nécessaire (pour visites : déjà fait !)
+5. ✅ Mettre à jour template : Décommenter/activer champs
+6. ✅ Mettre à jour JavaScript : `conditionalFields` (si nécessaire)
 7. ✅ Valider : PHPStan + CS
-8. ✅ Tester visuellement : Changement type/nature
+8. ✅ Vérifier manuellement (affichage + JavaScript)
 9. ✅ Commit
 
 ---
@@ -314,14 +367,18 @@ Pour chaque nouvelle nature à implémenter :
 
 ---
 
-## 🎯 Objectifs semaine prochaine
+## 🎯 Objectifs prochaines sessions
 
-1. **Phase 3 (Visites)** : Implémenter natures 21, 28, 29
+1. **Phase 3 (Visites)** : Terminer natures 28 et 29 (affichage statique + JavaScript)
 2. **Phase 4 (Études)** : Démarrer les études simples (PC/AT sans dérogations)
-3. **Tests utilisateurs** : Faire tester les 15 natures existantes
+3. **Tests utilisateurs** : Faire tester les natures implémentées
+
+### Note importante
+
+⚠️ **Approche actuelle** : Développement en affichage statique avec JavaScript pour les comportements dynamiques, et vérification manuelle. Les tests automatisés (TDD) sont reportés à une phase ultérieure pour simplifier le développement initial.
 
 ---
 
-**Dernière modification :** 10 décembre 2025 - 17h15  
+**Dernière modification :** 12 décembre 2025 - 16h54  
 **Auteur :** Équipe Prevarisc  
-**Prochaine session :** 11 décembre 2025
+**Prochaine étape :** Natures 28 et 29 (Phase 3)
