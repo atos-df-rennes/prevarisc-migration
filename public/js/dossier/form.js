@@ -48,6 +48,12 @@
 
         // Initialiser les comportements spécifiques
         initConditionalBehaviors();
+        
+        // Initialiser les comportements pour les checkboxes
+        initCheckboxBehaviors();
+        
+        // Initialiser les labels d'avis dynamiques
+        initAvisLabels();
 
         // Afficher les champs appropriés au chargement (mode édition)
         updateFieldsVisibility();
@@ -360,5 +366,151 @@
         updateFieldsVisibility: updateFieldsVisibility,
         fieldsConfig: function() { return fieldsConfig; }
     };
+
+    /**
+     * Initialise les comportements des checkboxes spécifiques
+     * - hideavis : cache/affiche les champs avis
+     * - delaipresc : affiche/cache le champ date limite prescriptions
+     */
+    function initCheckboxBehaviors() {
+        // Checkbox "Avis différé"
+        const avisDiffereCheckbox = document.querySelector('#dossier_avisDiffere');
+        if (avisDiffereCheckbox) {
+            avisDiffereCheckbox.addEventListener('change', handleHideAvisCheckboxes);
+        }
+
+        // Checkbox "Absence de quorum"
+        const absenceQuorumCheckbox = document.querySelector('#dossier_absenceDeQuorum');
+        if (absenceQuorumCheckbox) {
+            absenceQuorumCheckbox.addEventListener('change', handleHideAvisCheckboxes);
+        }
+
+        // Initialiser l'état au chargement
+        handleHideAvisCheckboxes();
+    }
+
+    /**
+     * Gère l'affichage/masquage des champs avis selon les checkboxes cochées
+     */
+    function handleHideAvisCheckboxes() {
+        const typeSelect = document.querySelector('#dossier_type');
+        if (!typeSelect) {
+            return;
+        }
+
+        const typeDossier = typeSelect.value;
+        const avisDiffereChecked = document.querySelector('#dossier_avisDiffere')?.checked || false;
+        const absenceQuorumChecked = document.querySelector('#dossier_absenceDeQuorum')?.checked || false;
+
+        const avisRow = findFieldRow('dossier_avis');
+        const avisCommissionRow = findFieldRow('dossier_avisCommission');
+
+        // Si aucune checkbox n'est cochée, afficher les avis selon le type
+        if (!avisDiffereChecked && !absenceQuorumChecked) {
+            if (typeDossier === '1') { // Étude
+                if (avisRow) avisRow.style.display = '';
+                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            } else if (typeDossier === '2') { // Visite
+                if (avisRow) avisRow.style.display = 'none';
+                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            } else if (typeDossier === '3') { // Groupe de visites
+                if (avisRow) avisRow.style.display = '';
+                if (avisCommissionRow) avisCommissionRow.style.display = '';
+            }
+        } else {
+            // Si au moins une checkbox est cochée
+            // Toujours cacher l'avis de la commission
+            if (avisCommissionRow) {
+                avisCommissionRow.style.display = 'none';
+                const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
+                if (avisCommissionSelect) {
+                    avisCommissionSelect.value = '';
+                }
+            }
+
+            // Pour l'avis du rapporteur : on le cache sauf si seulement absquorum/npsp est coché
+            if (avisDiffereChecked) {
+                if (avisRow) {
+                    avisRow.style.display = 'none';
+                    const avisSelect = document.querySelector('#dossier_avis');
+                    if (avisSelect) {
+                        avisSelect.value = '';
+                    }
+                }
+            } else {
+                // Seulement absence de quorum : on affiche l'avis du rapporteur
+                if (avisRow) avisRow.style.display = '';
+            }
+        }
+    }
+
+    /**
+     * Initialise les labels d'avis dynamiques selon la nature et le type
+     */
+    function initAvisLabels() {
+        const typeSelect = document.querySelector('#dossier_type');
+        const natureSelect = document.querySelector('#dossier_nature');
+        
+        if (!typeSelect || !natureSelect) {
+            return;
+        }
+
+        function updateAvisLabels() {
+            const typeDossier = typeSelect.value;
+            const natureDossier = natureSelect.value;
+            let addText = '';
+
+            if (typeDossier === '1') { // Étude
+                if (['19', '7', '17', '16'].includes(natureDossier)) {
+                    addText = ' à l\'exploitation';
+                } else {
+                    addText = ' à l\'étude';
+                }
+            } else if (typeDossier === '2' || typeDossier === '3') { // Visite ou Groupe de visites
+                if (['20', '25'].includes(natureDossier)) {
+                    addText = ' à la réception des travaux';
+                } else if (['21', '23', '24', '26', '28', '29'].includes(natureDossier)) {
+                    // Pour les visites périodiques/contrôle/inopinées, ajouter "à l'exploitation"
+                    // Note: le genre devrait être vérifié mais nous n'avons pas cette info ici
+                    addText = ' à l\'exploitation';
+                } else {
+                    addText = ' à l\'exploitation';
+                }
+            }
+
+            // Mettre à jour les options des selects avis
+            const avisSelect = document.querySelector('#dossier_avis');
+            const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
+
+            [avisSelect, avisCommissionSelect].forEach(select => {
+                if (!select) return;
+                
+                Array.from(select.options).forEach(option => {
+                    if (option.value === '' || option.value === '0') return;
+                    
+                    let baseText = option.getAttribute('data-base-text');
+                    if (!baseText) {
+                        // Sauvegarder le texte de base la première fois
+                        baseText = option.text.replace(/ à l'.*$/, '').replace(/ à la.*$/, '');
+                        option.setAttribute('data-base-text', baseText);
+                    }
+                    
+                    if (option.value === '6') {
+                        // "Pas d'avis" - pas de suffixe
+                        option.text = baseText;
+                    } else {
+                        option.text = baseText + addText;
+                    }
+                });
+            });
+        }
+
+        // Attacher les événements
+        typeSelect.addEventListener('change', updateAvisLabels);
+        natureSelect.addEventListener('change', updateAvisLabels);
+        
+        // Initialiser au chargement
+        updateAvisLabels();
+    }
 
 })();

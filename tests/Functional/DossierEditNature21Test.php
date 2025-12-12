@@ -76,6 +76,7 @@ class DossierEditNature21Test extends WebTestCase
             'Préventionnistes',
             'Avis du rapporteur',
             'Avis de la commission',
+            'Analyse de risque',
             'Observations',
             'Date avant laquelle les prescriptions doivent être levées',
         ];

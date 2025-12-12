@@ -69,7 +69,7 @@ class DossierFields
         // Avant ouverture - OK
         '47' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
-        '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'analyseDeRisque', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
         '22' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // Controle - OK

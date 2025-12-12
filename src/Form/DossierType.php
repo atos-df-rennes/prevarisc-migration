@@ -197,6 +197,15 @@ class DossierType extends AbstractType
                     'id' => 'dossier_observations',
                 ],
             ])
+            ->add('analyseDeRisque', TextareaType::class, [
+                'label' => 'Analyse de risque',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                    'id' => 'dossier_analyseDeRisque',
+                ],
+            ])
 
             // Champs spécifiques courriers (natures 49, 51, 52, 53, 54, 55)
             ->add('dateMairie', DateType::class, [
