@@ -119,7 +119,7 @@
 
         function toggleCommission() {
             const typeId = typeSelect.value;
-            const commissionRow = findFieldRow('dossier_commission');
+            const commissionRow = findFieldRow('commission');
             
             // Types 2 et 3 = Visites
             if (typeId === '2' || typeId === '3') {
@@ -473,8 +473,8 @@
         // Sélectionner toutes les checkboxes .hideavis cochées
         const hideAvisCheckboxes = document.querySelectorAll('.hideavis:checked');
         
-        const avisRow = findFieldRow('dossier_avis');
-        const avisCommissionRow = findFieldRow('dossier_avisCommission');
+        const avisRow = findFieldRow('avis');
+        const avisCommissionRow = findFieldRow('avisCommission');
 
         if (hideAvisCheckboxes.length === 0) {
             // Aucune checkbox hideavis cochée → afficher selon type ET nature
@@ -492,14 +492,16 @@
         } else {
             // Au moins une checkbox hideavis est cochée
             
-            // Vérifier si ce sont d'autres checkboxes que absquorum/npsp
+            // Vérifier si ce sont d'autres checkboxes que absenceDeQuorum/npsp
             let hasOtherThanAbsquorumNpsp = false;
             hideAvisCheckboxes.forEach(checkbox => {
-                if (!checkbox.classList.contains('absquorum') && !checkbox.classList.contains('npsp')) {
+                const checkboxId = checkbox.id;
+                // Exclure absenceDeQuorum et npsp (quand il sera implémenté)
+                if (checkboxId !== 'dossier_absenceDeQuorum' && checkboxId !== 'dossier_npsp') {
                     hasOtherThanAbsquorumNpsp = true;
                 }
             });
-            
+
             if (hasOtherThanAbsquorumNpsp) {
                 // Cache l'avis du rapporteur
                 if (avisRow) {
