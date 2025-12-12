@@ -127,7 +127,8 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
      * QueryBuilder pour sélectionner les préventionnistes actifs
      * Utilisé dans les formulaires avec EntityType.
      */
-    public function createPreventionnistesQueryBuilder(): QueryBuilder {
+    public function createPreventionnistesQueryBuilder(): QueryBuilder
+    {
         return $this->createQueryBuilder('u')
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')

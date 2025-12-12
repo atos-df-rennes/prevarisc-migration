@@ -9,6 +9,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType as DossierTypeEntity;
 use App\Entity\Utilisateur;
 use App\Repository\UtilisateurRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -251,7 +252,7 @@ class DossierType extends AbstractType
             ->add('preventionnistes', EntityType::class, [
                 'label' => 'Préventionnistes',
                 'class' => Utilisateur::class,
-                'query_builder' => function (UtilisateurRepository $repository) {
+                'query_builder' => function (UtilisateurRepository $repository): QueryBuilder {
                     return $repository->createPreventionnistesQueryBuilder();
                 },
                 'choice_label' => function (Utilisateur $user): string {
