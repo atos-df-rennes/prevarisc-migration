@@ -171,21 +171,19 @@
                 </div>
             </li>
 
-            {# @todo: Manque Analyse de risque #}
+            <li class='row' id='field-analyseDeRisque'>
+                <div class='left libelle col-md-3'>{{ form_label(form.analyseDeRisque) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.analyseDeRisque) }}
+                    {{ form_errors(form.analyseDeRisque) }}
+                </div>
+            </li>
 
             <li class='row' id='field-observations'>
                 <div class='left libelle col-md-3'>{{ form_label(form.observations) }}</div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.observations) }}
                     {{ form_errors(form.observations) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-analyseDeRisque'>
-                <div class='left libelle col-md-3'>{{ form_label(form.analyseDeRisque) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.analyseDeRisque) }}
-                    {{ form_errors(form.analyseDeRisque) }}
                 </div>
             </li>
 
@@ -225,6 +223,9 @@
                 <div class='left libelle col-md-3'>{{ form_label(form.dateReponse) }}</div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.dateReponse) }}
+                    <button type='button' class='btn btn-default btn-today' data-target='dossier_dateReponse'>
+                        <i class='glyphicon glyphicon-calendar'></i> Aujourd'hui
+                    </button>
                     {{ form_errors(form.dateReponse) }}
                 </div>
             </li>

@@ -54,6 +54,9 @@
         
         // Initialiser les labels d'avis dynamiques
         initAvisLabels();
+        
+        // Initialiser les boutons "Aujourd'hui"
+        initTodayButtons();
 
         // Afficher les champs appropriés au chargement (mode édition)
         updateFieldsVisibility();
@@ -391,6 +394,12 @@
 
     /**
      * Gère l'affichage/masquage des champs avis selon les checkboxes cochées
+     * Logique legacy:
+     * - Si aucune checkbox hideavis cochée → affiche selon type
+     * - Si au moins une checkbox cochée:
+     *   - Si c'est autre que absquorum/npsp → cache AVIS rapporteur
+     *   - Si c'est seulement absquorum/npsp → affiche AVIS rapporteur
+     *   - Dans tous les cas → cache AVIS commission
      */
     function handleHideAvisCheckboxes() {
         const typeSelect = document.querySelector('#dossier_type');
@@ -405,8 +414,10 @@
         const avisRow = findFieldRow('dossier_avis');
         const avisCommissionRow = findFieldRow('dossier_avisCommission');
 
-        // Si aucune checkbox n'est cochée, afficher les avis selon le type
-        if (!avisDiffereChecked && !absenceQuorumChecked) {
+        const anyHideAvisChecked = avisDiffereChecked || absenceQuorumChecked;
+
+        // Si aucune checkbox hideavis n'est cochée, afficher les avis selon le type
+        if (!anyHideAvisChecked) {
             if (typeDossier === '1') { // Étude
                 if (avisRow) avisRow.style.display = '';
                 if (avisCommissionRow) avisCommissionRow.style.display = '';
@@ -418,7 +429,7 @@
                 if (avisCommissionRow) avisCommissionRow.style.display = '';
             }
         } else {
-            // Si au moins une checkbox est cochée
+            // Au moins une checkbox hideavis est cochée
             // Toujours cacher l'avis de la commission
             if (avisCommissionRow) {
                 avisCommissionRow.style.display = 'none';
@@ -428,7 +439,9 @@
                 }
             }
 
-            // Pour l'avis du rapporteur : on le cache sauf si seulement absquorum/npsp est coché
+            // Pour l'avis du rapporteur :
+            // Si c'est autre chose que seulement absquorum/npsp → on cache
+            // Donc: si avisDiffere est coché → on cache
             if (avisDiffereChecked) {
                 if (avisRow) {
                     avisRow.style.display = 'none';
@@ -511,6 +524,31 @@
         
         // Initialiser au chargement
         updateAvisLabels();
+    }
+
+    /**
+     * Initialise les boutons "Aujourd'hui" pour les champs date
+     */
+    function initTodayButtons() {
+        const todayButtons = document.querySelectorAll('.btn-today');
+        
+        todayButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                if (targetId) {
+                    const dateInput = document.querySelector('#' + targetId);
+                    if (dateInput) {
+                        // Format YYYY-MM-DD pour input type="date"
+                        const today = new Date();
+                        const yyyy = today.getFullYear();
+                        const mm = String(today.getMonth() + 1).padStart(2, '0');
+                        const dd = String(today.getDate()).padStart(2, '0');
+                        dateInput.value = `${yyyy}-${mm}-${dd}`;
+                    }
+                }
+            });
+        });
     }
 
 })();
