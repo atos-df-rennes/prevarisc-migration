@@ -60,6 +60,10 @@
 
         // Afficher les champs appropriés au chargement (mode édition)
         updateFieldsVisibility();
+        
+        // Appliquer la logique d'affichage des avis APRÈS updateFieldsVisibility
+        // pour s'assurer que les champs sont déjà visibles/cachés selon la nature
+        handleHideAvisCheckboxes();
     }
 
     /**
@@ -381,9 +385,9 @@
         if (absenceQuorumCheckbox) {
             absenceQuorumCheckbox.addEventListener('change', handleHideAvisCheckboxes);
         }
-
-        // Initialiser l'état au chargement
-        handleHideAvisCheckboxes();
+        
+        // Note: handleHideAvisCheckboxes() sera appelé à la fin de initForm()
+        // après updateFieldsVisibility() pour s'assurer que les champs sont déjà affichés
     }
 
     /**
