@@ -250,7 +250,24 @@ class DossierType extends AbstractType
             ->add('preventionnistes', EntityType::class, [
                 'label' => 'Préventionnistes',
                 'class' => Utilisateur::class,
-                'choice_label' => 'username',
+                'query_builder' => function ($repository) {
+                    return $repository->createQueryBuilder('u')
+                        ->innerJoin('u.informations', 'i')
+                        ->innerJoin('i.fonction', 'f')
+                        ->where('f.libelle = :preventionniste OR f.libelle LIKE :preventionniste_pattern')
+                        ->setParameter('preventionniste', 'Préventionniste')
+                        ->setParameter('preventionniste_pattern', '%préventionniste%')
+                        ->andWhere('u.actif = true')
+                        ->orderBy('i.nom', 'ASC')
+                        ->addOrderBy('i.prenom', 'ASC');
+                },
+                'choice_label' => function (Utilisateur $user) {
+                    $info = $user->getInformations();
+                    if ($info && ($info->getNom() || $info->getPrenom())) {
+                        return trim($info->getNom().' '.$info->getPrenom());
+                    }
+                    return $user->getUsername();
+                },
                 'multiple' => true,
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
