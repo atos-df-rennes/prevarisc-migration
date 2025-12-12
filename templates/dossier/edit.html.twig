@@ -44,10 +44,7 @@
     <section>
         <h4>Informations sur le dossier</h4>
         <ul class='list-unstyled'>
-            <li class='row' id='field-dateInsert'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateInsert) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateInsert) }}
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateInsert}) }}
                     {{ form_errors(form.dateInsert) }}
                 </div>
             </li>
@@ -137,13 +134,7 @@
                 </div>
             </li>
 
-            <li class='row' id='field-dateLimitePrescription'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateLimitePrescription) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateLimitePrescription) }}
-                    {{ form_errors(form.dateLimitePrescription) }}
-                </div>
-            </li>
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateLimitePrescription}) }}
 
             <li class='row' id='field-avisCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
@@ -163,13 +154,7 @@
                 </div>
             </li>
 
-            <li class='row' id='field-echeancierTravaux'>
-                <div class='left libelle col-md-3'>{{ form_label(form.echeancierTravaux) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.echeancierTravaux) }}
-                    {{ form_errors(form.echeancierTravaux) }}
-                </div>
-            </li>
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.echeancierTravaux, show_today: false}) }}
 
             <li class='row' id='field-analyseDeRisque'>
                 <div class='left libelle col-md-3'>{{ form_label(form.analyseDeRisque) }}</div>
@@ -219,16 +204,7 @@
                 </div>
             </li>
 
-            <li class='row' id='field-dateReponse'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateReponse) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateReponse) }}
-                    <button type='button' class='btn btn-default btn-today' data-target='dossier_dateReponse'>
-                        <i class='glyphicon glyphicon-calendar'></i> Aujourd'hui
-                    </button>
-                    {{ form_errors(form.dateReponse) }}
-                </div>
-            </li>
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReponse}) }}
 
             <li class='row' id='field-dateTransfertCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateTransfertCommission) }}</div>

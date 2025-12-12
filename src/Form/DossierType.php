@@ -134,12 +134,12 @@ class DossierType extends AbstractType
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',
                 'required' => false,
-                'attr' => ['class' => 'form-check-input'],
+                'attr' => ['class' => 'form-check-input hideavis'],
             ])
             ->add('absenceDeQuorum', CheckboxType::class, [
                 'label' => 'Absence de quorum',
                 'required' => false,
-                'attr' => ['class' => 'form-check-input'],
+                'attr' => ['class' => 'form-check-input hideavis'],
             ])
             ->add('facteurDangerosite', IntegerType::class, [
                 'label' => 'Facteur de dangerosité',
