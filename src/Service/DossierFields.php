@@ -137,15 +137,15 @@ class DossierFields
         '39' => ['dateInsert', 'objet', 'operationSdis', 'rex', 'numeroIntervention', 'dateIntervention', 'dureeIntervention', 'dateReception', 'preventionnistes', 'observations'],
         // ARRETE
         // Ouverture - OK
-        '40' => ['dateInsert', 'DATESIGN', 'dateReception', 'preventionnistes', 'observations'],
+        '40' => ['dateInsert', 'dateSignature', 'dateReception', 'preventionnistes', 'observations'],
         // Fermeture - OK
-        '41' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observations'],
+        '41' => ['dateInsert', 'objet', 'dateSignature', 'dateReception', 'preventionnistes', 'observations'],
         // Mise en demeure - OK
-        '42' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observations'],
+        '42' => ['dateInsert', 'objet', 'dateSignature', 'dateReception', 'preventionnistes', 'observations'],
         // Utilisation exceptionnelle de locaux - OK
-        '44' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observations'],
+        '44' => ['dateInsert', 'objet', 'dateSignature', 'dateReception', 'preventionnistes', 'observations'],
         // Courrier - OK
-        '45' => ['dateInsert', 'objet', 'DATESIGN', 'dateReception', 'preventionnistes', 'observations'],
+        '45' => ['dateInsert', 'objet', 'dateSignature', 'dateReception', 'preventionnistes', 'observations'],
     ];
 
     /**
