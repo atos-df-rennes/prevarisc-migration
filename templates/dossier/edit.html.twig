@@ -107,11 +107,26 @@
                 </div>
             </li>
 
+            <li class='row' id='field-dateCommission'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateCommission) }}
+                    {{ form_errors(form.dateCommission) }}
+                </div>
+            </li>
+
             <li class='row' id='field-avisDiffere'>
                 <div class='left libelle col-md-3'></div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.avisDiffere) }}
+                    {{ form_widget(form.avisDiffere, {
+                        attr: {
+                            disabled: lastAvisEtab != 'Favorable',
+                        },
+                    }) }}
                     {{ form_label(form.avisDiffere) }}
+                    {% if lastAvisEtab != 'Favorable' %}
+                        <small>(Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)</small>
+                    {% endif %}
                     {{ form_errors(form.avisDiffere) }}
                 </div>
             </li>
@@ -226,14 +241,6 @@
                 <div class='right form col-md-9'>
                     {{ form_widget(form.dateReunion) }}
                     {{ form_errors(form.dateReunion) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dateCommission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateCommission) }}
-                    {{ form_errors(form.dateCommission) }}
                 </div>
             </li>
 

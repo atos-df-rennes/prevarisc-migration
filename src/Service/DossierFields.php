@@ -16,7 +16,7 @@ class DossierFields
         // AT - OK
         '2' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // Dérogation - OK
-        '3' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'descriptifGeneral', 'justificationDerogation', 'mesuresCompensatoires', 'mesuresComplementaires', 'descriptifEffectifs', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'reglesDerogation', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
+        '3' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'justificationDerogation', 'mesuresCompensatoires', 'mesuresComplementaires', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'reglesDerogation', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // Cahier des charges fonctionnel du SSI - OK
         '4' => ['type', 'dateInsert', 'objet', 'numeroChronologique', 'dateMairie', 'dateSecretariat', 'commission', 'descriptifGeneral', 'dateCommission', 'avis', 'coordonneesSsi', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // Cahier des charges de type T - OK
@@ -88,7 +88,7 @@ class DossierFields
         // Chantier - OK
         '27' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // Controle - OK
-        '28' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '28' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Inopinéee - OK
         '29' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // REUNION (noms Symfony standardisés)

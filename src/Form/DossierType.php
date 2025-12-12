@@ -134,6 +134,12 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
+            ->add('dateCommission', DateType::class, [
+                'label' => 'Date de commission en salle',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => ['class' => 'form-control'],
+            ])
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',
                 'required' => false,

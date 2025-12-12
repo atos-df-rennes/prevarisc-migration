@@ -99,10 +99,23 @@ class DossierController extends AbstractController
         // Récupération des établissements liés au dossier
         $etablissements = $dossier->getEtablissements();
         $enteteEtab = null;
+        $lastAvisEtab = '';
+
         if ($etablissements->count() > 0) {
             $premierEtablissement = $etablissements->first();
+
             if ($premierEtablissement) {
                 $enteteEtab = $etablissementRepository->find($premierEtablissement->getId());
+
+                // @fixme: la logique est beaucoup plus complexe, à revoir
+                // Récupération de l'avis du dossier donnant avis pour l'établissement
+                if ($enteteEtab && $enteteEtab->getDossierDonnantAvis()) {
+                    $avisCommission = $enteteEtab->getDossierDonnantAvis()->getAvisCommission();
+
+                    if ($avisCommission) {
+                        $lastAvisEtab = $avisCommission->getLibelle();
+                    }
+                }
             }
         }
 
@@ -131,6 +144,7 @@ class DossierController extends AbstractController
             'commissionsParType' => $commissionsParType,
             'etablissements' => $etablissements,
             'enteteEtab' => $enteteEtab,
+            'lastAvisEtab' => $lastAvisEtab,
             'user' => $user,
             'isAllowedChangeAvis' => $isAllowedChangeAvis,
             'isAllowedDeleteDossier' => $isAllowedDeleteDossier,
