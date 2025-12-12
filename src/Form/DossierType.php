@@ -256,9 +256,11 @@ class DossierType extends AbstractType
                 },
                 'choice_label' => function (Utilisateur $user): string {
                     $info = $user->getInformations();
+
                     if (null !== $info) {
                         $fullName = $info->getFullName();
-                        if ('' !== $fullName && '0' !== $fullName) {
+
+                        if ('' !== $fullName) {
                             return $fullName;
                         }
                     }

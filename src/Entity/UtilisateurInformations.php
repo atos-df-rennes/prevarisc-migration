@@ -387,16 +387,16 @@ class UtilisateurInformations
      */
     public function getFullName(): string
     {
-        if ($this->nom && $this->prenom) {
-            return trim($this->nom.' '.$this->prenom);
+        if ($this->getNom() && $this->getPrenom()) {
+            return trim($this->getNom().' '.$this->getPrenom());
         }
 
-        if ($this->nom) {
-            return $this->nom;
+        if ($this->getNom()) {
+            return $this->getNom();
         }
 
-        if ($this->prenom) {
-            return $this->prenom;
+        if ($this->getPrenom()) {
+            return $this->getPrenom();
         }
 
         return '';
