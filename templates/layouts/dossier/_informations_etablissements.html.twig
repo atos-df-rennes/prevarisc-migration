@@ -41,10 +41,12 @@
                     </a>
 
                     {% if etablissement.dossierDonnantAvis %}
-                        {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
-                            <span class="avis F">{{ etablissement.dossierDonnantAvis.avisCommission.libelle }}</span>
-                        {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
-                            <span class="avis D">{{ etablissement.dossierDonnantAvis.avisCommission.libelle }}</span>
+                        {% if etablissement.dossierDonnantAvis.avisCommission %}
+                            {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
+                                <span class="avis F">{{ etablissement.dossierDonnantAvis.avisCommission.libelle }}</span>
+                            {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                                <span class="avis D">{{ etablissement.dossierDonnantAvis.avisCommission.libelle }}</span>
+                            {% endif %}
                         {% elseif etablissement.hasAvisDiffere %}
                             <span class="label label-info">Avis différé</span>
                         {% else %}
