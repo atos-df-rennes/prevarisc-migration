@@ -250,7 +250,7 @@ class DossierType extends AbstractType
 
             // Préventionnistes (multiselect)
             ->add('preventionnistes', EntityType::class, [
-                'label' => 'Préventionnistes',
+                'label' => 'Préventionniste(s) du dossier',
                 'class' => Utilisateur::class,
                 'query_builder' => function (UtilisateurRepository $repository): QueryBuilder {
                     return $repository->createPreventionnistesQueryBuilder();

@@ -1,12 +1,12 @@
 {% use 'bootstrap_3_layout.html.twig' %}
 
-{# 
+{#
     Custom widget pour les champs TomSelect - retire form-control qui conflicte avec le wrapper TomSelect
     On surcharge complètement sans appeler parent() pour éviter que Bootstrap n'ajoute form-control
 #}
 {% block choice_widget_collapsed -%}
     {% set has_tomselect = attr.class is defined and 'tomselect-ajax' in attr.class %}
-    
+
     {% if has_tomselect %}
         {# Pour TomSelect, on n'ajoute PAS form-control #}
         {%- set attr = attr|merge({class: (attr.class|default(''))|trim}) -%}
@@ -14,7 +14,7 @@
         {# Pour les autres, on ajoute form-control comme Bootstrap #}
         {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) -%}
     {% endif %}
-    
+
     {# Code de form_widget_simple (copié de form_div_layout.html.twig) #}
     {%- if type is not defined or type != 'hidden' -%}
         {%- set attr = attr|merge({class: (attr.class|default('') ~ ' ' ~ (errors|length > 0 ? 'is-invalid'|default('')))|trim}) -%}
