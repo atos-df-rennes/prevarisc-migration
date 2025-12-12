@@ -525,6 +525,31 @@
     }
 
     /**
+     * Affiche facteur de criticité et échéancier de travaux au chargement si avis commission = Défavorable
+     * Phase 1: Affichage statique selon valeur au chargement
+     * Phase 2: Sera dynamique (réagira au changement de avisCommission)
+     */
+    function applyFacteurEcheancierDisplayOnLoad() {
+        const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
+        if (!avisCommissionSelect) {
+            return;
+        }
+
+        const selectedAvisId = avisCommissionSelect.value;
+        const facteurRow = findFieldRow('facteurDangerosite');
+        const echeancierRow = findFieldRow('echeancierTravaux');
+
+        // ID 2 = Défavorable
+        if (selectedAvisId === '2') {
+            if (facteurRow) facteurRow.style.display = '';
+            if (echeancierRow) echeancierRow.style.display = '';
+        } else {
+            if (facteurRow) facteurRow.style.display = 'none';
+            if (echeancierRow) echeancierRow.style.display = 'none';
+        }
+    }
+
+    /**
      * Initialise les boutons "Aujourd'hui" pour les champs date
      */
     function initTodayButtons() {
@@ -550,28 +575,3 @@
     }
 
 })();
-
-    /**
-     * Affiche facteur de criticité et échéancier de travaux au chargement si avis commission = Défavorable
-     * Phase 1: Affichage statique selon valeur au chargement
-     * Phase 2: Sera dynamique (réagira au changement de avisCommission)
-     */
-    function applyFacteurEcheancierDisplayOnLoad() {
-        const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
-        if (!avisCommissionSelect) {
-            return;
-        }
-
-        const selectedAvisId = avisCommissionSelect.value;
-        const facteurRow = findFieldRow('dossier_facteurDangerosite');
-        const echeancierRow = findFieldRow('dossier_echeancierTravaux');
-
-        // ID 2 = Défavorable
-        if (selectedAvisId === '2') {
-            if (facteurRow) facteurRow.style.display = '';
-            if (echeancierRow) echeancierRow.style.display = '';
-        } else {
-            if (facteurRow) facteurRow.style.display = 'none';
-            if (echeancierRow) echeancierRow.style.display = 'none';
-        }
-    }
