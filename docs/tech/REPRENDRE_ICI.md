@@ -92,7 +92,7 @@
 - Vérification manuelle visuelle
 - Tests automatisés reportés à plus tard
 
-#### 1. Implémenter Nature 28 (Visite contrôle)
+#### 1. Implémenter Nature 28 (Visite contrôle - Fait en grande partie)
 
 **Champs spécifiques vs Nature 21** :
 - ✅ Tous les champs de nature 21
@@ -114,6 +114,9 @@ AVIS_COMMISSION, OBSERVATION, DELAIPRESC
 4. Valider PHPStan + CS
 5. Test manuel visuel
 6. Commit
+
+**Note pour la prochaine session** : 📝 **Analyser en détail la logique de l'avis différé** dans le legacy (autour des lignes 2002-2018 de index.phtml) pour comprendre toutes les conditions qui déterminent quand la case "Diffère
+l'avis" doit être activée/désactivée selon l'avis de l'établissement. La logique actuelle est simplifiée et doit être affinée.
 
 #### 2. Implémenter Nature 29 (Visite inopinée)
 
