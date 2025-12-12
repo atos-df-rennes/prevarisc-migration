@@ -20,12 +20,12 @@
     <div class='right form col-md-9'>
         {% if show_today_button %}
             <div class="input-group">
-                {{ form_widget(form_field, {'attr': {'class': 'form-control'}}) }}
-                <span class="input-group-btn">
+                {{ form_widget(form_field) }}
+                <div class="input-group-btn">
                     <button type='button' class='btn btn-default btn-today' data-target='{{ field_id }}'>
                         <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Aujourd'hui
                     </button>
-                </span>
+                </div>
             </div>
         {% else %}
             {{ form_widget(form_field) }}
