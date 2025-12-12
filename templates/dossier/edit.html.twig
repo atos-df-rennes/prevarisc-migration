@@ -45,9 +45,6 @@
         <h4>Informations sur le dossier</h4>
         <ul class='list-unstyled'>
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateInsert}) }}
-                    {{ form_errors(form.dateInsert) }}
-                </div>
-            </li>
 
             <li class='row' id='field-objet'>
                 <div class='left libelle col-md-3'>{{ form_label(form.objet) }}</div>

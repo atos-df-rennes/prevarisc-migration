@@ -18,11 +18,17 @@
         {% endif %}
     </div>
     <div class='right form col-md-9'>
-        {{ form_widget(form_field) }}
         {% if show_today_button %}
-            <button type='button' class='btn btn-default btn-today' data-target='{{ field_id }}'>
-                <i class='glyphicon glyphicon-calendar'></i> Aujourd'hui
-            </button>
+            <div class="input-group">
+                {{ form_widget(form_field, {'attr': {'class': 'form-control'}}) }}
+                <span class="input-group-btn">
+                    <button type='button' class='btn btn-default btn-today' data-target='{{ field_id }}'>
+                        <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Aujourd'hui
+                    </button>
+                </span>
+            </div>
+        {% else %}
+            {{ form_widget(form_field) }}
         {% endif %}
         {{ form_errors(form_field) }}
     </div>
