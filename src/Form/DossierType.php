@@ -8,6 +8,7 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierType as DossierTypeEntity;
 use App\Entity\Utilisateur;
+use App\Repository\UtilisateurRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -261,11 +262,12 @@ class DossierType extends AbstractType
                         ->orderBy('i.nom', 'ASC')
                         ->addOrderBy('i.prenom', 'ASC');
                 },
-                'choice_label' => function (Utilisateur $user) {
+                'choice_label' => function (Utilisateur $user): string {
                     $info = $user->getInformations();
                     if ($info && ($info->getNom() || $info->getPrenom())) {
                         return trim($info->getNom().' '.$info->getPrenom());
                     }
+
                     return $user->getUsername();
                 },
                 'multiple' => true,
