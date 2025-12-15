@@ -161,12 +161,14 @@
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateLimitePrescription}) }}
 
-            {# @todo: Ajouter la case à cocher "Répercuter l'avis sur les établissements enfants" #}
             <li class='row' id='field-avisCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.avisCommission) }}
                     {{ form_errors(form.avisCommission) }}
+
+                    {{ form_widget(form.repercuterAvis) }}
+                    {{ form_errors(form.repercuterAvis) }}
                 </div>
             </li>
 

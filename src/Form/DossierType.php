@@ -19,13 +19,24 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 
 class DossierType extends AbstractType
 {
+    /** @var Security */
+    private $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
     // @todo: Séparer en plusieurs FormTypes selon le type de dossier (Phase future)
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isEdit = $options['is_edit'];
+
+        $canEditAvis = $this->security->isGranted('edit_avis_com');
 
         $builder
             ->add('type', EntityType::class, [
@@ -125,6 +136,14 @@ class DossierType extends AbstractType
                 'placeholder' => 'Sélectionner un avis',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
+                'disabled' => !$canEditAvis,
+            ])
+            ->add('repercuterAvis', CheckboxType::class, [
+                'label' => "Répercuter l'avis sur les établissements enfants",
+                'mapped' => false,
+                'required' => false,
+                'attr' => ['class' => 'form-check-input'],
+                'disabled' => !$canEditAvis,
             ])
             ->add('avis', EntityType::class, [
                 'label' => false,
