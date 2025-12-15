@@ -163,6 +163,7 @@ class DossierType extends AbstractType
                 'label' => 'Diffère l\'avis',
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
+                'help' => "(Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)",
             ])
             ->add('absenceDeQuorum', CheckboxType::class, [
                 'label' => 'Absence de quorum',

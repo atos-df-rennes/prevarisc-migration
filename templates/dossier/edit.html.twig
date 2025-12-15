@@ -128,7 +128,7 @@
                     }) }}
                     {{ form_label(form.avisDiffere) }}
                     {% if lastAvisEtab != 'Favorable' %}
-                        <small>(Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)</small>
+                        {{ form_help(form.avisDiffere) }}
                     {% endif %}
                     {{ form_errors(form.avisDiffere) }}
                 </div>
