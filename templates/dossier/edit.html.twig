@@ -64,6 +64,7 @@
                 </div>
             </li>
 
+            {# @todo: Ajouter le bouton "Choisir une autre commission" #}
             <li class='row' id='field-commission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
                 <div class='right form col-md-9'>
@@ -99,6 +100,7 @@
                 </div>
             </li>
 
+            {# @todo: Ajouter le calendrier #}
             <li class='row' id='field-dateVisite'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
                 <div class='right form col-md-9'>
@@ -107,6 +109,7 @@
                 </div>
             </li>
 
+            {# @todo: Ajouter le calendrier #}
             <li class='row' id='field-dateCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
                 <div class='right form col-md-9'>
@@ -141,7 +144,15 @@
             </li>
 
             <li class='row' id='field-avis'>
-                <div class='left libelle col-md-3'>{{ form_label(form.avis) }}</div>
+                <div class='left libelle col-md-3'>
+                    <label class="control-label" for="dossier_avis">
+                        {% if dossier.type.id is same as(3) %}
+                            Avis du groupe de visite
+                        {% else %}
+                            Avis du rapporteur
+                        {% endif %}
+                    </label>
+                </div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.avis) }}
                     {{ form_errors(form.avis) }}
@@ -150,6 +161,7 @@
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateLimitePrescription}) }}
 
+            {# @todo: Ajouter la case à cocher "Répercuter l'avis sur les établissements enfants" #}
             <li class='row' id='field-avisCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
                 <div class='right form col-md-9'>
@@ -159,7 +171,6 @@
             </li>
 
             {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
-            {# @todo: Il faut que le JS soit aussi déclenché à l'affichage de la page. Pas seulement au changement sur le select #}
             <li class='row' id='field-facteurDangerosite'>
                 <div class='left libelle col-md-3'>{{ form_label(form.facteurDangerosite) }}</div>
                 <div class='right form col-md-9'>

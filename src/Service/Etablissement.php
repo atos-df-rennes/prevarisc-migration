@@ -312,6 +312,26 @@ final class Etablissement
     }
 
     /**
+     * Récupère le dernier avis de l'établissement à partir de l'historique des dossiers.
+     *
+     * Retourne le libellé du dernier avis si disponible, sinon une chaîne vide.
+     * Cette méthode est utilisée pour déterminer si la case "Diffère l'avis" doit être disabled.
+     */
+    public function getLastAvisLibelle(int $id): string
+    {
+        $etablissementDossiersData = $this->dossierRepository->getHistoriqueDossiersData($id);
+        $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
+
+        if ([] === $historiqueDossiers) {
+            return '';
+        }
+
+        $lastAvis = $historiqueDossiers[count($historiqueDossiers) - 1];
+
+        return $lastAvis->getValeur() ?? '';
+    }
+
+    /**
      * Récupère les textes applicables d'un établissement.
      *
      * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}

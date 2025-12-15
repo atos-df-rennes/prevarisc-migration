@@ -12,6 +12,7 @@ use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\DossierFields;
+use App\Service\Etablissement;
 use App\Service\PlatauConsultation;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -55,6 +56,10 @@ class DossierController extends AbstractController
         ]);
     }
 
+    /* @fixme: Lorsqu'on met un avis différé sur un dossier donnant avis,
+     * cela change l'ID_DOSSIER_DONNANT_AVIS sur l'établissement. (ok)
+     * En revanche cela ne remet pas l'ID_DOSSIER_DONNANT_AVIS sur l'ancien dossier si on enlève l'avis différé.
+     */
     /**
      * Édition des informations générales d'un dossier.
      *
@@ -69,7 +74,8 @@ class DossierController extends AbstractController
         CommissionRepository $commissionRepository,
         EtablissementRepository $etablissementRepository,
         UtilisateurRepository $utilisateurRepository,
-        DossierFields $dossierFieldsService
+        DossierFields $dossierFieldsService,
+        Etablissement $etablissementService
     ): Response {
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
@@ -107,14 +113,9 @@ class DossierController extends AbstractController
             if ($premierEtablissement) {
                 $enteteEtab = $etablissementRepository->find($premierEtablissement->getId());
 
-                // @fixme: la logique est beaucoup plus complexe, à revoir
-                // Récupération de l'avis du dossier donnant avis pour l'établissement
-                if ($enteteEtab && $enteteEtab->getDossierDonnantAvis()) {
-                    $avisCommission = $enteteEtab->getDossierDonnantAvis()->getAvisCommission();
-
-                    if ($avisCommission) {
-                        $lastAvisEtab = $avisCommission->getLibelle();
-                    }
+                // Récupération du dernier avis via l'historique des dossiers
+                if ($enteteEtab) {
+                    $lastAvisEtab = $etablissementService->getLastAvisLibelle($enteteEtab->getId());
                 }
             }
         }

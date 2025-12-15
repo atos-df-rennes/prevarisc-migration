@@ -127,7 +127,7 @@ class DossierType extends AbstractType
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('avis', EntityType::class, [
-                'label' => 'Avis du rapporteur',
+                'label' => false,
                 'class' => Avis::class,
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner un avis',
