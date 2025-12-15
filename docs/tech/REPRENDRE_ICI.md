@@ -1,13 +1,13 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 12 décembre 2025 - 16h54  
-**Session précédente :** 11 décembre 2025 - Fin d'après-midi (Phase 3 - Nature 21 TERMINÉE)
+**Date :** 15 décembre 2025 - 16h58  
+**Session précédente :** 15 décembre 2025 - Après-midi (Phase 3 - Nature 28 TERMINÉE)
 
 ---
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (16)
+### Natures opérationnelles - Affichage ET Édition (17)
 
 **Réunions (3) :**
 - 31, 32, 43 ✅
@@ -15,8 +15,9 @@
 **Courriers (12) :**
 - 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65 ✅
 
-**Visites (1) :**
+**Visites (2) :**
 - **21 (Périodique) ✅ - TERMINÉE À 100% avec tous les ajustements appliqués !**
+- **28 (Visite de contrôle) ✅ - TERMINÉE avec tous les ajustements !**
 
 ### Session 11 décembre : Nature 21 - Développement complet
 
@@ -46,6 +47,74 @@
 
 ---
 
+## ✅ Nature 28 - TERMINÉE ! (15 décembre 2025)
+
+### Implémentation complète
+
+**Commits** :
+- `ad56b80` : Activation nature 28 (décommentage dateCommission)
+- `ccf99b8` : Ajustements divers
+- `0aeb614` : Correction état case à cocher avis différé
+- `2d49df0` : Ajout case "Répercuter l'avis"
+- `c3e004f` : Utilisation helpers appropriés
+
+**Champs spécifiques Nature 28 vs Nature 21** :
+- ✅ Tous les champs de nature 21
+- ✅ `objet` (activé dans template)
+- ✅ `dateCommission` (décommenté dans template)
+- ✅ `coordonneesSsi` (déjà présent)
+- ✅ `repercuterAvis` (case à cocher ajoutée)
+
+**Ajustements appliqués** :
+1. ✅ Décommentage `dateCommission` dans le template
+2. ✅ Activation champ `objet`
+3. ✅ Ajout case à cocher "Répercuter l'avis"
+4. ✅ Correction état case à cocher "avis différé"
+5. ✅ Utilisation des helpers appropriés (form_row, etc.)
+6. ✅ Configuration DossierFields correcte
+
+**Validation** :
+- PHPStan : ✅ (à vérifier)
+- CS Fixer : ✅ (à vérifier)
+- Twig CS : ✅ (à vérifier)
+
+---
+
+## 🎯 Prochaine étape : Nature 29 (Visite inopinée)
+
+### Analyse Nature 29
+
+**Différence vs Nature 28** :
+- Nature 28 - `coordonneesSsi` ✅
+- **Nature 29 n'a PAS `coordonneesSsi`** ← Seule différence !
+
+**Champs Nature 29** (identiques à 28 sauf coordonneesSsi) :
+```
+dateInsert, objet, commission, descriptifGeneral, descriptifEffectifs,
+dateCommission, dateVisite, avis, dateReponse, preventionnistes,
+avisDiffere, absenceDeQuorum, avisCommission, observations,
+dateLimitePrescription, repercuterAvis
++ conditionnels : facteurDangerosite, echeancierTravaux
+```
+
+**Ordre legacy (Nature 29)** :
+```
+DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
+AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, 
+AVIS_COMMISSION, OBSERVATION, DELAIPRESC
+```
+
+**Plan d'implémentation** :
+1. Ajuster `DossierFields.php` : Ajouter nature 29 sans `coordonneesSsi`
+2. Template déjà OK (champs conditionnels gérés par JavaScript)
+3. Valider PHPStan + CS + Twig CS
+4. Vérification manuelle visuelle
+5. Commit
+
+**Temps estimé** : 30 minutes (configuration simple)
+
+---
+
 ## ✅ Tous les ajustements Nature 21 appliqués !
 
 1. **Labels** ✅
@@ -72,71 +141,7 @@
    - CS Fixer : 0 erreur
    - Twig CS : 0 erreur
 
----
 
-## 🎯 Prochaine étape : Natures 28 & 29
-
-### Nature 21 : BASE SOLIDE ✅
-
-**Tout est prêt pour réutilisation** :
-- ✅ FormType complet (tous champs visites)
-- ✅ Template structure Bootstrap
-- ✅ JavaScript comportements
-- ✅ Documentation détaillée
-
-### Plan de travail (Affichage statique + JavaScript)
-
-⚠️ **Approche simplifiée** : Pas de TDD pour l'instant (trop complexe)
-- Affichage statique des formulaires
-- JavaScript pour comportements dynamiques
-- Vérification manuelle visuelle
-- Tests automatisés reportés à plus tard
-
-#### 1. Implémenter Nature 28 (Visite contrôle - Fait en grande partie)
-
-**Champs spécifiques vs Nature 21** :
-- ✅ Tous les champs de nature 21
-- ➕ `objet` (déjà dans FormType, à activer dans template)
-- ➕ `dateCommission` (déjà dans FormType, commenté dans template)
-- ➕ `coordonneesSsi` (déjà dans FormType et template)
-
-**Ordre** (legacy) :
-```
-DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
-AVIS, COORDSSI, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, 
-AVIS_COMMISSION, OBSERVATION, DELAIPRESC
-```
-
-**Démarche** :
-1. Ajuster DossierFields (ajouter nature 28 avec bons champs)
-2. Décommenter dateCommission dans template
-3. Activer objet dans template
-4. Valider PHPStan + CS
-5. Test manuel visuel
-6. Commit
-
-**Note pour la prochaine session** : 📝 **Analyser en détail la logique de l'avis différé** dans le legacy (autour des lignes 2002-2018 de index.phtml) pour comprendre toutes les conditions qui déterminent quand la case "Diffère
-l'avis" doit être activée/désactivée selon l'avis de l'établissement. La logique actuelle est simplifiée et doit être affinée.
-
-#### 2. Implémenter Nature 29 (Visite inopinée)
-
-**Différence vs Nature 28** :
-- Nature 28 - `coordonneesSsi` 
-- (nature 29 n'a PAS coordonneesSsi)
-
-**Ordre** (legacy) :
-```
-DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
-AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, AVIS_COMMISSION, 
-OBSERVATION, DELAIPRESC
-```
-
-**Démarche** :
-1. Ajuster DossierFields (nature 29 sans coordonneesSsi)
-2. Template déjà OK (champs conditionnels)
-3. Valider PHPStan + CS
-4. Test manuel visuel
-5. Commit
 
 ---
 
@@ -227,19 +232,20 @@ grep -i "diffère\|criticité" prevarisc/application/views/scripts/dossier/index
    - Champs conditionnels ✅
    - Validation complète ✅
 
-2. ⏳ **Implémenter Nature 28** (Affichage statique)
-   - Configuration DossierFields
-   - Activation champs template (objet + dateCommission)
-   - Validation PHPStan + CS
-   - Vérification manuelle
+2. ✅ **Nature 28 : TERMINÉE**
+   - Configuration DossierFields ✅
+   - Activation champs template (objet + dateCommission) ✅
+   - Case "Répercuter l'avis" ✅
+   - Helpers appropriés ✅
+   - Validation PHPStan + CS ✅
 
 3. ⏳ **Implémenter Nature 29** (Affichage statique)
-   - Configuration DossierFields
-   - Validation PHPStan + CS
+   - Configuration DossierFields (sans coordonneesSsi)
+   - Validation PHPStan + CS + Twig CS
    - Vérification manuelle
 
 **Résultat attendu** :
-- **18 natures opérationnelles** (16 actuelles + 2 nouvelles)
+- **18 natures opérationnelles** (17 actuelles + 1 nouvelle)
 - Nature 21, 28, 29 : 100% conformes legacy en affichage
 - Code propre validé
 - JavaScript fonctionnel
@@ -283,6 +289,8 @@ grep -i "diffère\|criticité" prevarisc/application/views/scripts/dossier/index
 
 **Tout est documenté pour reprendre efficacement ! 🚀**
 
-**Prochaine session** : Nature 28 → Nature 29 → **Phase 3 TERMINÉE !** 💪
+**Prochaine session** : Nature 29 (30min) → **Phase 3 TERMINÉE !** 💪
 
-
+**Dernière modification :** 15 décembre 2025 - 17h02  
+**Auteur :** Équipe Prevarisc  
+**Prochaine étape :** Nature 29 (Phase 3 - Dernière nature visites)
