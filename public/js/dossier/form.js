@@ -256,6 +256,12 @@
             'coordonneesSsi',
             'commission',
             'dateLimitePrescription',
+            'documentsUrbanisme',
+            'dateSecretariat',
+            'serviceInstructeur',
+            'incomplet',
+            'horsDelai',
+            'analyseDeRisque',
             // Ajouter d'autres champs au fur et à mesure
         ];
 

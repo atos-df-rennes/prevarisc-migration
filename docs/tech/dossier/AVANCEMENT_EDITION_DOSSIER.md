@@ -279,11 +279,12 @@ observations, dateLimitePrescription, repercuterAvis
 | Fichier | Description | Status |
 |---------|-------------|--------|
 | `PLAN_MIGRATION_EDITION_DOSSIER.md` | Plan général incrémental | ✅ À jour |
-| `AVANCEMENT_EDITION_DOSSIER.md` | Suivi d'avancement (ce fichier) | ✅ Mis à jour 12/12 |
+| `AVANCEMENT_EDITION_DOSSIER.md` | Suivi d'avancement (ce fichier) | ✅ Mis à jour 16/12 |
 | `MAPPING_CHAMPS_DOSSIER.md` | Mapping complet legacy → Symfony | ✅ À jour |
 | `NATURE_21_FINALE.md` | État final nature 21 (100%) | ✅ Créé 11/12 |
 | `AJUSTEMENTS_APPLIQUES_NATURE_21.md` | Détails ajustements nature 21 | ✅ Créé 11/12 |
 | `GUIDE_IMPLEMENTATION_VISITES.md` | Guide réutilisable visites | ✅ Créé 11/12 |
+| `GUIDE_AJOUT_CHAMPS.md` | Procédure complète ajout de champs | ✅ Créé 16/12 |
 
 ### Fichiers guides
 
