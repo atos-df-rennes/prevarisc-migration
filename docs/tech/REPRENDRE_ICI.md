@@ -1,13 +1,13 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 16 décembre 2025 - 09h20  
-**Session précédente :** 16 décembre 2025 - Matin (Phase 3 TERMINÉE ✅)
+**Date :** 16 décembre 2025 - 16h30  
+**Session précédente :** 16 décembre 2025 - Après-midi (Nature 2 AT TERMINÉE ✅)
 
 ---
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (18)
+### Natures opérationnelles - Affichage ET Édition (19)
 
 **Réunions (3) :**
 - 31, 32, 43 ✅
@@ -16,9 +16,13 @@
 - 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65 ✅
 
 **Visites (3) :**
-- **21 (Périodique) ✅ - TERMINÉE À 100%**
-- **28 (Visite de contrôle) ✅ - TERMINÉE**
-- **29 (Visite inopinée) ✅ - TERMINÉE**
+- **21 (Périodique) ✅**
+- **28 (Visite de contrôle) ✅**
+- **29 (Visite inopinée) ✅**
+
+**Études (1) :**
+- **1 (Permis de construire - PC) ✅**
+- **2 (Autorisation de travaux - AT) ✅ - TERMINÉE 16 décembre**
 
 ### Session 11 décembre : Nature 21 - Développement complet
 
@@ -106,40 +110,82 @@
 
 ---
 
-## 🎉 Phase 3 TERMINÉE ! (3 natures visites)
+---
 
-**Natures implémentées** :
-- 21 : Visite périodique ✅
-- 28 : Visite de contrôle (groupe) ✅
-- 29 : Visite inopinée (groupe) ✅
+## ✅ Nature 2 (AT) - TERMINÉE ! (16 décembre 2025)
 
-**Total natures opérationnelles** : **18/68**
+### Statut
+
+**Nature 2 (Autorisation de travaux) était déjà configurée et opérationnelle** ✅
+
+**Configuration** :
+- `DossierFields.php` ligne 17 : ✅ Déjà présente (identique à nature 1)
+- Template : ✅ Compatible (champs conditionnels JS)
+- JavaScript : ✅ Affichage dynamique OK
+
+**Champs affichés (19)** :
+`type, dateInsert, objet, documentsUrbanisme, dateMairie, dateSecretariat, serviceInstructeur, commission, dateCommission, avis, dateReponse, dateReception, preventionnistes, absenceDeQuorum, demandeur, incomplet, horsDelai, avisCommission, observations`
+
+**Test créé** :
+- `tests/Functional/DossierEditNature2Test.php` ✅
+- Vérifie l'affichage des champs principaux + champs spécifiques études
+- Test passe : 12 assertions ✅
+
+**Validation** :
+- PHPStan : ✅ 0 erreur liée à notre code
+- CS Fixer : ✅ 0 erreur
+- Twig CS : ✅ 0 erreur
+- Test spécifique : ✅ OK
 
 ---
 
-## 🎯 Prochaine Phase : Phase 4 - Études simples (PC/AT)
+## 🎉 Phase 4 EN COURS ! (Études simples)
 
-**Objectif** : Implémenter les natures d'études sans dérogations
+**Natures implémentées Phase 4** :
+- 1 : Permis de construire (PC) ✅
+- 2 : Autorisation de travaux (AT) ✅
 
-**Natures à implémenter** :
-- Nature 1 : Permis de construire (PC)
-- Nature 2 : Autorisation de travaux (AT)
-- Natures 3-19 : Autres études
+**Total natures opérationnelles** : **19/68**
 
-**Nouveaux champs vs visites** :
-- `documentsUrbanisme` (Collection) : Numéros PC/AT
-- `numeroChronologique` : Numéro chrono
-- `dateMairie` : Date réception mairie
-- `dateSecretariat` : Date réception secrétariat
-- `serviceInstructeur` : Service instructeur
-- `coordonneesSsi` : Coordonnées SSI
-
-**Priorité** : Haute  
-**Temps estimé** : 2-3 heures (nouveaux champs + tests)
+**Prochaines natures** : 3-19 (autres études)
 
 ---
 
-## 📝 Notes session 16 décembre 2025
+## 🎯 Prochaine étape : Nature 3 ou suivantes
+
+**Natures restantes Phase 4** :
+- Nature 3 : Dérogation
+- Natures 4-19 : Autres études
+- Nature 30 : Déclaration préalable
+- Nature 33 : RVRMD diag sécu
+- Nature 46 : Échéancier de travaux
+- Nature 61 : Autorisation ICPE
+- Nature 62 : Certificats d'urbanisme (CU)
+- Nature 63 : Demande d'organisation de manifestation temporaire
+- Nature 66 : Déclassement / Reclassement
+
+---
+
+## 📝 Notes session 16 décembre 2025 (après-midi)
+
+### Nature 2 (AT) - Implémentation
+
+La nature 2 était **déjà configurée** dans `DossierFields.php` (identique à nature 1 - PC).
+Un test fonctionnel a été créé pour valider l'affichage correct du formulaire.
+
+**Particularités AT vs PC** :
+- Strictement les mêmes champs
+- Même comportement JavaScript
+- Même template Bootstrap
+
+**Test créé** :
+- Vérifie les labels principaux
+- Vérifie la présence des champs spécifiques aux études (documentsUrbanisme, incomplet, horsDelai)
+- Utilise un dossier AT réel de la base de données
+
+---
+
+## 📝 Notes session 16 décembre 2025 (matin)
 
 ### Nature 29 - Découverte
 
