@@ -47,10 +47,6 @@ class DateCommissionTransformer implements DataTransformerInterface
             return null;
         }
 
-        if (!$value instanceof \DateTimeInterface) {
-            throw new TransformationFailedException('Expected a \DateTimeInterface.');
-        }
-
         // Conversion DateTime → Y-m-d
         return $value->format('Y-m-d');
     }
