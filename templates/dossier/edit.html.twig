@@ -75,23 +75,9 @@
                 </div>
             </li>
 
-            <li class='row' id='field-dateMairie'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateMairie) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateMairie) }}
-                    {{ form_errors(form.dateMairie) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dateSecretariat'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateSecretariat) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateSecretariat) }}
-                    {{ form_errors(form.dateSecretariat) }}
-                </div>
-            </li>
-
-            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReception, label_override: 'Date de réception SDIS'}) }}
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateMairie}) }}
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateSecretariat}) }}
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReception}) }}
 
             <li class='row' id='field-serviceInstructeur'>
                 <div class='left libelle col-md-3'>{{ form_label(form.serviceInstructeur) }}</div>
