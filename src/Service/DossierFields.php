@@ -87,10 +87,10 @@ class DossierFields
         '26' => ['dateInsert', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
         '27' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateVisite', 'coordonneesSsi', 'dateReception', 'preventionnistes', 'observations', 'dateLimitePrescription'],
-        // Controle - OK
-        '28' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
-        // Inopinéee - OK
-        '29' => ['dateInsert', 'objet', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        // Controle - OK (Nature 28 - Groupe de visite contrôle)
+        '28' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        // Inopinéee - OK (Nature 29 - Groupe de visite inopinée)
+        '29' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // REUNION (noms Symfony standardisés)
         // Locaux SDIS - OK
         // Legacy: DATEINSERT, OBJET, DATEREUN, DATEREP, PREVENTIONNISTE, DEMANDEUR, OBSERVATION
