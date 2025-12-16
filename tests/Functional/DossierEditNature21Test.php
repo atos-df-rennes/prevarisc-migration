@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test simple pour l'édition de la nature 21 (Visite périodique).
  * Vérifie uniquement l'affichage des labels de formulaire.
  */
-class DossierEditNature21Test extends WebTestCase
+final class DossierEditNature21Test extends WebTestCase
 {
     /** @var EntityManagerInterface */
     private $entityManager;
@@ -73,7 +73,7 @@ class DossierEditNature21Test extends WebTestCase
             'Commission concernée',
             'Date de visite',
             'Date de réponse',
-            'Préventionnistes',
+            'Préventionniste(s) du dossier',
             'Avis du rapporteur',
             'Avis de la commission',
             'Analyse de risque',
@@ -135,8 +135,5 @@ class DossierEditNature21Test extends WebTestCase
         $client->request(Request::METHOD_GET, '/dossier/'.$dossier->getId().'/modifier');
 
         $this->assertResponseIsSuccessful();
-
-        // Si avisDiffere est vide/false, le champ ne devrait pas s'afficher en mode lecture
-        // (logique du legacy : affiche uniquement si valeur présente)
     }
 }
