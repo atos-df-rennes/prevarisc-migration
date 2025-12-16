@@ -10,6 +10,7 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
     <script src="{{ asset('js/dossier/form.js') }}"></script>
 {% endblock %}
 
@@ -70,20 +71,26 @@
                     <label>Numéros documents d'urbanisme</label>
                 </div>
                 <div class='right form col-md-9'>
-                    <ul class="documents-urbanisme-list list-unstyled" data-prototype="{{ form_widget(form.documentsUrbanisme.vars.prototype)|e('html_attr') }}">
+                    <ul id="dossier_documentsUrbanisme"
+                        class="row list-unstyled remove-collection-widget"
+                        data-prototype="{{ form_widget(form.documentsUrbanisme.vars.prototype)|e }}"
+                        data-widget-tags="{{ '<li></li>'|e }}"
+                        data-widget-counter="{{ form.documentsUrbanisme|length }}">
                         {% for document_urbanisme in form.documentsUrbanisme %}
-                            <li class="document-urbanisme-item mb-2">
-                                {{ form_widget(document_urbanisme.numero) }}
-                                {{ form_errors(document_urbanisme.numero) }}
-                                <button type="button" class="btn btn-sm btn-danger remove-document-urbanisme">
-                                    <i class="fa fa-trash"></i> Supprimer
-                                </button>
+                            <li>
+                                {{ form_errors(document_urbanisme) }}
+                                {{ form_widget(document_urbanisme, {attr: {class: 'collection-item-wrapper'}}) }}
                             </li>
                         {% endfor %}
                     </ul>
-                    <button type="button" class="btn btn-sm btn-primary add-document-urbanisme">
-                        <i class="fa fa-plus"></i> Ajouter un numéro
-                    </button>
+
+                    <div class="text-center mt-2">
+                        <button type="button"
+                                class="btn btn-primary add-collection-widget"
+                                data-list-selector="#dossier_documentsUrbanisme">
+                            <span class="glyphicon glyphicon-plus"></span> Ajouter un numéro
+                        </button>
+                    </div>
                     {{ form_errors(form.documentsUrbanisme) }}
                 </div>
             </li>

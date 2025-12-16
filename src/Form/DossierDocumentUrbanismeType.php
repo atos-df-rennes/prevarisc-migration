@@ -20,6 +20,9 @@ class DossierDocumentUrbanismeType extends AbstractType
                     'class' => 'form-control',
                     'placeholder' => 'Ex: PC 123 456',
                 ],
+                'row_attr' => [
+                    'class' => 'col-sm-10',
+                ],
             ]);
     }
 
