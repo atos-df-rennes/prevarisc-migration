@@ -216,16 +216,21 @@
 **Nouveauté** : Premiers champs spécifiques ajoutés au FormType pour une nature.
 
 **Champs dérogation ajoutés** :
-1. `justificationDerogation` : Justification de la dérogation demandée
-2. `mesuresCompensatoires` : Mesures compensatoires proposées
-3. `mesuresComplementaires` : Mesures complémentaires
-4. `reglesDerogation` : Règles faisant l'objet de la dérogation
+1. `reglesDerogation` : Règles faisant l'objet de la dérogation
+2. `justificationDerogation` : Justification de la dérogation demandée
+3. `mesuresCompensatoires` : Mesures compensatoires proposées
+4. `mesuresComplementaires` : Mesures complémentaires
+
+**Position dans le formulaire** :
+- Juste avant les cases à cocher `incomplet` et `horsDelai`
+- Ordre conforme au legacy (index.phtml lignes 1841-1882)
 
 **Particularités Dérogation vs PC/AT** :
 - Même base que PC/AT (documents urbanisme, dates, etc.)
 - + 4 champs texte longs spécifiques aux dérogations
 - Ces champs sont présents dans l'entité Dossier (type `text`)
 - Ils sont affichés conditionnellement selon la nature
+- Positionnés juste avant `incomplet`/`horsDelai` (ordre legacy)
 
 **Test créé** :
 - Vérifie les labels principaux
