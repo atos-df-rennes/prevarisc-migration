@@ -49,7 +49,6 @@ class DossierType extends AbstractType
                 'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_type',
                     'data-action' => 'change',
                 ],
             ])
@@ -62,7 +61,6 @@ class DossierType extends AbstractType
                 'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_nature',
                     'data-action' => 'change',
                 ],
             ])
@@ -103,7 +101,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateSecretariat',
                 ],
             ])
             ->add('serviceInstructeur', TextType::class, [
@@ -111,7 +108,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_serviceInstructeur',
                 ],
             ])
             ->add('incomplet', CheckboxType::class, [
@@ -119,7 +115,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
-                    'id' => 'dossier_incomplet',
                 ],
             ])
             ->add('horsDelai', CheckboxType::class, [
@@ -127,7 +122,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
-                    'id' => 'dossier_horsDelai',
                 ],
             ])
             ->add('commission', EntityType::class, [
@@ -215,7 +209,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_demandeur',
                 ],
             ])
             ->add('lieuReunion', TextType::class, [
@@ -223,7 +216,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_lieuReunion',
                 ],
             ])
             ->add('dateReunion', DateType::class, [
@@ -232,7 +224,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateReunion',
                 ],
             ])
             ->add('dateReponse', DateType::class, [
@@ -241,7 +232,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateReponse',
                 ],
             ])
             ->add('observations', TextareaType::class, [
@@ -250,7 +240,6 @@ class DossierType extends AbstractType
                 'attr' => [
                     'rows' => 3,
                     'class' => 'form-control',
-                    'id' => 'dossier_observations',
                 ],
             ])
             ->add('analyseDeRisque', TextareaType::class, [
@@ -259,7 +248,6 @@ class DossierType extends AbstractType
                 'attr' => [
                     'rows' => 3,
                     'class' => 'form-control',
-                    'id' => 'dossier_analyseDeRisque',
                 ],
             ])
 
@@ -270,7 +258,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateMairie',
                 ],
             ])
             ->add('dateEnvoiTransit', DateType::class, [
@@ -279,7 +266,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateEnvoiTransit',
                 ],
             ])
             ->add('dateTransfertCommission', DateType::class, [
@@ -288,7 +274,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateTransfertCommission',
                 ],
             ])
             ->add('dateReceptionCommission', DateType::class, [
@@ -297,7 +282,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'id' => 'dossier_dateReceptionCommission',
                 ],
             ])
 
