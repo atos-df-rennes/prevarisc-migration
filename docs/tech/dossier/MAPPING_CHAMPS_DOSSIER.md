@@ -22,86 +22,86 @@
 
 ### Champs généraux
 
-| Legacy (UPPERCASE) | Symfony (camelCase) | Propriété Entité | Description |
-|-------------------|---------------------|------------------|-------------|
-| `DATEINSERT` | `dateInsert` | `$dateInsert` | Date de création |
-| `OBJET` | `objet` | `$objet` | Objet du dossier |
-| `OBSERVATION` | `observationDossier` | `$observationDossier` | Observations |
-| `HORSDELAI` | `horsDelai` | `$horsDelai` | Hors délai (boolean) |
-| `DATESIGNATURE` | `dateSignature` | `$dateSignature` | Date de signature |
+| Legacy (UPPERCASE) | Symfony (camelCase)  | Propriété Entité      | Description          |
+|--------------------|----------------------|-----------------------|----------------------|
+| `DATEINSERT`       | `dateInsert`         | `$dateInsert`         | Date de création     |
+| `OBJET`            | `objet`              | `$objet`              | Objet du dossier     |
+| `OBSERVATION`      | `observationDossier` | `$observationDossier` | Observations         |
+| `HORSDELAI`        | `horsDelai`          | `$horsDelai`          | Hors délai (boolean) |
+| `DATESIGNATURE`    | `dateSignature`      | `$dateSignature`      | Date de signature    |
 
 ### Champs réunions (Phase 1)
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `DATEREUN` | `dateReunion` | `$dateReunion` | Date de réunion (réunions uniquement) |
-| `DATEVISITE` | `dateVisite` | `$dateVisite` | Date de visite (visites uniquement) |
-| `LIEUREUNION` | `lieuReunion` | `$lieuReunion` | Lieu de réunion |
-| `DEMANDEUR` | `demandeur` | `$demandeur` | Demandeur |
-| `DATEREP` | `dateReception` | `$dateReception` | Date réception SDIS |
-| `PREVENTIONNISTE` | `preventionnistes` | `$preventionnistes` | Collection préventionnistes |
+| Legacy            | Symfony            | Propriété           | Description                           |
+|-------------------|--------------------|---------------------|---------------------------------------|
+| `DATEREUN`        | `dateReunion`      | `$dateReunion`      | Date de réunion (réunions uniquement) |
+| `DATEVISITE`      | `dateVisite`       | `$dateVisite`       | Date de visite (visites uniquement)   |
+| `LIEUREUNION`     | `lieuReunion`      | `$lieuReunion`      | Lieu de réunion                       |
+| `DEMANDEUR`       | `demandeur`        | `$demandeur`        | Demandeur                             |
+| `DATEREP`         | `dateReponse`      | `$dateReponse`      | Date réponse SDIS                     |
+| `PREVENTIONNISTE` | `preventionnistes` | `$preventionnistes` | Collection préventionnistes           |
 
 ### Champs études (Phase future)
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `NUMDOCURBA` | `documentsUrbanisme` | `$documentsUrbanisme` | N° documents urbanisme |
-| `DATEMAIRIE` | `dateMairie` | `$dateMairie` | Date réception mairie |
-| `DATESECRETARIAT` | `dateSecretariat` | `$dateSecretariat` | Date réception secrétariat SDIS |
-| `SERVICEINSTRUC` | `serviceInstructeur` | `$serviceInstructeur` | Service instructeur |
-| `COMMISSION` | `commission` | `$commission` | Commission |
-| `DATECOMM` | `dateCommission` | `$dateCommission` | Date commission |
-| `INCOMPLET` | `incomplet` | `$incomplet` | Dossier incomplet (boolean) |
-| `AVIS` | `avis` | `$avis` | Avis du rapporteur |
-| `AVIS_COMMISSION` | `avisCommission` | `$avisCommission` | Avis de la commission |
-| `ABSQUORUM` | `absenceDeQuorum` | `$absenceDeQuorum` | Absence de quorum (boolean) |
-| `NPSP` | `nePeutSePrononcer` | `$nePeutSePrononcer` | Ne peut se prononcer (boolean) |
+| Legacy            | Symfony              | Propriété             | Description                     |
+|-------------------|----------------------|-----------------------|---------------------------------|
+| `NUMDOCURBA`      | `documentsUrbanisme` | `$documentsUrbanisme` | N° documents urbanisme          |
+| `DATEMAIRIE`      | `dateMairie`         | `$dateMairie`         | Date réception mairie           |
+| `DATESECRETARIAT` | `dateSecretariat`    | `$dateSecretariat`    | Date réception secrétariat SDIS |
+| `SERVICEINSTRUC`  | `serviceInstructeur` | `$serviceInstructeur` | Service instructeur             |
+| `COMMISSION`      | `commission`         | `$commission`         | Commission                      |
+| `DATECOMM`        | `dateCommission`     | `$dateCommission`     | Date commission                 |
+| `INCOMPLET`       | `incomplet`          | `$incomplet`          | Dossier incomplet (boolean)     |
+| `AVIS`            | `avis`               | `$avis`               | Avis du rapporteur              |
+| `AVIS_COMMISSION` | `avisCommission`     | `$avisCommission`     | Avis de la commission           |
+| `ABSQUORUM`       | `absenceDeQuorum`    | `$absenceDeQuorum`    | Absence de quorum (boolean)     |
+| `NPSP`            | `nePeutSePrononcer`  | `$nePeutSePrononcer`  | Ne peut se prononcer (boolean)  |
 
 ### Champs dérogations (Phase future)
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `REGLEDEROG` | `reglesDerogation` | `$reglesDerogation` | Règles dérogation |
-| `JUSTIFDEROG` | `justificationDerogation` | `$justificationDerogation` | Justification |
-| `MESURESCOMPENS` | `mesuresCompensatoires` | `$mesuresCompensatoires` | Mesures compensatoires |
-| `MESURESCOMPLE` | `mesuresComplementaires` | `$mesuresComplementaires` | Mesures complémentaires |
+| Legacy           | Symfony                   | Propriété                  | Description             |
+|------------------|---------------------------|----------------------------|-------------------------|
+| `REGLEDEROG`     | `reglesDerogation`        | `$reglesDerogation`        | Règles dérogation       |
+| `JUSTIFDEROG`    | `justificationDerogation` | `$justificationDerogation` | Justification           |
+| `MESURESCOMPENS` | `mesuresCompensatoires`   | `$mesuresCompensatoires`   | Mesures compensatoires  |
+| `MESURESCOMPLE`  | `mesuresComplementaires`  | `$mesuresComplementaires`  | Mesures complémentaires |
 
 ### Champs visites (Phase future)
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `DIFFEREAVIS` | `avisDiffere` | `$avisDiffere` | Avis différé (boolean) |
-| `DATERVRAT` | `dateReceptionRvrat` | `$dateReceptionRvrat` | Date réception RVRAT |
-| `DELAIPRESC` | `dateLimitePrescription` | `$dateLimitePrescription` | Délai levée prescriptions |
+| Legacy        | Symfony                  | Propriété                 | Description               |
+|---------------|--------------------------|---------------------------|---------------------------|
+| `DIFFEREAVIS` | `avisDiffere`            | `$avisDiffere`            | Avis différé (boolean)    |
+| `DATERVRAT`   | `dateReceptionRvrat`     | `$dateReceptionRvrat`     | Date réception RVRAT      |
+| `DELAIPRESC`  | `dateLimitePrescription` | `$dateLimitePrescription` | Délai levée prescriptions |
 
 ### Champs courriers (Phase future)
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `DATEENVTRANSIT` | `dateEnvoiTransit` | `$dateEnvoiTransit` | Date envoi/transit |
-| `DATEPREF` | `datePrefecture` | `$datePrefecture` | Date réception préfecture |
+| Legacy              | Symfony                   | Propriété                  | Description               |
+|---------------------|---------------------------|----------------------------|---------------------------|
+| `DATEENVTRANSIT`    | `dateEnvoiTransit`        | `$dateEnvoiTransit`        | Date envoi/transit        |
+| `DATEPREF`          | `datePrefecture`          | `$datePrefecture`          | Date réception préfecture |
 | `DATETRANSFERTCOMM` | `dateTransfertCommission` | `$dateTransfertCommission` | Date transfert commission |
 | `DATERECEPTIONCOMM` | `dateReceptionCommission` | `$dateReceptionCommission` | Date réception commission |
 
 ### Champs interventions (Phase future)
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `OPERSDIS` | `operationSdis` | `$operationSdis` | Opération SDIS (boolean) |
-| `RCCI` | `rcci` | `$rcci` | RCCI (boolean) |
-| `REX` | `rex` | `$rex` | REX (boolean) |
-| `NUMINTERV` | `numeroIntervention` | `$numeroIntervention` | N° intervention |
-| `DATEINTERV` | `dateIntervention` | `$dateIntervention` | Date intervention |
-| `DUREEINTERV` | `dureeIntervention` | `$dureeIntervention` | Durée intervention |
+| Legacy        | Symfony              | Propriété             | Description              |
+|---------------|----------------------|-----------------------|--------------------------|
+| `OPERSDIS`    | `operationSdis`      | `$operationSdis`      | Opération SDIS (boolean) |
+| `RCCI`        | `rcci`               | `$rcci`               | RCCI (boolean)           |
+| `REX`         | `rex`                | `$rex`                | REX (boolean)            |
+| `NUMINTERV`   | `numeroIntervention` | `$numeroIntervention` | N° intervention          |
+| `DATEINTERV`  | `dateIntervention`   | `$dateIntervention`   | Date intervention        |
+| `DUREEINTERV` | `dureeIntervention`  | `$dureeIntervention`  | Durée intervention       |
 
 ### Champs spécifiques
 
-| Legacy | Symfony | Propriété | Description |
-|--------|---------|-----------|-------------|
-| `CHARGESEC` | `chargeSecurite` | `$chargeSecurite` | Chargé de sécurité |
-| `DATESDIS` | `dateReponse` | `$dateReponse` | Date réponse SDIS |
-| `DATESIGN` | `dateSignature` | `$dateSignature` | Date signature |
-| `NUMCHRONO` | `numeroChronologique` | `$numeroChronologique` | N° chronologique |
+| Legacy      | Symfony               | Propriété              | Description         |
+|-------------|-----------------------|------------------------|---------------------|
+| `CHARGESEC` | `chargeSecurite`      | `$chargeSecurite`      | Chargé de sécurité  |
+| `DATESDIS`  | `dateReception`       | `$dateReception`       | Date réception SDIS |
+| `DATESIGN`  | `dateSignature`       | `$dateSignature`       | Date signature      |
+| `NUMCHRONO` | `numeroChronologique` | `$numeroChronologique` | N° chronologique    |
 
 ---
 
