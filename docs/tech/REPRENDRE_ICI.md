@@ -1,13 +1,13 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 16 décembre 2025 - 16h30  
-**Session précédente :** 16 décembre 2025 - Après-midi (Nature 2 AT TERMINÉE ✅)
+**Date :** 16 décembre 2025 - 17h00  
+**Session précédente :** 16 décembre 2025 - Après-midi (Nature 3 Dérogation TERMINÉE ✅)
 
 ---
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (19)
+### Natures opérationnelles - Affichage ET Édition (20)
 
 **Réunions (3) :**
 - 31, 32, 43 ✅
@@ -20,9 +20,10 @@
 - **28 (Visite de contrôle) ✅**
 - **29 (Visite inopinée) ✅**
 
-**Études (1) :**
+**Études (3) :**
 - **1 (Permis de construire - PC) ✅**
-- **2 (Autorisation de travaux - AT) ✅ - TERMINÉE 16 décembre**
+- **2 (Autorisation de travaux - AT) ✅**
+- **3 (Dérogation) ✅ - TERMINÉE 16 décembre**
 
 ### Session 11 décembre : Nature 21 - Développement complet
 
@@ -112,6 +113,47 @@
 
 ---
 
+## ✅ Nature 3 (Dérogation) - TERMINÉE ! (16 décembre 2025)
+
+### Statut
+
+**Nature 3 (Dérogation) implémentée avec succès** ✅
+
+**Configuration** :
+- `DossierFields.php` ligne 19 : ✅ Déjà présente
+- **Champs ajoutés au FormType** : 
+  * `justificationDerogation` (TextareaType)
+  * `mesuresCompensatoires` (TextareaType)
+  * `mesuresComplementaires` (TextareaType)
+  * `reglesDerogation` (TextareaType)
+- Template : ✅ Compatible (champs conditionnels JS)
+- JavaScript : ✅ Affichage dynamique OK
+
+**Champs affichés (23)** :
+`type, dateInsert, objet, documentsUrbanisme, dateMairie, dateSecretariat, serviceInstructeur, commission, justificationDerogation, mesuresCompensatoires, mesuresComplementaires, dateCommission, avis, dateReponse, dateReception, preventionnistes, absenceDeQuorum, demandeur, reglesDerogation, incomplet, horsDelai, avisCommission, observations`
+
+**Champs spécifiques dérogation** :
+- Justification de la dérogation
+- Mesures compensatoires
+- Mesures complémentaires
+- Règles de dérogation
+
+**Test créé** :
+- `tests/Functional/DossierEditNature3Test.php` ✅
+- Vérifie l'affichage des champs principaux + champs spécifiques dérogations
+- Test passe : 16 assertions ✅
+
+**Validation** :
+- PHPStan : ✅ 0 erreur
+- CS Fixer : ✅ 0 erreur (Rector a apporté 1 amélioration)
+- Twig CS : ✅ 0 erreur
+- Test spécifique : ✅ OK
+- Tous les tests : ✅ 204 tests passent
+
+**Commit** : `9d6e52c` - "feat: Ajout support nature 3 (Dérogation)"
+
+---
+
 ## ✅ Nature 2 (AT) - TERMINÉE ! (16 décembre 2025)
 
 ### Statut
@@ -144,18 +186,19 @@
 **Natures implémentées Phase 4** :
 - 1 : Permis de construire (PC) ✅
 - 2 : Autorisation de travaux (AT) ✅
+- 3 : Dérogation ✅
 
-**Total natures opérationnelles** : **19/68**
+**Total natures opérationnelles** : **20/68**
 
-**Prochaines natures** : 3-19 (autres études)
+**Prochaines natures** : 4-19 (autres études)
 
 ---
 
-## 🎯 Prochaine étape : Nature 3 ou suivantes
+## 🎯 Prochaine étape : Nature 4 ou suivantes
 
 **Natures restantes Phase 4** :
-- Nature 3 : Dérogation
-- Natures 4-19 : Autres études
+- Nature 4 : Cahier des charges fonctionnel du SSI
+- Natures 5-19 : Autres études
 - Nature 30 : Déclaration préalable
 - Nature 33 : RVRMD diag sécu
 - Nature 46 : Échéancier de travaux
@@ -167,6 +210,28 @@
 ---
 
 ## 📝 Notes session 16 décembre 2025 (après-midi)
+
+### Nature 3 (Dérogation) - Implémentation
+
+**Nouveauté** : Premiers champs spécifiques ajoutés au FormType pour une nature.
+
+**Champs dérogation ajoutés** :
+1. `justificationDerogation` : Justification de la dérogation demandée
+2. `mesuresCompensatoires` : Mesures compensatoires proposées
+3. `mesuresComplementaires` : Mesures complémentaires
+4. `reglesDerogation` : Règles faisant l'objet de la dérogation
+
+**Particularités Dérogation vs PC/AT** :
+- Même base que PC/AT (documents urbanisme, dates, etc.)
+- + 4 champs texte longs spécifiques aux dérogations
+- Ces champs sont présents dans l'entité Dossier (type `text`)
+- Ils sont affichés conditionnellement selon la nature
+
+**Test créé** :
+- Vérifie les labels principaux
+- Vérifie la présence des 4 champs spécifiques dérogations
+- Vérifie la présence des champs d'études (documentsUrbanisme, etc.)
+- Utilise un dossier Dérogation réel de la base de données
 
 ### Nature 2 (AT) - Implémentation
 
