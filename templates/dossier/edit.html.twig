@@ -56,7 +56,15 @@
                 </div>
             </li>
 
-            {# Champs spécifiques études (PC/AT) #}
+            <li class='row' id='field-demandeur'>
+                <div class='left libelle col-md-3'>{{ form_label(form.demandeur) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.demandeur) }}
+                    {{ form_errors(form.demandeur) }}
+                </div>
+            </li>
+
+            {# Champs spécifiques études (PC/AT) - Ordre selon legacy #}
             <li class='row' id='field-documentsUrbanisme'>
                 <div class='left libelle col-md-3'>{{ form_label(form.documentsUrbanisme) }}</div>
                 <div class='right form col-md-9'>
@@ -67,7 +75,13 @@
                 </div>
             </li>
 
-            {# Champ numeroChronologique retiré (non présent dans entité) #}
+            <li class='row' id='field-dateMairie'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateMairie) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateMairie) }}
+                    {{ form_errors(form.dateMairie) }}
+                </div>
+            </li>
 
             <li class='row' id='field-dateSecretariat'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateSecretariat) }}</div>
@@ -77,19 +91,13 @@
                 </div>
             </li>
 
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReception, label_override: 'Date de réception SDIS'}) }}
+
             <li class='row' id='field-serviceInstructeur'>
                 <div class='left libelle col-md-3'>{{ form_label(form.serviceInstructeur) }}</div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.serviceInstructeur) }}
                     {{ form_errors(form.serviceInstructeur) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-demandeur'>
-                <div class='left libelle col-md-3'>{{ form_label(form.demandeur) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.demandeur) }}
-                    {{ form_errors(form.demandeur) }}
                 </div>
             </li>
 
@@ -120,6 +128,29 @@
                 <div class='right form col-md-9'>
                     {{ form_widget(form.dateCommission) }}
                     {{ form_errors(form.dateCommission) }}
+                </div>
+            </li>
+
+            {# Champs spécifiques études - incomplet et horsDelai (ordre legacy) #}
+            <li class='row' id='field-incomplet'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    <div class='form-check'>
+                        {{ form_widget(form.incomplet) }}
+                        {{ form_label(form.incomplet) }}
+                        {{ form_errors(form.incomplet) }}
+                    </div>
+                </div>
+            </li>
+
+            <li class='row' id='field-horsDelai'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    <div class='form-check'>
+                        {{ form_widget(form.horsDelai) }}
+                        {{ form_label(form.horsDelai) }}
+                        {{ form_errors(form.horsDelai) }}
+                    </div>
                 </div>
             </li>
 
@@ -165,29 +196,6 @@
             </li>
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateLimitePrescription}) }}
-
-            {# Champs spécifiques études #}
-            <li class='row' id='field-incomplet'>
-                <div class='left libelle col-md-3'></div>
-                <div class='right form col-md-9'>
-                    <div class='form-check'>
-                        {{ form_widget(form.incomplet) }}
-                        {{ form_label(form.incomplet) }}
-                        {{ form_errors(form.incomplet) }}
-                    </div>
-                </div>
-            </li>
-
-            <li class='row' id='field-horsDelai'>
-                <div class='left libelle col-md-3'></div>
-                <div class='right form col-md-9'>
-                    <div class='form-check'>
-                        {{ form_widget(form.horsDelai) }}
-                        {{ form_label(form.horsDelai) }}
-                        {{ form_errors(form.horsDelai) }}
-                    </div>
-                </div>
-            </li>
 
             <li class='row' id='field-avisCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
