@@ -264,6 +264,10 @@
             'serviceInstructeur',
             'incomplet',
             'horsDelai',
+            'justificationDerogation',
+            'mesuresCompensatoires',
+            'mesuresComplementaires',
+            'reglesDerogation',
             // Note: analyseDeRisque n'est pas géré dynamiquement (affiché uniquement si valeur existe)
             // Ajouter d'autres champs au fur et à mesure
         ];

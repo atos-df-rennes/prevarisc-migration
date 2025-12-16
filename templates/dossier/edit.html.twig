@@ -109,6 +109,39 @@
                 </div>
             </li>
 
+            {# Champs spécifiques dérogations (nature 3) #}
+            <li class='row' id='field-justificationDerogation'>
+                <div class='left libelle col-md-3'>{{ form_label(form.justificationDerogation) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.justificationDerogation) }}
+                    {{ form_errors(form.justificationDerogation) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-mesuresCompensatoires'>
+                <div class='left libelle col-md-3'>{{ form_label(form.mesuresCompensatoires) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.mesuresCompensatoires) }}
+                    {{ form_errors(form.mesuresCompensatoires) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-mesuresComplementaires'>
+                <div class='left libelle col-md-3'>{{ form_label(form.mesuresComplementaires) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.mesuresComplementaires) }}
+                    {{ form_errors(form.mesuresComplementaires) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-reglesDerogation'>
+                <div class='left libelle col-md-3'>{{ form_label(form.reglesDerogation) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.reglesDerogation) }}
+                    {{ form_errors(form.reglesDerogation) }}
+                </div>
+            </li>
+
             {# @todo: Ajouter le bouton "Choisir une autre commission" #}
             <li class='row' id='field-commission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
