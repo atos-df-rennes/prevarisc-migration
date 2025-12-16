@@ -8,6 +8,7 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierType as DossierTypeEntity;
 use App\Entity\Utilisateur;
+use App\Form\DataTransformer\DateCommissionTransformer;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -174,8 +175,9 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add('dateCommission', TextType::class, [
+            ->add('dateCommission', DateType::class, [
                 'label' => 'Date de commission en salle',
+                'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
@@ -307,8 +309,10 @@ class DossierType extends AbstractType
                 'multiple' => true,
                 'required' => false,
                 'attr' => ['class' => 'tomselect-ajax'],
-            ])
-        ;
+            ]);
+
+        // Ajout du transformer pour dateCommission (stockée en string dd/mm/yyyy)
+        $builder->get('dateCommission')->addModelTransformer(new DateCommissionTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver): void
