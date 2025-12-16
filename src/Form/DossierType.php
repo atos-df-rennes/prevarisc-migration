@@ -13,6 +13,7 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -79,28 +80,61 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-            ->add('descriptifGeneral', TextareaType::class, [
-                'label' => 'Descriptif général',
+            // Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés
+            // (gérés dans sections séparées ou obsolètes - voir docs/tech/découvertes)
+
+            // Champs spécifiques études (natures 1, 2, etc.)
+            ->add('documentsUrbanisme', CollectionType::class, [
+                'entry_type' => DossierDocumentUrbanismeType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'label' => "Documents d'urbanisme",
                 'required' => false,
                 'attr' => [
-                    'rows' => 5,
-                    'class' => 'form-control',
+                    'class' => 'documents-urbanisme-collection',
                 ],
             ])
-            ->add('descriptifEffectifs', TextareaType::class, [
-                'label' => 'Descriptif effectifs',
+            ->add('numeroChronologique', TextType::class, [
+                'label' => 'Numéro chronologique',
                 'required' => false,
                 'attr' => [
-                    'rows' => 5,
                     'class' => 'form-control',
+                    'id' => 'dossier_numeroChronologique',
                 ],
             ])
-            ->add('coordonneesSsi', TextareaType::class, [
-                'label' => 'Coordonnées SSI',
+            ->add('dateSecretariat', DateType::class, [
+                'label' => 'Date de réception secrétariat commission',
+                'widget' => 'single_text',
                 'required' => false,
                 'attr' => [
-                    'rows' => 3,
                     'class' => 'form-control',
+                    'id' => 'dossier_dateSecretariat',
+                ],
+            ])
+            ->add('serviceInstructeur', TextType::class, [
+                'label' => 'Service instructeur',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'id' => 'dossier_serviceInstructeur',
+                ],
+            ])
+            ->add('incomplet', CheckboxType::class, [
+                'label' => 'Dossier incomplet',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                    'id' => 'dossier_incomplet',
+                ],
+            ])
+            ->add('horsDelai', CheckboxType::class, [
+                'label' => 'Hors délai',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                    'id' => 'dossier_horsDelai',
                 ],
             ])
             ->add('commission', EntityType::class, [
