@@ -96,6 +96,41 @@ class DossierType extends AbstractType
                 ],
             ])
             // Champ numeroChronologique retiré (non présent dans l'entité)
+
+            // Champs spécifiques dérogations (nature 3)
+            ->add('justificationDerogation', TextareaType::class, [
+                'label' => 'Justification de la dérogation',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('mesuresCompensatoires', TextareaType::class, [
+                'label' => 'Mesures compensatoires',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('mesuresComplementaires', TextareaType::class, [
+                'label' => 'Mesures complémentaires',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('reglesDerogation', TextareaType::class, [
+                'label' => 'Règles de dérogation',
+                'required' => false,
+                'attr' => [
+                    'rows' => 3,
+                    'class' => 'form-control',
+                ],
+            ])
+
             ->add('dateSecretariat', DateType::class, [
                 'label' => 'Date de réception secrétariat commission',
                 'widget' => 'single_text',

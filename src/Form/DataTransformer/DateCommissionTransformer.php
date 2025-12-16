@@ -3,7 +3,6 @@
 namespace App\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\Exception\TransformationFailedException;
 
 /**
  * Transforme une date stockée en string (format Y-m-d) en DateTime et vice-versa.
