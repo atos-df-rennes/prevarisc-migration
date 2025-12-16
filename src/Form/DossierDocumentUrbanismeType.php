@@ -14,7 +14,7 @@ class DossierDocumentUrbanismeType extends AbstractType
     {
         $builder
             ->add('numero', TextType::class, [
-                'label' => 'Numéro document d\'urbanisme',
+                'label' => false,
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',

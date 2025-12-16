@@ -66,11 +66,24 @@
 
             {# Champs spécifiques études (PC/AT) - Ordre selon legacy #}
             <li class='row' id='field-documentsUrbanisme'>
-                <div class='left libelle col-md-3'>{{ form_label(form.documentsUrbanisme) }}</div>
+                <div class='left libelle col-md-3'>
+                    <label>Numéros documents d'urbanisme</label>
+                </div>
                 <div class='right form col-md-9'>
-                    <div data-prototype="{{ form_widget(form.documentsUrbanisme.vars.prototype)|e('html_attr') }}">
-                        {{ form_widget(form.documentsUrbanisme) }}
-                    </div>
+                    <ul class="documents-urbanisme-list list-unstyled" data-prototype="{{ form_widget(form.documentsUrbanisme.vars.prototype)|e('html_attr') }}">
+                        {% for document_urbanisme in form.documentsUrbanisme %}
+                            <li class="document-urbanisme-item mb-2">
+                                {{ form_widget(document_urbanisme.numero) }}
+                                {{ form_errors(document_urbanisme.numero) }}
+                                <button type="button" class="btn btn-sm btn-danger remove-document-urbanisme">
+                                    <i class="fa fa-trash"></i> Supprimer
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <button type="button" class="btn btn-sm btn-primary add-document-urbanisme">
+                        <i class="fa fa-plus"></i> Ajouter un numéro
+                    </button>
                     {{ form_errors(form.documentsUrbanisme) }}
                 </div>
             </li>
