@@ -222,6 +222,9 @@
         fieldsToShow.forEach(function(fieldName) {
             showField(fieldName);
         });
+        
+        // Gestion spéciale du champ analyseDeRisque selon le type (comportement legacy)
+        applyAnalyseDeRisqueDisplay();
     }
 
     /**
@@ -261,7 +264,7 @@
             'serviceInstructeur',
             'incomplet',
             'horsDelai',
-            'analyseDeRisque',
+            // Note: analyseDeRisque n'est pas géré dynamiquement (affiché uniquement si valeur existe)
             // Ajouter d'autres champs au fur et à mesure
         ];
 
@@ -556,6 +559,37 @@
         } else {
             if (facteurRow) facteurRow.style.display = 'none';
             if (echeancierRow) echeancierRow.style.display = 'none';
+        }
+    }
+
+    /**
+     * Affiche le champ analyseDeRisque pour les types 1, 2 et 3 (comportement legacy JS)
+     * Legacy: voir prevarisc/application/views/scripts/dossier/index.phtml lignes 1000-1011
+     * 
+     * Le champ ANOMALIE n'est jamais dans la liste des champs par nature ($listeChamps),
+     * mais il est affiché via JavaScript selon le type de dossier :
+     * - Type 1 (Étude) : affiche ANOMALIE
+     * - Type 2 (Visite) : affiche ANOMALIE
+     * - Type 3 (Groupe de visite) : affiche ANOMALIE
+     */
+    function applyAnalyseDeRisqueDisplay() {
+        const typeSelect = document.querySelector('#dossier_type');
+        if (!typeSelect) {
+            return;
+        }
+
+        const typeDossier = typeSelect.value;
+        const analyseDeRisqueRow = findFieldRow('analyseDeRisque');
+
+        if (!analyseDeRisqueRow) {
+            return;
+        }
+
+        // Afficher pour les types 1, 2 et 3
+        if (typeDossier === '1' || typeDossier === '2' || typeDossier === '3') {
+            analyseDeRisqueRow.style.display = '';
+        } else {
+            analyseDeRisqueRow.style.display = 'none';
         }
     }
 

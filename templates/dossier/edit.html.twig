@@ -226,7 +226,8 @@
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.echeancierTravaux, show_today: false}) }}
 
-            <li class='row' id='field-analyseDeRisque'>
+            {# Analyse de risque : affiché pour types 1, 2, 3 (géré par JS - voir form.js) #}
+            <li class='row' id='field-analyseDeRisque' style='display:none;'>
                 <div class='left libelle col-md-3'>{{ form_label(form.analyseDeRisque) }}</div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.analyseDeRisque) }}
