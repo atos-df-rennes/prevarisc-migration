@@ -174,9 +174,8 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add('dateCommission', DateType::class, [
+            ->add('dateCommission', TextType::class, [
                 'label' => 'Date de commission en salle',
-                'widget' => 'single_text',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
