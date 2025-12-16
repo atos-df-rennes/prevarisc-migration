@@ -1,13 +1,13 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 15 décembre 2025 - 16h58  
-**Session précédente :** 15 décembre 2025 - Après-midi (Phase 3 - Nature 28 TERMINÉE)
+**Date :** 16 décembre 2025 - 09h20  
+**Session précédente :** 16 décembre 2025 - Matin (Phase 3 TERMINÉE ✅)
 
 ---
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (17)
+### Natures opérationnelles - Affichage ET Édition (18)
 
 **Réunions (3) :**
 - 31, 32, 43 ✅
@@ -15,9 +15,10 @@
 **Courriers (12) :**
 - 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65 ✅
 
-**Visites (2) :**
-- **21 (Périodique) ✅ - TERMINÉE À 100% avec tous les ajustements appliqués !**
-- **28 (Visite de contrôle) ✅ - TERMINÉE avec tous les ajustements !**
+**Visites (3) :**
+- **21 (Périodique) ✅ - TERMINÉE À 100%**
+- **28 (Visite de contrôle) ✅ - TERMINÉE**
+- **29 (Visite inopinée) ✅ - TERMINÉE**
 
 ### Session 11 décembre : Nature 21 - Développement complet
 
@@ -80,42 +81,83 @@
 
 ---
 
-## 🎯 Prochaine étape : Nature 29 (Visite inopinée)
+## ✅ Nature 29 - TERMINÉE ! (16 décembre 2025)
 
-### Analyse Nature 29
+### Statut
+
+**Nature 29 (Visite inopinée - Groupe) était déjà configurée et opérationnelle** ✅
+
+**Configuration** :
+- `DossierFields.php` ligne 93 : ✅ Déjà présente
+- Template : ✅ Compatible (champs conditionnels JS)
+- JavaScript : ✅ Affichage dynamique OK
 
 **Différence vs Nature 28** :
-- Nature 28 - `coordonneesSsi` ✅
-- **Nature 29 n'a PAS `coordonneesSsi`** ← Seule différence !
+- Nature 28 : contient `coordonneesSsi`
+- Nature 29 : **sans** `coordonneesSsi` ← Seule différence
 
-**Champs Nature 29** (identiques à 28 sauf coordonneesSsi) :
-```
-dateInsert, objet, commission, descriptifGeneral, descriptifEffectifs,
-dateCommission, dateVisite, avis, dateReponse, preventionnistes,
-avisDiffere, absenceDeQuorum, avisCommission, observations,
-dateLimitePrescription, repercuterAvis
-+ conditionnels : facteurDangerosite, echeancierTravaux
-```
+**Champs affichés (15)** :
+`dateInsert, objet, commission, descriptifGeneral, descriptifEffectifs, dateCommission, dateVisite, avis, dateReponse, preventionnistes, avisDiffere, absenceDeQuorum, avisCommission, observations, dateLimitePrescription`
 
-**Ordre legacy (Nature 29)** :
-```
-DATEINSERT, OBJET, COMMISSION, DESCGEN, DESCEFF, DATECOMM, DATEVISITE, 
-AVIS, DATEREP, PREVENTIONNISTE, DIFFEREAVIS, ABSQUORUM, 
-AVIS_COMMISSION, OBSERVATION, DELAIPRESC
-```
-
-**Plan d'implémentation** :
-1. Ajuster `DossierFields.php` : Ajouter nature 29 sans `coordonneesSsi`
-2. Template déjà OK (champs conditionnels gérés par JavaScript)
-3. Valider PHPStan + CS + Twig CS
-4. Vérification manuelle visuelle
-5. Commit
-
-**Temps estimé** : 30 minutes (configuration simple)
+**Validation** :
+- PHPStan : ✅ 0 erreur
+- CS Fixer : ✅ 0 erreur
+- Twig CS : ✅ 0 erreur
 
 ---
 
-## ✅ Tous les ajustements Nature 21 appliqués !
+## 🎉 Phase 3 TERMINÉE ! (3 natures visites)
+
+**Natures implémentées** :
+- 21 : Visite périodique ✅
+- 28 : Visite de contrôle (groupe) ✅
+- 29 : Visite inopinée (groupe) ✅
+
+**Total natures opérationnelles** : **18/68**
+
+---
+
+## 🎯 Prochaine Phase : Phase 4 - Études simples (PC/AT)
+
+**Objectif** : Implémenter les natures d'études sans dérogations
+
+**Natures à implémenter** :
+- Nature 1 : Permis de construire (PC)
+- Nature 2 : Autorisation de travaux (AT)
+- Natures 3-19 : Autres études
+
+**Nouveaux champs vs visites** :
+- `documentsUrbanisme` (Collection) : Numéros PC/AT
+- `numeroChronologique` : Numéro chrono
+- `dateMairie` : Date réception mairie
+- `dateSecretariat` : Date réception secrétariat
+- `serviceInstructeur` : Service instructeur
+- `coordonneesSsi` : Coordonnées SSI
+
+**Priorité** : Haute  
+**Temps estimé** : 2-3 heures (nouveaux champs + tests)
+
+---
+
+## 📝 Notes session 16 décembre 2025
+
+### Nature 29 - Découverte
+
+La nature 29 était **déjà configurée** dans `DossierFields.php` depuis une session précédente.
+Aucune modification nécessaire - validation directe possible.
+
+### Optimisation des instructions
+
+Fichiers d'instructions Copilot optimisés :
+- Réduction de 77,4% des tokens (7 500 → 1 970 tokens)
+- Conservation de toutes les connaissances essentielles
+- Références vers documentation détaillée
+
+---
+
+**Dernière modification :** 16 décembre 2025 - 09h20  
+**Auteur :** Équipe Prevarisc  
+**Prochaine étape :** Phase 4 - Nature 1 (PC) ou Nature 2 (AT)
 
 1. **Labels** ✅
    - `avisDiffere` : "Diffère l'avis" (corrigé)
