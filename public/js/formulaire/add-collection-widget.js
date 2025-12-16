@@ -49,6 +49,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if(list.classList.contains('remove-collection-widget')) {
             addTagFormDeleteLink(newElem);
         }
+
+        // Dispatch custom event pour permettre aux modules spécifiques de réagir
+        const event = new CustomEvent('collection:item-added', {
+            detail: { list: list, element: newElem }
+        });
+        document.dispatchEvent(event);
     })
 });
 
