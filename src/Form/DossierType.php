@@ -96,14 +96,7 @@ class DossierType extends AbstractType
                     'class' => 'documents-urbanisme-collection',
                 ],
             ])
-            ->add('numeroChronologique', TextType::class, [
-                'label' => 'Numéro chronologique',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'id' => 'dossier_numeroChronologique',
-                ],
-            ])
+            // Champ numeroChronologique retiré (non présent dans l'entité)
             ->add('dateSecretariat', DateType::class, [
                 'label' => 'Date de réception secrétariat commission',
                 'widget' => 'single_text',
