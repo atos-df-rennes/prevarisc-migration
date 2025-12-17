@@ -7,12 +7,12 @@
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (24/68)
+### Natures opérationnelles - Affichage ET Édition (25/68)
 
 **Réunions (3) :** 31, 32, 43  
 **Courriers (12) :** 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65  
 **Visites (3) :** 21 (Périodique), 28 (Visite de contrôle), 29 (Visite inopinée)  
-**Études (7) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI), 5 (Cahier charges type T), 6 (Salon type T), 7 (Levée prescriptions)
+**Études (8) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI), 5 (Cahier charges type T), 6 (Salon type T), 7 (Levée prescriptions), 8 (Documents divers)
 
 ### Détails implémentation par nature
 
@@ -25,7 +25,8 @@
 **Nature 4 (Cahier charges SSI)** : Base études sans documentsUrbanisme ni serviceInstructeur  
 **Nature 5 (Cahier charges type T)** : Base nature 4 sans le champ type  
 **Nature 6 (Salon type T)** : Base nature 5 + champ chargeSecurite  
-**Nature 7 (Levée prescriptions)** : Base nature 5 sans dateReception
+**Nature 7 (Levée prescriptions)** : Base nature 5 sans dateReception  
+**Nature 8 (Documents divers)** : Base nature 7 + dateReponse + datePrefecture
 
 Documentation complète : voir `docs/tech/dossier/`
 
