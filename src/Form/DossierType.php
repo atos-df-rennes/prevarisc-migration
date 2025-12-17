@@ -278,6 +278,13 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
+            ->add('chargeSecurite', TextType::class, [
+                'label' => 'Chargé de sécurité (T)',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
             ->add('analyseDeRisque', TextareaType::class, [
                 'label' => 'Analyse de risque',
                 'required' => false,

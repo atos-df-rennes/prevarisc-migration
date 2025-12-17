@@ -256,6 +256,7 @@
             'demandeur',
             'lieuReunion',
             'observations',
+            'chargeSecurite',
             'descriptifGeneral',
             'descriptifEffectifs',
             'coordonneesSsi',
