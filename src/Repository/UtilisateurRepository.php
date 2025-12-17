@@ -138,4 +138,40 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->orderBy('i.nom', 'ASC')
             ->addOrderBy('i.prenom', 'ASC');
     }
+
+    /**
+     * QueryBuilder pour sélectionner les préventionnistes actifs
+     * + les utilisateurs déjà sélectionnés (même inactifs).
+     *
+     * Utilisé en édition pour conserver les préventionnistes inactifs déjà associés.
+     *
+     * @param iterable<Utilisateur> $existingUsers Utilisateurs déjà sélectionnés
+     */
+    public function createPreventionnistesWithExistingQueryBuilder(iterable $existingUsers = []): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->innerJoin('u.informations', 'i')
+            ->innerJoin('i.fonction', 'f')
+            ->where('f.libelle = :preventionniste')
+            ->setParameter('preventionniste', 'Préventionniste');
+
+        // Extraire les IDs des utilisateurs existants
+        $existingIds = [];
+        foreach ($existingUsers as $user) {
+            if ($user instanceof Utilisateur) {
+                $existingIds[] = $user->getId();
+            }
+        }
+
+        // Inclure les utilisateurs actifs OU déjà sélectionnés
+        if (!empty($existingIds)) {
+            $qb->andWhere('u.actif = true OR u.id IN (:existing)')
+                ->setParameter('existing', $existingIds);
+        } else {
+            $qb->andWhere('u.actif = true');
+        }
+
+        return $qb->orderBy('i.nom', 'ASC')
+            ->addOrderBy('i.prenom', 'ASC');
+    }
 }

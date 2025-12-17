@@ -333,46 +333,17 @@ class DossierType extends AbstractType
                 'label' => 'Préventionniste(s) du dossier',
                 'class' => Utilisateur::class,
                 'query_builder' => function (UtilisateurRepository $repository) use ($options): QueryBuilder {
-                    $qb = $repository->createQueryBuilder('u')
-                        ->innerJoin('u.informations', 'i')
-                        ->innerJoin('i.fonction', 'f')
-                        ->where('f.libelle = :preventionniste')
-                        ->setParameter('preventionniste', 'Préventionniste');
-
-                    // En édition, inclure aussi les préventionnistes déjà sélectionnés (même inactifs)
+                    // En édition, inclure les préventionnistes déjà sélectionnés (même inactifs)
                     if ($options['is_edit'] && $options['data'] instanceof Dossier) {
-                        $existingIds = [];
-                        foreach ($options['data']->getPreventionnistes() as $prev) {
-                            $existingIds[] = $prev->getId();
-                        }
-
-                        if (!empty($existingIds)) {
-                            $qb->andWhere('u.actif = true OR u.id IN (:existing)')
-                                ->setParameter('existing', $existingIds);
-                        } else {
-                            $qb->andWhere('u.actif = true');
-                        }
-                    } else {
-                        $qb->andWhere('u.actif = true');
+                        return $repository->createPreventionnistesWithExistingQueryBuilder(
+                            $options['data']->getPreventionnistes()
+                        );
                     }
 
-                    return $qb->orderBy('i.nom', 'ASC')
-                        ->addOrderBy('i.prenom', 'ASC');
+                    // En création, uniquement les préventionnistes actifs
+                    return $repository->createPreventionnistesQueryBuilder();
                 },
-                'choice_label' => function (Utilisateur $user): string {
-                    $info = $user->getInformations();
-
-                    if (null !== $info) {
-                        $fullName = $info->getFullName();
-
-                        if ('' !== $fullName) {
-                            // Ajouter indication si inactif
-                            return $fullName.($user->getActif() ? '' : ' (inactif)');
-                        }
-                    }
-
-                    return $user->getUsername().($user->getActif() ? '' : ' (inactif)');
-                },
+                'choice_label' => 'displayLabel',
                 'multiple' => true,
                 'required' => false,
                 'attr' => ['class' => 'tomselect-ajax'],

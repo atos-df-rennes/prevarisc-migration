@@ -479,4 +479,24 @@ class Utilisateur implements UserInterface
 
         return $this;
     }
+
+    /**
+     * Retourne le label d'affichage pour les formulaires.
+     * Affiche le nom complet si disponible, sinon le username.
+     * Ajoute "(inactif)" si l'utilisateur est inactif.
+     */
+    public function getDisplayLabel(): string
+    {
+        $label = $this->username;
+
+        $info = $this->getInformations();
+        if (null !== $info) {
+            $fullName = $info->getFullName();
+            if ('' !== $fullName) {
+                $label = $fullName;
+            }
+        }
+
+        return $label.($this->actif ? '' : ' (inactif)');
+    }
 }
