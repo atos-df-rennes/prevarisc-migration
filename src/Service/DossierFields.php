@@ -70,13 +70,13 @@ class DossierFields
         '47' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
         // Note: analyseDeRisque (ANOMALIE) n'est pas dans la liste car affiché uniquement si valeur existe (comportement legacy)
-        '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReception', 'preventionnistes', 'differeAvis', 'absenceDeQuorum', 'avis', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
         '22' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // Controle - OK
-        '23' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'differeAvis', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '23' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Inopinéee - OK
-        '24' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'differeAvis', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '24' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Visite conseil - OK
         '64' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // GROUPE DE VISITE
@@ -85,13 +85,13 @@ class DossierFields
         // Avant ouverture - OK
         '48' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
-        '26' => ['dateInsert', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'differeAvis', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '26' => ['dateInsert', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
         '27' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'coordonneesSsi', 'dateReponse', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // Controle - OK (Nature 28 - Groupe de visite contrôle)
-        '28' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'differeAvis', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '28' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Inopinéee - OK (Nature 29 - Groupe de visite inopinée)
-        '29' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'differeAvis', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '29' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // REUNION (noms Symfony standardisés)
         // Locaux SDIS - OK
         // Legacy: DATEINSERT, OBJET, DATEREUN, DATEREP, PREVENTIONNISTE, DEMANDEUR, OBSERVATION
