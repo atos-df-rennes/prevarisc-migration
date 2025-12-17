@@ -336,6 +336,30 @@ class DossierType extends AbstractType
                 ],
             ])
 
+            // Champs spécifiques visites (natures 20-29)
+            ->add('coordonneesSsi', TextType::class, [
+                'label' => 'Coordonnées SSI',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('nePeutSePrononcer', CheckboxType::class, [
+                'label' => 'Ne peut se prononcer',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                ],
+            ])
+            ->add('dateReceptionRvrat', DateType::class, [
+                'label' => 'Date de réception RVRAT',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
+
             // Préventionnistes (multiselect)
             ->add('preventionnistes', EntityType::class, [
                 'label' => 'Préventionniste(s) du dossier',
