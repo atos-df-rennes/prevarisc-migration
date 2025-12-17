@@ -556,6 +556,30 @@
             return;
         }
 
+        // Cette logique ne s'applique que pour les visites (type 2/3, natures 20-29)
+        const typeSelect = document.querySelector('#dossier_type');
+        const natureSelect = document.querySelector('#dossier_nature');
+        
+        if (!typeSelect || !natureSelect) {
+            return;
+        }
+
+        const typeDossier = typeSelect.value;
+        const natureDossier = natureSelect.value;
+        
+        // Vérifier si c'est une visite (type 2 ou 3) avec nature entre 20 et 29
+        const isVisite = (typeDossier === '2' || typeDossier === '3') && 
+                         (parseInt(natureDossier) >= 20 && parseInt(natureDossier) <= 29);
+        
+        if (!isVisite) {
+            // Pour les études et autres types, ne pas afficher ces champs
+            const facteurRow = findFieldRow('facteurDangerosite');
+            const echeancierRow = findFieldRow('echeancierTravaux');
+            if (facteurRow) facteurRow.style.display = 'none';
+            if (echeancierRow) echeancierRow.style.display = 'none';
+            return;
+        }
+
         const selectedAvisId = avisCommissionSelect.value;
         const facteurRow = findFieldRow('facteurDangerosite');
         const echeancierRow = findFieldRow('echeancierTravaux');
@@ -692,6 +716,7 @@
             // Autres natures à ajouter ultérieurement
             // '2': 'AT',  // Autorisation de Travaux (exemple)
             // '3': 'DP',  // Déclaration Préalable (exemple)
+            '14': 'PA'
         };
         
         return prefixMapping[natureId] || null;
