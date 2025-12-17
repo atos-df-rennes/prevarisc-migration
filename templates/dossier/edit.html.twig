@@ -343,6 +343,61 @@
                 </div>
             </li>
 
+            {# Champs spécifiques interventions (natures 37, 38, 39) #}
+            <li class='row' id='field-operationSdis'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    <div class='form-check'>
+                        {{ form_widget(form.operationSdis) }}
+                        {{ form_label(form.operationSdis) }}
+                        {{ form_errors(form.operationSdis) }}
+                    </div>
+                </div>
+            </li>
+
+            <li class='row' id='field-rcci'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    <div class='form-check'>
+                        {{ form_widget(form.rcci) }}
+                        {{ form_label(form.rcci) }}
+                        {{ form_errors(form.rcci) }}
+                    </div>
+                </div>
+            </li>
+
+            <li class='row' id='field-rex'>
+                <div class='left libelle col-md-3'>{{ form_label(form.rex) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.rex) }}
+                    {{ form_errors(form.rex) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-numeroIntervention'>
+                <div class='left libelle col-md-3'>{{ form_label(form.numeroIntervention) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.numeroIntervention) }}
+                    {{ form_errors(form.numeroIntervention) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-dateIntervention'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dateIntervention) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateIntervention) }}
+                    {{ form_errors(form.dateIntervention) }}
+                </div>
+            </li>
+
+            <li class='row' id='field-dureeIntervention'>
+                <div class='left libelle col-md-3'>{{ form_label(form.dureeIntervention) }}</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dureeIntervention) }}
+                    {{ form_errors(form.dureeIntervention) }}
+                </div>
+            </li>
+
             <li class='row' id='field-preventionnistes'>
                 <div class='left libelle col-md-3'>{{ form_label(form.preventionnistes) }}</div>
                 <div class='right form col-md-9'>

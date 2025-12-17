@@ -17,9 +17,11 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
@@ -293,6 +295,53 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
+
+            // Champs spécifiques interventions (natures 37, 38, 39)
+            ->add('operationSdis', CheckboxType::class, [
+                'label' => 'Opération (intervention) SDIS',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                ],
+            ])
+            ->add('rcci', CheckboxType::class, [
+                'label' => 'RCCI (oui/non) lien rapport',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                ],
+            ])
+            ->add('rex', TextType::class, [
+                'label' => 'REX',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('numeroIntervention', IntegerType::class, [
+                'label' => "Numéro d'intervention",
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('dateIntervention', DateTimeType::class, [
+                'label' => "Date et heure d'intervention",
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
+            ->add('dureeIntervention', TimeType::class, [
+                'label' => "Durée d'intervention",
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
+
             ->add('analyseDeRisque', TextareaType::class, [
                 'label' => 'Analyse de risque',
                 'required' => false,
