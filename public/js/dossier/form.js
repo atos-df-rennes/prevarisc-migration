@@ -243,6 +243,8 @@
             'dateTransfertCommission',
             'dateReceptionCommission',
             'dateVisite',
+            'documentsUrbanisme',
+            'serviceInstructeur',
             'dateCommission',
             'avis',
             'avisCommission',
