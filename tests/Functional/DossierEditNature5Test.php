@@ -27,20 +27,19 @@ class DossierEditNature5Test extends WebTestCase
 
     public function testFormDisplaysCorrectFieldsForNature5(): void
     {
-        // Utiliser le dossier ID 53519 créé pour cette nature
+        // Récupérer un dossier de nature 5 (Cahier des charges de type T) depuis la base
         $dossier = $this->entityManager
             ->getRepository(Dossier::class)
-            ->find(53519);
+            ->createQueryBuilder('d')
+            ->join('d.nature', 'n')
+            ->where('n.id = :nature')
+            ->setParameter('nature', 5)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Dossier ID 53519 (nature 5) non trouvé');
-        }
-
-        // Vérifier que c'est bien une nature 5
-        $nature = $dossier->getNature();
-
-        if (!$nature || 5 !== $nature->getId()) {
-            $this->markTestSkipped("Le dossier 53519 n'est pas de nature 5");
+            $this->markTestSkipped('Aucun dossier de nature 5 (Cahier des charges de type T) disponible');
         }
 
         // Récupérer l'utilisateur root
@@ -65,7 +64,7 @@ class DossierEditNature5Test extends WebTestCase
 
         $client = static::createClient();
 
-        $client->request(Request::METHOD_GET, '/dossier/53519/modifier');
+        $client->request(Request::METHOD_GET, '/dossier/'.$dossier->getId().'/modifier');
 
         $this->assertResponseIsSuccessful();
 
