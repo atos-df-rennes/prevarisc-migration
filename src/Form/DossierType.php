@@ -14,6 +14,7 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -227,9 +228,16 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-check-input hideavis'],
             ])
-            ->add('facteurDangerosite', IntegerType::class, [
-                'label' => 'Facteur de dangerosité',
+            ->add('facteurDangerosite', ChoiceType::class, [
+                'label' => 'Facteur de criticité',
                 'required' => false,
+                'choices' => [
+                    1 => 1,
+                    2 => 2,
+                    3 => 3,
+                    4 => 4,
+                    5 => 5,
+                ],
                 'attr' => ['class' => 'form-control'],
             ])
             ->add('echeancierTravaux', DateType::class, [
