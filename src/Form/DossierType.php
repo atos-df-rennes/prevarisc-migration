@@ -332,8 +332,32 @@ class DossierType extends AbstractType
             ->add('preventionnistes', EntityType::class, [
                 'label' => 'Préventionniste(s) du dossier',
                 'class' => Utilisateur::class,
-                'query_builder' => function (UtilisateurRepository $repository): QueryBuilder {
-                    return $repository->createPreventionnistesQueryBuilder();
+                'query_builder' => function (UtilisateurRepository $repository) use ($options): QueryBuilder {
+                    $qb = $repository->createQueryBuilder('u')
+                        ->innerJoin('u.informations', 'i')
+                        ->innerJoin('i.fonction', 'f')
+                        ->where('f.libelle = :preventionniste')
+                        ->setParameter('preventionniste', 'Préventionniste');
+
+                    // En édition, inclure aussi les préventionnistes déjà sélectionnés (même inactifs)
+                    if ($options['is_edit'] && $options['data'] instanceof Dossier) {
+                        $existingIds = [];
+                        foreach ($options['data']->getPreventionnistes() as $prev) {
+                            $existingIds[] = $prev->getId();
+                        }
+
+                        if (!empty($existingIds)) {
+                            $qb->andWhere('u.actif = true OR u.id IN (:existing)')
+                                ->setParameter('existing', $existingIds);
+                        } else {
+                            $qb->andWhere('u.actif = true');
+                        }
+                    } else {
+                        $qb->andWhere('u.actif = true');
+                    }
+
+                    return $qb->orderBy('i.nom', 'ASC')
+                        ->addOrderBy('i.prenom', 'ASC');
                 },
                 'choice_label' => function (Utilisateur $user): string {
                     $info = $user->getInformations();
@@ -342,11 +366,12 @@ class DossierType extends AbstractType
                         $fullName = $info->getFullName();
 
                         if ('' !== $fullName) {
-                            return $fullName;
+                            // Ajouter indication si inactif
+                            return $fullName.($user->getActif() ? '' : ' (inactif)');
                         }
                     }
 
-                    return $user->getUsername();
+                    return $user->getUsername().($user->getActif() ? '' : ' (inactif)');
                 },
                 'multiple' => true,
                 'required' => false,
