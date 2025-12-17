@@ -709,10 +709,8 @@
         // Mapping des natures vers leurs préfixes
         const prefixMapping = {
             '1': 'PC',  // Permis de Construire
-            // Autres natures à ajouter ultérieurement
-            // '2': 'AT',  // Autorisation de Travaux (exemple)
-            // '3': 'DP',  // Déclaration Préalable (exemple)
-            '14': 'PA'
+            '14': 'PA',
+            '30': 'DP'
         };
         
         return prefixMapping[natureId] || null;
