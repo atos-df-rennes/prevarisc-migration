@@ -242,6 +242,7 @@
             'dateEnvoiTransit',
             'dateTransfertCommission',
             'dateReceptionCommission',
+            'datePrefecture',
             'dateVisite',
             'documentsUrbanisme',
             'serviceInstructeur',

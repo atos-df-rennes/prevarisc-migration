@@ -327,6 +327,14 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
+            ->add('datePrefecture', DateType::class, [
+                'label' => 'Date réception préfecture',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
 
             // Préventionnistes (multiselect)
             ->add('preventionnistes', EntityType::class, [
