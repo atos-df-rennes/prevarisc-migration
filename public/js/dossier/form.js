@@ -260,7 +260,6 @@
             'chargeSecurite',
             'descriptifGeneral',
             'descriptifEffectifs',
-            'coordonneesSsi',
             'commission',
             'dateLimitePrescription',
             'documentsUrbanisme',
