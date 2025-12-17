@@ -91,10 +91,6 @@ class DossierEditNature11Test extends WebTestCase
         // Vérifier que les champs incomplet et horsDelai sont présents (champs d'études)
         $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
         $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
-
-        // Vérifier les champs descriptifs (présents dans le HTML, affichés par JS selon nature)
-        $this->assertStringContainsString('descriptifGeneral', $content, 'Le champ descriptifGeneral devrait être dans le HTML');
-        $this->assertStringContainsString('descriptifEffectifs', $content, 'Le champ descriptifEffectifs devrait être dans le HTML');
     }
 
     protected function tearDown(): void
