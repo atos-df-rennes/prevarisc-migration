@@ -268,7 +268,13 @@
             'mesuresComplementaires',
             'reglesDerogation',
             'dateReceptionRvrat',
-            'nePeutSePrononcer'
+            'nePeutSePrononcer',
+            'operationSdis',
+            'rcci',
+            'rex',
+            'numeroIntervention',
+            'dateIntervention',
+            'dureeIntervention'
             // Note: analyseDeRisque n'est pas géré dynamiquement (affiché uniquement si valeur existe)
         ];
 
