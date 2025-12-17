@@ -191,12 +191,12 @@ $this->assertStringContainsString('Label du champ', $content);
 
 ### Champs spéciaux visites
 
-| Legacy | Symfony | Type |
-|--------|---------|------|
-| `DATEVISITE` | `dateVisite` | datetime |
-| `FACTEUR` | `facteurDangerosite` | text |
-| `ECHEANCIER` | `echeancierTravaux` | text |
-| `COORDSSI` | `coordonneesSsi` | text |
+| Legacy | Symfony | Type | Note |
+|--------|---------|------|------|
+| `DATEVISITE` | `dateVisite` | datetime | |
+| `FACTEUR` | `facteurDangerosite` | text | |
+| `ECHEANCIER` | `echeancierTravaux` | text | |
+| ~~`COORDSSI`~~ | ~~`coordonneesSsi`~~ | ~~text~~ | **IGNORÉ** - Jamais affiché dans le legacy |
 
 ### Champs spéciaux études
 
@@ -206,10 +206,11 @@ $this->assertStringContainsString('Label du champ', $content);
 | `SERVICEINST` | `serviceInstructeur` | string |
 | `CHARGESEC` | `chargeSecurite` | text |
 
-### Champs non implémentés
+### Champs non implémentés / ignorés
 
 - `NUMCHRONO` : Absent de l'entité Dossier
 - `DESCGEN` / `DESCEFF` : Uniquement dans onglet séparé `descriptifs.phtml`
+- **`COORDSSI`** : Présent dans les listes de champs legacy mais **JAMAIS affiché dans les templates** → Champ ignoré volontairement
 
 ---
 

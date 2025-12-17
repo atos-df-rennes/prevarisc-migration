@@ -45,6 +45,11 @@
 
 ⚠️ **Approche actuelle** : Pas de TDD, affichage statique + JavaScript + vérification manuelle. Tests automatisés seront ajoutés ultérieurement.
 
+**Champs ignorés volontairement** :
+- `COORDSSI` (coordonneesSsi) : Présent dans les listes legacy mais **JAMAIS affiché** dans les templates
+- `DESCGEN`, `DESCEFF` : Uniquement dans onglet séparé
+- `NUMCHRONO` : Absent de l'entité
+
 **JavaScript requis** :
 - Avis défavorable (ID=2) → Affiche facteurDangerosite + echeancierTravaux
 - Commission disabled pour types visites (2/3) + message

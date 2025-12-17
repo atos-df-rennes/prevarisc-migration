@@ -337,13 +337,7 @@ class DossierType extends AbstractType
             ])
 
             // Champs spécifiques visites (natures 20-29)
-            ->add('coordonneesSsi', TextType::class, [
-                'label' => 'Coordonnées SSI',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
-            ])
+            // Note: coordonneesSsi retiré volontairement (jamais affiché dans le legacy)
             ->add('nePeutSePrononcer', CheckboxType::class, [
                 'label' => 'Ne peut se prononcer',
                 'required' => false,
