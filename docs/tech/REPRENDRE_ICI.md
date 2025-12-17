@@ -26,9 +26,10 @@
 **Nature 5 (Cahier charges type T)** : Base nature 4 sans le champ type  
 **Nature 6 (Salon type T)** : Base nature 5 + champ chargeSecurite  
 **Nature 7 (Levée prescriptions)** : Base nature 5 sans dateReception  
-**Nature 8 (Documents divers)** : Base nature 7 + dateReponse + datePrefecture
+**Nature 8 (Documents divers)** : Base nature 7 + dateReponse + datePrefecture  
+**Natures 9-19** : Études CTS et autorisations (configurations variées)
 
-Documentation complète : voir `docs/tech/dossier/`
+**Documentation complète** : `docs/tech/dossier/EDITION_DOSSIER.md`
 
 ---
 
