@@ -717,7 +717,8 @@
         const prefixMapping = {
             '1': 'PC',  // Permis de Construire
             '14': 'PA',
-            '30': 'DP'
+            '30': 'DP',
+            '62': 'CU'
         };
         
         return prefixMapping[natureId] || null;
