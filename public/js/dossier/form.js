@@ -258,21 +258,18 @@
             'lieuReunion',
             'observations',
             'chargeSecurite',
-            'descriptifGeneral',
-            'descriptifEffectifs',
             'commission',
             'dateLimitePrescription',
-            'documentsUrbanisme',
             'dateSecretariat',
-            'serviceInstructeur',
             'incomplet',
             'horsDelai',
             'justificationDerogation',
             'mesuresCompensatoires',
             'mesuresComplementaires',
             'reglesDerogation',
+            'dateReceptionRvrat',
+            'nePeutSePrononcer'
             // Note: analyseDeRisque n'est pas géré dynamiquement (affiché uniquement si valeur existe)
-            // Ajouter d'autres champs au fur et à mesure
         ];
 
         conditionalFields.forEach(function(fieldName) {

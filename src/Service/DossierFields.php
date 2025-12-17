@@ -70,7 +70,7 @@ class DossierFields
         '47' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
         // Note: analyseDeRisque (ANOMALIE) n'est pas dans la liste car affiché uniquement si valeur existe (comportement legacy)
-        '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReception', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'observations', 'dateLimitePrescription'],
+        '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
         '22' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // Controle - OK
