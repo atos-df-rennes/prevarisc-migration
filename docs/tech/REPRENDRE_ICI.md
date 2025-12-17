@@ -7,12 +7,12 @@
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (22/68)
+### Natures opérationnelles - Affichage ET Édition (23/68)
 
 **Réunions (3) :** 31, 32, 43  
 **Courriers (12) :** 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65  
 **Visites (3) :** 21 (Périodique), 28 (Visite de contrôle), 29 (Visite inopinée)  
-**Études (5) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI), 5 (Cahier charges type T)
+**Études (6) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI), 5 (Cahier charges type T), 6 (Salon type T)
 
 ### Détails implémentation par nature
 
@@ -23,7 +23,8 @@
 **Nature 2 (AT)** : Identique nature 1  
 **Nature 3 (Dérogation)** : Base PC/AT + 4 champs spécifiques (reglesDerogation, justificationDerogation, mesuresCompensatoires, mesuresComplementaires)  
 **Nature 4 (Cahier charges SSI)** : Base études sans documentsUrbanisme ni serviceInstructeur  
-**Nature 5 (Cahier charges type T)** : Base nature 4 sans le champ type
+**Nature 5 (Cahier charges type T)** : Base nature 4 sans le champ type  
+**Nature 6 (Salon type T)** : Base nature 5 + champ chargeSecurite
 
 Documentation complète : voir `docs/tech/dossier/`
 
@@ -72,13 +73,8 @@ grep -r "cahier.*charges" prevarisc/application/views/scripts/dossier/
 
 ## 🎯 Objectif prochaine session
 
-**Implémenter Nature 6 : Salon type T**
+**Implémenter Natures 7-19 : Études restantes**
 
-1. Analyser configuration legacy
-2. Identifier champs spécifiques (si différents des natures précédentes)
-3. Ajouter au FormType si nécessaire
-4. Configurer DossierFields.php (déjà fait)
-5. Tester affichage
-6. Valider PHPStan + CS + Twig CS
+Les natures 7 à 19 sont déjà configurées dans DossierFields.php. À vérifier si de nouveaux champs spécifiques sont nécessaires.
 
-**Résultat attendu** : 23 natures opérationnelles (22 actuelles + nature 6)
+**Résultat attendu** : Continuer la progression des natures études
