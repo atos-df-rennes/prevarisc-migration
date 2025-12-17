@@ -39,7 +39,7 @@ class DossierEditNature12Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 12 (Demande d\'implantation CTS < 6mois) disponible');
+            $this->markTestSkipped("Aucun dossier de nature 12 (Demande d'implantation CTS < 6mois) disponible");
         }
 
         // Récupérer l'utilisateur root
