@@ -1,5 +1,10 @@
 {% extends 'layouts/dashboard.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/etiquetteAvisDerogations/greenCircle.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block title %}Dossier{% endblock %}
 
 {#
