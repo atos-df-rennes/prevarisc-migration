@@ -32,7 +32,7 @@ class DossierFields
         // Suivi organisme formation SSIAP - OK
         '10' => ['dateInsert', 'objet', 'avis', 'dateReponse', 'datePrefecture', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // Demande de registre de sécurité CTS - OK
-        '11' => ['dateInsert', 'objet', 'dateSecretariat', 'commission', 'dateCommission', 'avis', 'dateReponse', 'datePrefecture', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
+        '11' => ['dateInsert', 'objet', 'dateSecretariat', 'commission', 'descriptifGeneral', 'descriptifEffectifs', 'dateCommission', 'avis', 'dateReception', 'datePrefecture', 'dateReponse', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // Demande d'implantation CTS < 6mois - OK
         '12' => ['dateInsert', 'objet', 'dateMairie', 'dateSecretariat', 'commission', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // Demande d'implantation CTS > 6mois - OK
