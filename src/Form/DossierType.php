@@ -280,6 +280,14 @@ class DossierType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
+            ->add('dateSignature', DateType::class, [
+                'label' => 'Date de signature',
+                'widget' => 'single_text',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+            ])
             ->add('observations', TextareaType::class, [
                 'label' => 'Observations',
                 'required' => false,

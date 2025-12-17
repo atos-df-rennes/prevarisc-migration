@@ -274,7 +274,8 @@
             'rex',
             'numeroIntervention',
             'dateIntervention',
-            'dureeIntervention'
+            'dureeIntervention',
+            'dateSignature'
             // Note: analyseDeRisque n'est pas géré dynamiquement (affiché uniquement si valeur existe)
         ];
 
