@@ -7,12 +7,12 @@
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (25/68)
+### Natures opérationnelles - Affichage ET Édition (26/68)
 
 **Réunions (3) :** 31, 32, 43  
 **Courriers (12) :** 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65  
 **Visites (3) :** 21 (Périodique), 28 (Visite de contrôle), 29 (Visite inopinée)  
-**Études (8) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI), 5 (Cahier charges type T), 6 (Salon type T), 7 (Levée prescriptions), 8 (Documents divers)
+**Études (9) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI), 5 (Cahier charges type T), 6 (Salon type T), 7 (Levée prescriptions), 8 (Documents divers), 9 (Changement DUS)
 
 ### Détails implémentation par nature
 
