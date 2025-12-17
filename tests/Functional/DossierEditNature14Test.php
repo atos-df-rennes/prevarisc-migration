@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Test fonctionnel pour l'édition d'un dossier de nature 14 (Modification CTS).
+ * Test fonctionnel pour l'édition d'un dossier de nature 14 (Permis d'aménager).
  */
 class DossierEditNature14Test extends WebTestCase
 {
@@ -39,7 +39,7 @@ class DossierEditNature14Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 14 (Modification CTS) disponible');
+            $this->markTestSkipped('Aucun dossier de nature 14 (Permis d\'aménager) disponible');
         }
 
         // Récupérer l'utilisateur root

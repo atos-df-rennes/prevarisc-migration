@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Test fonctionnel pour l'édition d'un dossier de nature 19 (Registre ERP).
+ * Test fonctionnel pour l'édition d'un dossier de nature 19 (Levée réserves suite avis défavorable).
  */
 class DossierEditNature19Test extends WebTestCase
 {
@@ -39,7 +39,7 @@ class DossierEditNature19Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 19 (Registre ERP) disponible');
+            $this->markTestSkipped('Aucun dossier de nature 19 (Levée réserves suite avis défavorable) disponible');
         }
 
         // Récupérer l'utilisateur root

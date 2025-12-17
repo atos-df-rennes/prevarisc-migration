@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Test fonctionnel pour l'édition d'un dossier de nature 17 (PD).
+ * Test fonctionnel pour l'édition d'un dossier de nature 17 (Etude suite à avis différé).
  */
 class DossierEditNature17Test extends WebTestCase
 {
@@ -39,7 +39,7 @@ class DossierEditNature17Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 17 (PD) disponible');
+            $this->markTestSkipped('Aucun dossier de nature 17 (Etude suite à avis différé) disponible');
         }
 
         // Récupérer l'utilisateur root

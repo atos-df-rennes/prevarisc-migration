@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Test fonctionnel pour l'édition d'un dossier de nature 15 (Renouvellement CTS).
+ * Test fonctionnel pour l'édition d'un dossier de nature 15 (Permis de démolir).
  */
 class DossierEditNature15Test extends WebTestCase
 {
@@ -39,7 +39,7 @@ class DossierEditNature15Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 15 (Renouvellement CTS) disponible');
+            $this->markTestSkipped('Aucun dossier de nature 15 (Permis de démolir) disponible');
         }
 
         // Récupérer l'utilisateur root

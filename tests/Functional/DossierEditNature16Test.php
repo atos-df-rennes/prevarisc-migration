@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Test fonctionnel pour l'édition d'un dossier de nature 16 (PA).
+ * Test fonctionnel pour l'édition d'un dossier de nature 16 (CR visite organismes inspection sécurité).
  */
 class DossierEditNature16Test extends WebTestCase
 {
@@ -39,7 +39,7 @@ class DossierEditNature16Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 16 (PA) disponible');
+            $this->markTestSkipped('Aucun dossier de nature 16 (CR visite organismes inspection sécurité) disponible');
         }
 
         // Récupérer l'utilisateur root
