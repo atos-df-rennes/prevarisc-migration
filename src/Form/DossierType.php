@@ -352,7 +352,7 @@ class DossierType extends AbstractType
                 ],
             ])
             ->add('dateReceptionRvrat', DateType::class, [
-                'label' => 'Date de réception RVRAT',
+                'label' => 'Date de réception du RVRAT et attestation solidité et MO',
                 'widget' => 'single_text',
                 'required' => false,
                 'attr' => [

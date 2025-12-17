@@ -130,14 +130,8 @@
                 </div>
             </li>
 
-            {# Champs spécifiques visites - coordonnées SSI #}
-            <li class='row' id='field-coordonneesSsi'>
-                <div class='left libelle col-md-3'>{{ form_label(form.coordonneesSsi) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.coordonneesSsi) }}
-                    {{ form_errors(form.coordonneesSsi) }}
-                </div>
-            </li>
+            {# Champs spécifiques visites - date réception RVRAT #}
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
             {# @todo: Ajouter le calendrier #}
             <li class='row' id='field-dateCommission'>
@@ -220,15 +214,6 @@
                 </div>
             </li>
 
-            <li class='row' id='field-absenceDeQuorum'>
-                <div class='left libelle col-md-3'></div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.absenceDeQuorum) }}
-                    {{ form_label(form.absenceDeQuorum) }}
-                    {{ form_errors(form.absenceDeQuorum) }}
-                </div>
-            </li>
-
             {# Champs spécifiques visites - ne peut se prononcer #}
             <li class='row' id='field-nePeutSePrononcer'>
                 <div class='left libelle col-md-3'></div>
@@ -238,6 +223,15 @@
                         {{ form_label(form.nePeutSePrononcer) }}
                         {{ form_errors(form.nePeutSePrononcer) }}
                     </div>
+                </div>
+            </li>
+
+            <li class='row' id='field-absenceDeQuorum'>
+                <div class='left libelle col-md-3'></div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.absenceDeQuorum) }}
+                    {{ form_label(form.absenceDeQuorum) }}
+                    {{ form_errors(form.absenceDeQuorum) }}
                 </div>
             </li>
 
@@ -269,9 +263,6 @@
                     {{ form_errors(form.repercuterAvis) }}
                 </div>
             </li>
-
-            {# Champs spécifiques visites - date réception RVRAT #}
-            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
             {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
             <li class='row' id='field-facteurDangerosite'>
