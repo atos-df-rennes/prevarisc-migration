@@ -7,12 +7,12 @@
 
 ## ✅ Ce qui est fait
 
-### Natures opérationnelles - Affichage ET Édition (20/68)
+### Natures opérationnelles - Affichage ET Édition (21/68)
 
 **Réunions (3) :** 31, 32, 43  
 **Courriers (12) :** 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65  
 **Visites (3) :** 21 (Périodique), 28 (Visite de contrôle), 29 (Visite inopinée)  
-**Études (2) :** 1 (PC), 2 (AT), 3 (Dérogation)
+**Études (4) :** 1 (PC), 2 (AT), 3 (Dérogation), 4 (Cahier charges SSI)
 
 ### Détails implémentation par nature
 
@@ -21,7 +21,8 @@
 **Nature 29 (Visite inopinée)** : Identique nature 28 sans coordonneesSsi  
 **Nature 1 (PC)** : Études avec documents urbanisme, dates, commissions  
 **Nature 2 (AT)** : Identique nature 1  
-**Nature 3 (Dérogation)** : Base PC/AT + 4 champs spécifiques (reglesDerogation, justificationDerogation, mesuresCompensatoires, mesuresComplementaires)
+**Nature 3 (Dérogation)** : Base PC/AT + 4 champs spécifiques (reglesDerogation, justificationDerogation, mesuresCompensatoires, mesuresComplementaires)  
+**Nature 4 (Cahier charges SSI)** : Base études sans documentsUrbanisme ni serviceInstructeur
 
 Documentation complète : voir `docs/tech/dossier/`
 
@@ -70,13 +71,13 @@ grep -r "cahier.*charges" prevarisc/application/views/scripts/dossier/
 
 ## 🎯 Objectif prochaine session
 
-**Implémenter Nature 4 : Cahier des charges fonctionnel du SSI**
+**Implémenter Nature 5 : Cahier des charges de type T**
 
 1. Analyser configuration legacy
-2. Identifier champs spécifiques (si différents des PC/AT/Dérogation)
+2. Identifier champs spécifiques (si différents des PC/AT/Dérogation/Nature 4)
 3. Ajouter au FormType si nécessaire
-4. Configurer DossierFields.php
+4. Configurer DossierFields.php (déjà fait)
 5. Tester affichage
 6. Valider PHPStan + CS + Twig CS
 
-**Résultat attendu** : 21 natures opérationnelles (20 actuelles + nature 4)
+**Résultat attendu** : 22 natures opérationnelles (21 actuelles + nature 5)
