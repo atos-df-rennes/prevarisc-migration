@@ -9,12 +9,14 @@
 
 ## 📊 État d'avancement
 
-### Natures opérationnelles (36/68) - 53%
+### Natures opérationnelles (62/68) - 91% ✅
 
-**Réunions (3/3)** : 31, 32, 43  
-**Courriers (12/12)** : 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 65  
-**Visites (3/3)** : 21 (Périodique), 28 (Visite de contrôle), 29 (Visite inopinée)  
-**Études (19/25)** : 1-19 (PC, AT, Dérogation, CTS, PA, PD, etc.)
+**Réunions (14/14)** : 31, 32, 33, 37-43, 44-46, 48 - **100% ✅**  
+**Courriers (20/20)** : 49-68 (sauf 56) - **100% ✅**  
+**Visites (10/10)** : 20-29 - **100% ✅**  
+**Études (19/25)** : 1-19 - **76%**
+
+**Restantes (6/68)** : 30, 34, 35, 36, 47, 56 - Configuration déjà présente
 
 ### Champs ajoutés au FormType
 
