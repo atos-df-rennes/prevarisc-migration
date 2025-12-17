@@ -74,7 +74,7 @@ class DossierEditNature7Test extends WebTestCase
             'Objet',
             'Commission concernée',
             'Date de commission',
-            'Date de réponse',
+            'Date de réception SDIS', // Nature 7 utilise dateReception (DATESDIS) et non dateReponse (DATEREP)
             'Préventionniste(s)',
             'Avis de la commission',
             'Observations',
