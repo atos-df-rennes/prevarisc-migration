@@ -72,6 +72,9 @@
         const horsDelaiField = document.querySelector('#field-horsDelai');
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
 
+        // Marquer tous les documents comme readonly (historique)
+        markAllDocumentsReadonly();
+
         if (value === '1') {
             // Dossier incomplet au chargement
             if (inputComplet) {
@@ -81,16 +84,17 @@
                 horsDelaiField.style.display = 'none';
             }
 
-            // Vérifier s'il existe un document actif (sans date réception)
-            const activeDoc = getActiveDocument();
-            
-            if (!activeDoc) {
-                // Aucun document actif → En ajouter un
-                addDocumentFromPrototype();
+            // Afficher la zone documents incomplets
+            if (dossierIncomplet) {
+                dossierIncomplet.style.display = '';
             }
         } else {
             // Dossier complet au chargement
-            if (dossierIncomplet) {
+            // Afficher l'historique s'il y a des documents
+            const allDocs = dossierIncomplet ? dossierIncomplet.querySelectorAll('.doc-manquant-item') : [];
+            if (dossierIncomplet && allDocs.length > 0) {
+                dossierIncomplet.style.display = '';
+            } else if (dossierIncomplet) {
                 dossierIncomplet.style.display = 'none';
             }
         }
@@ -106,7 +110,7 @@
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
 
         if (value === '1') {
-            // Incomplet sélectionné
+            // Clic sur "Incomplet"
             if (horsDelaiField) {
                 horsDelaiField.style.display = 'none';
             }
@@ -120,15 +124,14 @@
                 dossierIncomplet.style.display = '';
             }
 
-            // Ajouter un nouveau document manquant
-            // (le dernier doit avoir une date réception pour arriver ici après retour "Complet")
+            // Ajouter un NOUVEAU document manquant (éditable)
             addDocumentFromPrototype();
 
             // Classe hideavis pour logique masquage avis (Phase 2)
             e.target.classList.add('hideavis');
 
         } else {
-            // Complet sélectionné manuellement
+            // Complet sélectionné manuellement (ne devrait pas arriver via UI normale)
             e.target.classList.remove('hideavis');
 
             if (horsDelaiField) {
@@ -142,9 +145,6 @@
         }
     }
 
-    /**
-     * Gère la validation de réception (clic bouton "Valider la réception")
-     */
     /**
      * Gère la validation de réception (clic bouton "Valider la réception")
      */
@@ -163,8 +163,11 @@
             return;
         }
 
-        // Valider le document
-        markDocumentAsValidated(docItem, dateReceptionInput.value);
+        // Marquer le document comme readonly (validé)
+        markDocumentAsReadonly(docItem);
+        
+        // Enlever le marqueur "nouveau" si présent
+        delete docItem.dataset.isNew;
 
         // Retour automatique à "Complet"
         returnToCompletState();
@@ -197,38 +200,37 @@
     }
 
     /**
-     * Marque un document comme validé (date réception renseignée)
+     * Marque un document comme readonly (historique validé)
      */
-    function markDocumentAsValidated(docItem, dateValue) {
-        // Désactiver tous les champs du document
+    function markDocumentAsReadonly(docItem) {
+        // Mettre tous les champs en readonly
         const inputs = docItem.querySelectorAll('input, textarea');
         inputs.forEach(input => {
             input.readOnly = true;
             input.disabled = false; // Garder enabled pour envoi formulaire
         });
 
-        // Masquer les boutons
+        // Masquer les boutons "Valider" et "Annuler"
         const validateBtn = docItem.querySelector('.validate-reception');
         const cancelBtn = docItem.querySelector('.cancel-incomplet');
         if (validateBtn) validateBtn.style.display = 'none';
         if (cancelBtn) cancelBtn.style.display = 'none';
+    }
 
-        // Afficher un message de confirmation
-        const dateReceptionContainer = docItem.querySelector('.date-reception-container');
-        if (dateReceptionContainer) {
-            const existingMsg = dateReceptionContainer.querySelector('.reception-confirmed');
-            if (!existingMsg) {
-                const confirmMsg = document.createElement('div');
-                confirmMsg.className = 'reception-confirmed text-success';
-                confirmMsg.style.marginTop = '10px';
-                
-                // Formatter la date en français
-                const [year, month, day] = dateValue.split('-');
-                confirmMsg.innerHTML = `<i class="glyphicon glyphicon-ok"></i> Document reçu le ${day}/${month}/${year}`;
-                
-                dateReceptionContainer.appendChild(confirmMsg);
-            }
-        }
+    /**
+     * Marque TOUS les documents existants comme readonly (au chargement)
+     */
+    function markAllDocumentsReadonly() {
+        const dossierIncomplet = document.querySelector('#dossierIncomplet');
+        if (!dossierIncomplet) return;
+
+        const allDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
+        allDocs.forEach(doc => {
+            markDocumentAsReadonly(doc);
+        });
+        
+        // Mettre à jour la visibilité des boutons après marquage
+        updateButtonsVisibility();
     }
 
     /**
@@ -319,27 +321,30 @@
                 newDateInput.value = `${year}-${month}-${day}`;
             }
             
+            // MARQUER ce document comme "nouveau" pour différencier de l'historique
+            newElement.dataset.isNew = 'true';
+            
             // Mettre à jour la visibilité des boutons après ajout
             updateButtonsVisibility();
         }
     }
 
     /**
-     * Gère le bouton "Modifier" (cancelDateRecep)
-     * Permet de repasser un document validé en mode éditable
-     * Conforme au legacy : seulement si 1 seul document validé
+     * Gère le bouton "Modifier" (permet de revenir en arrière sur la validation)
+     * Conforme legacy : repasse le dossier en incomplet, rend les champs éditables sauf date incomplet
      */
     function handleModifierReception(button) {
         const docItem = button.closest('.doc-manquant-item');
         if (!docItem) return;
 
-        // Remettre tous les champs en éditable
+        // Remettre tous les champs en éditable SAUF la date de dossier incomplet
         const inputs = docItem.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.readOnly = false;
-            // Réactiver la classe date pour les datepickers
-            if (input.name && (input.name.includes('[date]') || input.name.includes('[dateReception]'))) {
-                input.classList.add('date');
+            // La date de dossier incomplet reste readonly
+            if (input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]')) {
+                input.readOnly = true;
+            } else {
+                input.readOnly = false;
             }
         });
 
@@ -347,19 +352,6 @@
         const dateReceptionInput = docItem.querySelector('input[name*="[dateReception]"]');
         if (dateReceptionInput) {
             dateReceptionInput.value = '';
-        }
-
-        // Masquer le message de confirmation
-        const confirmMsg = docItem.querySelector('.reception-confirmed');
-        if (confirmMsg) {
-            confirmMsg.remove();
-        }
-
-        // Masquer "Modifier", afficher "Valider"
-        button.style.display = 'none';
-        const validateBtn = docItem.querySelector('.validate-reception');
-        if (validateBtn) {
-            validateBtn.style.display = '';
         }
 
         // Retour à l'état "Incomplet"
@@ -385,14 +377,25 @@
             dossierIncomplet.style.display = '';
         }
 
-        // Mettre à jour la visibilité des boutons
-        updateButtonsVisibility();
+        // Masquer "Modifier"
+        button.style.display = 'none';
+        
+        // Afficher "Valider la réception" ET "Annuler"
+        const validateBtn = docItem.querySelector('.validate-reception');
+        const cancelBtn = docItem.querySelector('.cancel-incomplet');
+        if (validateBtn) {
+            validateBtn.style.display = '';
+        }
+        if (cancelBtn) {
+            cancelBtn.style.display = '';
+        }
     }
 
     /**
      * Met à jour la visibilité des boutons selon les règles legacy :
-     * - Bouton "Annuler" : seulement sur le DERNIER document NON validé
-     * - Bouton "Modifier" : seulement si 1 SEUL document validé
+     * - Bouton "Annuler" : seulement sur le NOUVEAU document ajouté dynamiquement (data-is-new="true")
+     * - Bouton "Modifier" : seulement sur le dernier document VALIDÉ (avec date réception)
+     * - Si dernier document NON validé (déjà en base) : champs éditables + bouton "Valider réception"
      */
     function updateButtonsVisibility() {
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
@@ -400,9 +403,9 @@
 
         const allDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
         
-        // Compter les documents validés et non validés
-        let unvalidatedDocs = [];
+        // Séparer les documents validés et non validés
         let validatedDocs = [];
+        let unvalidatedDocs = [];
         
         allDocs.forEach(doc => {
             const dateReceptionInput = doc.querySelector('input[name*="[dateReception]"]');
@@ -413,28 +416,58 @@
             }
         });
 
-        // Règle 1 : Bouton "Annuler" seulement sur le DERNIER document non validé
-        const cancelButtons = dossierIncomplet.querySelectorAll('.cancel-incomplet');
-        cancelButtons.forEach(btn => btn.style.display = 'none');
-        
-        if (unvalidatedDocs.length === 1) {
-            const lastUnvalidated = unvalidatedDocs[0];
-            const cancelBtn = lastUnvalidated.querySelector('.cancel-incomplet');
+        // Règle 1 : Bouton "Annuler" UNIQUEMENT sur les documents marqués comme nouveaux (data-is-new="true")
+        allDocs.forEach(doc => {
+            const cancelBtn = doc.querySelector('.cancel-incomplet');
+            const isNew = doc.dataset.isNew === 'true';
+            
             if (cancelBtn) {
-                cancelBtn.style.display = '';
+                if (isNew) {
+                    cancelBtn.style.display = 'inline-block'; // Afficher le bouton
+                } else {
+                    cancelBtn.style.display = 'none';
+                }
             }
-        }
+        });
 
-        // Règle 2 : Bouton "Modifier" seulement si 1 SEUL document validé
-        const modifierButtons = dossierIncomplet.querySelectorAll('.modifier-reception');
-        modifierButtons.forEach(btn => btn.style.display = 'none');
+        // Règle 2 : Bouton "Modifier" seulement sur le DERNIER document validé (si aucun doc non validé)
+        allDocs.forEach(doc => {
+            const modifierBtn = doc.querySelector('.modifier-reception');
+            if (modifierBtn) {
+                modifierBtn.style.display = 'none';
+            }
+        });
         
-        if (validatedDocs.length === 1 && unvalidatedDocs.length === 0) {
-            const singleValidated = validatedDocs[0];
-            const modifierBtn = singleValidated.querySelector('.modifier-reception');
+        // Si pas de document non validé ET qu'il y a des documents validés → "Modifier" sur le dernier validé
+        if (unvalidatedDocs.length === 0 && validatedDocs.length > 0) {
+            const lastValidated = validatedDocs[validatedDocs.length - 1];
+            const modifierBtn = lastValidated.querySelector('.modifier-reception');
             if (modifierBtn) {
                 modifierBtn.style.display = '';
             }
         }
+        
+        // Règle 3 : Si un document non validé existe (déjà en base, pas nouveau) → "Valider réception" visible
+        unvalidatedDocs.forEach(doc => {
+            const validateBtn = doc.querySelector('.validate-reception');
+            const isNew = doc.dataset.isNew === 'true';
+            
+            if (validateBtn) {
+                // Toujours afficher "Valider" sur les docs non validés (nouveau ou pas)
+                validateBtn.style.display = '';
+            }
+            
+            // Si pas nouveau (déjà en base) → rendre les champs éditables sauf date incomplet
+            if (!isNew) {
+                const inputs = doc.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    if (input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]')) {
+                        input.readOnly = true;
+                    } else {
+                        input.readOnly = false;
+                    }
+                });
+            }
+        });
     }
 })();
