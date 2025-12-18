@@ -24,5 +24,18 @@
                 </div>
             {% endif %}
         </div>
+        <div class='col-md-6' style='padding-top: 25px;'>
+            {% if form.dateReception.vars.value %}
+                {# Document déjà validé - Pas de boutons #}
+            {% else %}
+                {# Document actif - Boutons Valider et Annuler #}
+                <button type='button' class='btn btn-sm btn-success validate-reception' style='margin-right: 5px;'>
+                    <i class='glyphicon glyphicon-ok'></i> Valider la réception
+                </button>
+                <button type='button' class='btn btn-sm btn-danger cancel-incomplet'>
+                    <i class='glyphicon glyphicon-remove'></i> Annuler
+                </button>
+            {% endif %}
+        </div>
     </div>
 </div>

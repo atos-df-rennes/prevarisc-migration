@@ -3,8 +3,9 @@
  * 
  * Workflow legacy :
  * 1. Complet → Clic "Incomplet" → 1 document manquant ajouté
- * 2. Validation date réception → Retour "Complet" automatique
- * 3. Re-clic "Incomplet" → Nouveau document (historique des incomplets)
+ * 2. User remplit infos + saisit date réception
+ * 3. Clic "Valider la réception" → Retour "Complet" automatique
+ * 4. Re-clic "Incomplet" → Nouveau document (historique des incomplets)
  * 
  * Règle : 1 seul document "actif" (sans date réception) à la fois
  */
@@ -32,10 +33,18 @@
             radio.addEventListener('change', handleIncompletChangeModerne);
         });
 
-        // Gestion validation date réception (changement sur les inputs date)
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('date-reception') || e.target.name?.includes('[dateReception]')) {
-                handleDateReceptionChange(e.target);
+        // Gestion des boutons (délégation d'événements)
+        document.addEventListener('click', function(e) {
+            // Bouton "Valider la réception"
+            if (e.target.classList.contains('validate-reception') || e.target.closest('.validate-reception')) {
+                const button = e.target.classList.contains('validate-reception') ? e.target : e.target.closest('.validate-reception');
+                handleValidateReception(button);
+            }
+            
+            // Bouton "Annuler"
+            if (e.target.classList.contains('cancel-incomplet') || e.target.closest('.cancel-incomplet')) {
+                const button = e.target.classList.contains('cancel-incomplet') ? e.target : e.target.closest('.cancel-incomplet');
+                handleCancelIncomplet(button);
             }
         });
 
@@ -125,23 +134,51 @@
     }
 
     /**
-     * Gère le changement de date de réception
-     * Quand une date est saisie → Validation automatique → Retour "Complet"
+     * Gère la validation de réception (clic bouton "Valider la réception")
      */
-    function handleDateReceptionChange(input) {
-        if (!input.value) {
-            return; // Date vidée, ne rien faire
+    function handleValidateReception(button) {
+        const docItem = button.closest('.doc-manquant-item');
+        if (!docItem) return;
+
+        // Récupérer l'input date de réception
+        const dateReceptionInput = docItem.querySelector('.date-reception');
+        if (!dateReceptionInput) return;
+
+        // Vérifier qu'une date est saisie
+        if (!dateReceptionInput.value) {
+            alert('Veuillez saisir une date de réception avant de valider.');
+            dateReceptionInput.focus();
+            return;
         }
 
-        // Une date de réception a été saisie → Considérer le document comme validé
-        const docItem = input.closest('.doc-manquant-item');
-        if (docItem) {
-            // Marquer le document comme validé visuellement
-            markDocumentAsValidated(docItem, input.value);
+        // Valider le document
+        markDocumentAsValidated(docItem, dateReceptionInput.value);
 
-            // Retour automatique à "Complet"
-            returnToCompletState();
+        // Retour automatique à "Complet"
+        returnToCompletState();
+    }
+
+    /**
+     * Gère l'annulation (clic bouton "Annuler")
+     */
+    function handleCancelIncomplet(button) {
+        const docItem = button.closest('.doc-manquant-item');
+        if (!docItem) return;
+
+        // Vérifier si c'est un nouveau document (pas en BDD)
+        // Un document en BDD a forcément un input avec un ID existant
+        const dateInput = docItem.querySelector('input[name*="[date]"]');
+        
+        // Confirmer la suppression
+        if (!confirm('Êtes-vous sûr de vouloir annuler ce signalement de document manquant ?')) {
+            return;
         }
+
+        // Supprimer le document du DOM
+        docItem.remove();
+
+        // Retour à "Complet"
+        returnToCompletState();
     }
 
     /**
@@ -154,6 +191,12 @@
             input.readOnly = true;
             input.disabled = false; // Garder enabled pour envoi formulaire
         });
+
+        // Masquer les boutons
+        const validateBtn = docItem.querySelector('.validate-reception');
+        const cancelBtn = docItem.querySelector('.cancel-incomplet');
+        if (validateBtn) validateBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
 
         // Afficher un message de confirmation
         const dateReceptionContainer = docItem.querySelector('.date-reception-container');
