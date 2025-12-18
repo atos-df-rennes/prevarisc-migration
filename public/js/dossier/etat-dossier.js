@@ -205,8 +205,8 @@ Attestation de conformité</textarea>
     }
 
     /**
-     * Gère l'annulation d'un document manquant
-     * Legacy: lignes 344-354
+     * Gère l'annulation d'un document manquant (nouveau document non validé)
+     * Legacy: lignes 350-357
      */
     function handleCancelDocument(button) {
         const container = button.closest('[id^="infosIncomplet_"]');
@@ -214,14 +214,29 @@ Attestation de conformité</textarea>
             container.remove();
             documentCounter--;
         }
+        
+        // Réafficher les radios (legacy : ligne 352)
+        const inputComplet = document.querySelector('#inputComplet');
+        if (inputComplet) {
+            inputComplet.style.display = '';
+        }
+        
+        // Repasser à "Complet" (legacy : ligne 353)
+        const radioComplet = document.querySelector('input[name="dossier[incomplet]"][value="0"]');
+        if (radioComplet) {
+            radioComplet.checked = true;
+            radioComplet.classList.remove('hideavis');
+        }
+        
+        // Réafficher les avis (legacy : lignes 354-355)
+        // afficherCacherAvis(0); - sera géré en Phase 2
     }
 
     /**
      * Gère la validation de la réception d'un document
-     * Legacy: lignes 319-342
+     * Legacy: lignes 319-336
      * 
-     * Après validation, si c'était le dernier document incomplet,
-     * on réaffiche les radios et on coche "Complet"
+     * Repasse automatiquement le dossier en "Complet" et réaffiche les avis
      */
     function handleValidDocument(button) {
         const container = button.closest('[id^="infosIncomplet_"]');
@@ -250,55 +265,76 @@ Attestation de conformité</textarea>
             textarea.readOnly = true;
         }
 
-        // Masquer le bouton Valider (legacy : ligne 328)
+        // Masquer le bouton Valider et afficher bouton "Annuler la validation" (legacy : lignes 328-329)
         button.style.display = 'none';
-
-        // Afficher un message de confirmation
-        const confirmMsg = document.createElement('span');
-        confirmMsg.className = 'text-success';
-        confirmMsg.innerHTML = '<i class="glyphicon glyphicon-ok"></i> Document reçu le ' + formatDateForDisplay(dateReception.value);
-        button.parentNode.insertBefore(confirmMsg, button.nextSibling);
+        
+        // Créer le bouton "Annuler la validation"
+        const cancelValidationBtn = document.createElement('button');
+        cancelValidationBtn.type = 'button';
+        cancelValidationBtn.className = 'btn btn-sm btn-warning cancelDateRecep';
+        cancelValidationBtn.innerHTML = '<i class="glyphicon glyphicon-repeat"></i> Annuler la validation';
+        button.parentNode.insertBefore(cancelValidationBtn, button.nextSibling);
+        
+        // Listener sur le bouton d'annulation de validation (legacy : lignes 338-348)
+        cancelValidationBtn.addEventListener('click', function() {
+            // Remettre en éditable (legacy : lignes 339-342)
+            if (dateDocManquant) {
+                dateDocManquant.readOnly = false;
+            }
+            if (dateReception) {
+                dateReception.readOnly = false;
+                dateReception.value = ''; // Vider la date
+            }
+            if (textarea) {
+                textarea.readOnly = false;
+            }
+            
+            // Masquer ce bouton et réafficher "Valider"
+            cancelValidationBtn.style.display = 'none';
+            button.style.display = '';
+            
+            // Repasser à "Incomplet" (legacy : lignes 343-344)
+            const radioIncomplet = document.querySelector('input[name="dossier[incomplet]"][value="1"]');
+            if (radioIncomplet) {
+                radioIncomplet.checked = true;
+                radioIncomplet.classList.add('hideavis');
+            }
+            
+            // Masquer les radios et Hors délai (legacy : ligne 345)
+            const inputComplet = document.querySelector('#inputComplet');
+            if (inputComplet) {
+                inputComplet.style.display = 'none';
+            }
+            
+            // Masquer les avis (legacy : ligne 346)
+            // afficherCacherAvis(0); - sera géré en Phase 2
+        });
 
         // Retirer la classe hideavis pour réafficher les avis (legacy : ligne 330)
         const radiosIncomplet = document.querySelectorAll('input[name="dossier[incomplet]"]');
         radiosIncomplet.forEach(radio => radio.classList.remove('hideavis'));
         
-        // Si tous les documents sont validés, réafficher les radios et cocher "Complet"
-        const allDocuments = document.querySelectorAll('[id^="infosIncomplet_"]');
-        const validatedDocuments = Array.from(allDocuments).filter(doc => {
-            const validButton = doc.querySelector('.validDocManquant');
-            return validButton && validButton.style.display === 'none';
-        });
+        // Repasser automatiquement à "Complet" (legacy : lignes 332-333)
+        const inputComplet = document.querySelector('#inputComplet');
+        const horsDelaiField = document.querySelector('#field-horsDelai');
+        const radioComplet = document.querySelector('input[name="dossier[incomplet]"][value="0"]');
         
-        if (allDocuments.length === validatedDocuments.length && allDocuments.length > 0) {
-            // Tous les documents sont validés, revenir à l'état "Complet"
-            const inputComplet = document.querySelector('#inputComplet');
-            const horsDelaiField = document.querySelector('#field-horsDelai');
-            const radioComplet = document.querySelector('input[name="dossier[incomplet]"][value="0"]');
-            
-            // Réafficher les radios
-            if (inputComplet) {
-                inputComplet.style.display = '';
-            }
-            
-            // Réafficher le champ "Hors délai"
-            if (horsDelaiField) {
-                horsDelaiField.style.display = '';
-            }
-            
-            // Cocher "Complet"
-            if (radioComplet) {
-                radioComplet.checked = true;
-            }
+        // Réafficher les radios
+        if (inputComplet) {
+            inputComplet.style.display = '';
         }
-    }
-
-    /**
-     * Formate une date ISO (YYYY-MM-DD) en format d'affichage français (JJ/MM/YYYY)
-     */
-    function formatDateForDisplay(isoDate) {
-        if (!isoDate) return '';
-        const [year, month, day] = isoDate.split('-');
-        return `${day}/${month}/${year}`;
+        
+        // Réafficher le champ "Hors délai"
+        if (horsDelaiField) {
+            horsDelaiField.style.display = '';
+        }
+        
+        // Cocher "Complet"
+        if (radioComplet) {
+            radioComplet.checked = true;
+        }
+        
+        // Réafficher les avis
+        // afficherCacherAvis(); - sera géré en Phase 2
     }
 })();
