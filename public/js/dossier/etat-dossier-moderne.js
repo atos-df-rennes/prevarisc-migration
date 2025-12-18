@@ -284,7 +284,7 @@
     /**
      * Ajoute un nouveau document depuis le prototype Symfony
      */
-    function addDocumentFromPrototype() {
+    async function addDocumentFromPrototype() {
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
         if (!dossierIncomplet) return;
 
@@ -319,6 +319,22 @@
                 const month = String(today.getMonth() + 1).padStart(2, '0');
                 const day = String(today.getDate()).padStart(2, '0');
                 newDateInput.value = `${year}-${month}-${day}`;
+            }
+            
+            // Pré-remplir la liste des documents manquants depuis la BDD
+            const documentManquantTextarea = newElement.querySelector('textarea[name*="[documentManquant]"]');
+            if (documentManquantTextarea) {
+                try {
+                    const response = await fetch('/prevarisc-migration/public/api/document-manquant/liste');
+                    if (response.ok) {
+                        const documents = await response.json();
+                        // Formater la liste comme dans le legacy : un document par ligne
+                        const listeDocuments = documents.map(doc => doc.libelle).join('\n');
+                        documentManquantTextarea.value = listeDocuments;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des documents manquants:', error);
+                }
             }
             
             // MARQUER ce document comme "nouveau" pour différencier de l'historique
