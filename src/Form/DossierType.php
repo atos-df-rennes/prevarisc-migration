@@ -146,7 +146,7 @@ class DossierType extends AbstractType
                 'label' => 'Service instructeur',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control tomselect-groupements',
+                    'class' => 'tomselect-ajax',
                     'placeholder' => 'Sélectionnez ou saisissez un service instructeur',
                     'data-tomselect-config' => json_encode([
                         'create' => true,

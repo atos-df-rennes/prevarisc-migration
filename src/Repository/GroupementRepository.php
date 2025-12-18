@@ -81,18 +81,27 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     /**
      * Recherche des groupements par libellé (pour autocomplete).
      *
-     * @param string $query  Texte recherché
-     * @param int    $limit  Nombre maximum de résultats
+     * @param string   $query          Texte recherché
+     * @param int      $limit          Nombre maximum de résultats
+     * @param int|null $typeGroupement ID du type de groupement (null = tous)
      *
      * @return Groupement[]
      */
-    public function searchByLibelle(string $query, int $limit = 50): array
+    public function searchByLibelle(string $query, int $limit = 50, ?int $typeGroupement = null): array
     {
-        return $this->createQueryBuilder('g')
+        $qb = $this->createQueryBuilder('g')
             ->leftJoin('g.type', 't')
             ->addSelect('t')
             ->where('g.libelle LIKE :query')
-            ->setParameter('query', '%' . $query . '%')
+            ->setParameter('query', '%' . $query . '%');
+        
+        // Filtrer par type de groupement si spécifié
+        if (null !== $typeGroupement) {
+            $qb->andWhere('g.type = :typeGroupement')
+               ->setParameter('typeGroupement', $typeGroupement);
+        }
+        
+        return $qb
             ->orderBy('g.libelle', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()

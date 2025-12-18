@@ -34,3 +34,26 @@
         {{- block('choice_widget_options') -}}
     </select>
 {%- endblock choice_widget_collapsed %}
+
+{#
+    Custom widget pour les champs texte TomSelect - retire form-control qui conflicte avec le wrapper TomSelect
+    Ne PAS appeler parent() car il remet form-control
+#}
+{% block form_widget_simple -%}
+    {% set has_tomselect = attr.class is defined and 'tomselect-ajax' in attr.class %}
+
+    {% if has_tomselect %}
+        {# Pour TomSelect, on n'ajoute PAS form-control #}
+        {%- set attr = attr|merge({class: (attr.class|default(''))|trim}) -%}
+    {% else %}
+        {# Pour les autres champs texte, comportement normal Bootstrap #}
+        {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) -%}
+    {% endif %}
+
+    {# Code de form_widget_simple (copié de form_div_layout.html.twig) - SANS appel parent() #}
+    {%- set type = type|default('text') -%}
+    {%- if type is not defined or type != 'hidden' -%}
+        {%- set attr = attr|merge({class: (attr.class|default('') ~ ' ' ~ (errors|length > 0 ? 'is-invalid'|default('')))|trim}) -%}
+    {%- endif -%}
+    <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+{%- endblock form_widget_simple %}

@@ -25,6 +25,7 @@ class GroupementController extends AbstractController
 
     /**
      * Recherche de groupements pour autocomplete.
+     * Filtre uniquement les groupements de type "Service Instructeur" (ID 10).
      *
      * @Route("/search", name="search", methods={"GET"})
      *
@@ -41,7 +42,8 @@ class GroupementController extends AbstractController
             return new JsonResponse([]);
         }
 
-        $groupements = $this->groupementRepository->searchByLibelle($query, $limit);
+        // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10)
+        $groupements = $this->groupementRepository->searchByLibelle($query, $limit, 10);
 
         $results = [];
         foreach ($groupements as $groupement) {

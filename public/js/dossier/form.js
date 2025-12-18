@@ -655,14 +655,78 @@
         const tomSelectFields = document.querySelectorAll('.tomselect-ajax');
 
         tomSelectFields.forEach(field => {
-            // Pour Phase 1, TomSelect simple sans AJAX
-            // Les options doivent être déjà présentes dans le select
-            new TomSelect(field, {
-                plugins: ['remove_button'],
-                persist: false,
-                create: false,
-                maxItems: null  // Pas de limite
-            });
+            // Vérifier si c'est le service instructeur (input text avec autocomplete)
+            const isServiceInstructeur = field.id === 'dossier_serviceInstructeur';
+            
+            if (isServiceInstructeur) {
+                // Configuration spécifique pour service instructeur avec autocomplete
+                new TomSelect(field, {
+                    create: true,
+                    maxItems: 1,
+                    valueField: 'libelle',
+                    labelField: 'libelle',
+                    searchField: 'libelle',
+                    placeholder: 'Sélectionnez ou saisissez un service instructeur',
+                    
+                    load: function(query, callback) {
+                        if (!query || query.length < 2) {
+                            callback();
+                            return;
+                        }
+
+                        fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
+                            .then(response => response.json())
+                            .then(json => {
+                                callback(json.map(item => ({
+                                    libelle: item.libelle,
+                                    type: item.type || '',
+                                })));
+                            })
+                            .catch(() => {
+                                callback();
+                            });
+                    },
+                    
+                    render: {
+                        option: function(item, escape) {
+                            let html = '<div>';
+                            html += '<span class="title">' + escape(item.libelle) + '</span>';
+                            if (item.type) {
+                                html += ' <small class="text-muted">(' + escape(item.type) + ')</small>';
+                            }
+                            html += '</div>';
+                            return html;
+                        },
+                        item: function(item, escape) {
+                            return '<div>' + escape(item.libelle) + '</div>';
+                        },
+                        option_create: function(data, escape) {
+                            return '<div class="create">Ajouter <strong>' + escape(data.input) + '</strong>&hellip;</div>';
+                        }
+                    },
+                    
+                    createFilter: function(input) {
+                        return input.length >= 2;
+                    },
+                    
+                    create: function(input) {
+                        return {
+                            libelle: input,
+                            type: null,
+                        };
+                    }
+                });
+            } else {
+                // Configuration pour les autres TomSelect (préventionnistes, etc.)
+                // Pour Phase 1, TomSelect simple sans AJAX
+                // Les options doivent être déjà présentes dans le select
+                new TomSelect(field, {
+                    plugins: ['remove_button'],
+                    persist: false,
+                    create: false,
+                    maxItems: null  // Pas de limite
+                });
+            }
         });
     }
 
