@@ -82,7 +82,7 @@ class GroupementType extends AbstractType
                         return $er->createQueryBuilder('u')
                             ->innerJoin('u.informations', 'i')
                             ->innerJoin('i.fonction', 'f')
-                            ->where('i.id = :fonction')
+                            ->where('f.id = :fonction')
                             ->setParameter('fonction', 13)
                             ->orderBy('u.id', 'ASC');
                     },
