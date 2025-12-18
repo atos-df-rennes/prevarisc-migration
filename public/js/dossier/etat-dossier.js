@@ -35,7 +35,7 @@
             radio.addEventListener('change', handleIncompletChange);
         });
 
-        // Gestion annulation document
+        // Gestion annulation document (uniquement pour nouveaux documents)
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('cancelIncomplet') || e.target.closest('.cancelIncomplet')) {
                 const button = e.target.classList.contains('cancelIncomplet') ? e.target : e.target.closest('.cancelIncomplet');
@@ -51,10 +51,25 @@
             }
         });
 
-        // Appliquer l'état initial
+        // Appliquer l'état initial au chargement
         const radioIncomplet = document.querySelector('input[name="dossier[incomplet]"]:checked');
         if (radioIncomplet && radioIncomplet.value === '1') {
-            // Si déjà incomplet au chargement, ne rien faire (documents existants déjà affichés)
+            // Dossier déjà incomplet au chargement → masquer radios et horsDelai
+            const inputComplet = document.querySelector('#inputComplet');
+            const horsDelaiField = document.querySelector('#field-horsDelai');
+            
+            if (inputComplet) {
+                inputComplet.style.display = 'none';
+            }
+            if (horsDelaiField) {
+                horsDelaiField.style.display = 'none';
+            }
+            
+            // Si aucun document existant, en afficher un
+            const existingDocs = document.querySelectorAll('.docManquant');
+            if (existingDocs.length === 0) {
+                addDocumentManquant(false); // false = pas de bouton annulation
+            }
         }
     }
 
@@ -80,7 +95,8 @@
             }
 
             // Ajouter un formulaire de document manquant via AJAX
-            addDocumentManquant();
+            // Avec bouton annulation car c'est un nouveau document
+            addDocumentManquant(true); // true = avec bouton annulation
 
             // Ajouter classe hideavis (legacy : ligne 293)
             e.target.classList.add('hideavis');
@@ -108,10 +124,12 @@
      * Ajoute un nouveau formulaire de document manquant (AJAX)
      * Legacy: lignes 299-311
      * 
+     * @param {boolean} showCancelButton - true si on affiche le bouton annulation (nouveau document), false sinon (document existant)
+     * 
      * NOTE: Pour l'instant, utilise un template HTML en dur (mock)
      * TODO: Remplacer par appel AJAX vers /dossier/formdocmanquant quand endpoint créé
      */
-    function addDocumentManquant() {
+    function addDocumentManquant(showCancelButton = true) {
         documentCounter++;
         
         // const dossierId = document.querySelector('input[name="dossier[id]"]')?.value || '';
@@ -144,18 +162,21 @@
         const day = String(today.getDate()).padStart(2, '0');
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = today.getFullYear();
-        const dateToday = day + '/' + month + '/' + year;
+        const dateToday = year + '-' + month + '-' + day; // Format ISO pour input type="date"
+        
+        // Bouton annulation uniquement si nouveau document (pas sur documents existants)
+        const cancelButtonHtml = showCancelButton ? `
+        <button type='button' class='btn btn-sm btn-danger cancelIncomplet' id='cancelIncomplet_${documentCounter}'>
+            <i class='glyphicon glyphicon-remove'></i> Annuler
+        </button>` : '';
         
         const html = `
 <div id='infosIncomplet_${documentCounter}' class='doc-manquant-bloc' style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;'>
     <div style='margin-bottom: 10px;'>
         <strong>Dossier incomplet le</strong>
-        <input class='date form-control' style='display: inline-block; width: 120px; margin: 0 5px;' type='text' name='dateDocManquant[]' id='dateDocManquant_${documentCounter}' value='${dateToday}' />
-        <button type='button' class='today btn btn-sm btn-default'><i class='glyphicon glyphicon-calendar'></i> Aujourd'hui</button>
+        <input class='form-control' style='display: inline-block; width: 150px; margin: 0 5px;' type='date' name='dateDocManquant[]' id='dateDocManquant_${documentCounter}' value='${dateToday}' />
         &nbsp;&nbsp;
-        <button type='button' class='btn btn-sm btn-danger cancelIncomplet' id='cancelIncomplet_${documentCounter}'>
-            <i class='glyphicon glyphicon-remove'></i> Annuler
-        </button>
+        ${cancelButtonHtml}
     </div>
     
     <div style='margin-bottom: 10px;'>
@@ -169,8 +190,7 @@ Attestation de conformité</textarea>
     
     <div>
         <strong>Date de réception des pièces</strong>
-        <input class='date form-control' style='display: inline-block; width: 120px; margin: 0 5px;' type='text' name='dateReceptionDocManquant[]' id='dateReceptionDocManquant_${documentCounter}' />
-        <button type='button' class='today btn btn-sm btn-default'><i class='glyphicon glyphicon-calendar'></i> Aujourd'hui</button>
+        <input class='form-control' style='display: inline-block; width: 150px; margin: 0 5px;' type='date' name='dateReceptionDocManquant[]' id='dateReceptionDocManquant_${documentCounter}' />
         &nbsp;&nbsp;
         <button type='button' class='btn btn-sm btn-success validDocManquant'>
             <i class='glyphicon glyphicon-lock'></i> Valider la réception de document
@@ -181,7 +201,6 @@ Attestation de conformité</textarea>
         const container = document.querySelector('#dossierIncomplet');
         if (container) {
             container.insertAdjacentHTML('beforeend', html);
-            initTodayButtons();
         }
     }
 
@@ -200,6 +219,9 @@ Attestation de conformité</textarea>
     /**
      * Gère la validation de la réception d'un document
      * Legacy: lignes 319-342
+     * 
+     * Après validation, si c'était le dernier document incomplet,
+     * on réaffiche les radios et on coche "Complet"
      */
     function handleValidDocument(button) {
         const container = button.closest('[id^="infosIncomplet_"]');
@@ -220,11 +242,9 @@ Attestation de conformité</textarea>
         // Mettre en lecture seule (legacy : lignes 325-327)
         if (dateDocManquant) {
             dateDocManquant.readOnly = true;
-            dateDocManquant.classList.remove('date');
         }
         if (dateReception) {
             dateReception.readOnly = true;
-            dateReception.classList.remove('date');
         }
         if (textarea) {
             textarea.readOnly = true;
@@ -233,43 +253,52 @@ Attestation de conformité</textarea>
         // Masquer le bouton Valider (legacy : ligne 328)
         button.style.display = 'none';
 
-        // Afficher un message de confirmation (au lieu du bouton "Annuler")
+        // Afficher un message de confirmation
         const confirmMsg = document.createElement('span');
         confirmMsg.className = 'text-success';
-        confirmMsg.innerHTML = '<i class="glyphicon glyphicon-ok"></i> Document reçu le ' + dateReception.value;
+        confirmMsg.innerHTML = '<i class="glyphicon glyphicon-ok"></i> Document reçu le ' + formatDateForDisplay(dateReception.value);
         button.parentNode.insertBefore(confirmMsg, button.nextSibling);
 
         // Retirer la classe hideavis pour réafficher les avis (legacy : ligne 330)
         const radiosIncomplet = document.querySelectorAll('input[name="dossier[incomplet]"]');
         radiosIncomplet.forEach(radio => radio.classList.remove('hideavis'));
-    }
-
-    /**
-     * Initialise les datepickers sur les champs date (appelé après AJAX)
-     */
-    function initDatepickers() {
-        // Sera géré par le plugin datepicker global si présent
-        // Ou à implémenter selon la bibliothèque utilisée
-    }
-
-    /**
-     * Initialise les boutons "Aujourd'hui" sur les nouveaux champs
-     */
-    function initTodayButtons() {
-        const buttons = document.querySelectorAll('.today:not(.initialized)');
-        buttons.forEach(button => {
-            button.classList.add('initialized');
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const input = this.previousElementSibling;
-                if (input && input.type === 'text') {
-                    const today = new Date();
-                    const day = String(today.getDate()).padStart(2, '0');
-                    const month = String(today.getMonth() + 1).padStart(2, '0');
-                    const year = today.getFullYear();
-                    input.value = day + '/' + month + '/' + year;
-                }
-            });
+        
+        // Si tous les documents sont validés, réafficher les radios et cocher "Complet"
+        const allDocuments = document.querySelectorAll('[id^="infosIncomplet_"]');
+        const validatedDocuments = Array.from(allDocuments).filter(doc => {
+            const validButton = doc.querySelector('.validDocManquant');
+            return validButton && validButton.style.display === 'none';
         });
+        
+        if (allDocuments.length === validatedDocuments.length && allDocuments.length > 0) {
+            // Tous les documents sont validés, revenir à l'état "Complet"
+            const inputComplet = document.querySelector('#inputComplet');
+            const horsDelaiField = document.querySelector('#field-horsDelai');
+            const radioComplet = document.querySelector('input[name="dossier[incomplet]"][value="0"]');
+            
+            // Réafficher les radios
+            if (inputComplet) {
+                inputComplet.style.display = '';
+            }
+            
+            // Réafficher le champ "Hors délai"
+            if (horsDelaiField) {
+                horsDelaiField.style.display = '';
+            }
+            
+            // Cocher "Complet"
+            if (radioComplet) {
+                radioComplet.checked = true;
+            }
+        }
+    }
+
+    /**
+     * Formate une date ISO (YYYY-MM-DD) en format d'affichage français (JJ/MM/YYYY)
+     */
+    function formatDateForDisplay(isoDate) {
+        if (!isoDate) return '';
+        const [year, month, day] = isoDate.split('-');
+        return `${day}/${month}/${year}`;
     }
 })();
