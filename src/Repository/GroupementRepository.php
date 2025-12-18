@@ -77,4 +77,40 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * Recherche des groupements par libellé (pour autocomplete).
+     *
+     * @param string $query  Texte recherché
+     * @param int    $limit  Nombre maximum de résultats
+     *
+     * @return Groupement[]
+     */
+    public function searchByLibelle(string $query, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('g')
+            ->leftJoin('g.type', 't')
+            ->addSelect('t')
+            ->where('g.libelle LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('g.libelle', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Retourne tous les groupements ordonnés par libellé.
+     *
+     * @return Groupement[]
+     */
+    public function findAllOrdered(): array
+    {
+        return $this->createQueryBuilder('g')
+            ->leftJoin('g.type', 't')
+            ->addSelect('t')
+            ->orderBy('g.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

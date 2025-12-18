@@ -146,21 +146,28 @@ class DossierType extends AbstractType
                 'label' => 'Service instructeur',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control tomselect-groupements',
+                    'placeholder' => 'Sélectionnez ou saisissez un service instructeur',
+                    'data-tomselect-config' => json_encode([
+                        'create' => true,
+                        'maxItems' => 1,
+                        'plugins' => [],
+                    ]),
                 ],
+                'help' => 'Commencez à saisir pour rechercher un groupement ou saisissez librement',
             ])
             ->add('incomplet', CheckboxType::class, [
                 'label' => 'Dossier incomplet',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-check-input',
+                    'class' => 'form-check-input incomplet hideavis',
                 ],
             ])
             ->add('horsDelai', CheckboxType::class, [
                 'label' => 'Hors délai',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-check-input',
+                    'class' => 'form-check-input horsdelai hideavis',
                 ],
             ])
             ->add('commission', EntityType::class, [
@@ -228,7 +235,7 @@ class DossierType extends AbstractType
             ->add('absenceDeQuorum', CheckboxType::class, [
                 'label' => 'Absence de quorum',
                 'required' => false,
-                'attr' => ['class' => 'form-check-input hideavis'],
+                'attr' => ['class' => 'form-check-input absquorum hideavis'],
             ])
             ->add('facteurDangerosite', ChoiceType::class, [
                 'label' => 'Facteur de criticité',
@@ -407,7 +414,7 @@ class DossierType extends AbstractType
                 'label' => 'Ne peut se prononcer',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-check-input',
+                    'class' => 'form-check-input npsp hideavis',
                 ],
             ])
             ->add('dateReceptionRvrat', DateType::class, [

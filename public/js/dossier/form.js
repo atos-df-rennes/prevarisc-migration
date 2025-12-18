@@ -64,6 +64,9 @@
         
         // Afficher facteur/échéancier si avis commission = Défavorable (au chargement)
         applyFacteurEcheancierDisplayOnLoad();
+        
+        // Afficher les boutons calendrier si commission sélectionnée (au chargement)
+        showCalendarButtonsOnLoad();
     }
 
     /**
@@ -473,14 +476,13 @@
 
     /**
      * Applique la logique d'affichage/masquage des avis au chargement (Phase 1 - statique)
-     * Reproduit la fonction afficherCacherAvis() du legacy mais sans les listeners dynamiques
+     * Reproduit la logique legacy de afficheChamps() lignes 980-997 et afficherCacherAvis()
      * 
-     * Logique legacy :
-     * - Si aucune checkbox .hideavis cochée → affiche selon type (mais tient compte de la nature)
-     * - Si au moins une checkbox .hideavis cochée :
-     *   - Si c'est autre que absquorum/npsp → cache AVIS rapporteur
-     *   - Si c'est seulement absquorum/npsp → affiche AVIS rapporteur
-     *   - Dans tous les cas → cache AVIS_COMMISSION
+     * Logique legacy (ordre de priorité) :
+     * 1. Si "incomplet" coché → masquer AVIS, AVIS_COMMISSION, HORSDELAI
+     * 2. Sinon si "horsdelai" coché → masquer AVIS, AVIS_COMMISSION, DATECOMM
+     * 3. Sinon si "absquorum" ou "npsp" coché → masquer AVIS_COMMISSION, DATECOMM
+     * 4. Sinon afficher selon type (standard)
      */
     function applyHideAvisLogicOnLoad() {
         const typeSelect = document.querySelector('#dossier_type');
@@ -497,53 +499,45 @@
         const hasAvisInNature = natureFields.includes('avis');
         const hasAvisCommissionInNature = natureFields.includes('avisCommission');
         
-        // Sélectionner toutes les checkboxes .hideavis cochées
-        const hideAvisCheckboxes = document.querySelectorAll('.hideavis:checked');
+        // Récupérer les checkboxes (legacy: lignes 980-984)
+        const incompletCheckbox = document.querySelector('input[name="dossier[incomplet]"]:checked');
+        const horsdelaiCheckbox = document.querySelector('.horsdelai:checked');
+        const absquorumCheckbox = document.querySelector('.absquorum:checked');
+        const npspCheckbox = document.querySelector('.npsp:checked');
         
         const avisRow = findFieldRow('avis');
         const avisCommissionRow = findFieldRow('avisCommission');
+        const dateCommissionRow = findFieldRow('dateCommission');
+        const horsDelaiRow = findFieldRow('horsDelai');
 
-        if (hideAvisCheckboxes.length === 0) {
-            // Aucune checkbox hideavis cochée → afficher selon type ET nature
+        // Logique par ordre de priorité (legacy: lignes 986-997)
+        if (incompletCheckbox && incompletCheckbox.value === '1') {
+            // Cas 1: Incomplet → masquer AVIS, AVIS_COMMISSION, HORSDELAI (ligne 987-989)
+            if (avisRow) avisRow.style.display = 'none';
+            if (avisCommissionRow) avisCommissionRow.style.display = 'none';
+            if (horsDelaiRow) horsDelaiRow.style.display = 'none';
+        } else if (horsdelaiCheckbox) {
+            // Cas 2: Hors délai → masquer AVIS, AVIS_COMMISSION, DATECOMM (ligne 990-993)
+            if (avisRow) avisRow.style.display = 'none';
+            if (avisCommissionRow) avisCommissionRow.style.display = 'none';
+            if (dateCommissionRow) dateCommissionRow.style.display = 'none';
+        } else if (absquorumCheckbox || npspCheckbox) {
+            // Cas 3: Absence quorum ou NPSP → masquer AVIS_COMMISSION, DATECOMM (ligne 994-996)
+            if (avisCommissionRow) avisCommissionRow.style.display = 'none';
+            if (dateCommissionRow) dateCommissionRow.style.display = 'none';
+            // L'avis du rapporteur reste affiché si dans la nature
+            if (avisRow && hasAvisInNature) avisRow.style.display = '';
+        } else {
+            // Cas 4: Aucune checkbox spéciale → afficher selon type ET nature (standard)
             if (typeDossier === '1') { // Étude
                 if (avisRow && hasAvisInNature) avisRow.style.display = '';
                 if (avisCommissionRow && hasAvisCommissionInNature) avisCommissionRow.style.display = '';
             } else if (typeDossier === '2') { // Visite
-                // Pour les visites, afficher selon la nature (ex: nature 21 a avis dans config)
                 if (avisRow && hasAvisInNature) avisRow.style.display = '';
                 if (avisCommissionRow && hasAvisCommissionInNature) avisCommissionRow.style.display = '';
             } else if (typeDossier === '3') { // Groupe de visites
                 if (avisRow && hasAvisInNature) avisRow.style.display = '';
                 if (avisCommissionRow && hasAvisCommissionInNature) avisCommissionRow.style.display = '';
-            }
-        } else {
-            // Au moins une checkbox hideavis est cochée
-            
-            // Vérifier si ce sont d'autres checkboxes que absenceDeQuorum/npsp
-            let hasOtherThanAbsquorumNpsp = false;
-            hideAvisCheckboxes.forEach(checkbox => {
-                const checkboxId = checkbox.id;
-                // Exclure absenceDeQuorum et npsp (quand il sera implémenté)
-                if (checkboxId !== 'dossier_absenceDeQuorum' && checkboxId !== 'dossier_npsp') {
-                    hasOtherThanAbsquorumNpsp = true;
-                }
-            });
-
-            if (hasOtherThanAbsquorumNpsp) {
-                // Cache l'avis du rapporteur
-                if (avisRow) {
-                    avisRow.style.display = 'none';
-                }
-            } else {
-                // Seulement absquorum/npsp → affiche l'avis du rapporteur (si dans la nature)
-                if (avisRow && hasAvisInNature) {
-                    avisRow.style.display = '';
-                }
-            }
-            
-            // Dans tous les cas, cache l'avis de la commission
-            if (avisCommissionRow) {
-                avisCommissionRow.style.display = 'none';
             }
         }
     }
@@ -722,5 +716,30 @@
         };
         
         return prefixMapping[natureId] || null;
+    }
+
+    /**
+     * Affiche les boutons "Afficher calendrier" si une commission est sélectionnée (au chargement)
+     * Legacy: voir index.phtml lignes 367-371 - fonction showCalendar()
+     * 
+     * Note: Cette fonction sera utile quand les boutons calendrier seront implémentés (Phase future)
+     * Pour l'instant, les boutons n'existent pas encore dans le template
+     */
+    function showCalendarButtonsOnLoad() {
+        const commissionSelect = document.querySelector('#dossier_commission');
+        if (!commissionSelect || !commissionSelect.value) {
+            return;
+        }
+
+        // Si une commission est sélectionnée, afficher les boutons calendrier (quand ils existeront)
+        const showVisiteButton = document.querySelector('#showVisite');
+        const showCommissionButton = document.querySelector('#showCommission');
+        
+        if (showVisiteButton) {
+            showVisiteButton.style.display = '';
+        }
+        if (showCommissionButton) {
+            showCommissionButton.style.display = '';
+        }
     }
 })();
