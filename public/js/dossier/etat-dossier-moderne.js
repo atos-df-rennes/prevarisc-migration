@@ -41,10 +41,16 @@
                 handleValidateReception(button);
             }
             
-            // Bouton "Annuler"
+            // Bouton "Annuler" (cancelIncomplet)
             if (e.target.classList.contains('cancel-incomplet') || e.target.closest('.cancel-incomplet')) {
                 const button = e.target.classList.contains('cancel-incomplet') ? e.target : e.target.closest('.cancel-incomplet');
                 handleCancelIncomplet(button);
+            }
+            
+            // Bouton "Modifier" (cancelDateRecep - repasser en éditable)
+            if (e.target.classList.contains('modifier-reception') || e.target.closest('.modifier-reception')) {
+                const button = e.target.classList.contains('modifier-reception') ? e.target : e.target.closest('.modifier-reception');
+                handleModifierReception(button);
             }
         });
 
@@ -53,6 +59,9 @@
         if (radioIncomplet) {
             applyInitialState(radioIncomplet.value);
         }
+        
+        // Mettre à jour la visibilité des boutons selon le contexte
+        updateButtonsVisibility();
     }
 
     /**
@@ -136,6 +145,9 @@
     /**
      * Gère la validation de réception (clic bouton "Valider la réception")
      */
+    /**
+     * Gère la validation de réception (clic bouton "Valider la réception")
+     */
     function handleValidateReception(button) {
         const docItem = button.closest('.doc-manquant-item');
         if (!docItem) return;
@@ -156,19 +168,19 @@
 
         // Retour automatique à "Complet"
         returnToCompletState();
+        
+        // Mettre à jour la visibilité des boutons
+        updateButtonsVisibility();
     }
 
     /**
      * Gère l'annulation (clic bouton "Annuler")
+     * Conforme legacy : supprime le bloc et retourne à "Complet"
      */
     function handleCancelIncomplet(button) {
         const docItem = button.closest('.doc-manquant-item');
         if (!docItem) return;
 
-        // Vérifier si c'est un nouveau document (pas en BDD)
-        // Un document en BDD a forcément un input avec un ID existant
-        const dateInput = docItem.querySelector('input[name*="[date]"]');
-        
         // Confirmer la suppression
         if (!confirm('Êtes-vous sûr de vouloir annuler ce signalement de document manquant ?')) {
             return;
@@ -179,6 +191,9 @@
 
         // Retour à "Complet"
         returnToCompletState();
+        
+        // Mettre à jour la visibilité des boutons
+        updateButtonsVisibility();
     }
 
     /**
@@ -302,6 +317,123 @@
                 const month = String(today.getMonth() + 1).padStart(2, '0');
                 const day = String(today.getDate()).padStart(2, '0');
                 newDateInput.value = `${year}-${month}-${day}`;
+            }
+            
+            // Mettre à jour la visibilité des boutons après ajout
+            updateButtonsVisibility();
+        }
+    }
+
+    /**
+     * Gère le bouton "Modifier" (cancelDateRecep)
+     * Permet de repasser un document validé en mode éditable
+     * Conforme au legacy : seulement si 1 seul document validé
+     */
+    function handleModifierReception(button) {
+        const docItem = button.closest('.doc-manquant-item');
+        if (!docItem) return;
+
+        // Remettre tous les champs en éditable
+        const inputs = docItem.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.readOnly = false;
+            // Réactiver la classe date pour les datepickers
+            if (input.name && (input.name.includes('[date]') || input.name.includes('[dateReception]'))) {
+                input.classList.add('date');
+            }
+        });
+
+        // Vider la date de réception
+        const dateReceptionInput = docItem.querySelector('input[name*="[dateReception]"]');
+        if (dateReceptionInput) {
+            dateReceptionInput.value = '';
+        }
+
+        // Masquer le message de confirmation
+        const confirmMsg = docItem.querySelector('.reception-confirmed');
+        if (confirmMsg) {
+            confirmMsg.remove();
+        }
+
+        // Masquer "Modifier", afficher "Valider"
+        button.style.display = 'none';
+        const validateBtn = docItem.querySelector('.validate-reception');
+        if (validateBtn) {
+            validateBtn.style.display = '';
+        }
+
+        // Retour à l'état "Incomplet"
+        const radioIncomplet = document.querySelector('input[name="dossier[incomplet]"][value="1"]');
+        const inputComplet = document.querySelector('#inputComplet');
+        const horsDelaiField = document.querySelector('#field-horsDelai');
+        const dossierIncomplet = document.querySelector('#dossierIncomplet');
+
+        if (radioIncomplet) {
+            radioIncomplet.checked = true;
+            radioIncomplet.classList.add('hideavis');
+        }
+
+        if (inputComplet) {
+            inputComplet.style.display = 'none';
+        }
+
+        if (horsDelaiField) {
+            horsDelaiField.style.display = 'none';
+        }
+
+        if (dossierIncomplet) {
+            dossierIncomplet.style.display = '';
+        }
+
+        // Mettre à jour la visibilité des boutons
+        updateButtonsVisibility();
+    }
+
+    /**
+     * Met à jour la visibilité des boutons selon les règles legacy :
+     * - Bouton "Annuler" : seulement sur le DERNIER document NON validé
+     * - Bouton "Modifier" : seulement si 1 SEUL document validé
+     */
+    function updateButtonsVisibility() {
+        const dossierIncomplet = document.querySelector('#dossierIncomplet');
+        if (!dossierIncomplet) return;
+
+        const allDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
+        
+        // Compter les documents validés et non validés
+        let unvalidatedDocs = [];
+        let validatedDocs = [];
+        
+        allDocs.forEach(doc => {
+            const dateReceptionInput = doc.querySelector('input[name*="[dateReception]"]');
+            if (dateReceptionInput && dateReceptionInput.value) {
+                validatedDocs.push(doc);
+            } else {
+                unvalidatedDocs.push(doc);
+            }
+        });
+
+        // Règle 1 : Bouton "Annuler" seulement sur le DERNIER document non validé
+        const cancelButtons = dossierIncomplet.querySelectorAll('.cancel-incomplet');
+        cancelButtons.forEach(btn => btn.style.display = 'none');
+        
+        if (unvalidatedDocs.length === 1) {
+            const lastUnvalidated = unvalidatedDocs[0];
+            const cancelBtn = lastUnvalidated.querySelector('.cancel-incomplet');
+            if (cancelBtn) {
+                cancelBtn.style.display = '';
+            }
+        }
+
+        // Règle 2 : Bouton "Modifier" seulement si 1 SEUL document validé
+        const modifierButtons = dossierIncomplet.querySelectorAll('.modifier-reception');
+        modifierButtons.forEach(btn => btn.style.display = 'none');
+        
+        if (validatedDocs.length === 1 && unvalidatedDocs.length === 0) {
+            const singleValidated = validatedDocs[0];
+            const modifierBtn = singleValidated.querySelector('.modifier-reception');
+            if (modifierBtn) {
+                modifierBtn.style.display = '';
             }
         }
     }

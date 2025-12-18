@@ -1,22 +1,40 @@
 {# Template pour un document manquant individuel #}
 <div class='doc-manquant-item' style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;'>
+    {# Ligne 1 : Date incomplet + Bouton Annuler (si dernier doc non validé) #}
     <div class='row'>
-        <div class='col-md-6'>
-            {{ form_row(form.date) }}
+        <div class='col-md-12'>
+            <label>Dossier incomplet le</label>
+            <div style='display: inline-block;'>
+                {{ form_widget(form.date, {
+                    'attr': {'class': 'form-control date-incomplet', 'style': 'display: inline-block; width: auto;'}
+                }) }}
+                {% if not form.dateReception.vars.value %}
+                    {# Bouton Annuler - visible seulement sur dernier doc non validé (géré par JS) #}
+                    <button type='button' class='btn btn-sm btn-danger cancel-incomplet' style='margin-left: 10px; display: none;'>
+                        <i class='glyphicon glyphicon-remove'></i> Annuler
+                    </button>
+                {% endif %}
+            </div>
+            {{ form_errors(form.date) }}
         </div>
     </div>
     
-    <div class='row'>
+    {# Ligne 2 : Documents manquants (textarea) #}
+    <div class='row' style='margin-top: 10px;'>
         <div class='col-md-12'>
             {{ form_row(form.documentManquant) }}
         </div>
     </div>
     
-    <div class='row'>
-        <div class='col-md-6 date-reception-container'>
-            {{ form_row(form.dateReception, {
+    {# Ligne 3 : Date réception + Bouton Valider / Modifier #}
+    <div class='row' style='margin-top: 10px;'>
+        <div class='col-md-6'>
+            <label>Date de réception des pièces</label>
+            {{ form_widget(form.dateReception, {
                 'attr': {'class': 'form-control date-reception'}
             }) }}
+            {{ form_errors(form.dateReception) }}
+            
             {% if form.dateReception.vars.value %}
                 <div class='reception-confirmed text-success' style='margin-top: 10px;'>
                     <i class='glyphicon glyphicon-ok'></i> 
@@ -26,14 +44,14 @@
         </div>
         <div class='col-md-6' style='padding-top: 25px;'>
             {% if form.dateReception.vars.value %}
-                {# Document déjà validé - Pas de boutons #}
-            {% else %}
-                {# Document actif - Boutons Valider et Annuler #}
-                <button type='button' class='btn btn-sm btn-success validate-reception' style='margin-right: 5px;'>
-                    <i class='glyphicon glyphicon-ok'></i> Valider la réception
+                {# Document validé - Bouton Modifier (si 1 seul document validé, géré par JS) #}
+                <button type='button' class='btn btn-sm btn-warning modifier-reception' style='display: none;'>
+                    <i class='glyphicon glyphicon-pencil'></i> Modifier
                 </button>
-                <button type='button' class='btn btn-sm btn-danger cancel-incomplet'>
-                    <i class='glyphicon glyphicon-remove'></i> Annuler
+            {% else %}
+                {# Document non validé - Bouton Valider #}
+                <button type='button' class='btn btn-sm btn-success validate-reception'>
+                    <i class='glyphicon glyphicon-ok'></i> Valider la réception
                 </button>
             {% endif %}
         </div>
