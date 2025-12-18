@@ -286,8 +286,6 @@
             return;
         }
 
-        console.log(prototype)
-
         let index = parseInt(dossierIncomplet.dataset.index) || 0;
 
         // Remplacer __name__ par l'index actuel
@@ -306,14 +304,14 @@
             dossierIncomplet.dataset.index = index + 1;
 
             // **AJOUTER LE BOUTON ANNULER EN JS** (car absent du prototype FormType)
-            const firstRow = newElement.querySelector('.row:first-child .col-md-12 > div');
-            if (firstRow) {
+            const dateIncompletContainer = newElement.querySelector('.date-incomplet').parentElement;
+            if (dateIncompletContainer) {
                 const annulerBtn = document.createElement('button');
                 annulerBtn.type = 'button';
                 annulerBtn.className = 'btn btn-sm btn-danger cancel-incomplet';
                 annulerBtn.style.marginLeft = '10px';
                 annulerBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
-                firstRow.appendChild(annulerBtn);
+                dateIncompletContainer.appendChild(annulerBtn);
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"

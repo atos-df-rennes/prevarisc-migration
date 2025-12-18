@@ -26,7 +26,7 @@ class DossierDocumentManquantType extends AbstractType
                 'widget' => 'single_text', // Input HTML5 type="date"
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'date-incomplet',
                 ],
             ])
             ->add('documentManquant', TextareaType::class, [
@@ -34,7 +34,7 @@ class DossierDocumentManquantType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 4,
-                    'class' => 'form-control docManquant',
+                    'class' => 'docManquant',
                     'placeholder' => 'Liste des documents manquants...',
                 ],
             ])
@@ -43,7 +43,7 @@ class DossierDocumentManquantType extends AbstractType
                 'widget' => 'single_text', // Input HTML5 type="date"
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'date-reception',
                 ],
             ])
         ;

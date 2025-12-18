@@ -6,7 +6,7 @@
             <label>Dossier incomplet le</label>
             <div>
                 {{ form_widget(form.date, {
-                    'attr': {'class': 'form-control date-incomplet', 'style': 'width: 150px; display: inline-block;'}
+                    'attr': {'style': 'width: 150px; display: inline-block;'}
                 }) }}
             </div>
             {{ form_errors(form.date) }}
@@ -24,9 +24,7 @@
     <div class='row' style='margin-top: 10px;'>
         <div class='col-md-6'>
             <label>Date de réception des pièces</label>
-            {{ form_widget(form.dateReception, {
-                'attr': {'class': 'form-control date-reception'}
-            }) }}
+            {{ form_widget(form.dateReception) }}
             {{ form_errors(form.dateReception) }}
             
             {% if form.dateReception.vars.value %}
