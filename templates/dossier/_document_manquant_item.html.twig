@@ -1,0 +1,34 @@
+{# Template pour un document manquant individuel #}
+<div class='doc-manquant-item' style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;'>
+    <div class='row'>
+        <div class='col-md-6'>
+            {{ form_row(form.date) }}
+        </div>
+    </div>
+    
+    <div class='row'>
+        <div class='col-md-12'>
+            {{ form_row(form.documentManquant) }}
+        </div>
+    </div>
+    
+    <div class='row'>
+        <div class='col-md-6'>
+            {{ form_row(form.dateReception, {
+                'attr': {'class': 'form-control date-reception'}
+            }) }}
+        </div>
+        <div class='col-md-6' style='padding-top: 25px;'>
+            {% if form.dateReception.vars.value %}
+                <span class='text-success'>
+                    <i class='glyphicon glyphicon-ok'></i> 
+                    Document reçu le {{ form.dateReception.vars.value|date('d/m/Y') }}
+                </span>
+            {% else %}
+                <button type='button' class='btn btn-sm btn-danger remove-document-manquant' data-action='remove'>
+                    <i class='glyphicon glyphicon-remove'></i> Supprimer
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

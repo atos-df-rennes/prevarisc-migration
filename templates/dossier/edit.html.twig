@@ -1,6 +1,11 @@
 {% extends 'layouts/dossier.html.twig' %}
 
-{% form_theme form '_form_theme_tom_select.html.twig' %}
+{% form_theme form _self '_form_theme_tom_select.html.twig' %}
+
+{# Form theme personnalisé pour documents manquants #}
+{% block _dossier_documentsManquants_entry_row %}
+    {% include 'dossier/_document_manquant_item.html.twig' with {'form': form} %}
+{% endblock %}
 
 {% block title %}{{ parent() }} / Modifier les informations générales{% endblock %}
 
@@ -12,7 +17,7 @@
     {{ parent() }}
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
     <script src="{{ asset('js/dossier/form.js') }}"></script>
-    <script src="{{ asset('js/dossier/etat-dossier.js') }}"></script>
+    <script src="{{ asset('js/dossier/etat-dossier-moderne.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -189,17 +194,13 @@
             <li class='row' id='field-incomplet'>
                 <div class='left libelle col-md-3'>{{ form_label(form.incomplet) }}</div>
                 <div class='right form col-md-9'>
-                    {# Zone documents manquants (affichée uniquement si incomplet sélectionné) #}
-                    <div id='dossierIncomplet' style='margin-bottom: 15px;'>
-                        {# Les documents manquants seront ajoutés ici dynamiquement via AJAX #}
-                        {# Format attendu (généré par /dossier/formdocmanquant) : #}
-                        {# <div id='infosIncomplet_X'> #}
-                        {#     Dossier incomplet le <input class='date' name='dateDocManquant[]' /> #}
-                        {#     <textarea name='docManquant[]' class='docManquant'>...</textarea> #}
-                        {#     Date de réception <input class='date' name='dateReceptionDocManquant[]' /> #}
-                        {#     <button class='validDocManquant'>Valider</button> #}
-                        {#     <button class='cancelIncomplet'>Annuler</button> #}
-                        {# </div> #}
+                    {# Zone documents manquants (collection Symfony) #}
+                    <div id='dossierIncomplet' 
+                         data-prototype="{{ form_widget(form.documentsManquants.vars.prototype)|e('html_attr') }}"
+                         data-index="{{ form.documentsManquants|length }}">
+                        {% for documentManquant in form.documentsManquants %}
+                            {{ form_row(documentManquant) }}
+                        {% endfor %}
                     </div>
 
                     {# Radios Complet / Incomplet (masqués quand incomplet sélectionné) #}

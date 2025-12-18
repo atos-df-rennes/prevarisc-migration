@@ -169,6 +169,17 @@ class DossierType extends AbstractType
                     'class' => 'incomplet-radios',
                 ],
             ])
+            ->add('documentsManquants', CollectionType::class, [
+                'entry_type' => DossierDocumentManquantType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'label' => false,
+                'attr' => [
+                    'class' => 'documents-manquants-collection',
+                ],
+            ])
             ->add('horsDelai', CheckboxType::class, [
                 'label' => 'Hors délai',
                 'required' => false,
