@@ -294,6 +294,8 @@
             return;
         }
 
+        console.log(prototype)
+
         let index = parseInt(dossierIncomplet.dataset.index) || 0;
 
         // Remplacer __name__ par l'index actuel
@@ -310,6 +312,16 @@
 
             // Incrémenter l'index
             dossierIncomplet.dataset.index = index + 1;
+
+            // **AJOUTER LE BOUTON ANNULER EN JS** (car absent du prototype FormType)
+            const dateIncompletGroup = newElement.querySelector('.form-group:first-child');
+            if (dateIncompletGroup) {
+                const annulerBtn = document.createElement('button');
+                annulerBtn.type = 'button';
+                annulerBtn.className = 'btn btn-default cancel-incomplet';
+                annulerBtn.innerHTML = '<i class="icon-remove"></i> Annuler';
+                dateIncompletGroup.appendChild(annulerBtn);
+            }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
             const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
@@ -432,19 +444,7 @@
             }
         });
 
-        // Règle 1 : Bouton "Annuler" UNIQUEMENT sur les documents marqués comme nouveaux (data-is-new="true")
-        allDocs.forEach(doc => {
-            const cancelBtn = doc.querySelector('.cancel-incomplet');
-            const isNew = doc.dataset.isNew === 'true';
-            
-            if (cancelBtn) {
-                if (isNew) {
-                    cancelBtn.style.display = 'inline-block'; // Afficher le bouton
-                } else {
-                    cancelBtn.style.display = 'none';
-                }
-            }
-        });
+        // Règle 1 : Bouton "Annuler" UNIQUEMENT sur documents sans date réception (template Twig le gère déjà)
 
         // Règle 2 : Bouton "Modifier" seulement sur le DERNIER document validé (si aucun doc non validé)
         allDocs.forEach(doc => {
