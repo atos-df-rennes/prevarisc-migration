@@ -13,21 +13,15 @@
     </div>
     
     <div class='row'>
-        <div class='col-md-6'>
+        <div class='col-md-6 date-reception-container'>
             {{ form_row(form.dateReception, {
                 'attr': {'class': 'form-control date-reception'}
             }) }}
-        </div>
-        <div class='col-md-6' style='padding-top: 25px;'>
             {% if form.dateReception.vars.value %}
-                <span class='text-success'>
+                <div class='reception-confirmed text-success' style='margin-top: 10px;'>
                     <i class='glyphicon glyphicon-ok'></i> 
                     Document reçu le {{ form.dateReception.vars.value|date('d/m/Y') }}
-                </span>
-            {% else %}
-                <button type='button' class='btn btn-sm btn-danger remove-document-manquant' data-action='remove'>
-                    <i class='glyphicon glyphicon-remove'></i> Supprimer
-                </button>
+                </div>
             {% endif %}
         </div>
     </div>

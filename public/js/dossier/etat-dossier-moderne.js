@@ -1,8 +1,12 @@
 /**
  * Gestion moderne de l'état du dossier avec Symfony Collection Forms
  * 
- * Utilise le pattern Symfony standard pour les collections dynamiques
- * au lieu d'AJAX custom comme dans le legacy
+ * Workflow legacy :
+ * 1. Complet → Clic "Incomplet" → 1 document manquant ajouté
+ * 2. Validation date réception → Retour "Complet" automatique
+ * 3. Re-clic "Incomplet" → Nouveau document (historique des incomplets)
+ * 
+ * Règle : 1 seul document "actif" (sans date réception) à la fois
  */
 
 (function() {
@@ -28,11 +32,10 @@
             radio.addEventListener('change', handleIncompletChangeModerne);
         });
 
-        // Gestion suppression documents
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-document-manquant') || e.target.closest('.remove-document-manquant')) {
-                const button = e.target.classList.contains('remove-document-manquant') ? e.target : e.target.closest('.remove-document-manquant');
-                handleRemoveDocument(button);
+        // Gestion validation date réception (changement sur les inputs date)
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('date-reception') || e.target.name?.includes('[dateReception]')) {
+                handleDateReceptionChange(e.target);
             }
         });
 
@@ -41,9 +44,6 @@
         if (radioIncomplet) {
             applyInitialState(radioIncomplet.value);
         }
-
-        // Setup du bouton "Ajouter un document" si besoin
-        setupAddDocumentButton();
     }
 
     /**
@@ -63,9 +63,11 @@
                 horsDelaiField.style.display = 'none';
             }
 
-            // Si aucun document, ajouter un automatiquement
-            const existingDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
-            if (existingDocs.length === 0) {
+            // Vérifier s'il existe un document actif (sans date réception)
+            const activeDoc = getActiveDocument();
+            
+            if (!activeDoc) {
+                // Aucun document actif → En ajouter un
                 addDocumentFromPrototype();
             }
         } else {
@@ -100,17 +102,15 @@
                 dossierIncomplet.style.display = '';
             }
 
-            // Ajouter un document si aucun n'existe
-            const existingDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
-            if (existingDocs.length === 0) {
-                addDocumentFromPrototype();
-            }
+            // Ajouter un nouveau document manquant
+            // (le dernier doit avoir une date réception pour arriver ici après retour "Complet")
+            addDocumentFromPrototype();
 
             // Classe hideavis pour logique masquage avis (Phase 2)
             e.target.classList.add('hideavis');
 
         } else {
-            // Complet sélectionné
+            // Complet sélectionné manuellement
             e.target.classList.remove('hideavis');
 
             if (horsDelaiField) {
@@ -125,29 +125,100 @@
     }
 
     /**
-     * Configure le bouton "Ajouter un document" (pattern Symfony standard)
+     * Gère le changement de date de réception
+     * Quand une date est saisie → Validation automatique → Retour "Complet"
      */
-    function setupAddDocumentButton() {
-        const dossierIncomplet = document.querySelector('#dossierIncomplet');
-        if (!dossierIncomplet) return;
-
-        // Vérifier si le bouton existe déjà
-        if (dossierIncomplet.querySelector('.add-document-button')) {
-            return;
+    function handleDateReceptionChange(input) {
+        if (!input.value) {
+            return; // Date vidée, ne rien faire
         }
 
-        // Créer le bouton d'ajout
-        const addButton = document.createElement('button');
-        addButton.type = 'button';
-        addButton.className = 'btn btn-sm btn-success add-document-button';
-        addButton.innerHTML = '<i class="glyphicon glyphicon-plus"></i> Ajouter un document manquant';
-        addButton.style.marginBottom = '15px';
-        
-        addButton.addEventListener('click', function() {
-            addDocumentFromPrototype();
+        // Une date de réception a été saisie → Considérer le document comme validé
+        const docItem = input.closest('.doc-manquant-item');
+        if (docItem) {
+            // Marquer le document comme validé visuellement
+            markDocumentAsValidated(docItem, input.value);
+
+            // Retour automatique à "Complet"
+            returnToCompletState();
+        }
+    }
+
+    /**
+     * Marque un document comme validé (date réception renseignée)
+     */
+    function markDocumentAsValidated(docItem, dateValue) {
+        // Désactiver tous les champs du document
+        const inputs = docItem.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.readOnly = true;
+            input.disabled = false; // Garder enabled pour envoi formulaire
         });
 
-        dossierIncomplet.insertBefore(addButton, dossierIncomplet.firstChild);
+        // Afficher un message de confirmation
+        const dateReceptionContainer = docItem.querySelector('.date-reception-container');
+        if (dateReceptionContainer) {
+            const existingMsg = dateReceptionContainer.querySelector('.reception-confirmed');
+            if (!existingMsg) {
+                const confirmMsg = document.createElement('div');
+                confirmMsg.className = 'reception-confirmed text-success';
+                confirmMsg.style.marginTop = '10px';
+                
+                // Formatter la date en français
+                const [year, month, day] = dateValue.split('-');
+                confirmMsg.innerHTML = `<i class="glyphicon glyphicon-ok"></i> Document reçu le ${day}/${month}/${year}`;
+                
+                dateReceptionContainer.appendChild(confirmMsg);
+            }
+        }
+    }
+
+    /**
+     * Retour automatique à l'état "Complet"
+     */
+    function returnToCompletState() {
+        const inputComplet = document.querySelector('#inputComplet');
+        const horsDelaiField = document.querySelector('#field-horsDelai');
+        const radioComplet = document.querySelector('input[name="dossier[incomplet]"][value="0"]');
+        const dossierIncomplet = document.querySelector('#dossierIncomplet');
+        
+        // Réafficher les radios
+        if (inputComplet) {
+            inputComplet.style.display = '';
+        }
+        
+        // Réafficher le champ "Hors délai"
+        if (horsDelaiField) {
+            horsDelaiField.style.display = '';
+        }
+        
+        // Cocher "Complet"
+        if (radioComplet) {
+            radioComplet.checked = true;
+            radioComplet.classList.remove('hideavis');
+        }
+        
+        // Masquer la zone documents (mais conserver les documents validés dans le DOM pour la sauvegarde)
+        if (dossierIncomplet) {
+            dossierIncomplet.style.display = 'none';
+        }
+    }
+
+    /**
+     * Récupère le document actif (sans date de réception)
+     */
+    function getActiveDocument() {
+        const dossierIncomplet = document.querySelector('#dossierIncomplet');
+        if (!dossierIncomplet) return null;
+
+        const docs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
+        for (let doc of docs) {
+            const dateReceptionInput = doc.querySelector('input[name*="[dateReception]"]');
+            if (dateReceptionInput && !dateReceptionInput.value) {
+                return doc;
+            }
+        }
+        return null;
     }
 
     /**
@@ -158,6 +229,11 @@
         if (!dossierIncomplet) return;
 
         const prototype = dossierIncomplet.dataset.prototype;
+        if (!prototype) {
+            console.warn('Prototype collection non trouvé');
+            return;
+        }
+
         let index = parseInt(dossierIncomplet.dataset.index) || 0;
 
         // Remplacer __name__ par l'index actuel
@@ -167,57 +243,22 @@
         const temp = document.createElement('div');
         temp.innerHTML = newForm;
 
-        // Ajouter avant le bouton d'ajout
-        const addButton = dossierIncomplet.querySelector('.add-document-button');
-        if (addButton) {
-            dossierIncomplet.insertBefore(temp.firstElementChild, addButton.nextSibling);
-        } else {
-            dossierIncomplet.appendChild(temp.firstElementChild);
-        }
+        // Ajouter à la fin de la zone documents
+        const newElement = temp.firstElementChild;
+        if (newElement) {
+            dossierIncomplet.appendChild(newElement);
 
-        // Incrémenter l'index
-        dossierIncomplet.dataset.index = index + 1;
+            // Incrémenter l'index
+            dossierIncomplet.dataset.index = index + 1;
 
-        // Pré-remplir la date du jour
-        const newDateInput = dossierIncomplet.querySelector(`[name="dossier[documentsManquants][${index}][date]"]`);
-        if (newDateInput) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            newDateInput.value = `${year}-${month}-${day}`;
-        }
-    }
-
-    /**
-     * Supprime un document
-     */
-    function handleRemoveDocument(button) {
-        const docItem = button.closest('.doc-manquant-item');
-        if (docItem) {
-            docItem.remove();
-
-            // Si plus aucun document, réafficher les radios et cocher "Complet"
-            const dossierIncomplet = document.querySelector('#dossierIncomplet');
-            const remainingDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
-            
-            if (remainingDocs.length === 0) {
-                const inputComplet = document.querySelector('#inputComplet');
-                const horsDelaiField = document.querySelector('#field-horsDelai');
-                const radioComplet = document.querySelector('input[name="dossier[incomplet]"][value="0"]');
-                
-                if (inputComplet) {
-                    inputComplet.style.display = '';
-                }
-                if (horsDelaiField) {
-                    horsDelaiField.style.display = '';
-                }
-                if (radioComplet) {
-                    radioComplet.checked = true;
-                }
-                if (dossierIncomplet) {
-                    dossierIncomplet.style.display = 'none';
-                }
+            // Pré-remplir la date du jour pour "Dossier incomplet le"
+            const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
+            if (newDateInput) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                newDateInput.value = `${year}-${month}-${day}`;
             }
         }
     }
