@@ -325,7 +325,7 @@
             const documentManquantTextarea = newElement.querySelector('textarea[name*="[documentManquant]"]');
             if (documentManquantTextarea) {
                 try {
-                    const response = await fetch('/prevarisc-migration/public/api/document-manquant/liste');
+                    const response = await fetch('/api/document-manquant/liste');
                     if (response.ok) {
                         const documents = await response.json();
                         // Formater la liste comme dans le legacy : un document par ligne
