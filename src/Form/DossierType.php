@@ -156,11 +156,17 @@ class DossierType extends AbstractType
                 ],
                 'help' => 'Commencez à saisir pour rechercher un groupement ou saisissez librement',
             ])
-            ->add('incomplet', CheckboxType::class, [
-                'label' => 'Dossier incomplet',
-                'required' => false,
+            ->add('incomplet', ChoiceType::class, [
+                'label' => 'État dossier',
+                'choices' => [
+                    'Complet' => 0,
+                    'Incomplet' => 1,
+                ],
+                'expanded' => true, // Radios au lieu de select
+                'required' => true,
+                'empty_data' => 0, // Par défaut : Complet
                 'attr' => [
-                    'class' => 'form-check-input incomplet hideavis',
+                    'class' => 'incomplet-radios',
                 ],
             ])
             ->add('horsDelai', CheckboxType::class, [

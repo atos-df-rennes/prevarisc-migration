@@ -12,6 +12,7 @@
     {{ parent() }}
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
     <script src="{{ asset('js/dossier/form.js') }}"></script>
+    <script src="{{ asset('js/dossier/etat-dossier.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -184,14 +185,32 @@
                 </div>
             </li>
 
-            {# Champs spécifiques études - incomplet et horsDelai (ordre legacy) #}
+            {# Champs spécifiques études - État dossier (incomplet) avec documents manquants #}
             <li class='row' id='field-incomplet'>
-                <div class='left libelle col-md-3'></div>
+                <div class='left libelle col-md-3'>{{ form_label(form.incomplet) }}</div>
                 <div class='right form col-md-9'>
-                    <div class='form-check'>
-                        {{ form_widget(form.incomplet) }}
-                        {{ form_label(form.incomplet) }}
+                    {# Zone documents manquants (affichée uniquement si incomplet sélectionné) #}
+                    <div id='dossierIncomplet' style='margin-bottom: 15px;'>
+                        {# Les documents manquants seront ajoutés ici dynamiquement via AJAX #}
+                        {# Format attendu (généré par /dossier/formdocmanquant) : #}
+                        {# <div id='infosIncomplet_X'> #}
+                        {#     Dossier incomplet le <input class='date' name='dateDocManquant[]' /> #}
+                        {#     <textarea name='docManquant[]' class='docManquant'>...</textarea> #}
+                        {#     Date de réception <input class='date' name='dateReceptionDocManquant[]' /> #}
+                        {#     <button class='validDocManquant'>Valider</button> #}
+                        {#     <button class='cancelIncomplet'>Annuler</button> #}
+                        {# </div> #}
+                    </div>
+
+                    {# Radios Complet / Incomplet (masqués quand incomplet sélectionné) #}
+                    <div id='inputComplet'>
+                        {{ form_widget(form.incomplet, {
+                            'attr': {'class': 'incomplet'},
+                        }) }}
                         {{ form_errors(form.incomplet) }}
+                        <p class='help-block'>
+                            <small>Si le dossier est incomplet, vous pourrez ajouter des documents manquants</small>
+                        </p>
                     </div>
                 </div>
             </li>
