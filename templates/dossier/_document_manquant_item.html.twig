@@ -1,6 +1,6 @@
 {# Template pour un document manquant individuel #}
 <div class='doc-manquant-item' style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;'>
-    {# Ligne 1 : Date incomplet + Bouton Annuler (uniquement sur nouveau bloc sans date réception) #}
+    {# Ligne 1 : Date incomplet (Bouton Annuler ajouté en JS pour nouveaux blocs) #}
     <div class='row'>
         <div class='col-md-12'>
             <label>Dossier incomplet le</label>
@@ -8,12 +8,6 @@
                 {{ form_widget(form.date, {
                     'attr': {'class': 'form-control date-incomplet', 'style': 'width: 150px; display: inline-block;'}
                 }) }}
-                {# Bouton Annuler - affiché UNIQUEMENT sur nouveau bloc (pas de dateReception) #}
-                {% if not form.dateReception.vars.value %}
-                    <button type='button' class='btn btn-sm btn-danger cancel-incomplet' style='margin-left: 10px;'>
-                        <i class='glyphicon glyphicon-remove'></i> Annuler
-                    </button>
-                {% endif %}
             </div>
             {{ form_errors(form.date) }}
         </div>

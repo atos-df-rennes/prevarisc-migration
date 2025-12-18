@@ -1,11 +1,11 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
-**Date :** 18 décembre 2025 - Matin  
-**Session précédente :** 17 décembre 2025 - Toute la journée (TOUTES LES NATURES COMPLÉTÉES ✅)
+**Date :** 19 décembre 2025 - Matin  
+**Session précédente :** 18 décembre 2025 après-midi (Conformité affichage - Option B)
 
 ---
 
-## ✅ Ce qui est fait
+## ✅ Ce qui est fait - Session 18/12 après-midi
 
 ### 🎉 TOUTES LES NATURES IMPLÉMENTÉES (68/68) ✅
 
@@ -49,9 +49,115 @@
 - Logique hideAvis au chargement (Phase 1 - statique)
 - Facteur/échéancier selon avisCommission (Phase 1 - statique)
 
+### ✅ Session 18/12 après-midi - Conformité visuelle (Option B)
+
+#### 1. Service Instructeur - TomSelect avec autocomplétion ✅
+**Problème :** 2 radios + champs (groupement vs libre) → UX lourde  
+**Solution :** 1 seul champ TomSelect avec :
+- Autocomplétion sur groupements Service Instructeur (API)
+- Possibilité saisie libre si non trouvé
+- Label français "Ajouter {valeur}" via plugin `create: true`
+
+**Fichiers modifiés :**
+- `DossierType.php` : Champ unique `serviceInstructeur` (TomSelect + attr `tomselect-ajax`)
+- `templates/dossier/_form_theme_tom_select.html.twig` : Bloc `form_widget_simple` sans `form-control`
+- `public/js/form.js` : Config TomSelect avec `create`, `render.no_results`, filtrage SERVINST
+- `src/Controller/Api/GroupementController.php` : Endpoint `/api/groupements` avec filtre type
+
+**Validation :** ✅ Autocomplétion OK, saisie libre OK, labels français OK
+
+#### 2. État Dossier - Documents manquants avec Symfony Collection ✅
+**Problème :** Champ `incomplet` checkbox → doit être "État dossier" avec gestion documents manquants  
+**Solution :** Formulaire Collection moderne avec workflow legacy
+
+**Workflow implémenté :**
+1. **Complet initial** : Historique documents en readonly, bouton "Modifier" sur dernier validé
+2. **Clic "Incomplet"** : Nouveau bloc ajouté (date jour, liste docs pré-remplie, éditable) + bouton "Annuler"
+3. **Saisie date réception + Valider** : Document validé (readonly) → retour "Complet"
+4. **Clic "Modifier"** : Dernier document redevient éditable (sauf date incomplet) + boutons "Valider"/"Annuler"
+5. **Clic "Annuler"** (nouveau bloc) : Suppression bloc → retour "Complet"
+
+**Fichiers créés/modifiés :**
+- `src/Entity/DossierDocumentManquant.php` : Entité pour documents manquants
+- `src/Form/DossierDocumentManquantType.php` : FormType pour collection
+- `src/Repository/DocumentManquantRepository.php` : Récupération liste paramétrable
+- `src/Controller/Api/DocumentManquantController.php` : API `/api/document-manquant/liste`
+- `templates/dossier/_document_manquant_item.html.twig` : Template item (prototype + historique)
+- `public/js/dossier/etat-dossier-moderne.js` : Logique workflow (ajout prototype, boutons, états)
+- `DossierType.php` : Champ `documentsManquants` (CollectionType)
+
+**Détails techniques :**
+- Bouton "Annuler" ajouté en JS (ligne 317-323) car absent du prototype FormType
+- Fonction `updateButtonsVisibility()` gère affichage Modifier/Valider/Annuler selon état
+- Fonction `markDocumentAsReadonly()` gère readonly historique
+- Pré-remplissage date jour + liste docs via API au chargement
+- Utilisation datepickers HTML5 natifs (modernisation vs legacy)
+
+**Validation :** ✅ Workflow complet/incomplet OK, boutons conditionnels OK, historique readonly OK
+
 ---
 
-## 🎯 PROCHAINE SESSION - Phase 2 : Comportements dynamiques
+## 🎯 PROCHAINE SESSION - 19/12 Matin
+
+### Option A : Interactions JavaScript dynamiques (Phase 2)
+
+**Rappel session 18/12 matin :**
+- ✅ **Phase 1 complétée** : Affichage initial au chargement (8/8 tests OK)
+- ❌ **Phase 2 en attente** : Interactions dynamiques (changements utilisateur)
+
+**Décision :** Continuer Option B (conformité visuelle) avant Phase 2
+
+### Option B : Conformité visuelle champs restants ⚠️ EN COURS
+
+**Champs à traiter :**
+
+#### 1. Avis Dossier - Amélioration affichage ⏳
+**État actuel :** Select natif simple  
+**Legacy :** Select avec classes CSS spécifiques  
+**Action :** Vérifier différences visuelles + comportement hideAvis
+
+#### 2. Préventionniste - Vérification conformité ⏳
+**État actuel :** TomSelect multiple  
+**Action :** Vérifier affichage vs legacy
+
+#### 3. Commission - Vérification conformité ⏳
+**État actuel :** Select natif  
+**Legacy :** Select natif aussi (mais CSS différent ?)  
+**Action :** Vérifier visuellement
+
+#### 4. Dates diverses - Uniformisation ✅ FAIT
+**Action :** Utiliser datepickers HTML5 natifs partout (modernisation)
+
+---
+
+## 🎯 Plan session 19/12 Matin
+
+### Ordre prioritaire :
+
+**1. Finaliser État Dossier (si bugs détectés)** - 30min  
+- Tester workflow complet en conditions réelles
+- Vérifier persistance en BDD après sauvegarde formulaire
+- Corriger bugs éventuels boutons/états
+
+**2. Traiter champs restants (Option B)** - 1h30  
+- Avis Dossier : Amélioration affichage + comportement hideAvis
+- Préventionniste : Vérification conformité
+- Commission : Vérification conformité
+- Tests visuels vs legacy pour chaque champ
+
+**3. Tests globaux conformité visuelle** - 30min  
+- Charger 5-6 dossiers legacy différents
+- Comparer affichage côte à côte (legacy vs migré)
+- Lister écarts visuels restants
+
+**4. Si tout OK → Démarrer Phase 2 (interactions dynamiques)** - Reste de session  
+- Décommenter listeners JavaScript
+- Tests interactions utilisateur
+- Voir plan détaillé ci-dessous
+
+---
+
+## 📋 Plan Phase 2 (si temps restant ou session après-midi)
 
 ### Objectif : Rendre le JavaScript RÉACTIF aux changements utilisateur
 

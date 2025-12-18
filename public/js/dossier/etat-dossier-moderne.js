@@ -184,19 +184,11 @@
         const docItem = button.closest('.doc-manquant-item');
         if (!docItem) return;
 
-        // Confirmer la suppression
-        if (!confirm('Êtes-vous sûr de vouloir annuler ce signalement de document manquant ?')) {
-            return;
-        }
-
-        // Supprimer le document du DOM
+        // Supprimer le document du DOM (sans confirmation car c'est un nouveau non sauvegardé)
         docItem.remove();
 
         // Retour à "Complet"
         returnToCompletState();
-        
-        // Mettre à jour la visibilité des boutons
-        updateButtonsVisibility();
     }
 
     /**
@@ -314,13 +306,14 @@
             dossierIncomplet.dataset.index = index + 1;
 
             // **AJOUTER LE BOUTON ANNULER EN JS** (car absent du prototype FormType)
-            const dateIncompletGroup = newElement.querySelector('.form-group:first-child');
-            if (dateIncompletGroup) {
+            const firstRow = newElement.querySelector('.row:first-child .col-md-12 > div');
+            if (firstRow) {
                 const annulerBtn = document.createElement('button');
                 annulerBtn.type = 'button';
-                annulerBtn.className = 'btn btn-default cancel-incomplet';
-                annulerBtn.innerHTML = '<i class="icon-remove"></i> Annuler';
-                dateIncompletGroup.appendChild(annulerBtn);
+                annulerBtn.className = 'btn btn-sm btn-danger cancel-incomplet';
+                annulerBtn.style.marginLeft = '10px';
+                annulerBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
+                firstRow.appendChild(annulerBtn);
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
