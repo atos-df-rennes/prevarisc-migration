@@ -206,6 +206,9 @@
 
         // Retour à "Complet"
         returnToCompletState();
+        
+        // Mettre à jour la visibilité des boutons (notamment "Modifier" sur dernier validé)
+        updateButtonsVisibility();
     }
 
     /**
@@ -508,7 +511,16 @@
             console.log('DEBUG Modifier: Bouton Valider affiché');
         }
         
-        todayBtns.forEach(btn => btn.style.display = '');
+        // Afficher SEULEMENT le bouton "Aujourd'hui" pour date réception (pas date incomplet qui est readonly)
+        todayBtns.forEach(btn => {
+            if (btn.classList.contains('btn-today-reception')) {
+                // Date réception éditable → afficher bouton
+                btn.style.display = '';
+            } else if (btn.classList.contains('btn-today-incomplet')) {
+                // Date incomplet readonly → masquer bouton
+                btn.style.display = 'none';
+            }
+        });
         
         // PAS de bouton "Annuler" sur documents existants (seulement sur nouveaux)
         // Le bouton "Annuler" est uniquement ajouté dans addDocumentFromPrototype()
