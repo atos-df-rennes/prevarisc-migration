@@ -1280,14 +1280,41 @@ class Dossier
         return $this;
     }
 
+    /**
+     * Retourne le service instructeur.
+     * Normalise les valeurs legacy "0" et chaînes vides en null.
+     *
+     * @return string|null
+     */
     public function getServiceInstructeur(): ?string
     {
+        // Normaliser les valeurs legacy héritées de l'ancien système
+        // "0" et chaînes vides sont considérés comme absence de service instructeur
+        // TODO: Nettoyer la BDD avec migration SQL quand création dossier migrée dans Symfony
+        if (in_array($this->serviceInstructeur, ['0', ''], true)) {
+            return null;
+        }
+
         return $this->serviceInstructeur;
     }
 
+    /**
+     * Définit le service instructeur.
+     * Normalise les valeurs "0" et chaînes vides en null avant persistence.
+     *
+     * @param string|null $serviceInstructeur
+     *
+     * @return self
+     */
     public function setServiceInstructeur(?string $serviceInstructeur): self
     {
-        $this->serviceInstructeur = $serviceInstructeur;
+        // Normaliser les valeurs "0" et vides en null
+        // Évite de persister des données legacy depuis le code Symfony
+        if (in_array($serviceInstructeur, ['0', ''], true)) {
+            $this->serviceInstructeur = null;
+        } else {
+            $this->serviceInstructeur = $serviceInstructeur;
+        }
 
         return $this;
     }
