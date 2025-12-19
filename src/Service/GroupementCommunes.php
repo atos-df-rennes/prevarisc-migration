@@ -16,7 +16,6 @@ final class GroupementCommunes
         $this->etablissementInformationsRepository = $etablissementInformationsRepository;
     }
 
-
     /**
      * Réaffecte les préventionnistes d'un groupement à tous ses établissements, cellules et sites.
      * Cette méthode supprime d'abord toutes les affectations existantes pour les communes du groupement,

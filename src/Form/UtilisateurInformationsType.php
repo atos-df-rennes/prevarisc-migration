@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Fonction;
+use App\Entity\UtilisateurCivilite;
 use App\Entity\UtilisateurInformations;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -33,6 +34,11 @@ class UtilisateurInformationsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('civilite', EntityType::class, [
+                'class' => UtilisateurCivilite::class,
+                'choice_label' => 'libelle',
+                'required' => false,
+            ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
                 'required' => false,
