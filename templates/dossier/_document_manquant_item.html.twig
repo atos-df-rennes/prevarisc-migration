@@ -27,9 +27,9 @@
         </div>
     </div>
     
-    {# Ligne 3 : Date réception + Bouton Aujourd'hui + Bouton Valider / Modifier #}
+    {# Ligne 3 : Date réception + Boutons #}
     <div class='row' style='margin-top: 10px;'>
-        <div class='col-md-6'>
+        <div class='col-md-12'>
             <label>Date de réception des pièces</label>
             <div>
                 {{ form_widget(form.dateReception, {
@@ -41,6 +41,18 @@
                 <button type='button' class='btn btn-default btn-sm btn-today-reception' style='margin-left: 10px;'>
                     <i class='glyphicon glyphicon-calendar'></i> Aujourd'hui
                 </button>
+                
+                {% if form.dateReception.vars.value %}
+                    {# Document validé - Bouton Modifier (visibilité géré par JS) #}
+                    <button type='button' class='btn btn-sm btn-warning modifier-reception' style='display: none; margin-left: 10px;'>
+                        <i class='glyphicon glyphicon-pencil'></i> Modifier
+                    </button>
+                {% else %}
+                    {# Document non validé - Bouton Valider #}
+                    <button type='button' class='btn btn-sm btn-success validate-reception' style='margin-left: 10px;'>
+                        <i class='glyphicon glyphicon-ok'></i> Valider la réception
+                    </button>
+                {% endif %}
             </div>
             {{ form_errors(form.dateReception) }}
             
@@ -49,19 +61,6 @@
                     <i class='glyphicon glyphicon-ok'></i> 
                     Document reçu le {{ form.dateReception.vars.value|date('d/m/Y') }}
                 </div>
-            {% endif %}
-        </div>
-        <div class='col-md-6' style='padding-top: 25px;'>
-            {% if form.dateReception.vars.value %}
-                {# Document validé - Bouton Modifier (visibilité géré par JS) #}
-                <button type='button' class='btn btn-sm btn-warning modifier-reception' style='display: none;'>
-                    <i class='glyphicon glyphicon-pencil'></i> Modifier
-                </button>
-            {% else %}
-                {# Document non validé - Bouton Valider #}
-                <button type='button' class='btn btn-sm btn-success validate-reception'>
-                    <i class='glyphicon glyphicon-ok'></i> Valider la réception
-                </button>
             {% endif %}
         </div>
     </div>

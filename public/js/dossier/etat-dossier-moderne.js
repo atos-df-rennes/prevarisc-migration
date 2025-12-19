@@ -13,6 +13,99 @@
 (function() {
     'use strict';
 
+    // ===================================================================
+    // CONSTANTES
+    // ===================================================================
+    
+    const SELECTORS = {
+        RADIO_INCOMPLET: 'input[name="dossier[incomplet]"]',
+        DOSSIER_INCOMPLET: '#dossierIncomplet',
+        INPUT_COMPLET: '#inputComplet',
+        FIELD_HORS_DELAI: '#field-horsDelai',
+        DOC_MANQUANT_ITEM: '.doc-manquant-item',
+        DATE_RECEPTION: '.date-reception',
+        DATE_INCOMPLET: '.date-incomplet',
+        BTN_VALIDATE: '.validate-reception',
+        BTN_MODIFIER: '.modifier-reception',
+        BTN_CANCEL: '.cancel-incomplet',
+        BTN_TODAY_INCOMPLET: '.btn-today-incomplet',
+        BTN_TODAY_RECEPTION: '.btn-today-reception'
+    };
+
+    // ===================================================================
+    // FONCTIONS UTILITAIRES
+    // ===================================================================
+
+    /**
+     * Met à jour la visibilité des boutons "Aujourd'hui" selon l'état readonly des champs
+     * @param {HTMLElement} docItem - L'élément DOM du document manquant
+     */
+    function updateTodayButtonsVisibility(docItem) {
+        const todayBtns = docItem.querySelectorAll(`${SELECTORS.BTN_TODAY_INCOMPLET}, ${SELECTORS.BTN_TODAY_RECEPTION}`);
+        todayBtns.forEach(btn => {
+            if (btn.classList.contains('btn-today-incomplet')) {
+                btn.style.display = 'none'; // Date incomplet toujours readonly
+            } else if (btn.classList.contains('btn-today-reception')) {
+                btn.style.display = ''; // Date réception éditable
+            }
+        });
+    }
+
+    /**
+     * Crée un bouton dynamiquement
+     * @param {string} type - Type de bouton ('valider', 'modifier', 'annuler')
+     * @param {HTMLElement} container - Conteneur où ajouter le bouton
+     * @returns {HTMLElement} Le bouton créé
+     */
+    function createButton(type, container) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        
+        const configs = {
+            valider: {
+                className: 'btn btn-sm btn-success validate-reception',
+                html: '<i class="glyphicon glyphicon-ok"></i> Valider la réception',
+                style: 'margin-left: 10px;'
+            },
+            modifier: {
+                className: 'btn btn-sm btn-warning modifier-reception',
+                html: '<i class="glyphicon glyphicon-pencil"></i> Modifier',
+                style: 'margin-left: 10px;'
+            },
+            annuler: {
+                className: 'btn btn-sm btn-danger cancel-incomplet',
+                html: '<i class="glyphicon glyphicon-remove"></i> Annuler',
+                style: 'margin-left: 10px;'
+            }
+        };
+        
+        const config = configs[type];
+        if (config) {
+            button.className = config.className;
+            button.innerHTML = config.html;
+            button.style.cssText = config.style;
+            container.appendChild(button);
+        }
+        
+        return button;
+    }
+
+    /**
+     * Retourne la date du jour au format YYYY-MM-DD
+     * @returns {string}
+     */
+    function getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // ===================================================================
+    // INITIALISATION
+    // ===================================================================
+
     document.addEventListener('DOMContentLoaded', function() {
         initEtatDossierModerne();
     });
@@ -261,16 +354,7 @@
                 });
                 
                 // Gérer boutons "Aujourd'hui" selon l'état readonly des champs
-                const todayBtns = doc.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
-                todayBtns.forEach(btn => {
-                    if (btn.classList.contains('btn-today-incomplet')) {
-                        // Date incomplet readonly → masquer bouton
-                        btn.style.display = 'none';
-                    } else if (btn.classList.contains('btn-today-reception')) {
-                        // Date réception éditable → afficher bouton
-                        btn.style.display = '';
-                    }
-                });
+                updateTodayButtonsVisibility(doc);
             }
         });
         
@@ -333,11 +417,7 @@
         
         const dateInput = docItem.querySelector('.date-incomplet');
         if (dateInput) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}`;
+            dateInput.value = getTodayDate();
         }
     }
 
@@ -350,11 +430,7 @@
         
         const dateInput = docItem.querySelector('.date-reception');
         if (dateInput) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}`;
+            dateInput.value = getTodayDate();
         }
     }
 
@@ -390,35 +466,17 @@
 
             // **AJOUTER LE BOUTON ANNULER EN JS** (car absent du prototype FormType)
             const dateIncompletContainer = newElement.querySelector('.date-incomplet-container');
-            console.log('DEBUG: Recherche .date-incomplet-container:', dateIncompletContainer);
-            console.log('DEBUG: Contenu newElement:', newElement.innerHTML.substring(0, 300));
             
             if (dateIncompletContainer) {
-                const annulerBtn = document.createElement('button');
-                annulerBtn.type = 'button';
-                annulerBtn.className = 'btn btn-sm btn-danger cancel-incomplet';
-                annulerBtn.style.marginLeft = '10px';
-                annulerBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
-                dateIncompletContainer.appendChild(annulerBtn);
-                console.log('DEBUG: Bouton Annuler ajouté avec succès');
+                createButton('annuler', dateIncompletContainer);
             } else {
                 console.warn('❌ Conteneur date-incomplet-container NON TROUVÉ dans le nouveau document');
-                console.log('DEBUG: Classes disponibles dans newElement:', 
-                    Array.from(newElement.querySelectorAll('*'))
-                        .filter(el => el.className)
-                        .map(el => el.className)
-                        .join(', ')
-                );
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
             const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
             if (newDateInput) {
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                newDateInput.value = `${year}-${month}-${day}`;
+                newDateInput.value = getTodayDate();
             }
             
             // Pré-remplir la liste des documents manquants depuis la BDD
@@ -500,35 +558,18 @@
         let validateBtn = docItem.querySelector('.validate-reception');
         const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
         
-        console.log('DEBUG Modifier: validateBtn trouvé:', validateBtn);
-        console.log('DEBUG Modifier: todayBtns count:', todayBtns.length);
         
         if (!validateBtn) {
             // Le bouton n'existe pas (rendu avec "Modifier") → le créer
-            console.log('DEBUG Modifier: Création du bouton Valider');
             const buttonContainer = button.parentElement;
-            validateBtn = document.createElement('button');
-            validateBtn.type = 'button';
-            validateBtn.className = 'btn btn-sm btn-success validate-reception';
-            validateBtn.innerHTML = '<i class="glyphicon glyphicon-ok"></i> Valider la réception';
-            buttonContainer.appendChild(validateBtn);
-            console.log('DEBUG Modifier: Bouton Valider créé avec succès');
+            validateBtn = createButton('valider', buttonContainer);
         } else {
             // Le bouton existe déjà → l'afficher
             validateBtn.style.display = '';
-            console.log('DEBUG Modifier: Bouton Valider affiché');
         }
         
         // Afficher SEULEMENT le bouton "Aujourd'hui" pour date réception (pas date incomplet qui est readonly)
-        todayBtns.forEach(btn => {
-            if (btn.classList.contains('btn-today-reception')) {
-                // Date réception éditable → afficher bouton
-                btn.style.display = '';
-            } else if (btn.classList.contains('btn-today-incomplet')) {
-                // Date incomplet readonly → masquer bouton
-                btn.style.display = 'none';
-            }
-        });
+        updateTodayButtonsVisibility(docItem);
         
         // PAS de bouton "Annuler" sur documents existants (seulement sur nouveaux)
         // Le bouton "Annuler" est uniquement ajouté dans addDocumentFromPrototype()
@@ -579,13 +620,8 @@
                 const validateBtn = lastValidated.querySelector('.validate-reception');
                 if (validateBtn) {
                     const buttonContainer = validateBtn.parentElement;
-                    modifierBtn = document.createElement('button');
-                    modifierBtn.type = 'button';
-                    modifierBtn.className = 'btn btn-sm btn-warning modifier-reception';
+                    modifierBtn = createButton('modifier', buttonContainer);
                     modifierBtn.style.display = '';
-                    modifierBtn.innerHTML = '<i class="glyphicon glyphicon-pencil"></i> Modifier';
-                    buttonContainer.appendChild(modifierBtn);
-                    console.log('DEBUG: Bouton Modifier créé sur document validé');
                 }
             } else {
                 // Le bouton existe → l'afficher
