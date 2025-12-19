@@ -63,30 +63,4 @@ class DossierDocumentManquantService
             $documentsManquants->add($doc);
         }
     }
-
-    /**
-     * Sépare les documents actifs et historiques.
-     *
-     * @param Collection $documentsManquants La collection de documents
-     *
-     * @return array{actifs: array, historique: array}
-     */
-    public function separateActifsFromHistorique(Collection $documentsManquants): array
-    {
-        $actifs = [];
-        $historique = [];
-
-        foreach ($documentsManquants as $doc) {
-            if ($doc->getDateReception()) {
-                $historique[] = $doc;
-            } else {
-                $actifs[] = $doc;
-            }
-        }
-
-        return [
-            'actifs' => $actifs,
-            'historique' => $historique,
-        ];
-    }
 }

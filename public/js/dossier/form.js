@@ -661,7 +661,6 @@
             if (isServiceInstructeur) {
                 // Configuration spécifique pour service instructeur avec autocomplete
                 new TomSelect(field, {
-                    create: true,
                     maxItems: 1,
                     valueField: 'libelle',
                     labelField: 'libelle',
@@ -773,7 +772,8 @@
     function getDocumentUrbanismePrefix(natureId) {
         // Mapping des natures vers leurs préfixes
         const prefixMapping = {
-            '1': 'PC',  // Permis de Construire
+            '1': 'PC',
+            '2': 'AT',
             '14': 'PA',
             '30': 'DP',
             '62': 'CU'
