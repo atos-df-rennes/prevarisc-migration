@@ -292,9 +292,24 @@
             radioComplet.classList.remove('hideavis');
         }
         
-        // Masquer la zone documents (mais conserver les documents validés dans le DOM pour la sauvegarde)
+        // Vérifier s'il y a des documents validés (historique)
         if (dossierIncomplet) {
-            dossierIncomplet.style.display = 'none';
+            const validatedDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
+            let hasValidatedDocs = false;
+            
+            validatedDocs.forEach(doc => {
+                const dateReceptionInput = doc.querySelector('.date-reception');
+                if (dateReceptionInput && dateReceptionInput.value) {
+                    hasValidatedDocs = true;
+                }
+            });
+            
+            // Afficher la zone SI historique existe, sinon masquer
+            if (hasValidatedDocs) {
+                dossierIncomplet.style.display = '';
+            } else {
+                dossierIncomplet.style.display = 'none';
+            }
         }
     }
 
@@ -470,19 +485,29 @@
         // Masquer "Modifier"
         button.style.display = 'none';
         
-        // Afficher "Valider la réception" ET "Aujourd'hui"
-        const validateBtn = docItem.querySelector('.validate-reception');
+        // Créer ou afficher "Valider la réception"
+        let validateBtn = docItem.querySelector('.validate-reception');
         const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
         
         console.log('DEBUG Modifier: validateBtn trouvé:', validateBtn);
         console.log('DEBUG Modifier: todayBtns count:', todayBtns.length);
         
-        if (validateBtn) {
+        if (!validateBtn) {
+            // Le bouton n'existe pas (rendu avec "Modifier") → le créer
+            console.log('DEBUG Modifier: Création du bouton Valider');
+            const buttonContainer = button.parentElement;
+            validateBtn = document.createElement('button');
+            validateBtn.type = 'button';
+            validateBtn.className = 'btn btn-sm btn-success validate-reception';
+            validateBtn.innerHTML = '<i class="glyphicon glyphicon-ok"></i> Valider la réception';
+            buttonContainer.appendChild(validateBtn);
+            console.log('DEBUG Modifier: Bouton Valider créé avec succès');
+        } else {
+            // Le bouton existe déjà → l'afficher
             validateBtn.style.display = '';
             console.log('DEBUG Modifier: Bouton Valider affiché');
-        } else {
-            console.warn('❌ Bouton validate-reception NON TROUVÉ');
         }
+        
         todayBtns.forEach(btn => btn.style.display = '');
         
         // PAS de bouton "Annuler" sur documents existants (seulement sur nouveaux)
