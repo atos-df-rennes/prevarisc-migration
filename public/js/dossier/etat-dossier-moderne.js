@@ -260,9 +260,17 @@
                     }
                 });
                 
-                // S'assurer que les boutons "Aujourd'hui" sont visibles pour documents non validés
+                // Gérer boutons "Aujourd'hui" selon l'état readonly des champs
                 const todayBtns = doc.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
-                todayBtns.forEach(btn => btn.style.display = '');
+                todayBtns.forEach(btn => {
+                    if (btn.classList.contains('btn-today-incomplet')) {
+                        // Date incomplet readonly → masquer bouton
+                        btn.style.display = 'none';
+                    } else if (btn.classList.contains('btn-today-reception')) {
+                        // Date réception éditable → afficher bouton
+                        btn.style.display = '';
+                    }
+                });
             }
         });
         
