@@ -37,20 +37,37 @@
         document.addEventListener('click', function(e) {
             // Bouton "Valider la réception"
             if (e.target.classList.contains('validate-reception') || e.target.closest('.validate-reception')) {
+                e.preventDefault();
                 const button = e.target.classList.contains('validate-reception') ? e.target : e.target.closest('.validate-reception');
                 handleValidateReception(button);
             }
             
             // Bouton "Annuler" (cancelIncomplet)
             if (e.target.classList.contains('cancel-incomplet') || e.target.closest('.cancel-incomplet')) {
+                e.preventDefault();
                 const button = e.target.classList.contains('cancel-incomplet') ? e.target : e.target.closest('.cancel-incomplet');
                 handleCancelIncomplet(button);
             }
             
             // Bouton "Modifier" (cancelDateRecep - repasser en éditable)
             if (e.target.classList.contains('modifier-reception') || e.target.closest('.modifier-reception')) {
+                e.preventDefault();
                 const button = e.target.classList.contains('modifier-reception') ? e.target : e.target.closest('.modifier-reception');
                 handleModifierReception(button);
+            }
+            
+            // Boutons "Aujourd'hui" pour date incomplet
+            if (e.target.classList.contains('btn-today-incomplet') || e.target.closest('.btn-today-incomplet')) {
+                e.preventDefault();
+                const button = e.target.classList.contains('btn-today-incomplet') ? e.target : e.target.closest('.btn-today-incomplet');
+                handleTodayIncomplet(button);
+            }
+            
+            // Boutons "Aujourd'hui" pour date réception
+            if (e.target.classList.contains('btn-today-reception') || e.target.closest('.btn-today-reception')) {
+                e.preventDefault();
+                const button = e.target.classList.contains('btn-today-reception') ? e.target : e.target.closest('.btn-today-reception');
+                handleTodayReception(button);
             }
         });
 
@@ -72,8 +89,8 @@
         const horsDelaiField = document.querySelector('#field-horsDelai');
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
 
-        // Marquer tous les documents comme readonly (historique)
-        markAllDocumentsReadonly();
+        // Marquer les documents validés comme readonly, laisser les non validés éditables
+        markValidatedDocumentsReadonly();
 
         if (value === '1') {
             // Dossier incomplet au chargement
@@ -210,15 +227,33 @@
     }
 
     /**
-     * Marque TOUS les documents existants comme readonly (au chargement)
+     * Marque SEULEMENT les documents validés comme readonly (au chargement)
+     * Les documents sans date de réception restent éditables (sauf date incomplet)
      */
-    function markAllDocumentsReadonly() {
+    function markValidatedDocumentsReadonly() {
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
         if (!dossierIncomplet) return;
 
         const allDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
         allDocs.forEach(doc => {
-            markDocumentAsReadonly(doc);
+            const dateReceptionInput = doc.querySelector('.date-reception');
+            
+            if (dateReceptionInput && dateReceptionInput.value) {
+                // Document validé → tout en readonly
+                markDocumentAsReadonly(doc);
+            } else {
+                // Document non validé → éditable sauf date incomplet
+                const inputs = doc.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    if (input.classList.contains('date-incomplet')) {
+                        // Date incomplet toujours readonly
+                        input.readOnly = true;
+                    } else {
+                        // Autres champs éditables
+                        input.readOnly = false;
+                    }
+                });
+            }
         });
         
         // Mettre à jour la visibilité des boutons après marquage
@@ -257,20 +292,37 @@
     }
 
     /**
-     * Récupère le document actif (sans date de réception)
+     * Gère le clic sur bouton "Aujourd'hui" pour date incomplet
      */
-    function getActiveDocument() {
-        const dossierIncomplet = document.querySelector('#dossierIncomplet');
-        if (!dossierIncomplet) return null;
-
-        const docs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
-        for (let doc of docs) {
-            const dateReceptionInput = doc.querySelector('input[name*="[dateReception]"]');
-            if (dateReceptionInput && !dateReceptionInput.value) {
-                return doc;
-            }
+    function handleTodayIncomplet(button) {
+        const docItem = button.closest('.doc-manquant-item');
+        if (!docItem) return;
+        
+        const dateInput = docItem.querySelector('.date-incomplet');
+        if (dateInput) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
         }
-        return null;
+    }
+
+    /**
+     * Gère le clic sur bouton "Aujourd'hui" pour date réception
+     */
+    function handleTodayReception(button) {
+        const docItem = button.closest('.doc-manquant-item');
+        if (!docItem) return;
+        
+        const dateInput = docItem.querySelector('.date-reception');
+        if (dateInput) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        }
     }
 
     /**
@@ -304,7 +356,7 @@
             dossierIncomplet.dataset.index = index + 1;
 
             // **AJOUTER LE BOUTON ANNULER EN JS** (car absent du prototype FormType)
-            const dateIncompletContainer = newElement.querySelector('.date-incomplet').parentElement;
+            const dateIncompletContainer = newElement.querySelector('.date-incomplet-container');
             if (dateIncompletContainer) {
                 const annulerBtn = document.createElement('button');
                 annulerBtn.type = 'button';
