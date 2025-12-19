@@ -52,7 +52,6 @@ class DossierType extends AbstractType
                 'required' => true,
                 'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
-                    'class' => 'form-control',
                     'data-action' => 'change',
                 ],
             ])
@@ -64,7 +63,6 @@ class DossierType extends AbstractType
                 'required' => true,
                 'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
-                    'class' => 'form-control',
                     'data-action' => 'change',
                 ],
             ])
@@ -72,14 +70,12 @@ class DossierType extends AbstractType
                 'label' => 'Date de création du dossier',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('objet', TextareaType::class, [
                 'label' => 'Objet',
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
             // Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés
@@ -106,7 +102,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
             ->add('mesuresCompensatoires', TextareaType::class, [
@@ -114,7 +109,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
             ->add('mesuresComplementaires', TextareaType::class, [
@@ -122,7 +116,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
             ->add('reglesDerogation', TextareaType::class, [
@@ -130,7 +123,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
 
@@ -138,9 +130,6 @@ class DossierType extends AbstractType
                 'label' => 'Date de réception secrétariat commission',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('serviceInstructeur', TextType::class, [
                 'label' => 'Service instructeur',
@@ -190,36 +179,29 @@ class DossierType extends AbstractType
             ->add('commission', EntityType::class, [
                 'label' => 'Commission concernée',
                 'class' => Commission::class,
-                'choice_label' => function (Commission $commission) {
-                    $type = $commission->getType();
-                    $typeLabel = $type ? $type->getLibelle() : 'Autre';
-                    return $commission->getLibelle() . ' (' . $typeLabel . ')';
-                },
+                'choice_label' => 'libelle',
                 'group_by' => function (Commission $commission) {
                     $type = $commission->getType();
                     return $type ? $type->getLibelle() : 'Autre';
                 },
                 'placeholder' => 'Aucune commission',
                 'required' => false,
-                'attr' => ['class' => 'form-control commission-select'],
+                'attr' => ['class' => 'commission-select'],
             ])
             ->add('dateReception', DateType::class, [
                 'label' => 'Date de réception SDIS',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('dateVisite', DateType::class, [
                 'label' => 'Date de visite',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('dateLimitePrescription', DateType::class, [
                 'label' => 'Date avant laquelle les prescriptions doivent être levées',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('avisCommission', EntityType::class, [
                 'label' => 'Avis de la commission',
@@ -227,7 +209,6 @@ class DossierType extends AbstractType
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner un avis',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
                 'disabled' => !$canEditAvis,
             ])
             ->add('repercuterAvis', CheckboxType::class, [
@@ -243,13 +224,11 @@ class DossierType extends AbstractType
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner un avis',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('dateCommission', DateType::class, [
                 'label' => 'Date de commission en salle',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',
@@ -272,13 +251,11 @@ class DossierType extends AbstractType
                     4 => 4,
                     5 => 5,
                 ],
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('echeancierTravaux', DateType::class, [
                 'label' => 'Échéancier de travaux',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
             ])
 
             // Champs spécifiques réunions (natures 31, 32, 43)
@@ -286,54 +263,37 @@ class DossierType extends AbstractType
                 'label' => 'Demandeur',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control',
                 ],
             ])
             ->add('lieuReunion', TextType::class, [
                 'label' => 'Lieu de réunion',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateReunion', DateType::class, [
                 'label' => 'Date de réunion',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateReponse', DateType::class, [
                 'label' => 'Date de réponse',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateSignature', DateType::class, [
                 'label' => 'Date de signature',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('observations', TextareaType::class, [
                 'label' => 'Observations',
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
             ->add('chargeSecurite', TextType::class, [
                 'label' => 'Chargé de sécurité (T)',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
 
             // Champs spécifiques interventions (natures 37, 38, 39)
@@ -354,32 +314,20 @@ class DossierType extends AbstractType
             ->add('rex', TextType::class, [
                 'label' => 'REX',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('numeroIntervention', IntegerType::class, [
                 'label' => "Numéro d'intervention",
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateIntervention', DateTimeType::class, [
                 'label' => "Date et heure d'intervention",
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dureeIntervention', TimeType::class, [
                 'label' => "Durée d'intervention",
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
 
             ->add('analyseDeRisque', TextareaType::class, [
@@ -387,7 +335,6 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'class' => 'form-control',
                 ],
             ])
 
@@ -396,41 +343,26 @@ class DossierType extends AbstractType
                 'label' => 'Date de réception mairie',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateEnvoiTransit', DateType::class, [
                 'label' => "Date d'envoi / transit",
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateTransfertCommission', DateType::class, [
                 'label' => 'Date de transfert à la commission compétente',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dateReceptionCommission', DateType::class, [
                 'label' => 'Date de réception à la commission compétente',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('datePrefecture', DateType::class, [
                 'label' => 'Date réception préfecture',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
 
             // Champs spécifiques visites (natures 20-29)
@@ -446,9 +378,6 @@ class DossierType extends AbstractType
                 'label' => 'Date de réception du RVRAT et attestation solidité et MO',
                 'widget' => 'single_text',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
 
             // Préventionnistes (multiselect)
