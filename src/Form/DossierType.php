@@ -190,10 +190,18 @@ class DossierType extends AbstractType
             ->add('commission', EntityType::class, [
                 'label' => 'Commission concernée',
                 'class' => Commission::class,
-                'choice_label' => 'libelle',
-                'placeholder' => 'Sélectionner une commission',
+                'choice_label' => function (Commission $commission) {
+                    $type = $commission->getType();
+                    $typeLabel = $type ? $type->getLibelle() : 'Autre';
+                    return $commission->getLibelle() . ' (' . $typeLabel . ')';
+                },
+                'group_by' => function (Commission $commission) {
+                    $type = $commission->getType();
+                    return $type ? $type->getLibelle() : 'Autre';
+                },
+                'placeholder' => 'Aucune commission',
                 'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'attr' => ['class' => 'form-control commission-select'],
             ])
             ->add('dateReception', DateType::class, [
                 'label' => 'Date de réception SDIS',
