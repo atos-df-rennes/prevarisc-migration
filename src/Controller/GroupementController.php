@@ -104,13 +104,12 @@ class GroupementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
+            $this->entityManager->flush();
 
+            $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
             if ('1' == $reaffectationAutomatique) {
                 $groupementCommunes->reaffectationPreventioniste($groupement);
             }
-
-            $this->entityManager->flush();
 
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([

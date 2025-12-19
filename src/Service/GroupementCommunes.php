@@ -3,180 +3,69 @@
 namespace App\Service;
 
 use App\Entity\Groupement;
-use App\Entity\Utilisateur;
 use App\Repository\EtablissementInformationsRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 final class GroupementCommunes
 {
     /** @var EtablissementInformationsRepository */
     private $etablissementInformationsRepository;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
     public function __construct(
-        EtablissementInformationsRepository $etablissementInformationsRepository,
-        EntityManagerInterface $entityManager
+        EtablissementInformationsRepository $etablissementInformationsRepository
     ) {
         $this->etablissementInformationsRepository = $etablissementInformationsRepository;
-        $this->entityManager = $entityManager;
     }
+
 
     /**
-     * Supprime les liens entre les établissements et leurs préventionnistes associés
-     * pour les communes appartenant à un groupement donné.
+     * Réaffecte les préventionnistes d'un groupement à tous ses établissements, cellules et sites.
+     * Cette méthode supprime d'abord toutes les affectations existantes pour les communes du groupement,
+     * puis réaffecte les préventionnistes du groupement aux entités concernées.
      *
-     * @param Groupement $groupement le groupement contenant les communes à traiter
+     * @param Groupement $groupement le groupement dont les préventionnistes doivent être réaffectés
      */
-    public function deleteEtablissementsPreventioniste(Groupement $groupement): void
-    {
-        $communes = $groupement->getCommunes();
-        if ($communes->isEmpty()) {
-            return;
-        }
-
-        $communesNumInsee = [];
-        foreach ($communes as $commune) {
-            $communesNumInsee[] = $commune->getId();
-        }
-
-        $etablissementInformations = $this->etablissementInformationsRepository->findByCommunes($communesNumInsee, true);
-
-        foreach ($etablissementInformations as $etablissementInfo) {
-            $etablissementInfo->getPreventionnistes()->clear();
-        }
-
-        $this->entityManager->flush();
-    }
-
-    /**
-     * Supprime les liens entre les cellules et leurs préventionnistes associés
-     * pour les communes appartenant à un groupement donné.
-     *
-     * @param Groupement $groupement le groupement contenant les communes à traiter
-     */
-    public function deleteCellulesPreventioniste(Groupement $groupement): void
-    {
-        $communes = $groupement->getCommunes();
-        if ($communes->isEmpty()) {
-            return;
-        }
-
-        $communesNumInsee = [];
-        foreach ($communes as $commune) {
-            $communesNumInsee[] = $commune->getId();
-        }
-
-        $etablissementInformations = $this->etablissementInformationsRepository->findCellulesByCommunes($communesNumInsee);
-        $etablissementInformationsASupprimer = $this->etablissementInformationsRepository->filterLastInformations($etablissementInformations);
-
-        foreach ($etablissementInformationsASupprimer as $etablissementInfo) {
-            $etablissementInfo->getPreventionnistes()->clear();
-        }
-
-        $this->entityManager->flush();
-    }
-
-    /**
-     * Supprime les liens entre les sites et leurs préventionnistes associés
-     * pour les communes appartenant à un groupement donné.
-     *
-     * @param Groupement $groupement le groupement contenant les communes à traiter
-     */
-    public function deleteSitesPreventioniste(Groupement $groupement): void
-    {
-        $communes = $groupement->getCommunes();
-        if ($communes->isEmpty()) {
-            return;
-        }
-
-        $communesNumInsee = [];
-        foreach ($communes as $commune) {
-            $communesNumInsee[] = $commune->getId();
-        }
-
-        $etablissementInformations = $this->etablissementInformationsRepository->findSitesByCommunes($communesNumInsee);
-        $etablissementInformationsASupprimer = $this->etablissementInformationsRepository->filterLastInformations($etablissementInformations);
-
-        foreach ($etablissementInformationsASupprimer as $etablissementInfo) {
-            $etablissementInfo->getPreventionnistes()->clear();
-        }
-
-        $this->entityManager->flush();
-    }
-
-    /**
-     * Ajoute les préventionnistes aux établissements du groupement.
-     *
-     * @param Groupement $groupement le groupement contenant les préventionnistes à assigner
-     */
-    public function addEtablissementsPreventioniste(Groupement $groupement): void
-    {
-        $data = $this->etablissementInformationsRepository->getEtablissementsWithPreventionnistes($groupement->getLibelle());
-
-        foreach ($data as $item) {
-            $etablissementInfo = $item['etablissementInformations'];
-            $utilisateurId = $item['utilisateurId'];
-
-            /** @var Utilisateur $utilisateur */
-            $utilisateur = $this->entityManager->getReference(Utilisateur::class, $utilisateurId);
-            $etablissementInfo->addPreventionniste($utilisateur);
-        }
-
-        $this->entityManager->flush();
-    }
-
-    /**
-     * Ajoute les préventionnistes aux cellules du groupement.
-     *
-     * @param Groupement $groupement le groupement contenant les préventionnistes à assigner
-     */
-    public function addCellulesPreventioniste(Groupement $groupement): void
-    {
-        $data = $this->etablissementInformationsRepository->getCellulesWithPreventionnistes($groupement->getLibelle());
-
-        foreach ($data as $item) {
-            $etablissementInfo = $item['etablissementInformations'];
-            $utilisateurId = $item['utilisateurId'];
-
-            /** @var Utilisateur $utilisateur */
-            $utilisateur = $this->entityManager->getReference(Utilisateur::class, $utilisateurId);
-            $etablissementInfo->addPreventionniste($utilisateur);
-        }
-
-        $this->entityManager->flush();
-    }
-
-    /**
-     * Ajoute les préventionnistes aux sites du groupement.
-     *
-     * @param Groupement $groupement le groupement contenant les préventionnistes à assigner
-     */
-    public function addSitesPreventioniste(Groupement $groupement): void
-    {
-        $data = $this->etablissementInformationsRepository->getSitesWithPreventionnistes($groupement->getLibelle());
-
-        foreach ($data as $item) {
-            $etablissementInfo = $item['etablissementInformations'];
-            $utilisateurId = $item['utilisateurId'];
-
-            /** @var Utilisateur $utilisateur */
-            $utilisateur = $this->entityManager->getReference(Utilisateur::class, $utilisateurId);
-            $etablissementInfo->addPreventionniste($utilisateur);
-        }
-
-        $this->entityManager->flush();
-    }
-
     public function reaffectationPreventioniste(Groupement $groupement): void
     {
-        $this->deleteEtablissementsPreventioniste($groupement);
-        $this->deleteCellulesPreventioniste($groupement);
-        $this->deleteSitesPreventioniste($groupement);
+        $this->clearPreventionnistes($groupement);
+        $this->addPreventionistes($groupement);
+    }
 
-        $this->addEtablissementsPreventioniste($groupement);
-        $this->addCellulesPreventioniste($groupement);
-        $this->addSitesPreventioniste($groupement);
+    /**
+     * Supprime les préventionnistes associés aux communes du groupement.
+     *
+     * @param Groupement $groupement le groupement dont les communes sont utilisées pour supprimer les préventionnistes
+     */
+    private function clearPreventionnistes(Groupement $groupement): void
+    {
+        $communes = $groupement->getCommunes();
+        if ($communes->isEmpty()) {
+            return;
+        }
+
+        $communesNumInsee = [];
+        foreach ($communes as $commune) {
+            $communesNumInsee[] = $commune->getId();
+        }
+
+        $this->etablissementInformationsRepository->deletePreventionnistesByCommunes($communesNumInsee);
+        $this->etablissementInformationsRepository->deleteCellulesPreventionnistesByCommunes($communesNumInsee);
+        $this->etablissementInformationsRepository->deleteSitesPreventionnistesByCommunes($communesNumInsee);
+    }
+
+    /**
+     * Ajoute les préventionnistes aux établissements, cellules et sites du groupement.
+     *
+     * @param Groupement $groupement le groupement contenant les préventionnistes à assigner
+     */
+    private function addPreventionistes(Groupement $groupement): void
+    {
+        $libelle = $groupement->getLibelle();
+        if (null === $libelle) {
+            return;
+        }
+
+        $this->etablissementInformationsRepository->insertEtablissementsPreventionnistes($libelle);
+        $this->etablissementInformationsRepository->insertCellulesPreventionnistes($libelle);
+        $this->etablissementInformationsRepository->insertSitesPreventionnistes($libelle);
     }
 }
