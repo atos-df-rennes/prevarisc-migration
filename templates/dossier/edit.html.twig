@@ -365,29 +365,10 @@
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReponse}) }}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateSignature}) }}
 
-            <li class='row' id='field-dateTransfertCommission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateTransfertCommission) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateTransfertCommission) }}
-                    {{ form_errors(form.dateTransfertCommission) }}
-                </div>
-            </li>
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateTransfertCommission}) }}
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionCommission}) }}
 
-            <li class='row' id='field-dateReceptionCommission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateReceptionCommission) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateReceptionCommission) }}
-                    {{ form_errors(form.dateReceptionCommission) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dateReunion'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateReunion) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateReunion) }}
-                    {{ form_errors(form.dateReunion) }}
-                </div>
-            </li>
+            {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReunion}) }}
 
             <li class='row' id='field-chargeSecurite'>
                 <div class='left libelle col-md-3'>{{ form_label(form.chargeSecurite) }}</div>
