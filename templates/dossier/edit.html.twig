@@ -4,7 +4,7 @@
 
 {# Form theme personnalisé pour documents manquants #}
 {% block _dossier_documentsManquants_entry_row %}
-    {% include 'dossier/_document_manquant_item.html.twig' with {'form': form} %}
+    {{ include('dossier/_document_manquant_item.html.twig', {form: form}) }}
 {% endblock %}
 
 {% block title %}{{ parent() }} / Modifier les informations générales{% endblock %}
@@ -133,8 +133,8 @@
                 <div class='right form col-md-9'>
                     {{ form_widget(form.commission) }}
                     {{ form_errors(form.commission) }}
-                    <button type='button' class='btn btn-sm btn-warning btn-change-commission' 
-                            style='margin-top: 5px; {{ form.commission.vars.value is empty ? "display:none;" : "" }}'>
+                    <button type='button' class='btn btn-sm btn-warning btn-change-commission'
+                            style='margin-top: 5px; {{ form.commission.vars.value is empty ? 'display:none;' : '' }}'>
                         <i class='glyphicon glyphicon-edit'></i> Choisir une autre commission
                     </button>
                 </div>
@@ -202,14 +202,14 @@
                 <div class='left libelle col-md-3'>{{ form_label(form.incomplet) }}</div>
                 <div class='right form col-md-9'>
                     {# Zone documents manquants (collection Symfony) - Triés par le controller #}
-                    <div id='dossierIncomplet' 
+                    <div id='dossierIncomplet'
                          data-prototype="{{ form_row(form.documentsManquants.vars.prototype)|e }}"
                          data-index="{{ form.documentsManquants|length }}">
-                        
+
                         {# Séparer documents actifs et historique #}
                         {% set documentsActifs = [] %}
                         {% set documentsHistorique = [] %}
-                        
+
                         {% for documentManquant in form.documentsManquants %}
                             {% if documentManquant.dateReception.vars.value %}
                                 {% set documentsHistorique = documentsHistorique|merge([documentManquant]) %}
@@ -217,19 +217,19 @@
                                 {% set documentsActifs = documentsActifs|merge([documentManquant]) %}
                             {% endif %}
                         {% endfor %}
-                        
+
                         {# Afficher documents actifs (déjà triés par le controller) #}
                         {% for documentManquant in documentsActifs %}
                             {{ form_row(documentManquant) }}
                         {% endfor %}
-                        
+
                         {# Historique dans un accordéon (déjà triés par le controller) #}
                         {% if documentsHistorique|length > 0 %}
                             <div class="panel-group" style="margin-top: 15px;">
                                 <div class="panel panel-default">
                                     <div class="panel-heading" style="cursor: pointer;" data-toggle="collapse" data-target="#historique-documents">
                                         <h4 class="panel-title">
-                                            <i class="glyphicon glyphicon-folder-close"></i> 
+                                            <i class="glyphicon glyphicon-folder-close"></i>
                                             Historique ({{ documentsHistorique|length }} document{{ documentsHistorique|length > 1 ? 's' : '' }})
                                             <small class="text-muted">Cliquer pour afficher/masquer</small>
                                         </h4>
@@ -249,7 +249,7 @@
                     {# Radios Complet / Incomplet (masqués quand incomplet sélectionné) #}
                     <div id='inputComplet'>
                         {{ form_widget(form.incomplet, {
-                            'attr': {'class': 'incomplet'},
+                            attr: {class: 'incomplet'},
                         }) }}
                         {{ form_errors(form.incomplet) }}
                         <p class='help-block'>

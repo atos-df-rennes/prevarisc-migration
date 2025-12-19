@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Dossier;
-use Doctrine\Common\Collections\Collection;
 
 /**
  * Service gérant la logique métier des documents manquants.
@@ -15,14 +14,12 @@ class DossierDocumentManquantService
      * Sépare les documents actifs (sans date réception) des documents historiques (avec date réception).
      *
      * @param Dossier $dossier Le dossier contenant les documents
-     *
-     * @return void
      */
     public function organizeDocumentsManquants(Dossier $dossier): void
     {
         $documentsManquants = $dossier->getDocumentsManquants();
 
-        if ($documentsManquants->count() === 0) {
+        if (0 === $documentsManquants->count()) {
             return;
         }
 
@@ -44,11 +41,11 @@ class DossierDocumentManquantService
         // Trier par ID décroissant (plus récent en premier)
         // Note : tri en PHP car les documents sont déjà chargés en mémoire
         // Alternative : utiliser ORDER BY dans une requête DQL custom si performance critique
-        usort($actifs, function ($a, $b) {
+        usort($actifs, function ($a, $b): int {
             return $b->getId() <=> $a->getId();
         });
 
-        usort($historique, function ($a, $b) {
+        usort($historique, function ($a, $b): int {
             return $b->getId() <=> $a->getId();
         });
 

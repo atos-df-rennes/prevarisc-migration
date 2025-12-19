@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Avis;
 use App\Entity\Commission;
+use App\Entity\CommissionType;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierType as DossierTypeEntity;
@@ -16,8 +17,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -180,9 +181,10 @@ class DossierType extends AbstractType
                 'label' => 'Commission concernée',
                 'class' => Commission::class,
                 'choice_label' => 'libelle',
-                'group_by' => function (Commission $commission) {
+                'group_by' => function (Commission $commission): ?string {
                     $type = $commission->getType();
-                    return $type ? $type->getLibelle() : 'Autre';
+
+                    return $type instanceof CommissionType ? $type->getLibelle() : 'Autre';
                 },
                 'placeholder' => 'Aucune commission',
                 'required' => false,

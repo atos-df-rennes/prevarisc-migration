@@ -1283,8 +1283,6 @@ class Dossier
     /**
      * Retourne le service instructeur.
      * Normalise les valeurs legacy "0" et chaînes vides en null.
-     *
-     * @return string|null
      */
     public function getServiceInstructeur(): ?string
     {
@@ -1301,20 +1299,12 @@ class Dossier
     /**
      * Définit le service instructeur.
      * Normalise les valeurs "0" et chaînes vides en null avant persistence.
-     *
-     * @param string|null $serviceInstructeur
-     *
-     * @return self
      */
     public function setServiceInstructeur(?string $serviceInstructeur): self
     {
         // Normaliser les valeurs "0" et vides en null
         // Évite de persister des données legacy depuis le code Symfony
-        if (in_array($serviceInstructeur, ['0', ''], true)) {
-            $this->serviceInstructeur = null;
-        } else {
-            $this->serviceInstructeur = $serviceInstructeur;
-        }
+        $this->serviceInstructeur = in_array($serviceInstructeur, ['0', ''], true) ? null : $serviceInstructeur;
 
         return $this;
     }

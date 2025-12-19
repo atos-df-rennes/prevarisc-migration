@@ -15,7 +15,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DossierDocumentManquantType extends AbstractType
 {
     /**
-     * @param FormBuilderInterface $builder
      * @param array<string, mixed> $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -49,9 +48,6 @@ class DossierDocumentManquantType extends AbstractType
         ;
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

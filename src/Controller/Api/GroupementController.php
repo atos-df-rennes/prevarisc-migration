@@ -10,8 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * API pour les groupements (autocomplete service instructeur).
- *
- * @Route("/api/groupements", name="api_groupements_")
  */
 class GroupementController extends AbstractController
 {
@@ -27,11 +25,7 @@ class GroupementController extends AbstractController
      * Recherche de groupements pour autocomplete.
      * Filtre uniquement les groupements de type "Service Instructeur" (ID 10).
      *
-     * @Route("/search", name="search", methods={"GET"})
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
+     * @Route("/api/groupements/search", name="api_groupements_search", methods={"GET"})
      */
     public function search(Request $request): JsonResponse
     {
@@ -69,9 +63,7 @@ class GroupementController extends AbstractController
     /**
      * Liste tous les groupements (pour initialisation).
      *
-     * @Route("", name="list", methods={"GET"})
-     *
-     * @return JsonResponse
+     * @Route("/api/groupements", name="api_groupements_list", methods={"GET"})
      */
     public function list(): JsonResponse
     {

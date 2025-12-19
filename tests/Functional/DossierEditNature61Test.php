@@ -38,7 +38,7 @@ class DossierEditNature61Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 61 (Autorisation d\'une ICPE) disponible');
+            $this->markTestSkipped("Aucun dossier de nature 61 (Autorisation d'une ICPE) disponible");
         }
 
         $utilisateur = $this->entityManager

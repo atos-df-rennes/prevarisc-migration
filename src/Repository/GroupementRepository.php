@@ -93,14 +93,14 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
             ->leftJoin('g.type', 't')
             ->addSelect('t')
             ->where('g.libelle LIKE :query')
-            ->setParameter('query', '%' . $query . '%');
-        
+            ->setParameter('query', '%'.$query.'%');
+
         // Filtrer par type de groupement si spécifié
         if (null !== $typeGroupement) {
             $qb->andWhere('g.type = :typeGroupement')
                ->setParameter('typeGroupement', $typeGroupement);
         }
-        
+
         return $qb
             ->orderBy('g.libelle', 'ASC')
             ->setMaxResults($limit)

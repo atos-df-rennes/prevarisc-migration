@@ -38,7 +38,7 @@ class DossierEditNature62Test extends WebTestCase
             ->getOneOrNullResult();
 
         if (null === $dossier) {
-            $this->markTestSkipped('Aucun dossier de nature 62 (Certificats d\'urbanisme) disponible');
+            $this->markTestSkipped("Aucun dossier de nature 62 (Certificats d'urbanisme) disponible");
         }
 
         $utilisateur = $this->entityManager
