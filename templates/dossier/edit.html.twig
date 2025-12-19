@@ -196,7 +196,7 @@
                 <div class='right form col-md-9'>
                     {# Zone documents manquants (collection Symfony) #}
                     <div id='dossierIncomplet' 
-                         data-prototype="{{ form_widget(form.documentsManquants.vars.prototype)|e }}"
+                         data-prototype="{{ form_row(form.documentsManquants.vars.prototype)|e }}"
                          data-index="{{ form.documentsManquants|length }}">
                         {% for documentManquant in form.documentsManquants %}
                             {{ form_row(documentManquant) }}

@@ -474,8 +474,14 @@
         const validateBtn = docItem.querySelector('.validate-reception');
         const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
         
+        console.log('DEBUG Modifier: validateBtn trouvé:', validateBtn);
+        console.log('DEBUG Modifier: todayBtns count:', todayBtns.length);
+        
         if (validateBtn) {
             validateBtn.style.display = '';
+            console.log('DEBUG Modifier: Bouton Valider affiché');
+        } else {
+            console.warn('❌ Bouton validate-reception NON TROUVÉ');
         }
         todayBtns.forEach(btn => btn.style.display = '');
         
