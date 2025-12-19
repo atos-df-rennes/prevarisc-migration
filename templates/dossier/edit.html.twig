@@ -206,6 +206,7 @@
                          data-prototype="{{ form_row(form.documentsManquants.vars.prototype)|e }}"
                          data-index="{{ form.documentsManquants|length }}">
 
+                        {# @fixme: la logique est déjà faite dans le service, il faut différencier les clés et utiliser ça #}
                         {# Séparer documents actifs et historique #}
                         {% set documentsActifs = [] %}
                         {% set documentsHistorique = [] %}
