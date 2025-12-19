@@ -50,10 +50,12 @@
                 changeBtn = document.createElement('button');
                 changeBtn.type = 'button';
                 changeBtn.className = 'btn btn-sm btn-warning btn-change-commission';
-                changeBtn.style.marginLeft = '10px';
                 changeBtn.innerHTML = '<i class="glyphicon glyphicon-edit"></i> Choisir une autre commission';
                 
-                // Ajouter après le select
+                // Style pour alignement inline
+                changeBtn.style.marginTop = '5px';
+                
+                // Ajouter après le select dans le container
                 const formContainer = commissionSelect.parentElement;
                 formContainer.appendChild(changeBtn);
 

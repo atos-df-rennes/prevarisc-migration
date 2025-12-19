@@ -197,6 +197,12 @@ class DossierType extends AbstractType
                 'label' => 'Date de visite',
                 'widget' => 'single_text',
                 'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                    'class' => 'date-calendrier',
+                    'placeholder' => 'Sélectionner via le calendrier',
+                ],
+                'help' => 'La date de visite sera sélectionnée via le calendrier (prochaine phase)',
             ])
             ->add('dateLimitePrescription', DateType::class, [
                 'label' => 'Date avant laquelle les prescriptions doivent être levées',
@@ -229,6 +235,12 @@ class DossierType extends AbstractType
                 'label' => 'Date de commission en salle',
                 'widget' => 'single_text',
                 'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                    'class' => 'date-calendrier',
+                    'placeholder' => 'Sélectionner via le calendrier',
+                ],
+                'help' => 'La date de commission sera sélectionnée via le calendrier (prochaine phase)',
             ])
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',
