@@ -77,6 +77,42 @@ class DossierController extends AbstractController
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService
     ): Response {
+        // Trier les documents manquants par ordre décroissant (plus récent en premier)
+        // Séparation actifs (sans date réception) et historique (avec date réception)
+        $documentsManquants = $dossier->getDocumentsManquants();
+        if ($documentsManquants->count() > 0) {
+            $documentsArray = $documentsManquants->toArray();
+            
+            // Séparer actifs et historique
+            $actifs = [];
+            $historique = [];
+            
+            foreach ($documentsArray as $doc) {
+                if ($doc->getDateReception()) {
+                    $historique[] = $doc;
+                } else {
+                    $actifs[] = $doc;
+                }
+            }
+            
+            // Trier par ID décroissant (plus récent = ID plus grand)
+            usort($actifs, function($a, $b) {
+                return $b->getId() <=> $a->getId();
+            });
+            usort($historique, function($a, $b) {
+                return $b->getId() <=> $a->getId();
+            });
+            
+            // Reconstruire la collection : actifs d'abord, puis historique
+            $documentsManquants->clear();
+            foreach ($actifs as $doc) {
+                $documentsManquants->add($doc);
+            }
+            foreach ($historique as $doc) {
+                $documentsManquants->add($doc);
+            }
+        }
+        
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
         ]);

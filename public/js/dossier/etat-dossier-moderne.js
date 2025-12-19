@@ -609,14 +609,14 @@
             }
         });
         
-        // Si pas de document non validé ET qu'il y a des documents validés → "Modifier" sur le dernier validé
+        // Si pas de document non validé ET qu'il y a des documents validés → "Modifier" sur le PREMIER validé (plus récent)
         if (unvalidatedDocs.length === 0 && validatedDocs.length > 0) {
-            const lastValidated = validatedDocs[validatedDocs.length - 1];
-            let modifierBtn = lastValidated.querySelector('.modifier-reception');
+            const firstValidated = validatedDocs[0]; // Premier dans le DOM = plus récent (tri controller)
+            let modifierBtn = firstValidated.querySelector('.modifier-reception');
             
             if (!modifierBtn) {
                 // Le bouton n'existe pas (nouveau doc validé dynamiquement) → le créer
-                const validateBtn = lastValidated.querySelector('.validate-reception');
+                const validateBtn = firstValidated.querySelector('.validate-reception');
                 if (validateBtn) {
                     const buttonContainer = validateBtn.parentElement;
                     modifierBtn = createButton('modifier', buttonContainer);

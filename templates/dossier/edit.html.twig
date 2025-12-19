@@ -194,12 +194,12 @@
             <li class='row' id='field-incomplet'>
                 <div class='left libelle col-md-3'>{{ form_label(form.incomplet) }}</div>
                 <div class='right form col-md-9'>
-                    {# Zone documents manquants (collection Symfony) #}
+                    {# Zone documents manquants (collection Symfony) - Triés par le controller #}
                     <div id='dossierIncomplet' 
                          data-prototype="{{ form_row(form.documentsManquants.vars.prototype)|e }}"
                          data-index="{{ form.documentsManquants|length }}">
                         
-                        {# Documents actifs (sans date réception) - ordre décroissant #}
+                        {# Séparer documents actifs et historique #}
                         {% set documentsActifs = [] %}
                         {% set documentsHistorique = [] %}
                         
@@ -211,12 +211,12 @@
                             {% endif %}
                         {% endfor %}
                         
-                        {# Afficher documents actifs en premier (ordre décroissant) #}
-                        {% for documentManquant in documentsActifs|reverse %}
+                        {# Afficher documents actifs (déjà triés par le controller) #}
+                        {% for documentManquant in documentsActifs %}
                             {{ form_row(documentManquant) }}
                         {% endfor %}
                         
-                        {# Historique dans un accordéon (ordre décroissant) #}
+                        {# Historique dans un accordéon (déjà triés par le controller) #}
                         {% if documentsHistorique|length > 0 %}
                             <div class="panel-group" style="margin-top: 15px;">
                                 <div class="panel panel-default">
@@ -229,7 +229,7 @@
                                     </div>
                                     <div id="historique-documents" class="panel-collapse collapse">
                                         <div class="panel-body">
-                                            {% for documentManquant in documentsHistorique|reverse %}
+                                            {% for documentManquant in documentsHistorique %}
                                                 {{ form_row(documentManquant) }}
                                             {% endfor %}
                                         </div>
