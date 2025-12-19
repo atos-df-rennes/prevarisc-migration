@@ -1,7 +1,54 @@
 # 🚀 Reprendre ici - Édition Dossiers
 
 **Date :** 19 décembre 2025 - Matin  
-**Session précédente :** 18 décembre 2025 après-midi (Conformité affichage - Option B)
+**Session précédente :** 18 décembre 2025 après-midi (Conformité affichage - Option B)  
+**Session en cours :** 19 décembre 2025 matin - Finalisation Documents manquants ✅
+
+---
+
+## ✅ Ce qui est fait - Session 19/12 matin
+
+### 🎉 CHAMP "DOCUMENTS MANQUANTS" 100% ISO-FONCTIONNEL ✅
+
+**Problèmes détectés et corrigés :**
+
+#### 1. Template manquait des classes CSS critiques ❌→✅
+- ✅ Ajout classe `date-incomplet` sur input date incomplet
+- ✅ Ajout classe `date-reception` sur input date réception  
+- ✅ Ajout conteneur `date-incomplet-container` pour insertion bouton Annuler
+- ✅ Ajout boutons "Aujourd'hui" pour date incomplet ET date réception
+- ✅ Commentaires mis à jour pour clarté
+
+#### 2. JavaScript - Logique readonly défaillante ❌→✅
+- ✅ **Fix critique :** `markAllDocumentsReadonly()` → `markValidatedDocumentsReadonly()`
+  - Ancienne version : TOUS les documents en readonly au chargement
+  - Nouvelle version : Seulement documents avec date réception en readonly
+  - Documents sans date réception → éditables (sauf date incomplet)
+- ✅ Suppression fonction `getActiveDocument()` non utilisée
+- ✅ Ajout gestion boutons "Aujourd'hui" :
+  - `handleTodayIncomplet()` : remplit date incomplet
+  - `handleTodayReception()` : remplit date réception
+- ✅ Ajout `e.preventDefault()` sur tous les boutons pour éviter soumission formulaire
+- ✅ Fix sélecteur bouton Annuler : `.date-incomplet-container` au lieu de `.date-incomplet.parentElement`
+
+#### 3. API endpoint déjà existant ✅
+- ✅ `/api/document-manquant/liste` fonctionnel
+- ✅ Retourne format JSON attendu : `[{id: X, libelle: "..."}]`
+
+**Fichiers modifiés :**
+- `templates/dossier/_document_manquant_item.html.twig` : Ajout classes + boutons "Aujourd'hui"
+- `public/js/dossier/etat-dossier-moderne.js` : Fix logique readonly + gestion boutons
+
+**Commit :** `fix(dossier): correction champ Documents manquants - iso-fonctionnel legacy` (6b9f60b)
+
+**Tests à effectuer en session après-midi :**
+1. ✅ Nouveau dossier incomplet : vérifier apparition bloc + pré-remplissage
+2. ✅ Boutons "Aujourd'hui" : vérifier remplissage date du jour
+3. ✅ Validation réception : vérifier retour "Complet" + readonly
+4. ✅ Bouton "Annuler" : vérifier suppression bloc + retour "Complet"
+5. ✅ Bouton "Modifier" : vérifier retour "Incomplet" + champs éditables
+6. ✅ Chargement avec doc non validé : vérifier champs éditables (sauf date incomplet)
+7. ✅ Persistance BDD : vérifier sauvegarde formulaire complète
 
 ---
 
@@ -97,17 +144,27 @@
 
 ---
 
-## 🎯 PROCHAINE SESSION - 19/12 Matin
+## 🎯 PROCHAINE SESSION - 19/12 Après-midi
 
-### Option A : Interactions JavaScript dynamiques (Phase 2)
+### Ordre prioritaire :
+
+**1. Tests manuels Documents manquants** - 30min ⚠️ PRIORITÉ  
+- Tester workflow complet en conditions réelles
+- Vérifier persistance en BDD après sauvegarde formulaire
+- Valider tous les scénarios (6 tests identifiés)
+- Corriger bugs éventuels si détectés
+
+**2. Option A : Interactions JavaScript dynamiques (Phase 2)** - 2h30 si tests OK
+
+**2. Option A : Interactions JavaScript dynamiques (Phase 2)** - 2h30 si tests OK
 
 **Rappel session 18/12 matin :**
 - ✅ **Phase 1 complétée** : Affichage initial au chargement (8/8 tests OK)
 - ❌ **Phase 2 en attente** : Interactions dynamiques (changements utilisateur)
 
-**Décision :** Continuer Option B (conformité visuelle) avant Phase 2
+**Décision :** Documents manquants finalisé ✅ → Phase 2 si tests OK
 
-### Option B : Conformité visuelle champs restants ⚠️ EN COURS
+### Option B : Conformité visuelle champs restants (si bugs détectés en tests)
 
 **Champs à traiter :**
 
