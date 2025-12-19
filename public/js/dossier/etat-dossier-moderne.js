@@ -364,6 +364,9 @@
 
             // **AJOUTER LE BOUTON ANNULER EN JS** (car absent du prototype FormType)
             const dateIncompletContainer = newElement.querySelector('.date-incomplet-container');
+            console.log('DEBUG: Recherche .date-incomplet-container:', dateIncompletContainer);
+            console.log('DEBUG: Contenu newElement:', newElement.innerHTML.substring(0, 300));
+            
             if (dateIncompletContainer) {
                 const annulerBtn = document.createElement('button');
                 annulerBtn.type = 'button';
@@ -371,8 +374,15 @@
                 annulerBtn.style.marginLeft = '10px';
                 annulerBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
                 dateIncompletContainer.appendChild(annulerBtn);
+                console.log('DEBUG: Bouton Annuler ajouté avec succès');
             } else {
-                console.warn('Conteneur date-incomplet-container non trouvé dans le nouveau document');
+                console.warn('❌ Conteneur date-incomplet-container NON TROUVÉ dans le nouveau document');
+                console.log('DEBUG: Classes disponibles dans newElement:', 
+                    Array.from(newElement.querySelectorAll('*'))
+                        .filter(el => el.className)
+                        .map(el => el.className)
+                        .join(', ')
+                );
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
@@ -469,21 +479,8 @@
         }
         todayBtns.forEach(btn => btn.style.display = '');
         
-        // Ajouter bouton "Annuler" s'il n'existe pas déjà (document existant en BDD)
-        let cancelBtn = docItem.querySelector('.cancel-incomplet');
-        if (!cancelBtn) {
-            const dateIncompletContainer = docItem.querySelector('.date-incomplet-container');
-            if (dateIncompletContainer) {
-                cancelBtn = document.createElement('button');
-                cancelBtn.type = 'button';
-                cancelBtn.className = 'btn btn-sm btn-danger cancel-incomplet';
-                cancelBtn.style.marginLeft = '10px';
-                cancelBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
-                dateIncompletContainer.appendChild(cancelBtn);
-            }
-        } else {
-            cancelBtn.style.display = '';
-        }
+        // PAS de bouton "Annuler" sur documents existants (seulement sur nouveaux)
+        // Le bouton "Annuler" est uniquement ajouté dans addDocumentFromPrototype()
     }
 
     /**
