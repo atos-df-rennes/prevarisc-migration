@@ -56,7 +56,7 @@ class DossierController extends AbstractController
         ]);
     }
 
-    /* @fixme: Lorsqu'on met un avis différé sur un dossier donnant avis,
+    /* @fixme(bug-legacy): Lorsqu'on met un avis différé sur un dossier donnant avis,
      * cela change l'ID_DOSSIER_DONNANT_AVIS sur l'établissement. (ok)
      * En revanche cela ne remet pas l'ID_DOSSIER_DONNANT_AVIS sur l'ancien dossier si on enlève l'avis différé.
      */
@@ -75,44 +75,12 @@ class DossierController extends AbstractController
         EtablissementRepository $etablissementRepository,
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
-        Etablissement $etablissementService
+        Etablissement $etablissementService,
+        \App\Service\DossierDocumentManquantService $documentManquantService
     ): Response {
-        // Trier les documents manquants par ordre décroissant (plus récent en premier)
-        // Séparation actifs (sans date réception) et historique (avec date réception)
-        $documentsManquants = $dossier->getDocumentsManquants();
-        if ($documentsManquants->count() > 0) {
-            $documentsArray = $documentsManquants->toArray();
-            
-            // Séparer actifs et historique
-            $actifs = [];
-            $historique = [];
-            
-            foreach ($documentsArray as $doc) {
-                if ($doc->getDateReception()) {
-                    $historique[] = $doc;
-                } else {
-                    $actifs[] = $doc;
-                }
-            }
-            
-            // Trier par ID décroissant (plus récent = ID plus grand)
-            usort($actifs, function($a, $b) {
-                return $b->getId() <=> $a->getId();
-            });
-            usort($historique, function($a, $b) {
-                return $b->getId() <=> $a->getId();
-            });
-            
-            // Reconstruire la collection : actifs d'abord, puis historique
-            $documentsManquants->clear();
-            foreach ($actifs as $doc) {
-                $documentsManquants->add($doc);
-            }
-            foreach ($historique as $doc) {
-                $documentsManquants->add($doc);
-            }
-        }
-        
+        // Organiser les documents manquants (tri + séparation actifs/historique)
+        $documentManquantService->organizeDocumentsManquants($dossier);
+
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
         ]);
