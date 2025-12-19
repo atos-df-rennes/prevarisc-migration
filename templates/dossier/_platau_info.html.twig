@@ -1,0 +1,47 @@
+{# Template partial pour afficher les informations Plat'AU #}
+{% if platau is not null %}
+    <section>
+        <h4>Informations sur Plat'AU</h4>
+        <ul class='list-unstyled'>
+            <li class='row'>
+                <div class='left libelle col-md-3'>Identifiant de la consultation</div>
+                <div class='right value col-md-9'>
+                    {{ platau.identifiant }}
+                </div>
+            </li>
+            {% if platau.temps_restant is not null %}
+                <li class='row'>
+                    <div class='left libelle col-md-3'>Temps restant pour une réponse</div>
+                    <div class='right value col-md-9'>
+                        <span class='label label-{{ platau.couleur_temps_restant }}'>
+                            {{ platau.temps_restant }}
+                        </span>
+                    </div>
+                </li>
+            {% endif %}
+
+            <li class='row'>
+                <div class='left libelle col-md-3'>Prise en compte métier</div>
+                <div class='right value col-md-9'>
+                    {{ include('dossier/_platau_statut.html.twig', {
+                        type: 'pec',
+                        statut: platau.statut_pec,
+                        date_pec: platau.date_pec,
+                        dossier_incomplet: dossier.incomplet|default(null),
+                    }) }}
+                </div>
+            </li>
+
+            <li class='row'>
+                <div class='left libelle col-md-3'>Avis</div>
+                <div class='right value col-md-9'>
+                    {{ include('dossier/_platau_statut.html.twig', {
+                        type: 'avis',
+                        statut: platau.statut_avis,
+                        date_avis: platau.date_avis,
+                    }) }}
+                </div>
+            </li>
+        </ul>
+    </section>
+{% endif %}

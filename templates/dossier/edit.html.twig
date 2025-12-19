@@ -25,6 +25,9 @@
 <div id='dossierInfos'>
     <h3>Informations générales</h3>
 
+    {# Informations Plat'AU #}
+    {{ include('dossier/_platau_info.html.twig') }}
+
     {# Configuration des champs pour JavaScript #}
     <div data-fields-config='{{ fieldsConfig|raw }}' style="display:none;"></div>
 

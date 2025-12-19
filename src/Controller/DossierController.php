@@ -11,6 +11,7 @@ use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
 use App\Service\PlatauConsultation;
@@ -76,7 +77,8 @@ class DossierController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
-        \App\Service\DossierDocumentManquantService $documentManquantService
+        DossierDocumentManquantService $documentManquantService,
+        PlatauConsultation $platauConsultationService
     ): Response {
         // Organiser les documents manquants (tri + séparation actifs/historique)
         $documentManquantService->organizeDocumentsManquants($dossier);
@@ -141,6 +143,9 @@ class DossierController extends AbstractController
         // Configuration des champs pour JavaScript
         $fieldsConfig = json_encode($dossierFieldsService->getAllFieldsByNature());
 
+        // Informations Plat'AU
+        $platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
@@ -155,6 +160,7 @@ class DossierController extends AbstractController
             'isAllowedDeleteDossier' => $isAllowedDeleteDossier,
             'userInfoVerrou' => $userInfoVerrou,
             'fieldsConfig' => $fieldsConfig,
+            'platau' => $platauData,
         ]);
     }
 
