@@ -219,11 +219,14 @@
             input.disabled = false; // Garder enabled pour envoi formulaire
         });
 
-        // Masquer les boutons "Valider" et "Annuler"
+        // Masquer les boutons "Valider", "Annuler" et "Aujourd'hui"
         const validateBtn = docItem.querySelector('.validate-reception');
         const cancelBtn = docItem.querySelector('.cancel-incomplet');
+        const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
+        
         if (validateBtn) validateBtn.style.display = 'none';
         if (cancelBtn) cancelBtn.style.display = 'none';
+        todayBtns.forEach(btn => btn.style.display = 'none');
     }
 
     /**
@@ -239,7 +242,7 @@
             const dateReceptionInput = doc.querySelector('.date-reception');
             
             if (dateReceptionInput && dateReceptionInput.value) {
-                // Document validé → tout en readonly
+                // Document validé → tout en readonly + masquer boutons "Aujourd'hui"
                 markDocumentAsReadonly(doc);
             } else {
                 // Document non validé → éditable sauf date incomplet
@@ -253,6 +256,10 @@
                         input.readOnly = false;
                     }
                 });
+                
+                // S'assurer que les boutons "Aujourd'hui" sont visibles pour documents non validés
+                const todayBtns = doc.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
+                todayBtns.forEach(btn => btn.style.display = '');
             }
         });
         
@@ -364,6 +371,8 @@
                 annulerBtn.style.marginLeft = '10px';
                 annulerBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
                 dateIncompletContainer.appendChild(annulerBtn);
+            } else {
+                console.warn('Conteneur date-incomplet-container non trouvé dans le nouveau document');
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
@@ -451,13 +460,28 @@
         // Masquer "Modifier"
         button.style.display = 'none';
         
-        // Afficher "Valider la réception" ET "Annuler"
+        // Afficher "Valider la réception" ET "Aujourd'hui"
         const validateBtn = docItem.querySelector('.validate-reception');
-        const cancelBtn = docItem.querySelector('.cancel-incomplet');
+        const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
+        
         if (validateBtn) {
             validateBtn.style.display = '';
         }
-        if (cancelBtn) {
+        todayBtns.forEach(btn => btn.style.display = '');
+        
+        // Ajouter bouton "Annuler" s'il n'existe pas déjà (document existant en BDD)
+        let cancelBtn = docItem.querySelector('.cancel-incomplet');
+        if (!cancelBtn) {
+            const dateIncompletContainer = docItem.querySelector('.date-incomplet-container');
+            if (dateIncompletContainer) {
+                cancelBtn = document.createElement('button');
+                cancelBtn.type = 'button';
+                cancelBtn.className = 'btn btn-sm btn-danger cancel-incomplet';
+                cancelBtn.style.marginLeft = '10px';
+                cancelBtn.innerHTML = '<i class="glyphicon glyphicon-remove"></i> Annuler';
+                dateIncompletContainer.appendChild(cancelBtn);
+            }
+        } else {
             cancelBtn.style.display = '';
         }
     }
