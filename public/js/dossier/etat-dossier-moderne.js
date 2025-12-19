@@ -1,13 +1,25 @@
 /**
  * Gestion moderne de l'état du dossier avec Symfony Collection Forms
  * 
- * Workflow legacy :
+ * @description
+ * Gère le workflow complet des documents manquants :
+ * - Ajout dynamique de nouveaux documents (prototype Symfony)
+ * - Validation de réception avec retour automatique à "Complet"
+ * - Modification de documents validés
+ * - Conservation de l'historique
+ * - Gestion conditionnelle des boutons selon l'état
+ * 
+ * @workflow
  * 1. Complet → Clic "Incomplet" → 1 document manquant ajouté
  * 2. User remplit infos + saisit date réception
  * 3. Clic "Valider la réception" → Retour "Complet" automatique
  * 4. Re-clic "Incomplet" → Nouveau document (historique des incomplets)
  * 
- * Règle : 1 seul document "actif" (sans date réception) à la fois
+ * @règle
+ * 1 seul document "actif" (sans date réception) à la fois
+ * 
+ * @version 1.0.0 - Production ready
+ * @author Migration Prevarisc Team
  */
 
 (function() {
@@ -128,39 +140,20 @@
 
         // Gestion des boutons (délégation d'événements)
         document.addEventListener('click', function(e) {
-            // Bouton "Valider la réception"
-            if (e.target.classList.contains('validate-reception') || e.target.closest('.validate-reception')) {
-                e.preventDefault();
-                const button = e.target.classList.contains('validate-reception') ? e.target : e.target.closest('.validate-reception');
-                handleValidateReception(button);
-            }
+            const target = e.target.closest('.validate-reception, .cancel-incomplet, .modifier-reception, .btn-today-incomplet, .btn-today-reception');
+            if (!target) return;
             
-            // Bouton "Annuler" (cancelIncomplet)
-            if (e.target.classList.contains('cancel-incomplet') || e.target.closest('.cancel-incomplet')) {
-                e.preventDefault();
-                const button = e.target.classList.contains('cancel-incomplet') ? e.target : e.target.closest('.cancel-incomplet');
-                handleCancelIncomplet(button);
-            }
-            
-            // Bouton "Modifier" (cancelDateRecep - repasser en éditable)
-            if (e.target.classList.contains('modifier-reception') || e.target.closest('.modifier-reception')) {
-                e.preventDefault();
-                const button = e.target.classList.contains('modifier-reception') ? e.target : e.target.closest('.modifier-reception');
-                handleModifierReception(button);
-            }
-            
-            // Boutons "Aujourd'hui" pour date incomplet
-            if (e.target.classList.contains('btn-today-incomplet') || e.target.closest('.btn-today-incomplet')) {
-                e.preventDefault();
-                const button = e.target.classList.contains('btn-today-incomplet') ? e.target : e.target.closest('.btn-today-incomplet');
-                handleTodayIncomplet(button);
-            }
-            
-            // Boutons "Aujourd'hui" pour date réception
-            if (e.target.classList.contains('btn-today-reception') || e.target.closest('.btn-today-reception')) {
-                e.preventDefault();
-                const button = e.target.classList.contains('btn-today-reception') ? e.target : e.target.closest('.btn-today-reception');
-                handleTodayReception(button);
+            // Router vers le bon handler selon la classe du bouton
+            if (target.classList.contains('validate-reception')) {
+                handleValidateReception(target);
+            } else if (target.classList.contains('cancel-incomplet')) {
+                handleCancelIncomplet(target);
+            } else if (target.classList.contains('modifier-reception')) {
+                handleModifierReception(target);
+            } else if (target.classList.contains('btn-today-incomplet')) {
+                handleTodayIncomplet(target);
+            } else if (target.classList.contains('btn-today-reception')) {
+                handleTodayReception(target);
             }
         });
 
