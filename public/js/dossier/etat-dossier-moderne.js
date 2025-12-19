@@ -449,10 +449,16 @@
         const temp = document.createElement('div');
         temp.innerHTML = newForm;
 
-        // Ajouter à la fin de la zone documents
+        // Ajouter EN PREMIER (prepend) pour ordre décroissant
         const newElement = temp.firstElementChild;
         if (newElement) {
-            dossierIncomplet.appendChild(newElement);
+            // Insérer en premier (avant l'historique si existe, ou comme premier enfant)
+            const firstChild = dossierIncomplet.firstElementChild;
+            if (firstChild) {
+                dossierIncomplet.insertBefore(newElement, firstChild);
+            } else {
+                dossierIncomplet.appendChild(newElement);
+            }
 
             // Incrémenter l'index
             dossierIncomplet.dataset.index = index + 1;
@@ -645,4 +651,38 @@
             }
         });
     }
+
+    // ===================================================================
+    // GESTION ACCORDÉON HISTORIQUE
+    // ===================================================================
+
+    /**
+     * Gère l'icône de l'accordéon historique (ouvert/fermé)
+     */
+    function initHistoriqueAccordion() {
+        const histoPanel = document.querySelector('#historique-documents');
+        if (!histoPanel) return;
+
+        histoPanel.addEventListener('show.bs.collapse', function() {
+            const icon = document.querySelector('[data-target="#historique-documents"] i');
+            if (icon) {
+                icon.classList.remove('glyphicon-folder-close');
+                icon.classList.add('glyphicon-folder-open');
+            }
+        });
+
+        histoPanel.addEventListener('hide.bs.collapse', function() {
+            const icon = document.querySelector('[data-target="#historique-documents"] i');
+            if (icon) {
+                icon.classList.remove('glyphicon-folder-open');
+                icon.classList.add('glyphicon-folder-close');
+            }
+        });
+    }
+
+    // Initialiser l'accordéon au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        initHistoriqueAccordion();
+    });
+
 })();
