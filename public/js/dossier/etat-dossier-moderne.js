@@ -564,8 +564,23 @@
         // Si pas de document non validé ET qu'il y a des documents validés → "Modifier" sur le dernier validé
         if (unvalidatedDocs.length === 0 && validatedDocs.length > 0) {
             const lastValidated = validatedDocs[validatedDocs.length - 1];
-            const modifierBtn = lastValidated.querySelector('.modifier-reception');
-            if (modifierBtn) {
+            let modifierBtn = lastValidated.querySelector('.modifier-reception');
+            
+            if (!modifierBtn) {
+                // Le bouton n'existe pas (nouveau doc validé dynamiquement) → le créer
+                const validateBtn = lastValidated.querySelector('.validate-reception');
+                if (validateBtn) {
+                    const buttonContainer = validateBtn.parentElement;
+                    modifierBtn = document.createElement('button');
+                    modifierBtn.type = 'button';
+                    modifierBtn.className = 'btn btn-sm btn-warning modifier-reception';
+                    modifierBtn.style.display = '';
+                    modifierBtn.innerHTML = '<i class="glyphicon glyphicon-pencil"></i> Modifier';
+                    buttonContainer.appendChild(modifierBtn);
+                    console.log('DEBUG: Bouton Modifier créé sur document validé');
+                }
+            } else {
+                // Le bouton existe → l'afficher
                 modifierBtn.style.display = '';
             }
         }
