@@ -1,10 +1,12 @@
 /**
  * Gestion du champ Commission concernée
  * 
- * Fonctionnalités :
- * - Bouton "Choisir une autre commission" (enable/disable select)
- * - Logique d'affichage conditionnel
- * - TODO Phase 2 : Calendrier fullcalendar pour dates visite/commission
+ * Comportement legacy :
+ * - Bouton "Choisir une autre commission" dans le template (pas créé en JS)
+ * - Clic bouton : vide dates visite/commission + enable select + masque bouton
+ * - Changement commission : disable select + affiche bouton
+ * 
+ * TODO Phase 2 : Calendrier fullcalendar pour dates visite/commission
  */
 
 (function() {
@@ -15,86 +17,75 @@
      */
     function initCommission() {
         const commissionSelect = document.getElementById('dossier_commission');
-        if (!commissionSelect) return;
+        const changeBtn = document.querySelector('.btn-change-commission');
+        
+        if (!commissionSelect || !changeBtn) return;
 
-        const fieldCommission = document.getElementById('field-commission');
-        if (!fieldCommission) return;
+        // Désactiver le select si commission déjà sélectionnée au chargement
+        if (commissionSelect.value && commissionSelect.value !== '') {
+            commissionSelect.disabled = true;
+        }
 
-        // Créer le bouton "Choisir une autre commission" si commission déjà sélectionnée
-        createChangeCommissionButton();
+        // Event : Clic sur "Choisir une autre commission"
+        changeBtn.addEventListener('click', handleChangeCommission);
 
-        // Gérer le changement de commission
+        // Event : Changement de commission dans le select
         commissionSelect.addEventListener('change', handleCommissionChange);
     }
 
     /**
-     * Crée le bouton "Choisir une autre commission" si nécessaire
+     * Gère le clic sur "Choisir une autre commission"
+     * Comportement legacy : vide dates + enable select + masque bouton
      */
-    function createChangeCommissionButton() {
+    function handleChangeCommission() {
         const commissionSelect = document.getElementById('dossier_commission');
-        const fieldCommission = document.getElementById('field-commission');
+        const changeBtn = document.querySelector('.btn-change-commission');
         
-        if (!commissionSelect || !fieldCommission) return;
-
-        // Vérifier si une commission est déjà sélectionnée (pas placeholder)
-        const hasCommission = commissionSelect.value && commissionSelect.value !== '';
-
-        if (hasCommission) {
-            // Désactiver le select
-            commissionSelect.disabled = true;
-
-            // Créer le bouton s'il n'existe pas déjà
-            let changeBtn = fieldCommission.querySelector('.btn-change-commission');
-            
-            if (!changeBtn) {
-                changeBtn = document.createElement('button');
-                changeBtn.type = 'button';
-                changeBtn.className = 'btn btn-sm btn-warning btn-change-commission';
-                changeBtn.innerHTML = '<i class="glyphicon glyphicon-edit"></i> Choisir une autre commission';
-                
-                // Style pour alignement inline
-                changeBtn.style.marginTop = '5px';
-                
-                // Ajouter après le select dans le container
-                const formContainer = commissionSelect.parentElement;
-                formContainer.appendChild(changeBtn);
-
-                // Event listener pour activer le select
-                changeBtn.addEventListener('click', function() {
-                    commissionSelect.disabled = false;
-                    commissionSelect.focus();
-                    changeBtn.style.display = 'none';
-                });
-            }
+        // Vider les dates visite/commission (comme legacy ligne 172-175)
+        const dateVisite = document.getElementById('dossier_dateVisite');
+        const dateCommission = document.getElementById('dossier_dateCommission');
+        
+        if (dateVisite) dateVisite.value = '';
+        if (dateCommission) dateCommission.value = '';
+        
+        // TODO Phase 2: Vider aussi les affectations
+        // - ID_AFFECTATION_DOSSIER_VISITE
+        // - ID_AFFECTATION_DOSSIER_COMMISSION
+        
+        // Enable le select commission
+        if (commissionSelect) {
+            commissionSelect.disabled = false;
+            commissionSelect.focus();
+        }
+        
+        // Masquer le bouton
+        if (changeBtn) {
+            changeBtn.style.display = 'none';
         }
     }
 
     /**
      * Gère le changement de commission
-     * TODO Phase 2 : Activer/désactiver calendrier date visite selon commission
+     * Disable select + affiche bouton si commission sélectionnée
      */
     function handleCommissionChange(e) {
-        const commissionId = e.target.value;
-
-        // Si commission sélectionnée, afficher le bouton "Changer"
-        if (commissionId && commissionId !== '') {
-            // Désactiver le select
-            e.target.disabled = true;
-            
-            // Afficher le bouton "Changer" s'il existe
-            const fieldCommission = document.getElementById('field-commission');
-            const changeBtn = fieldCommission ? fieldCommission.querySelector('.btn-change-commission') : null;
-            
-            if (changeBtn) {
-                changeBtn.style.display = '';
-            } else {
-                // Créer le bouton si première sélection
-                createChangeCommissionButton();
-            }
+        const commissionSelect = e.target;
+        const changeBtn = document.querySelector('.btn-change-commission');
+        
+        if (!changeBtn) return;
+        
+        if (commissionSelect.value && commissionSelect.value !== '') {
+            // Commission sélectionnée : disable select + affiche bouton
+            commissionSelect.disabled = true;
+            changeBtn.style.display = '';
+        } else {
+            // Aucune commission : enable select + masque bouton
+            commissionSelect.disabled = false;
+            changeBtn.style.display = 'none';
         }
-
+        
         // TODO Phase 2 : Mettre à jour le calendrier date visite
-        // updateDateVisiteCalendar(commissionId);
+        // updateDateVisiteCalendar(commissionSelect.value);
     }
 
     /**
@@ -117,3 +108,4 @@
         initCommission();
     }
 })();
+

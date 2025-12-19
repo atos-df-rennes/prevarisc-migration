@@ -125,12 +125,15 @@
                 </div>
             </li>
 
-            {# @todo: Ajouter le bouton "Choisir une autre commission" #}
             <li class='row' id='field-commission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
                 <div class='right form col-md-9'>
                     {{ form_widget(form.commission) }}
                     {{ form_errors(form.commission) }}
+                    <button type='button' class='btn btn-sm btn-warning btn-change-commission' 
+                            style='margin-top: 5px; {{ form.commission.vars.value is empty ? "display:none;" : "" }}'>
+                        <i class='glyphicon glyphicon-edit'></i> Choisir une autre commission
+                    </button>
                 </div>
             </li>
 
