@@ -20,7 +20,9 @@
             {% for type in admin_groupement_types %}
                 <optgroup id="gpt_{{ type.id }}" label="{{ type.libelle }}">
                     {% for groupement in type.groupements %}
-                        <option value="{{ groupement.id }}">{{ groupement.libelle }}</option>
+                        <option value="{{ groupement.id }}" {% if selected_groupement_id is defined and selected_groupement_id is not null and selected_groupement_id == groupement.id %}selected{% endif %}>
+                            {{ groupement.libelle }}
+                        </option>
                     {% endfor %}
                 </optgroup>
             {% endfor %}
@@ -33,11 +35,44 @@
 </div>
 
 {# Zone d'affichage des onglets et de leur contenu #}
-<form id="form" method="post">
-    <input type="hidden" id="id_gpt" name="id_gpt" value="0" />
-{# {{ include 'groupement/display.html.twig' }} #}
-    <div id="content"><p><strong>Pas de groupement disponible ...</strong></p></div>
-</form>
+<div id="content" style="display: none;">
+    <!-- Onglets -->
+    <div id="tabs">
+        <ul class="nav nav-tabs">
+            <li id="general" role="presentation" class="active"><a href="#tabs-1" data-toggle="tab" data-scope="general">Général</a></li>
+            <li id="prev" role="presentation"><a href="#tabs-2" data-toggle="tab" data-scope="affectations">Préventionnistes affectés</a></li>
+            <li id="coordonnee" role="presentation"><a href="#tabs-3" data-toggle="tab" data-scope="coordonnees">Coordonnées</a></li>
+            <li id="contact" role="presentation"><a href="#tabs-4" data-toggle="tab">Contacts liés au groupement</a></li>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <!-- Partie générale -->
+            <div id="tabs-1" role="tabpanel" class="tab-pane active" data-scope="general">
+                <p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>
+            </div>
+
+            <!-- Partie des préventionnistes -->
+            <div id="tabs-2" role="tabpanel" class="tab-pane" data-scope="affectations">
+                <p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>
+            </div>
+
+            <!-- Coordonnées -->
+            <div id="tabs-3" role="tabpanel" class="tab-pane" data-scope="coordonnees">
+                <p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>
+            </div>
+
+            <!-- Partie contact -->
+            <div id="tabs-4" role="tabpanel" class="tab-pane">
+                <p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="no-groupement" class="alert alert-warning">
+    <strong>Pas de groupement disponible...</strong>
+    <p>Veuillez sélectionner un groupement dans la liste ci-dessus ou créer un nouveau groupement.</p>
+</div>
 
 <div id="confirm" class="ui-helper-hidden">
     <p>Confirmez vous la suppression du groupement ? (cette action est irreversible)</p>
@@ -61,6 +96,14 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="text/javascript">
+        var currentGroupementId = null;
+        
+        // URLs générées par Twig avec placeholder
+        var urlPatterns = {
+            contacts: "{{ path('admin_groupement_contacts', {id: '0'}) }}",
+            formScope: "{{ path('admin_groupement_form_scope', {id: '0', scope: 'general'}) }}",
+            delete: "{{ path('admin_groupement_delete', {id: '0'}) }}"
+        };
 
         function notify(text) {
             const notifElement = document.getElementById('notif')
@@ -69,6 +112,148 @@
             notifElement.classList.remove('hide');
 
             setTimeout(() => notifElement.classList.add('hide'), 5000)
+        }
+
+        // Fonction pour charger les contacts
+        function loadContacts(groupementId) {
+            var tabPane = $('#tabs-4');
+            var url = urlPatterns.contacts.replace('0', groupementId);
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                beforeSend: function() {
+                    tabPane.html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>');
+                },
+                success: function(result) {
+                    tabPane.html(result);
+                    tabPane.data('loaded', true);
+                },
+                error: function() {
+                    tabPane.html('<div class="alert alert-danger" role="alert">Erreur lors du chargement des contacts.</div>');
+                }
+            });
+        }
+
+        // Fonction pour charger un formulaire par scope en AJAX
+        function loadFormScope(scope, groupementId) {
+            var tabPane = $('#tabs-' + getScopeTabNumber(scope));
+            var url = urlPatterns.formScope.replace('0', groupementId).replace('general', scope);
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                beforeSend: function() {
+                    tabPane.html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>');
+                },
+                success: function(result) {
+                    tabPane.html(result);
+                    tabPane.data('loaded', true);
+
+                    // Attacher les handlers pour le scope général
+                    if (scope === 'general') {
+                        if (typeof attachGeneralHandlers === 'function') {
+                            attachGeneralHandlers();
+                        }
+                    }
+
+                    // Gérer la soumission du formulaire en AJAX pour chaque onglet
+                    attachFormSubmitHandler(tabPane, scope, groupementId);
+                },
+                error: function() {
+                    tabPane.html('<p class="text-danger">Erreur lors du chargement du formulaire.</p>');
+                }
+            });
+        }
+
+        // Fonction pour attacher le handler de soumission à un formulaire
+        function attachFormSubmitHandler(tabPane, scope, groupementId) {
+            tabPane.find('form').on('submit', function(e) {
+                e.preventDefault();
+
+                var formData = $(this).serializeArray();
+
+                // Sélectionner toutes les villes pour le scope général
+                if (scope === 'general') {
+                    $("#villes_groupement option").each(function(){
+                        // Ajouter chaque ville sélectionnée au formData
+                        formData.push({
+                            name: 'groupement[communes][]',
+                            value: $(this).val()
+                        });
+                    });
+                }
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: "POST",
+                    data: $.param(formData),
+                    success: function(response) {
+                        if (response.success) {
+                            notify(response.message);
+                            // Recharger le formulaire pour afficher les données mises à jour
+                            tabPane.data('loaded', false);
+                            loadFormScope(scope, groupementId);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMsg = 'Une erreur est survenue lors de la sauvegarde.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        notify(errorMsg);
+                    }
+                });
+            });
+        }
+
+        function getScopeTabNumber(scope) {
+            switch(scope) {
+                case 'general': return '1';
+                case 'affectations': return '2';
+                case 'coordonnees': return '3';
+                default: return '1';
+            }
+        }
+
+        function resetTabs() {
+            // Réinitialiser tous les onglets
+            $('#tabs-1, #tabs-2, #tabs-3, #tabs-4').each(function() {
+                $(this).html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Chargement...</p>');
+                $(this).data('loaded', false);
+            });
+
+            // Réactiver le premier onglet
+            $('#tabs .nav-tabs li').removeClass('active');
+            $('#general').addClass('active');
+            $('.tab-pane').removeClass('active');
+            $('#tabs-1').addClass('active');
+        }
+
+        function showGroupementContent(groupementId) {
+            currentGroupementId = groupementId;
+
+            // Masquer le message "pas de groupement"
+            $('#no-groupement').hide();
+            
+            // Afficher les onglets
+            $('#content').show();
+
+            // Réinitialiser les onglets
+            resetTabs();
+
+            // Charger le premier onglet
+            loadFormScope('general', groupementId);
+        }
+
+        function hideGroupementContent() {
+            currentGroupementId = null;
+            
+            // Masquer les onglets
+            $('#content').hide();
+            
+            // Afficher le message "pas de groupement"
+            $('#no-groupement').show();
         }
 
         document.addEventListener("DOMContentLoaded", function(event) {
@@ -82,7 +267,6 @@
                     type: "GET",
                     url: "{{ path('admin_groupement_creation') }}",
                     success: function(msg){
-
                         $(target + ' .modal-body').html(msg);
                     },
                 });
@@ -102,8 +286,11 @@
                         text: 'Supprimer le groupement',
                         class: 'btn btn-danger',
                         click: function() {
+                            const groupementId = $("#gpt option:selected").val()
+                            var deleteUrl = urlPatterns.delete.replace('0', groupementId);
                             $.ajax({
-                                url: "{{ path('admin_groupement_delete') }}?id=" + $("#gpt option:selected").val(),
+                                url: deleteUrl,
+                                method: "DELETE",
                                 beforeSend: function() {
                                     $("#remove").button("disable");
                                 },
@@ -134,35 +321,53 @@
                 $("#confirm").dialog("open");
             });
 
+            // Gérer les changements d'onglets
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var scope = $(e.target).data('scope');
+                var tabId = $(e.target).attr('href');
+                
+                if (!currentGroupementId) {
+                    return;
+                }
+                
+                if (scope) {
+                    var tabPane = $(tabId);
+                    // Ne charger que si pas déjà chargé
+                    if (!tabPane.data('loaded')) {
+                        loadFormScope(scope, currentGroupementId);
+                    }
+                } else if (tabId === '#tabs-4') {
+                    // Chargement de l'onglet contacts
+                    var tabPane = $(tabId);
+                    if (!tabPane.data('loaded')) {
+                        loadContacts(currentGroupementId);
+                    }
+                }
+            });
+
             // Gestion des évenements de la liste déroulante
             $groupementSelect = $("#gpt");
             $groupementSelect.change(function() {
                 if($groupementSelect.val() === null) {
-                    return
+                    hideGroupementContent();
+                    return;
                 }
 
-                if($groupementSelect.val() == 0)
+                if($groupementSelect.val() == 0) {
                     $("#delete").button("disable");
-                else
+                    hideGroupementContent();
+                } else {
                     $("#delete").button("enable");
-
-                const $content = $("#form > #content");
-
-                $.ajax({
-                    url: "{{ path('admin_groupement_display', {id: 0}) }}".replace('0', $groupementSelect.val()),
-                    beforeSend: function() {
-                        $content.css("opacity", 0.5);
-                    },
-                    success: function(result) {
-                        $content.html(result);
-                        $content.css("opacity", 1);
-                    }
-                });
-
-                $("#id_gpt").val($groupementSelect.val());
+                    showGroupementContent($groupementSelect.val());
+                }
             });
 
-            $groupementSelect.change();
+            // Initialiser l'affichage au chargement
+            if ($groupementSelect.val() && $groupementSelect.val() != 0) {
+                showGroupementContent($groupementSelect.val());
+            } else {
+                hideGroupementContent();
+            }
         })
     </script>
 {% endblock %}

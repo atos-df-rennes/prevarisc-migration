@@ -1,0 +1,28 @@
+<div class="modal fade" id="ajout-contact-existant" tabindex="-1" role="dialog" aria-labelledby="ajout-contact-existant-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{{ path('admin_groupement_contacts_add_existing', {id: groupement.id}) }}" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="ajout-contact-existant-label">Ajouter un contact existant</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="contact-select">Rechercher un contact</label>
+                        <select id="contact-select" name="contacts" class="tom-select" multiple placeholder="Rechercher un contact par nom (minimum 3 caractères)"></select>
+                        <p class="help-block">Recherchez et sélectionnez un ou plusieurs contacts. Saisissez au moins 3 caractères pour lancer la recherche.</p>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

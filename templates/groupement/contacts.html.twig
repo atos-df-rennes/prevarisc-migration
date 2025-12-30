@@ -1,0 +1,122 @@
+<div class="row mb-4">
+    <div class="pull-right" role="group">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
+        <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
+    </div>
+</div>
+
+{% if contacts is empty %}
+    <p class="text-center text-muted">
+        <i class="fa fa-info-circle"></i> Aucun contact lié à ce groupement
+    </p>
+{% else %}
+    <div class="row">
+        {% for contact in contacts %}
+            {{ include('groupement/_contact_fiche.html.twig', {can_edit: true, contact: contact, groupement: groupement}) }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{{ include('contact/_modal_ajout.html.twig') }}
+{{ include('groupement/_modal_existant.html.twig') }}
+{{ include('groupement/_modal_suppression.html.twig') }}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Réinitialiser la modale lors de sa fermeture
+        $('#ajout-contact').on('hidden.bs.modal', function () {
+            $(this).find('.modal-title').html('Ajouter un contact');
+            $(this).find('.modal-body').html('');
+        });
+
+        $('#ajout-contact-bouton').click(function () {
+            $.ajax({
+                url: "{{ path('admin_groupement_contacts_add', {id: groupement.id}) }}",
+                success: function (result) {
+                    $('#ajout-contact #ajout-contact-label').html('Ajouter un contact');
+                    $('#ajout-contact .modal-body').html(result);
+                    // Changer le texte du bouton de soumission
+                    $('#ajout-contact .btn-text').html('Ajouter');
+                    $('#ajout-contact').modal('show');
+                }
+            })
+        })
+
+        let groupementId
+        let contactId
+
+        $('.delete-contact-button').on('click', function () {
+            groupementId = $(this).attr('data-id')
+            contactId = $(this).attr('data-contact-id')
+        })
+
+        $('#delete-contact').on('click', function () {
+            $.ajax({
+                type: 'DELETE',
+                url: '{{ path('admin_groupement_contacts_delete', {id: groupement.id, contact: 0}) }}'.replace('0', contactId),
+                success: function () {
+                    window.location.reload();
+                },
+                error: function () {
+                    window.location.reload();
+                },
+            })
+        })
+
+        $('.edit-contact-button').on('click', function () {
+            groupementId = $(this).attr('data-id')
+            contactId = $(this).attr('data-contact-id')
+
+            $.ajax({
+                url: '{{ path('contact_edit', {id: 0, elementLie: 'groupement'}) }}'.replace('0', contactId) + '&elementId=' + groupementId,
+                success: function (result) {
+
+                    const modalAjout = document.getElementById('ajout-contact')
+                    modalAjout.querySelector('#ajout-contact-label').innerHTML = 'Modifier un contact'
+
+                    modalAjout.querySelector('.modal-body').innerHTML = result
+
+                    // Changer le texte du bouton de soumission
+                    $('#ajout-contact .btn-text').html('Modifier')
+                    $('#ajout-contact').modal('show')
+                }
+            })
+        })
+
+        new TomSelect('#contact-select', {
+            valueField: 'id',
+            labelField: 'name',
+            searchField: 'name',
+            plugins: ['remove_button'],
+            shouldLoad: function(query) {
+                return query.length > 2;
+            },
+            load: function(query, callback) {
+                fetch('/contacts/' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(json => {
+                    callback(json.map(contact => {
+                        let nameParts = []
+
+                        if (contact.societe) {
+                            nameParts.push(contact.societe)
+                        }
+                        if (contact.nom) {
+                            nameParts.push(contact.nom)
+                        }
+                        if (contact.prenom) {
+                            nameParts.push(contact.prenom)
+                        }
+
+                        return {
+                            id: contact.id,
+                            name: nameParts.join(" ")
+                        }
+                    }))
+                }).catch(() => {
+                    callback()
+                })
+            },
+        })
+    })
+</script>

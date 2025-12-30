@@ -5,18 +5,23 @@ namespace App\Controller;
 use App\Entity\Groupement;
 use App\Entity\GroupementType as GroupementTypeEntity;
 use App\Entity\UtilisateurInformations;
+use App\Form\ContactType;
 use App\Form\GroupementType as GroupementFormType;
 use App\Repository\CommuneRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\GroupementTypeRepository;
+use App\Repository\UtilisateurInformationsRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\Contact;
 use App\Service\GroupementCommunes;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -32,26 +37,38 @@ class GroupementController extends AbstractController
     /** @var CommuneRepository */
     private $communeRepository;
 
+    /** @var GroupementRepository */
+    private $groupementRepository;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository
+        CommuneRepository $communeRepository,
+        GroupementRepository $groupementRepository
     ) {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
+        $this->groupementRepository = $groupementRepository;
     }
 
     /**
      * @Route("/admin/groupement/", name="admin_groupement")
      */
-    public function index(GroupementTypeRepository $groupementTypeRepository): Response
+    public function index(Request $request, GroupementTypeRepository $groupementTypeRepository): Response
     {
         $groupementTypes = $groupementTypeRepository->findAll();
         $communes = $this->communeRepository->findAll();
+
+        // Récupérer l'ID du groupement à présélectionner (peut être string ou int)
+        $selectedGroupementId = $request->query->get('id');
+        if ($selectedGroupementId !== null) {
+            $selectedGroupementId = (int) $selectedGroupementId;
+        }
 
         return $this->render('groupement/index.html.twig', [
             'title' => 'Groupements de communes',
             'admin_groupement_types' => $groupementTypes,
             'communes' => $communes,
+            'selected_groupement_id' => $selectedGroupementId,
         ]);
     }
 
@@ -83,17 +100,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/display/{id}", name="admin_groupement_display")
-     */
-    public function display(Groupement $groupement): Response
-    {
-        return $this->render('groupement/display.html.twig', [
-            'groupement' => $groupement,
-        ]);
-    }
-
-    /**
-     * @Route("/admin/groupement/form/{id}/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
+     * @Route("/admin/groupement/{id}/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
      */
     public function formByScope(Groupement $groupement, string $scope, Request $request, GroupementCommunes $groupementCommunes): Response
     {
@@ -106,9 +113,11 @@ class GroupementController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
 
-            $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
-            if ('1' == $reaffectationAutomatique) {
-                $groupementCommunes->reaffectationPreventioniste($groupement);
+            if($form->has('reaffectationAutomatique')) {
+                $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
+                if ('1' == $reaffectationAutomatique) {
+                    $groupementCommunes->reaffectationPreventioniste($groupement);
+                }
             }
 
             if ($request->isXmlHttpRequest()) {
@@ -136,129 +145,11 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/view", name="admin_groupement_view")
+     * @Route("/admin/groupement/{id}/delete", name="admin_groupement_delete", methods={"DELETE"})
      */
-    public function view(Request $request, GroupementRepository $groupementRepository): Response
-    {
-        $id = $request->query->get('id');
-        $groupement = $groupementRepository->find($id);
-
-        if (!$groupement) {
-            throw $this->createNotFoundException('Groupement non trouvé');
-        }
-
-        $preventionnistes = $groupement->getPreventionnistes();
-
-        return $this->render('groupement/view.html.twig', [
-            'row' => $groupement,
-            'prev' => $preventionnistes,
-        ]);
-    }
-
-    /**
-     * @Route("/admin/groupement/add", name="admin_groupement_add", methods={"POST"})
-     */
-    public function add(Request $request, CommuneRepository $communeRepository, UtilisateurRepository $utilisateurRepository): JsonResponse
+    public function delete(Groupement $groupement): Response
     {
         try {
-            $idGpt = $request->request->get('id_gpt', 0);
-
-            if (0 == $idGpt) {
-                $groupement = new Groupement();
-                $informations = new UtilisateurInformations();
-                $this->populateUtilisateurInformations($informations, $request);
-                $this->entityManager->persist($informations);
-                $groupement->setInformations($informations);
-            } else {
-                $groupement = $this->entityManager->getRepository(Groupement::class)->find($idGpt);
-                if (!$groupement) {
-                    throw new \Exception('Groupement non trouvé');
-                }
-
-                // Supprimer les associations existantes
-                foreach ($groupement->getCommunes() as $commune) {
-                    $groupement->removeCommune($commune);
-                }
-
-                foreach ($groupement->getPreventionnistes() as $prev) {
-                    $groupement->removePreventionniste($prev);
-                }
-
-                $informations = $groupement->getInformations();
-                if (null === $informations) {
-                    $informations = new UtilisateurInformations();
-                    $this->entityManager->persist($informations);
-                    $groupement->setInformations($informations);
-                }
-
-                $this->populateUtilisateurInformations($informations, $request);
-            }
-
-            $nomGroupement = $request->request->get('nom_groupement');
-            if (!is_string($nomGroupement)) {
-                throw new \Exception('Nom du groupement invalide');
-            }
-
-            $groupement->setLibelle($nomGroupement);
-
-            $typeId = $request->request->get('type_groupement');
-            $type = $this->entityManager->getRepository(GroupementTypeEntity::class)->find($typeId);
-            $groupement->setType($type);
-
-            $this->entityManager->persist($groupement);
-            $this->entityManager->flush();
-
-            // Associer les communes
-            $villes = $request->request->get('villes');
-            if (!empty($villes) && is_array($villes)) {
-                foreach ($villes as $numInsee) {
-                    $commune = $communeRepository->find($numInsee);
-                    if ($commune) {
-                        $groupement->addCommune($commune);
-                    }
-                }
-            }
-
-            // Associer les préventionnistes
-            $prevs = $request->request->get('prev');
-            if (!empty($prevs) && is_array($prevs)) {
-                foreach ($prevs as $userId) {
-                    $utilisateur = $utilisateurRepository->find($userId);
-                    if ($utilisateur) {
-                        $groupement->addPreventionniste($utilisateur);
-                    }
-                }
-            }
-
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Le groupement '.$groupement->getLibelle().' a été ajouté.');
-
-            return new JsonResponse([
-                'id' => $groupement->getId(),
-                'libelle' => $groupement->getLibelle(),
-                'type' => $groupement->getType() ? $groupement->getType()->getId() : null,
-            ]);
-        } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
-
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * @Route("/admin/groupement/delete", name="admin_groupement_delete")
-     */
-    public function delete(Request $request, GroupementRepository $groupementRepository): Response
-    {
-        try {
-            $id = $request->query->get('id');
-            $groupement = $groupementRepository->find($id);
-
-            if (!$groupement) {
-                throw new \Exception('Groupement non trouvé');
-            }
-
             // Les associations sont gérées par Doctrine
             $this->entityManager->remove($groupement);
             $this->entityManager->flush();
@@ -268,63 +159,111 @@ class GroupementController extends AbstractController
             $this->addFlash('error', $exception->getMessage());
         }
 
-        return $this->redirectToRoute('admin_groupement_index');
+        return $this->redirectToRoute('admin_groupement');
     }
 
     /**
-     * @Route("/admin/groupement/add-type", name="admin_groupement_add_type", methods={"POST"})
+     * @Route("/admin/groupement/{id}/contacts", name="admin_groupement_contacts")
      */
-    public function addType(Request $request): Response
+    public function contacts(Groupement $groupement): Response
     {
-        try {
-            $libelle = $request->request->get('LIBELLE_GROUPEMENTTYPE');
+        $contacts = $this->groupementRepository->find($groupement->getId());
 
-            if (!is_string($libelle)) {
-                throw new \Exception('Libellé invalide');
-            }
-
-            $groupementType = new GroupementTypeEntity();
-            $groupementType->setLibelle($libelle);
-
-            $this->entityManager->persist($groupementType);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Le traitement est ok.');
-
-            return new JsonResponse(['id' => $groupementType->getId()]);
-        } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
-
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if (null !== $contacts) {
+            $contacts = $contacts->getContacts();
         }
+
+        return $this->render('groupement/contacts.html.twig', [
+            'groupement' => $groupement,
+            'contacts' => $contacts,
+        ]);
     }
 
-    private function populateUtilisateurInformations(UtilisateurInformations $informations, Request $request): void
+    /**
+     * @Route("/admin/groupement/{id}/contacts/ajouter", name="admin_groupement_contacts_add")
+     */
+    public function addNewContact(Request $request, Groupement $groupement): Response
     {
-        if ($request->request->get('ID_UTILISATEURCIVILITE') && 'null' !== $request->request->get('ID_UTILISATEURCIVILITE')) {
-            // $informations->setCivilite($request->request->get('ID_UTILISATEURCIVILITE'));
+        $contact = new UtilisateurInformations();
+
+        $form = $this->createForm(ContactType::class, $contact, [
+            'action' => $this->generateUrl('admin_groupement_contacts_add', ['id' => $groupement->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($contact);
+            $groupement->addContact($contact);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été ajouté.');
+
+            return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
-        $nom = $request->request->get('NOM_UTILISATEURINFORMATIONS', '');
-        $prenom = $request->request->get('PRENOM_UTILISATEURINFORMATIONS', '');
-        $telFixe = $request->request->get('TELFIXE_UTILISATEURINFORMATIONS', '');
-        $telPortable = $request->request->get('TELPORTABLE_UTILISATEURINFORMATIONS', '');
-        $telFax = $request->request->get('TELFAX_UTILISATEURINFORMATIONS', '');
-        $mail = $request->request->get('MAIL_UTILISATEURINFORMATIONS', '');
-        $numeroAdresse = $request->request->get('NUMEROADRESSE_UTILISATEURINFORMATIONS', '');
-        $rueAdresse = $request->request->get('RUEADRESSE_UTILISATEURINFORMATIONS', '');
-        $cpAdresse = $request->request->get('CPADRESSE_UTILISATEURINFORMATIONS', '');
-        $villeAdresse = $request->request->get('VILLEADRESSE_UTILISATEURINFORMATIONS', '');
+        return $this->render('contact/form.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
-        $informations->setNom(is_string($nom) ? $nom : '');
-        $informations->setPrenom(is_string($prenom) ? $prenom : '');
-        $informations->setTelephoneFixe(is_string($telFixe) ? $telFixe : '');
-        $informations->setTelephonePortable(is_string($telPortable) ? $telPortable : '');
-        $informations->setTelephoneFax(is_string($telFax) ? $telFax : '');
-        $informations->setMail(is_string($mail) ? $mail : '');
-        $informations->setNumeroAdresse(is_string($numeroAdresse) ? $numeroAdresse : '');
-        $informations->setRueAdresse(is_string($rueAdresse) ? $rueAdresse : '');
-        $informations->setCodePostalAdresse(is_string($cpAdresse) ? $cpAdresse : '');
-        $informations->setVilleAdresse(is_string($villeAdresse) ? $villeAdresse : '');
+    /**
+     * @Route("/admin/groupement/{id}/contacts/ajouter/existant", name="admin_groupement_contacts_add_existing")
+     */
+    public function addExistingContact(
+        Request $request,
+        Groupement $groupement,
+        UtilisateurInformationsRepository $utilisateurInformationsRepository
+    ): Response {
+        $contactIdsString = $request->request->get('contacts');
+
+        if (!\is_string($contactIdsString) || !preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
+            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
+        }
+
+        if ('' === $contactIdsString) {
+            return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
+        }
+
+        $contactIds = explode(',', $contactIdsString);
+
+        foreach ($contactIds as $contactId) {
+            $contact = $utilisateurInformationsRepository->find($contactId);
+
+            if (null === $contact) {
+                throw new NotFoundHttpException();
+            }
+
+            $groupement->addContact($contact);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
+
+        return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
+    }
+
+    /**
+     * @Route("/admin/groupement/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"DELETE"})
+     *
+     * @ParamConverter("groupement", options={"id" = "id"})
+     * @ParamConverter("contact", options={"id" = "contact"})
+     */
+    public function deleteContact(
+        Groupement $groupement,
+        UtilisateurInformations $contact,
+        Contact $contactService
+    ): Response {
+        $groupement->removeContact($contact);
+
+        if (!$contactService->isUsed($contact, Contact::GROUPEMENT)) {
+            $this->entityManager->remove($contact);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Le contact a bien été supprimé.');
+
+        return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
     }
 }

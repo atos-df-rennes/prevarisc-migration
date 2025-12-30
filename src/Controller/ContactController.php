@@ -28,6 +28,10 @@ class ContactController extends AbstractController
                 $redirectRoute = 'etablissement_contacts';
 
                 break;
+            case Contact::GROUPEMENT:
+                $redirectRoute = 'admin_groupement';
+
+                break;
             default:
                 $redirectRoute = null;
 
