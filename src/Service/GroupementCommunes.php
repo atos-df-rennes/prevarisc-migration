@@ -26,7 +26,7 @@ final class GroupementCommunes
     public function reaffectationPreventioniste(Groupement $groupement): void
     {
         $this->clearPreventionnistes($groupement);
-        $this->addPreventionistes($groupement);
+        $this->addPreventionnistes($groupement);
     }
 
     /**
@@ -56,7 +56,7 @@ final class GroupementCommunes
      *
      * @param Groupement $groupement le groupement contenant les préventionnistes à assigner
      */
-    private function addPreventionistes(Groupement $groupement): void
+    private function addPreventionnistes(Groupement $groupement): void
     {
         $libelle = $groupement->getLibelle();
         if (null === $libelle) {
