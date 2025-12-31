@@ -43,12 +43,13 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN etablissementinformations ei ON eip.ID_ETABLISSEMENTINFORMATIONS = ei.ID_ETABLISSEMENTINFORMATIONS
                 INNER JOIN etablissement e ON ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
                 INNER JOIN etablissementadresse ea ON e.ID_ETABLISSEMENT = ea.ID_ETABLISSEMENT
-                WHERE ea.NUMINSEE_COMMUNE IN (:communes)
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )';
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
+                WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
         return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
     }
@@ -72,12 +73,13 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN etablissementlie el ON e.ID_ETABLISSEMENT = el.ID_FILS_ETABLISSEMENT
                 INNER JOIN etablissement parent ON el.ID_ETABLISSEMENT = parent.ID_ETABLISSEMENT
                 INNER JOIN etablissementadresse ea ON parent.ID_ETABLISSEMENT = ea.ID_ETABLISSEMENT
-                WHERE ea.NUMINSEE_COMMUNE IN (:communes)
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )';
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
+                WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
         return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
     }
@@ -101,12 +103,13 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN etablissementlie el ON e.ID_ETABLISSEMENT = el.ID_ETABLISSEMENT
                 INNER JOIN etablissement fils ON el.ID_FILS_ETABLISSEMENT = fils.ID_ETABLISSEMENT
                 INNER JOIN etablissementadresse ea ON fils.ID_ETABLISSEMENT = ea.ID_ETABLISSEMENT
-                WHERE ea.NUMINSEE_COMMUNE IN (:communes)
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )';
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
+                WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
         return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
     }
@@ -129,13 +132,14 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN groupement g ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT
                 INNER JOIN groupementpreventionniste gp ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT
                 INNER JOIN utilisateur p ON gp.ID_UTILISATEUR = p.ID_UTILISATEUR
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ei.ID_GENRE = '.self::GENRE_ETABLISSEMENT.'
-                AND g.LIBELLE_GROUPEMENT = :groupement
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )';
+                AND g.LIBELLE_GROUPEMENT = :groupement';
 
         return $conn->executeStatement($sql, ['groupement' => $groupement]);
     }
@@ -160,13 +164,14 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN groupement g ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT
                 INNER JOIN groupementpreventionniste gp ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT
                 INNER JOIN utilisateur p ON gp.ID_UTILISATEUR = p.ID_UTILISATEUR
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ei.ID_GENRE = '.self::GENRE_CELLULE.'
-                AND g.LIBELLE_GROUPEMENT = :groupement
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )';
+                AND g.LIBELLE_GROUPEMENT = :groupement';
 
         return $conn->executeStatement($sql, ['groupement' => $groupement]);
     }
@@ -191,13 +196,14 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN groupement g ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT
                 INNER JOIN groupementpreventionniste gp ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT
                 INNER JOIN utilisateur p ON gp.ID_UTILISATEUR = p.ID_UTILISATEUR
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ei.ID_GENRE = '.self::GENRE_SITE.'
-                AND g.LIBELLE_GROUPEMENT = :groupement
-                AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei2
-                    WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-                )';
+                AND g.LIBELLE_GROUPEMENT = :groupement';
 
         return $conn->executeStatement($sql, ['groupement' => $groupement]);
     }
