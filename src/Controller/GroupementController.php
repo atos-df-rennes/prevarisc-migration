@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Groupement;
 use App\Entity\UtilisateurInformations;
+use App\Form\AddExistingContactsType;
 use App\Form\ContactType;
 use App\Form\GroupementType as GroupementFormType;
 use App\Repository\CommuneRepository;
@@ -139,7 +140,7 @@ class GroupementController extends AbstractController
             $templateData['villes'] = $this->communeRepository->findAll();
         }
 
-        return $this->render(sprintf('groupement/form_%s.html.twig', $scope), $templateData);
+        return $this->render(sprintf('groupement/_form_%s.html.twig', $scope), $templateData);
     }
 
     /**
@@ -212,33 +213,29 @@ class GroupementController extends AbstractController
         Groupement $groupement,
         UtilisateurInformationsRepository $utilisateurInformationsRepository
     ): Response {
-        $contactIdsString = $request->request->get('contacts');
+        $form = $this->createForm(AddExistingContactsType::class, null, [
+            'action' => $this->generateUrl('admin_groupement_contacts_add_existing', ['id' => $groupement->getId()]),
+        ]);
 
-        if (!\is_string($contactIdsString) || !preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
-            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
-        }
+        $form->handleRequest($request);
 
-        if ('' === $contactIdsString) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            $contacts = $form->get('contacts')->getData();
+            foreach ($contacts as $contact) {
+                $groupement->addContact($contact);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
+
             return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
-        $contactIds = explode(',', $contactIdsString);
-
-        foreach ($contactIds as $contactId) {
-            $contact = $utilisateurInformationsRepository->find($contactId);
-
-            if (null === $contact) {
-                throw new NotFoundHttpException();
-            }
-
-            $groupement->addContact($contact);
-        }
-
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
-
-        return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
+        return $this->render('groupement/_form_existing_contacts.html.twig', [
+            'form' => $form->createView(),
+            'groupement' => $groupement,
+        ]);
     }
 
     /**

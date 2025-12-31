@@ -1372,3 +1372,19 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 #resource-ets-modal .ui-multiselect {
   display: block;
 }
+
+/* Formulaire boostrap avec TomSelect */
+.form-control.ts-wrapper {
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.form-group .ts-wrapper.multi .ts-control [data-value] {
+    background-image: none;
+}
+.form-group .ts-wrapper.multi .ts-control>div {
+    background-color: #337ab7;
+    border: 1px solid #2e6da4;
+}

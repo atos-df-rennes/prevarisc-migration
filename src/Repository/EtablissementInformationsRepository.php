@@ -17,6 +17,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EtablissementInformationsRepository extends ServiceEntityRepository
 {
+    private const GENRE_SITE = 1;
+    private const GENRE_ETABLISSEMENT = 2;
+    private const GENRE_CELLULE = 3;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EtablissementInformations::class);
@@ -46,7 +50,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
                 )';
 
-        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_STR_ARRAY]);
+        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
     }
 
     /**
@@ -75,7 +79,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
                 )';
 
-        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_STR_ARRAY]);
+        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
     }
 
     /**
@@ -104,7 +108,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
                 )';
 
-        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_STR_ARRAY]);
+        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
     }
 
     /**
@@ -125,7 +129,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN groupement g ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT
                 INNER JOIN groupementpreventionniste gp ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT
                 INNER JOIN utilisateur p ON gp.ID_UTILISATEUR = p.ID_UTILISATEUR
-                WHERE ei.ID_GENRE = 2
+                WHERE ei.ID_GENRE = '.self::GENRE_ETABLISSEMENT.'
                 AND g.LIBELLE_GROUPEMENT = :groupement
                 AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
                     SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
@@ -156,7 +160,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN groupement g ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT
                 INNER JOIN groupementpreventionniste gp ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT
                 INNER JOIN utilisateur p ON gp.ID_UTILISATEUR = p.ID_UTILISATEUR
-                WHERE ei.ID_GENRE = 3
+                WHERE ei.ID_GENRE = '.self::GENRE_CELLULE.'
                 AND g.LIBELLE_GROUPEMENT = :groupement
                 AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
                     SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
@@ -187,7 +191,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 INNER JOIN groupement g ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT
                 INNER JOIN groupementpreventionniste gp ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT
                 INNER JOIN utilisateur p ON gp.ID_UTILISATEUR = p.ID_UTILISATEUR
-                WHERE ei.ID_GENRE = 1
+                WHERE ei.ID_GENRE = '.self::GENRE_SITE.'
                 AND g.LIBELLE_GROUPEMENT = :groupement
                 AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
                     SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)

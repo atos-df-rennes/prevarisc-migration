@@ -1,6 +1,6 @@
 <div class="row mb-4">
     <div class="pull-right" role="group">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
+        <button type="button" class="btn btn-primary" id="ajout-contact-existant-bouton" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
         <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
     </div>
 </div>
@@ -29,14 +29,57 @@
             $(this).find('.modal-body').html('');
         });
 
+        $('#ajout-contact-existant-bouton').click(function () {
+            $.ajax({
+                url: "{{ path('admin_groupement_contacts_add_existing', {id: groupement.id}) }}",
+                success: function (result) {
+                    $('#ajout-contact-existant .modal-body').html(result);
+                    $('#ajout-contact-existant').modal('show');
+
+                    new TomSelect('#add_existing_contacts_contacts', {
+                        valueField: 'id',
+                        labelField: 'name',
+                        searchField: 'name',
+                        plugins: ['remove_button'],
+                        shouldLoad: function(query) {
+                            return query.length > 2;
+                        },
+                        load: function(query, callback) {
+                            fetch('/contacts/' + encodeURIComponent(query))
+                                .then(response => response.json())
+                                .then(json => {
+                                    callback(json.map(contact => {
+                                        let nameParts = []
+
+                                        if (contact.societe) {
+                                            nameParts.push(contact.societe)
+                                        }
+                                        if (contact.nom) {
+                                            nameParts.push(contact.nom)
+                                        }
+                                        if (contact.prenom) {
+                                            nameParts.push(contact.prenom)
+                                        }
+
+                                        return {
+                                            id: contact.id,
+                                            name: nameParts.join(" ")
+                                        }
+                                    }))
+                                }).catch(() => {
+                                callback()
+                            })
+                        },
+                    })
+                }
+            })
+        })
+
         $('#ajout-contact-bouton').click(function () {
             $.ajax({
                 url: "{{ path('admin_groupement_contacts_add', {id: groupement.id}) }}",
                 success: function (result) {
-                    $('#ajout-contact #ajout-contact-label').html('Ajouter un contact');
                     $('#ajout-contact .modal-body').html(result);
-                    // Changer le texte du bouton de soumission
-                    $('#ajout-contact .btn-text').html('Ajouter');
                     $('#ajout-contact').modal('show');
                 }
             })
@@ -81,42 +124,6 @@
                     $('#ajout-contact').modal('show')
                 }
             })
-        })
-
-        new TomSelect('#contact-select', {
-            valueField: 'id',
-            labelField: 'name',
-            searchField: 'name',
-            plugins: ['remove_button'],
-            shouldLoad: function(query) {
-                return query.length > 2;
-            },
-            load: function(query, callback) {
-                fetch('/contacts/' + encodeURIComponent(query))
-                .then(response => response.json())
-                .then(json => {
-                    callback(json.map(contact => {
-                        let nameParts = []
-
-                        if (contact.societe) {
-                            nameParts.push(contact.societe)
-                        }
-                        if (contact.nom) {
-                            nameParts.push(contact.nom)
-                        }
-                        if (contact.prenom) {
-                            nameParts.push(contact.prenom)
-                        }
-
-                        return {
-                            id: contact.id,
-                            name: nameParts.join(" ")
-                        }
-                    }))
-                }).catch(() => {
-                    callback()
-                })
-            },
         })
     })
 </script>
