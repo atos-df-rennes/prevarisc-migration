@@ -28,8 +28,8 @@
             </select>
 
             <div class="btn-group btn-group-vertical col-md-1">
-                <button id="add_ville" type="button" class="btn"><span class="glyphicon glyphicon-chevron-right"></span></button>
-                <button id="remove_ville" type="button" class="btn"><span class="glyphicon glyphicon-chevron-left"></span></button>
+                <button id="add_ville" type="button" class="btn" aria-label="Ajouter les communes sélectionnées"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                <button id="remove_ville" type="button" class="btn" aria-label="Retirer les communes sélectionnées"><span class="glyphicon glyphicon-chevron-left"></span></button>
             </div>
 
             <select id="villes_groupement" name="groupement[communes][]" class="col-md-5" multiple size=20 >
@@ -75,7 +75,7 @@
 
         // Gestion des boutons du milieux
         $("#liste_villes, #villes_groupement").change(function() {
-            if( $(this).children(":selected").size() == 0 )
+            if( $(this).children(":selected").length() == 0 )
                 $( (($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville") ).button("disable");
             else
                 $( (($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville") ).button("enable");

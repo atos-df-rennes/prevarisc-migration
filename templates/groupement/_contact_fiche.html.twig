@@ -51,7 +51,13 @@
 
                 {% if contact.siteWeb %}
                     <dt><i class="fa fa-globe"></i> Site web</dt>
-                    <dd><a href="{{ contact.siteWeb }}" target="_blank">{{ contact.siteWeb }}</a></dd>
+                    {% set siteWeb = contact.siteWeb %}
+                    {% if siteWeb starts with 'http://' or siteWeb starts with 'https://' %}
+                        <dd><a href="{{ siteWeb }}" target="_blank">{{ siteWeb }}</a></dd>
+                    {% else %}
+                        {# URL avec schéma non autorisé : affichage en texte brut sans lien #}
+                        <dd>{{ siteWeb }}</dd>
+                    {% endif %}
                 {% endif %}
 
                 {% if contact.numeroAdresse or contact.rueAdresse or contact.codePostalAdresse or contact.villeAdresse %}
