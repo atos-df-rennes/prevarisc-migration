@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Groupement;
-use App\Entity\GroupementType as GroupementTypeEntity;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Form\GroupementType as GroupementFormType;
@@ -11,7 +10,6 @@ use App\Repository\CommuneRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\GroupementTypeRepository;
 use App\Repository\UtilisateurInformationsRepository;
-use App\Repository\UtilisateurRepository;
 use App\Service\Contact;
 use App\Service\GroupementCommunes;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,7 +58,7 @@ class GroupementController extends AbstractController
 
         // Récupérer l'ID du groupement à présélectionner (peut être string ou int)
         $selectedGroupementId = $request->query->get('id');
-        if ($selectedGroupementId !== null) {
+        if (is_numeric($selectedGroupementId)) {
             $selectedGroupementId = (int) $selectedGroupementId;
         }
 
@@ -113,7 +111,7 @@ class GroupementController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
 
-            if($form->has('reaffectationAutomatique')) {
+            if ($form->has('reaffectationAutomatique')) {
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
                 if ('1' == $reaffectationAutomatique) {
                     $groupementCommunes->reaffectationPreventioniste($groupement);

@@ -97,7 +97,7 @@
     {{ parent() }}
     <script type="text/javascript">
         var currentGroupementId = null;
-        
+
         // URLs générées par Twig avec placeholder
         var urlPatterns = {
             contacts: "{{ path('admin_groupement_contacts', {id: '0'}) }}",
@@ -235,7 +235,7 @@
 
             // Masquer le message "pas de groupement"
             $('#no-groupement').hide();
-            
+
             // Afficher les onglets
             $('#content').show();
 
@@ -248,10 +248,10 @@
 
         function hideGroupementContent() {
             currentGroupementId = null;
-            
+
             // Masquer les onglets
             $('#content').hide();
-            
+
             // Afficher le message "pas de groupement"
             $('#no-groupement').show();
         }
@@ -325,11 +325,11 @@
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var scope = $(e.target).data('scope');
                 var tabId = $(e.target).attr('href');
-                
+
                 if (!currentGroupementId) {
                     return;
                 }
-                
+
                 if (scope) {
                     var tabPane = $(tabId);
                     // Ne charger que si pas déjà chargé

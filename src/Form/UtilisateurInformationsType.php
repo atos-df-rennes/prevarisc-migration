@@ -29,10 +29,21 @@ class UtilisateurInformationsType extends AbstractType
      * Construit le formulaire en ajoutant différents champs selon les options et portées fournies.
      *
      * @param FormBuilderInterface $builder instance utilisée pour ajouter les champs au formulaire
-     * @param array                $options options passées lors de la création du formulaire, notamment les portées spécifiques
+     * @param array<string,mixed>  $options options passées lors de la création du formulaire.
+     *                                      Clé supportée :
+     *                                      - "scopes" (string[]) : liste de portées activant des champs
+     *                                      supplémentaires. Valeurs possibles :
+     *                                      - self::SCOPE_FONCTION : ajoute le champ "fonction"
+     *                                      - self::SCOPE_GRADE    : ajoute le champ "grade"
+     *                                      - self::SCOPE_ADRESSE  : ajoute les champs d'adresse
+     *                                      - self::SCOPE_SOCIETE  : ajoute le champ "societe"
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        if (!array_key_exists('scopes', $options) || !is_array($options['scopes'])) {
+            throw new \InvalidArgumentException('L\'option "scopes" doit être un tableau.');
+        }
+
         $builder
             ->add('civilite', EntityType::class, [
                 'class' => UtilisateurCivilite::class,

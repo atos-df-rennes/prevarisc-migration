@@ -54,7 +54,7 @@ class Commune
     private $utilisateurs;
 
     /**
-     * @var Collection<int, Commune>
+     * @var Collection<int, Groupement>
      *
      * @ORM\JoinTable(
      *     name="groupementcommune",
@@ -69,6 +69,7 @@ class Commune
     public function __construct()
     {
         $this->utilisateurs = new ArrayCollection();
+        $this->groupements = new ArrayCollection();
     }
 
     public function getId(): string

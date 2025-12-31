@@ -7,7 +7,8 @@ use App\Entity\Groupement;
 use App\Entity\GroupementType as GroupementTypeEntity;
 use App\Entity\Utilisateur;
 use App\Entity\UtilisateurInformations;
-use Doctrine\ORM\EntityRepository;
+use App\Repository\UtilisateurRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -27,8 +28,28 @@ class GroupementType extends AbstractType
 
     public const SCOPE_CONTACTS = 'contacts';
 
+    /**
+     * Configure le formulaire à construire selon les options fournies.
+     *
+     * Cette méthode permet d'ajouter dynamiquement des champs au formulaire en fonction
+     * des "scopes" spécifiés dans les options. Elle gère les cas suivants :
+     * - Ajout d'un champ pour le libellé et le type du groupement (si les scopes incluent CREATE ou GENERAL).
+     * - Ajout d'un champ pour sélectionner les communes associées au groupement (si le scope inclut GENERAL).
+     * - Ajout d'un champ pour l'affectation des préventionnistes associés (si le scope inclut AFFECTATIONS).
+     * - Ajout d'un champ pour les coordonnées du groupement, incluant une sous-configuration pour 'adresse' et 'societe' (si le scope inclut COORDONNEES).
+     *
+     * @param FormBuilderInterface $builder le constructeur de formulaire
+     * @param array<string,mixed>  $options les options permettant de configurer le formulaire, dont :
+     *                                      - 'scopes': tableau obligatoire qui détermine les sections à inclure dans le formulaire
+     *
+     * @throws \InvalidArgumentException si l'option "scopes" est absente ou n'est pas un tableau
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        if (!array_key_exists('scopes', $options) || !is_array($options['scopes'])) {
+            throw new \InvalidArgumentException('L\'option "scopes" doit être un tableau.');
+        }
+
         $scopes = $options['scopes'];
 
         if (in_array(self::SCOPE_CREATE, $scopes) || in_array(self::SCOPE_GENERAL, $scopes)) {
@@ -78,13 +99,8 @@ class GroupementType extends AbstractType
                     'label' => 'Préventionnistes affectés',
                     'multiple' => true,
                     'required' => false,
-                    'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('u')
-                            ->innerJoin('u.informations', 'i')
-                            ->innerJoin('i.fonction', 'f')
-                            ->where('f.id = :fonction')
-                            ->setParameter('fonction', 13)
-                            ->orderBy('u.id', 'ASC');
+                    'query_builder' => function (UtilisateurRepository $repository): QueryBuilder {
+                        return $repository->createPreventionnistesQueryBuilder();
                     },
                 ])
                 ->add('reaffectationAutomatique', HiddenType::class, [
