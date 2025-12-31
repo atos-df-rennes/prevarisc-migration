@@ -47,7 +47,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
                     FROM etablissementinformations
                     GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
@@ -77,7 +77,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
                     FROM etablissementinformations
                     GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
@@ -107,7 +107,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
                     FROM etablissementinformations
                     GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
@@ -136,12 +136,12 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
                     FROM etablissementinformations
                     GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
-                WHERE ei.ID_GENRE = '.self::GENRE_ETABLISSEMENT.'
+                WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => self::GENRE_ETABLISSEMENT, 'groupement' => $groupement]);
     }
 
     /**
@@ -168,12 +168,12 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
                     FROM etablissementinformations
                     GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
-                WHERE ei.ID_GENRE = '.self::GENRE_CELLULE.'
+                WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => self::GENRE_CELLULE, 'groupement' => $groupement]);
     }
 
     /**
@@ -200,11 +200,11 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
                     FROM etablissementinformations
                     GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT 
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
-                WHERE ei.ID_GENRE = '.self::GENRE_SITE.'
+                WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => self::GENRE_SITE ,'groupement' => $groupement]);
     }
 }
