@@ -75,7 +75,7 @@
 
         // Gestion des boutons du milieux
         $("#liste_villes, #villes_groupement").change(function() {
-            if( $(this).children(":selected").length() == 0 )
+            if( $(this).children(":selected").length == 0 )
                 $( (($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville") ).button("disable");
             else
                 $( (($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville") ).button("enable");
