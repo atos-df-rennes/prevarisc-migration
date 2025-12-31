@@ -228,11 +228,11 @@ class GroupementController extends AbstractController
      */
     public function addExistingContact(
         Request $request,
-        Groupement $groupement,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository
+        Groupement $groupement
     ): Response {
         $form = $this->createForm(AddExistingContactsType::class, null, [
             'action' => $this->generateUrl('admin_groupement_contacts_add_existing', ['id' => $groupement->getId()]),
+            'is_post' => $request->isMethod('POST'),
         ]);
 
         $form->handleRequest($request);
@@ -257,26 +257,45 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"DELETE"})
+     * @Route("/admin/groupement/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"})
      *
      * @ParamConverter("groupement", options={"id" = "id"})
      * @ParamConverter("contact", options={"id" = "contact"})
      */
     public function deleteContact(
+        Request $request,
         Groupement $groupement,
         UtilisateurInformations $contact,
         Contact $contactService
     ): Response {
-        $groupement->removeContact($contact);
+        $form = $this->createFormBuilder()
+            ->setMethod('DELETE')
+            ->setAction($this->generateUrl('admin_groupement_contacts_delete', [
+                'id' => $groupement->getId(),
+                'contact' => $contact->getId()
+            ]))
+            ->getForm();
 
-        if (!$contactService->isUsed($contact, Contact::GROUPEMENT)) {
-            $this->entityManager->remove($contact);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $groupement->removeContact($contact);
+
+            if (!$contactService->isUsed($contact, Contact::GROUPEMENT)) {
+                $this->entityManager->remove($contact);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été supprimé.');
+
+            return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Le contact a bien été supprimé.');
-
-        return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
+        return $this->render('groupement/_form_delete_contact.html.twig', [
+            'form' => $form->createView(),
+            'groupement' => $groupement,
+            'contact' => $contact,
+        ]);
     }
 }

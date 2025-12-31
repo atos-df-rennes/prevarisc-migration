@@ -91,19 +91,19 @@
         $('.delete-contact-button').on('click', function () {
             groupementId = $(this).attr('data-id')
             contactId = $(this).attr('data-contact-id')
-        })
-
-        $('#delete-contact').on('click', function () {
+            
+            // Charger le formulaire de suppression dans la modal
             $.ajax({
-                type: 'DELETE',
+                type: "GET",
                 url: '{{ path('admin_groupement_contacts_delete', {id: groupement.id, contact: 0}) }}'.replace('0', contactId),
-                success: function () {
-                    window.location.reload();
+                success: function(html) {
+                    $('#modal-suppression-contact .modal-content').html(html);
+                    $('#modal-suppression-contact').modal('show');
                 },
-                error: function () {
-                    window.location.reload();
-                },
-            })
+                error: function() {
+                    alert("Erreur lors du chargement du formulaire de suppression.");
+                }
+            });
         })
 
         $('.edit-contact-button').on('click', function () {
