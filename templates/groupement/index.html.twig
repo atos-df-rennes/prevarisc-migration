@@ -74,8 +74,13 @@
     <p>Veuillez sélectionner un groupement dans la liste ci-dessus ou créer un nouveau groupement.</p>
 </div>
 
-<div id="confirm" class="ui-helper-hidden">
-    <p>Confirmez vous la suppression du groupement ? (cette action est irréversible)</p>
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="modal-delete-groupement" tabindex="-1" role="dialog" aria-labelledby="modal-delete-groupement-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- Le contenu sera chargé via AJAX -->
+        </div>
+    </div>
 </div>
 
 {% else %}
@@ -273,52 +278,26 @@
             });
 
             // Boite de dialogue de confirmation de suppression
-            $("#confirm").dialog({
-                title: "Suppression d'un groupement",
-                resizable: false,
-                draggable: false,
-                height: 'auto',
-                width: 500,
-                autoOpen: false,
-                modal: true,
-                buttons: [
-                    {
-                        text: 'Supprimer le groupement',
-                        class: 'btn btn-danger',
-                        click: function() {
-                            const groupementId = $("#gpt option:selected").val()
-                            var deleteUrl = urlPatterns.delete.replace('0', groupementId);
-                            $.ajax({
-                                url: deleteUrl,
-                                method: "DELETE",
-                                beforeSend: function() {
-                                    $("#remove").button("disable");
-                                },
-                                success: function(result) {
-                                    $("#remove").button("enable");
-                                    notify("Le groupement a bien été supprimé.")
-
-                                    $("#gpt option:selected").remove();
-                                    $("#gpt option:first").attr("selected", "selected");
-                                    $("#gpt").change();
-
-                                    $("#confirm").dialog("close");
-                                }
-                            });
-                        }
+            $("#delete").click(function(e) {
+                e.preventDefault();
+                const groupementId = $("#gpt option:selected").val();
+                if (!groupementId) {
+                    return;
+                }
+                var deleteUrl = urlPatterns.delete.replace('0', groupementId);
+                
+                // Charger le formulaire de suppression dans la modal
+                $.ajax({
+                    type: "GET",
+                    url: deleteUrl,
+                    success: function(html) {
+                        $('#modal-delete-groupement .modal-content').html(html);
+                        $('#modal-delete-groupement').modal('show');
                     },
-                    {
-                        text: 'Annuler',
-                        class: 'btn',
-                        click: function() {
-                            $("#confirm").dialog("close");
-                        }
+                    error: function() {
+                        notify("Erreur lors du chargement du formulaire de suppression.");
                     }
-                ]
-            });
-
-            $("#delete").click(function() {
-                $("#confirm").dialog("open");
+                });
             });
 
             // Gérer les changements d'onglets
@@ -353,7 +332,7 @@
                     return;
                 }
 
-                if($groupementSelect.val() == 0) {
+                if($groupementSelect.val() === 0) {
                     $("#delete").button("disable");
                     hideGroupementContent();
                 } else {
@@ -363,7 +342,7 @@
             });
 
             // Initialiser l'affichage au chargement
-            if ($groupementSelect.val() && $groupementSelect.val() != 0) {
+            if ($groupementSelect.val() && $groupementSelect.val() !== 0) {
                 showGroupementContent($groupementSelect.val());
             } else {
                 hideGroupementContent();

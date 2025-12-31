@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -114,7 +115,7 @@ class GroupementController extends AbstractController
 
             if ($form->has('reaffectationAutomatique')) {
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
-                if ('1' == $reaffectationAutomatique) {
+                if ('1' === $reaffectationAutomatique) {
                     $groupementCommunes->reaffectationPreventioniste($groupement);
                 }
             }
@@ -144,21 +145,38 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/delete", name="admin_groupement_delete", methods={"DELETE"})
+     * @Route("/admin/groupement/{id}/delete", name="admin_groupement_delete", methods={"GET", "POST"})
      */
-    public function delete(Groupement $groupement): Response
+    public function delete(Request $request, Groupement $groupement): Response
     {
-        try {
-            // Les associations sont gérées par Doctrine
-            $this->entityManager->remove($groupement);
-            $this->entityManager->flush();
+        $form = $this->createFormBuilder()
+            ->setAction($this->generateUrl('admin_groupement_delete', ['id' => $groupement->getId()]))
+            ->setMethod('POST')
+            ->add('submit', SubmitType::class, [
+                'label' => 'Confirmer la suppression',
+                'attr' => ['class' => 'btn btn-danger']
+            ])
+            ->getForm();
 
-            $this->addFlash('success', 'Le groupement a été supprimé.');
-        } catch (\Exception $exception) {
-            $this->addFlash('error', $exception->getMessage());
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->entityManager->remove($groupement);
+                $this->entityManager->flush();
+
+                $this->addFlash('success', 'Le groupement a été supprimé.');
+            } catch (\Exception $exception) {
+                $this->addFlash('error', $exception->getMessage());
+            }
+
+            return $this->redirectToRoute('admin_groupement');
         }
 
-        return $this->redirectToRoute('admin_groupement');
+        return $this->render('groupement/_form_delete.html.twig', [
+            'form' => $form->createView(),
+            'groupement' => $groupement,
+        ]);
     }
 
     /**
