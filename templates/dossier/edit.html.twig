@@ -19,6 +19,10 @@
     <script src="{{ asset('js/dossier/form.js') }}"></script>
     <script src="{{ asset('js/dossier/etat-dossier-moderne.js') }}"></script>
     <script src="{{ asset('js/dossier/commission.js') }}"></script>
+
+    {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
+    <script src="{{ asset('js/dossier/calendar-legacy.js') }}"></script>
+    <script src="{{ asset('js/dossier/calendar-init.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -529,15 +533,4 @@
 
     {{ form_end(form) }}
 </div>
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    
-    {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
-    <script src="{{ asset('js/dossier/calendar-legacy.js') }}"></script>
-    <script src="{{ asset('js/dossier/calendar-init.js') }}"></script>
-    
-    {# Form.js pour gestion formulaire dossier #}
-    <script src="{{ asset('js/dossier/form.js') }}"></script>
 {% endblock %}
