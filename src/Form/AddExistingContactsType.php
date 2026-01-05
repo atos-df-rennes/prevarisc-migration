@@ -3,18 +3,37 @@
 namespace App\Form;
 
 use App\Entity\UtilisateurInformations;
+use App\Repository\UtilisateurInformationsRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddExistingContactsType extends AbstractType
 {
+    private $utilisateurInformationsRepository;
+
+    public function __construct(
+        UtilisateurInformationsRepository $utilisateurInformationsRepository
+    ) {
+        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('contacts', EntityType::class, [
                 'class' => UtilisateurInformations::class,
+                'choice_loader' => new CallbackChoiceLoader(function () use ($options) {
+                    // Retourne une liste vide si is_post est false, ce qui évite de charger tous les contacts lors de l'affichage initial du formulaire
+                    if (array_key_exists('is_post', $options) && false === $options['is_post']) {
+                        return [];
+                    }
+
+                    // Retourne tous les contacts non associés à un utilisateur
+                    return $this->utilisateurInformationsRepository->createNotInUserQueryBuilder()->getQuery()->getResult();
+                }),
                 'choice_label' => function (UtilisateurInformations $contact) {
                     return $contact->getPrenom() . ' ' . $contact->getNom();
                 },
@@ -30,6 +49,7 @@ class AddExistingContactsType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => null,
+            'is_post' => false,
         ]);
     }
 }
