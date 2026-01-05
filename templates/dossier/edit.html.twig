@@ -196,7 +196,8 @@
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
             {# Date de commission en salle - Structure legacy avec champ Symfony caché pour submit #}
-            {% set date_commission_formatted = form.dateCommission.vars.value ? form.dateCommission.vars.value : '' %}
+            {# Note: dateCommission utilise un transformer string↔DateTime, donc vars.value est un DateTime #}
+            {% set date_commission_formatted = form.dateCommission.vars.value ? form.dateCommission.vars.value|date('d/m/Y') : '' %}
             <li class='row' id='DATECOMM' style='display:none; margin-bottom:20px;'>
                 <div class='left libelle col-md-3'>Date de commission en salle</div>
                 <div class='right form col-md-9'>

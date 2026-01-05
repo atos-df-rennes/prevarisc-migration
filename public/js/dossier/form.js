@@ -841,6 +841,42 @@
      * 2. Convertit le format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
      * 3. Met à jour les champs Symfony cachés
      */
+    /**
+     * Convertit une date du format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
+     * @param {string} legacyDate - Date au format dd/mm/yyyy
+     * @returns {string} - Date au format yyyy-mm-dd ou chaîne vide si invalide
+     */
+    function convertLegacyDateToSymfony(legacyDate) {
+        if (!legacyDate || legacyDate.trim() === '') {
+            return '';
+        }
+        
+        // Format legacy: dd/mm/yyyy
+        var parts = legacyDate.trim().split('/');
+        if (parts.length !== 3) {
+            return '';
+        }
+        
+        var dd = parts[0];
+        var mm = parts[1];
+        var yyyy = parts[2];
+        
+        // Validation basique
+        if (dd.length !== 2 || mm.length !== 2 || yyyy.length !== 4) {
+            return '';
+        }
+        
+        // Format Symfony: yyyy-mm-dd
+        return yyyy + '-' + mm + '-' + dd;
+    }
+
+    /**
+     * Initialise la synchronisation entre les inputs legacy (calendrier) et les champs Symfony (submit)
+     * 
+     * Les inputs legacy (#DATEVISITE_INPUT, #DATECOMM_INPUT) sont modifiés par le JS calendrier
+     * au format dd/mm/yyyy. Les champs Symfony (#dossier_dateVisite, #dossier_dateCommission)
+     * attendent le format yyyy-mm-dd pour être soumis correctement.
+     */
     function initDateSyncFromLegacy() {
         var syncPairs = [
             { legacy: '#DATEVISITE_INPUT', symfony: '#dossier_dateVisite' },
@@ -863,7 +899,11 @@
                 }
 
                 // Gérer le cas de dates multiples (visites groupées) : prendre la première
-                symfonyInput.value = legacyValue.split(',')[0].trim()
+                var firstDate = legacyValue.split(',')[0].trim();
+                
+                // Convertir du format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
+                var symfonyValue = convertLegacyDateToSymfony(firstDate);
+                symfonyInput.value = symfonyValue;
             }
 
             // Observer les changements via MutationObserver (le JS calendrier modifie .value directement)
