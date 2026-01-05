@@ -143,25 +143,93 @@
             {# Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés #}
             {# (gérés dans sections séparées ou obsolètes) #}
 
-            {# @todo: Ajouter le calendrier #}
+            {# Date de visite #}
             <li class='row' id='field-dateVisite'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.dateVisite) }}
+                    {{ form_widget(form.dateVisite, {'attr': {'readonly': 'readonly', 'id': 'DATEVISITE_INPUT'}}) }}
                     {{ form_errors(form.dateVisite) }}
+                    
+                    {# Champ caché ID affectation visite #}
+                    <input type='hidden' name='ID_AFFECTATION_DOSSIER_VISITE' id='ID_AFFECTATION_DOSSIER_VISITE' value='' />
+                    
+                    {# Boutons show/hide calendrier visite #}
+                    <button type="button" id="showVisite" class="btn btn-default btn-sm showCalendar" style="display:none;">
+                        <i class="glyphicon glyphicon-chevron-down"></i> Afficher le calendrier
+                    </button>
+                    <button type="button" id="hideVisite" class="btn btn-default btn-sm hideCalendar" style="display:none;">
+                        <i class="glyphicon glyphicon-chevron-up"></i> Cacher le calendrier
+                    </button>
+                    
+                    {# Selects mois/année pour navigation calendrier visite #}
+                    Afficher
+                    <select id='month_visite' class="form-control" style='width:120px; display:inline-block; display:none;'>
+                        {% set moisActuel = "now"|date("m") %}
+                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                        {% for i in 0..11 %}
+                            <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id='year_visite' class="form-control" style='width:80px; display:inline-block; display:none;'>
+                        {% set anneeActuelle = "now"|date("Y") %}
+                        {% for i in (anneeActuelle + 2)..(1990) %}
+                            <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+            </li>
+            
+            {# Conteneur calendrier visite (caché par défaut) #}
+            <li class='row' style='display:none;' id='calendar-visite-row'>
+                <h3>Choisir une date de visite</h3>
+                <div id='calendarVisite' class='calendar' style='display:none;'></div>
+                <hr />
             </li>
 
             {# Champs spécifiques visites - date réception RVRAT #}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
-            {# @todo: Ajouter le calendrier #}
+            {# Date de commission en salle #}
             <li class='row' id='field-dateCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.dateCommission) }}
+                    {{ form_widget(form.dateCommission, {'attr': {'readonly': 'readonly', 'id': 'DATECOMM_INPUT'}}) }}
                     {{ form_errors(form.dateCommission) }}
+                    
+                    {# Champ caché ID affectation commission #}
+                    <input type='hidden' name='ID_AFFECTATION_DOSSIER_COMMISSION' id='ID_AFFECTATION_DOSSIER_COMMISSION' value='' />
+                    
+                    {# Boutons show/hide calendrier commission #}
+                    <button type="button" id="showCommission" class="btn btn-default btn-sm showCalendar" style="display:none;">
+                        <i class="glyphicon glyphicon-chevron-down"></i> Afficher le calendrier
+                    </button>
+                    <button type="button" id="hideCommission" class="btn btn-default btn-sm hideCalendar" style="display:none;">
+                        <i class="glyphicon glyphicon-chevron-up"></i> Cacher le calendrier
+                    </button>
+                    
+                    {# Selects mois/année pour navigation calendrier commission #}
+                    Afficher
+                    <select id='month_comm' class="form-control" style='width:120px; display:inline-block; display:none;'>
+                        {% set moisActuel = "now"|date("m") %}
+                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                        {% for i in 0..11 %}
+                            <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id='year_comm' class="form-control" style='width:80px; display:inline-block; display:none;'>
+                        {% set anneeActuelle = "now"|date("Y") %}
+                        {% for i in (anneeActuelle + 2)..(1990) %}
+                            <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+            </li>
+            
+            {# Conteneur calendrier commission (caché par défaut) #}
+            <li class='row' style='display:none;' id='calendar-commission-row'>
+                <h3>Choisir une date de commission en salle</h3>
+                <div id='calendar' class='calendar' style='display:none;'></div>
+                <hr />
             </li>
 
             {# Champs spécifiques dérogations (nature 3) - Ordre legacy #}
@@ -461,4 +529,15 @@
 
     {{ form_end(form) }}
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
+    <script src="{{ asset('js/dossier/calendar-legacy.js') }}"></script>
+    <script src="{{ asset('js/dossier/calendar-init.js') }}"></script>
+    
+    {# Form.js pour gestion formulaire dossier #}
+    <script src="{{ asset('js/dossier/form.js') }}"></script>
 {% endblock %}
