@@ -31,6 +31,10 @@ final class Dossier
 
         $dateDerniereVisitePage = $user->getDerniereVisitePiecesDossier();
 
+        if (null === $dateDerniereVisitePage) {
+            return 0;
+        }
+
         return $this->dossierRepository->findNombreNouvellesPieces($dossier, $dateDerniereVisitePage);
     }
 }
