@@ -15,7 +15,6 @@
      * Usage: $('#calendar').afficheCalendar(idComm, emplacement, typeDossier, divName, btnShowId, mois, annee);
      */
     $.fn.afficheCalendar = function(idComm, emplacement, typeDossier, divInfo, infoCalendar, mois, annee) {
-        
         var calendar = $(this).fullCalendar({
             buttonIcons: {
                 prevYear: 'seek-prev',
@@ -127,10 +126,12 @@
                              'idComm=' + idComm + '&idDateComm=' + event.id + '&do=edit');
                 } else if (emplacement == 'dossier') {
                     // Édition dossier → remplir champ date
+                    // Déterminer si calendrier visite ou commission via divInfo
+                    var isVisite = (divInfo == 'calendarVisite');
+                    var dateSelect = isVisite ? 'DATEVISITE' : 'DATECOMM';
                     
                     if (typeDossier == 1) {
                         // Type étude : sélection simple
-                        var dateSelect = $(this).parent().parent().parent().parent().parent().prev().attr('id');
                         var dateEnd = new Date(event.end);
                         var dateStart = new Date(event.start);
                         var date = dateEnd;
@@ -146,10 +147,10 @@
                         if (dd < 10) { dd = '0' + dd; }
                         if (mm < 10) { mm = '0' + mm; }
                         
-                        if (dateSelect == 'DATEVISITE' || dateSelect == 'field-dateVisite') {
+                        if (isVisite) {
                             $('#DATEVISITE_INPUT').val(dd + '/' + mm + '/' + aa);
                             $('#ID_AFFECTATION_DOSSIER_VISITE').val(event.id);
-                        } else if (dateSelect == 'DATECOMM' || dateSelect == 'field-dateCommission') {
+                        } else {
                             $('#DATECOMM_INPUT').val(dd + '/' + mm + '/' + aa);
                             $('#ID_AFFECTATION_DOSSIER_COMMISSION').val(event.id);
                         }
@@ -157,9 +158,8 @@
                         
                     } else if (typeDossier == 3 || typeDossier == 2) {
                         // Type visite/groupe visite : dates liées possibles
-                        var dateSelect = $(this).parent().parent().parent().parent().parent().prev().attr('id');
                         
-                        if (dateSelect == 'DATEVISITE' || dateSelect == 'field-dateVisite') {
+                        if (isVisite) {
                             // Récupérer dates liées
                             $.ajax({
                                 data: 'idDate=' + event.id,
@@ -212,7 +212,8 @@
                                     }
                                 }
                             });
-                        } else if (dateSelect == 'DATECOMM' || dateSelect == 'field-dateCommission') {
+                        } else {
+                            // Commission : sélection simple
                             var dateEnd = new Date(event.end);
                             var dateStart = new Date(event.start);
                             var date = dateEnd;

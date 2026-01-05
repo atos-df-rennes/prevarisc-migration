@@ -19,27 +19,28 @@ $(document).ready(function() {
         var annee;
         
         // Déterminer quel calendrier afficher
-        if (typeCalendar == 'field-dateVisite') {
+        if (typeCalendar == 'DATEVISITE') {
             divName = 'calendarVisite';
             mois = parseInt($('#month_visite').val());
             annee = parseInt($('#year_visite').val());
-        } else if (typeCalendar == 'field-dateCommission') {
+        } else if (typeCalendar == 'DATECOMM') {
             divName = 'calendar';
             mois = parseInt($('#month_comm').val());
             annee = parseInt($('#year_comm').val());
         }
         
-        // Récupérer paramètres
-        var idCommission = $('#dossier_commission').val();
-        var typeDossier = $('#dossier_type').val();
+        // Récupérer paramètres (IDs Symfony ou legacy)
+        var idCommission = $('#dossier_commission').val() || $('#COMMISSION_DOSSIER').val();
+        var typeDossier = $('#dossier_type').val() || $('#TYPE_DOSSIER').val();
         
         if (!idCommission) {
             alert('Veuillez sélectionner une commission');
             return false;
         }
         
-        // Afficher conteneur calendrier (les selects sont déjà dedans)
-        $('#' + divName).parent().show();
+        // Afficher conteneur calendrier (la row <li> qui contient le calendrier)
+        $('#' + divName).closest('li').show();
+        $('#' + divName).show();
         
         // Initialiser FullCalendar v1
         $('#' + divName).afficheCalendar(
@@ -68,15 +69,15 @@ $(document).ready(function() {
         var typeCalendar = $(this).closest('li').attr('id');
         var divName;
         
-        if (typeCalendar == 'field-dateVisite') {
+        if (typeCalendar == 'DATEVISITE') {
             divName = 'calendarVisite';
-        } else if (typeCalendar == 'field-dateCommission') {
+        } else if (typeCalendar == 'DATECOMM') {
             divName = 'calendar';
         }
         
-        // Masquer conteneur calendrier complet
-        $('#' + divName).parent().hide();
-        $('#' + divName).html('');
+        // Masquer conteneur calendrier complet (la row <li>)
+        $('#' + divName).closest('li').hide();
+        $('#' + divName).hide().html('');
         
         // Toggle boutons
         $(this).hide();
@@ -86,57 +87,16 @@ $(document).ready(function() {
     });
     
     /**
-     * Changement select mois/année calendrier commission
-     */
-    $('#month_comm, #year_comm').on('change', function() {
-        var idCommission = $('#dossier_commission').val();
-        var typeDossier = $('#dossier_type').val();
-        var mois = parseInt($('#month_comm').val());
-        var annee = parseInt($('#year_comm').val());
-        
-        // Recharger calendrier avec nouvelle date
-        $('#calendar').html('');
-        $('#calendar').afficheCalendar(
-            idCommission,
-            'dossier',
-            typeDossier,
-            'calendar',
-            'showCommission',
-            mois,
-            annee
-        );
-    });
-    
-    /**
-     * Changement select mois/année calendrier visite
-     */
-    $('#month_visite, #year_visite').on('change', function() {
-        var idCommission = $('#dossier_commission').val();
-        var typeDossier = $('#dossier_type').val();
-        var mois = parseInt($('#month_visite').val());
-        var annee = parseInt($('#year_visite').val());
-        
-        // Recharger calendrier avec nouvelle date
-        $('#calendarVisite').html('');
-        $('#calendarVisite').afficheCalendar(
-            idCommission,
-            'dossier',
-            typeDossier,
-            'calendarVisite',
-            'showVisite',
-            mois,
-            annee
-        );
-    });
-    
-    /**
      * Changement commission : reset calendriers + afficher/masquer boutons
+     * Support des IDs Symfony et legacy
      */
-    $('#dossier_commission').on('change', function() {
+    $('#dossier_commission, #COMMISSION_DOSSIER').on('change', function() {
         var commissionId = $(this).val();
         
         // Reset calendriers et masquer conteneurs
-        $('#calendar, #calendarVisite').html('').parent().hide();
+        $('#calendar, #calendarVisite').each(function() {
+            $(this).html('').hide().closest('li').hide();
+        });
         $('.hideCalendar').hide();
         
         if (commissionId && commissionId != '0') {
@@ -151,7 +111,7 @@ $(document).ready(function() {
     /**
      * Initialisation au chargement : afficher/masquer boutons selon commission
      */
-    var initialCommission = $('#dossier_commission').val();
+    var initialCommission = $('#dossier_commission').val() || $('#COMMISSION_DOSSIER').val();
     if (initialCommission && initialCommission != '0') {
         $('.showCalendar').show();
     } else {

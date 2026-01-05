@@ -46,4 +46,42 @@ class DateCommissionRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * Récupère les événements du calendrier entre deux dates.
+     *
+     * @param string      $dateDebut Format Y-m-d
+     * @param string      $dateFin   Format Y-m-d
+     * @param string|null $idComm    ID de la commission (optionnel)
+     * @param string|null $type      Type d'événement (optionnel)
+     *
+     * @return DateCommission[]
+     */
+    public function findEventsBetweenDates(
+        string $dateDebut,
+        string $dateFin,
+        ?string $idComm = null,
+        ?string $type = null
+    ): array {
+        $qb = $this->createQueryBuilder('dc')
+            ->leftJoin('dc.typeEvenement', 'te')->addSelect('te')
+            ->leftJoin('dc.commission', 'c')->addSelect('c')
+            ->where('dc.date BETWEEN :dateDebut AND :dateFin')
+            ->setParameter('dateDebut', $dateDebut)
+            ->setParameter('dateFin', $dateFin)
+            ->orderBy('dc.date', 'ASC')
+            ->addOrderBy('dc.heureDebut', 'ASC');
+
+        if (null !== $idComm) {
+            $qb->andWhere('dc.commission = :idComm')
+                ->setParameter('idComm', $idComm);
+        }
+
+        if (null !== $type) {
+            $qb->andWhere('dc.typeEvenement = :type')
+                ->setParameter('type', $type);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

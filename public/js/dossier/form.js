@@ -67,6 +67,9 @@
         
         // Afficher les boutons calendrier si commission sélectionnée (au chargement)
         showCalendarButtonsOnLoad();
+        
+        // Initialiser la synchronisation des dates legacy vers Symfony
+        initDateSyncFromLegacy();
     }
 
     /**
@@ -314,26 +317,46 @@
     }
 
     /**
+     * Mapping des noms de champs Symfony vers les IDs legacy
+     * Utilisé pour les champs qui ont des IDs legacy spécifiques (calendriers)
+     */
+    var legacyIdMapping = {
+        'dateVisite': 'DATEVISITE',
+        'dateCommission': 'DATECOMM'
+    };
+
+    /**
      * Trouve la ligne (<li>) contenant un champ
      * @param {string} fieldId - ID du champ
      * @returns {HTMLElement|null}
      */
     function findFieldRow(fieldId) {
-        // D'abord chercher par ID de ligne direct
-        let row = document.querySelector('#field-' + fieldId.replace('dossier_', ''));
+        // Extraire le nom du champ (sans préfixe dossier_)
+        var fieldName = fieldId.replace('dossier_', '');
+        
+        // D'abord chercher par ID de ligne direct (format Symfony)
+        var row = document.querySelector('#field-' + fieldName);
         if (row) {
             return row;
         }
 
+        // Ensuite chercher par ID legacy (pour les calendriers)
+        if (legacyIdMapping[fieldName]) {
+            row = document.querySelector('#' + legacyIdMapping[fieldName]);
+            if (row) {
+                return row;
+            }
+        }
+
         // Sinon chercher le champ et remonter au parent li
-        const field = document.querySelector('#' + fieldId);
+        var field = document.querySelector('#' + fieldId);
         if (!field) {
             console.debug('Champ non trouvé:', fieldId);
             return null;
         }
 
         // Remonter jusqu'à la <li> parente
-        let parent = field.closest('li.row');
+        var parent = field.closest('li.row');
         if (!parent) {
             console.debug('Pas de <li> parent pour:', fieldId);
         }
@@ -790,14 +813,14 @@
      * Pour l'instant, les boutons n'existent pas encore dans le template
      */
     function showCalendarButtonsOnLoad() {
-        const commissionSelect = document.querySelector('#dossier_commission');
+        var commissionSelect = document.querySelector('#dossier_commission');
         if (!commissionSelect || !commissionSelect.value) {
             return;
         }
 
         // Si une commission est sélectionnée, afficher les boutons calendrier (quand ils existeront)
-        const showVisiteButton = document.querySelector('#showVisite');
-        const showCommissionButton = document.querySelector('#showCommission');
+        var showVisiteButton = document.querySelector('#showVisite');
+        var showCommissionButton = document.querySelector('#showCommission');
         
         if (showVisiteButton) {
             showVisiteButton.style.display = '';
@@ -805,5 +828,61 @@
         if (showCommissionButton) {
             showCommissionButton.style.display = '';
         }
+    }
+
+    /**
+     * Initialise la synchronisation entre les inputs legacy (calendrier) et les champs Symfony (submit)
+     * 
+     * Les inputs legacy (#DATEVISITE_INPUT, #DATECOMM_INPUT) sont modifiés par le JS calendrier
+     * Les champs Symfony (#dossier_dateVisite, #dossier_dateCommission) sont soumis avec le formulaire
+     * 
+     * Cette fonction :
+     * 1. Observe les changements sur les inputs legacy
+     * 2. Convertit le format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
+     * 3. Met à jour les champs Symfony cachés
+     */
+    function initDateSyncFromLegacy() {
+        var syncPairs = [
+            { legacy: '#DATEVISITE_INPUT', symfony: '#dossier_dateVisite' },
+            { legacy: '#DATECOMM_INPUT', symfony: '#dossier_dateCommission' }
+        ];
+
+        syncPairs.forEach(function(pair) {
+            var legacyInput = document.querySelector(pair.legacy);
+            var symfonyInput = document.querySelector(pair.symfony);
+
+            if (!legacyInput || !symfonyInput) {
+                return;
+            }
+
+            function syncValue() {
+                var legacyValue = legacyInput.value.trim();
+                if (!legacyValue) {
+                    symfonyInput.value = '';
+                    return;
+                }
+
+                // Gérer le cas de dates multiples (visites groupées) : prendre la première
+                symfonyInput.value = legacyValue.split(',')[0].trim()
+            }
+
+            // Observer les changements via MutationObserver (le JS calendrier modifie .value directement)
+            var observer = new MutationObserver(syncValue);
+            observer.observe(legacyInput, { attributes: true, attributeFilter: ['value'] });
+
+            // Aussi écouter les événements input/change pour les modifications manuelles
+            legacyInput.addEventListener('input', syncValue);
+            legacyInput.addEventListener('change', syncValue);
+
+            // Surveiller les modifications de value via un intervalle (fallback)
+            // Car certaines modifications via JS ne déclenchent pas d'événements
+            var lastValue = legacyInput.value;
+            setInterval(function() {
+                if (legacyInput.value !== lastValue) {
+                    lastValue = legacyInput.value;
+                    syncValue();
+                }
+            }, 500);
+        });
     }
 })();

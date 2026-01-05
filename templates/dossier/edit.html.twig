@@ -147,108 +147,96 @@
             {# Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés #}
             {# (gérés dans sections séparées ou obsolètes) #}
 
-            {# Date de visite #}
-            <li class='row' id='field-dateVisite'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
+            {# Date de visite - Structure legacy avec champ Symfony caché pour submit #}
+            {% set date_visite_formatted = form.dateVisite.vars.value ? form.dateVisite.vars.value|date('d/m/Y') : '' %}
+            {% set has_commission = form.commission.vars.value is not empty %}
+            <li class='row' id='DATEVISITE' style='display:none; margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Date de visite</div>
                 <div class='right form col-md-9'>
-                    <div style="display:inline-block; margin-right:10px;">
-                        {{ form_widget(form.dateVisite, {'attr': {'readonly': 'readonly', 'id': 'DATEVISITE_INPUT', 'style': 'width:150px; display:inline-block;'}}) }}
-                    </div>
-                    
-                    {# Champ caché ID affectation visite #}
+                    {# Input legacy visible (readonly) - utilisé par JS calendrier #}
+                    <input type='text' class='form-control' style='width: 400px; display: inline-block;' id='DATEVISITE_INPUT' value='{{ date_visite_formatted }}' readonly='readonly' />
+                    {# Champ Symfony caché pour submit - synchronisé via JS #}
+                    {{ form_widget(form.dateVisite, {attr: {style: 'display:none;', class: 'date-sync-target', 'data-sync-source': 'DATEVISITE_INPUT'}}) }}
+                    {# Hidden field pour ID affectation (legacy) #}
                     <input type='hidden' name='ID_AFFECTATION_DOSSIER_VISITE' id='ID_AFFECTATION_DOSSIER_VISITE' value='' />
-                    
-                    {# Boutons show/hide calendrier visite #}
-                    <button type="button" id="showVisite" class="btn btn-default btn-sm showCalendar" style="display:none;">
-                        <i class="glyphicon glyphicon-chevron-down"></i> Afficher le calendrier
+                    {# Boutons calendrier - cachés si pas de commission #}
+                    <button type='button' id='showVisite' class='showCalendar btn btn-default' style='{{ not has_commission ? 'display:none;' : '' }}'>
+                        <i class='glyphicon glyphicon-chevron-down' aria-hidden='true'></i>&nbsp;Afficher le calendrier
                     </button>
-                    <button type="button" id="hideVisite" class="btn btn-default btn-sm hideCalendar" style="display:none;">
-                        <i class="glyphicon glyphicon-chevron-up"></i> Cacher le calendrier
+                    <button type='button' id='hideVisite' class='hideCalendar btn btn-default' style='display:none;'>
+                        <i class='glyphicon glyphicon-chevron-up' aria-hidden='true'></i>&nbsp;Cacher le calendrier
                     </button>
-                    
+                    Afficher
+                    <select id='month_visite' style='width:110px;'>
+                        {% set mois_actuel = 'now'|date('m') %}
+                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                        {% for i in 0..11 %}
+                            <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id='year_visite' style='width:70px;'>
+                        {% set annee_actuelle = 'now'|date('Y') %}
+                        {% for i in (annee_actuelle + 2)..(1990) %}
+                            <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    </select>
                     {{ form_errors(form.dateVisite) }}
                 </div>
             </li>
-            
             {# Conteneur calendrier visite (caché par défaut) #}
-            <li class='row' style='display:none;' id='calendar-visite-row'>
+            <li class='row' style='display:none;'>
                 <div class='col-md-12'>
-                    <h4>Choisir une date de visite</h4>
-                    
-                    {# Selects mois/année pour navigation calendrier visite #}
-                    <div style="margin-bottom:10px;">
-                        <label style="display:inline-block; margin-right:5px;">Afficher</label>
-                        <select id='month_visite' class="form-control" style='width:120px; display:inline-block;'>
-                            {% set moisActuel = "now"|date("m") %}
-                            {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
-                            {% for i in 0..11 %}
-                                <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
-                            {% endfor %}
-                        </select>
-                        <select id='year_visite' class="form-control" style='width:80px; display:inline-block;'>
-                            {% set anneeActuelle = "now"|date("Y") %}
-                            {% for i in (anneeActuelle + 2)..(1990) %}
-                                <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div id='calendarVisite' class='calendar'></div>
-                    <hr />
+                    <h1>Choisir une date de visite</h1>
+                    <div id='calendarVisite' class='calendar' style='display:none;'></div>
+                    <hr class='clear' />
                 </div>
             </li>
 
             {# Champs spécifiques visites - date réception RVRAT #}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
-            {# Date de commission en salle #}
-            <li class='row' id='field-dateCommission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
+            {# Date de commission en salle - Structure legacy avec champ Symfony caché pour submit #}
+            {% set date_commission_formatted = form.dateCommission.vars.value ? form.dateCommission.vars.value : '' %}
+            <li class='row' id='DATECOMM' style='display:none; margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Date de commission en salle</div>
                 <div class='right form col-md-9'>
-                    <div style="display:inline-block; margin-right:10px;">
-                        {{ form_widget(form.dateCommission, {'attr': {'readonly': 'readonly', 'id': 'DATECOMM_INPUT', 'style': 'width:150px; display:inline-block;'}}) }}
-                    </div>
-                    
-                    {# Champ caché ID affectation commission #}
+                    {# Input legacy visible (readonly) - utilisé par JS calendrier #}
+                    <input type='text' class='form-control' style='display: inline-block; width: auto;' id='DATECOMM_INPUT' value='{{ date_commission_formatted }}' readonly='readonly' />
+                    {# Champ Symfony caché pour submit - synchronisé via JS #}
+                    {{ form_widget(form.dateCommission, {attr: {style: 'display:none;', class: 'date-sync-target', 'data-sync-source': 'DATECOMM_INPUT'}}) }}
+                    {# Hidden fields legacy #}
                     <input type='hidden' name='ID_AFFECTATION_DOSSIER_COMMISSION' id='ID_AFFECTATION_DOSSIER_COMMISSION' value='' />
-                    
-                    {# Boutons show/hide calendrier commission #}
-                    <button type="button" id="showCommission" class="btn btn-default btn-sm showCalendar" style="display:none;">
-                        <i class="glyphicon glyphicon-chevron-down"></i> Afficher le calendrier
+                    <input type='hidden' name='DATEVISITE_PERIODIQUE' id='DATEVISITE_PERIODIQUE' value='{{ (date_commission_formatted) }}' />
+                    {# Boutons calendrier - cachés si pas de commission #}
+                    <button type='button' id='showCommission' class='showCalendar btn btn-default' style='{{ not has_commission ? 'display:none;' : '' }}'>
+                        <i class='glyphicon glyphicon-chevron-down' aria-hidden='true'></i>&nbsp;Afficher le calendrier
                     </button>
-                    <button type="button" id="hideCommission" class="btn btn-default btn-sm hideCalendar" style="display:none;">
-                        <i class="glyphicon glyphicon-chevron-up"></i> Cacher le calendrier
+                    <button type='button' id='hideCommission' class='hideCalendar btn btn-default' style='display:none;'>
+                        <i class='glyphicon glyphicon-chevron-up' aria-hidden='true'></i>&nbsp;Cacher le calendrier
                     </button>
-                    
+                    Afficher
+                    <select id='month_comm' style='width:110px;'>
+                        {% set mois_actuel_comm = 'now'|date('m') %}
+                        {% set mois_comm = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                        {% for i in 0..11 %}
+                            <option value='{{ i }}' {% if mois_actuel_comm - 1 == i %}selected{% endif %}>{{ mois_comm[i] }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id='year_comm' style='width:70px;'>
+                        {% set annee_actuelle_comm = 'now'|date('Y') %}
+                        {% for i in (annee_actuelle_comm + 2)..(1990) %}
+                            <option value='{{ i }}' {% if annee_actuelle_comm == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    </select>
                     {{ form_errors(form.dateCommission) }}
                 </div>
             </li>
-            
             {# Conteneur calendrier commission (caché par défaut) #}
-            <li class='row' style='display:none;' id='calendar-commission-row'>
+            <li class='row' style='display:none;'>
                 <div class='col-md-12'>
-                    <h4>Choisir une date de commission en salle</h4>
-                    
-                    {# Selects mois/année pour navigation calendrier commission #}
-                    <div style="margin-bottom:10px;">
-                        <label style="display:inline-block; margin-right:5px;">Afficher</label>
-                        <select id='month_comm' class="form-control" style='width:120px; display:inline-block;'>
-                            {% set moisActuel = "now"|date("m") %}
-                            {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
-                            {% for i in 0..11 %}
-                                <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
-                            {% endfor %}
-                        </select>
-                        <select id='year_comm' class="form-control" style='width:80px; display:inline-block;'>
-                            {% set anneeActuelle = "now"|date("Y") %}
-                            {% for i in (anneeActuelle + 2)..(1990) %}
-                                <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div id='calendar' class='calendar'></div>
-                    <hr />
+                    <h1>Choisir une date de commission en salle</h1>
+                    <div id='calendar' class='calendar' style='display:none;'></div>
+                    <hr class='clear' />
                 </div>
             </li>
 

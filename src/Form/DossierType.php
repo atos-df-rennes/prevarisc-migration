@@ -53,6 +53,7 @@ class DossierType extends AbstractType
                 'required' => true,
                 'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
+                    'id' => 'TYPE_DOSSIER', // ID legacy pour JS
                     'data-action' => 'change',
                 ],
             ])
@@ -188,7 +189,10 @@ class DossierType extends AbstractType
                 },
                 'placeholder' => 'Aucune commission',
                 'required' => false,
-                'attr' => ['class' => 'commission-select'],
+                'attr' => [
+                    'id' => 'COMMISSION_DOSSIER', // ID legacy pour JS
+                    'class' => 'commission-select',
+                ],
             ])
             ->add('dateReception', DateType::class, [
                 'label' => 'Date de réception SDIS',
