@@ -110,115 +110,13 @@
             },
             
             // Sélection d'une plage de dates (création nouvel événement)
+            // Note: Pour l'instant désactivé - nécessite création modale Bootstrap 3 + formulaire Symfony
+            // TODO: Implémenter modale création date commission/visite
             select: function(start, end, allDay) {
-                var dateSelected = new Date(start);
-                
-                // Récupérer nom établissement
-                var nomEtab = '';
-                if ($('#infosEtabs > .etab').length > 0) {
-                    nomEtab = document.querySelector('#infosEtabs > .etab').innerText.trim();
-                } else if ($('#infosEtablissement > .etab').length > 0) {
-                    nomEtab = document.querySelector('#infosEtablissement > .etab').innerText.trim();
-                }
-                nomEtab = nomEtab.replace('&nbsp;', ' ');
-                nomEtab = nomEtab.replace("'", ' ');
-                
-                // Récupérer nom nature
-                var nomNature = $('#selectNature option:selected').text().trim();
-                var nomCom = nomNature + ' - ' + nomEtab;
-                
-                // Déterminer type événement
-                var type;
-                if (typeDossier == 1) {
-                    type = 1; // Étude → Commission en salle
-                } else if (typeDossier == 2) {
-                    if (infoCalendar == 'showVisite') {
-                        type = typeDossier;
-                    } else if (infoCalendar == 'showCommission') {
-                        type = 1;
-                    }
-                } else if (typeDossier == 3) {
-                    if (infoCalendar == 'showVisite') {
-                        type = typeDossier;
-                    } else if (infoCalendar == 'showCommission') {
-                        type = 1;
-                    }
-                }
-                
-                // Ouvrir dialog création (route legacy)
-                my_dialog('/calendrier-des-commissions/dialogcomm', 
-                         'do=newComm&idComm=' + idComm + '&dateD=' + start + '&dateF=' + end + 
-                         '&libelleCom=' + nomCom + '&type=' + type,
-                         function() {
-                    $('#dialogComm').dialog('option', 'buttons', [
-                        {
-                            text: 'Enregistrer dans le calendrier',
-                            class: 'btn btn-success',
-                            click: function() {
-                                // Soumettre formulaire AJAX (route legacy)
-                                $.ajax({
-                                    data: $('#formDateComm').serialize() + '&idComm=' + idComm,
-                                    url: '/calendrier-des-commissions/adddates',
-                                    type: 'POST',
-                                    success: function(affichageResultat) {
-                                        var rez = eval('(' + affichageResultat + ')');
-                                        
-                                        // Ajouter événements au calendrier
-                                        for (var i in rez) {
-                                            calendar.fullCalendar('renderEvent', {
-                                                id: rez[i]['id'],
-                                                title: rez[i]['title'],
-                                                className: rez[i]['className'],
-                                                start: rez[i]['start'],
-                                                end: rez[i]['end'],
-                                                allDay: false,
-                                                url: '/commission/id/' + rez[i]['id']
-                                            });
-                                        }
-                                        
-                                        $('#' + divInfo).fullCalendar('refetchEvents');
-                                        $('#dialogComm').dialog('close').html('');
-                                        
-                                        // Remplir champ date du dossier
-                                        var eventId = rez[0]['id'];
-                                        var dateEnd = new Date(end);
-                                        var dateStart = new Date(start);
-                                        var date = dateEnd;
-                                        
-                                        if (date < dateStart) {
-                                            date = dateStart;
-                                        }
-                                        
-                                        var dd = date.getDate();
-                                        var mm = date.getUTCMonth() + 1;
-                                        var aa = date.getUTCFullYear();
-                                        
-                                        if (dd < 10) { dd = '0' + dd; }
-                                        if (mm < 10) { mm = '0' + mm; }
-                                        
-                                        // Remplir champ concerné
-                                        if (type == 1) {
-                                            $('#DATECOMM_INPUT').val(dd + '/' + mm + '/' + aa);
-                                            $('#ID_AFFECTATION_DOSSIER_COMMISSION').val(eventId);
-                                            $('#hideCommission').click();
-                                        } else if (type == 2 || type == 3) {
-                                            $('#DATEVISITE_INPUT').val(dd + '/' + mm + '/' + aa);
-                                            $('#ID_AFFECTATION_DOSSIER_VISITE').val(eventId);
-                                            $('#hideVisite').click();
-                                        }
-                                    }
-                                });
-                            }
-                        },
-                        {
-                            text: 'Fermer la fenêtre d\'édition',
-                            class: 'btn',
-                            click: function() {
-                                $('#dialogComm').dialog('close').html('');
-                            }
-                        }
-                    ]);
-                });
+                // Désactivé temporairement
+                console.warn('Création de dates depuis le calendrier non implémentée (nécessite modale Bootstrap 3)');
+                calendar.fullCalendar('unselect');
+                return false;
             },
             
             // Clic sur événement existant

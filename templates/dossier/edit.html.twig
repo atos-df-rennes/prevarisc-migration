@@ -151,8 +151,9 @@
             <li class='row' id='field-dateVisite'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.dateVisite, {'attr': {'readonly': 'readonly', 'id': 'DATEVISITE_INPUT'}}) }}
-                    {{ form_errors(form.dateVisite) }}
+                    <div style="display:inline-block; margin-right:10px;">
+                        {{ form_widget(form.dateVisite, {'attr': {'readonly': 'readonly', 'id': 'DATEVISITE_INPUT', 'style': 'width:150px; display:inline-block;'}}) }}
+                    </div>
                     
                     {# Champ caché ID affectation visite #}
                     <input type='hidden' name='ID_AFFECTATION_DOSSIER_VISITE' id='ID_AFFECTATION_DOSSIER_VISITE' value='' />
@@ -165,29 +166,36 @@
                         <i class="glyphicon glyphicon-chevron-up"></i> Cacher le calendrier
                     </button>
                     
-                    {# Selects mois/année pour navigation calendrier visite #}
-                    Afficher
-                    <select id='month_visite' class="form-control" style='width:120px; display:inline-block; display:none;'>
-                        {% set moisActuel = "now"|date("m") %}
-                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
-                        {% for i in 0..11 %}
-                            <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
-                        {% endfor %}
-                    </select>
-                    <select id='year_visite' class="form-control" style='width:80px; display:inline-block; display:none;'>
-                        {% set anneeActuelle = "now"|date("Y") %}
-                        {% for i in (anneeActuelle + 2)..(1990) %}
-                            <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
+                    {{ form_errors(form.dateVisite) }}
                 </div>
             </li>
             
             {# Conteneur calendrier visite (caché par défaut) #}
             <li class='row' style='display:none;' id='calendar-visite-row'>
-                <h3>Choisir une date de visite</h3>
-                <div id='calendarVisite' class='calendar' style='display:none;'></div>
-                <hr />
+                <div class='col-md-12'>
+                    <h4>Choisir une date de visite</h4>
+                    
+                    {# Selects mois/année pour navigation calendrier visite #}
+                    <div style="margin-bottom:10px;">
+                        <label style="display:inline-block; margin-right:5px;">Afficher</label>
+                        <select id='month_visite' class="form-control" style='width:120px; display:inline-block;'>
+                            {% set moisActuel = "now"|date("m") %}
+                            {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                            {% for i in 0..11 %}
+                                <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id='year_visite' class="form-control" style='width:80px; display:inline-block;'>
+                            {% set anneeActuelle = "now"|date("Y") %}
+                            {% for i in (anneeActuelle + 2)..(1990) %}
+                                <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id='calendarVisite' class='calendar'></div>
+                    <hr />
+                </div>
             </li>
 
             {# Champs spécifiques visites - date réception RVRAT #}
@@ -197,8 +205,9 @@
             <li class='row' id='field-dateCommission'>
                 <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
                 <div class='right form col-md-9'>
-                    {{ form_widget(form.dateCommission, {'attr': {'readonly': 'readonly', 'id': 'DATECOMM_INPUT'}}) }}
-                    {{ form_errors(form.dateCommission) }}
+                    <div style="display:inline-block; margin-right:10px;">
+                        {{ form_widget(form.dateCommission, {'attr': {'readonly': 'readonly', 'id': 'DATECOMM_INPUT', 'style': 'width:150px; display:inline-block;'}}) }}
+                    </div>
                     
                     {# Champ caché ID affectation commission #}
                     <input type='hidden' name='ID_AFFECTATION_DOSSIER_COMMISSION' id='ID_AFFECTATION_DOSSIER_COMMISSION' value='' />
@@ -211,29 +220,36 @@
                         <i class="glyphicon glyphicon-chevron-up"></i> Cacher le calendrier
                     </button>
                     
-                    {# Selects mois/année pour navigation calendrier commission #}
-                    Afficher
-                    <select id='month_comm' class="form-control" style='width:120px; display:inline-block; display:none;'>
-                        {% set moisActuel = "now"|date("m") %}
-                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
-                        {% for i in 0..11 %}
-                            <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
-                        {% endfor %}
-                    </select>
-                    <select id='year_comm' class="form-control" style='width:80px; display:inline-block; display:none;'>
-                        {% set anneeActuelle = "now"|date("Y") %}
-                        {% for i in (anneeActuelle + 2)..(1990) %}
-                            <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
+                    {{ form_errors(form.dateCommission) }}
                 </div>
             </li>
             
             {# Conteneur calendrier commission (caché par défaut) #}
             <li class='row' style='display:none;' id='calendar-commission-row'>
-                <h3>Choisir une date de commission en salle</h3>
-                <div id='calendar' class='calendar' style='display:none;'></div>
-                <hr />
+                <div class='col-md-12'>
+                    <h4>Choisir une date de commission en salle</h4>
+                    
+                    {# Selects mois/année pour navigation calendrier commission #}
+                    <div style="margin-bottom:10px;">
+                        <label style="display:inline-block; margin-right:5px;">Afficher</label>
+                        <select id='month_comm' class="form-control" style='width:120px; display:inline-block;'>
+                            {% set moisActuel = "now"|date("m") %}
+                            {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                            {% for i in 0..11 %}
+                                <option value='{{ i }}' {% if moisActuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id='year_comm' class="form-control" style='width:80px; display:inline-block;'>
+                            {% set anneeActuelle = "now"|date("Y") %}
+                            {% for i in (anneeActuelle + 2)..(1990) %}
+                                <option value='{{ i }}' {% if anneeActuelle == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id='calendar' class='calendar'></div>
+                    <hr />
+                </div>
             </li>
 
             {# Champs spécifiques dérogations (nature 3) - Ordre legacy #}
