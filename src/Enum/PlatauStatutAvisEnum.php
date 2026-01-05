@@ -7,8 +7,8 @@ class PlatauStatutAvisEnum
     public const LABELS = [
         self::INCONNU => 'Statut inconnu',
         self::EN_COURS => 'En attente de complétude sur Prevarisc',
-        self::TRAITE => 'Traité sur Plat\'AU',
-        self::A_RENVOYER => 'Traité sur Plat\'AU (en attente de renvoi)',
+        self::TRAITE => "Traité sur Plat'AU",
+        self::A_RENVOYER => "Traité sur Plat'AU (en attente de renvoi)",
         self::EN_ERREUR => "En erreur sur Plat'AU",
     ];
 
