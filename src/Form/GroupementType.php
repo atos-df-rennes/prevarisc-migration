@@ -41,15 +41,10 @@ class GroupementType extends AbstractType
      * @param FormBuilderInterface $builder le constructeur de formulaire
      * @param array<string,mixed>  $options les options permettant de configurer le formulaire, dont :
      *                                      - 'scopes': tableau obligatoire qui détermine les sections à inclure dans le formulaire
-     *
-     * @throws \InvalidArgumentException si l'option "scopes" est absente ou n'est pas un tableau
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        if (!array_key_exists('scopes', $options) || !is_array($options['scopes'])) {
-            throw new \InvalidArgumentException('L\'option "scopes" doit être un tableau.');
-        }
-
+        /** @var array<int, string> $scopes */
         $scopes = $options['scopes'];
 
         if (in_array(self::SCOPE_CREATE, $scopes) || in_array(self::SCOPE_GENERAL, $scopes)) {
@@ -123,7 +118,9 @@ class GroupementType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Groupement::class,
-            'scopes' => [],
         ]);
+
+        $resolver->setRequired('scopes');
+        $resolver->setAllowedTypes('scopes', 'array');
     }
 }
