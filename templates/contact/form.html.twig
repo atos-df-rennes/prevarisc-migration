@@ -1,8 +1,10 @@
+{% set isEdit = isEdit|default(false) %}
+
 {{ form_start(form) }}
     {{ form_rest(form) }}
 
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-    <button type="submit" class="btn btn-success">Ajouter</button>
+    <button type="submit" class="btn btn-success">{% if isEdit %}Modifier{% else %}Ajouter{% endif %}</button>
 </div>
 {{ form_end(form) }}

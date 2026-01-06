@@ -1,63 +1,81 @@
-<div class="fiche_contact">
-    <p class="fiche_contact_nom">
-        {{ contact.nom ~ ' ' ~ contact.prenom }}
-
+<div class="panel panel-default mb-0">
+    <div class="panel-heading clearfix">
+        <h4 class="panel-title pull-left mt-2">
+            <i class="glyphicon glyphicon-user"></i> {{ contact.nom ~ ' ' ~ contact.prenom }}
+            {% if contact.fonction or contact.societe %}
+                <small>
+                    {% if contact.fonction %}
+                        {{ contact.fonction.libelle }}
+                    {% endif %}
+                    {% if contact.societe %}
+                        {% if contact.fonction %} - {% endif %}{{ contact.societe }}
+                    {% endif %}
+                </small>
+            {% endif %}
+        </h4>
         {% if can_edit %}
-            <span class="fiche_delete" title="Supprimer">
-                <button type="button" class="btn btn-link delete-contact-button" data-toggle="modal" data-target="#dialog-delete-contact" data-id="{{ etablissement.id }}" data-contact-id="{{ contact.id }}">&times;</button>
-            </span>
-            <span class="fiche_edit" title="Modifier">
-                <button type="button" class="btn btn-link edit-contact-button" data-toggle="modal" data-target="#ajout-contact" data-id="{{ etablissement.id }}" data-contact-id="{{ contact.id }}">
-                    <img src="{{ asset('images/pen.png') }}" alt="Modifier" />
+            <div class="btn-group btn-group-sm pull-right" role="group">
+                <button type="button" class="btn btn-default edit-contact-button" data-toggle="modal" data-target="#ajout-contact" data-contact-id="{{ contact.id }}" title="Modifier">
+                    <i class="glyphicon glyphicon-pencil"></i>
                 </button>
-            </span>
+                <button type="button" class="btn btn-danger delete-contact-button" data-contact-id="{{ contact.id }}" title="Supprimer">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </div>
         {% endif %}
-    </p>
-
-    <p class="fiche_contact_fonction">
-        {{ contact.fonction.libelle }}
-
-        {% if contact.societe %}
-            - {{ contact.societe }}
-        {% endif %}
-    </p>
-
-    <ul class='list-unstyled'>
-        <li>
-            <span>Téléphone</span>
-            <span class="valeur">
-                {{ contact.telephoneFixe }}
-
-                {% if contact.telephonePortable %}
-                    / {{ contact.telephonePortable }}
+    </div>
+    <div class="panel-body">
+        {% if contact.telephoneFixe or contact.telephonePortable or contact.telephoneFax or contact.mail or contact.siteWeb or contact.numeroAdresse or contact.rueAdresse or contact.codePostalAdresse or contact.villeAdresse or contact.observations %}
+            <dl class="dl-horizontal" style="margin-bottom: 0;">
+                {% if contact.telephoneFixe or contact.telephonePortable %}
+                    <dt><i class="fa fa-phone"></i> Téléphone</dt>
+                    <dd>
+                        {{ contact.telephoneFixe }}
+                        {% if contact.telephonePortable %}
+                            {% if contact.telephoneFixe %}<br>{% endif %}{{ contact.telephonePortable }}
+                        {% endif %}
+                    </dd>
                 {% endif %}
-            </span>
-        </li>
-        <li>
-            <span>Fax</span>
-            <span class="valeur">{{ contact.telephoneFax }}</span>
-        </li>
-        <li>
-            <span>Courriel</span>
-            <span class="valeur">
-                <a href="mailto:{{ contact.mail }}">{{ contact.mail }}</a>
-            </span>
-        </li>
-        <li>
-            <span>Site web</span>
-            <span class="valeur">
-                <a href="{{ contact.siteWeb }}">{{ contact.siteWeb }}</a>
-            </span>
-        </li>
-        <li>
-            <span>Adresse</span>
-            <span class="valeur">
-                {{ contact.numeroAdresse ~ ' ' ~ contact.rueAdresse ~ ' ' ~ contact.codePostalAdresse ~ ' ' ~ contact.villeAdresse }}
-            </span>
-        </li>
-        <li>
-            <span>Observations</span>
-            <span class="valeur">{{ contact.observations }}</span>
-        </li>
-    </ul>
+
+                {% if contact.telephoneFax %}
+                    <dt><i class="fa fa-fax"></i> Fax</dt>
+                    <dd>{{ contact.telephoneFax }}</dd>
+                {% endif %}
+
+                {% if contact.mail %}
+                    <dt><i class="fa fa-envelope"></i> Courriel</dt>
+                    <dd><a href="mailto:{{ contact.mail }}">{{ contact.mail }}</a></dd>
+                {% endif %}
+
+                {% if contact.siteWeb %}
+                    <dt><i class="fa fa-globe"></i> Site web</dt>
+                    {% set siteWeb = contact.siteWeb %}
+                    {% if siteWeb starts with 'http://' or siteWeb starts with 'https://' %}
+                        <dd><a href="{{ siteWeb }}" target="_blank">{{ siteWeb }}</a></dd>
+                    {% else %}
+                        {# URL avec schéma non autorisé : affichage en texte brut sans lien #}
+                        <dd>{{ siteWeb }}</dd>
+                    {% endif %}
+                {% endif %}
+
+                {% if contact.numeroAdresse or contact.rueAdresse or contact.codePostalAdresse or contact.villeAdresse %}
+                    <dt><i class="fa fa-map-marker"></i> Adresse</dt>
+                    <dd>
+                        {{ contact.numeroAdresse }} {{ contact.rueAdresse }}
+                        {% if contact.numeroAdresse or contact.rueAdresse %}<br>{% endif %}
+                        {{ contact.codePostalAdresse }} {{ contact.villeAdresse }}
+                    </dd>
+                {% endif %}
+
+                {% if contact.observations %}
+                    <dt><i class="fa fa-comment"></i> Observations</dt>
+                    <dd>{{ contact.observations }}</dd>
+                {% endif %}
+            </dl>
+        {% else %}
+            <p class="text-center mb-0">
+                Aucune information renseignée
+            </p>
+        {% endif %}
+    </div>
 </div>

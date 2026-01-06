@@ -61,6 +61,7 @@ class ContactController extends AbstractController
 
         return $this->render('contact/form.html.twig', [
             'form' => $form->createView(),
+            'isEdit' => true,
         ]);
     }
 

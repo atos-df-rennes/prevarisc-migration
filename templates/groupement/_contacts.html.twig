@@ -12,7 +12,7 @@
 {% else %}
     <div class="panel-list">
         {% for contact in contacts %}
-            {{ include('groupement/_contact_fiche.html.twig', {can_edit: true, contact: contact, groupement: groupement}) }}
+            {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact, groupement: groupement}) }}
         {% endfor %}
     </div>
 {% endif %}
@@ -111,7 +111,7 @@
             contactId = $(this).attr('data-contact-id')
 
             $.ajax({
-                url: '{{ path('contact_edit', {id: 0, elementLie: 'groupement'}) }}'.replace('0', contactId) + '&elementId=' + groupementId,
+                url: '{{ path('contact_edit', {id: 0, elementLie: 'groupement'}) }}'.replace('0', contactId),
                 success: function (result) {
 
                     const modalAjout = document.getElementById('ajout-contact')
@@ -120,7 +120,6 @@
                     modalAjout.querySelector('.modal-body').innerHTML = result
 
                     // Changer le texte du bouton de soumission
-                    $('#ajout-contact .btn-text').html('Modifier')
                     $('#ajout-contact').modal('show')
                 }
             })
