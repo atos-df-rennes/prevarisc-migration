@@ -91,7 +91,7 @@
         $('.delete-contact-button').on('click', function () {
             groupementId = $(this).attr('data-id')
             contactId = $(this).attr('data-contact-id')
-            
+
             // Charger le formulaire de suppression dans la modal
             $.ajax({
                 type: "GET",

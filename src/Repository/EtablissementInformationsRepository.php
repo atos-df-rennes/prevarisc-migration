@@ -18,7 +18,9 @@ use Doctrine\Persistence\ManagerRegistry;
 class EtablissementInformationsRepository extends ServiceEntityRepository
 {
     private const GENRE_SITE = 1;
+
     private const GENRE_ETABLISSEMENT = 2;
+
     private const GENRE_CELLULE = 3;
 
     public function __construct(ManagerRegistry $registry)
@@ -205,6 +207,6 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['genre' => self::GENRE_SITE ,'groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => self::GENRE_SITE, 'groupement' => $groupement]);
     }
 }

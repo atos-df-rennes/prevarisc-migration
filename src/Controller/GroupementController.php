@@ -10,7 +10,6 @@ use App\Form\GroupementType as GroupementFormType;
 use App\Repository\CommuneRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\GroupementTypeRepository;
-use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
 use App\Service\GroupementCommunes;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +20,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -151,7 +149,7 @@ class GroupementController extends AbstractController
     {
         $form = $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_groupement_delete', ['id' => $groupement->getId()]))
-            ->setMethod('POST')
+            ->setMethod(Request::METHOD_POST)
             ->add('submit', SubmitType::class, [
                 'label' => 'Confirmer la suppression',
                 'attr' => ['class' => 'btn btn-danger']
@@ -238,6 +236,7 @@ class GroupementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var array<int, UtilisateurInformations> $contacts */
             $contacts = $form->get('contacts')->getData();
             foreach ($contacts as $contact) {
                 $groupement->addContact($contact);
@@ -269,7 +268,7 @@ class GroupementController extends AbstractController
         Contact $contactService
     ): Response {
         $form = $this->createFormBuilder()
-            ->setMethod('DELETE')
+            ->setMethod(Request::METHOD_DELETE)
             ->setAction($this->generateUrl('admin_groupement_contacts_delete', [
                 'id' => $groupement->getId(),
                 'contact' => $contact->getId()

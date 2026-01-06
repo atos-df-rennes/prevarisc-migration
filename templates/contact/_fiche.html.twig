@@ -49,12 +49,11 @@
 
                 {% if contact.siteWeb %}
                     <dt><i class="fa fa-globe"></i> Site web</dt>
-                    {% set siteWeb = contact.siteWeb %}
-                    {% if siteWeb starts with 'http://' or siteWeb starts with 'https://' %}
-                        <dd><a href="{{ siteWeb }}" target="_blank">{{ siteWeb }}</a></dd>
+                    {% if contact.siteWeb starts with 'http://' or contact.siteWeb starts with 'https://' %}
+                        <dd><a href="{{ contact.siteWeb }}" target="_blank">{{ contact.siteWeb }}</a></dd>
                     {% else %}
                         {# URL avec schéma non autorisé : affichage en texte brut sans lien #}
-                        <dd>{{ siteWeb }}</dd>
+                        <dd>{{ contact.siteWeb }}</dd>
                     {% endif %}
                 {% endif %}
 
