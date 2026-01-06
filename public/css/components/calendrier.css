@@ -1,0 +1,14 @@
+.calendar-date-field {
+  display: inline-block;
+  width: 200px;
+}
+
+.calendrier__select-month {
+  display: inline-block;
+  width: 110px;
+}
+
+.calendrier__select-year {
+  display: inline-block;
+  width: 70px;
+}

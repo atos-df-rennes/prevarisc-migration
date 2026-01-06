@@ -64,12 +64,6 @@
         
         // Afficher facteur/échéancier si avis commission = Défavorable (au chargement)
         applyFacteurEcheancierDisplayOnLoad();
-        
-        // Afficher les boutons calendrier si commission sélectionnée (au chargement)
-        showCalendarButtonsOnLoad();
-        
-        // Initialiser la synchronisation des dates legacy vers Symfony
-        initDateSyncFromLegacy();
     }
 
     /**
@@ -249,8 +243,8 @@
             'dateTransfertCommission',
             'dateReceptionCommission',
             'datePrefecture',
-            'DATEVISITE',          // ID legacy pour calendrier visite
-            'DATECOMM',            // ID legacy pour calendrier commission
+            'dateVisite',
+            'dateCommission',
             'documentsUrbanisme',
             'serviceInstructeur',
             'avis',
@@ -291,23 +285,11 @@
     }
 
     /**
-     * Mapping des noms de champs configuration JSON vers les IDs DOM
-     * Les champs calendrier utilisent des IDs legacy (DATEVISITE, DATECOMM)
-     * dans le DOM mais doivent être reconnus dans la configuration
-     */
-    var fieldNameToDomId = {
-        'DATEVISITE': 'DATEVISITE',  // Mapping direct pour calendrier visite
-        'DATECOMM': 'DATECOMM'        // Mapping direct pour calendrier commission
-    };
-
-    /**
      * Affiche un champ du formulaire
      * @param {string} fieldName - Nom du champ (depuis la configuration JSON)
      */
     function showField(fieldName) {
-        // Utiliser le mapping si le champ est un calendrier legacy
-        const domId = fieldNameToDomId[fieldName] || fieldName;
-        const fieldId = domId.match(/^[A-Z_]+$/) ? domId : 'dossier_' + domId;
+        const fieldId = 'dossier_' + fieldName;
         const fieldRow = findFieldRow(fieldId);
         
         if (fieldRow) {
@@ -320,9 +302,7 @@
      * @param {string} fieldName - Nom du champ
      */
     function hideField(fieldName) {
-        // Utiliser le mapping si le champ est un calendrier legacy
-        const domId = fieldNameToDomId[fieldName] || fieldName;
-        const fieldId = domId.match(/^[A-Z_]+$/) ? domId : 'dossier_' + domId;
+        const fieldId = 'dossier_' + fieldName;
         const fieldRow = findFieldRow(fieldId);
         
         if (fieldRow) {
@@ -336,14 +316,6 @@
      * @returns {HTMLElement|null}
      */
     function findFieldRow(fieldId) {
-        // Si c'est un ID legacy (UPPERCASE), chercher directement
-        if (fieldId.match(/^[A-Z_]+$/)) {
-            const legacyRow = document.querySelector('#' + fieldId);
-            if (legacyRow) {
-                return legacyRow;
-            }
-        }
-        
         // Extraire le nom du champ (sans préfixe dossier_)
         var fieldName = fieldId.replace('dossier_', '');
         
@@ -431,23 +403,6 @@
     };
 
     /**
-     * PHASE 2 - Comportements des checkboxes (désactivé pour Phase 1)
-     * Seront réactivés lors de la Phase 2
-     */
-    /*
-    function initCheckboxBehaviors() {
-        const absenceQuorumCheckbox = document.querySelector('#dossier_absenceDeQuorum');
-        if (absenceQuorumCheckbox) {
-            absenceQuorumCheckbox.addEventListener('change', handleHideAvisCheckboxes);
-        }
-    }
-
-    function handleHideAvisCheckboxes() {
-        // Logique à implémenter en Phase 2
-    }
-    */
-
-    /**
      * Initialise les labels d'avis au chargement de la page (Phase 1 - statique)
      * Note: En Phase 2, cette fonction deviendra dynamique (réagira aux changements de type/nature)
      */
@@ -508,8 +463,8 @@
      * 
      * Logique legacy (ordre de priorité) :
      * 1. Si "incomplet" coché → masquer AVIS, AVIS_COMMISSION, HORSDELAI
-     * 2. Sinon si "horsdelai" coché → masquer AVIS, AVIS_COMMISSION, DATECOMM
-     * 3. Sinon si "absquorum" ou "npsp" coché → masquer AVIS_COMMISSION, DATECOMM
+     * 2. Sinon si "horsdelai" coché → masquer AVIS, AVIS_COMMISSION, dateCommission
+     * 3. Sinon si "absquorum" ou "npsp" coché → masquer AVIS_COMMISSION, dateCommission
      * 4. Sinon afficher selon type (standard)
      */
     function applyHideAvisLogicOnLoad() {
@@ -535,7 +490,7 @@
         
         const avisRow = findFieldRow('avis');
         const avisCommissionRow = findFieldRow('avisCommission');
-        const dateCommissionRow = findFieldRow('DATECOMM');
+        const dateCommissionRow = findFieldRow('dateCommission');
         const horsDelaiRow = findFieldRow('horsDelai');
 
         // Logique par ordre de priorité (legacy: lignes 986-997)
@@ -545,12 +500,12 @@
             if (avisCommissionRow) avisCommissionRow.style.display = 'none';
             if (horsDelaiRow) horsDelaiRow.style.display = 'none';
         } else if (horsdelaiCheckbox) {
-            // Cas 2: Hors délai → masquer AVIS, AVIS_COMMISSION, DATECOMM (ligne 990-993)
+            // Cas 2: Hors délai → masquer AVIS, AVIS_COMMISSION, dateCommission (ligne 990-993)
             if (avisRow) avisRow.style.display = 'none';
             if (avisCommissionRow) avisCommissionRow.style.display = 'none';
             if (dateCommissionRow) dateCommissionRow.style.display = 'none';
         } else if (absquorumCheckbox || npspCheckbox) {
-            // Cas 3: Absence quorum ou NPSP → masquer AVIS_COMMISSION, DATECOMM (ligne 994-996)
+            // Cas 3: Absence quorum ou NPSP → masquer AVIS_COMMISSION, dateCommission (ligne 994-996)
             if (avisCommissionRow) avisCommissionRow.style.display = 'none';
             if (dateCommissionRow) dateCommissionRow.style.display = 'none';
             // L'avis du rapporteur reste affiché si dans la nature
@@ -808,125 +763,5 @@
         };
         
         return prefixMapping[natureId] || null;
-    }
-
-    /**
-     * Affiche les boutons "Afficher calendrier" si une commission est sélectionnée (au chargement)
-     * Legacy: voir index.phtml lignes 367-371 - fonction showCalendar()
-     * 
-     * Note: Cette fonction sera utile quand les boutons calendrier seront implémentés (Phase future)
-     * Pour l'instant, les boutons n'existent pas encore dans le template
-     */
-    function showCalendarButtonsOnLoad() {
-        var commissionSelect = document.querySelector('#dossier_commission');
-        if (!commissionSelect || !commissionSelect.value) {
-            return;
-        }
-
-        // Si une commission est sélectionnée, afficher les boutons calendrier (quand ils existeront)
-        var showVisiteButton = document.querySelector('#showVisite');
-        var showCommissionButton = document.querySelector('#showCommission');
-        
-        if (showVisiteButton) {
-            showVisiteButton.style.display = '';
-        }
-        if (showCommissionButton) {
-            showCommissionButton.style.display = '';
-        }
-    }
-
-    /**
-     * Initialise la synchronisation entre les inputs legacy (calendrier) et les champs Symfony (submit)
-     * 
-     * Les inputs legacy (#DATEVISITE_INPUT, #DATECOMM_INPUT) sont modifiés par le JS calendrier
-     * Les champs Symfony (#dossier_dateVisite, #dossier_dateCommission) sont soumis avec le formulaire
-     * 
-     * Cette fonction :
-     * 1. Observe les changements sur les inputs legacy
-     * 2. Convertit le format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
-     * 3. Met à jour les champs Symfony cachés
-     */
-    /**
-     * Convertit une date du format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
-     * @param {string} legacyDate - Date au format dd/mm/yyyy
-     * @returns {string} - Date au format yyyy-mm-dd ou chaîne vide si invalide
-     */
-    function convertLegacyDateToSymfony(legacyDate) {
-        if (!legacyDate || legacyDate.trim() === '') {
-            return '';
-        }
-        
-        // Format legacy: dd/mm/yyyy
-        var parts = legacyDate.trim().split('/');
-        if (parts.length !== 3) {
-            return '';
-        }
-        
-        var dd = parts[0];
-        var mm = parts[1];
-        var yyyy = parts[2];
-        
-        // Validation basique
-        if (dd.length !== 2 || mm.length !== 2 || yyyy.length !== 4) {
-            return '';
-        }
-        
-        // Format Symfony: yyyy-mm-dd
-        return yyyy + '-' + mm + '-' + dd;
-    }
-
-    /**
-     * Initialise la synchronisation entre les inputs legacy (calendrier) et les champs Symfony (submit)
-     * 
-     * Les inputs legacy (#DATEVISITE_INPUT, #DATECOMM_INPUT) sont modifiés par le JS calendrier
-     * au format dd/mm/yyyy. Les champs Symfony (#dossier_dateVisite, #dossier_dateCommission)
-     * attendent le format yyyy-mm-dd pour être soumis correctement.
-     */
-    function initDateSyncFromLegacy() {
-        var syncPairs = [
-            { legacy: '#DATEVISITE_INPUT', symfony: '#dossier_dateVisite' },
-            { legacy: '#DATECOMM_INPUT', symfony: '#dossier_dateCommission' }
-        ];
-
-        syncPairs.forEach(function(pair) {
-            var legacyInput = document.querySelector(pair.legacy);
-            var symfonyInput = document.querySelector(pair.symfony);
-
-            if (!legacyInput || !symfonyInput) {
-                return;
-            }
-
-            function syncValue() {
-                var legacyValue = legacyInput.value.trim();
-                if (!legacyValue) {
-                    symfonyInput.value = '';
-                    return;
-                }
-
-                // Gérer le cas de dates multiples (visites groupées) : prendre la première
-                var firstDate = legacyValue.split(',')[0].trim();
-                
-                // Convertir du format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
-                symfonyInput.value = convertLegacyDateToSymfony(firstDate);
-            }
-
-            // Observer les changements via MutationObserver (le JS calendrier modifie .value directement)
-            var observer = new MutationObserver(syncValue);
-            observer.observe(legacyInput, { attributes: true, attributeFilter: ['value'] });
-
-            // Aussi écouter les événements input/change pour les modifications manuelles
-            legacyInput.addEventListener('input', syncValue);
-            legacyInput.addEventListener('change', syncValue);
-
-            // Surveiller les modifications de value via un intervalle (fallback)
-            // Car certaines modifications via JS ne déclenchent pas d'événements
-            var lastValue = legacyInput.value;
-            setInterval(function() {
-                if (legacyInput.value !== lastValue) {
-                    lastValue = legacyInput.value;
-                    syncValue();
-                }
-            }, 500);
-        });
     }
 })();

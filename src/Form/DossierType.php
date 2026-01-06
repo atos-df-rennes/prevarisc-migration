@@ -189,10 +189,6 @@ class DossierType extends AbstractType
                 },
                 'placeholder' => 'Aucune commission',
                 'required' => false,
-                'attr' => [
-                    'id' => 'COMMISSION_DOSSIER', // ID legacy pour JS
-                    'class' => 'commission-select',
-                ],
             ])
             ->add('dateReception', DateType::class, [
                 'label' => 'Date de réception SDIS',
@@ -205,10 +201,8 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'readonly' => true,
-                    'class' => 'date-calendrier',
-                    'placeholder' => 'Sélectionner via le calendrier',
+                    'class' => 'calendar-date-field',
                 ],
-                'help' => 'La date de visite sera sélectionnée via le calendrier (prochaine phase)',
             ])
             ->add('dateLimitePrescription', DateType::class, [
                 'label' => 'Date avant laquelle les prescriptions doivent être levées',
@@ -243,10 +237,8 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'readonly' => true,
-                    'class' => 'date-calendrier',
-                    'placeholder' => 'Sélectionner via le calendrier',
+                    'class' => 'calendar-date-field',
                 ],
-                'help' => 'La date de commission sera sélectionnée via le calendrier (prochaine phase)',
             ])
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',
