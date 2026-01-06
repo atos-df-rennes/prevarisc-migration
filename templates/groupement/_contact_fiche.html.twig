@@ -1,8 +1,17 @@
-<div class="col-sm-6 col-xs-12">
-    <div class="panel panel-default">
+    <div class="panel panel-default mb-0">
         <div class="panel-heading clearfix">
             <h4 class="panel-title pull-left mt-2">
                 <i class="glyphicon glyphicon-user"></i> {{ contact.nom ~ ' ' ~ contact.prenom }}
+                {% if contact.fonction or contact.societe %}
+                    <small>
+                        {% if contact.fonction %}
+                            {{ contact.fonction.libelle }}
+                        {% endif %}
+                        {% if contact.societe %}
+                            {% if contact.fonction %} - {% endif %}{{ contact.societe }}
+                        {% endif %}
+                    </small>
+                {% endif %}
             </h4>
             {% if can_edit %}
                 <div class="btn-group btn-group-sm pull-right" role="group">
@@ -16,18 +25,7 @@
             {% endif %}
         </div>
         <div class="panel-body">
-            {% if contact.fonction or contact.societe %}
-                <p class="text-muted" style="margin-bottom: 15px;">
-                    <i class="fa fa-briefcase"></i>
-                    {% if contact.fonction %}
-                        <strong>{{ contact.fonction.libelle }}</strong>
-                    {% endif %}
-                    {% if contact.societe %}
-                        {% if contact.fonction %} - {% endif %}{{ contact.societe }}
-                    {% endif %}
-                </p>
-            {% endif %}
-
+        {% if contact.telephoneFixe or contact.telephonePortable or contact.telephoneFax or contact.mail or contact.siteWeb or contact.numeroAdresse or contact.rueAdresse or contact.codePostalAdresse or contact.villeAdresse or contact.observations %}
             <dl class="dl-horizontal" style="margin-bottom: 0;">
                 {% if contact.telephoneFixe or contact.telephonePortable %}
                     <dt><i class="fa fa-phone"></i> Téléphone</dt>
@@ -74,6 +72,10 @@
                     <dd>{{ contact.observations }}</dd>
                 {% endif %}
             </dl>
+        {% else %}
+            <p class="text-center mb-0">
+                Aucune information renseignée
+            </p>
+        {% endif %}
         </div>
     </div>
-</div>

@@ -424,6 +424,16 @@ h4.h4_subtitle input {
 }
 
 /* Contacts */
+.panel-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 2vw;
+
+    @media (width >= 992px) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 .fiche_contact {
   display: inline-block;
   border: 1px dotted #818183;

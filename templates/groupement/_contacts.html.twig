@@ -10,7 +10,7 @@
         <i class="fa fa-info-circle"></i> Aucun contact lié à ce groupement
     </p>
 {% else %}
-    <div class="row">
+    <div class="panel-list">
         {% for contact in contacts %}
             {{ include('groupement/_contact_fiche.html.twig', {can_edit: true, contact: contact, groupement: groupement}) }}
         {% endfor %}
