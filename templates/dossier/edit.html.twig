@@ -183,11 +183,13 @@
                     {{ form_errors(form.dateVisite) }}
                 </div>
             </li>
-            {# Conteneur calendrier visite (caché par défaut) - Structure legacy pour compatibilité JS #}
+            {# Conteneur calendrier visite (caché par défaut) #}
             <li class='row' style='display:none;'>
-                <h1>Choisir une date de visite</h1>
-                <div id='calendarVisite' class='calendar' style='display:none;'></div>
-                <hr class='clear' />
+                <div class='col-md-12'>
+                    <h1>Choisir une date de visite</h1>
+                    <div id='calendarVisite' class='calendar' style='display:none;'></div>
+                    <hr class='clear' />
+                </div>
             </li>
 
             {# Champs spécifiques visites - date réception RVRAT #}
@@ -230,11 +232,13 @@
                     {{ form_errors(form.dateCommission) }}
                 </div>
             </li>
-            {# Conteneur calendrier commission (caché par défaut) - Structure legacy pour compatibilité JS #}
+            {# Conteneur calendrier commission (caché par défaut) #}
             <li class='row' style='display:none;'>
-                <h1>Choisir une date de commission en salle</h1>
-                <div id='calendar' class='calendar' style='display:none;'></div>
-                <hr class='clear' />
+                <div class='col-md-12'>
+                    <h1>Choisir une date de commission en salle</h1>
+                    <div id='calendar' class='calendar' style='display:none;'></div>
+                    <hr class='clear' />
+                </div>
             </li>
 
             {# Champs spécifiques dérogations (nature 3) - Ordre legacy #}

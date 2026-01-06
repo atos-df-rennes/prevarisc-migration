@@ -535,7 +535,7 @@
         
         const avisRow = findFieldRow('avis');
         const avisCommissionRow = findFieldRow('avisCommission');
-        const dateCommissionRow = findFieldRow('dateCommission');
+        const dateCommissionRow = findFieldRow('DATECOMM');
         const horsDelaiRow = findFieldRow('horsDelai');
 
         // Logique par ordre de priorité (legacy: lignes 986-997)
@@ -907,8 +907,7 @@
                 var firstDate = legacyValue.split(',')[0].trim();
                 
                 // Convertir du format legacy (dd/mm/yyyy) vers Symfony (yyyy-mm-dd)
-                var symfonyValue = convertLegacyDateToSymfony(firstDate);
-                symfonyInput.value = symfonyValue;
+                symfonyInput.value = convertLegacyDateToSymfony(firstDate);
             }
 
             // Observer les changements via MutationObserver (le JS calendrier modifie .value directement)

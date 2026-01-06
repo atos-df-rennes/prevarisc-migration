@@ -50,9 +50,9 @@ $(document).ready(function() {
         }
         
         // Legacy: $("#" + divName).show(); $("#" + divName).parent().show();
-        // Afficher conteneur calendrier (le div) et son parent (la <li>)
+        // Afficher conteneur calendrier (le div) et son parent <li> (adaptation BS3)
         $('#' + divName).show();
-        $('#' + divName).parent().show();
+        $('#' + divName).closest('li').show();
         
         // Initialiser FullCalendar v1
         $('#' + divName).afficheCalendar(
@@ -94,8 +94,9 @@ $(document).ready(function() {
         }
         
         // Legacy: $("#" + divName).hide(); $("#" + divName).parent().hide(); $("#" + divName).html('');
+        // Adaptation BS3: utiliser .closest('li') pour wrapper col-md-12
         $('#' + divName).hide();
-        $('#' + divName).parent().hide();
+        $('#' + divName).closest('li').hide();
         $('#' + divName).html('');
         
         // Legacy: $(this).hide(); $("#" + typeCalendar).find(".showCalendar").show();
@@ -137,10 +138,10 @@ $(document).ready(function() {
     $('#dossier_commission, #COMMISSION_DOSSIER').on('change', function() {
         var commissionId = $(this).val();
         
-        // Reset calendriers et masquer conteneurs
-        $('#calendar').hide().parent().hide();
+        // Reset calendriers et masquer conteneurs (adaptation BS3: .closest au lieu de .parent)
+        $('#calendar').hide().closest('li').hide();
         $('#calendar').html('');
-        $('#calendarVisite').hide().parent().hide();
+        $('#calendarVisite').hide().closest('li').hide();
         $('#calendarVisite').html('');
         
         // Reset boutons à état initial
