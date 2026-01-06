@@ -5,7 +5,6 @@
 (function($) {
     'use strict';
 
-    // Configuration
     var CONFIG = {
         /**
          * Routes non migrées en Symfony et conservées en Zend pour compatibilité Calendrier des commissions
@@ -23,12 +22,7 @@
         }
     };
 
-    /**
-     * Initialise un calendrier FullCalendar
-     */
     function initCalendar($container, options) {
-        var calendarId = $container.attr('id');
-
         $container.fullCalendar({
             buttonIcons:{
                 prevYear: 'seek-prev',
@@ -66,7 +60,7 @@
                 'Dec'],
             dayNames: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
             dayNamesShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-            lazyFetching: false, //permet de ne pas réafficher les évenements en cache
+            lazyFetching: false, // Permet de ne pas réafficher les événements en cache
             minTime: 8,
             maxTime: 19,
             editable: true,
@@ -79,14 +73,17 @@
                 fetchEvents(start, end, options.commissionId, options.type, callback);
             },
             eventClick: function(event) {
-                handleEventClick(event, options.dateField, options.calendarType);
+                handleEventClick(event, options.dateField, options.calendarType, options.type);
+            },
+            eventResize: function(event) {
+                handleEventResize(event, $container)
+            },
+            eventDrop: function(event) {
+                handleEventDrop(event, $container)
             }
         });
     }
 
-    /**
-     * Récupère les événements via AJAX
-     */
     function fetchEvents(start, end, commissionId, type, callback) {
         $.ajax({
             url: CONFIG.routes.getEvents,
@@ -98,12 +95,81 @@
                 format: 'json'
             },
             success: function(response) {
-                var events = parseEvents(response.items || response);
+                const events = parseEvents(response.items || response);
                 callback(events);
             },
             error: function(xhr, status, error) {
                 console.error('Erreur chargement événements:', error);
                 callback([]);
+            }
+        });
+    }
+
+    function handleEventClick(event, $dateField, calendarType, dossierType) {
+        if (calendarType === 'commission') {
+            $dateField.value = formatDateFr(event.start, event.end);
+            // @todo: ajouter les identifiants d'affectation à la date de commission/visite
+        } else if (calendarType === 'visite') {
+            if (dossierType === '2' || dossierType === '3') {
+                // @todo: recupdatesliees et le reste
+            }
+        }
+
+        if (dossierType === '1') {
+            $dateField.value = formatDateFr(event.start, event.end);
+        } else if (dossierType === '2' || dossierType === '3') {
+
+        }
+
+        hideCalendar(calendarType);
+
+        return false;
+
+        // Stocker l'ID de l'affectation
+        const affectationFieldId = (type === 'visite')
+            ? 'id_affectation_visite'
+            : 'id_affectation_commission';
+        $('#' + affectationFieldId).val(event.id);
+    }
+
+    function handleEventResize(event, $container) {
+        // Heure de fin change uniquement sur la vue semaine et jour, pas sur mois
+        const view = $container.fullCalendar('getView');
+        const vueInfo = view.title.split(" ");
+
+        if (vueInfo.length === 2) {
+            // Permet d'empêcher la modification en mode mois (Ajouter message d'indication si besoin)
+            $container.fullCalendar('refetchEvents');
+
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: CONFIG.routes.resizeEvent,
+            data: {
+                idComm: event.id,
+                fin: event.end
+            }
+        });
+    }
+
+    function handleEventDrop(event, $container) {
+        const tabDateSelect = event.end.toString().split(" ");
+
+        if (tabDateSelect[0] === "Sun" || tabDateSelect[0] === "Sat") {
+            $container.fullCalendar('refetchEvents');
+
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: CONFIG.routes.moveEvent,
+            data: {
+                idComm: event.id,
+                debut: event.start,
+                fin: event.end
             }
         });
     }
@@ -134,42 +200,36 @@
     }
 
     /**
-     * Gère le clic sur un événement
+     * Formate une date en ISO (yyyy-mm-dd)
      */
-    function handleEventClick(event, $dateField, type) {
-        $dateField.value = formatDateFr(event.end || event.start);
+    function formatDateFr(start, end) {
+        if (!start || !end) return '';
 
-        // Stocker l'ID de l'affectation
-        var affectationFieldId = (type === 'visite')
-            ? 'id_affectation_visite'
-            : 'id_affectation_commission';
-        $('#' + affectationFieldId).val(event.id);
+        const dateStart = new Date(start);
+        const dateEnd = new Date(end);
+        let date = dateEnd;
 
-        // Fermer le calendrier
-        hideCalendar(type);
-    }
+        if (dateEnd < dateStart) {
+            date = dateStart;
+        }
 
-    /**
-     * Formate une date en français (dd/mm/yyyy)
-     */
-    function formatDateFr(dateObj) {
-        if (!dateObj) return '';
-        var d = new Date(dateObj);
-        var dd = ('0' + d.getDate()).slice(-2);
-        var mm = ('0' + (d.getMonth() + 1)).slice(-2);
-        var yyyy = d.getFullYear();
-        return dd + '/' + mm + '/' + yyyy;
+        const dd = ('0' + date.getUTCDate()).slice(-2);
+        const mm = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+        const yyyy = date.getUTCFullYear();
+
+        return yyyy + '-' + mm + '-' + dd;
     }
 
     /**
      * Retourne la couleur selon le type d'événement
      */
     function getEventColor(className) {
-        var colors = {
+        const colors = {
             'display-1': '#3A87AD',  // Commission en salle
             'display-2': '#468847',  // Visite
-            'display-3': '#F89406'   // Groupe de visite
+            'display-3': '#F89406',   // Groupe de visite
         };
+
         return colors[className] || '#3A87AD';
     }
 
@@ -177,9 +237,9 @@
      * Affiche un calendrier
      */
     function showCalendar(type) {
-        var containerId = (type === 'visite') ? 'calendarVisite' : 'calendar';
-        var $container = $('#' + containerId);
-        var $containerLi = $container.closest('li');
+        const containerId = (type === 'visite') ? 'calendarVisite' : 'calendar';
+        const $container = $('#' + containerId);
+        const $containerLi = $container.closest('li');
 
         $container.show();
         $containerLi.show();
@@ -193,9 +253,9 @@
      * Cache un calendrier
      */
     function hideCalendar(type) {
-        var containerId = (type === 'visite') ? 'calendarVisite' : 'calendar';
-        var $container = $('#' + containerId);
-        var $containerLi = $container.closest('li');
+        const containerId = (type === 'visite') ? 'calendarVisite' : 'calendar';
+        const $container = $('#' + containerId);
+        const $containerLi = $container.closest('li');
 
         $container.html('');
         $container.hide();
@@ -211,16 +271,16 @@
         // Bouton Afficher
         $(CONFIG.selectors.showButton).on('click', function(e) {
             e.preventDefault();
-            var dossierType = $('#dossier_type').val();
-            var calendarType = $(this).data('calendar-type');
+            let dossierType = $('#dossier_type').val();
+            const calendarType = $(this).data('calendar-type');
 
             // Règle legacy : si groupe de visite et calendrier commission, considérer comme en salle
             if (dossierType === '3' && calendarType === 'commission') {
                 dossierType = 1
             }
 
-            var commissionId = $('#dossier_commission').val();
-            var $dateField = $(this)[0].previousElementSibling;
+            const commissionId = $('#dossier_commission').val();
+            const $dateField = $(this)[0].previousElementSibling;
 
             if (!commissionId) {
                 alert('Veuillez sélectionner une commission');
@@ -229,9 +289,9 @@
 
             showCalendar(calendarType);
 
-            var containerId = (calendarType === 'visite') ? 'calendarVisite' : 'calendar';
-            var month = parseInt($('#month_' + calendarType.replace('visite', 'visite').replace('commission', 'comm')).val());
-            var year = parseInt($('#year_' + calendarType.replace('visite', 'visite').replace('commission', 'comm')).val());
+            const containerId = (calendarType === 'visite') ? 'calendarVisite' : 'calendar';
+            const month = parseInt($('#month_' + calendarType.replace('visite', 'visite').replace('commission', 'comm')).val());
+            const year = parseInt($('#year_' + calendarType.replace('visite', 'visite').replace('commission', 'comm')).val());
 
             initCalendar($('#' + containerId), {
                 type: dossierType,
@@ -246,7 +306,7 @@
         // Bouton Cacher
         $(CONFIG.selectors.hideButton).on('click', function(e) {
             e.preventDefault();
-            var type = $(this).data('calendar-type') ||
+            const type = $(this).data('calendar-type') ||
                 ($(this).closest('li[id]').attr('id') === 'dateVisite' ? 'visite' : 'commission');
             hideCalendar(type);
         });
