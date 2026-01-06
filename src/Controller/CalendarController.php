@@ -68,12 +68,15 @@ class CalendarController extends AbstractController
             if (null === $date) {
                 continue;
             }
+
             if (null === $heureDebut) {
                 continue;
             }
+
             if (null === $heureFin) {
                 continue;
             }
+
             if (null === $typeEvenement) {
                 continue;
             }
@@ -144,7 +147,7 @@ class CalendarController extends AbstractController
         $heureDebut = $dateCommission->getHeureDebut();
         $heureFin = $dateCommission->getHeureFin();
 
-        if (null === $date || null === $heureDebut || null === $heureFin) {
+        if (in_array(null, [$date, $heureDebut, $heureFin], true)) {
             return new JsonResponse([]);
         }
 

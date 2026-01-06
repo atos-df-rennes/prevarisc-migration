@@ -249,10 +249,10 @@
             'dateTransfertCommission',
             'dateReceptionCommission',
             'datePrefecture',
-            'dateVisite',
+            'DATEVISITE',          // ID legacy pour calendrier visite
+            'DATECOMM',            // ID legacy pour calendrier commission
             'documentsUrbanisme',
             'serviceInstructeur',
-            'dateCommission',
             'avis',
             'avisCommission',
             'avisDiffere',
@@ -291,11 +291,23 @@
     }
 
     /**
+     * Mapping des noms de champs configuration JSON vers les IDs DOM
+     * Les champs calendrier utilisent des IDs legacy (DATEVISITE, DATECOMM)
+     * dans le DOM mais doivent être reconnus dans la configuration
+     */
+    var fieldNameToDomId = {
+        'DATEVISITE': 'DATEVISITE',  // Mapping direct pour calendrier visite
+        'DATECOMM': 'DATECOMM'        // Mapping direct pour calendrier commission
+    };
+
+    /**
      * Affiche un champ du formulaire
-     * @param {string} fieldName - Nom du champ (correspond au nom de la propriété dans Dossier)
+     * @param {string} fieldName - Nom du champ (depuis la configuration JSON)
      */
     function showField(fieldName) {
-        const fieldId = 'dossier_' + fieldName;
+        // Utiliser le mapping si le champ est un calendrier legacy
+        const domId = fieldNameToDomId[fieldName] || fieldName;
+        const fieldId = domId.match(/^[A-Z_]+$/) ? domId : 'dossier_' + domId;
         const fieldRow = findFieldRow(fieldId);
         
         if (fieldRow) {
@@ -308,7 +320,9 @@
      * @param {string} fieldName - Nom du champ
      */
     function hideField(fieldName) {
-        const fieldId = 'dossier_' + fieldName;
+        // Utiliser le mapping si le champ est un calendrier legacy
+        const domId = fieldNameToDomId[fieldName] || fieldName;
+        const fieldId = domId.match(/^[A-Z_]+$/) ? domId : 'dossier_' + domId;
         const fieldRow = findFieldRow(fieldId);
         
         if (fieldRow) {
@@ -317,35 +331,26 @@
     }
 
     /**
-     * Mapping des noms de champs Symfony vers les IDs legacy
-     * Utilisé pour les champs qui ont des IDs legacy spécifiques (calendriers)
-     */
-    var legacyIdMapping = {
-        'dateVisite': 'DATEVISITE',
-        'dateCommission': 'DATECOMM'
-    };
-
-    /**
      * Trouve la ligne (<li>) contenant un champ
-     * @param {string} fieldId - ID du champ
+     * @param {string} fieldId - ID du champ (peut être legacy UPPERCASE ou format Symfony dossier_*)
      * @returns {HTMLElement|null}
      */
     function findFieldRow(fieldId) {
+        // Si c'est un ID legacy (UPPERCASE), chercher directement
+        if (fieldId.match(/^[A-Z_]+$/)) {
+            const legacyRow = document.querySelector('#' + fieldId);
+            if (legacyRow) {
+                return legacyRow;
+            }
+        }
+        
         // Extraire le nom du champ (sans préfixe dossier_)
         var fieldName = fieldId.replace('dossier_', '');
         
-        // D'abord chercher par ID de ligne direct (format Symfony)
+        // Chercher par ID de ligne direct (format Symfony)
         var row = document.querySelector('#field-' + fieldName);
         if (row) {
             return row;
-        }
-
-        // Ensuite chercher par ID legacy (pour les calendriers)
-        if (legacyIdMapping[fieldName]) {
-            row = document.querySelector('#' + legacyIdMapping[fieldName]);
-            if (row) {
-                return row;
-            }
         }
 
         // Sinon chercher le champ et remonter au parent li
