@@ -15,6 +15,7 @@
 
 .dates-liees__wrapper {
   margin-top: 10px;
+  width: fit-content;
 }
 
 .dates-liees__alert {

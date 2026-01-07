@@ -30,7 +30,7 @@
                     <li class='row'>
                         <div class='left libelle col-md-3'>Nature</div>
                         <div class='right value col-md-9'>
-                            <strong>{{ dossier.nature.libelle }}</strong>
+                            {{ dossier.nature.libelle }}
                         </div>
                     </li>
                 {% endif %}
@@ -154,6 +154,10 @@
                         <div class='right value col-md-9'>
                             {{ dossier.dateVisite|date('d/m/Y') }}
                         </div>
+
+                        {% if datesCommissionLiees|length > 0 %}
+                            {{ include('dossier/_alert_dates_liees.html.twig', { datesLiees: datesCommissionLiees }) }}
+                        {% endif %}
                     </li>
                 {% endif %}
 

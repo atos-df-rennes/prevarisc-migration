@@ -28,9 +28,21 @@ class DossierController extends AbstractController
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /** @var PlatauConsultation */
+    private $platauConsultationService;
+
+    /** @var DateCommission */
+    private $dateCommissionService;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        PlatauConsultation $platauConsultationService,
+        DateCommission $dateCommissionService
+    )
     {
         $this->entityManager = $entityManager;
+        $this->platauConsultationService = $platauConsultationService;
+        $this->dateCommissionService = $dateCommissionService;
     }
 
     /**
@@ -40,7 +52,7 @@ class DossierController extends AbstractController
      *
      * @IsGranted("view_doss", subject="dossier")
      */
-    public function index(Dossier $dossier, PlatauConsultation $platauConsultationService): Response
+    public function index(Dossier $dossier): Response
     {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
             && !$dossier->isHorsDelai()
@@ -49,12 +61,15 @@ class DossierController extends AbstractController
             && !$dossier->hasNePeutSePrononcer()
         ;
 
-        $platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+
+        $datesCommissionLiees = $this->dateCommissionService->getDatesLiees($dossier);
 
         return $this->render('dossier/index.html.twig', [
             'dossier' => $dossier,
             'afficher_avis' => $afficherAvis,
             'platau' => $platauData,
+            'datesCommissionLiees' => $datesCommissionLiees,
         ]);
     }
 
@@ -78,9 +93,7 @@ class DossierController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
-        DossierDocumentManquantService $documentManquantService,
-        PlatauConsultation $platauConsultationService,
-        DateCommission $dateCommissionService
+        DossierDocumentManquantService $documentManquantService
     ): Response {
         // Organiser les documents manquants (tri + séparation actifs/historique)
         $documentManquantService->organizeDocumentsManquants($dossier);
@@ -146,10 +159,10 @@ class DossierController extends AbstractController
         $fieldsConfig = json_encode($dossierFieldsService->getAllFieldsByNature());
 
         // Informations Plat'AU
-        $platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
 
         // Dates de commission liées
-        $datesCommissionLiees = $dateCommissionService->getDatesLiees($dossier);
+        $datesCommissionLiees = $this->dateCommissionService->getDatesLiees($dossier);
 
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
