@@ -55,11 +55,23 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findDatesLiees(DateCommission $dateCommission): array
     {
         $queryBuilder = $this->createQueryBuilder('dc');
+
+        $idLiaison = $dateCommission->getDateCommissionLiees();
+        if (null === $idLiaison) {
+            $queryBuilder = $queryBuilder
+                ->where('dc.dateCommissionLiees = :dateCommissionLiees')
+                ->setParameter('dateCommissionLiees', $dateCommission->getId());
+        } else {
+            $queryBuilder = $queryBuilder
+                ->where('dc.id = :idDateCommissionLiaison')
+                ->orWhere('dc.dateCommissionLiees = :idDateCommissionLiaison AND dc.id != :idDateCommission')
+                ->setParameter('idDateCommissionLiaison', $idLiaison)
+                ->setParameter('idDateCommission', $dateCommission->getId());
+        }
+
         $query = $queryBuilder
-            ->where('dc.dateCommissionLiees = :dateCommissionLiees')
-            ->setParameter('dateCommissionLiees', $dateCommission->getId())
-            ->getQuery()
-        ;
+            ->orderBy('dc.date', 'ASC')
+            ->getQuery();
 
         return $query->getResult();
     }
