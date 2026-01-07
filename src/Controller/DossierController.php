@@ -11,6 +11,7 @@ use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\Commission\DateCommission;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -78,7 +79,8 @@ class DossierController extends AbstractController
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
         DossierDocumentManquantService $documentManquantService,
-        PlatauConsultation $platauConsultationService
+        PlatauConsultation $platauConsultationService,
+        DateCommission $dateCommissionService
     ): Response {
         // Organiser les documents manquants (tri + séparation actifs/historique)
         $documentManquantService->organizeDocumentsManquants($dossier);
@@ -146,6 +148,9 @@ class DossierController extends AbstractController
         // Informations Plat'AU
         $platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
 
+        // Dates de commission liées
+        $datesCommissionLiees = $dateCommissionService->getDatesLiees($dossier);
+
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
@@ -161,6 +166,7 @@ class DossierController extends AbstractController
             'userInfoVerrou' => $userInfoVerrou,
             'fieldsConfig' => $fieldsConfig,
             'platau' => $platauData,
+            'datesCommissionLiees' => $datesCommissionLiees,
         ]);
     }
 

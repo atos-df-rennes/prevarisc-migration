@@ -185,6 +185,10 @@
 
                     {{ form_errors(form.dateVisite) }}
                 </div>
+
+                {% if datesCommissionLiees|length > 0 %}
+                    {{ include('dossier/_alert_dates_liees.html.twig', { datesLiees: datesCommissionLiees }) }}
+                {% endif %}
             </li>
 
             {# Conteneur calendrier visite (caché par défaut) #}

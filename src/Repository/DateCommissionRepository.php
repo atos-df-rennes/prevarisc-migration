@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\DateCommission;
+use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -24,64 +25,42 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Retourne la date de commission (au sens calendrier : table datecommission et non propriété : dateCommission) d'un dossier.
+     * Ce comportement n'est présent que pour les dates de visite.
+     * Les dates de visite sont des dates de commission de type 2 (Visite de sécurité) ou 3 (Groupe de visites).
      */
-    public function add(DateCommission $entity, bool $flush = true): void
+    public function findForDossier(Dossier $dossier, \DateTimeInterface $dateVisite): DateCommission
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        $queryBuilder = $this->createQueryBuilder('dc');
+        $query = $queryBuilder
+            ->addSelect('da')
+            ->join('dc.dossierAffectations', 'da')
+            ->where('dc.date = :dateVisite')
+            ->andWhere('dc.typeEvenement IN (:typeEvenement)')
+            ->andWhere('da.dossier = :dossier')
+            ->setParameter('dateVisite', $dateVisite)
+            ->setParameter('typeEvenement', [2, 3])
+            ->setParameter('dossier', $dossier)
+            ->getQuery()
+        ;
+
+        return $query->getSingleResult();
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(DateCommission $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * Récupère les événements du calendrier entre deux dates.
-     *
-     * @param string      $dateDebut Format Y-m-d
-     * @param string      $dateFin   Format Y-m-d
-     * @param string|null $idComm    ID de la commission (optionnel)
-     * @param string|null $type      Type d'événement (optionnel)
+     * Retourne les dates de commission liées à la date de commission passée en paramètre.
      *
      * @return DateCommission[]
      */
-    public function findEventsBetweenDates(
-        string $dateDebut,
-        string $dateFin,
-        ?string $idComm = null,
-        ?string $type = null
-    ): array {
-        $qb = $this->createQueryBuilder('dc')
-            ->leftJoin('dc.typeEvenement', 'te')->addSelect('te')
-            ->leftJoin('dc.commission', 'c')->addSelect('c')
-            ->where('dc.date BETWEEN :dateDebut AND :dateFin')
-            ->setParameter('dateDebut', $dateDebut)
-            ->setParameter('dateFin', $dateFin)
-            ->orderBy('dc.date', 'ASC')
-            ->addOrderBy('dc.heureDebut', 'ASC');
+    public function findDatesLiees(DateCommission $dateCommission): array
+    {
+        $queryBuilder = $this->createQueryBuilder('dc');
+        $query = $queryBuilder
+            ->where('dc.dateCommissionLiees = :dateCommissionLiees')
+            ->setParameter('dateCommissionLiees', $dateCommission->getId())
+            ->getQuery()
+        ;
 
-        if (null !== $idComm) {
-            $qb->andWhere('dc.commission = :idComm')
-                ->setParameter('idComm', $idComm);
-        }
-
-        if (null !== $type) {
-            $qb->andWhere('dc.typeEvenement = :type')
-                ->setParameter('type', $type);
-        }
-
-        return $qb->getQuery()->getResult();
+        return $query->getResult();
     }
 }
