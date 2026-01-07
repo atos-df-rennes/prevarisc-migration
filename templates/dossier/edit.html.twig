@@ -136,10 +136,6 @@
                 <div class='right form col-md-9'>
                     {{ form_widget(form.commission) }}
                     {{ form_errors(form.commission) }}
-                    <button type='button' class='btn btn-sm btn-warning btn-change-commission'
-                            style='margin-top: 5px; {{ form.commission.vars.value is empty ? 'display:none;' : '' }}'>
-                        <span class='glyphicon glyphicon-edit' aria-hidden="true"></span> Choisir une autre commission
-                    </button>
                 </div>
             </li>
 
