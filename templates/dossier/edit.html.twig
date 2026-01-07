@@ -196,6 +196,8 @@
                 </div>
             </li>
 
+            {{ include('dossier/_alert_dates_liees_template.html.twig') }}
+
             {# Champs spécifiques visites - date réception RVRAT #}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 

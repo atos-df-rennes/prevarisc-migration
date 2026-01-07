@@ -12,3 +12,11 @@
   display: inline-block;
   width: 70px;
 }
+
+.dates-liees__wrapper {
+  margin-top: 10px;
+}
+
+.dates-liees__alert {
+  margin-bottom: 0;
+}

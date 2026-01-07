@@ -106,19 +106,34 @@
     }
 
     function handleEventClick(event, $dateField, calendarType, dossierType) {
-        if (calendarType === 'commission') {
-            $dateField.value = formatDateFr(event.start, event.end);
-            // @todo: ajouter les identifiants d'affectation à la date de commission/visite
-        } else if (calendarType === 'visite') {
-            if (dossierType === '2' || dossierType === '3') {
-                // @todo: recupdatesliees et le reste
-            }
-        }
+        $dateField.val(formatDateISO(event.start, event.end));
+        // @todo: ajouter les identifiants d'affectation à la date de commission/visite
 
-        if (dossierType === '1') {
-            $dateField.value = formatDateFr(event.start, event.end);
-        } else if (dossierType === '2' || dossierType === '3') {
+        /**
+         * @fixme: La condition && (dossierType === '2' || dossierType === '3') est en théorie inutile
+         * car le champ dateVisite ne s'affiche que pour des dossiers de type 2 ou 3.
+         * On pourrait donc normalement la supprimer pour alléger.
+         */
+        if (calendarType === 'visite' && (dossierType === '2' || dossierType === '3')) {
+            $.ajax({
+                type: "GET",
+                url: CONFIG.routes.getLinkedDates,
+                data: {
+                    idDate: event.id,
+                },
+                success: function(jsonResult) {
+                    //On récupere toutes les dates liées et on les affiche
+                    const parsedResult = JSON.parse(jsonResult);
 
+                    if (parsedResult.length > 1) {
+                        const alertDatesLieesTemplate = document.querySelector('#dates-liees__template');
+                        const alertDatesLieesTemplateClone = document.importNode(alertDatesLieesTemplate.content, true);
+                        alertDatesLieesTemplateClone.querySelector('#dates-liees__content').textContent = getDatesLiees(event, parsedResult)
+
+                        $dateField.closest('li').append(alertDatesLieesTemplateClone);
+                    }
+                }
+            });
         }
 
         hideCalendar(calendarType);
@@ -130,6 +145,18 @@
             ? 'id_affectation_visite'
             : 'id_affectation_commission';
         $('#' + affectationFieldId).val(event.id);
+    }
+
+    /**
+     * Retourne les dates liées d'une date de commission en omettant cette même date de commission.
+     * Convertit également le format ISO en format FR.
+     * Ex: date de commission = 2026-01-07 et dates liées = 2026-01-08 et 2026-01-09 => "08/01/2026, 09/01/2026"
+     */
+    function getDatesLiees(event, parsedResult) {
+        return parsedResult
+            .filter(pr => pr['DATE_COMMISSION'] !== formatDateISO(event.start, event.end))
+            .map(pr => pr['DATE_COMMISSION'].split('-').reverse().join('/'))
+            .join(', ')
     }
 
     function handleEventResize(event, $container) {
@@ -202,7 +229,7 @@
     /**
      * Formate une date en ISO (yyyy-mm-dd)
      */
-    function formatDateFr(start, end) {
+    function formatDateISO(start, end) {
         if (!start || !end) return '';
 
         const dateStart = new Date(start);
@@ -280,7 +307,7 @@
             }
 
             const commissionId = $('#dossier_commission').val();
-            const $dateField = $(this)[0].previousElementSibling;
+            const $dateField = $(this).prev();
 
             if (!commissionId) {
                 alert('Veuillez sélectionner une commission');
