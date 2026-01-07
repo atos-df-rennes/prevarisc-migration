@@ -126,6 +126,9 @@
                     const parsedResult = JSON.parse(jsonResult);
 
                     if (parsedResult.length > 1) {
+                        const alertDatesLieesDiv = document.querySelectorAll('.dates-liees__wrapper');
+                        alertDatesLieesDiv.forEach(div => div.remove());
+
                         const alertDatesLieesTemplate = document.querySelector('#dates-liees__template');
                         const alertDatesLieesTemplateClone = document.importNode(alertDatesLieesTemplate.content, true);
                         alertDatesLieesTemplateClone.querySelector('#dates-liees__content').textContent = getDatesLiees(event, parsedResult)
@@ -139,12 +142,6 @@
         hideCalendar(calendarType);
 
         return false;
-
-        // Stocker l'ID de l'affectation
-        const affectationFieldId = (type === 'visite')
-            ? 'id_affectation_visite'
-            : 'id_affectation_commission';
-        $('#' + affectationFieldId).val(event.id);
     }
 
     /**
