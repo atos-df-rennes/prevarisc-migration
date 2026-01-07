@@ -21,7 +21,6 @@
  * @version 1.0.0 - Production ready
  * @author Migration Prevarisc Team
  */
-
 (function() {
     'use strict';
 
@@ -337,13 +336,7 @@
                 // Document non validé → éditable sauf date incomplet
                 const inputs = doc.querySelectorAll('input, textarea');
                 inputs.forEach(input => {
-                    if (input.classList.contains('date-incomplet')) {
-                        // Date incomplet toujours readonly
-                        input.readOnly = true;
-                    } else {
-                        // Autres champs éditables
-                        input.readOnly = false;
-                    }
+                    input.readOnly = input.classList.contains('date-incomplet');
                 });
                 
                 // Gérer boutons "Aujourd'hui" selon l'état readonly des champs
@@ -486,8 +479,7 @@
                     if (response.ok) {
                         const documents = await response.json();
                         // Formater la liste comme dans le legacy : un document par ligne
-                        const listeDocuments = documents.map(doc => doc.libelle).join('\n');
-                        documentManquantTextarea.value = listeDocuments;
+                        documentManquantTextarea.value = documents.map(doc => doc.libelle).join('\n');
                     }
                 } catch (error) {
                     console.error('Erreur lors de la récupération des documents manquants:', error);
@@ -514,11 +506,7 @@
         const inputs = docItem.querySelectorAll('input, textarea');
         inputs.forEach(input => {
             // La date de dossier incomplet reste readonly
-            if (input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]')) {
-                input.readOnly = true;
-            } else {
-                input.readOnly = false;
-            }
+            input.readOnly = !!(input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]'));
         });
 
         // Vider la date de réception
@@ -556,8 +544,7 @@
         // Créer ou afficher "Valider la réception"
         let validateBtn = docItem.querySelector('.validate-reception');
         const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
-        
-        
+
         if (!validateBtn) {
             // Le bouton n'existe pas (rendu avec "Modifier") → le créer
             const buttonContainer = button.parentElement;
@@ -642,11 +629,7 @@
             if (!isNew) {
                 const inputs = doc.querySelectorAll('input, textarea');
                 inputs.forEach(input => {
-                    if (input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]')) {
-                        input.readOnly = true;
-                    } else {
-                        input.readOnly = false;
-                    }
+                    input.readOnly = !!(input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]'));
                 });
             }
         });
@@ -684,5 +667,4 @@
     document.addEventListener('DOMContentLoaded', function() {
         initHistoriqueAccordion();
     });
-
 })();

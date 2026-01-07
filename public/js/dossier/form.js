@@ -67,53 +67,6 @@
     }
 
     /**
-     * PHASE 2 - Comportements conditionnels spécifiques (désactivés pour Phase 1)
-     * Ces fonctions seront réactivées lors de la Phase 2 pour gérer les interactions dynamiques
-     */
-    /* 
-    function initConditionalBehaviors() {
-        handleAvisCommissionChange();
-        handleCommissionForVisites();
-    }
-    */
-
-    /**
-     * PHASE 2 - Gestion de l'affichage des champs conditionnels (désactivé pour Phase 1)
-     */
-    /*
-    function handleAvisCommissionChange() {
-        const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
-        if (!avisCommissionSelect) {
-            return;
-        }
-
-        function toggleFacteurEcheancier() {
-            const selectedAvisId = avisCommissionSelect.value;
-            const facteurRow = findFieldRow('dossier_facteurDangerosite');
-            const echeancierRow = findFieldRow('dossier_echeancierTravaux');
-
-            // ID 2 = Défavorable
-            if (selectedAvisId === '2') {
-                if (facteurRow) facteurRow.style.display = '';
-                if (echeancierRow) echeancierRow.style.display = '';
-            } else {
-                if (facteurRow) facteurRow.style.display = 'none';
-                if (echeancierRow) echeancierRow.style.display = 'none';
-                // Réinitialiser les valeurs
-                const facteurInput = document.querySelector('#dossier_facteurDangerosite');
-                const echeancierInput = document.querySelector('#dossier_echeancierTravaux');
-                if (facteurInput) facteurInput.value = '';
-                if (echeancierInput) echeancierInput.value = '';
-            }
-        }
-
-        avisCommissionSelect.addEventListener('change', toggleFacteurEcheancier);
-        // Déclencher au chargement
-        toggleFacteurEcheancier();
-    }
-    */
-
-    /**
      * Désactive le champ commission pour les visites (types 2 et 3)
      */
     function handleCommissionForVisites() {

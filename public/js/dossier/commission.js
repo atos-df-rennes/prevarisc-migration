@@ -5,10 +5,7 @@
  * - Bouton "Choisir une autre commission" dans le template (pas créé en JS)
  * - Clic bouton : vide dates visite/commission + enable select + masque bouton
  * - Changement commission : disable select + affiche bouton
- * 
- * TODO Phase 2 : Calendrier fullcalendar pour dates visite/commission
  */
-
 (function() {
     'use strict';
 
