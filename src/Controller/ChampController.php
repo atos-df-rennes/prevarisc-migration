@@ -81,9 +81,6 @@ class ChampController extends AbstractController
         $formChampEnfant = null;
         if ('Parent' === $initialType->getType()) {
             $champEnfant = new Champ();
-            $champEnfant->setIdx($champ->getEnfants()->count() + 1);
-            $champEnfant->setParent($champ);
-            $champEnfant->setRubrique($rubrique);
 
             $types = $typeChampRepository->findAllowedTypeForParent();
             $formChampEnfant = $formFactory->createNamed('champ_enfant', ChampType::class, $champEnfant, [
