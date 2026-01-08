@@ -48,8 +48,6 @@ class RubriqueController extends AbstractController
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
 
         $champ = new Champ();
-        $champ->setIdx($rubrique->getChamps()->count() + 1);
-        $champ->setRubrique($rubrique);
 
         $formChamp = $this->createForm(ChampType::class, $champ);
 
@@ -67,7 +65,7 @@ class RubriqueController extends AbstractController
 
         $formChamp->handleRequest($request);
         if ($formChamp->isSubmitted() && $formChamp->isValid()) {
-            $this->entityManager->persist($champ);
+            $rubrique->addChamp($champ);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Le champ a bien été ajouté.');

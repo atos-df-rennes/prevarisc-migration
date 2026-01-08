@@ -56,7 +56,7 @@ class Rubrique
     /**
      * @var Collection<int, Champ>
      *
-     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true, cascade={"persist"})
      */
     private $champs;
 
@@ -131,6 +131,9 @@ class Rubrique
         if (!$this->champs->contains($champ)) {
             $this->champs[] = $champ;
             $champ->setRubrique($this);
+            $champ->setIdx($this->champs->filter(function (Champ $champ) {
+                return null === $champ->getParent();
+            })->count());
         }
 
         return $this;

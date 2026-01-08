@@ -194,6 +194,8 @@ class Champ
         if (!$this->enfants->contains($enfant)) {
             $this->enfants[] = $enfant;
             $enfant->setParent($this);
+            $enfant->setRubrique($this->rubrique);
+            $enfant->setIdx($this->enfants->count());
         }
 
         return $this;
@@ -222,6 +224,7 @@ class Champ
         if (!$this->valeursListe->contains($valeursListe)) {
             $this->valeursListe[] = $valeursListe;
             $valeursListe->setChamp($this);
+            $valeursListe->setIdx($this->valeursListe->count() - 1);
         }
 
         return $this;
