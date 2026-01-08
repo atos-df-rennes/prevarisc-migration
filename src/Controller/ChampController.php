@@ -57,17 +57,12 @@ class ChampController extends AbstractController
         ]);
         /*
          * On a besoin d'avoir le type avant le handleRequest() car l'input est disabled.
-         * Idem pour le tableau.
          * Cela crée une erreur lors de la sauvegarde.
          */
         $initialType = $champ->getType();
-        $initialTableau = $champ->getTableau();
 
         $formChamp->handleRequest($request);
         if ($formChamp->isSubmitted() && $formChamp->isValid()) {
-            $champ->setType($initialType);
-            // @todo: Il faut un moyen de pouvoir recocher cette case. Manuellement ou via script.
-            $champ->setTableau($initialTableau);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Le champ a bien été sauvegardé.');
