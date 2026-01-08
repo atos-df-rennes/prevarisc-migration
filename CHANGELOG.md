@@ -4,6 +4,16 @@
 
 <!--- END HEADER -->
 
+## [2.8.12](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.11...v2.8.12) (08-01-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Ordonnancement des valeurs à l'ajout d'une liste (#101) ([184a1b](https://github.com/atos-df-rennes/prevarisc-migration/commit/184a1b7c4dcc95a6aafd9e3d1fa880a31c27c9bf))
+* Conserve le type et l'indication de tableau à la sauvegarde d'un champ (#100) ([5d3925](https://github.com/atos-df-rennes/prevarisc-migration/commit/5d39259fa81f697deb988cb708f9a043576a9f2e))
+
+
+---
+
 ## [2.8.11](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.10...v2.8.11) (08-12-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
