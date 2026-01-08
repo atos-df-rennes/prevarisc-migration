@@ -63,7 +63,6 @@ class ChampController extends AbstractController
 
         $formChamp->handleRequest($request);
         if ($formChamp->isSubmitted() && $formChamp->isValid()) {
-            $champ->setType($initialType);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Le champ a bien été sauvegardé.');

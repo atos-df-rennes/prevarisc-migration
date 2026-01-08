@@ -21,8 +21,7 @@ class HashedFileDataStore extends SimpleFileDataStore
         string $dataPath,
         string $realDataPath,
         ?array $options = null
-    )
-    {
+    ) {
         parent::__construct($etablissementRepository, $dataPath, $realDataPath, $options);
 
         $this->types = ['dateCommission' => 'commission'];
