@@ -60,7 +60,7 @@ class ChampType extends AbstractType
             ]);
         });
 
-        /**
+        /*
          * Les champs type et tableau sont disabled et les valeurs ne sont donc pas soumises au formulaire.
          * Cela a pour impact de réinitialiser les valeurs des champs lors de la sauvegarde. (exemple: tableau coché devient décoché)
          * On récupère donc les valeurs initiales pour les ajouter à la soumission du formulaire.

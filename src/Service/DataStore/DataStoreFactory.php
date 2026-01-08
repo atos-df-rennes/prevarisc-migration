@@ -25,8 +25,7 @@ class DataStoreFactory
         string $adapter,
         string $dataPath,
         string $realDataPath
-    )
-    {
+    ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->adapter = $adapter;
         $this->dataPath = $dataPath;

@@ -35,8 +35,7 @@ class SimpleFileDataStore implements DataStore
         string $dataPath,
         string $realDataPath,
         ?array $options = null
-    )
-    {
+    ) {
         $this->types = [
             'etablissement' => 'pieces jointes',
             'etablissement_minature' => 'pieces jointes/miniatures',
