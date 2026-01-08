@@ -131,7 +131,7 @@ class Rubrique
         if (!$this->champs->contains($champ)) {
             $this->champs[] = $champ;
             $champ->setRubrique($this);
-            $champ->setIdx($this->champs->filter(function (Champ $champ) {
+            $champ->setIdx($this->champs->filter(function (Champ $champ): bool {
                 return null === $champ->getParent();
             })->count());
         }
