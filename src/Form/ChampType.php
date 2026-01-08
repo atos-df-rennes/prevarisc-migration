@@ -67,10 +67,23 @@ class ChampType extends AbstractType
          */
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
             $data = $event->getData();
-            $form = $event->getForm();
 
-            $data['tableau'] = $form->getData()->getTableau();
-            $data['type'] = $form->getData()->getType()->getId();
+            if (!\is_array($data)) {
+                return;
+            }
+
+            $form = $event->getForm();
+            /** @var Champ $champ */
+            $champ = $form->getData();
+
+            $data['tableau'] = $champ->getTableau();
+
+            $type = $champ->getType();
+            if (null === $type) {
+                return;
+            }
+
+            $data['type'] = $type->getId();
             $event->setData($data);
         });
 
