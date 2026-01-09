@@ -12,7 +12,7 @@
          */
         routes: {
             getEvents: '/calendrier-des-commissions/recupevenement',
-            getLinkedDates: '/calendrier-des-commissions/recupdateliee',
+            getLinkedDates: '/symfony/calendrier-des-commissions/recuperer-dates-liees',
             moveEvent: '/calendrier-des-commissions/deplacecommissiondate',
             resizeEvent: '/calendrier-des-commissions/resizecommissiondate',
         },
@@ -123,15 +123,13 @@
                 },
                 success: function(jsonResult) {
                     //On récupere toutes les dates liées et on les affiche
-                    const parsedResult = JSON.parse(jsonResult);
-
-                    if (parsedResult.length > 1) {
+                    if (jsonResult.length > 1) {
                         const alertDatesLieesDiv = document.querySelectorAll('.dates-liees__wrapper');
                         alertDatesLieesDiv.forEach(div => div.remove());
 
                         const alertDatesLieesTemplate = document.querySelector('#dates-liees__template');
                         const alertDatesLieesTemplateClone = document.importNode(alertDatesLieesTemplate.content, true);
-                        alertDatesLieesTemplateClone.querySelector('#dates-liees__content').textContent = getDatesLiees(event, parsedResult)
+                        alertDatesLieesTemplateClone.querySelector('#dates-liees__content').textContent = getDatesLiees(event, jsonResult)
 
                         $dateField.closest('li').append(alertDatesLieesTemplateClone);
                     }
@@ -145,13 +143,11 @@
     }
 
     /**
-     * Retourne les dates liées d'une date de commission en omettant cette même date de commission.
-     * Convertit également le format ISO en format FR.
+     * Retourne les dates liées d'une date de commission en convertissant le format ISO en format FR.
      * Ex: date de commission = 2026-01-07 et dates liées = 2026-01-08 et 2026-01-09 => "08/01/2026, 09/01/2026"
      */
     function getDatesLiees(event, parsedResult) {
         return parsedResult
-            .filter(pr => pr['DATE_COMMISSION'] !== formatDateISO(event.start, event.end))
             .map(pr => pr['DATE_COMMISSION'].split('-').reverse().join('/'))
             .join(', ')
     }

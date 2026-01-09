@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Dto\Commission\CalendarEventDto;
+use App\Dto\Commission\DateCommissionLieeDto;
+use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,5 +55,38 @@ class CalendrierDesCommissionsController extends AbstractController
         );
 
         return $this->json(['items' => $items]);
+    }
+
+    /**
+     * Récupère les dates de commission liées à une date donnée.
+     *
+     * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"})
+     */
+    public function recupdateliee(Request $request, DateCommissionRepository $dateCommissionRepository): JsonResponse
+    {
+        $idDate = filter_var($request->query->get('idDate'), FILTER_VALIDATE_INT);
+
+        if (false === $idDate) {
+            return $this->json([]);
+        }
+
+        $dateCommission = $dateCommissionRepository->find($idDate);
+
+        if (null === $dateCommission) {
+            return $this->json([]);
+        }
+
+        $datesLiees = $dateCommissionRepository->findDatesLiees($dateCommission);
+
+        $dtos = array_map([DateCommissionLieeDto::class, 'fromEntity'], $datesLiees);
+
+        $items = array_map(
+            function (DateCommissionLieeDto $dto): array {
+                return $dto->toArray();
+            },
+            $dtos
+        );
+
+        return $this->json($items);
     }
 }
