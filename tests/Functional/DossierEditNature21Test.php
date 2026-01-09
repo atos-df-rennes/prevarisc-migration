@@ -62,6 +62,7 @@ final class DossierEditNature21Test extends WebTestCase
         ];
 
         // Créer un client
+        self::ensureKernelShutdown();
         $client = static::createClient();
 
         $client->request(Request::METHOD_GET, '/dossier/'.$dossier->getId().'/modifier');
@@ -130,6 +131,7 @@ final class DossierEditNature21Test extends WebTestCase
         ];
 
         // Créer un client
+        self::ensureKernelShutdown();
         $client = static::createClient();
 
         $client->request(Request::METHOD_GET, '/dossier/'.$dossier->getId().'/modifier');

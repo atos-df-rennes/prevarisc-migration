@@ -59,6 +59,8 @@ class DossierEditNature42Test extends WebTestCase
             ],
         ];
 
+        self::ensureKernelShutdown();
+
         $client = static::createClient();
         $client->request(Request::METHOD_GET, '/dossier/'.$dossier->getId().'/modifier');
 
