@@ -294,37 +294,37 @@
 
                         {# @fixme: la logique est déjà faite dans le service, il faut différencier les clés et utiliser ça #}
                         {# Séparer documents actifs et historique #}
-                        {% set documentsActifs = [] %}
-                        {% set documentsHistorique = [] %}
+                        {% set documents_actifs = [] %}
+                        {% set documents_historique = [] %}
 
-                        {% for documentManquant in form.documentsManquants %}
-                            {% if documentManquant.dateReception.vars.value %}
-                                {% set documentsHistorique = documentsHistorique|merge([documentManquant]) %}
+                        {% for document_manquant in form.documentsManquants %}
+                            {% if document_manquant.dateReception.vars.value %}
+                                {% set documents_historique = documents_historique|merge([document_manquant]) %}
                             {% else %}
-                                {% set documentsActifs = documentsActifs|merge([documentManquant]) %}
+                                {% set documents_actifs = documents_actifs|merge([document_manquant]) %}
                             {% endif %}
                         {% endfor %}
 
                         {# Afficher documents actifs (déjà triés par le controller) #}
-                        {% for documentManquant in documentsActifs %}
-                            {{ form_row(documentManquant) }}
+                        {% for document_manquant in documents_actifs %}
+                            {{ form_row(document_manquant) }}
                         {% endfor %}
 
                         {# Historique dans un accordéon (déjà triés par le controller) #}
-                        {% if documentsHistorique|length > 0 %}
+                        {% if documents_historique|length > 0 %}
                             <div class="panel-group" style="margin-top: 15px;">
                                 <div class="panel panel-default">
                                     <div class="panel-heading" style="cursor: pointer;" data-toggle="collapse" data-target="#historique-documents">
                                         <h4 class="panel-title">
                                             <i class="glyphicon glyphicon-folder-close"></i>
-                                            Historique ({{ documentsHistorique|length }} document{{ documentsHistorique|length > 1 ? 's' : '' }})
+                                            Historique ({{ documents_historique|length }} document{{ documents_historique|length > 1 ? 's' : '' }})
                                             <small class="text-muted">Cliquer pour afficher/masquer</small>
                                         </h4>
                                     </div>
                                     <div id="historique-documents" class="panel-collapse collapse">
                                         <div class="panel-body">
-                                            {% for documentManquant in documentsHistorique %}
-                                                {{ form_row(documentManquant) }}
+                                            {% for document_manquant in documents_historique %}
+                                                {{ form_row(document_manquant) }}
                                             {% endfor %}
                                         </div>
                                     </div>
