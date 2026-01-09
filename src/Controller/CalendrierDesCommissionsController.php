@@ -132,4 +132,65 @@ class CalendrierDesCommissionsController extends AbstractController
             ], 500);
         }
     }
+
+    /**
+     * Déplace une date de commission (modifie la date et les heures).
+     *
+     * @Route("/calendrier-des-commissions/deplacecommissiondate", name="calendrier_des_commissions_deplacer", methods={"POST"})
+     */
+    public function deplacecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
+    {
+        try {
+            $idComm = filter_var($request->request->get('idComm'), FILTER_VALIDATE_INT);
+            /** @var string|null $debut */
+            $debut = $request->request->get('debut');
+
+            if (false === $idComm || null === $debut) {
+                return $this->json([
+                    'success' => false,
+                    'error' => 'Paramètres manquants',
+                ], 400);
+            }
+
+            // Parse de la date (format ISO 8601 JavaScript)
+            $nouvelleDate = $calendarService->parseJavaScriptDate($debut);
+
+            // Parse des heures optionnelles
+            $nouvelleHeureDebut = null;
+            /** @var string|null $debutParam */
+            $debutParam = $request->request->get('debut');
+            if (null !== $debutParam) {
+                $nouvelleHeureDebut = $calendarService->parseJavaScriptDateToTime($debutParam);
+            }
+
+            $nouvelleHeureFin = null;
+            /** @var string|null $finParam */
+            $finParam = $request->request->get('fin');
+            if (null !== $finParam) {
+                $nouvelleHeureFin = $calendarService->parseJavaScriptDateToTime($finParam);
+            }
+
+            $calendarService->deplacerDateCommission(
+                $idComm,
+                $nouvelleDate,
+                $nouvelleHeureDebut,
+                $nouvelleHeureFin
+            );
+
+            return $this->json([
+                'success' => true,
+                'message' => 'L\'événement a bien été déplacé',
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'error' => 'Erreur lors du déplacement de l\'événement',
+            ], 500);
+        }
+    }
 }

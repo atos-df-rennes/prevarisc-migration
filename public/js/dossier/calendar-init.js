@@ -169,7 +169,7 @@
             url: CONFIG.routes.resizeEvent,
             data: {
                 idComm: event.id,
-                fin: event.end
+                fin: event.end.toISOString()
             },
             success: function(response) {
                 if (response && response.success) {
@@ -201,8 +201,21 @@
             url: CONFIG.routes.moveEvent,
             data: {
                 idComm: event.id,
-                debut: event.start,
-                fin: event.end
+                debut: event.start.toISOString(),
+                fin: event.end.toISOString()
+            },
+            success: function(response) {
+                if (response && response.success) {
+                    $.toast.success('L\'événement a bien été déplacé');
+                } else {
+                    const errorMsg = (response && response.error) ? response.error : 'Erreur lors du déplacement';
+                    $.toast.error(errorMsg);
+                    $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
+                }
+            },
+            error: function(xhr, status, error) {
+                $.toast.error('Erreur lors du déplacement de l\'événement');
+                $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
             }
         });
     }
