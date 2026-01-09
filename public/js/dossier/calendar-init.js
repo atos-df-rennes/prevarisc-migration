@@ -5,7 +5,7 @@
 (function($) {
     'use strict';
 
-    var CONFIG = {
+    const CONFIG = {
         /**
          * Routes non migrées en Symfony et conservées en Zend pour compatibilité Calendrier des commissions
          * Seront à migrer lors de la migration du Calendrier des commissions
@@ -14,12 +14,12 @@
             getEvents: '/calendrier-des-commissions/recupevenement',
             getLinkedDates: '/calendrier-des-commissions/recupdateliee',
             moveEvent: '/calendrier-des-commissions/deplacecommissiondate',
-            resizeEvent: '/calendrier-des-commissions/resizecommissiondate'
+            resizeEvent: '/calendrier-des-commissions/resizecommissiondate',
         },
         selectors: {
             showButton: '.showCalendar',
             hideButton: '.hideCalendar',
-        }
+        },
     };
 
     function initCalendar($container, options) {
