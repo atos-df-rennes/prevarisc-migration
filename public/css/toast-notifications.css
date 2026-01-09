@@ -1,0 +1,131 @@
+/**
+ * Styles pour les notifications Toast avec Bootstrap 3
+ */
+
+/* Conteneur des notifications */
+.toast-notification-container {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    max-width: 400px;
+}
+
+/* Positions du conteneur */
+.toast-notification-container.toast-top-right {
+    top: 20px;
+    right: 20px;
+}
+
+.toast-notification-container.toast-top-left {
+    top: 20px;
+    left: 20px;
+}
+
+.toast-notification-container.toast-bottom-right {
+    bottom: 20px;
+    right: 20px;
+}
+
+.toast-notification-container.toast-bottom-left {
+    bottom: 20px;
+    left: 20px;
+}
+
+/* Style des notifications */
+.toast-notification {
+    pointer-events: auto;
+    margin-bottom: 10px;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Animation d'entrée */
+.toast-notification.in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animation de sortie */
+.toast-notification:not(.in) {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+/* Pour les positions à gauche, inverser l'animation */
+.toast-top-left .toast-notification,
+.toast-bottom-left .toast-notification {
+    transform: translateX(-100%);
+}
+
+.toast-top-left .toast-notification.in,
+.toast-bottom-left .toast-notification.in {
+    transform: translateX(0);
+}
+
+.toast-top-left .toast-notification:not(.in),
+.toast-bottom-left .toast-notification:not(.in) {
+    transform: translateX(-100%);
+}
+
+/* Espacement de l'icône */
+.toast-notification .glyphicon {
+    margin-right: 8px;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+/* Style du bouton de fermeture */
+.toast-notification .close {
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1;
+    opacity: 0.6;
+}
+
+.toast-notification .close:hover,
+.toast-notification .close:focus {
+    opacity: 0.9;
+}
+
+/* Ajustements pour les différents types d'alertes */
+.toast-notification.alert-success {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #3c763d;
+}
+
+.toast-notification.alert-danger {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+}
+
+.toast-notification.alert-warning {
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+    color: #8a6d3b;
+}
+
+.toast-notification.alert-info {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+}
+
+/* Responsive : adaptation mobile */
+@media (max-width: 480px) {
+    .toast-notification-container {
+        left: 10px !important;
+        right: 10px !important;
+        max-width: none;
+    }
+    
+    .toast-notification {
+        min-width: 0;
+        width: 100%;
+    }
+}

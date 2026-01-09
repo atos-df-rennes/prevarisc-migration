@@ -170,6 +170,19 @@
             data: {
                 idComm: event.id,
                 fin: event.end
+            },
+            success: function(response) {
+                if (response && response.success) {
+                    $.toast.success('L\'événement a bien été modifié');
+                } else {
+                    const errorMsg = (response && response.error) ? response.error : 'Erreur lors de la modification';
+                    $.toast.error(errorMsg);
+                    $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
+                }
+            },
+            error: function(xhr, status, error) {
+                $.toast.error('Erreur lors de la modification de l\'événement');
+                $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
             }
         });
     }

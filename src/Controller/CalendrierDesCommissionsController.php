@@ -106,18 +106,30 @@ class CalendrierDesCommissionsController extends AbstractController
             $fin = $request->request->get('fin');
 
             if (false === $idComm || null === $fin) {
-                return $this->json(['success' => false, 'error' => 'Paramètres manquants'], 400);
+                return $this->json([
+                    'success' => false,
+                    'error' => 'Paramètres manquants',
+                ], 400);
             }
 
             $heureFin = $calendarService->parseJavaScriptDateToTime($fin);
 
             $calendarService->updateHeureFin($idComm, $heureFin);
 
-            return $this->json(['success' => true]);
+            return $this->json([
+                'success' => true,
+                'message' => 'L\'événement a bien été modifié',
+            ]);
         } catch (\InvalidArgumentException $e) {
-            return $this->json(['success' => false, 'error' => $e->getMessage()], 404);
+            return $this->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 404);
         } catch (\Exception $e) {
-            return $this->json(['success' => false, 'error' => 'Erreur lors de la modification'], 500);
+            return $this->json([
+                'success' => false,
+                'error' => 'Erreur lors de la modification de l\'événement',
+            ], 500);
         }
     }
 }
