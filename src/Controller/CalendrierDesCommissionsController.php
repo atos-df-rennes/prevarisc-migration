@@ -92,4 +92,32 @@ class CalendrierDesCommissionsController extends AbstractController
 
         return $this->json($items);
     }
+
+    /**
+     * Modifie l'heure de fin d'une date de commission.
+     *
+     * @Route("/calendrier-des-commissions/resizecommissiondate", name="calendrier_des_commissions_redimensionner", methods={"POST"})
+     */
+    public function resizecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
+    {
+        try {
+            $idComm = filter_var($request->request->get('idComm'), FILTER_VALIDATE_INT);
+            /** @var string|null $fin */
+            $fin = $request->request->get('fin');
+
+            if (false === $idComm || null === $fin) {
+                return $this->json(['success' => false, 'error' => 'Paramètres manquants'], 400);
+            }
+
+            $heureFin = $calendarService->parseJavaScriptDateToTime($fin);
+
+            $calendarService->updateHeureFin($idComm, $heureFin);
+
+            return $this->json(['success' => true]);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['success' => false, 'error' => $e->getMessage()], 404);
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'error' => 'Erreur lors de la modification'], 500);
+        }
+    }
 }
