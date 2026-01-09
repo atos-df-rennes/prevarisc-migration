@@ -5,8 +5,6 @@ namespace App\Repository;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -74,5 +72,41 @@ class DateCommissionRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query->getResult();
+    }
+
+    /**
+     * Récupère les événements de commission entre deux dates.
+     *
+     * @return DateCommission[]
+     */
+    public function findEventsBetweenDates(
+        \DateTimeInterface $dateDebut,
+        \DateTimeInterface $dateFin,
+        ?int $idCommission = null,
+        ?int $idTypeEvenement = null
+    ): array {
+        $queryBuilder = $this->createQueryBuilder('dc')
+            ->addSelect('te')
+            ->leftJoin('dc.typeEvenement', 'te')
+            ->where('dc.date BETWEEN :dateDebut AND :dateFin')
+            ->setParameter('dateDebut', $dateDebut)
+            ->setParameter('dateFin', $dateFin)
+        ;
+
+        if (null !== $idCommission) {
+            $queryBuilder
+                ->andWhere('dc.commission = :idCommission')
+                ->setParameter('idCommission', $idCommission)
+            ;
+        }
+
+        if (null !== $idTypeEvenement) {
+            $queryBuilder
+                ->andWhere('dc.typeEvenement = :idTypeEvenement')
+                ->setParameter('idTypeEvenement', $idTypeEvenement)
+            ;
+        }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

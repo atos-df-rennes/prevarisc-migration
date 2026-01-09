@@ -38,8 +38,7 @@ class DossierController extends AbstractController
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
         DateCommission $dateCommissionService
-    )
-    {
+    ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
         $this->dateCommissionService = $dateCommissionService;

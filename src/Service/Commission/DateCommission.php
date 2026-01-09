@@ -13,7 +13,7 @@ final class DateCommission
 
     public function __construct(DateCommissionRepository $dateCommissionRepository)
     {
-       $this->dateCommissionRepository = $dateCommissionRepository;
+        $this->dateCommissionRepository = $dateCommissionRepository;
     }
 
     /**
