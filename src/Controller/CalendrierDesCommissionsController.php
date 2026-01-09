@@ -58,6 +58,9 @@ class CalendrierDesCommissionsController extends AbstractController
     }
 
     /**
+     * @todo: Quand tout sera migré sur cette partie, passer l'idDate en tant que paramètre d'URL.
+     * exemple: /calendrier-des-commissions/<date>/recuperer-dates-liees qui donnera le paramètre DateCommission $dateCommission.
+     *
      * Récupère les dates de commission liées à une date donnée.
      *
      * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"})
