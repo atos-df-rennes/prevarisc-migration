@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+// @todo: Une fois la migration terminée, supprimer les préfixes /symfony.
 class CalendrierDesCommissionsController extends AbstractController
 {
     /**
@@ -96,7 +97,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Modifie l'heure de fin d'une date de commission.
      *
-     * @Route("/calendrier-des-commissions/resizecommissiondate", name="calendrier_des_commissions_redimensionner", methods={"POST"})
+     * @Route("/symfony/calendrier-des-commissions/redimensionner-date", name="calendrier_des_commissions_redimensionner", methods={"POST"})
      */
     public function resizecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
     {
@@ -136,7 +137,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Déplace une date de commission (modifie la date et les heures).
      *
-     * @Route("/calendrier-des-commissions/deplacecommissiondate", name="calendrier_des_commissions_deplacer", methods={"POST"})
+     * @Route("/symfony/calendrier-des-commissions/deplacer-date", name="calendrier_des_commissions_deplacer", methods={"POST"})
      */
     public function deplacecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
     {

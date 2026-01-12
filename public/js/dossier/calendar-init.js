@@ -13,8 +13,8 @@
         routes: {
             getEvents: '/calendrier-des-commissions/recupevenement',
             getLinkedDates: '/symfony/calendrier-des-commissions/recuperer-dates-liees',
-            moveEvent: '/calendrier-des-commissions/deplacecommissiondate',
-            resizeEvent: '/calendrier-des-commissions/resizecommissiondate',
+            moveEvent: '/symfony/calendrier-des-commissions/deplacer-date',
+            resizeEvent: '/symfony/calendrier-des-commissions/redimensionner-date',
         },
         selectors: {
             showButton: '.showCalendar',
