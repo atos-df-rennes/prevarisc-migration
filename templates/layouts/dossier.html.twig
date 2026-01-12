@@ -1,0 +1,226 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Dossier{% endblock %}
+
+{#
+    Les variables sont settées par un EventSubscriber.
+    @see src/EventSubscriber/LateralNavigationSubscriber.php
+#}
+{% set libelle_verifications_techniques = app.request.attributes.get('libelle_verifications_techniques')|default('Vérifications techniques') %}
+{% set libelle_effectifs_degagements = app.request.attributes.get('libelle_effectifs_degagements')|default('Effectifs et Dégagements') %}
+{% set id_date_commission = app.request.attributes.get('id_date_commission')|default(null) %}
+{% set nombre_nouvelles_pieces_jointes = app.request.attributes.get('nombre_nouvelles_pieces_jointes')|default(0) %}
+
+{% block lateral_navigation %}
+    <ul class='nav nav-tabs nav-stacked menu_dashboard'>
+        <li {% if app.request.get('_route') is same as('dossier_index') %}class="active"{% endif %}>
+            <a href="{{ path('dossier_index', {id: dossier.id}) }}">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                Informations générales
+            </a>
+        </li>
+
+        {# Type Étude, Natures Dérogation et Changement de DUS #}
+        {% if dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') and dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_DESCRIPTIF') %}
+            <li>
+                <a href="{{ '/dossier/descriptif/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                    Descriptif
+                    {# Permis de construire et Autorisation de travaux #}
+                    {% if dossier.nature.id in constant('App\\Constant\\DossierNature::NATURES_DESCRIPTIF_TRAVAUX') %}
+                        des travaux
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
+
+        {# Étude, Visite et Groupe de visite #}
+        {% if dossier.type.id in constant('App\\Constant\\DossierType::TYPES_PRINCIPAUX') %}
+            <li>
+                <a href="{{ '/dossier/textes-applicables/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
+                    Textes applicables
+                </a>
+            </li>
+        {% endif %}
+
+        {# Courrier / Courriel #}
+        {% if dossier.type.id != constant('App\\Constant\\DossierType::COURRIER') %}
+            <li>
+                <a href="{{ '/dossier/docconsulte/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                    Documents consultés
+                </a>
+            </li>
+        {% endif %}
+
+        {# Visite et Groupe de visite #}
+        {% if is_granted('verifications_techniques') and dossier.type.id in constant('App\\Constant\\DossierType::TYPES_VISITE') %}
+            <li>
+                <a href="{{ '/dossier/verifications-techniques/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {{ libelle_verifications_techniques }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if is_granted('effectifs_degagements_doss') and dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') %}
+            <li>
+                <a href="{{ '/dossier/effectifs-degagements-dossier/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    {{ libelle_effectifs_degagements }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if is_granted('avis_derogations') and dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') %}
+            <li>
+                <a href="{{ '/dossier/avis-et-derogations/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                    Avis et dérogations
+
+                    {% if dossier.avisDerogations is not empty %}
+                        <span class="greenCircle pull-right"></span>
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
+
+        {#
+            Dérogation, Cahier des charges de type T, Locaux SDIS,
+            Extérieur SDIS, Ouverture, Fermeture, Mise en demeure,
+            Utilisation exceptionnelle de locaux
+        #}
+        {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_PRESCRIPTIONS') %}
+            <li>
+                <a href="{{ '/dossier/prescription/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+                    Prescriptions
+                </a>
+            </li>
+        {% endif %}
+
+        <li>
+            <a href="{{ '/dossier/liees/id/' ~ dossier.id }}">
+                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                Établissements et dossiers liés
+            </a>
+        </li>
+
+        {# Ouverture, Fermeture, Mise en demeure, Utilisation exceptionnelle de locaux #}
+        {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_CONTACTS') %}
+            <li>
+                <a href="{{ '/dossier/contact/id/' ~ dossier.id }}">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                    Contacts
+                </a>
+            </li>
+        {% endif %}
+
+        <li>
+            <a href="{{ '/dossier/piece-jointe/id/' ~ dossier.id }}">
+                <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
+                Pièces jointes
+
+                {% if nombre_nouvelles_pieces_jointes > 0 %}
+                    <div class="label label-danger pull-right">
+                        {{ nombre_nouvelles_pieces_jointes }}
+                    </div>
+                {% endif %}
+            </a>
+        </li>
+
+        <li class="nav-header">Actions</li>
+
+        {% if is_granted('verrouillage_dossier', dossier) %}
+            <li>
+                {% if not dossier.verrou or dossier.verrou is null %}
+                    <a class="sep" href="{{ path('dossier_verrouiller', {id: dossier.id}) }}">
+                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Verrouiller
+                    </a>
+                {% else %}
+                    <a class="sep" href="{{ path('dossier_deverrouiller', {id: dossier.id}) }}">
+                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Déverrouiller
+                    </a>
+                {% endif %}
+            </li>
+        {% endif %}
+
+        <li>
+            <a href="{{ '/dossier/rapport/id/' ~ dossier.id }}">
+                <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                Rapport
+            </a>
+        </li>
+
+        {% if
+            not dossier.verrou
+            and id_date_commission is not null
+            and app.request.get('_route') is same as('dossier_index')
+        %}
+            <li>
+                <a class="sep" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ id_date_commission }}">
+                    <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Afficher ordre du jour
+                </a>
+            </li>
+        {% endif %}
+
+        {% if
+            not dossier.verrou
+            and is_granted('delete_dossier')
+            and app.request.get('_route') is same as('dossier_index')
+        %}
+            <li>
+                {% if dossier.dateSuppression is not null %}
+                    <a id="retablissementDossier" href="{{ '/dossier/retablir-dossier/idDossier/' ~ dossier.id }}">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        Rétablir le dossier
+                    </a>
+                {% else %}
+                    <a id="suppressionDossier" href="#">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        Supprimer le dossier
+                    </a>
+                {% endif %}
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{% block body_structure %}
+    <div id="ligne_informations">
+        <h2 class='page-header'>
+            <p>
+                <span>{{ dossier.type.libelle }}</span>
+
+                {% if dossier.dateSuppression is not null %}
+                    <span class='label label-danger'>
+                        DOSSIER SUPPRIME
+                    </span>
+                {% endif %}
+            </p>
+
+            {% if dossier.objet or dossier.consultationPlatau is not null %}
+                <p>
+                    {% if dossier.objet %}
+                        <small>{{ dossier.objet|nl2br }}</small>
+                    {% endif %}
+
+                    {% if dossier.consultationPlatau is not null %}
+                        <strong class="dossier__identifiant-platau label label-info">CONSULTATION PLATAU : {{ dossier.consultationPlatau.identifiant }}</strong>
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            {% if dossier.etablissements is not empty %}
+                {{ include('layouts/dossier/_informations_etablissements.html.twig') }}
+            {% endif %}
+        </h2>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

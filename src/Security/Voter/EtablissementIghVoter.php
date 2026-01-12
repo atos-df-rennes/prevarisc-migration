@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
@@ -11,8 +12,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementIghVoter extends EtablissementVoter
 {
-    public const ID_IGH = 5;
-
     /** @var ResourcesRepository */
     private $resourcesRepository;
 
@@ -31,7 +30,7 @@ class EtablissementIghVoter extends EtablissementVoter
 
     protected function supports($attribute, $subject): bool
     {
-        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, self::ID_IGH);
+        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, GenreEtablissement::IGH);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

@@ -1,0 +1,96 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Modifier les informations générales{% endblock %}
+
+{% block body %}
+<div id='dossierInfos'>
+    <h3>Modifier les informations générales</h3>
+
+    {{ form_start(form, {attr: {id: 'editDossier', name: 'editDossier'}}) }}
+
+    <ul class='list-unstyled'>
+        <li class='row' style='margin-bottom:20px;'>
+            <div class='left libelle col-md-3'>Type</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.type) }}
+                {{ form_errors(form.type) }}
+            </div>
+        </li>
+
+        <li class='row' style='margin-bottom:20px;'>
+            <div class='left libelle col-md-3'>Nature</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.nature) }}
+                {{ form_errors(form.nature) }}
+            </div>
+        </li>
+
+        <li class='row' style='margin-bottom:20px;'>
+            <div class='left libelle col-md-3'>Date d'insertion</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.dateInsert) }}
+                {{ form_errors(form.dateInsert) }}
+            </div>
+        </li>
+
+        <li class='row' style='margin-bottom:20px;'>
+            <div class='left libelle col-md-3'>Objet</div>
+            <div class='right form col-md-9'>
+                {{ form_widget(form.objet) }}
+                {{ form_errors(form.objet) }}
+            </div>
+        </li>
+
+        {% if form.dateVisite is defined %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Date de visite</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.dateVisite) }}
+                    {{ form_errors(form.dateVisite) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {% if form.avisCommission is defined %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Avis de la commission</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avisCommission) }}
+                    {{ form_errors(form.avisCommission) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {% if form.avisDiffere is defined %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Diffère l'avis</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.avisDiffere) }}
+                    {{ form_errors(form.avisDiffere) }}
+                </div>
+            </li>
+        {% endif %}
+
+        {% if form.facteurDangerosite is defined %}
+            <li class='row' style='margin-bottom:20px;'>
+                <div class='left libelle col-md-3'>Facteur de criticité</div>
+                <div class='right form col-md-9'>
+                    {{ form_widget(form.facteurDangerosite) }}
+                    {{ form_errors(form.facteurDangerosite) }}
+                </div>
+            </li>
+        {% endif %}
+    </ul>
+
+    <div class='form-actions'>
+        <button type='submit' class='btn btn-success'>
+            <i class='glyphicon glyphicon-ok'></i> Enregistrer
+        </button>
+        <a href="{{ path('dossier_index', {id: dossier.id}) }}" class='btn btn-default'>
+            <i class='glyphicon glyphicon-remove'></i> Annuler
+        </a>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

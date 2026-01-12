@@ -68,7 +68,7 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
         ;
     }
 
-    public function provideInvalidConstraints(): iterable
+    public static function provideInvalidConstraints(): iterable
     {
         yield [new Password()];
     }

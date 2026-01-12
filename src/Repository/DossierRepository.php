@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
+use App\Constant\DossierNature;
 use App\Entity\Dossier;
-use App\Entity\DossierNatureListe;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
@@ -70,7 +70,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->andWhere('d.dateCommission is not null OR d.dateVisite is not null')
             ->orderBy('columnOrder', 'ASC')
             ->setParameter('id', $idEtablissement)
-            ->setParameter('nature', DossierNatureListe::NATURE_DOSSIERS_DONNANT_AVIS)
+            ->setParameter('nature', DossierNature::NATURES_DONNANT_AVIS)
             ->getQuery();
 
         return $query->getResult();
@@ -162,5 +162,20 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $result = $queryBuilder->getQuery()->getOneOrNullResult();
 
         return null === $result ? null : $result->getDateInsert();
+    }
+
+    public function findNombreNouvellesPieces(Dossier $dossier, \DateTimeInterface $dateDerniereVisitePage): int
+    {
+        $query = $this->createQueryBuilder('d')
+            ->select('COUNT(p)')
+            ->join('d.piecesJointes', 'dpj')
+            ->join('dpj.pieceJointe', 'p')
+            ->where('d.id = :idDossier')
+            ->andWhere('p.dateNotification >= :dateDerniereVisitePage')
+            ->setParameter('idDossier', $dossier->getId())
+            ->setParameter('dateDerniereVisitePage', $dateDerniereVisitePage)
+        ;
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

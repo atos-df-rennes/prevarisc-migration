@@ -26,7 +26,7 @@ final class VersionTest extends KernelTestCase
         $this->assertSame($expected['link'], $version->link());
     }
 
-    public function envProvider(): array
+    public static function envProvider(): array
     {
         return [
             [

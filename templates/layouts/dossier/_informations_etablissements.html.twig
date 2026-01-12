@@ -1,0 +1,68 @@
+<div id='infosEtabs'>
+    {% if dossier.etablissements|length == 1 and dossier.etablissements[0].latestInformations.genre.libelle == 'Site' %}
+        Site concerné :
+        <a href="{{ path('etablissement_informations', {id: dossier.etablissements[0].id}) }}" class="etab">
+            {{ dossier.etablissements[0].latestInformations.libelle }}
+        </a>
+    {% else %}
+        Etablissement(s) concerné(s) :
+
+        <ul class="list-unstyled">
+            {% for etablissement in dossier.etablissements %}
+                <li>
+                    <a
+                        href="/etablissement/descriptif/id/{{ etablissement.id }}"
+                        title='Afficher le descriptif'
+                        class="infosEtabs__button-link"
+                    >
+                        <span class='glyphicon glyphicon-list-alt' aria-hidden="true"></span>
+                    </a>
+
+                    <a
+                        href="/etablissement/dossiers/id/{{ etablissement.id }}"
+                        title='Se rendre à la liste des dossiers'
+                        class="infosEtabs__button-link"
+                    >
+                        <span class='glyphicon glyphicon-folder-open' aria-hidden="true"></span>
+                    </a>
+
+                    <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}" class="etab">
+                        {{ etablissement.latestInformations.libelle }}
+
+                        {% if etablissement.adresses is not empty %}
+                            ({{ etablissement.adresses|map(a => "#{a.commune.libelle}")|join(', ') }})
+                        {% else %}
+                            (adresse non renseignée)
+                        {% endif %}
+
+                        {% if etablissement.parent %}
+                            [{{ etablissement.parent.latestInformations.libelle }}]
+                        {% endif %}
+                    </a>
+
+                    {% if etablissement.dossierDonnantAvis %}
+                        {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
+                            <span class="avis F">{{ etablissement.dossierDonnantAvis.avisCommission.libelle }}</span>
+                        {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                            <span class="avis D">{{ etablissement.dossierDonnantAvis.avisCommission.libelle }}</span>
+                        {% elseif etablissement.hasAvisDiffere %}
+                            <span class="label label-info">Avis différé</span>
+                        {% else %}
+                            <span class="avis">Avis indisponible</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="avis">Avis indisponible</span>
+                    {% endif %}
+
+                    {% if etablissement.latestInformations.preventionnistes is not empty %}
+                        <small>
+                            ({{ etablissement.latestInformations.preventionnistes|map(p => "#{p.informations.nom} #{p.informations.prenom}")|join(', ') }})
+                        </small>
+                    {% endif %}
+
+                    <small>#{{ etablissement.numero }}</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
