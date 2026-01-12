@@ -34,43 +34,45 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
             $controller = $controller[0];
         }
 
-        if ($controller instanceof EtablissementController) {
-            $idEtablissement = filter_var($event->getRequest()->attributes->get('id'), FILTER_VALIDATE_INT);
-            $etablissement = $this->etablissementRepository->find($idEtablissement);
-
-            if (null === $etablissement) {
-                throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s n'existe pas.", $idEtablissement));
-            }
-
-            if (null !== $etablissement->getDateSuppression()) {
-                throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s a été supprimé et n'est pas accessible.", $idEtablissement));
-            }
-
-            // Récupère récursivement le parent de l'établissement
-            $etablissementCourant = $etablissement;
-            $parents = [];
-
-            do {
-                if (null === $etablissementCourant) {
-                    break;
-                }
-
-                $parent = $etablissementCourant->getParent();
-
-                if (null !== $parent) {
-                    $parents[] = $parent;
-                    $etablissementCourant = $this->etablissementRepository->find($parent->getId());
-                }
-            } while (null !== $parent);
-
-            $parents = array_reverse($parents);
-            $event->getRequest()->attributes->set('parents_etablissement', $parents);
-
-            $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement']);
-            $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement']);
-            $event->getRequest()->attributes->set('libelle_descriptif', null !== $capsuleDescriptifEtablissement ? $capsuleDescriptifEtablissement->getNom() : 'Descriptif');
-            $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
+        if (!$controller instanceof EtablissementController) {
+            return;
         }
+
+        $idEtablissement = filter_var($event->getRequest()->attributes->get('id'), FILTER_VALIDATE_INT);
+        $etablissement = $this->etablissementRepository->find($idEtablissement);
+
+        if (null === $etablissement) {
+            throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s n'existe pas.", $idEtablissement));
+        }
+
+        if (null !== $etablissement->getDateSuppression()) {
+            throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s a été supprimé et n'est pas accessible.", $idEtablissement));
+        }
+
+        // Récupère récursivement le parent de l'établissement
+        $etablissementCourant = $etablissement;
+        $parents = [];
+
+        do {
+            if (null === $etablissementCourant) {
+                break;
+            }
+
+            $parent = $etablissementCourant->getParent();
+
+            if (null !== $parent) {
+                $parents[] = $parent;
+                $etablissementCourant = $this->etablissementRepository->find($parent->getId());
+            }
+        } while (null !== $parent);
+
+        $parents = array_reverse($parents);
+        $event->getRequest()->attributes->set('parents_etablissement', $parents);
+
+        $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement']);
+        $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement']);
+        $event->getRequest()->attributes->set('libelle_descriptif', null !== $capsuleDescriptifEtablissement ? $capsuleDescriptifEtablissement->getNom() : 'Descriptif');
+        $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
     }
 
     public static function getSubscribedEvents()

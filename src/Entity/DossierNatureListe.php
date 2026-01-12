@@ -12,10 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DossierNatureListe
 {
-    public const NATURE_DOSSIERS_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 47, 26, 28, 29, 48];
-
-    public const NATURE_ECHEANCIER_TRAVAUX = 46;
-
     /**
      * @var int
      *

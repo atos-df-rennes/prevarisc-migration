@@ -11,42 +11,48 @@
         </p>
     </dd>
 
-    {% if etablissement.latestInformations.genre.id in [2, 3] and etablissement.latestInformations.categorie is not null %}
+    {% if
+        etablissement.latestInformations.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')]
+        and etablissement.latestInformations.categorie is not null
+    %}
         <dt>Catégorie</dt>
         <dd>
             <p>{{ etablissement.latestInformations.categorie.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if etablissement.latestInformations.genre.id == 4 %}
+    {% if etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::HABITATION') %}
         <dt>Famille</dt>
         <dd>
             <p>{{ etablissement.latestInformations.famille.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if etablissement.latestInformations.genre.id == 5 %}
+    {% if etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::IGH') %}
         <dt>Classe</dt>
         <dd>
             <p>{{ etablissement.latestInformations.classe.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if etablissement.latestInformations.genre.id == 10 %}
+    {% if etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::ZONE') %}
         <dt>Classement</dt>
         <dd>
             <p>{{ etablissement.latestInformations.classement.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if etablissement.latestInformations.genre.id in [1, 2, 3, 5] and periodicity is not null %}
+    {% if etablissement.latestInformations.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE') and periodicity is not null %}
         <dt>Périodicité</dt>
         <dd>
             <p>
-                {% if etablissement.latestInformations.genre.id == 1 %}
+                {% if etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::SITE') %}
                     <i class="glyphicon glyphicon-info-sign" title="Périodicité la plus contraignante des fils ERP"></i>
                 {% endif %}
-                {% if etablissement.latestInformations.genre.id in [2, 5] and etablissement.latestInformations.periodicite != default_periodicite.periodicite %}
+                {% if
+                    etablissement.latestInformations.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::IGH')]
+                    and etablissement.latestInformations.periodicite != default_periodicite.periodicite
+                %}
                     <i class="glyphicon glyphicon-exclamation-sign" title="Périodicité non standard"></i>
                 {% endif %}
                 {{ periodicity }}
@@ -56,10 +62,12 @@
 </dl>
 
 <!-- Activités de l'établissement -->
-{% if etablissement.latestInformations.genre.id in [2, 3] %}
-    <h4 class="h4_subtitle">Activités {% if etablissement.latestInformations.localSommeil and etablissement.latestInformations.genre.id == 2 %}
+{% if etablissement.latestInformations.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')] %}
+    <h4 class="h4_subtitle">Activités
+        {% if etablissement.latestInformations.localSommeil and etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::ERP') %}
             <span class="label label-primary pull-right">Présence de locaux à sommeil</span>
-        {% endif %}</h4>
+        {% endif %}
+    </h4>
     <dl class="dl-horizontal">
         <!-- Type et activités -->
         <dt>Types & activités</dt>
@@ -93,7 +101,7 @@
             {% if etablissement.latestInformations.r14320 %}
                 <p>Le <strong>R143-20</strong> est appliqué sur cet établissement.</p>
             {% endif %}
-            {% if etablissement.latestInformations.genre.id in [2] %}
+            {% if etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::ERP') %}
                 {% if etablissement.latestInformations.droitPublic %}
                     <p>Le <strong>R143-16</strong> est appliqué sur cet établissement (droit public).</p>
                 {% endif %}
@@ -133,7 +141,7 @@
     {% endif %}
 {% endif %}
 
-{% if etablissement.latestInformations.genre.id in [7] %}
+{% if etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::CAMPING') %}
     <h4 class="h4_subtitle">Nombre d'emplacements</h4>
     <dl class="dl-horizontal champ_effectif_camping index_camping">
         <dt>Mobil-homes ou habitations</dt>
@@ -166,11 +174,11 @@
 {% endif %}
 
 <!-- Les effectifs -->
-{% if etablissement.latestInformations.genre.id in [2, 3, 5, 6] %}
+{% if etablissement.latestInformations.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF') %}
     <h4 class="h4_subtitle">Les effectifs</h4>
     <dl class="dl-horizontal">
         <!-- Effectif public -->
-        {% if etablissement.latestInformations.genre.id in [2, 3, 5] %}
+        {% if etablissement.latestInformations.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF_PUBLIC') %}
             <dt>Public</dt>
             <dd>
                 <p>{{ etablissement.latestInformations.effectifPublic }}</p>
@@ -184,7 +192,10 @@
         </dd>
 
         <!-- Effectif hebergé -->
-        {% if etablissement.latestInformations.localSommeil and etablissement.latestInformations.genre.id == 2 %}
+        {% if
+            etablissement.latestInformations.localSommeil
+            and etablissement.latestInformations.genre.id == constant('App\\Constant\\GenreEtablissement::ERP')
+        %}
             <dt>Dont hebergé</dt>
             <dd>
                 <p>{{ etablissement.latestInformations.effectifHeberge }}</p>
@@ -200,7 +211,10 @@
         </dd>
 
         <!-- Effectif justifant le classement (que pour les 5ème catégorie) -->
-        {% if etablissement.latestInformations.categorie is not null and etablissement.latestInformations.categorie.id == 5 %}
+        {% if
+            etablissement.latestInformations.categorie is not null
+            and etablissement.latestInformations.categorie.id == constant('App\\Constant\\CategorieEtablissement::CINQUIEME')
+        %}
             <dt>Justifiant le classement</dt>
             <dd>
                 <p>{{ etablissement.latestInformations.effectifJustifiantClassement }}</p>
@@ -210,7 +224,7 @@
 {% endif %}
 
 <!-- Plan -->
-{% if etablissement.latestInformations.genre.id in [2, 3, 5, 6] %}
+{% if etablissement.latestInformations.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF') %}
     <h4 class="h4_subtitle">Plans d'intervention</h4>
     {% if etablissement.latestInformations.plans|length == 0 %}
         <p class="text-muted text-center">Pas de plans disponible</p>

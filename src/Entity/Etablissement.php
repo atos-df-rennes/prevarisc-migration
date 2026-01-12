@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Constant\DossierNature;
 use App\Repository\EtablissementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -542,7 +543,7 @@ class Etablissement
                 return false;
             }
 
-            return DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX === $nature->getId()
+            return DossierNature::ECHEANCIER_TRAVAUX === $nature->getId()
                 && null === $dossier->getDateSuppression();
         });
 
