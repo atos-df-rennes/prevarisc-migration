@@ -17,7 +17,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Récupère les événements du calendrier des commissions.
      *
-     * @Route("/calendrier-des-commissions/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"})
+     * @Route("/calendrier-des-commissions/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
      */
     public function recupevenement(Request $request, CalendarService $calendarService): JsonResponse
     {
@@ -64,7 +64,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * Récupère les dates de commission liées à une date donnée.
      *
-     * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"})
+     * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
      */
     public function recupdateliee(Request $request, DateCommissionRepository $dateCommissionRepository): JsonResponse
     {
@@ -97,7 +97,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Modifie l'heure de fin d'une date de commission.
      *
-     * @Route("/symfony/calendrier-des-commissions/redimensionner-date", name="calendrier_des_commissions_redimensionner", methods={"POST"})
+     * @Route("/symfony/calendrier-des-commissions/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
      */
     public function resizecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
     {
@@ -137,7 +137,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Déplace une date de commission (modifie la date et les heures).
      *
-     * @Route("/symfony/calendrier-des-commissions/deplacer-date", name="calendrier_des_commissions_deplacer", methods={"POST"})
+     * @Route("/symfony/calendrier-des-commissions/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
      */
     public function deplacecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
     {

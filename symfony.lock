@@ -49,6 +49,18 @@
             "migrations/.gitignore"
         ]
     },
+    "friendsofsymfony/jsrouting-bundle": {
+        "version": "2.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "2.3",
+            "ref": "03986bbad9dcc3e367036a6b4f48ec469a4b1bf4"
+        },
+        "files": [
+            "config/routes/fos_js_routing.yaml"
+        ]
+    },
     "phpunit/phpunit": {
         "version": "7.5",
         "recipe": {

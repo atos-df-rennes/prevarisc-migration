@@ -11,10 +11,10 @@
          * Seront à migrer lors de la migration du Calendrier des commissions
          */
         routes: {
-            getEvents: '/calendrier-des-commissions/recupevenement',
-            getLinkedDates: '/symfony/calendrier-des-commissions/recuperer-dates-liees',
-            moveEvent: '/symfony/calendrier-des-commissions/deplacer-date',
-            resizeEvent: '/symfony/calendrier-des-commissions/redimensionner-date',
+            getEvents: Routing.generate('calendrier_des_commissions_recuperer_evenements'),
+            getLinkedDates: Routing.generate('calendrier_des_commissions_recuperer_dates_liees'),
+            moveEvent: Routing.generate('calendrier_des_commissions_deplacer_date'),
+            resizeEvent: Routing.generate('calendrier_des_commissions_redimensionner_date'),
         },
         selectors: {
             showButton: '.showCalendar',
