@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Constant\DossierNature;
 use App\Repository\DossierNatureListeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,18 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DossierNatureListe
 {
-    /**
-     * @deprecated Utiliser DossierNature::NATURES_DONNANT_AVIS
-     *
-     * @var int[]
-     */
-    public const NATURE_DOSSIERS_DONNANT_AVIS = DossierNature::NATURES_DONNANT_AVIS;
-
-    /**
-     * @deprecated Utiliser DossierNature::ECHEANCIER_TRAVAUX
-     */
-    public const NATURE_ECHEANCIER_TRAVAUX = DossierNature::ECHEANCIER_TRAVAUX;
-
     /**
      * @var int
      *
