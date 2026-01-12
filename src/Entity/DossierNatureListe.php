@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Constant\DossierNature;
 use App\Repository\DossierNatureListeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,9 +13,17 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DossierNatureListe
 {
-    public const NATURE_DOSSIERS_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 47, 26, 28, 29, 48];
+    /**
+     * @deprecated Utiliser DossierNature::NATURES_DONNANT_AVIS
+     *
+     * @var int[]
+     */
+    public const NATURE_DOSSIERS_DONNANT_AVIS = DossierNature::NATURES_DONNANT_AVIS;
 
-    public const NATURE_ECHEANCIER_TRAVAUX = 46;
+    /**
+     * @deprecated Utiliser DossierNature::ECHEANCIER_TRAVAUX
+     */
+    public const NATURE_ECHEANCIER_TRAVAUX = DossierNature::ECHEANCIER_TRAVAUX;
 
     /**
      * @var int

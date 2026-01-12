@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
+use App\Constant\DossierNature;
 use App\Entity\Dossier;
-use App\Entity\DossierNatureListe;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
@@ -70,7 +70,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->andWhere('d.dateCommission is not null OR d.dateVisite is not null')
             ->orderBy('columnOrder', 'ASC')
             ->setParameter('id', $idEtablissement)
-            ->setParameter('nature', DossierNatureListe::NATURE_DOSSIERS_DONNANT_AVIS)
+            ->setParameter('nature', DossierNature::NATURES_DONNANT_AVIS)
             ->getQuery();
 
         return $query->getResult();
