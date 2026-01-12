@@ -305,7 +305,7 @@
                 {% if dossier|should_display_field('AVIS') and dossier.avis %}
                     <li class='row'>
                         <div class='left libelle col-md-3'>
-                            Avis du {% if dossier.type.id == 3 %}groupe de visite{% else %}rapporteur{% endif %}
+                            Avis du {% if dossier.type.id == constant('App\\Constant\\DossierType::GROUPE_DE_VISITE') %}groupe de visite{% else %}rapporteur{% endif %}
                         </div>
                         <div class='right value col-md-9'>
                             <span class='avis {{ dossier.avis.libelle[:1] }}'>

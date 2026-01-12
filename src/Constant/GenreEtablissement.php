@@ -9,15 +9,14 @@ namespace App\Constant;
  */
 final class GenreEtablissement
 {
+    public const SITE = 1;
+
     /**
      * ERP - Établissement Recevant du Public.
      */
     public const ERP = 2;
 
-    /**
-     * IGH - Immeuble de Grande Hauteur.
-     */
-    public const IGH = 5;
+    public const CELLULE = 3;
 
     /**
      * Habitation.
@@ -25,9 +24,24 @@ final class GenreEtablissement
     public const HABITATION = 4;
 
     /**
-     * BUP - Bâtiment à Usage Principal.
+     * IGH - Immeuble de Grande Hauteur.
+     */
+    public const IGH = 5;
+
+    /**
+     * BUP - Bâtiment d'Utilité Publique.
      */
     public const BUP = 6;
+
+    public const CAMPING = 7;
+
+    public const ZONE = 10;
+
+    public const GENRES_AVEC_PERIODICITE = [1, 2, 3, 5];
+
+    public const GENRES_AVEC_EFFECTIF = [2, 3, 5, 6];
+
+    public const GENRES_AVEC_EFFECTIF_PUBLIC = [2, 3, 5];
 
     /**
      * Liste de tous les genres disponibles.
@@ -35,10 +49,14 @@ final class GenreEtablissement
      * @var int[]
      */
     public const ALL = [
+        self::SITE,
         self::ERP,
-        self::IGH,
+        self::CELLULE,
         self::HABITATION,
+        self::IGH,
         self::BUP,
+        self::CAMPING,
+        self::ZONE,
     ];
 
     /**

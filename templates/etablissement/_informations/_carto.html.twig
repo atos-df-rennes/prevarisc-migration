@@ -281,7 +281,7 @@
 <h4 class="h4_subtitle">Données prévention</h4>
 <dl class="dl-horizontal">
     <!-- Commission compétente -->
-    {% if etablissement.latestInformations.genre.id in [2, 5] %}
+    {% if etablissement.latestInformations.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::IGH')] %}
         <dt>Commission</dt>
         <dd>
             <p>{{ etablissement.latestInformations.commission.libelle }} ({{ etablissement.latestInformations.commission.type.libelle }})</p>
@@ -332,10 +332,10 @@
     </dd>
 
     <!-- Données pratiques -->
-    {% if etablissement.latestInformations.genre.id in [1, 2, 3, 5] %}
+    {% if etablissement.latestInformations.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE') %}
         <dt>Données pratiques</dt>
         <dd>
-            {% if etablissement.latestInformations.genre.id != 1 %}
+            {% if etablissement.latestInformations.genre.id != constant('App\\Constant\\GenreEtablissement::SITE') %}
                 Nb. de préventionnistes/visite : {{ donnees_pratiques.nbPreventionnistes }}<br/>
             {% endif %}
             {% if donnees_pratiques.dureeVisite is not null %}

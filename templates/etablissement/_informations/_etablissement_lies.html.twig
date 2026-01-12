@@ -107,9 +107,9 @@
             {% if differe_avis == 1 %}
                 <span class="avis" style="background-color: #3a87ad; font-size: .7em;">Avis différé</span>
             {% elseif avis %}
-                {% if avis.id == 1 %}
+                {% if avis.id == constant('App\\Constant\\Avis::FAVORABLE') %}
                     <span class="avis F" style="font-size: .7em">
-                        Favorable {% if genre_id != 3 %}à l'exploitation{% endif %}
+                        Favorable {% if genre_id != constant('App\\Constant\\GenreEtablissement::CELLULE') %}à l'exploitation{% endif %}
                         <small>
                             {% if date_avis %}
                                 (Date de l'avis : {{ date_avis|date('d/m/Y') }})
@@ -118,9 +118,9 @@
                             {% endif %}
                         </small>
                     </span>
-                {% elseif avis.id == 2 %}
+                {% elseif avis.id == constant('App\\Constant\\Avis::DEFAVORABLE') %}
                     <span class="avis D" style="font-size: .7em">
-                        Défavorable {% if genre_id != 3 %}à l'exploitation{% endif %}
+                        Défavorable {% if genre_id != constant('App\\Constant\\GenreEtablissement::CELLULE') %}à l'exploitation{% endif %}
                         <small>
                             {% if date_avis %}
                                 (Date de l'avis : {{ date_avis|date('d/m/Y') }})
@@ -130,13 +130,13 @@
                         </small>
                     </span>
                 {% endif %}
-            {% elseif genre_id != 1 %}
+            {% elseif genre_id != constant('App\\Constant\\GenreEtablissement::SITE') %}
                 <span class="avis" style="font-size: .7em">Avis d'exploitation indisponible</span>
             {% endif %}
 
             {# Alerte sur le fait que la visite fait partie d'un échéancier de travaux #}
             {# TODO: Implémenter la détection de l'échéancier de travaux #}
-        {% elseif genre_id != 1 %}
+        {% elseif genre_id != constant('App\\Constant\\GenreEtablissement::SITE') %}
             <span class="avis" style="font-size: .7em">Avis d'exploitation indisponible</span>
         {% endif %}
 
