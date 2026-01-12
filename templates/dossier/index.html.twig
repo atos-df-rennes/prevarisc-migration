@@ -91,7 +91,11 @@
                     <li class='row'>
                         <div class='left libelle col-md-3'>Date de création du dossier</div>
                         <div class='right value col-md-9'>
-                            {{ dossier.dateInsert|date('d/m/Y') }} par : {{ dossier.createur.informations.nom }} {{ dossier.createur.informations.prenom }}
+                            {{ dossier.dateInsert|date('d/m/Y') }}
+
+                            {% if dossier.createur %}
+                                par : {{ dossier.createur.informations.nom }} {{ dossier.createur.informations.prenom }}
+                            {% endif %}
                         </div>
                     </li>
                 {% endif %}
