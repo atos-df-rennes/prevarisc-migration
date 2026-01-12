@@ -27,7 +27,7 @@ class CommissionDatesType extends AbstractType
                 ],
             ])
             ->add('typeEvenement', EntityType::class, [
-                'label' => 'Type de commission',
+                'label' => 'Type de la commission',
                 'class' => CommissionTypeEvenement::class,
                 'choice_label' => 'libelle',
                 'attr' => [
@@ -83,9 +83,6 @@ class CommissionDatesType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => CommissionDatesDto::class,
-            'csrf_protection' => true,
-            'csrf_field_name' => '_token',
-            'csrf_token_id' => 'commission_dates',
         ]);
     }
 }

@@ -17,27 +17,14 @@ class DateCommissionItemType extends AbstractType
             ->add('date', DateType::class, [
                 'label' => 'Date',
                 'widget' => 'single_text',
-                'html5' => false,
-                'attr' => [
-                    'class' => 'form-control date-picker',
-                    'readonly' => true,
-                ],
             ])
             ->add('heureDebut', TimeType::class, [
-                'label' => 'Heure début',
+                'label' => 'Heure de début',
                 'widget' => 'single_text',
-                'html5' => false,
-                'attr' => [
-                    'class' => 'form-control time-input',
-                ],
             ])
             ->add('heureFin', TimeType::class, [
-                'label' => 'Heure fin',
+                'label' => 'Heure de fin',
                 'widget' => 'single_text',
-                'html5' => false,
-                'attr' => [
-                    'class' => 'form-control time-input',
-                ],
             ])
         ;
     }

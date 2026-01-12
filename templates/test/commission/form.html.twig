@@ -44,10 +44,16 @@
                         </ul>
                     </div>
 
-                    {{ include('calendrier-des-commissions/_form_commission_dates.html.twig', {
-                        form: form,
-                        idComm: 1
-                    }) }}
+                    {{ form_start(form) }}
+                        {{ form_rest(form) }}
+
+                        <input type="submit" class="btn btn-primary" value="Enregistrer les dates de commission" />
+                    {{ form_end(form) }}
+
+{#                    {{ include('calendrier-des-commissions/_form_commission_dates.html.twig', {#}
+{#                        form: form,#}
+{#                        idComm: 1#}
+{#                    }) }}#}
                 </div>
             </div>
         </div>

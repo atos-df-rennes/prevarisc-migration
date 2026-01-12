@@ -13,16 +13,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CommissionDatesDto
 {
     /**
-     * @var string
+     * @var ?string
      *
-     * @Assert\NotBlank(message="Le libellé est obligatoire")
-     *
-     * @Assert\Length(max=80, maxMessage="Le libellé ne peut pas dépasser {{ limit }} caractères")
+     * @Assert\Length(max=255, maxMessage="Le libellé ne peut pas dépasser {{ limit }} caractères")
      */
     private $libelle;
 
     /**
-     * @var CommissionTypeEvenement|null
+     * @var CommissionTypeEvenement
      *
      * @Assert\NotNull(message="Le type d'événement est obligatoire")
      */
@@ -46,9 +44,9 @@ class CommissionDatesDto
     private $withPeriodicite = false;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var ?\DateTimeInterface
      */
-    private $dateFin;
+    private $dateFin = null;
 
     /**
      * @var int
@@ -72,12 +70,12 @@ class CommissionDatesDto
         return $this;
     }
 
-    public function getTypeEvenement(): ?CommissionTypeEvenement
+    public function getTypeEvenement(): CommissionTypeEvenement
     {
         return $this->typeEvenement;
     }
 
-    public function setTypeEvenement(?CommissionTypeEvenement $typeEvenement): self
+    public function setTypeEvenement(CommissionTypeEvenement $typeEvenement): self
     {
         $this->typeEvenement = $typeEvenement;
 
