@@ -217,19 +217,19 @@ class CalendrierDesCommissionsController extends AbstractController
         $end = $request->query->get('end');
 
         $dateStart = $calendarService->parseJavaScriptDate($start);
-        $firstDate = new DateCommissionItemDto();
-        $firstDate->setDate(clone $dateStart);
-        $dateStart->setTime(9, 0);
-        $firstDate->setHeureDebut($dateStart);
-
         $dateEnd = $calendarService->parseJavaScriptDate($end);
-        $dateEnd->setTime(18, 0);
-        $firstDate->setHeureFin($dateEnd);
+        $numberOfAdditionalDates = $dateStart->diff($dateEnd)->days;
 
-        // @todo: Créer autant de dates que nécessaire.
-        // @todo: Ajouter les dates au DTO.
+        $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($dateStart));
 
-        $dateCommissionDto->addDate($firstDate);
+        if (\is_int($numberOfAdditionalDates)) {
+            for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
+                $date = clone $dateStart;
+                $date->modify(\sprintf('+%d days', $i));
+
+                $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($date));
+            }
+        }
 
         $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto);
 

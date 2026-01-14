@@ -225,7 +225,6 @@
     }
 
     function handleSelect(start, end, commissionNom, dossierType) {
-        $('#calendrier-des-commission__creation-date').modal('show')
         $.ajax({
             url: CONFIG.routes.selectEvent,
             data: {
@@ -236,6 +235,8 @@
             },
             success: function(response) {
                 $('#calendrier-des-commission__creation-date .modal-body').html(response)
+                $('#calendrier-des-commission__creation-date').modal('show')
+
                 $('#commission_dates_withPeriodicite').on('click', function () {
                     $('#commission_dates_dateFin').closest('.form-group').toggleClass('hidden')
                     $('#commission_dates_periodicite').closest('.form-group').toggleClass('hidden')

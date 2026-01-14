@@ -30,7 +30,7 @@ final class DateCommissionItemDto
      */
     private $heureFin;
 
-    public function __construct(
+    private function __construct(
         ?\DateTimeInterface $date = null,
         ?\DateTimeInterface $heureDebut = null,
         ?\DateTimeInterface $heureFin = null
@@ -38,6 +38,17 @@ final class DateCommissionItemDto
         $this->date = $date;
         $this->heureDebut = $heureDebut;
         $this->heureFin = $heureFin;
+    }
+
+    public static function fromDateTime(\DateTimeInterface $date): self
+    {
+        $dateDebut = clone $date;
+        $dateDebut->setTime(9, 0);
+
+        $dateFin = clone $date;
+        $dateFin->setTime(18, 0);
+
+        return new self($date, $dateDebut, $dateFin);
     }
 
     public function getDate(): ?\DateTimeInterface
