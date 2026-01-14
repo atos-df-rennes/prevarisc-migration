@@ -83,20 +83,7 @@
                 handleEventDrop(event, $container)
             },
             select: function(start, end) {
-                // @todo: faire une fonction comme le reste
-                $('#calendrier-des-commission__creation-date').modal('show')
-                $.ajax({
-                    url: CONFIG.routes.selectEvent,
-                    data: {
-                        libelle: options.commissionNom,
-                        typeEvenement: options.type,
-                        start: start.toISOString(),
-                        end: end.toISOString(),
-                    },
-                    success: function(response) {
-                        $('#calendrier-des-commission__creation-date .modal-body').html(response)
-                    }
-                })
+                handleSelect(start, end, options.commissionNom, options.type)
             }
         });
     }
@@ -235,6 +222,26 @@
                 $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
             }
         });
+    }
+
+    function handleSelect(start, end, commissionNom, dossierType) {
+        $('#calendrier-des-commission__creation-date').modal('show')
+        $.ajax({
+            url: CONFIG.routes.selectEvent,
+            data: {
+                libelle: commissionNom,
+                typeEvenement: dossierType,
+                start: start.toISOString(),
+                end: end.toISOString(),
+            },
+            success: function(response) {
+                $('#calendrier-des-commission__creation-date .modal-body').html(response)
+                $('#commission_dates_withPeriodicite').on('click', function () {
+                    $('#commission_dates_dateFin').closest('.form-group').toggleClass('hidden')
+                    $('#commission_dates_periodicite').closest('.form-group').toggleClass('hidden')
+                })
+            }
+        })
     }
 
     /**
