@@ -205,32 +205,10 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     public function creerDate(
         Request $request,
-        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
         CalendarService $calendarService
     ): Response
     {
-        $dateCommissionDto = new CommissionDatesDto();
-        $dateCommissionDto->setLibelle($request->query->get('libelle'));
-        $dateCommissionDto->setTypeEvenement($commissionTypeEvenementRepository->find($request->query->getInt('typeEvenement', 1)) ?? 1);
-
-        $start = $request->query->get('start');
-        $end = $request->query->get('end');
-
-        $dateStart = $calendarService->parseJavaScriptDate($start);
-        $dateEnd = $calendarService->parseJavaScriptDate($end);
-        $numberOfAdditionalDates = $dateStart->diff($dateEnd)->days;
-
-        $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($dateStart));
-
-        if (\is_int($numberOfAdditionalDates)) {
-            for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
-                $date = clone $dateStart;
-                $date->modify(\sprintf('+%d days', $i));
-
-                $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($date));
-            }
-        }
-
+        $dateCommissionDto = $calendarService->createDatesDtoFromRequest($request);
         $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto);
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [

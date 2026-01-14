@@ -3,10 +3,14 @@
 namespace App\Service\Commission;
 
 use App\Dto\Commission\CalendarEventDto;
+use App\Dto\Commission\CommissionDatesDto;
+use App\Dto\Commission\DateCommissionItemDto;
 use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
+use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Service pour gérer les événements du calendrier des commissions.
@@ -16,14 +20,19 @@ final class CalendarService
     /** @var DateCommissionRepository */
     private $dateCommissionRepository;
 
+    /** @var CommissionTypeEvenementRepository */
+    private $commissionTypeEvenementRepository;
+
     /** @var EntityManagerInterface */
     private $entityManager;
 
     public function __construct(
         DateCommissionRepository $dateCommissionRepository,
+        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
         EntityManagerInterface $entityManager
     ) {
         $this->dateCommissionRepository = $dateCommissionRepository;
+        $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
         $this->entityManager = $entityManager;
     }
 
@@ -187,6 +196,37 @@ final class CalendarService
 
         // Mise à jour des dates des dossiers liés (iso-fonctionnel avec le legacy)
         $this->updateDependingDossierDates($dateCommission);
+    }
+
+    public function createDatesDtoFromRequest(Request $request): CommissionDatesDto
+    {
+        // Propriétés générales.
+        $dateCommissionDto = new CommissionDatesDto();
+        $dateCommissionDto->setLibelle($request->query->get('libelle'));
+        $dateCommissionDto->setTypeEvenement($this->commissionTypeEvenementRepository->find($request->query->getInt('typeEvenement', 1)) ?? 1);
+
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+        // Conversion de la date FullCalendar en DateTimeInterface.
+        $dateStart = $this->parseJavaScriptDate($start);
+        $dateEnd = $this->parseJavaScriptDate($end);
+
+        // Ajout de la 1ère date.
+        $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($dateStart));
+
+        // Ajout des dates suivantes si sélection multiple.
+        $numberOfAdditionalDates = $dateStart->diff($dateEnd)->days;
+        if (\is_int($numberOfAdditionalDates)) {
+            for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
+                $date = clone $dateStart;
+                $date->modify(\sprintf('+%d days', $i));
+
+                $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($date));
+            }
+        }
+
+        return $dateCommissionDto;
     }
 
     /**
