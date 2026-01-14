@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\CalendrierDesCommissions;
 
 use App\Dto\Commission\CommissionDatesDto;
 use App\Entity\CommissionTypeEvenement;
@@ -22,7 +22,6 @@ class CommissionDatesType extends AbstractType
             ->add('libelle', TextType::class, [
                 'label' => 'Libellé de la commission',
                 'attr' => [
-                    'class' => 'form-control',
                     'placeholder' => 'Saisissez le libellé de la commission',
                 ],
             ])
@@ -30,9 +29,6 @@ class CommissionDatesType extends AbstractType
                 'label' => 'Type de la commission',
                 'class' => CommissionTypeEvenement::class,
                 'choice_label' => 'libelle',
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
             ->add('dates', CollectionType::class, [
                 'entry_type' => DateCommissionItemType::class,
@@ -55,11 +51,9 @@ class CommissionDatesType extends AbstractType
             ->add('dateFin', DateType::class, [
                 'label' => 'Date de fin de planification',
                 'widget' => 'single_text',
-                'html5' => false,
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control date-picker',
-                    'placeholder' => 'dd/mm/yyyy',
+                    'placeholder' => 'jj/mm/aaaa',
                 ],
             ])
             ->add('periodicite', ChoiceType::class, [
@@ -72,9 +66,6 @@ class CommissionDatesType extends AbstractType
                 ],
                 'data' => 1,
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                ],
             ])
         ;
     }

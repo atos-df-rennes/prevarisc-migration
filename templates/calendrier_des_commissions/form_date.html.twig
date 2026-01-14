@@ -1,0 +1,46 @@
+{{ form_start(form) }}
+    <section>
+        <div class="panel panel-default">
+            <div class="panel-heading">Informations générales</div>
+            <div class="panel-body">
+                {{ form_row(form.libelle) }}
+                {{ form_row(form.typeEvenement) }}
+            </div>
+        </div>
+    </section>
+
+    {% do form.dates.setRendered %}
+    <section>
+        <div class="panel panel-default">
+            <div class="panel-heading">Dates</div>
+            <div class="panel-body">
+                <ul id="liste_dates"
+                    class="list-unstyled mt-4 remove-collection-widget"
+                    data-prototype="{{ form_widget(form.dates.vars.prototype)|e }}"
+                    data-widget-tags="{{ '<li></li>'|e }}"
+                    data-widget-counter="{{ form.dates|length }}"
+                >
+                    {% for date in form.dates %}
+                        <li>
+                            {{ form_errors(date) }}
+                            {{ form_widget(date, {attr: {class: 'collection-item-wrapper'}}) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="text-center">
+                    <button type="button"
+                            class="btn btn-info add-collection-widget"
+                            data-list-selector="#liste_dates"
+                    >
+                        Ajouter une date
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{ form_row(form.withPeriodicite) }}
+    {{ form_row(form.dateFin) }}
+    {{ form_row(form.periodicite) }}
+{{ form_end(form) }}

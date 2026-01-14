@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * DTO pour la création/édition d'une commission avec ses dates.
  */
-class CommissionDatesDto
+final class CommissionDatesDto
 {
     /**
      * @var ?string
@@ -18,6 +18,11 @@ class CommissionDatesDto
      * @Assert\Length(max=255, maxMessage="Le libellé ne peut pas dépasser {{ limit }} caractères")
      */
     private $libelle;
+
+    /**
+     * @var int
+     */
+    private $commission;
 
     /**
      * @var CommissionTypeEvenement
@@ -53,8 +58,7 @@ class CommissionDatesDto
      */
     private $periodicite = 1;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->dates = new ArrayCollection();
     }
 

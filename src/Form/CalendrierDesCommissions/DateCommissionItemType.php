@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\CalendrierDesCommissions;
 
 use App\Dto\Commission\DateCommissionItemDto;
 use Symfony\Component\Form\AbstractType;
@@ -17,14 +17,23 @@ class DateCommissionItemType extends AbstractType
             ->add('date', DateType::class, [
                 'label' => 'Date',
                 'widget' => 'single_text',
+                'row_attr' => [
+                    'class' => 'col-sm-4'
+                ]
             ])
             ->add('heureDebut', TimeType::class, [
                 'label' => 'Heure de début',
                 'widget' => 'single_text',
+                'row_attr' => [
+                    'class' => 'col-sm-3'
+                ]
             ])
             ->add('heureFin', TimeType::class, [
                 'label' => 'Heure de fin',
                 'widget' => 'single_text',
+                'row_attr' => [
+                    'class' => 'col-sm-3'
+                ]
             ])
         ;
     }

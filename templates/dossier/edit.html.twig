@@ -17,7 +17,7 @@
     {{ parent() }}
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
     <script src="{{ asset('js/dossier/form.js') }}"></script>
-    <script src="{{ asset('js/dossier/etat-dossier-moderne.js') }}"></script>
+    <script src="{{ asset('js/dossier/gestion-incomplet.js') }}"></script>
     <script src="{{ asset('js/dossier/commission.js') }}"></script>
 
     {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
@@ -537,14 +537,16 @@
     {{ form_rest(form) }}
 
     <div class='form-actions'>
-        <button type='submit' class='btn btn-success'>
-            <i class='glyphicon glyphicon-ok'></i> Enregistrer
-        </button>
         <a href="{{ path('dossier_index', {id: dossier.id}) }}" class='btn btn-default'>
-            <i class='glyphicon glyphicon-remove'></i> Annuler
+            <span class='glyphicon glyphicon-remove' aria-hidden="true"></span> Annuler
         </a>
+        <button type='submit' class='btn btn-success'>
+            <span class='glyphicon glyphicon-ok' aria-hidden="true"></span> Sauvegarder
+        </button>
     </div>
 
     {{ form_end(form) }}
+
+    {{ include('calendrier_des_commissions/_modal_creation_date.html.twig') }}
 </div>
 {% endblock %}

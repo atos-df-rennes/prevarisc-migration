@@ -3,12 +3,17 @@
 namespace App\Controller;
 
 use App\Dto\Commission\CalendarEventDto;
+use App\Dto\Commission\CommissionDatesDto;
+use App\Dto\Commission\DateCommissionItemDto;
 use App\Dto\Commission\DateCommissionLieeDto;
+use App\Form\CalendrierDesCommissions\CommissionDatesType;
+use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 // @todo: Une fois la migration terminée, supprimer les préfixes /symfony.
@@ -193,5 +198,43 @@ class CalendrierDesCommissionsController extends AbstractController
                 'error' => 'Erreur lors du déplacement de l\'événement',
             ], 500);
         }
+    }
+
+    /**
+     * @Route("/calendrier-des-commissions/creer-date", name="calendrier_des_commissions_creer_date", methods={"GET", "POST"}, options={"expose"=true})
+     */
+    public function creerDate(
+        Request $request,
+        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
+        CalendarService $calendarService
+    ): Response
+    {
+        $dateCommissionDto = new CommissionDatesDto();
+        $dateCommissionDto->setLibelle($request->query->get('libelle'));
+        $dateCommissionDto->setTypeEvenement($commissionTypeEvenementRepository->find($request->query->getInt('typeEvenement', 1)) ?? 1);
+
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+        $dateStart = $calendarService->parseJavaScriptDate($start);
+        $firstDate = new DateCommissionItemDto();
+        $firstDate->setDate(clone $dateStart);
+        $dateStart->setTime(9, 0);
+        $firstDate->setHeureDebut($dateStart);
+
+        $dateEnd = $calendarService->parseJavaScriptDate($end);
+        $dateEnd->setTime(18, 0);
+        $firstDate->setHeureFin($dateEnd);
+
+        // @todo: Créer autant de dates que nécessaire.
+        // @todo: Ajouter les dates au DTO.
+
+        $dateCommissionDto->addDate($firstDate);
+
+        $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto);
+
+        return $this->render('calendrier_des_commissions/form_date.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }

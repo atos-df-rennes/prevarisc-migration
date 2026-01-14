@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * DTO représentant un item de date (date + heures) dans la collection.
  */
-class DateCommissionItemDto
+final class DateCommissionItemDto
 {
     /**
      * @var \DateTimeInterface|null

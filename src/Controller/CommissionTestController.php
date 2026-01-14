@@ -4,8 +4,7 @@ namespace App\Controller;
 
 use App\Dto\Commission\CommissionDatesDto;
 use App\Dto\Commission\DateCommissionItemDto;
-use App\Entity\Commission;
-use App\Form\CommissionDatesType;
+use App\Form\CalendrierDesCommissions\CommissionDatesType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeEvenementRepository;
 use App\Service\Commission\CommissionDatesTransformer;
@@ -45,7 +44,7 @@ class CommissionTestController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // Récupération d'une commission de test (première de la liste)
             $commission = $commissionRepository->findOneBy([]);
-            
+
             if (!$commission) {
                 $this->addFlash('error', 'Aucune commission trouvée en base pour le test');
 

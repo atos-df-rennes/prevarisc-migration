@@ -15,6 +15,7 @@
             getLinkedDates: Routing.generate('calendrier_des_commissions_recuperer_dates_liees'),
             moveEvent: Routing.generate('calendrier_des_commissions_deplacer_date'),
             resizeEvent: Routing.generate('calendrier_des_commissions_redimensionner_date'),
+            selectEvent: Routing.generate('calendrier_des_commissions_creer_date')
         },
         selectors: {
             showButton: '.showCalendar',
@@ -80,6 +81,22 @@
             },
             eventDrop: function(event) {
                 handleEventDrop(event, $container)
+            },
+            select: function(start, end) {
+                // @todo: faire une fonction comme le reste
+                $('#calendrier-des-commission__creation-date').modal('show')
+                $.ajax({
+                    url: CONFIG.routes.selectEvent,
+                    data: {
+                        libelle: options.commissionNom,
+                        typeEvenement: options.type,
+                        start: start.toISOString(),
+                        end: end.toISOString(),
+                    },
+                    success: function(response) {
+                        $('#calendrier-des-commission__creation-date .modal-body').html(response)
+                    }
+                })
             }
         });
     }
@@ -326,6 +343,19 @@
             }
 
             const commissionId = $('#dossier_commission').val();
+
+            let nomEtab = "";
+            let nomEtabSelector;
+            if ($("#infosEtabs .etab").length > 0) {
+                nomEtabSelector = "#infosEtabs .etab";
+            } else if ($("#infosEtablissement .etab").length > 0) {
+                nomEtabSelector = "#infosEtablissement .etab";
+            }
+            nomEtab = document.querySelector(nomEtabSelector).innerText.trim();
+            nomEtab = nomEtab.replace('&nbsp;', ' ');
+            nomEtab = nomEtab.replace("'", " ");
+
+            const commissionNom = $('#dossier_nature option:selected').text().trim() + ' - ' + nomEtab;
             const $dateField = $(this).prev();
 
             if (!commissionId) {
@@ -345,7 +375,8 @@
                 commissionId: commissionId,
                 month: month,
                 year: year,
-                dateField: $dateField
+                dateField: $dateField,
+                commissionNom: commissionNom
             });
         });
 
