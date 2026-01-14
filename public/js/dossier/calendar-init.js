@@ -395,5 +395,16 @@
                 ($(this).closest('li[id]').attr('id') === 'dateVisite' ? 'visite' : 'commission');
             hideCalendar(type);
         });
+
+        $('#calendrier-des-commission__creation-date').on('shown.bs.modal', function () {
+            // Permet de gérer l'affichage du bouton de suppression pour les éléments déjà existants.
+            const collection = document.getElementById("calendrier-des-commission__creation-date").querySelector('.remove-collection-widget').children;
+            if (collection.length > 0 && "function" === typeof addTagFormDeleteLink) {
+                for (let i = 0; i < collection.length; i++) {
+                    if (i === 0) continue;
+                    addTagFormDeleteLink(collection[i])
+                }
+            }
+        })
     });
 })(jQuery);

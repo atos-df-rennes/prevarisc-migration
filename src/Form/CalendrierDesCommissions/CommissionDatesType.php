@@ -33,9 +33,10 @@ class CommissionDatesType extends AbstractType
             ->add('dates', CollectionType::class, [
                 'entry_type' => DateCommissionItemType::class,
                 'entry_options' => ['label' => false],
+                'by_reference' => false,
                 'allow_add' => true,
                 'allow_delete' => true,
-                'by_reference' => false,
+                'delete_empty' => true,
                 'label' => false,
                 'attr' => [
                     'class' => 'dates-collection',
