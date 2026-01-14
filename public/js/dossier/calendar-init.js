@@ -20,6 +20,7 @@
         selectors: {
             showButton: '.showCalendar',
             hideButton: '.hideCalendar',
+            modalName: 'calendrier-des-commission__creation-date'
         },
     };
 
@@ -234,10 +235,21 @@
                 end: end.toISOString(),
             },
             success: function(response) {
-                $('#calendrier-des-commission__creation-date .modal-body').html(response)
-                $('#calendrier-des-commission__creation-date').modal('show')
+                $('#' + CONFIG.selectors.modalName + ' .modal-body').html(response)
+                $('#' + CONFIG.selectors.modalName).modal('show')
+
+                const $datesCollection = $('#liste_dates');
+                const $planificationCheckbox = $('#commission_dates_withPeriodicite');
+
+                const observer = new DateCollectionObserver(
+                    $datesCollection,
+                    $planificationCheckbox
+                );
+
+                $('#' + CONFIG.selectors.modalName).data('date-observer', observer);
 
                 $('#commission_dates_withPeriodicite').on('click', function () {
+                    $('#' + CONFIG.selectors.modalName).find('.add-collection-widget').toggleClass('hidden')
                     $('#commission_dates_dateFin').closest('.form-group').toggleClass('hidden')
                     $('#commission_dates_periodicite').closest('.form-group').toggleClass('hidden')
                 })
@@ -396,15 +408,24 @@
             hideCalendar(type);
         });
 
-        $('#calendrier-des-commission__creation-date').on('shown.bs.modal', function () {
+        $('#' + CONFIG.selectors.modalName).on('shown.bs.modal', function () {
             // Permet de gérer l'affichage du bouton de suppression pour les éléments déjà existants.
-            const collection = document.getElementById("calendrier-des-commission__creation-date").querySelector('.remove-collection-widget').children;
+            const collection = document.getElementById(CONFIG.selectors.modalName).querySelector('.remove-collection-widget').children;
             if (collection.length > 0 && "function" === typeof addTagFormDeleteLink) {
                 for (let i = 0; i < collection.length; i++) {
                     if (i === 0) continue;
                     addTagFormDeleteLink(collection[i])
                 }
             }
-        })
+        });
+
+        // 🎯 Nettoyer l'observer à la fermeture de la modale
+        $('#' + CONFIG.selectors.modalName).on('hidden.bs.modal', function() {
+            const observer = $(this).data('date-observer');
+            if (observer) {
+                observer.destroy();
+            }
+            $(this).find('.modal-body').empty();
+        });
     });
 })(jQuery);
