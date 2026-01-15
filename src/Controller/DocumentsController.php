@@ -122,7 +122,11 @@ class DocumentsController extends AbstractController
                     // @todo: Générer un nom de fichier plus sûr
                     $fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));
                 } catch (FileException $fileException) {
-                    $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
+                    $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
+
+                    $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                } catch (\InvalidArgumentException $invalidArgumentException) {
+                    $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents : '.$invalidArgumentException->getMessage());
 
                     $this->addFlash('danger', "Erreur lors de l'ajout du document.");
                 }
