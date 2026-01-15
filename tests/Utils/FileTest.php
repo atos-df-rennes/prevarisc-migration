@@ -42,6 +42,10 @@ final class FileTest extends TestCase
                 'document(1).pdf',
                 'document(1).pdf',
             ],
+            'filename with apostrophes' => [
+                "document d'étude.docx",
+                "document d'étude.docx",
+            ],
             'path traversal with slash - basename extracted' => [
                 '/etc/passwd',
                 'passwd',
