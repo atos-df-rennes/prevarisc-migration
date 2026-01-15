@@ -164,7 +164,7 @@ class DocumentsController extends AbstractController
             $this->logger->error("Le nom du fichier n'est pas correct.", ['nomFichier' => $nomFichier]);
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
 
-            $this->json([], 400);
+            return $this->json([], 400);
         }
 
         $nomFichier = File::sanitize($nomFichier);
@@ -174,7 +174,7 @@ class DocumentsController extends AbstractController
             $this->logger->error("L'identifiant de la commission n'est pas correct.", ['idCommission' => $request->request->get('idCommission')]);
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
 
-            $this->json([], 400);
+            return $this->json([], 400);
         }
 
         $filepath = $documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier;
@@ -187,7 +187,7 @@ class DocumentsController extends AbstractController
             $this->logger->error($ioException->getMessage());
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
 
-            $this->json([], 500);
+            return $this->json([], 500);
         }
 
         $this->addFlash('success', 'Le document a bien été supprimé.');
