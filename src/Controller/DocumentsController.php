@@ -6,6 +6,7 @@ use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
 use App\Service\Documents;
+use App\Utils\File;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,7 +41,7 @@ class DocumentsController extends AbstractController
         $commissions = $commissionRepository->findAll();
         $commissionsAsArray = [];
 
-        // @TODO: Faire ça dans un service
+        // @todo: Faire ça dans un service
         foreach ($commissions as $commission) {
             if (
                 in_array(null, [$commission->getId(), $commission->getLibelle()], true)
@@ -119,7 +120,7 @@ class DocumentsController extends AbstractController
 
                 try {
                     // @todo: Générer un nom de fichier plus sûr
-                    $fichier->move($documentsRealDataPath.$commission->id(), str_replace(DIRECTORY_SEPARATOR, '', $fichier->getClientOriginalName()));
+                    $fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));
                 } catch (FileException $fileException) {
                     $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
 
@@ -159,8 +160,13 @@ class DocumentsController extends AbstractController
             throw new \InvalidArgumentException("Le nom du fichier n'est pas correct.");
         }
 
-        $nomFichier = str_replace(DIRECTORY_SEPARATOR, '', $nomFichier);
+        $nomFichier = File::sanitize($nomFichier);
         $idCommission = filter_var($request->request->get('idCommission'), FILTER_VALIDATE_INT);
+
+        if (false === $idCommission) {
+            throw new \InvalidArgumentException("L'identifiant de la commission n'est pas correct.");
+        }
+
         $filepath = $documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier;
 
         $this->logger->debug('Suppression du document.', ['chemin' => $filepath]);
