@@ -6,6 +6,7 @@ use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
 use App\Service\Documents;
+use App\Utils\File;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,7 +41,7 @@ class DocumentsController extends AbstractController
         $commissions = $commissionRepository->findAll();
         $commissionsAsArray = [];
 
-        // @TODO: Faire ça dans un service
+        // @todo: Faire ça dans un service
         foreach ($commissions as $commission) {
             if (
                 in_array(null, [$commission->getId(), $commission->getLibelle()], true)
@@ -118,14 +119,19 @@ class DocumentsController extends AbstractController
                 }
 
                 try {
-                    $fichier->move($documentsRealDataPath.$commission->id(), $fichier->getClientOriginalName());
+                    // @todo: Générer un nom de fichier plus sûr
+                    $fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));
+
+                    $this->addFlash('success', 'Le document a bien été ajouté.');
                 } catch (FileException $fileException) {
-                    $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
+                    $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
+
+                    $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                } catch (\InvalidArgumentException $invalidArgumentException) {
+                    $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents : '.$invalidArgumentException->getMessage());
 
                     $this->addFlash('danger', "Erreur lors de l'ajout du document.");
                 }
-
-                $this->addFlash('success', 'Le document a bien été ajouté.');
 
                 return $this->redirectToRoute('admin_documents');
             }
@@ -147,21 +153,41 @@ class DocumentsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/documents/supprimer", name="admin_documents_delete")
+     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"})
      */
     public function supprimer(Request $request, Filesystem $filesystem, string $documentsRealDataPath): Response
     {
-        $nomFichier = filter_var($request->request->get('nomFichier'), FILTER_SANITIZE_STRING);
-        $idCommission = filter_var($request->request->get('idCommission'), FILTER_VALIDATE_INT);
+        // @todo: Générer un nom de fichier plus sûr
+        $nomFichier = $request->request->get('nomFichier');
 
-        try {
-            $filesystem->remove($documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier);
-        } catch (IOException $ioException) {
-            $this->logger->error($ioException->getMessage());
-
+        if (!\is_string($nomFichier)) {
+            $this->logger->error("Le nom du fichier n'est pas correct.", ['nomFichier' => $nomFichier]);
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
 
-            $this->json([], 500);
+            return $this->json([], 400);
+        }
+
+        $nomFichier = File::sanitize($nomFichier);
+        $idCommission = filter_var($request->request->get('idCommission'), FILTER_VALIDATE_INT);
+
+        if (false === $idCommission) {
+            $this->logger->error("L'identifiant de la commission n'est pas correct.", ['idCommission' => $request->request->get('idCommission')]);
+            $this->addFlash('danger', 'Erreur lors de la suppression du document.');
+
+            return $this->json([], 400);
+        }
+
+        $filepath = $documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier;
+
+        $this->logger->debug('Suppression du document.', ['chemin' => $filepath]);
+
+        try {
+            $filesystem->remove($filepath);
+        } catch (IOException $ioException) {
+            $this->logger->error($ioException->getMessage());
+            $this->addFlash('danger', 'Erreur lors de la suppression du document.');
+
+            return $this->json([], 500);
         }
 
         $this->addFlash('success', 'Le document a bien été supprimé.');
