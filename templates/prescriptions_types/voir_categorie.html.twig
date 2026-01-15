@@ -17,6 +17,11 @@
                         </div>
                         <div class="col-xs-2 text-right">
                             <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                    data-content="{{ path('admin_prescriptions_types_prescriptions_textes_ajouter', {categorie: categorie.id, texte: prescription_texte.id}) }}"
+                                    data-target="#modal-prescription" title="Ajouter une prescription type">
+                                <span class="glyphicon glyphicon-flag"></span>
+                            </button>
+                            <button class="btn btn-info btn-icon ajax-modal-trigger"
                                     data-content="{{ path('admin_prescriptions_types_article_ajouter', {categorie: categorie.id, texte: prescription_texte.id}) }}"
                                     data-target="#modal-prescription" title="Ajouter un article">
                                 <span class="glyphicon glyphicon-plus"></span>
@@ -36,9 +41,7 @@
                     aria-labelledby="text_header_{{ prescription_texte.id }}"
                     data-content="{{ path('admin_prescriptions_types_texte_voir_articles', {categorie: prescription_texte.categorie.id, texte: prescription_texte.id}) }}"
                 >
-                    <div class="panel-body">
-
-                    </div>
+                    <div class="panel-body"></div>
                 </div>
             </div>
         {% endif %}
