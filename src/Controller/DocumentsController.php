@@ -121,6 +121,8 @@ class DocumentsController extends AbstractController
                 try {
                     // @todo: Générer un nom de fichier plus sûr
                     $fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));
+
+                    $this->addFlash('success', 'Le document a bien été ajouté.');
                 } catch (FileException $fileException) {
                     $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
 
@@ -130,8 +132,6 @@ class DocumentsController extends AbstractController
 
                     $this->addFlash('danger', "Erreur lors de l'ajout du document.");
                 }
-
-                $this->addFlash('success', 'Le document a bien été ajouté.');
 
                 return $this->redirectToRoute('admin_documents');
             }
@@ -161,14 +161,20 @@ class DocumentsController extends AbstractController
         $nomFichier = $request->request->get('nomFichier');
 
         if (!\is_string($nomFichier)) {
-            throw new \InvalidArgumentException("Le nom du fichier n'est pas correct.");
+            $this->logger->error("Le nom du fichier n'est pas correct.", ['nomFichier' => $nomFichier]);
+            $this->addFlash('danger', 'Erreur lors de la suppression du document.');
+
+            $this->json([], 400);
         }
 
         $nomFichier = File::sanitize($nomFichier);
         $idCommission = filter_var($request->request->get('idCommission'), FILTER_VALIDATE_INT);
 
         if (false === $idCommission) {
-            throw new \InvalidArgumentException("L'identifiant de la commission n'est pas correct.");
+            $this->logger->error("L'identifiant de la commission n'est pas correct.", ['idCommission' => $request->request->get('idCommission')]);
+            $this->addFlash('danger', 'Erreur lors de la suppression du document.');
+
+            $this->json([], 400);
         }
 
         $filepath = $documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier;
@@ -179,7 +185,6 @@ class DocumentsController extends AbstractController
             $filesystem->remove($filepath);
         } catch (IOException $ioException) {
             $this->logger->error($ioException->getMessage());
-
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
 
             $this->json([], 500);
