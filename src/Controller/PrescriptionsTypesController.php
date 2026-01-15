@@ -73,16 +73,17 @@ class PrescriptionsTypesController extends AbstractController
      */
     public function reOrder(Request $request): Response
     {
-        $order = $request->get('order');
+        $orders = $request->get('order');
         $type = $request->get('type');
 
-        if (!is_array($order)) {
+        if (!is_array($orders)) {
             throw new BadRequestHttpException("Le paramètre order n'est pas valide");
         }
 
+        /** @var array<int, string> $orders */
         $order = array_map(function (string $identifiant) {
             return (int) $identifiant;
-        }, $order);
+        }, $orders);
 
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);
