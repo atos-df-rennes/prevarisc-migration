@@ -80,6 +80,10 @@ class PrescriptionsTypesController extends AbstractController
             throw new BadRequestHttpException("Le paramètre order n'est pas valide");
         }
 
+        $order = array_map(function (string $identifiant) {
+            return (int) $identifiant;
+        }, $order);
+
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);
         } elseif ('texte' === $type) {

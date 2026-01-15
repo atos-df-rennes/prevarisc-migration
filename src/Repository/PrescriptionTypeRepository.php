@@ -58,7 +58,7 @@ class PrescriptionTypeRepository extends ServiceEntityRepository
         $elements = $this->findBy(['id' => $order]);
 
         foreach ($elements as $element) {
-            $position = array_search($element->getId(), $order);
+            $position = array_search($element->getId(), $order, true);
             $element->setNumero($position + 1);
         }
 
