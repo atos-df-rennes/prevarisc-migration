@@ -153,7 +153,7 @@ class DocumentsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/documents/supprimer", name="admin_documents_delete")
+     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"})
      */
     public function supprimer(Request $request, Filesystem $filesystem, string $documentsRealDataPath): Response
     {
