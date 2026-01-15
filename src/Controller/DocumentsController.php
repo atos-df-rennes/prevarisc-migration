@@ -118,7 +118,8 @@ class DocumentsController extends AbstractController
                 }
 
                 try {
-                    $fichier->move($documentsRealDataPath.$commission->id(), $fichier->getClientOriginalName());
+                    // @todo: Générer un nom de fichier plus sûr
+                    $fichier->move($documentsRealDataPath.$commission->id(), str_replace(DIRECTORY_SEPARATOR, '', $fichier->getClientOriginalName()));
                 } catch (FileException $fileException) {
                     $this->logger->error("Erreur lors de l'ajout du document dans la Gestion des documents : ".$fileException->getMessage());
 
@@ -151,11 +152,21 @@ class DocumentsController extends AbstractController
      */
     public function supprimer(Request $request, Filesystem $filesystem, string $documentsRealDataPath): Response
     {
-        $nomFichier = filter_var($request->request->get('nomFichier'), FILTER_SANITIZE_STRING);
+        // @todo: Générer un nom de fichier plus sûr
+        $nomFichier = $request->request->get('nomFichier');
+
+        if (!\is_string($nomFichier)) {
+            throw new \InvalidArgumentException("Le nom du fichier n'est pas correct.");
+        }
+
+        $nomFichier = str_replace(DIRECTORY_SEPARATOR, '', $nomFichier);
         $idCommission = filter_var($request->request->get('idCommission'), FILTER_VALIDATE_INT);
+        $filepath = $documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier;
+
+        $this->logger->debug('Suppression du document.', ['chemin' => $filepath]);
 
         try {
-            $filesystem->remove($documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier);
+            $filesystem->remove($filepath);
         } catch (IOException $ioException) {
             $this->logger->error($ioException->getMessage());
 
