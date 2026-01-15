@@ -81,7 +81,7 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         /** @var array<int, string> $orders */
-        $order = array_map(function (string $identifiant) {
+        $order = array_map(function (string $identifiant): int {
             return (int) $identifiant;
         }, $orders);
 
