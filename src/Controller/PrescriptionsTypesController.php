@@ -194,6 +194,56 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_textes_ajouter")
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_texte_modifier")
+     *
+     * @ParamConverter("categorie", options={"id" = "categorie"})
+     * @ParamConverter("texte", options={"id" = "texte"})
+     * @ParamConverter("prescription", options={"id" = "prescription"})
+     */
+    public function textsAssociationForm(
+        Request $request,
+        PrescriptionCategorie $categorie,
+        PrescriptionTexte $texte,
+        ?PrescriptionType $prescription = null
+    ): Response {
+        $actionUrl = $this->getCurrentUrl($request);
+
+        if (null === $prescription) {
+            $maxNumCat = $this->prescriptionTypeRepository->recupMaxNumCat();
+
+            $prescription = new PrescriptionType();
+            $prescription
+                ->setCategorie($categorie->getId())
+                ->setTexte($texte->getId())
+                ->setArticle(0)
+                ->setNumero($maxNumCat + 1)
+            ;
+        }
+
+        $form = $this->createForm(PrescriptionTypePrescriptionType::class, $prescription, [
+            'action' => $actionUrl,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($prescription);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        return $this->render('prescriptions_types/form_prescription.html.twig', [
+            'texte' => $texte,
+            'prescription' => $prescription,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/ajouter", name="admin_prescriptions_types_article_ajouter")
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/modifier", name="admin_prescriptions_types_articles_modifier")
      *
