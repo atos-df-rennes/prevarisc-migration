@@ -228,6 +228,10 @@ class CalendrierDesCommissionsController extends AbstractController
             $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
 
             // @todo: Retourner le JSON pour FullCalendar avec POST à faire en Ajax
+            /*
+             * On est obligé de faire ça en Ajax pour l'affectation qui n'est prise en compte que lorsque l'utilisateur clique sur le bouton "Enregistrer".
+             * On souhaite quand même afficher les dates créer à l'utilisateur.
+             */
             return $this->redirectToRoute('dossier_edit', ['id' => 53456]);
         }
 
