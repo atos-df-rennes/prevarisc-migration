@@ -7,6 +7,7 @@ use App\Dto\Commission\CommissionDatesDto;
 use App\Dto\Commission\DateCommissionItemDto;
 use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
+use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,16 +24,21 @@ final class CalendarService
     /** @var CommissionTypeEvenementRepository */
     private $commissionTypeEvenementRepository;
 
+    /** @var CommissionRepository */
+    private $commissionRepository;
+
     /** @var EntityManagerInterface */
     private $entityManager;
 
     public function __construct(
         DateCommissionRepository $dateCommissionRepository,
         CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
+        CommissionRepository $commissionRepository,
         EntityManagerInterface $entityManager
     ) {
         $this->dateCommissionRepository = $dateCommissionRepository;
         $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
+        $this->commissionRepository = $commissionRepository;
         $this->entityManager = $entityManager;
     }
 
@@ -198,12 +204,32 @@ final class CalendarService
         $this->updateDependingDossierDates($dateCommission);
     }
 
+    /**
+     * Créer un DTO avec toutes les informations requises pour le formulaire de création d'une ou plusieurs dates de commission.
+     * La requête contient les éléments saisis dans le formulaire du dossier (Libellé, Commission et TypeEvenement)
+     * et des événements saisis sur le calendrier (Dates saisies par l'utilisateur).
+     *
+     * @throws \InvalidArgumentException Si la commission ou le type d'événement n'existe pas.
+     */
     public function createDatesDtoFromRequest(Request $request): CommissionDatesDto
     {
         // Propriétés générales.
         $dateCommissionDto = new CommissionDatesDto();
         $dateCommissionDto->setLibelle($request->query->get('libelle'));
-        $dateCommissionDto->setTypeEvenement($this->commissionTypeEvenementRepository->find($request->query->getInt('typeEvenement', 1)) ?? 1);
+
+        $idCommission = $request->query->getInt('commission');
+        $commission = $this->commissionRepository->find($idCommission);
+        if (null === $commission) {
+            throw new \InvalidArgumentException(sprintf('Commission #%d introuvable', $idCommission));
+        }
+        $dateCommissionDto->setCommission($this->commissionRepository->find($idCommission) );
+
+        $idTypeEvenement = $request->query->getInt('typeEvenement');
+        $typeEvenement = $this->commissionTypeEvenementRepository->find($idTypeEvenement);
+        if (null === $typeEvenement) {
+            throw new \InvalidArgumentException(sprintf('Type événement #%d introuvable', $idTypeEvenement));
+        }
+        $dateCommissionDto->setTypeEvenement($this->commissionTypeEvenementRepository->find($idTypeEvenement));
 
         $start = $request->query->get('start');
         $end = $request->query->get('end');
@@ -213,7 +239,8 @@ final class CalendarService
         $dateEnd = $this->parseJavaScriptDate($end);
 
         // Ajout de la 1ère date.
-        $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($dateStart));
+        $dateCommissionItem = new DateCommissionItemDto($dateStart);
+        $dateCommissionDto->addDate($dateCommissionItem);
 
         // Ajout des dates suivantes si sélection multiple.
         $numberOfAdditionalDates = $dateStart->diff($dateEnd)->days;
@@ -222,7 +249,8 @@ final class CalendarService
                 $date = clone $dateStart;
                 $date->modify(\sprintf('+%d days', $i));
 
-                $dateCommissionDto->addDate(DateCommissionItemDto::fromDateTime($date));
+                $dateCommissionItem = new DateCommissionItemDto($date);
+                $dateCommissionDto->addDate($dateCommissionItem);
             }
         }
 

@@ -3,6 +3,7 @@
 namespace App\Form\CalendrierDesCommissions;
 
 use App\Dto\Commission\CommissionDatesDto;
+use App\Entity\Commission;
 use App\Entity\CommissionTypeEvenement;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -10,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -24,6 +26,14 @@ class CommissionDatesType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Saisissez le libellé de la commission',
                 ],
+            ])
+            ->add('commission', EntityType::class, [
+                'label' => 'Commission concernée',
+                'class' => Commission::class,
+                'choice_label' => 'libelle',
+                'row_attr' => [
+                    'class' => 'hidden'
+                ]
             ])
             ->add('typeEvenement', EntityType::class, [
                 'label' => 'Type de la commission',

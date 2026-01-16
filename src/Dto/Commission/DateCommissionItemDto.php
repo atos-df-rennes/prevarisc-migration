@@ -10,45 +10,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class DateCommissionItemDto
 {
     /**
-     * @var \DateTimeInterface|null
+     * @var ?\DateTimeInterface
      *
      * @Assert\NotNull(message="La date est obligatoire")
      */
     private $date;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var ?\DateTimeInterface
      *
      * @Assert\NotNull(message="L'heure de début est obligatoire")
      */
     private $heureDebut;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var ?\DateTimeInterface
      *
      * @Assert\NotNull(message="L'heure de fin est obligatoire")
      */
     private $heureFin;
 
-    private function __construct(
-        ?\DateTimeInterface $date = null,
-        ?\DateTimeInterface $heureDebut = null,
-        ?\DateTimeInterface $heureFin = null
-    ) {
+    public function __construct(?\DateTimeInterface $date = null) {
         $this->date = $date;
-        $this->heureDebut = $heureDebut;
-        $this->heureFin = $heureFin;
-    }
 
-    public static function fromDateTime(\DateTimeInterface $date): self
-    {
-        $dateDebut = clone $date;
-        $dateDebut->setTime(9, 0);
+        if (null !== $date) {
+            $heureDebut = clone $date;
+            $this->heureDebut = $heureDebut->setTime(9, 0);
 
-        $dateFin = clone $date;
-        $dateFin->setTime(18, 0);
-
-        return new self($date, $dateDebut, $dateFin);
+            $heureFin = clone $date;
+            $this->heureFin = $heureFin->setTime(18, 0);
+        }
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -56,7 +47,7 @@ final class DateCommissionItemDto
         return $this->date;
     }
 
-    public function setDate(?\DateTimeInterface $date): self
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -68,7 +59,7 @@ final class DateCommissionItemDto
         return $this->heureDebut;
     }
 
-    public function setHeureDebut(?\DateTimeInterface $heureDebut): self
+    public function setHeureDebut(\DateTimeInterface $heureDebut): self
     {
         $this->heureDebut = $heureDebut;
 
@@ -80,7 +71,7 @@ final class DateCommissionItemDto
         return $this->heureFin;
     }
 
-    public function setHeureFin(?\DateTimeInterface $heureFin): self
+    public function setHeureFin(\DateTimeInterface $heureFin): self
     {
         $this->heureFin = $heureFin;
 

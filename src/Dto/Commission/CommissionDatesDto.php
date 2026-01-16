@@ -2,6 +2,7 @@
 
 namespace App\Dto\Commission;
 
+use App\Entity\Commission;
 use App\Entity\CommissionTypeEvenement;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,12 +21,14 @@ final class CommissionDatesDto
     private $libelle;
 
     /**
-     * @var int
+     * @var ?Commission
+     *
+     * @Assert\NotNull(message="La commission est obligatoire")
      */
     private $commission;
 
     /**
-     * @var CommissionTypeEvenement
+     * @var ?CommissionTypeEvenement
      *
      * @Assert\NotNull(message="Le type d'événement est obligatoire")
      */
@@ -74,7 +77,19 @@ final class CommissionDatesDto
         return $this;
     }
 
-    public function getTypeEvenement(): CommissionTypeEvenement
+    public function getCommission(): ?Commission
+    {
+        return $this->commission;
+    }
+
+    public function setCommission(Commission $commission): self
+    {
+        $this->commission = $commission;
+
+        return $this;
+    }
+
+    public function getTypeEvenement(): ?CommissionTypeEvenement
     {
         return $this->typeEvenement;
     }

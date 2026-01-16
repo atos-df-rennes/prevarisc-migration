@@ -84,7 +84,7 @@
                 handleEventDrop(event, $container)
             },
             select: function(start, end) {
-                handleSelect(start, end, options.commissionNom, options.type)
+                handleSelect(start, end, options.commissionId, options.commissionNom, options.type)
             }
         });
     }
@@ -225,10 +225,11 @@
         });
     }
 
-    function handleSelect(start, end, commissionNom, dossierType) {
+    function handleSelect(start, end, commissionId, commissionNom, dossierType) {
         $.ajax({
             url: CONFIG.routes.selectEvent,
             data: {
+                commission: commissionId,
                 libelle: commissionNom,
                 typeEvenement: dossierType,
                 start: start.toISOString(),

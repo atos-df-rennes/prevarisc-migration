@@ -208,8 +208,21 @@ class CalendrierDesCommissionsController extends AbstractController
         CalendarService $calendarService
     ): Response
     {
-        $dateCommissionDto = $calendarService->createDatesDtoFromRequest($request);
-        $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto);
+        $dateCommissionDto = new CommissionDatesDto();
+
+        if ($request->isMethod(Request::METHOD_GET)) {
+            $dateCommissionDto = $calendarService->createDatesDtoFromRequest($request);
+        }
+
+        $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto, [
+            'action' => $this->generateUrl('calendrier_des_commissions_creer_date'),
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            dd($data);
+        }
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [
             'form' => $form->createView(),
