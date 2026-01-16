@@ -128,7 +128,7 @@
                 },
                 success: function(jsonResult) {
                     //On récupere toutes les dates liées et on les affiche
-                    if (jsonResult.length > 1) {
+                    if (jsonResult.length > 0) {
                         const alertDatesLieesDiv = document.querySelectorAll('.dates-liees__wrapper');
                         alertDatesLieesDiv.forEach(div => div.remove());
 
