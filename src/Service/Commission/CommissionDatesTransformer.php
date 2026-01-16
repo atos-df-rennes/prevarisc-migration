@@ -17,7 +17,7 @@ class CommissionDatesTransformer
      *
      * @return DateCommission[]
      */
-    public function transformToEntities(CommissionDatesDto $dto, Commission $commission): array
+    public function transformToEntities(CommissionDatesDto $dto): array
     {
         $dateCommissions = [];
 
@@ -25,13 +25,18 @@ class CommissionDatesTransformer
         $datesDto = $dto->getDates()->toArray();
 
         // Gestion de la périodicité
-        if ($dto->isWithPeriodicite() && $dto->getDateFin() && $dto->getPeriodicite() && count($datesDto) === 1) {
+        if (
+            $dto->isWithPeriodicite()
+            && $dto->getDateFin()
+            && $dto->getPeriodicite()
+            && count($datesDto) === 1
+        ) {
             $datesDto = $this->generatePeriodicDates($datesDto[0], $dto->getDateFin(), $dto->getPeriodicite());
         }
 
         // Création des entités DateCommission
         foreach ($datesDto as $dateDto) {
-            $dateCommission = $this->createDateCommission($dateDto, $commission, $dto);
+            $dateCommission = $this->createDateCommission($dateDto, $dto);
             $dateCommissions[] = $dateCommission;
         }
 
@@ -43,12 +48,11 @@ class CommissionDatesTransformer
      */
     private function createDateCommission(
         DateCommissionItemDto $dateDto,
-        Commission $commission,
         CommissionDatesDto $commissionDto
     ): DateCommission {
         $dateCommission = new DateCommission();
 
-        $dateCommission->setCommission($commission);
+        $dateCommission->setCommission($commissionDto->getCommission());
         $dateCommission->setDate($dateDto->getDate());
         $dateCommission->setHeureDebut($dateDto->getHeureDebut());
         $dateCommission->setHeureFin($dateDto->getHeureFin());

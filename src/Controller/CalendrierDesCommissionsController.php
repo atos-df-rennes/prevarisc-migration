@@ -4,12 +4,11 @@ namespace App\Controller;
 
 use App\Dto\Commission\CalendarEventDto;
 use App\Dto\Commission\CommissionDatesDto;
-use App\Dto\Commission\DateCommissionItemDto;
 use App\Dto\Commission\DateCommissionLieeDto;
 use App\Form\CalendrierDesCommissions\CommissionDatesType;
-use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
+use App\Service\Commission\CommissionDatesTransformer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -205,11 +204,13 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     public function creerDate(
         Request $request,
-        CalendarService $calendarService
+        CalendarService $calendarService,
+        CommissionDatesTransformer $commissionDatesTransformer
     ): Response
     {
         $dateCommissionDto = new CommissionDatesDto();
 
+        // Hydratation du DTO via l'événement FullCalendar et les données du dossier.
         if ($request->isMethod(Request::METHOD_GET)) {
             $dateCommissionDto = $calendarService->createDatesDtoFromRequest($request);
         }
@@ -220,8 +221,14 @@ class CalendrierDesCommissionsController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var CommissionDatesDto $data */
             $data = $form->getData();
-            dd($data);
+
+            $datesCommission = $commissionDatesTransformer->transformToEntities($data);
+            $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
+
+            // @todo: Retourner le JSON pour FullCalendar avec POST à faire en Ajax
+            return $this->redirectToRoute('dossier_edit', ['id' => 53456]);
         }
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [

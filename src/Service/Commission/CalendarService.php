@@ -258,6 +258,36 @@ final class CalendarService
     }
 
     /**
+     * @param DateCommission[] $datesCommission
+     */
+    public function sauvegarderDatesCommission(array $datesCommission, bool $withPeriodicite): void
+    {
+        // On enregistre la 1ère date et on flush pour pouvoir récupérer son identifiant pour les éventuelles dates liées.
+        $this->entityManager->persist($datesCommission[0]);
+        $this->entityManager->flush();
+
+        $idPremiereDate = $datesCommission[0]->getId();
+
+        foreach ($datesCommission as $index => $dateCommission) {
+            // On vient d'enregistrer la 1ère date, on ne le refait donc pas.
+            if (0 === $index) {
+                continue;
+            }
+
+            /* Si la checkbox périodicité n'est pas cochée et qu'on a plusieurs dates,
+             * c'est qu'on a fait une sélection multiple et que les dates sont liées.
+             */
+            if (!$withPeriodicite) {
+                $dateCommission->setDateCommissionLiees($idPremiereDate);
+            }
+
+            $this->entityManager->persist($dateCommission);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    /**
      * Met à jour les dates des dossiers liés à une date de commission.
      * Iso-fonctionnel avec Model_DbTable_DateCommission::updateDependingDossierDates().
      */
