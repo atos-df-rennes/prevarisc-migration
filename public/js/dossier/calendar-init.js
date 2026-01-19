@@ -111,7 +111,7 @@
     }
 
     function handleEventClick(event, $dateField, calendarType, dossierType) {
-        $dateField.val(formatDateISO(event.start, event.end));
+        $dateField.val(formatDateISO(event.start, event.end, true));
         // @todo: ajouter les identifiants d'affectation à la date de commission/visite
 
         /**
@@ -256,7 +256,7 @@
                 })
 
                 // Gestion de la soumission du formulaire en Ajax
-                setupFormSubmit($container, options.calendarType);
+                setupFormSubmit(start, end, $container, options);
             }
         })
     }
@@ -289,7 +289,7 @@
     /**
      * Formate une date en ISO (yyyy-mm-dd)
      */
-    function formatDateISO(start, end) {
+    function formatDateISO(start, end, utcDate = false) {
         if (!start || !end) return '';
 
         const dateStart = new Date(start);
@@ -300,7 +300,8 @@
             date = dateStart;
         }
 
-        const dd = ('0' + date.getUTCDate()).slice(-2);
+        const formattedDate = utcDate ? date.getUTCDate() : date.getDate();
+        const dd = ('0' + formattedDate).slice(-2);
         const mm = ('0' + (date.getUTCMonth() + 1)).slice(-2);
         const yyyy = date.getUTCFullYear();
 
@@ -323,7 +324,7 @@
     /**
      * Configure la soumission Ajax du formulaire de création de dates
      */
-    function setupFormSubmit($container, calendarType) {
+    function setupFormSubmit(start, end, $container, options) {
         const $modal = $('#' + CONFIG.selectors.modalName);
         const $form = $modal.find('form');
 
@@ -345,9 +346,8 @@
                         $.toast.success(response.message || 'Les dates ont été créées avec succès');
                         $modal.modal('hide');
                         
-                        // Rafraîchir les événements du calendrier sans recharger la page
-                        $container.fullCalendar('refetchEvents');
-                        hideCalendar(calendarType)
+                        options.dateField.val(formatDateISO(start, end))
+                        hideCalendar(options.calendarType)
                     } else {
                         const errorMsg = (response && response.error) ? response.error : 'Erreur lors de la création des dates';
                         $.toast.error(errorMsg);
