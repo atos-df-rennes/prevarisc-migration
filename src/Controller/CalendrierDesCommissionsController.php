@@ -206,8 +206,7 @@ class CalendrierDesCommissionsController extends AbstractController
         Request $request,
         CalendarService $calendarService,
         CommissionDatesTransformer $commissionDatesTransformer
-    ): Response
-    {
+    ): Response {
         $dateCommissionDto = new CommissionDatesDto();
 
         // Hydratation du DTO via l'événement FullCalendar et les données du dossier.

@@ -37,7 +37,7 @@ final class CommissionDatesTransformer
             $dto->isWithPeriodicite()
             && $dto->getDateFin()
             && $dto->getPeriodicite()
-            && count($datesDto) === 1
+            && 1 === count($datesDto)
         ) {
             $datesDto = $this->generatePeriodicDates($datesDto[0], $dto->getDateFin(), $dto->getPeriodicite());
         }
@@ -49,6 +49,7 @@ final class CommissionDatesTransformer
             } catch (\InvalidArgumentException $exception) {
                 continue;
             }
+
             $dateCommissions[] = $dateCommission;
         }
 
@@ -58,7 +59,7 @@ final class CommissionDatesTransformer
     /**
      * Crée une entité DateCommission depuis un DateCommissionItemDto.
      *
-     * @throws \InvalidArgumentException Si une information requise est manquante.
+     * @throws \InvalidArgumentException si une information requise est manquante
      */
     private function createDateCommission(
         DateCommissionItemDto $dateDto,
@@ -69,12 +70,7 @@ final class CommissionDatesTransformer
         $heureFin = $dateDto->getHeureFin();
         $typeEvenement = $commissionDto->getTypeEvenement();
 
-        if (
-            null === $date
-            || null === $heureDebut
-            || null === $heureFin
-            || null === $typeEvenement
-        ) {
+        if (in_array(null, [$date, $heureDebut, $heureFin, $typeEvenement], true)) {
             $this->logger->error('Informations manquantes pour créer une date de commission.', [
                 'date' => $date,
                 'heure_debut' => $heureDebut,
@@ -112,11 +108,7 @@ final class CommissionDatesTransformer
         $baseDateHeureDebut = $baseDate->getHeureDebut();
         $baseDateHeureFin = $baseDate->getHeureFin();
 
-        if (
-            null === $baseDateDate
-            || null === $baseDateHeureDebut
-            || null === $baseDateHeureFin
-        ) {
+        if (in_array(null, [$baseDateDate, $baseDateHeureDebut, $baseDateHeureFin], true)) {
             $this->logger->error('Informations manquantes pour générer périodiquement des dates.', [
                 'base_date' => $baseDateDate,
                 'base_date_heure_debut' => $baseDateHeureDebut,
@@ -130,7 +122,7 @@ final class CommissionDatesTransformer
 
         $currentDate = clone $baseDateDate;
 
-        $interval = new \DateInterval('P' . ($periodiciteWeeks * 7) . 'D');
+        $interval = new \DateInterval('P'.($periodiciteWeeks * 7).'D');
 
         while (true) {
             $currentDate = $currentDate->add($interval);

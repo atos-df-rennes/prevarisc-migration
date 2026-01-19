@@ -30,7 +30,8 @@ final class DateCommissionItemDto
      */
     private $heureFin;
 
-    public function __construct(?\DateTime $date = null) {
+    public function __construct(?\DateTime $date = null)
+    {
         $this->date = $date;
 
         if (null !== $date) {

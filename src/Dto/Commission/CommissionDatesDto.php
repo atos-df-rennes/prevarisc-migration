@@ -54,14 +54,15 @@ final class CommissionDatesDto
     /**
      * @var ?\DateTimeInterface
      */
-    private $dateFin = null;
+    private $dateFin;
 
     /**
      * @var int
      */
     private $periodicite = 1;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->dates = new ArrayCollection();
     }
 

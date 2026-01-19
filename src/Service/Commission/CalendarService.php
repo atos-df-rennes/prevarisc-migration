@@ -210,7 +210,7 @@ final class CalendarService
      * La requête contient les éléments saisis dans le formulaire du dossier (Libellé, Commission et TypeEvenement)
      * et des événements saisis sur le calendrier (Dates saisies par l'utilisateur).
      *
-     * @throws \InvalidArgumentException Si la commission ou le type d'événement n'existe pas.
+     * @throws \InvalidArgumentException si la commission ou le type d'événement n'existe pas
      */
     public function createDatesDtoFromRequest(Request $request): CommissionDatesDto
     {
@@ -229,6 +229,7 @@ final class CalendarService
         if (null === $commission) {
             throw new \InvalidArgumentException(sprintf('Commission #%d introuvable', $idCommission));
         }
+
         $dateCommissionDto->setCommission($commission);
 
         $idTypeEvenement = $request->query->getInt('typeEvenement');
@@ -236,6 +237,7 @@ final class CalendarService
         if (null === $typeEvenement) {
             throw new \InvalidArgumentException(sprintf('Type événement #%d introuvable', $idTypeEvenement));
         }
+
         $dateCommissionDto->setTypeEvenement($typeEvenement);
 
         $start = $request->query->get('start');
