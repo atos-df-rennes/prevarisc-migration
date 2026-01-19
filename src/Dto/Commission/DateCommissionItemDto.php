@@ -10,27 +10,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class DateCommissionItemDto
 {
     /**
-     * @var ?\DateTimeInterface
+     * @var ?\DateTime
      *
      * @Assert\NotNull(message="La date est obligatoire")
      */
     private $date;
 
     /**
-     * @var ?\DateTimeInterface
+     * @var ?\DateTime
      *
      * @Assert\NotNull(message="L'heure de début est obligatoire")
      */
     private $heureDebut;
 
     /**
-     * @var ?\DateTimeInterface
+     * @var ?\DateTime
      *
      * @Assert\NotNull(message="L'heure de fin est obligatoire")
      */
     private $heureFin;
 
-    public function __construct(?\DateTimeInterface $date = null) {
+    public function __construct(?\DateTime $date = null) {
         $this->date = $date;
 
         if (null !== $date) {
@@ -42,36 +42,36 @@ final class DateCommissionItemDto
         }
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?\DateTime
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(\DateTime $date): self
     {
         $this->date = $date;
 
         return $this;
     }
 
-    public function getHeureDebut(): ?\DateTimeInterface
+    public function getHeureDebut(): ?\DateTime
     {
         return $this->heureDebut;
     }
 
-    public function setHeureDebut(\DateTimeInterface $heureDebut): self
+    public function setHeureDebut(\DateTime $heureDebut): self
     {
         $this->heureDebut = $heureDebut;
 
         return $this;
     }
 
-    public function getHeureFin(): ?\DateTimeInterface
+    public function getHeureFin(): ?\DateTime
     {
         return $this->heureFin;
     }
 
-    public function setHeureFin(\DateTimeInterface $heureFin): self
+    public function setHeureFin(\DateTime $heureFin): self
     {
         $this->heureFin = $heureFin;
 

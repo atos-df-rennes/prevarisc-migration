@@ -11,6 +11,7 @@ use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -87,7 +88,7 @@ final class CalendarService
      *
      * @throws \InvalidArgumentException si le format est invalide
      */
-    public function parseJavaScriptDateToTime(string $dateString): \DateTimeInterface
+    public function parseJavaScriptDateToTime(string $dateString): \DateTime
     {
         // Avec toISOString(), on reçoit maintenant du ISO 8601 en UTC
         // Il faut parser la date complète puis extraire l'heure en timezone locale
@@ -128,7 +129,7 @@ final class CalendarService
      *
      * @throws \InvalidArgumentException si le format n'est pas ISO 8601 valide
      */
-    public function parseJavaScriptDate(string $dateString): \DateTimeInterface
+    public function parseJavaScriptDate(string $dateString): \DateTime
     {
         // Format ISO 8601 avec millisecondes et Z (UTC) - format FullCalendar standard
         // Exemple : "2026-01-09T09:00:00.000Z"
@@ -213,26 +214,36 @@ final class CalendarService
      */
     public function createDatesDtoFromRequest(Request $request): CommissionDatesDto
     {
+        $libelle = $request->query->get('libelle');
+
+        if (!\is_string($libelle) && null !== $libelle) {
+            throw new \InvalidArgumentException("Le format du libellé n'est pas valide.");
+        }
+
         // Propriétés générales.
         $dateCommissionDto = new CommissionDatesDto();
-        $dateCommissionDto->setLibelle($request->query->get('libelle'));
+        $dateCommissionDto->setLibelle($libelle);
 
         $idCommission = $request->query->getInt('commission');
         $commission = $this->commissionRepository->find($idCommission);
         if (null === $commission) {
             throw new \InvalidArgumentException(sprintf('Commission #%d introuvable', $idCommission));
         }
-        $dateCommissionDto->setCommission($this->commissionRepository->find($idCommission) );
+        $dateCommissionDto->setCommission($commission);
 
         $idTypeEvenement = $request->query->getInt('typeEvenement');
         $typeEvenement = $this->commissionTypeEvenementRepository->find($idTypeEvenement);
         if (null === $typeEvenement) {
             throw new \InvalidArgumentException(sprintf('Type événement #%d introuvable', $idTypeEvenement));
         }
-        $dateCommissionDto->setTypeEvenement($this->commissionTypeEvenementRepository->find($idTypeEvenement));
+        $dateCommissionDto->setTypeEvenement($typeEvenement);
 
         $start = $request->query->get('start');
         $end = $request->query->get('end');
+
+        if (!\is_string($start) || !\is_string($end)) {
+            throw new \InvalidArgumentException("Le format des dates n'est pas valide.");
+        }
 
         // Conversion de la date FullCalendar en DateTimeInterface.
         $dateStart = $this->parseJavaScriptDate($start);
@@ -267,6 +278,10 @@ final class CalendarService
         $this->entityManager->flush();
 
         $idPremiereDate = $datesCommission[0]->getId();
+
+        if (null === $idPremiereDate) {
+            throw new EntityNotFoundException("La date de commission n'existe pas.");
+        }
 
         foreach ($datesCommission as $index => $dateCommission) {
             // On vient d'enregistrer la 1ère date, on ne le refait donc pas.
