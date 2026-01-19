@@ -9,6 +9,7 @@ use App\Form\CalendrierDesCommissions\CommissionDatesType;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use App\Service\Commission\CommissionDatesTransformer;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -224,7 +225,14 @@ class CalendrierDesCommissionsController extends AbstractController
             $data = $form->getData();
 
             $datesCommission = $commissionDatesTransformer->transformToEntities($data);
-            $idAffectation = $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
+            try {
+                $idAffectation = $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
+            } catch (EntityNotFoundException $entityNotFoundException) {
+                return $this->json([
+                    'success' => false,
+                    'error' => "La date principale n'a pas pu être récupérée correctement",
+                ]);
+            }
 
             if (!$request->isXmlHttpRequest()) {
                 return $this->json([
@@ -236,7 +244,7 @@ class CalendrierDesCommissionsController extends AbstractController
             // Retourne JSON pour FullCalendar (requête Ajax)
             return $this->json([
                 'success' => true,
-                'message' => 'Les dates ont été créées avec succès',
+                'message' => 'La/Les date(s) ont été créée(s) avec succès',
                 'idAffectation' => $idAffectation,
             ]);
         }

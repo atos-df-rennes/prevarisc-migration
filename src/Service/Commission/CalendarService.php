@@ -272,6 +272,8 @@ final class CalendarService
 
     /**
      * @param DateCommission[] $datesCommission
+     *
+     * @throws EntityNotFoundException si la date de commission n'existe pas
      */
     public function sauvegarderDatesCommission(array $datesCommission, bool $withPeriodicite): int
     {
