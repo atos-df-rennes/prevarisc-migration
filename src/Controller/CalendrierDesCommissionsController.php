@@ -227,12 +227,18 @@ class CalendrierDesCommissionsController extends AbstractController
             $datesCommission = $commissionDatesTransformer->transformToEntities($data);
             $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
 
-            // @todo: Retourner le JSON pour FullCalendar avec POST à faire en Ajax
-            /*
-             * On est obligé de faire ça en Ajax pour l'affectation qui n'est prise en compte que lorsque l'utilisateur clique sur le bouton "Enregistrer".
-             * On souhaite quand même afficher les dates créer à l'utilisateur.
-             */
-            return $this->redirectToRoute('dossier_edit', ['id' => 53456]);
+            if (!$request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => false,
+                    'error' => "La requête n'est pas correcte"
+                ]);
+            }
+
+            // Retourne JSON pour FullCalendar (requête Ajax)
+            return $this->json([
+                'success' => true,
+                'message' => 'Les dates ont été créées avec succès',
+            ]);
         }
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [

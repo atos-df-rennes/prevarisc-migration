@@ -84,7 +84,7 @@
                 handleEventDrop(event, $container)
             },
             select: function(start, end) {
-                handleSelect(start, end, options.commissionId, options.commissionNom, options.type)
+                handleSelect(start, end, $container, options)
             }
         });
     }
@@ -185,7 +185,7 @@
                     $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
                 }
             },
-            error: function(xhr, status, error) {
+            error: function() {
                 $.toast.error('Erreur lors de la modification de l\'événement');
                 $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
             }
@@ -218,20 +218,20 @@
                     $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
                 }
             },
-            error: function(xhr, status, error) {
+            error: function() {
                 $.toast.error('Erreur lors du déplacement de l\'événement');
                 $container.fullCalendar('refetchEvents'); // Annuler le changement visuellement
             }
         });
     }
 
-    function handleSelect(start, end, commissionId, commissionNom, dossierType) {
+    function handleSelect(start, end, $container, options) {
         $.ajax({
             url: CONFIG.routes.selectEvent,
             data: {
-                commission: commissionId,
-                libelle: commissionNom,
-                typeEvenement: dossierType,
+                commission: options.commissionId,
+                libelle: options.commissionNom,
+                typeEvenement: options.type,
                 start: start.toISOString(),
                 end: end.toISOString(),
             },
@@ -254,6 +254,9 @@
                     $('#commission_dates_dateFin').closest('.form-group').toggleClass('hidden')
                     $('#commission_dates_periodicite').closest('.form-group').toggleClass('hidden')
                 })
+
+                // Gestion de la soumission du formulaire en Ajax
+                setupFormSubmit($container, options.calendarType);
             }
         })
     }
@@ -315,6 +318,46 @@
         };
 
         return colors[className] || '#3A87AD';
+    }
+
+    /**
+     * Configure la soumission Ajax du formulaire de création de dates
+     */
+    function setupFormSubmit($container, calendarType) {
+        const $modal = $('#' + CONFIG.selectors.modalName);
+        const $form = $modal.find('form');
+
+        // Supprimer les anciens handlers pour éviter les doublons
+        $form.off('submit');
+
+        $form.on('submit', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(response) {
+                    if (response && response.success) {
+                        $.toast.success(response.message || 'Les dates ont été créées avec succès');
+                        $modal.modal('hide');
+                        
+                        // Rafraîchir les événements du calendrier sans recharger la page
+                        $container.fullCalendar('refetchEvents');
+                        hideCalendar(calendarType)
+                    } else {
+                        const errorMsg = (response && response.error) ? response.error : 'Erreur lors de la création des dates';
+                        $.toast.error(errorMsg);
+                    }
+                },
+                error: function() {
+                    $.toast.error('Erreur lors de la création des dates');
+                }
+            });
+        });
     }
 
     /**
