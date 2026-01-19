@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 19 (Levée réserves suite avis défavorable).
+
+ *
+ * @group functional
  */
 class DossierEditNature19Test extends WebTestCase
 {

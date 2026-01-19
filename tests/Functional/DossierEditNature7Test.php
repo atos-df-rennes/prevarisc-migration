@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 7 (RVRMD diag sécu => Levée de prescriptions).
+
+ *
+ * @group functional
  */
 class DossierEditNature7Test extends WebTestCase
 {

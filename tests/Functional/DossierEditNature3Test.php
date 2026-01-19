@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 3 (Dérogation).
+ *
+ * @group functional
  */
 class DossierEditNature3Test extends WebTestCase
 {

@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 11 (Demande de registre de sécurité CTS).
+
+ *
+ * @group functional
  */
 class DossierEditNature11Test extends WebTestCase
 {

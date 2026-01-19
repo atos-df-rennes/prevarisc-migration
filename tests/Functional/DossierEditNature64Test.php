@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 64 (Visite conseil).
+
+ *
+ * @group functional
  */
 class DossierEditNature64Test extends WebTestCase
 {

@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Test simple pour l'édition de la nature 21 (Visite périodique).
  * Vérifie uniquement l'affichage des labels de formulaire.
+
+ *
+ * @group functional
  */
 final class DossierEditNature21Test extends WebTestCase
 {

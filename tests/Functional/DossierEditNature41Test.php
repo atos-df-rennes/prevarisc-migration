@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 41 (Fermeture).
+
+ *
+ * @group functional
  */
 class DossierEditNature41Test extends WebTestCase
 {

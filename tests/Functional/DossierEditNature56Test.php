@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 56 (Demande de visite de contrôle).
+
+ *
+ * @group functional
  */
 class DossierEditNature56Test extends WebTestCase
 {

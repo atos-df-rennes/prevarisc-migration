@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 37 (Incendie).
+
+ *
+ * @group functional
  */
 class DossierEditNature37Test extends WebTestCase
 {

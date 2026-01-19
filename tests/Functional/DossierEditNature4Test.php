@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 4 (Cahier des charges fonctionnel du SSI).
+
+ *
+ * @group functional
  */
 class DossierEditNature4Test extends WebTestCase
 {
