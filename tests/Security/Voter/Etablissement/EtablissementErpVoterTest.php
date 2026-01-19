@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
@@ -46,7 +47,7 @@ class EtablissementErpVoterTest extends TestCase
 
     private function createMockEtablissement(int $typeActivite, int $categorie, array $communes = []): MockObject
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementErpVoter::ID_ERP]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::ERP]);
         $typeActivite = $this->createConfiguredMock(EtablissementActivite::class, ['getId' => $typeActivite]);
         $categorie = $this->createConfiguredMock(EtablissementCategorie::class, ['getId' => $categorie]);
 
