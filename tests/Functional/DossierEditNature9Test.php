@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 9 (Changement de DUS).
-
  *
  * @group functional
  */
