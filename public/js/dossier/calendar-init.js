@@ -347,6 +347,7 @@
                         $modal.modal('hide');
                         
                         options.dateField.val(formatDateISO(start, end))
+                        $('#dossier_' + options.inputAffectation).val(response.idAffectation)
                         hideCalendar(options.calendarType)
                     } else {
                         const errorMsg = (response && response.error) ? response.error : 'Erreur lors de la création des dates';
@@ -400,6 +401,7 @@
             e.preventDefault();
             let dossierType = $('#dossier_type').val();
             const calendarType = $(this).data('calendar-type');
+            const inputAffectation = $(this).data('calendar-affectation')
 
             // Règle legacy : si groupe de visite et calendrier commission, considérer comme en salle
             if (dossierType === '3' && calendarType === 'commission') {
@@ -440,7 +442,8 @@
                 month: month,
                 year: year,
                 dateField: $dateField,
-                commissionNom: commissionNom
+                commissionNom: commissionNom,
+                inputAffectation: inputAffectation
             });
         });
 

@@ -153,6 +153,7 @@
                             class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
                             data-calendar-target='calendarVisite'
                             data-calendar-type='visite'
+                            data-calendar-affectation="idAffectationDossierVisite"
                     >
                         <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
                     </button>
@@ -199,6 +200,8 @@
 
             {{ include('dossier/_alert_dates_liees_template.html.twig') }}
 
+            {{ form_row(form.idAffectationDossierVisite) }}
+
             {# Champs spécifiques visites - date réception RVRAT #}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
@@ -211,6 +214,7 @@
                             class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
                             data-calendar-target='calendar'
                             data-calendar-type='commission'
+                            data-calendar-affectation="idAffectationDossierCommission"
                     >
                         <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
                     </button>
@@ -250,6 +254,8 @@
                     <hr class='clear' />
                 </div>
             </li>
+
+            {{ form_row(form.idAffectationDossierCommission) }}
 
             {# Champs spécifiques dérogations (nature 3) - Ordre legacy #}
             <li class='row' id='field-reglesDerogation'>

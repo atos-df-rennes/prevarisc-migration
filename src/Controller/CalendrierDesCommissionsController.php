@@ -225,7 +225,7 @@ class CalendrierDesCommissionsController extends AbstractController
             $data = $form->getData();
 
             $datesCommission = $commissionDatesTransformer->transformToEntities($data);
-            $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
+            $idAffectation = $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
 
             if (!$request->isXmlHttpRequest()) {
                 return $this->json([
@@ -238,6 +238,7 @@ class CalendrierDesCommissionsController extends AbstractController
             return $this->json([
                 'success' => true,
                 'message' => 'Les dates ont été créées avec succès',
+                'idAffectation' => $idAffectation,
             ]);
         }
 

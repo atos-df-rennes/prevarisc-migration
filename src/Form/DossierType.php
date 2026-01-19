@@ -19,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -53,7 +54,6 @@ class DossierType extends AbstractType
                 'required' => true,
                 'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
-                    'id' => 'TYPE_DOSSIER', // ID legacy pour JS
                     'data-action' => 'change',
                 ],
             ])
@@ -204,6 +204,10 @@ class DossierType extends AbstractType
                     'class' => 'calendar-date-field',
                 ],
             ])
+            // @todo: vérifier si on a vraiment besoin de ça ou si on peut passer directement par la requête.
+            ->add('idAffectationDossierVisite', HiddenType::class, [
+                'mapped' => false,
+            ])
             ->add('dateLimitePrescription', DateType::class, [
                 'label' => 'Date avant laquelle les prescriptions doivent être levées',
                 'widget' => 'single_text',
@@ -239,6 +243,10 @@ class DossierType extends AbstractType
                     'readonly' => true,
                     'class' => 'calendar-date-field',
                 ],
+            ])
+            // @todo: vérifier si on a vraiment besoin de ça ou si on peut passer directement par la requête.
+            ->add('idAffectationDossierCommission', HiddenType::class, [
+                'mapped' => false,
             ])
             ->add('avisDiffere', CheckboxType::class, [
                 'label' => 'Diffère l\'avis',

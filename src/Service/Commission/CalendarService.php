@@ -260,7 +260,7 @@ final class CalendarService
     /**
      * @param DateCommission[] $datesCommission
      */
-    public function sauvegarderDatesCommission(array $datesCommission, bool $withPeriodicite): void
+    public function sauvegarderDatesCommission(array $datesCommission, bool $withPeriodicite): int
     {
         // On enregistre la 1ère date et on flush pour pouvoir récupérer son identifiant pour les éventuelles dates liées.
         $this->entityManager->persist($datesCommission[0]);
@@ -285,6 +285,8 @@ final class CalendarService
         }
 
         $this->entityManager->flush();
+
+        return $idPremiereDate;
     }
 
     /**
