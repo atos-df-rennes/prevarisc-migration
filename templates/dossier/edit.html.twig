@@ -19,6 +19,7 @@
     <script src="{{ asset('js/dossier/form.js') }}"></script>
     <script src="{{ asset('js/dossier/gestion-incomplet.js') }}"></script>
     <script src="{{ asset('js/dossier/commission.js') }}"></script>
+    <script src="{{ asset('js/dossier/platau.js') }}"></script>
 
     {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
     <script src="{{ asset('js/calendrier/date-collection-observer.js') }}"></script>
@@ -31,6 +32,17 @@
 
     {# Informations Plat'AU #}
     {{ include('dossier/_platau_info.html.twig') }}
+
+    {# Badge d'alerte pour sélection des pièces jointes Plat'AU (masqué par défaut) #}
+    {% if
+        platau is not null
+        and form.piecesJointesPlatau is defined
+        and form.piecesJointesPlatau.vars.choices is not empty
+    %}
+        <span class="label label-warning hidden" id="badge-alerte-platau">
+            N'oubliez pas de <a href="#" id="select-platau">sélectionner les documents</a> à envoyer vers Plat'AU
+        </span>
+    {% endif %}
 
     {# Configuration des champs pour JavaScript #}
     <div data-fields-config='{{ fieldsConfig|raw }}' style="display:none;"></div>
@@ -429,6 +441,9 @@
                     {{ form_errors(form.repercuterAvis) }}
                 </div>
             </li>
+
+            {# Bloc pièces jointes Plat'AU - affiché dynamiquement par JS #}
+            {{ include('dossier/_platau_pieces_jointes.html.twig') }}
 
             {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
             <li class='row' id='field-facteurDangerosite'>

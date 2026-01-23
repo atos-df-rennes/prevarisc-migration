@@ -75,17 +75,17 @@
         const configs = {
             valider: {
                 className: 'btn btn-sm btn-success validate-reception',
-                html: '<i class="glyphicon glyphicon-ok"></i> Valider la réception',
+                html: '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Valider la réception',
                 style: 'margin-left: 10px;'
             },
             modifier: {
                 className: 'btn btn-sm btn-warning modifier-reception',
-                html: '<i class="glyphicon glyphicon-pencil"></i> Modifier',
+                html: '<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Modifier',
                 style: 'margin-left: 10px;'
             },
             annuler: {
                 className: 'btn btn-sm btn-danger cancel-incomplet',
-                html: '<i class="glyphicon glyphicon-remove"></i> Annuler',
+                html: '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Annuler',
                 style: 'margin-left: 10px;'
             }
         };
@@ -231,7 +231,6 @@
 
             // Classe hideavis pour logique masquage avis (Phase 2)
             e.target.classList.add('hideavis');
-
         } else {
             // Complet sélectionné manuellement (ne devrait pas arriver via UI normale)
             e.target.classList.remove('hideavis');

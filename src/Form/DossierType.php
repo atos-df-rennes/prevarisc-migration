@@ -7,10 +7,14 @@ use App\Entity\Commission;
 use App\Entity\CommissionType;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierPieceJointe;
 use App\Entity\DossierType as DossierTypeEntity;
+use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DataTransformer\DateCommissionTransformer;
+use App\Repository\DossierPieceJointeRepository;
 use App\Repository\UtilisateurRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -33,9 +37,13 @@ class DossierType extends AbstractType
     /** @var Security */
     private $security;
 
-    public function __construct(Security $security)
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    public function __construct(Security $security, EntityManagerInterface $entityManager)
     {
         $this->security = $security;
+        $this->entityManager = $entityManager;
     }
 
     // @todo: Séparer en plusieurs FormTypes selon le type de dossier (Phase future)
@@ -417,10 +425,51 @@ class DossierType extends AbstractType
                 'multiple' => true,
                 'required' => false,
                 'attr' => ['class' => 'tomselect-ajax'],
+            ])
+            // Pièces jointes exportables vers Plat'AU (multiselect avec checkboxes)
+            ->add('piecesJointesPlatau', EntityType::class, [
+                'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
+                'class' => PieceJointe::class,
+                'choices' => $this->getPiecesJointesExportables($options),
+                'choice_label' => function (PieceJointe $pieceJointe): string {
+                    return $pieceJointe->getNom().$pieceJointe->getExtension();
+                },
+                'multiple' => true,
+                'expanded' => true, // Affiche des checkboxes au lieu d'un select multiple
+                'required' => false,
+                'mapped' => false, // Non mappé sur l'entité Dossier
             ]);
 
         // Ajout du transformer pour dateCommission (stockée en string dd/mm/yyyy)
         $builder->get('dateCommission')->addModelTransformer(new DateCommissionTransformer());
+    }
+
+    /**
+     * Récupère la liste des pièces jointes exportables vers Plat'AU pour un dossier.
+     *
+     * @param array<string, mixed> $options Options du formulaire
+     *
+     * @return PieceJointe[]
+     */
+    private function getPiecesJointesExportables(array $options): array
+    {
+        // Uniquement en édition et si le dossier existe
+        if (
+            !$options['is_edit']
+            || !$options['data'] instanceof Dossier
+            || null === $options['data']->getId()
+        ) {
+            return [];
+        }
+
+        /** @var DossierPieceJointeRepository $repository */
+        $repository = $this->entityManager->getRepository(DossierPieceJointe::class);
+
+        // Récupère les pièces jointes exportables (statut 'not_exported')
+        return $repository->findPiecesJointesByStatut(
+            $options['data']->getId(),
+            'not_exported'
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void
