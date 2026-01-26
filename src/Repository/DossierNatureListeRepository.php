@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -28,11 +29,11 @@ class DossierNatureListeRepository extends ServiceEntityRepository
      *
      * @return DossierNatureListe[]
      */
-    public function findByTypeOrderedByOrdre(int $typeId): array
+    public function findByTypeOrderedByOrdre(DossierType $type): array
     {
         return $this->createQueryBuilder('dnl')
-            ->where('dnl.type = :typeId')
-            ->setParameter('typeId', $typeId)
+            ->where('dnl.type = :type')
+            ->setParameter('type', $type)
             ->orderBy('dnl.ordre', 'ASC')
             ->addOrderBy('dnl.libelle', 'ASC')
             ->getQuery()

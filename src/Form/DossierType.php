@@ -495,7 +495,7 @@ class DossierType extends AbstractType
             return [];
         }
 
-        return $repository->findByTypeOrderedByOrdre($typeDossier->getId());
+        return $repository->findByTypeOrderedByOrdre($typeDossier);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

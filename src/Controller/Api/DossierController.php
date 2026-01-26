@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\DossierType;
 use App\Repository\DossierNatureListeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,14 +15,14 @@ class DossierController extends AbstractController
      *
      * @Route("/api/dossier/natures-by-type/{typeId}", name="api_dossier_natures_by_type", requirements={"typeId"="\d+"}, methods={"GET"})
      *
-     * @param int                          $typeId                       ID du type de dossier
+     * @param DossierType                  $type                         Type de dossier
      * @param DossierNatureListeRepository $dossierNatureListeRepository Repository des natures
      *
      * @return JsonResponse Liste des natures au format [{id, libelle}, ...]
      */
-    public function getNaturesByType(int $typeId, DossierNatureListeRepository $dossierNatureListeRepository): JsonResponse
+    public function getNaturesByType(DossierType $type, DossierNatureListeRepository $dossierNatureListeRepository): JsonResponse
     {
-        $natures = $dossierNatureListeRepository->findByTypeOrderedByOrdre($typeId);
+        $natures = $dossierNatureListeRepository->findByTypeOrderedByOrdre($type);
 
         return $this->json($natures, 200, [], [
             'groups' => 'api_response'
