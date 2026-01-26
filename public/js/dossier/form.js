@@ -564,15 +564,15 @@
     }
 
     /**
-     * Initialise TomSelect sur les champs multiselect (Phase 1 - sans autocomplete)
-     * Phase 2: Ajout de l'autocomplete AJAX
+     * Initialise TomSelect sur les champs multiselect avec autocomplete AJAX.
      */
     function initTomSelectFields() {
         const tomSelectFields = document.querySelectorAll('.tomselect-ajax');
 
         tomSelectFields.forEach(field => {
-            // Vérifier si c'est le service instructeur (input text avec autocomplete)
+            // Vérifier le type de champ
             const isServiceInstructeur = field.id === 'dossier_serviceInstructeur';
+            const isPreventionnistes = field.id === 'dossier_preventionnistes';
             
             if (isServiceInstructeur) {
                 // Configuration spécifique pour service instructeur avec autocomplete
@@ -631,15 +631,58 @@
                         };
                     }
                 });
+            } else if (isPreventionnistes) {
+                // Configuration pour préventionnistes avec autocomplete AJAX
+                // Conforme au legacy (lignes 81-129)
+                
+                // TomSelect va automatiquement charger les options déjà présentes dans le <select>
+                // En édition, Symfony génère : <option value="1">Nom Prénom</option>
+                // On doit donc adapter valueField pour correspondre
+                new TomSelect(field, {
+                    plugins: ['remove_button'],
+                    // Pour les options HTML existantes (édition)
+                    valueField: 'value',  // Correspond à l'attribut "value" des <option>
+                    labelField: 'text',   // Correspond au texte des <option>
+                    searchField: ['text'],
+                    placeholder: 'Rechercher un préventionniste (min. 3 caractères)',
+                    maxItems: null, // Multiselect illimité
+                    
+                    load: function(query, callback) {
+                        if (!query || query.length < 3) {
+                            callback();
+                            return;
+                        }
+
+                        fetch('/api/utilisateurs/search?q=' + encodeURIComponent(query) + '&limit=100')
+                            .then(response => response.json())
+                            .then(json => {
+                                // Transformer le format API vers format compatible avec valueField/labelField
+                                callback(json.map(item => ({
+                                    value: item.id,
+                                    text: item.displayLabel
+                                })));
+                            })
+                            .catch(() => {
+                                callback();
+                            });
+                    },
+                    
+                    render: {
+                        option: function(item, escape) {
+                            return '<div><span class="title">' + escape(item.text) + '</span></div>';
+                        },
+                        item: function(item, escape) {
+                            return '<div>' + escape(item.text) + '</div>';
+                        }
+                    }
+                });
             } else {
-                // Configuration pour les autres TomSelect (préventionnistes, etc.)
-                // Pour Phase 1, TomSelect simple sans AJAX
-                // Les options doivent être déjà présentes dans le select
+                // Configuration pour les autres TomSelect (fallback simple)
                 new TomSelect(field, {
                     plugins: ['remove_button'],
                     persist: false,
                     create: false,
-                    maxItems: null  // Pas de limite
+                    maxItems: null
                 });
             }
         });

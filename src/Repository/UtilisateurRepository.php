@@ -174,4 +174,52 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         return $qb->orderBy('i.nom', 'ASC')
             ->addOrderBy('i.prenom', 'ASC');
     }
+
+    /**
+     * Recherche de préventionnistes par nom/prénom pour autocomplete.
+     *
+     * @param string $query      Terme de recherche (min 3 caractères)
+     * @param int    $limit      Nombre max de résultats (défaut: 100)
+     * @param bool   $activeOnly Si true, uniquement les utilisateurs actifs
+     *
+     * @return Utilisateur[]
+     */
+    public function searchPreventionnistes(string $query, int $limit = 100, bool $activeOnly = true): array
+    {
+        if (strlen($query) < 3) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('u')
+            ->innerJoin('u.informations', 'i')
+            ->innerJoin('i.fonction', 'f')
+            ->where('f.libelle = :preventionniste')
+            ->setParameter('preventionniste', 'Préventionniste');
+
+        if ($activeOnly) {
+            $qb->andWhere('u.actif = true');
+        }
+
+        // Recherche sur nom OU prénom
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->like('LOWER(i.nom)', ':query'),
+                $qb->expr()->like('LOWER(i.prenom)', ':query'),
+                $qb->expr()->like(
+                    "LOWER(CONCAT(i.nom, ' ', i.prenom))",
+                    ':query'
+                ),
+                $qb->expr()->like(
+                    "LOWER(CONCAT(i.prenom, ' ', i.nom))",
+                    ':query'
+                )
+            )
+        )
+        ->setParameter('query', '%'.strtolower($query).'%')
+        ->orderBy('i.nom', 'ASC')
+        ->addOrderBy('i.prenom', 'ASC')
+        ->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
 }

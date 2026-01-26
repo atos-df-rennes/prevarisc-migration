@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Repository\UtilisateurRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * API pour les utilisateurs (autocomplete préventionnistes).
+ */
+class UtilisateurController extends AbstractController
+{
+    /** @var UtilisateurRepository */
+    private $utilisateurRepository;
+
+    public function __construct(UtilisateurRepository $utilisateurRepository)
+    {
+        $this->utilisateurRepository = $utilisateurRepository;
+    }
+
+    /**
+     * Recherche de préventionnistes pour autocomplete.
+     * Conforme au legacy /api/1.0/search/users (lignes 81-129).
+     *
+     * @Route("/api/utilisateurs/search", name="api_utilisateurs_search", methods={"GET"})
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->query->get('q', '');
+
+        if (!\is_string($query)) {
+            throw new \InvalidArgumentException('Query must be a string.');
+        }
+
+        $limit = filter_var($request->query->get('limit', 100), FILTER_VALIDATE_INT);
+
+        if (false === $limit) {
+            throw new \InvalidArgumentException('Limit must be an integer.');
+        }
+
+        // Minimum 3 caractères pour lancer la recherche (comme legacy minLength: 3)
+        if (strlen($query) < 3) {
+            return new JsonResponse([]);
+        }
+
+        // Rechercher uniquement les préventionnistes actifs
+        $utilisateurs = $this->utilisateurRepository->searchPreventionnistes($query, $limit, true);
+
+        $results = [];
+        foreach ($utilisateurs as $utilisateur) {
+            $informations = $utilisateur->getInformations();
+
+            // Sécurité : ignorer si pas d'informations (ne devrait pas arriver avec la jointure)
+            if (null === $informations) {
+                continue;
+            }
+
+            $results[] = [
+                'id' => $utilisateur->getId(),
+                'nom' => $informations->getNom(),
+                'prenom' => $informations->getPrenom(),
+                // Utilise la méthode displayLabel pour cohérence avec le formulaire
+                'displayLabel' => $utilisateur->getDisplayLabel(),
+            ];
+        }
+
+        return new JsonResponse($results);
+    }
+}

@@ -14,9 +14,7 @@ use App\Entity\Utilisateur;
 use App\Form\DataTransformer\DateCommissionTransformer;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierPieceJointeRepository;
-use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -404,21 +402,16 @@ class DossierType extends AbstractType
                 'required' => false,
             ])
 
-            // Préventionnistes (multiselect)
+            // Préventionnistes (multiselect avec AJAX)
+            // Utilise 'choices' au lieu de 'query_builder' pour ne charger que les entités nécessaires
+            // En création : tableau vide (AJAX uniquement)
+            // En édition : uniquement les préventionnistes déjà sélectionnés
             ->add('preventionnistes', EntityType::class, [
                 'label' => 'Préventionniste(s) du dossier',
                 'class' => Utilisateur::class,
-                'query_builder' => function (UtilisateurRepository $repository) use ($options): QueryBuilder {
-                    // En édition, inclure les préventionnistes déjà sélectionnés (même inactifs)
-                    if ($options['is_edit'] && $options['data'] instanceof Dossier) {
-                        return $repository->createPreventionnistesWithExistingQueryBuilder(
-                            $options['data']->getPreventionnistes()
-                        );
-                    }
-
-                    // En création, uniquement les préventionnistes actifs
-                    return $repository->createPreventionnistesQueryBuilder();
-                },
+                'choices' => $options['is_edit'] && $options['data'] instanceof Dossier
+                    ? $options['data']->getPreventionnistes()->toArray()
+                    : [],
                 'choice_label' => 'displayLabel',
                 'multiple' => true,
                 'required' => false,
