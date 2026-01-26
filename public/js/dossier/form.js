@@ -80,6 +80,7 @@
     function attachEvents() {
         const typeSelect = document.querySelector('#dossier_type');
         const natureSelect = document.querySelector('#dossier_nature');
+        const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
 
         if (typeSelect) {
             typeSelect.addEventListener('change', onTypeChange);
@@ -87,6 +88,11 @@
 
         if (natureSelect) {
             natureSelect.addEventListener('change', onNatureChange);
+        }
+        
+        // Écouter les changements d'avis de commission pour afficher/masquer facteur et échéancier
+        if (avisCommissionSelect) {
+            avisCommissionSelect.addEventListener('change', applyFacteurEcheancierDisplayOnLoad);
         }
     }
 
@@ -110,6 +116,9 @@
 
         // Masquer tous les champs conditionnels
         hideAllConditionalFields();
+        
+        // Réappliquer la logique conditionnelle facteur/échéancier (sera masqué car nature non sélectionnée)
+        applyFacteurEcheancierDisplayOnLoad();
     }
 
     /**
@@ -143,6 +152,9 @@
         
         // Gestion spéciale du champ analyseDeRisque selon le type (comportement legacy)
         applyAnalyseDeRisqueDisplay();
+        
+        // Réappliquer la logique conditionnelle facteur/échéancier selon type/nature/avis
+        applyFacteurEcheancierDisplayOnLoad();
     }
 
     /**
@@ -446,8 +458,12 @@
 
     /**
      * Affiche facteur de criticité et échéancier de travaux au chargement si avis commission = Défavorable
-     * Phase 1: Affichage statique selon valeur au chargement
-     * Phase 2: Sera dynamique (réagira au changement de avisCommission)
+     * 
+     * Règles legacy (lignes 995-1011 et 1256-1274) :
+     * - Type 2 ou 3 (Visites/Groupes) + Avis commission = 2 (Défavorable) → Afficher FACTDANGE + ECHEANCIERTRAV
+     * - Type 1 (Étude) + Nature 19 (Levée de réserves) + Avis commission = 2 → Afficher FACTDANGE uniquement (pas ECHEANCIERTRAV)
+     * 
+     * @note La gestion dynamique (changement d'avis) est assurée par onAvisCommissionChange()
      */
     function applyFacteurEcheancierDisplayOnLoad() {
         const avisCommissionSelect = document.querySelector('#dossier_avisCommission');
@@ -455,7 +471,6 @@
             return;
         }
 
-        // Cette logique ne s'applique que pour les visites (type 2/3, natures 20-29)
         const typeSelect = document.querySelector('#dossier_type');
         const natureSelect = document.querySelector('#dossier_nature');
         
@@ -465,31 +480,24 @@
 
         const typeDossier = typeSelect.value;
         const natureDossier = natureSelect.value;
-        
-        // Vérifier si c'est une visite (type 2 ou 3) avec nature entre 20 et 29
-        const isVisite = (typeDossier === '2' || typeDossier === '3') && 
-                         (parseInt(natureDossier) >= 20 && parseInt(natureDossier) <= 29);
-        
-        if (!isVisite) {
-            // Pour les études et autres types, ne pas afficher ces champs
-            const facteurRow = findFieldRow('facteurDangerosite');
-            const echeancierRow = findFieldRow('echeancierTravaux');
-            if (facteurRow) facteurRow.style.display = 'none';
-            if (echeancierRow) echeancierRow.style.display = 'none';
-            return;
-        }
-
         const selectedAvisId = avisCommissionSelect.value;
+        
         const facteurRow = findFieldRow('facteurDangerosite');
         const echeancierRow = findFieldRow('echeancierTravaux');
-
-        // ID 2 = Défavorable
-        if (selectedAvisId === '2') {
+        
+        // Réinitialiser l'affichage
+        if (facteurRow) facteurRow.style.display = 'none';
+        if (echeancierRow) echeancierRow.style.display = 'none';
+        
+        // Règle 1 : Type 2 ou 3 (Visites/Groupes) + Avis Défavorable
+        if ((typeDossier === '2' || typeDossier === '3') && selectedAvisId === '2') {
             if (facteurRow) facteurRow.style.display = '';
             if (echeancierRow) echeancierRow.style.display = '';
-        } else {
-            if (facteurRow) facteurRow.style.display = 'none';
-            if (echeancierRow) echeancierRow.style.display = 'none';
+        }
+        // Règle 2 : Type 1 (Étude) + Nature 19 (Levée de réserves) + Avis Défavorable
+        else if (typeDossier === '1' && natureDossier === '19' && selectedAvisId === '2') {
+            if (facteurRow) facteurRow.style.display = '';
+            // IMPORTANT : écheancier ne s'affiche PAS pour les études, même nature 19
         }
     }
 
