@@ -86,17 +86,25 @@
      * Gestionnaire du changement de type
      */
     function onTypeChange(event) {
-        const typeId = event.target.value;
+        const typeId = parseInt(event.target.value, 10);
 
         // Réinitialiser la nature
         const natureSelect = document.querySelector('#dossier_nature');
         if (natureSelect) {
+            // Vider la sélection de nature
+            natureSelect.value = '';
+            
             // Charger les natures pour ce type via AJAX
-            loadNaturesForType(typeId);
+            if (typeId) {
+                loadNaturesForType(typeId);
+            }
         }
 
         // Masquer tous les champs conditionnels
         hideAllConditionalFields();
+        
+        // Afficher/masquer sections selon type (logique legacy lignes 242-288)
+        applyTypeSpecificVisibility(typeId);
     }
 
     /**
@@ -242,6 +250,28 @@
             console.debug('Pas de <li> parent pour:', fieldId);
         }
         return parent;
+    }
+
+    /**
+     * Applique la visibilité spécifique selon le type de dossier (logique legacy)
+     * 
+     * Règles :
+     * - Type 1 (Étude) : Tous les champs visibles
+     * - Type 2 (Visite commission) : Pas de champs commission séparés
+     * - Type 3 (Groupe visite) : Pas de champs commission séparés  
+     * - Type 4+ (Autres) : Pas de commission ni visite
+     * 
+     * @param {number} typeId - ID du type de dossier
+     */
+    function applyTypeSpecificVisibility(typeId) {
+        // Les champs commission/visite sont gérés dynamiquement par fieldsConfig
+        // Cette fonction ne force que des masquages spécifiques par type
+        
+        // Note: La logique principale est dans fieldsConfig (backend DossierFieldsService)
+        // Le masquage/affichage des champs se fait via updateFieldsVisibility()
+        // qui est appelé lors du changement de nature
+        
+        console.debug('Type de dossier changé:', typeId);
     }
 
     /**

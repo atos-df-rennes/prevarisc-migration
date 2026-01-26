@@ -49,8 +49,6 @@ class DossierType extends AbstractType
     // @todo: Séparer en plusieurs FormTypes selon le type de dossier (Phase future)
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $isEdit = $options['is_edit'];
-
         $canEditAvis = $this->security->isGranted('edit_avis_com');
 
         $builder

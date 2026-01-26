@@ -75,4 +75,22 @@ class DossierNatureListeRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * Récupère les natures de dossier pour un type donné, triées par ordre.
+     *
+     * @param int $typeId ID du type de dossier
+     *
+     * @return DossierNatureListe[]
+     */
+    public function findByTypeOrderedByOrdre(int $typeId): array
+    {
+        return $this->createQueryBuilder('dnl')
+            ->where('dnl.type = :typeId')
+            ->setParameter('typeId', $typeId)
+            ->orderBy('dnl.ordre', 'ASC')
+            ->addOrderBy('dnl.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
