@@ -229,8 +229,11 @@
             // Ajouter un NOUVEAU document manquant (éditable)
             addDocumentFromPrototype();
 
-            // Classe hideavis pour logique masquage avis (Phase 2)
+            // Classe hideavis pour logique masquage avis
             e.target.classList.add('hideavis');
+            
+            // Déclencher la mise à jour de l'affichage des avis (Tâche 1.3)
+            document.dispatchEvent(new CustomEvent('dossier:updateAvisVisibility'));
         } else {
             // Complet sélectionné manuellement (ne devrait pas arriver via UI normale)
             e.target.classList.remove('hideavis');
@@ -243,6 +246,9 @@
             if (dossierIncomplet) {
                 dossierIncomplet.style.display = 'none';
             }
+            
+            // Déclencher la mise à jour de l'affichage des avis (Tâche 1.3)
+            document.dispatchEvent(new CustomEvent('dossier:updateAvisVisibility'));
         }
     }
 
@@ -391,6 +397,9 @@
                 dossierIncomplet.style.display = 'none';
             }
         }
+        
+        // Déclencher la mise à jour de l'affichage des avis (Tâche 1.3)
+        document.dispatchEvent(new CustomEvent('dossier:updateAvisVisibility'));
     }
 
     /**
@@ -558,6 +567,9 @@
         
         // PAS de bouton "Annuler" sur documents existants (seulement sur nouveaux)
         // Le bouton "Annuler" est uniquement ajouté dans addDocumentFromPrototype()
+        
+        // Déclencher la mise à jour de l'affichage des avis (Tâche 1.3)
+        document.dispatchEvent(new CustomEvent('dossier:updateAvisVisibility'));
     }
 
     /**

@@ -22,6 +22,14 @@
         initForm();
         initDocumentsUrbanismeHandlers();
     });
+    
+    /**
+     * Écoute les événements personnalisés pour réappliquer la logique d'affichage des avis
+     * Permet aux autres modules (gestion-incomplet.js) de déclencher la mise à jour
+     */
+    document.addEventListener('dossier:updateAvisVisibility', function() {
+        applyHideAvisLogicOnLoad();
+    });
 
     /**
      * Initialise le formulaire
@@ -375,6 +383,8 @@
      * 2. Sinon si "horsdelai" coché → masquer AVIS, AVIS_COMMISSION, dateCommission
      * 3. Sinon si "absquorum" ou "npsp" coché → masquer AVIS_COMMISSION, dateCommission
      * 4. Sinon afficher selon type (standard)
+     * 
+     * @public Exposée via événement personnalisé pour appel externe
      */
     function applyHideAvisLogicOnLoad() {
         const typeSelect = document.querySelector('#dossier_type');
