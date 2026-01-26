@@ -8,7 +8,6 @@ use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
-use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
@@ -20,7 +19,6 @@ use App\Service\PlatauConsultation;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -226,30 +224,5 @@ class DossierController extends AbstractController
         $this->entityManager->flush();
 
         return $this->redirect($referer);
-    }
-
-    /**
-     * API : Récupère les natures de dossier pour un type donné.
-     *
-     * @Route("/api/dossier/natures-by-type/{typeId}", name="api_dossier_natures_by_type", requirements={"typeId"="\d+"}, methods={"GET"})
-     *
-     * @param int                          $typeId                       ID du type de dossier
-     * @param DossierNatureListeRepository $dossierNatureListeRepository Repository des natures
-     *
-     * @return JsonResponse Liste des natures au format [{id, libelle}, ...]
-     */
-    public function getNaturesByType(int $typeId, DossierNatureListeRepository $dossierNatureListeRepository): JsonResponse
-    {
-        $natures = $dossierNatureListeRepository->findByTypeOrderedByOrdre($typeId);
-
-        $result = [];
-        foreach ($natures as $nature) {
-            $result[] = [
-                'id' => $nature->getId(),
-                'libelle' => $nature->getLibelle(),
-            ];
-        }
-
-        return $this->json($result);
     }
 }
