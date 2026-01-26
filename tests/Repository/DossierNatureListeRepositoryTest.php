@@ -4,6 +4,7 @@ namespace App\Tests\Repository;
 
 use App\Entity\DossierNatureListe;
 use App\Repository\DossierNatureListeRepository;
+use App\Repository\DossierTypeRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DossierNatureListeRepositoryTest extends KernelTestCase
@@ -11,10 +12,14 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     /** @var DossierNatureListeRepository */
     private $repository;
 
+    /** @var DossierTypeRepository */
+    private $dossierTypeRepository;
+
     protected function setUp(): void
     {
         self::bootKernel();
         $this->repository = self::$container->get(DossierNatureListeRepository::class);
+        $this->dossierTypeRepository = self::$container->get(DossierTypeRepository::class);
     }
 
     /**
@@ -23,7 +28,11 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     public function testFindByTypeOrderedByOrdreReturnsResults(): void
     {
         // Type 1 = Étude (devrait avoir des natures)
-        $natures = $this->repository->findByTypeOrderedByOrdre(1);
+        $type = $this->dossierTypeRepository->find(1);
+
+        self::assertNotNull($type, 'Le type 1 devrait exister en base de données');
+
+        $natures = $this->repository->findByTypeOrderedByOrdre($type);
 
         self::assertIsArray($natures);
         self::assertNotEmpty($natures, 'Le type 1 devrait avoir au moins une nature');
@@ -41,7 +50,11 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
      */
     public function testFindByTypeOrderedByOrdreIsSortedCorrectly(): void
     {
-        $natures = $this->repository->findByTypeOrderedByOrdre(1);
+        $type = $this->dossierTypeRepository->find(1);
+
+        self::assertNotNull($type, 'Le type 1 devrait exister en base de données');
+
+        $natures = $this->repository->findByTypeOrderedByOrdre($type);
 
         if (count($natures) < 2) {
             self::markTestSkipped('Pas assez de natures pour tester le tri');
@@ -60,28 +73,21 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test que la méthode retourne un tableau vide pour un type sans natures.
-     */
-    public function testFindByTypeOrderedByOrdreReturnsEmptyForNonExistentType(): void
-    {
-        // Type 999 ne devrait pas exister
-        $natures = $this->repository->findByTypeOrderedByOrdre(999);
-
-        self::assertIsArray($natures);
-        self::assertEmpty($natures, 'Un type inexistant ne devrait avoir aucune nature');
-    }
-
-    /**
      * Test que les natures retournées appartiennent bien au type demandé.
      */
     public function testFindByTypeOrderedByOrdreReturnsOnlyNaturesOfRequestedType(): void
     {
-        $typeId = 2; // Type Visite
-        $natures = $this->repository->findByTypeOrderedByOrdre($typeId);
+        $type = $this->dossierTypeRepository->find(2); // Type 2 = Visite
+
+        if (!$type) {
+            self::markTestSkipped('Le type 2 n\'existe pas en base de données');
+        }
+
+        $natures = $this->repository->findByTypeOrderedByOrdre($type);
 
         foreach ($natures as $nature) {
             self::assertNotNull($nature->getType(), 'Chaque nature doit avoir un type');
-            self::assertEquals($typeId, $nature->getType()->getId(), 'Toutes les natures doivent appartenir au type demandé');
+            self::assertEquals($type->getId(), $nature->getType()->getId(), 'Toutes les natures doivent appartenir au type demandé');
         }
     }
 }
