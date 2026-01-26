@@ -25,8 +25,6 @@ class DossierNatureListeRepository extends ServiceEntityRepository
     /**
      * Récupère les natures de dossier pour un type donné, triées par ordre.
      *
-     * @param int $typeId ID du type de dossier
-     *
      * @return DossierNatureListe[]
      */
     public function findByTypeOrderedByOrdre(DossierType $type): array

@@ -18,7 +18,7 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test que la méthode findByTypeOrderedByOrdre retourne des résultats pour type 1
+     * Test que la méthode findByTypeOrderedByOrdre retourne des résultats pour type 1.
      */
     public function testFindByTypeOrderedByOrdreReturnsResults(): void
     {
@@ -37,7 +37,7 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test que les résultats sont bien triés par ordre puis libellé
+     * Test que les résultats sont bien triés par ordre puis libellé.
      */
     public function testFindByTypeOrderedByOrdreIsSortedCorrectly(): void
     {
@@ -54,12 +54,13 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
             if (null !== $previousOrdre && null !== $ordre) {
                 self::assertGreaterThanOrEqual($previousOrdre, $ordre, 'Les natures doivent être triées par ordre croissant');
             }
+
             $previousOrdre = $ordre;
         }
     }
 
     /**
-     * Test que la méthode retourne un tableau vide pour un type sans natures
+     * Test que la méthode retourne un tableau vide pour un type sans natures.
      */
     public function testFindByTypeOrderedByOrdreReturnsEmptyForNonExistentType(): void
     {
@@ -71,7 +72,7 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test que les natures retournées appartiennent bien au type demandé
+     * Test que les natures retournées appartiennent bien au type demandé.
      */
     public function testFindByTypeOrderedByOrdreReturnsOnlyNaturesOfRequestedType(): void
     {
