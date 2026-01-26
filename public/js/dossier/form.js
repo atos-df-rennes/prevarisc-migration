@@ -102,9 +102,6 @@
 
         // Masquer tous les champs conditionnels
         hideAllConditionalFields();
-        
-        // Afficher/masquer sections selon type (logique legacy lignes 242-288)
-        applyTypeSpecificVisibility(typeId);
     }
 
     /**
@@ -253,28 +250,6 @@
     }
 
     /**
-     * Applique la visibilité spécifique selon le type de dossier (logique legacy)
-     * 
-     * Règles :
-     * - Type 1 (Étude) : Tous les champs visibles
-     * - Type 2 (Visite commission) : Pas de champs commission séparés
-     * - Type 3 (Groupe visite) : Pas de champs commission séparés  
-     * - Type 4+ (Autres) : Pas de commission ni visite
-     * 
-     * @param {number} typeId - ID du type de dossier
-     */
-    function applyTypeSpecificVisibility(typeId) {
-        // Les champs commission/visite sont gérés dynamiquement par fieldsConfig
-        // Cette fonction ne force que des masquages spécifiques par type
-        
-        // Note: La logique principale est dans fieldsConfig (backend DossierFieldsService)
-        // Le masquage/affichage des champs se fait via updateFieldsVisibility()
-        // qui est appelé lors du changement de nature
-        
-        console.debug('Type de dossier changé:', typeId);
-    }
-
-    /**
      * Charge les natures disponibles pour un type donné (via AJAX)
      * @param {string} typeId - ID du type de dossier
      */
@@ -283,7 +258,7 @@
             return;
         }
 
-        // URL de l'endpoint API (à créer)
+        // URL de l'endpoint API
         const url = '/api/dossier/natures-by-type/' + typeId;
 
         fetch(url)
@@ -325,9 +300,6 @@
             option.textContent = nature.libelle;
             natureSelect.appendChild(option);
         });
-
-        // Activer le select
-        natureSelect.disabled = false;
     }
 
     // Exposer les fonctions si nécessaire pour le debug
