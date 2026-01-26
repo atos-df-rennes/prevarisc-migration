@@ -12,6 +12,7 @@ use App\Entity\DossierType as DossierTypeEntity;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DataTransformer\DateCommissionTransformer;
+use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierPieceJointeRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,6 +66,7 @@ class DossierType extends AbstractType
             ->add('nature', EntityType::class, [
                 'label' => 'Nature',
                 'class' => DossierNatureListe::class,
+                'choices' => $this->getAvailableNatures($options),
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner une nature',
                 'required' => true,
@@ -466,6 +468,34 @@ class DossierType extends AbstractType
             $options['data']->getId(),
             'not_exported'
         );
+    }
+
+    /**
+     * @param array<string, mixed> $options Options du formulaire
+     *
+     * @return DossierNatureListe[]
+     */
+    private function getAvailableNatures(array $options): array
+    {
+        // Uniquement en édition et si le dossier existe
+        if (
+            !$options['is_edit']
+            || !$options['data'] instanceof Dossier
+            || null === $options['data']->getId()
+        ) {
+            return [];
+        }
+
+        /** @var DossierNatureListeRepository $repository */
+        $repository = $this->entityManager->getRepository(DossierNatureListe::class);
+
+        $typeDossier = $options['data']->getType();
+
+        if (null === $typeDossier) {
+            return [];
+        }
+
+        return $repository->findByTypeOrderedByOrdre($typeDossier->getId());
     }
 
     public function configureOptions(OptionsResolver $resolver): void
