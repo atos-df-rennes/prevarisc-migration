@@ -1,4 +1,6 @@
 {# Template partial pour le bloc de sélection des pièces jointes Plat'AU #}
+{% do form.piecesJointesPlatau.setRendered %}
+
 {% if form.piecesJointesPlatau is defined and form.piecesJointesPlatau.vars.choices is not empty %}
     <li id="field-piecesJointesPlatau" class="row hidden" tabindex="0">
         <div class="left libelle col-md-3">

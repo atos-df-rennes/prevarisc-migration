@@ -60,7 +60,6 @@ class DossierType extends AbstractType
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner un type',
                 'required' => true,
-                'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
                     'data-action' => 'change',
                 ],
@@ -71,7 +70,6 @@ class DossierType extends AbstractType
                 'choice_label' => 'libelle',
                 'placeholder' => 'Sélectionner une nature',
                 'required' => true,
-                'disabled' => $isEdit, // Désactivé en édition
                 'attr' => [
                     'data-action' => 'change',
                 ],
