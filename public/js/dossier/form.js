@@ -118,6 +118,7 @@
         const natureSelect = document.querySelector('#dossier_nature');
         if (!natureSelect || !natureSelect.value) {
             hideAllConditionalFields();
+            applyAnalyseDeRisqueDisplay();
             return;
         }
 
@@ -300,6 +301,8 @@
             option.textContent = nature.libelle;
             natureSelect.appendChild(option);
         });
+
+        natureSelect.dispatchEvent(new Event('change'));
     }
 
     // Exposer les fonctions si nécessaire pour le debug
@@ -492,7 +495,8 @@
      */
     function applyAnalyseDeRisqueDisplay() {
         const typeSelect = document.querySelector('#dossier_type');
-        if (!typeSelect) {
+        const natureSelect = document.querySelector('#dossier_nature');
+        if (!typeSelect || !natureSelect) {
             return;
         }
 
@@ -503,11 +507,16 @@
             return;
         }
 
-        // Afficher pour les types 1, 2 et 3
-        if (typeDossier === '1' || typeDossier === '2' || typeDossier === '3') {
-            analyseDeRisqueRow.style.display = '';
-        } else {
+        const natureDossier = natureSelect.value;
+
+        // Afficher pour les types 1, 2 et 3 si une nature est sélectionnée
+        if (
+            '' === natureDossier
+            || !['1', '2', '3'].includes(typeDossier)
+        ) {
             analyseDeRisqueRow.style.display = 'none';
+        } else {
+            analyseDeRisqueRow.style.display = '';
         }
     }
 
