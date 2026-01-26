@@ -31,6 +31,10 @@ final class DateCommission
 
         $dateCommissionPrincipale = $this->dateCommissionRepository->findForDossier($dossier, $dateVisite);
 
+        if (null == $dateCommissionPrincipale) {
+            return [];
+        }
+
         return $this->dateCommissionRepository->findDatesLiees($dateCommissionPrincipale);
     }
 }

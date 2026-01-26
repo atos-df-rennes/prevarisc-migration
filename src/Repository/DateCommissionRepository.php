@@ -27,7 +27,7 @@ class DateCommissionRepository extends ServiceEntityRepository
      * Ce comportement n'est présent que pour les dates de visite.
      * Les dates de visite sont des dates de commission de type 2 (Visite de sécurité) ou 3 (Groupe de visites).
      */
-    public function findForDossier(Dossier $dossier, \DateTimeInterface $dateVisite): DateCommission
+    public function findForDossier(Dossier $dossier, \DateTimeInterface $dateVisite): ?DateCommission
     {
         $queryBuilder = $this->createQueryBuilder('dc');
         $query = $queryBuilder
@@ -42,7 +42,7 @@ class DateCommissionRepository extends ServiceEntityRepository
             ->getQuery()
         ;
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 
     /**
