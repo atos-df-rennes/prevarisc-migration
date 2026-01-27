@@ -429,6 +429,18 @@ class DossierType extends AbstractType
                 'expanded' => true, // Affiche des checkboxes au lieu d'un select multiple
                 'required' => false,
                 'mapped' => false, // Non mappé sur l'entité Dossier
+            ])
+            // Champs hidden pour gérer les demandes de renvoi Plat'AU
+            // (UI uniquement, sauvegarde traitée dans un bloc ultérieur)
+            ->add('platauRetryPec', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+                'data' => '0',
+            ])
+            ->add('platauRetryAvis', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+                'data' => '0',
             ]);
 
         // Ajout du transformer pour dateCommission (stockée en string dd/mm/yyyy)

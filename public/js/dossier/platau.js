@@ -1,35 +1,100 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const retryExportPec = document.querySelector('#retry-export-pec')
-
-    if (!!retryExportPec) {
-        retryExportPec.addEventListener('click', function () {
-            $.post(
-                "/platau/retry-export-pec",
-                { id: retryExportPec['attributes']['data-id'].value },
-                () => {
-                    location.reload()
-                }
-            )
-        })
+    // Bouton Retry PEC
+    const retryExportPec = document.querySelector('#retry-export-pec');
+    if (retryExportPec) {
+        retryExportPec.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleRetryExport('pec', this);
+        });
     }
 
-    const retryExportAvis = document.querySelector('#retry-export-avis')
-
-    if (!!retryExportAvis) {
-        retryExportAvis.addEventListener('click', function () {
-            $.post(
-                "/platau/retry-export-avis",
-                { id: retryExportAvis['attributes']['data-id'].value },
-                () => {
-                    location.reload()
-                }
-            )
-        })
+    // Bouton Retry Avis
+    const retryExportAvis = document.querySelector('#retry-export-avis');
+    if (retryExportAvis) {
+        retryExportAvis.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleRetryExport('avis', this);
+        });
     }
 
     // Gestion de l'affichage des pièces jointes Plat'AU
-    initGestionPiecesJointesPlatau()
-})
+    initGestionPiecesJointesPlatau();
+});
+
+/**
+ * Gère le clic sur un bouton retry export (PEC ou Avis)
+ * @param {string} type - Type d'export ('pec' ou 'avis')
+ * @param {HTMLElement} button - Bouton cliqué
+ */
+function handleRetryExport(type, button) {
+    // 1. Mettre à jour le champ hidden du formulaire
+    const hiddenFieldName = type === 'pec' ? 'dossier[platauRetryPec]' : 'dossier[platauRetryAvis]';
+    const hiddenField = document.querySelector(`input[name="${hiddenFieldName}"]`);
+    if (hiddenField) {
+        hiddenField.value = '1';
+    }
+
+    // 2. Récupérer le nouveau label depuis l'attribut data
+    const nouveauLabel = button.getAttribute('data-label-nouveau');
+    
+    // 3. Changer le statut affiché
+    const statutId = type === 'pec' ? 'statut-pec' : 'statut-avis';
+    const statutElement = document.getElementById(statutId);
+    if (statutElement && nouveauLabel) {
+        updateStatutLabel(statutElement, nouveauLabel);
+    }
+
+    // 4. Afficher le bon badge (alerte si pièces disponibles, info sinon)
+    const badgeAlerte = document.getElementById('badge-alerte-platau');
+    const badgeInfo = document.getElementById('badge-info-platau');
+    const fieldPiecesJointes = document.getElementById('field-piecesJointesPlatau');
+    
+    // Déterminer s'il y a des pièces jointes à sélectionner
+    const hasPiecesJointes = fieldPiecesJointes && fieldPiecesJointes.querySelectorAll('input[type="checkbox"]').length > 0;
+    
+    if (hasPiecesJointes && badgeAlerte && badgeAlerte.classList.contains('hidden')) {
+        // Afficher badge d'alerte (pièces à sélectionner)
+        badgeAlerte.classList.remove('hidden');
+    } else if (!hasPiecesJointes && badgeInfo && badgeInfo.classList.contains('hidden')) {
+        // Afficher badge informatif (aucune pièce disponible)
+        badgeInfo.classList.remove('hidden');
+    }
+
+    // 5. Afficher le bloc pièces jointes (si caché)
+    if (fieldPiecesJointes && fieldPiecesJointes.classList.contains('hidden')) {
+        // Retirer classe hidden directement (ne pas utiliser toggle qui inverserait)
+        fieldPiecesJointes.classList.remove('hidden');
+        
+        // Déplacer le bloc après l'élément de référence selon le type
+        const afterElement = (type === 'pec') 
+            ? document.getElementById('field-incomplet') 
+            : document.getElementById('field-avisCommission');
+        
+        if (afterElement && afterElement.nextElementSibling !== fieldPiecesJointes) {
+            afterElement.parentNode.insertBefore(fieldPiecesJointes, afterElement.nextElementSibling);
+        }
+    }
+
+    // 6. Désactiver le bouton et changer son texte
+    button.disabled = true;
+    button.innerHTML = '<span class="glyphicon glyphicon-ok"></span> Renvoi demandé';
+    button.classList.remove('btn-warning');
+    button.classList.add('btn-default');
+}
+
+/**
+ * Met à jour le label de statut affiché
+ * @param {HTMLElement} statutElement - Élément <span id="statut-pec"> ou <span id="statut-avis">
+ * @param {string} nouveauLabel - Nouveau texte à afficher
+ */
+function updateStatutLabel(statutElement, nouveauLabel) {
+    // Changer le texte du span
+    statutElement.textContent = nouveauLabel;
+    
+    // Changer la couleur : retirer les classes existantes et ajouter text-warning
+    statutElement.classList.remove('text-muted', 'text-success', 'text-info', 'text-danger');
+    statutElement.classList.add('text-warning');
+}
 
 /**
  * Initialise la gestion de l'affichage du bloc de pièces jointes Plat'AU
