@@ -57,7 +57,7 @@ class PlatauExtensionTest extends TestCase
             'EN_ATTENTE returns text-info' => [PlatauStatutPecEnum::EN_ATTENTE, 'text-info'],
             'PRISE_EN_COMPTE returns text-success' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, 'text-success'],
             'A_RENVOYER returns text-warning' => [PlatauStatutPecEnum::A_RENVOYER, 'text-warning'],
-            'EN_ERREUR returns text-error' => [PlatauStatutPecEnum::EN_ERREUR, 'text-error'],
+            'EN_ERREUR returns text-danger' => [PlatauStatutPecEnum::EN_ERREUR, 'text-danger'],
         ];
     }
 
@@ -101,7 +101,7 @@ class PlatauExtensionTest extends TestCase
             'EN_COURS returns text-info' => [PlatauStatutAvisEnum::EN_COURS, 'text-info'],
             'TRAITE returns text-success' => [PlatauStatutAvisEnum::TRAITE, 'text-success'],
             'A_RENVOYER returns text-warning' => [PlatauStatutAvisEnum::A_RENVOYER, 'text-warning'],
-            'EN_ERREUR returns text-error' => [PlatauStatutAvisEnum::EN_ERREUR, 'text-error'],
+            'EN_ERREUR returns text-danger' => [PlatauStatutAvisEnum::EN_ERREUR, 'text-danger'],
         ];
     }
 }

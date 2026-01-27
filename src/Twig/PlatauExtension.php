@@ -34,7 +34,7 @@ class PlatauExtension extends AbstractExtension
             case PlatauStatutPecEnum::A_RENVOYER:
                 return 'text-warning';
             case PlatauStatutPecEnum::EN_ERREUR:
-                return 'text-error';
+                return 'text-danger';
             default:
                 return 'text-muted';
         }
@@ -55,7 +55,7 @@ class PlatauExtension extends AbstractExtension
             case PlatauStatutAvisEnum::A_RENVOYER:
                 return 'text-warning';
             case PlatauStatutAvisEnum::EN_ERREUR:
-                return 'text-error';
+                return 'text-danger';
             default:
                 return 'text-muted';
         }
