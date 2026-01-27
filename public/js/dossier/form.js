@@ -94,6 +94,33 @@
         if (avisCommissionSelect) {
             avisCommissionSelect.addEventListener('change', applyFacteurEcheancierDisplayOnLoad);
         }
+
+        // Écouter les checkboxes qui masquent les avis (Bloc 6)
+        // Legacy: $(".hideavis").click() ligne 359
+        initHideAvisCheckboxListeners();
+    }
+
+    /**
+     * Initialise les event listeners pour les checkboxes masquant les avis
+     * Checkboxes concernées : horsdelai, absquorum, npsp
+     * Legacy: index.phtml ligne 359 $(".hideavis").click(function() { afficherCacherAvis(); });
+     */
+    function initHideAvisCheckboxListeners() {
+        const horsdelaiCheckbox = document.querySelector('.horsdelai');
+        const absquorumCheckbox = document.querySelector('.absquorum');
+        const npspCheckbox = document.querySelector('.npsp');
+
+        // Ajouter event listener sur chaque checkbox
+        [horsdelaiCheckbox, absquorumCheckbox, npspCheckbox].forEach(checkbox => {
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    // Réappliquer la logique complète d'affichage/masquage
+                    applyHideAvisLogicOnLoad();
+                    // Réappliquer aussi facteur/échéancier (car peut dépendre de l'avis affiché)
+                    applyFacteurEcheancierDisplayOnLoad();
+                });
+            }
+        });
     }
 
     /**
