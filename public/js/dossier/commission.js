@@ -23,7 +23,7 @@
 
     /**
      * Gère le changement de commission
-     * Vide dates + affectations + masque calendriers (legacy lignes 150-168, 170-191)
+     * Vide dates + affectations + déclenche masquage calendriers via événement custom
      */
     function handleCommissionChange(e) {
         // Vider les dates visite/commission (legacy lignes 172-174)
@@ -44,68 +44,9 @@
         if (affectationCommission) affectationCommission.value = '';
         if (affectationVisite) affectationVisite.value = '';
 
-        // Masquer calendriers s'ils sont affichés (legacy lignes 177-186)
-        hideCalendarsIfVisible();
-    }
-
-    /**
-     * Masque les calendriers s'ils sont visibles
-     * Correspond au comportement legacy lignes 177-186
-     */
-    function hideCalendarsIfVisible() {
-        const calendar = document.getElementById('calendar');
-        const calendarVisite = document.getElementById('calendarVisite');
-
-        // Masquer calendrier commission
-        if (calendar && calendar.offsetParent !== null) {
-            calendar.style.display = 'none';
-            calendar.innerHTML = '';
-            
-            const calendarParent = calendar.closest('li');
-            if (calendarParent) calendarParent.style.display = 'none';
-
-            // Inverser boutons Afficher/Masquer
-            toggleCalendarButtons('commission', false);
-        }
-
-        // Masquer calendrier visite
-        if (calendarVisite && calendarVisite.offsetParent !== null) {
-            calendarVisite.style.display = 'none';
-            calendarVisite.innerHTML = '';
-            
-            const calendarVisiteParent = calendarVisite.closest('li');
-            if (calendarVisiteParent) calendarVisiteParent.style.display = 'none';
-
-            // Inverser boutons Afficher/Masquer
-            toggleCalendarButtons('visite', false);
-        }
-    }
-
-    /**
-     * Inverse l'affichage des boutons Afficher/Masquer calendrier
-     * 
-     * @param {string} type - Type de calendrier ('commission' ou 'visite')
-     * @param {boolean} isVisible - true si calendrier visible, false sinon
-     */
-    function toggleCalendarButtons(type, isVisible) {
-        const showButtons = document.querySelectorAll(`[data-calendar-type="${type}"].showCalendar`);
-        const hideButtons = document.querySelectorAll(`[data-calendar-type="${type}"].hideCalendar`);
-
-        showButtons.forEach(btn => {
-            if (isVisible) {
-                btn.classList.add('hidden');
-            } else {
-                btn.classList.remove('hidden');
-            }
-        });
-
-        hideButtons.forEach(btn => {
-            if (isVisible) {
-                btn.classList.remove('hidden');
-            } else {
-                btn.classList.add('hidden');
-            }
-        });
+        // Déclencher masquage des calendriers via événement custom
+        // calendar-init.js écoute cet événement et gère le masquage proprement
+        document.dispatchEvent(new CustomEvent('calendar:hideAll'));
     }
 
     // Initialiser au chargement du DOM

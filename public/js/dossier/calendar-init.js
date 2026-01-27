@@ -394,6 +394,33 @@
         $('[data-calendar-type="' + type + '"].hideCalendar').toggleClass('hidden');
     }
 
+    // ===================================================================
+    // ÉVÉNEMENTS CUSTOM - Communication inter-modules
+    // ===================================================================
+
+    /**
+     * Écoute l'événement custom 'calendar:hide' pour masquer un calendrier
+     * Permet aux autres modules (commission.js, etc.) de masquer les calendriers
+     * sans dupliquer le code
+     * 
+     * Event detail: { type: 'commission' | 'visite' }
+     */
+    document.addEventListener('calendar:hide', function(event) {
+        const calendarType = event.detail && event.detail.type;
+        if (calendarType) {
+            hideCalendar(calendarType);
+        }
+    });
+
+    /**
+     * Écoute l'événement custom 'calendar:hideAll' pour masquer tous les calendriers
+     * Utilisé lors du changement de commission
+     */
+    document.addEventListener('calendar:hideAll', function() {
+        hideCalendar('commission');
+        hideCalendar('visite');
+    });
+
     // Initialisation au chargement
     $(document).ready(function() {
         // Bouton Afficher
