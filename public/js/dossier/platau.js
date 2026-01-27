@@ -44,7 +44,7 @@ function handleRetryExport(type, button) {
         updateStatutLabel(statutElement, nouveauLabel);
     }
 
-    // 4. Afficher le bon badge (alerte si pièces disponibles, info sinon)
+    // 4. Afficher le bon badge selon disponibilité des pièces jointes
     const badgeAlerte = document.getElementById('badge-alerte-platau');
     const badgeInfo = document.getElementById('badge-info-platau');
     const fieldPiecesJointes = document.getElementById('field-piecesJointesPlatau');
@@ -52,27 +52,20 @@ function handleRetryExport(type, button) {
     // Déterminer s'il y a des pièces jointes à sélectionner
     const hasPiecesJointes = fieldPiecesJointes && fieldPiecesJointes.querySelectorAll('input[type="checkbox"]').length > 0;
     
-    if (hasPiecesJointes && badgeAlerte && badgeAlerte.classList.contains('hidden')) {
-        // Afficher badge d'alerte (pièces à sélectionner)
-        badgeAlerte.classList.remove('hidden');
-    } else if (!hasPiecesJointes && badgeInfo && badgeInfo.classList.contains('hidden')) {
-        // Afficher badge informatif (aucune pièce disponible)
-        badgeInfo.classList.remove('hidden');
-    }
+    // Afficher le badge approprié
+    const badgeToShow = hasPiecesJointes ? badgeAlerte : badgeInfo;
 
-    // 5. Afficher le bloc pièces jointes (si caché)
+    // 5. Afficher le bloc pièces jointes avec le bon badge
     if (fieldPiecesJointes && fieldPiecesJointes.classList.contains('hidden')) {
-        // Retirer classe hidden directement (ne pas utiliser toggle qui inverserait)
-        fieldPiecesJointes.classList.remove('hidden');
-        
-        // Déplacer le bloc après l'élément de référence selon le type
         const afterElement = (type === 'pec') 
             ? document.getElementById('field-incomplet') 
             : document.getElementById('field-avisCommission');
         
-        if (afterElement && afterElement.nextElementSibling !== fieldPiecesJointes) {
-            afterElement.parentNode.insertBefore(fieldPiecesJointes, afterElement.nextElementSibling);
-        }
+        // Utiliser la fonction dédiée pour afficher le bloc + badge
+        affichePiecesJointesPlatau(afterElement, fieldPiecesJointes, badgeToShow);
+    } else if (badgeToShow && badgeToShow.classList.contains('hidden')) {
+        // Bloc déjà affiché, mais afficher le badge si nécessaire
+        badgeToShow.classList.remove('hidden');
     }
 
     // 6. Désactiver le bouton et changer son texte
@@ -193,17 +186,17 @@ function isDossierPlatau() {
  * @param {HTMLElement} badgeAlerte Le badge d'alerte
  */
 function affichePiecesJointesPlatau(afterElement, fieldPiecesJointes, badgeAlerte) {
-    // Affiche le bloc de pièces jointes
-    fieldPiecesJointes.classList.toggle('hidden')
+    // Affiche le bloc de pièces jointes (retire la classe hidden)
+    fieldPiecesJointes.classList.remove('hidden');
 
-    // Affiche le badge d'alerte si présent
+    // Affiche le badge d'alerte si présent (retire la classe hidden)
     if (badgeAlerte) {
-        badgeAlerte.classList.toggle('hidden')
+        badgeAlerte.classList.remove('hidden');
     }
 
     // Déplace le bloc après l'élément spécifié si nécessaire
     if (afterElement && afterElement.nextElementSibling !== fieldPiecesJointes) {
-        afterElement.parentNode.insertBefore(fieldPiecesJointes, afterElement.nextElementSibling)
+        afterElement.parentNode.insertBefore(fieldPiecesJointes, afterElement.nextElementSibling);
     }
 }
 
@@ -213,9 +206,11 @@ function affichePiecesJointesPlatau(afterElement, fieldPiecesJointes, badgeAlert
  * @param {HTMLElement} badgeAlerte Le badge d'alerte
  */
 function masquePiecesJointesPlatau(fieldPiecesJointes, badgeAlerte) {
-    fieldPiecesJointes.classList.toggle('hidden')
+    // Masque le bloc de pièces jointes (ajoute la classe hidden)
+    fieldPiecesJointes.classList.add('hidden');
 
+    // Masque le badge d'alerte si présent (ajoute la classe hidden)
     if (badgeAlerte) {
-        badgeAlerte.classList.toggle('hidden')
+        badgeAlerte.classList.add('hidden');
     }
 }
