@@ -6,7 +6,7 @@
     - label: Le label du champ (optionnel, par défaut utilise le label du form)
     - show_today: Afficher le bouton "Aujourd'hui" (défaut: true)
 #}
-{% set show_today_button = show_today|default(true) %}
+{% set show_today_button = show_today ?? true %}
 {% set field_id = form_field.vars.id %}
 
 <li class='row' id='field-{{ form_field.vars.name }}'>
