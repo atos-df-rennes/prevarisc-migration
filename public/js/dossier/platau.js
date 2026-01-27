@@ -117,8 +117,8 @@ function initGestionPiecesJointesPlatau() {
  * @return {boolean}
  */
 function isDossierPlatau() {
-    // Présence des informations Plat'AU dans la page
-    return !!document.querySelector('.dossier__identifiant-platau')
+    // Présence des informations Plat'AU dans la page (attribut data-platau-info)
+    return !!document.querySelector('[data-platau-info]')
 }
 
 /**
