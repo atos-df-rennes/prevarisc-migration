@@ -23,39 +23,89 @@
 
     /**
      * Gère le changement de commission
-     * Disable select + affiche bouton si commission sélectionnée
+     * Vide dates + affectations + masque calendriers (legacy lignes 150-168, 170-191)
      */
     function handleCommissionChange(e) {
-        // Vider les dates visite/commission (comme legacy ligne 172-175)
+        // Vider les dates visite/commission (legacy lignes 172-174)
         const dateVisite = document.getElementById('dossier_dateVisite');
         const dateCommission = document.getElementById('dossier_dateCommission');
 
         if (dateVisite) dateVisite.value = '';
         if (dateCommission) dateCommission.value = '';
 
+        // Supprimer alertes dates liées
         const alertDatesLieesDiv = document.querySelectorAll('.dates-liees__wrapper');
         alertDatesLieesDiv.forEach(div => div.remove());
 
-        // TODO Phase 2: Vider aussi les affectations
-        // - ID_AFFECTATION_DOSSIER_VISITE
-        // - ID_AFFECTATION_DOSSIER_COMMISSION
+        // Vider les affectations (legacy lignes 151-152, 173-175)
+        const affectationCommission = document.getElementById('dossier_idAffectationDossierCommission');
+        const affectationVisite = document.getElementById('dossier_idAffectationDossierVisite');
         
-        // TODO Phase 2 : Mettre à jour le calendrier date visite
-        // const commissionSelect = e.target;
-        // updateDateVisiteCalendar(commissionSelect.value);
+        if (affectationCommission) affectationCommission.value = '';
+        if (affectationVisite) affectationVisite.value = '';
+
+        // Masquer calendriers s'ils sont affichés (legacy lignes 177-186)
+        hideCalendarsIfVisible();
     }
 
     /**
-     * TODO Phase 2 : Mettre à jour le calendrier de date de visite selon la commission
-     * 
-     * @param {string} commissionId - ID de la commission sélectionnée
+     * Masque les calendriers s'ils sont visibles
+     * Correspond au comportement legacy lignes 177-186
      */
-    function updateDateVisiteCalendar(commissionId) {
-        // À implémenter avec fullcalendar
-        // - Charger dates disponibles pour cette commission
-        // - Filtrer par type de commission
-        // - Gérer affectations (dossieraffectation)
-        console.log('TODO: Implémenter calendrier fullcalendar pour commission', commissionId);
+    function hideCalendarsIfVisible() {
+        const calendar = document.getElementById('calendar');
+        const calendarVisite = document.getElementById('calendarVisite');
+
+        // Masquer calendrier commission
+        if (calendar && calendar.offsetParent !== null) {
+            calendar.style.display = 'none';
+            calendar.innerHTML = '';
+            
+            const calendarParent = calendar.closest('li');
+            if (calendarParent) calendarParent.style.display = 'none';
+
+            // Inverser boutons Afficher/Masquer
+            toggleCalendarButtons('commission', false);
+        }
+
+        // Masquer calendrier visite
+        if (calendarVisite && calendarVisite.offsetParent !== null) {
+            calendarVisite.style.display = 'none';
+            calendarVisite.innerHTML = '';
+            
+            const calendarVisiteParent = calendarVisite.closest('li');
+            if (calendarVisiteParent) calendarVisiteParent.style.display = 'none';
+
+            // Inverser boutons Afficher/Masquer
+            toggleCalendarButtons('visite', false);
+        }
+    }
+
+    /**
+     * Inverse l'affichage des boutons Afficher/Masquer calendrier
+     * 
+     * @param {string} type - Type de calendrier ('commission' ou 'visite')
+     * @param {boolean} isVisible - true si calendrier visible, false sinon
+     */
+    function toggleCalendarButtons(type, isVisible) {
+        const showButtons = document.querySelectorAll(`[data-calendar-type="${type}"].showCalendar`);
+        const hideButtons = document.querySelectorAll(`[data-calendar-type="${type}"].hideCalendar`);
+
+        showButtons.forEach(btn => {
+            if (isVisible) {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+            }
+        });
+
+        hideButtons.forEach(btn => {
+            if (isVisible) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        });
     }
 
     // Initialiser au chargement du DOM
