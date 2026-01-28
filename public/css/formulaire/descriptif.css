@@ -43,11 +43,11 @@
     overflow-x: auto;
 }
 
-@media (min-width: 1200px) {
+/*@media (min-width: 1200px) {
     .hidden-desktop {
         display: none;
     }
-}
+}*/
 
 #show-toc {
     position: fixed;
