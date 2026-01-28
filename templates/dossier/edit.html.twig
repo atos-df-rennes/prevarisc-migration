@@ -16,7 +16,11 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
-    <script src="{{ asset('js/dossier/form.js') }}"></script>
+    
+    {# Module ES6 pour le formulaire dossier (chargement en module) #}
+    <script type="module" src="{{ asset('js/dossier/form.js') }}"></script>
+    
+    {# Autres scripts (sans modules ES6) #}
     <script src="{{ asset('js/dossier/gestion-incomplet.js') }}"></script>
     <script src="{{ asset('js/dossier/commission.js') }}"></script>
     <script src="{{ asset('js/dossier/platau.js') }}"></script>
