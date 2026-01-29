@@ -205,7 +205,7 @@ function hideField(fieldName) {
 
 /**
  * Trouve la ligne (<li>) contenant un champ
- * @param {string} fieldId - ID du champ (peut être legacy UPPERCASE ou format Symfony dossier_*)
+ * @param {string} fieldId - ID du champ
  * @returns {HTMLElement|null}
  */
 function findFieldRow(fieldId) {
@@ -243,7 +243,7 @@ function loadNaturesForType(typeId) {
     }
 
     // URL de l'endpoint API
-    const url = '/api/dossier/natures-by-type/' + typeId;
+    const url = Routing.generate('api_dossier_natures_by_type', {type: typeId});
 
     fetch(url)
         .then(function(response) {

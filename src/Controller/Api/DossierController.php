@@ -13,7 +13,7 @@ class DossierController extends AbstractController
     /**
      * API : Récupère les natures de dossier pour un type donné.
      *
-     * @Route("/api/dossier/natures-by-type/{type}", name="api_dossier_natures_by_type", requirements={"type"="\d+"}, methods={"GET"})
+     * @Route("/api/dossier/natures-by-type/{type}", name="api_dossier_natures_by_type", requirements={"type"="\d+"}, methods={"GET"}, options={"expose"=true})
      *
      * @param DossierType                  $type                         Type de dossier
      * @param DossierNatureListeRepository $dossierNatureListeRepository Repository des natures
