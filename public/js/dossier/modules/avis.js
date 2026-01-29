@@ -1,3 +1,5 @@
+// @todo: Eventuellement définir des variables un peu globales pour les selecteurs ? (type, nature, avis, ...)
+
 /**
  * Module de gestion des avis
  * Responsabilité : Gestion affichage/masquage avis & dérogations
@@ -24,7 +26,7 @@ export function initAvisModule(config) {
     // Afficher facteur/échéancier si avis commission = Défavorable (au chargement)
     applyFacteurEcheancierDisplayOnLoad();
     
-    // Écouter les checkboxes qui masquent les avis (Bloc 6)
+    // Écouter les checkboxes qui masquent les avis
     initHideAvisCheckboxListeners();
     
     // Attacher listeners événements personnalisés
@@ -79,8 +81,7 @@ function initHideAvisCheckboxListeners() {
 }
 
 /**
- * Initialise les labels d'avis au chargement de la page (Phase 1 - statique)
- * Note: En Phase 2, cette fonction deviendra dynamique (réagira aux changements de type/nature)
+ * Initialise les labels d'avis au chargement de la page
  */
 function initAvisLabelsOnLoad() {
     const typeSelect = document.querySelector('#dossier_type');
@@ -103,9 +104,10 @@ function initAvisLabelsOnLoad() {
     } else if (typeDossier === '2' || typeDossier === '3') { // Visite ou Groupe de visites
         if (['20', '25'].includes(natureDossier)) {
             addText = ' à la réception des travaux';
-        } else if (['21', '23', '24', '26', '28', '29'].includes(natureDossier)) {
-            addText = ' à l\'exploitation';
-        } else {
+        } else if (
+            ['21', '23', '24'].includes(natureDossier)
+            || !['26', '28', '29'].includes(natureDossier)
+        ) {
             addText = ' à l\'exploitation';
         }
     }
@@ -134,7 +136,7 @@ function initAvisLabelsOnLoad() {
 }
 
 /**
- * Applique la logique d'affichage/masquage des avis au chargement (Phase 1 - statique)
+ * Applique la logique d'affichage/masquage des avis au chargement
  * Reproduit la logique legacy de afficheChamps() lignes 980-997 et afficherCacherAvis()
  * 
  * Logique legacy (ordre de priorité) :
@@ -171,6 +173,7 @@ function applyHideAvisLogicOnLoad() {
     const dateCommissionRow = findFieldRow('dateCommission');
     const horsDelaiRow = findFieldRow('horsDelai');
 
+    // @todo: Eventuellement remplacer par addClass('hidden') et removeClass('hidden')
     // Logique par ordre de priorité (legacy: lignes 986-997)
     if (incompletCheckbox && incompletCheckbox.value === '1') {
         // Cas 1: Incomplet → masquer AVIS, AVIS_COMMISSION, HORSDELAI (ligne 987-989)
@@ -190,13 +193,7 @@ function applyHideAvisLogicOnLoad() {
         if (avisRow && hasAvisInNature) avisRow.style.display = '';
     } else {
         // Cas 4: Aucune checkbox spéciale → afficher selon type ET nature (standard)
-        if (typeDossier === '1') { // Étude
-            if (avisRow && hasAvisInNature) avisRow.style.display = '';
-            if (avisCommissionRow && hasAvisCommissionInNature) avisCommissionRow.style.display = '';
-        } else if (typeDossier === '2') { // Visite
-            if (avisRow && hasAvisInNature) avisRow.style.display = '';
-            if (avisCommissionRow && hasAvisCommissionInNature) avisCommissionRow.style.display = '';
-        } else if (typeDossier === '3') { // Groupe de visites
+        if (['1', '2', '3'].includes(typeDossier)) {
             if (avisRow && hasAvisInNature) avisRow.style.display = '';
             if (avisCommissionRow && hasAvisCommissionInNature) avisCommissionRow.style.display = '';
         }
