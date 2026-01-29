@@ -55,6 +55,9 @@ final class FormulairesImporter
      */
     public function importConfiguration(EntityManagerInterface $entityManager, array $capsulesRubriques): void
     {
+        $batchSize = 50;
+        $counter = 0;
+
         foreach ($capsulesRubriques as $capsuleRubrique) {
             // Récupère les capsules rubriques statiques
             $managedCapsuleRubrique = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => $capsuleRubrique->getNomInterne()]);
@@ -64,9 +67,24 @@ final class FormulairesImporter
                 continue;
             }
 
+            // Conserve l'ID de la capsule pour re-fetch après clear
+            $capsuleRubriqueId = $managedCapsuleRubrique->getId();
+
             foreach ($capsuleRubrique->getRubriques() as $rubrique) {
+                // Re-récupère la capsule si nécessaire après un clear
+                if (!$entityManager->contains($managedCapsuleRubrique)) {
+                    $refetchedCapsule = $this->capsuleRubriqueRepository->find($capsuleRubriqueId);
+                    
+                    if (!$refetchedCapsule instanceof CapsuleRubrique) {
+                        $this->logger->error('Impossible de récupérer la capsule rubrique avec l\'ID {id}.', ['id' => $capsuleRubriqueId]);
+                        continue;
+                    }
+                    
+                    $managedCapsuleRubrique = $refetchedCapsule;
+                }
+
                 // Crée la nouvelle rubrique
-                $newRubrique = $this->createRubrique($entityManager, $rubrique, $managedCapsuleRubrique);
+                $newRubrique = $this->createRubrique($entityManager, $rubrique, $managedCapsuleRubrique, false);
 
                 if (null === $newRubrique) {
                     continue;
@@ -78,7 +96,7 @@ final class FormulairesImporter
                     }
 
                     // Crée le nouveau champ, les champs enfants sont exclus
-                    $newChamp = $this->createChamp($entityManager, $champ, $newRubrique);
+                    $newChamp = $this->createChamp($entityManager, $champ, $newRubrique, null, false);
 
                     if (null === $newChamp) {
                         continue;
@@ -87,7 +105,7 @@ final class FormulairesImporter
                     if (!$champ->getEnfants()->isEmpty()) {
                         foreach ($champ->getEnfants() as $enfant) {
                             // Crée le nouveau champ enfant depuis le champ parent créé au préalable
-                            $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp);
+                            $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp, false);
 
                             if (null === $enfantNewChamp) {
                                 continue;
@@ -97,13 +115,25 @@ final class FormulairesImporter
                         }
                     }
 
-                    $entityManager->flush();
+                    // Batch flush pour éviter les performances dégradées
+                    ++$counter;
+                    if (0 === ($counter % $batchSize)) {
+                        $entityManager->flush();
+                        $entityManager->clear(); // Libère la mémoire
+                    }
                 }
             }
         }
+
+        // Flush final pour les entités restantes
+        $entityManager->flush();
+        $entityManager->clear();
     }
 
-    private function createRubrique(EntityManagerInterface $entityManager, Rubrique $exportedRubrique, CapsuleRubrique $capsuleRubrique): ?Rubrique
+    /**
+     * @param bool $flush Flush immédiatement ou non (désactivé pour batch processing)
+     */
+    private function createRubrique(EntityManagerInterface $entityManager, Rubrique $exportedRubrique, CapsuleRubrique $capsuleRubrique, bool $flush = true): ?Rubrique
     {
         if (null === $exportedRubrique->getNom()) {
             $this->logger->warning('Le nom de la rubrique doit être renseigné.');
@@ -118,12 +148,18 @@ final class FormulairesImporter
         $rubrique->setCapsuleRubrique($capsuleRubrique);
 
         $entityManager->persist($rubrique);
-        $entityManager->flush();
+
+        if ($flush) {
+            $entityManager->flush();
+        }
 
         return $rubrique;
     }
 
-    private function createChamp(EntityManagerInterface $entityManager, Champ $exportedChamp, Rubrique $rubrique, ?Champ $parent = null): ?Champ
+    /**
+     * @param bool $flush Flush immédiatement ou non (désactivé pour batch processing)
+     */
+    private function createChamp(EntityManagerInterface $entityManager, Champ $exportedChamp, Rubrique $rubrique, ?Champ $parent = null, bool $flush = true): ?Champ
     {
         $champType = $exportedChamp->getType();
 
@@ -153,7 +189,6 @@ final class FormulairesImporter
         }
 
         $entityManager->persist($champ);
-        $entityManager->flush();
 
         foreach ($exportedChamp->getValeursListe() as $exportedValeurListe) {
             if (null === $exportedValeurListe->getValeur()) {
@@ -167,12 +202,12 @@ final class FormulairesImporter
             $valeurListe->setChamp($champ);
 
             $entityManager->persist($valeurListe);
-            $entityManager->flush();
-
             $champ->addValeursListe($valeurListe);
         }
 
-        $entityManager->flush();
+        if ($flush) {
+            $entityManager->flush();
+        }
 
         return $champ;
     }
