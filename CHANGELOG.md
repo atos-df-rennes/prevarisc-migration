@@ -4,6 +4,22 @@
 
 <!--- END HEADER -->
 
+## [2.8.13](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.12...v2.8.13) (29-01-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Documents
+
+* [#4989] erreur sur la suppression de documents contenant des apostrophes (#103) ([4183cf](https://github.com/atos-df-rennes/prevarisc-migration/commit/4183cf12eb16a9923ee3ce243ed63c156b423f51))
+
+##### Prescriptions
+
+* Possibilité d'ajouter une prescription type sur un texte sans article (#104) ([424376](https://github.com/atos-df-rennes/prevarisc-migration/commit/424376628cacc3fcb482e992958234ffbf8047e7))
+
+
+---
+
 ## [2.8.12](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.11...v2.8.12) (08-01-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
