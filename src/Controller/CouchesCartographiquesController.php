@@ -100,7 +100,7 @@ class CouchesCartographiquesController extends AbstractController
 
             if (!$this->isCsrfTokenValid('ajouter-IGN-'.$coucheCartoNom, $coucheCartoToken)) {
                 $this->logger->error(sprintf('Problème avec le token CSR pour la couche %s.', $coucheCartoNom));
-                $this->addFlash('error', sprintf("Un problème est survenu lors de l'ajout de la couche cartographique IGN %s.", $coucheCartoNom));
+                $this->addFlash('danger', sprintf("Un problème est survenu lors de l'ajout de la couche cartographique IGN %s.", $coucheCartoNom));
 
                 return $this->redirectToRoute('couches_cartographiques');
             }
@@ -118,7 +118,7 @@ class CouchesCartographiquesController extends AbstractController
 
         $couchesIGN = $this->couchesCarto->getCouchesIGN();
         if (isset($couchesIGN['error'])) {
-            $this->addFlash('error', $couchesIGN['error']);
+            $this->addFlash('danger', $couchesIGN['error']);
 
             return $this->redirectToRoute('couches_cartographiques');
         }
