@@ -6,6 +6,7 @@ use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\ChampValeurListe;
 use App\Entity\Rubrique;
+use App\Entity\TypeChamp;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\TypeChampRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,8 +56,11 @@ final class FormulairesImporter
      */
     public function importConfiguration(EntityManagerInterface $entityManager, array $capsulesRubriques): void
     {
-        $batchSize = 50;
+        $batchSize = 20; // Batch par rubrique (pas par champ)
         $counter = 0;
+
+        // Précharge tous les types de champs pour éviter N+1 queries
+        $typeChampMap = $this->preloadTypeChamps();
 
         foreach ($capsulesRubriques as $capsuleRubrique) {
             // Récupère les capsules rubriques statiques
@@ -74,12 +78,12 @@ final class FormulairesImporter
                 // Re-récupère la capsule si nécessaire après un clear
                 if (!$entityManager->contains($managedCapsuleRubrique)) {
                     $refetchedCapsule = $this->capsuleRubriqueRepository->find($capsuleRubriqueId);
-                    
+
                     if (!$refetchedCapsule instanceof CapsuleRubrique) {
                         $this->logger->error('Impossible de récupérer la capsule rubrique avec l\'ID {id}.', ['id' => $capsuleRubriqueId]);
                         continue;
                     }
-                    
+
                     $managedCapsuleRubrique = $refetchedCapsule;
                 }
 
@@ -96,7 +100,7 @@ final class FormulairesImporter
                     }
 
                     // Crée le nouveau champ, les champs enfants sont exclus
-                    $newChamp = $this->createChamp($entityManager, $champ, $newRubrique, null, false);
+                    $newChamp = $this->createChamp($entityManager, $champ, $newRubrique, null, false, $typeChampMap);
 
                     if (null === $newChamp) {
                         continue;
@@ -105,7 +109,7 @@ final class FormulairesImporter
                     if (!$champ->getEnfants()->isEmpty()) {
                         foreach ($champ->getEnfants() as $enfant) {
                             // Crée le nouveau champ enfant depuis le champ parent créé au préalable
-                            $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp, false);
+                            $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp, false, $typeChampMap);
 
                             if (null === $enfantNewChamp) {
                                 continue;
@@ -114,13 +118,13 @@ final class FormulairesImporter
                             $newChamp->addEnfant($enfantNewChamp);
                         }
                     }
+                }
 
-                    // Batch flush pour éviter les performances dégradées
-                    ++$counter;
-                    if (0 === ($counter % $batchSize)) {
-                        $entityManager->flush();
-                        $entityManager->clear(); // Libère la mémoire
-                    }
+                // Batch flush après chaque rubrique complète (évite de détacher $newRubrique)
+                ++$counter;
+                if (0 === ($counter % $batchSize)) {
+                    $entityManager->flush();
+                    $entityManager->clear(); // Libère la mémoire
                 }
             }
         }
@@ -157,9 +161,10 @@ final class FormulairesImporter
     }
 
     /**
-     * @param bool $flush Flush immédiatement ou non (désactivé pour batch processing)
+     * @param bool                    $flush        Flush immédiatement ou non (désactivé pour batch processing)
+     * @param array<string, int>|null $typeChampMap Précharge des IDs de types de champs pour éviter N+1
      */
-    private function createChamp(EntityManagerInterface $entityManager, Champ $exportedChamp, Rubrique $rubrique, ?Champ $parent = null, bool $flush = true): ?Champ
+    private function createChamp(EntityManagerInterface $entityManager, Champ $exportedChamp, Rubrique $rubrique, ?Champ $parent = null, bool $flush = true, ?array $typeChampMap = null): ?Champ
     {
         $champType = $exportedChamp->getType();
 
@@ -175,7 +180,13 @@ final class FormulairesImporter
             return null;
         }
 
-        $managedType = $this->typeChampRepository->findOneBy(['type' => $champType->getType()]);
+        // Utilise la précharge si disponible (getReference = proxy sans requête SQL)
+        if (null !== $typeChampMap && isset($typeChampMap[$champType->getType()])) {
+            $typeChampId = $typeChampMap[$champType->getType()];
+            $managedType = $entityManager->getReference(TypeChamp::class, $typeChampId);
+        } else {
+            $managedType = $this->typeChampRepository->findOneBy(['type' => $champType->getType()]);
+        }
 
         $champ = new Champ();
         $champ->setNom($exportedChamp->getNom());
@@ -210,5 +221,26 @@ final class FormulairesImporter
         }
 
         return $champ;
+    }
+
+    /**
+     * Précharge tous les types de champs en mémoire pour éviter N+1 queries.
+     * Stocke les IDs pour éviter les problèmes de détachement après clear().
+     *
+     * @return array<string, int> Map indexée par le type vers l'ID
+     */
+    private function preloadTypeChamps(): array
+    {
+        $typeChamps = $this->typeChampRepository->findAll();
+        $map = [];
+
+        foreach ($typeChamps as $typeChamp) {
+            $id = $typeChamp->getId();
+            if (null !== $id) {
+                $map[$typeChamp->getType()] = $id;
+            }
+        }
+
+        return $map;
     }
 }
