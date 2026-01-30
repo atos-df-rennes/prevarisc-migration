@@ -1,9 +1,9 @@
 .alert.alert-info {
   color: black;
+  word-wrap: anywhere;
 }
 .champFusionTable {
   margin: 0;
-  word-wrap: anywhere;
 }
 .champFusionTable > tbody > tr > td {
   border-color: black;
