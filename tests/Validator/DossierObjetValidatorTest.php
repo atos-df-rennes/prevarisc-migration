@@ -7,9 +7,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Validator\DossierObjet;
 use App\Validator\DossierObjetValidator;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
+use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * Tests unitaires pour le validator DossierObjet.
@@ -17,19 +15,11 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
  * Ce validator vérifie que le champ OBJET est renseigné
  * sauf pour les natures 21 et 26 (visites périodiques).
  */
-class DossierObjetValidatorTest extends TestCase
+final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
 {
-    /** @var DossierObjetValidator */
-    private $validator;
-
-    /** @var ExecutionContextInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $context;
-
-    protected function setUp(): void
+    protected function createValidator(): DossierObjetValidator
     {
-        $this->validator = new DossierObjetValidator();
-        $this->context = $this->createMock(ExecutionContextInterface::class);
-        $this->validator->initialize($this->context);
+        return new DossierObjetValidator();
     }
 
     /**
@@ -40,107 +30,66 @@ class DossierObjetValidatorTest extends TestCase
     {
         $dossier = $this->createDossier(1, 'Mon objet de dossier');
 
-        $this->context
-            ->expects(self::never())
-            ->method('buildViolation')
-        ;
+        $this->validator->validate($dossier, new DossierObjet());
 
-        $constraint = new DossierObjet();
-        $this->validator->validate($dossier, $constraint);
+        $this->assertNoViolation();
     }
 
     /**
-     * Test avec une nature requérant OBJET (nature 1) mais objet vide.
+     * Test avec une nature requérant OBJET mais objet vide ou null.
      * Une violation doit être levée.
+     *
+     * @dataProvider provideObjetVideOuNull
      */
-    public function testValidateAvecObjetRequisMaisVide(): void
+    public function testValidateAvecObjetRequisMaisVide(?string $objet): void
     {
-        $dossier = $this->createDossier(1, '');
-
-        $violationBuilder = $this->createMock(ConstraintViolationBuilderInterface::class);
-        $violationBuilder
-            ->expects(self::once())
-            ->method('atPath')
-            ->with('objet')
-            ->willReturnSelf()
-        ;
-        $violationBuilder
-            ->expects(self::once())
-            ->method('addViolation')
-        ;
-
-        $this->context
-            ->expects(self::once())
-            ->method('buildViolation')
-            ->willReturn($violationBuilder)
-        ;
-
+        $dossier = $this->createDossier(1, $objet);
         $constraint = new DossierObjet();
+
         $this->validator->validate($dossier, $constraint);
+
+        $this->buildViolation($constraint->message)
+            ->atPath('property.path.objet')
+            ->assertRaised()
+        ;
     }
 
     /**
-     * Test avec une nature requérant OBJET (nature 1) mais objet null.
-     * Une violation doit être levée.
+     * Fournit des cas de champ objet vide (null, chaîne vide, espaces).
+     *
+     * @return iterable<string, array{0: string|null}>
      */
-    public function testValidateAvecObjetRequisMaisNull(): void
+    public static function provideObjetVideOuNull(): iterable
     {
-        $dossier = $this->createDossier(1, null);
-
-        $violationBuilder = $this->createMock(ConstraintViolationBuilderInterface::class);
-        $violationBuilder
-            ->expects(self::once())
-            ->method('atPath')
-            ->with('objet')
-            ->willReturnSelf()
-        ;
-        $violationBuilder
-            ->expects(self::once())
-            ->method('addViolation')
-        ;
-
-        $this->context
-            ->expects(self::once())
-            ->method('buildViolation')
-            ->willReturn($violationBuilder)
-        ;
-
-        $constraint = new DossierObjet();
-        $this->validator->validate($dossier, $constraint);
+        yield 'objet null' => [null];
+        yield 'objet vide' => [''];
+        yield 'objet avec espaces' => ['   '];
     }
 
     /**
-     * Test avec une nature NE requérant PAS OBJET (nature 21 - visite périodique).
+     * Test avec des natures NE requérant PAS OBJET (21, 26).
      * Aucune violation ne doit être levée même si objet est vide.
+     *
+     * @dataProvider provideNaturesSansObjet
      */
-    public function testValidateAvecNature21SansObjet(): void
+    public function testValidateAvecNatureSansObjet(int $natureId): void
     {
-        $dossier = $this->createDossier(21, '');
+        $dossier = $this->createDossier($natureId, '');
 
-        $this->context
-            ->expects(self::never())
-            ->method('buildViolation')
-        ;
+        $this->validator->validate($dossier, new DossierObjet());
 
-        $constraint = new DossierObjet();
-        $this->validator->validate($dossier, $constraint);
+        $this->assertNoViolation();
     }
 
     /**
-     * Test avec une nature NE requérant PAS OBJET (nature 26 - groupe visite périodique).
-     * Aucune violation ne doit être levée même si objet est null.
+     * Fournit les IDs des natures ne requérant pas le champ OBJET.
+     *
+     * @return iterable<string, array{0: int}>
      */
-    public function testValidateAvecNature26SansObjet(): void
+    public static function provideNaturesSansObjet(): iterable
     {
-        $dossier = $this->createDossier(26, null);
-
-        $this->context
-            ->expects(self::never())
-            ->method('buildViolation')
-        ;
-
-        $constraint = new DossierObjet();
-        $this->validator->validate($dossier, $constraint);
+        yield 'nature 21 - Visite périodique' => [21];
+        yield 'nature 26 - Groupe visite périodique' => [26];
     }
 
     /**
@@ -156,43 +105,9 @@ class DossierObjetValidatorTest extends TestCase
         $dossier->setType($type);
         $dossier->setObjet('');
 
-        $this->context
-            ->expects(self::never())
-            ->method('buildViolation')
-        ;
+        $this->validator->validate($dossier, new DossierObjet());
 
-        $constraint = new DossierObjet();
-        $this->validator->validate($dossier, $constraint);
-    }
-
-    /**
-     * Test avec objet contenant uniquement des espaces.
-     * Une violation doit être levée pour une nature requérant OBJET.
-     */
-    public function testValidateAvecObjetUniquementEspaces(): void
-    {
-        $dossier = $this->createDossier(1, '   ');
-
-        $violationBuilder = $this->createMock(ConstraintViolationBuilderInterface::class);
-        $violationBuilder
-            ->expects(self::once())
-            ->method('atPath')
-            ->with('objet')
-            ->willReturnSelf()
-        ;
-        $violationBuilder
-            ->expects(self::once())
-            ->method('addViolation')
-        ;
-
-        $this->context
-            ->expects(self::once())
-            ->method('buildViolation')
-            ->willReturn($violationBuilder)
-        ;
-
-        $constraint = new DossierObjet();
-        $this->validator->validate($dossier, $constraint);
+        $this->assertNoViolation();
     }
 
     /**

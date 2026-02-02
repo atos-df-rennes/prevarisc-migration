@@ -141,23 +141,17 @@ class Dossier
      * @var ?\DateTimeInterface
      *
      * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
-     *
-     * @Assert\Type(
-     *     type="\DateTimeInterface",
-     *     message="La date de visite doit être une date valide."
-     * )
      */
     private $dateVisite;
 
     /**
      * @var ?\DateTimeInterface
      *
-     * @ORM\Column(type="datetime", nullable=true, name="DATEINSERT_DOSSIER")
+     * @ORM\Column(type="datetime", nullable=false, name="DATEINSERT_DOSSIER")
      *
-     * @Assert\Type(
-     *     type="\DateTimeInterface",
-     *     message="La date de création doit être une date valide."
-     * )
+     * @Assert\NotNull(message="La date de création du dossier est obligatoire.")
+     *
+     * @Assert\DateTime(message="La date de création doit être une date valide.")
      */
     private $dateInsert;
 
