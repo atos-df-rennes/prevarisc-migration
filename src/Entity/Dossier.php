@@ -3,15 +3,19 @@
 namespace App\Entity;
 
 use App\Repository\DossierRepository;
+use App\Validator\DossierObjet;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=DossierRepository::class)
  *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
+ *
+ * @DossierObjet
  */
 class Dossier
 {
@@ -76,6 +80,8 @@ class Dossier
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
      * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
+     *
+     * @Assert\NotNull(message="Le type de dossier est obligatoire.")
      */
     private $type;
 
@@ -88,6 +94,11 @@ class Dossier
      * )
      *
      * @ORM\ManyToMany(targetEntity=DossierNatureListe::class)
+     *
+     * @Assert\Count(
+     *     min=1,
+     *     minMessage="La nature du dossier est obligatoire."
+     * )
      */
     private $nature;
 
@@ -130,6 +141,11 @@ class Dossier
      * @var ?\DateTimeInterface
      *
      * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
+     *
+     * @Assert\Type(
+     *     type="\DateTimeInterface",
+     *     message="La date de visite doit être une date valide."
+     * )
      */
     private $dateVisite;
 
@@ -137,6 +153,11 @@ class Dossier
      * @var ?\DateTimeInterface
      *
      * @ORM\Column(type="datetime", nullable=true, name="DATEINSERT_DOSSIER")
+     *
+     * @Assert\Type(
+     *     type="\DateTimeInterface",
+     *     message="La date de création doit être une date valide."
+     * )
      */
     private $dateInsert;
 
