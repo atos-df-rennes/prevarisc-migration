@@ -48,8 +48,4 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Service\Etablissement')
         ->arg('$logger', ref('monolog.logger.datastore'));
-
-    $services->set('App\Security\Voter\EtablissementSiteVoter')
-        ->arg('$logger', ref('monolog.logger'))
-        ->autoconfigure();
 };

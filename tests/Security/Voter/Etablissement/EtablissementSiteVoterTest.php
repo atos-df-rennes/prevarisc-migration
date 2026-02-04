@@ -8,7 +8,11 @@ use App\Entity\EtablissementInformations;
 use App\Entity\Famille;
 use App\Entity\Genre;
 use App\Entity\Groupe;
+use App\Entity\Privileges;
+use App\Entity\Resources;
 use App\Entity\Utilisateur;
+use App\Repository\PrivilegesRepository;
+use App\Repository\ResourcesRepository;
 use App\Security\Voter\EtablissementErpVoter;
 use App\Security\Voter\EtablissementHabitationVoter;
 use App\Security\Voter\EtablissementIghVoter;
@@ -16,6 +20,7 @@ use App\Security\Voter\EtablissementSiteVoter;
 use App\Security\Voter\EtablissementVoter;
 use App\Service\Voter\EtablissementVoterFactory;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -52,6 +57,19 @@ class EtablissementSiteVoterTest extends TestCase
         $token->method('getUser')->willReturn($user);
 
         return $token;
+    }
+
+    /**
+     * Crée des mocks pour les repositories (pour les tests qui n'ont pas besoin de logique spécifique).
+     *
+     * @return array{0: MockObject, 1: MockObject}
+     */
+    private function createMockRepositories(): array
+    {
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+
+        return [$resourcesRepository, $privilegesRepository];
     }
 
     /**
@@ -181,7 +199,7 @@ class EtablissementSiteVoterTest extends TestCase
             ->willReturn($erpVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger);
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -205,7 +223,7 @@ class EtablissementSiteVoterTest extends TestCase
             ->willReturn($erpVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger);
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -232,7 +250,7 @@ class EtablissementSiteVoterTest extends TestCase
             ->willReturn($ighVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger);
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -259,7 +277,7 @@ class EtablissementSiteVoterTest extends TestCase
             ->willReturn($habitationVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger);
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -292,7 +310,7 @@ class EtablissementSiteVoterTest extends TestCase
             ]);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger);
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -300,7 +318,8 @@ class EtablissementSiteVoterTest extends TestCase
     }
 
     /**
-     * Test : Site sans fils → ACCESS_DENIED.
+     * Test : Site sans fils avec utilisateur ayant un groupe → ACCESS_DENIED (comportement avant implémentation ressources)
+     * Ce test sera modifié après implémentation pour vérifier la présence de ressources établissement.
      */
     public function testSiteSansFilsRefuseAcces(): void
     {
@@ -310,7 +329,86 @@ class EtablissementSiteVoterTest extends TestCase
 
         $factory = $this->createMock(EtablissementVoterFactory::class);
         $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger);
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
+
+        $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    /**
+     * Test : Site vide avec utilisateur ayant une ressource ERP → ACCESS_GRANTED
+     * Permet d'éditer un Site vide pour y ajouter des fils.
+     */
+    public function testSiteVideAvecRessourceErpAccordeAcces(): void
+    {
+        $site = $this->createMockSite([]); // Site vide
+
+        // Mock : L'utilisateur a une ressource ERP
+        $resource = $this->createMock(Resources::class);
+        $resource->method('getName')->willReturn('etablissement_erp_1_2_0_0_0');
+
+        $privilege = $this->createMock(Privileges::class);
+
+        $userPrivileges = $this->createMock(Collection::class);
+        $userPrivileges->method('contains')->with($privilege)->willReturn(true);
+
+        $groupe = $this->createMock(Groupe::class);
+        $groupe->method('getPrivileges')->willReturn($userPrivileges);
+
+        $user = $this->createMock(Utilisateur::class);
+        $user->method('getGroupe')->willReturn($groupe);
+
+        $token = $this->createMockToken($user);
+
+        // Mock ResourcesRepository
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([$resource]);
+
+        // Mock PrivilegesRepository
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository->method('findOneBy')->willReturn($privilege);
+
+        $factory = $this->createMock(EtablissementVoterFactory::class);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, $resourcesRepository, $privilegesRepository);
+
+        $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    /**
+     * Test : Site vide avec utilisateur SANS ressource établissement → ACCESS_DENIED.
+     */
+    public function testSiteVideSansRessourceEtablissementRefuseAcces(): void
+    {
+        $user = $this->createMock(Utilisateur::class);
+        $token = $this->createMockToken($user);
+        $site = $this->createMockSite([]); // Site vide
+
+        // Mock : L'utilisateur n'a AUCUNE ressource établissement
+        $userPrivileges = $this->createMock(Collection::class);
+        $userPrivileges->method('contains')->willReturn(false); // Aucun privilège
+
+        $groupe = $this->createMock(Groupe::class);
+        $groupe->method('getPrivileges')->willReturn($userPrivileges);
+
+        $user->method('getGroupe')->willReturn($groupe);
+
+        // Mock ResourcesRepository : retourne des ressources mais l'utilisateur n'en a aucune
+        $resource = $this->createMock(Resources::class);
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([$resource]);
+
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository->method('findOneBy')->willReturn(null);
+
+        $factory = $this->createMock(EtablissementVoterFactory::class);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $siteVoter = new EtablissementSiteVoter($factory, $logger, $resourcesRepository, $privilegesRepository);
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
