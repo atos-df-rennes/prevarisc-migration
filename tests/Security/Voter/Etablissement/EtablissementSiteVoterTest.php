@@ -318,25 +318,6 @@ class EtablissementSiteVoterTest extends TestCase
     }
 
     /**
-     * Test : Site sans fils avec utilisateur ayant un groupe → ACCESS_DENIED (comportement avant implémentation ressources)
-     * Ce test sera modifié après implémentation pour vérifier la présence de ressources établissement.
-     */
-    public function testSiteSansFilsRefuseAcces(): void
-    {
-        $user = $this->createMockUser();
-        $token = $this->createMockToken($user);
-        $site = $this->createMockSite([]); // Aucun fils
-
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
-
-        $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
-
-        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
-    }
-
-    /**
      * Test : Site vide avec utilisateur ayant une ressource ERP → ACCESS_GRANTED
      * Permet d'éditer un Site vide pour y ajouter des fils.
      */
