@@ -14,6 +14,7 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Commission\DateCommission;
 use App\Service\Dossier\DocumentConsulteTransferService;
+use App\Service\Dossier\DossierAffectationService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -98,7 +99,8 @@ class DossierController extends AbstractController
         Etablissement $etablissementService,
         DossierDocumentManquantService $documentManquantService,
         DocumentConsulteTransferService $documentConsulteTransferService,
-        PieceJointeExportService $pieceJointeExportService
+        PieceJointeExportService $pieceJointeExportService,
+        DossierAffectationService $dossierAffectationService
     ): Response {
         // Organiser les documents manquants (tri + séparation actifs/historique)
         $documentManquantService->organizeDocumentsManquants($dossier);
@@ -138,7 +140,16 @@ class DossierController extends AbstractController
 
                 // @todo BLOC 13 : Documents manquants
 
-                // @todo BLOC 16 : Affectations (commissions/visites)
+                // BLOC 16 : Affectations commissions/visites + dénormalisation dates
+                /** @var string|null $idAffectationCommission */
+                $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
+                /** @var string|null $idAffectationVisite */
+                $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+                $dossierAffectationService->gererAffectations(
+                    $dossier,
+                    $idAffectationCommission ? (int) $idAffectationCommission : null,
+                    $idAffectationVisite ? (int) $idAffectationVisite : null
+                );
 
                 // @todo BLOC 17 : Dossier donnant avis
 
