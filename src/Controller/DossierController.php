@@ -129,23 +129,14 @@ class DossierController extends AbstractController
                     );
                 }
 
-                // @todo BLOC 3 : Traitement POST (dates, booléens) - géré par DataTransformers
-                // @todo BLOC 5 : Service instructeur (simplifié)
-                // @todo BLOC 6 : Dates spéciales
-                // @todo BLOC 7 : Établissements
-                // @todo BLOC 8 : Liaison nature
                 // BLOC 12 : Export Plat'AU - Marquer PJ sélectionnées pour export
                 /** @var Collection<int, PieceJointe>|null $piecesJointesPlatau */
                 $piecesJointesPlatau = $form->get('piecesJointesPlatau')->getData();
-                if ($piecesJointesPlatau instanceof Collection && $piecesJointesPlatau->count() > 0) {
-                    $pieceJointeExportService->markForExport($piecesJointesPlatau->toArray());
+                if ($piecesJointesPlatau) {
+                    $pieceJointeExportService->markForExport($piecesJointesPlatau);
                 }
 
                 // @todo BLOC 13 : Documents manquants
-
-                // @todo BLOC 14 : Documents urbanisme
-
-                // @todo BLOC 15 : Préventionnistes
 
                 // @todo BLOC 16 : Affectations (commissions/visites)
 

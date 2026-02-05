@@ -31,11 +31,12 @@ class PieceJointeExportService
      * Change le statut des pièces jointes vers 'to_be_exported' pour
      * permettre leur export ultérieur vers la plateforme Plat'AU.
      *
-     * @param PieceJointe[] $piecesJointes Pièces jointes à marquer pour export
+     * @param iterable<PieceJointe> $piecesJointes Pièces jointes à marquer (Collection ou array)
      */
-    public function markForExport(array $piecesJointes): void
+    public function markForExport(iterable $piecesJointes): void
     {
-        if (empty($piecesJointes)) {
+        $count = is_countable($piecesJointes) ? count($piecesJointes) : iterator_count($piecesJointes);
+        if (0 === $count) {
             return;
         }
 
