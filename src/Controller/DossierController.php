@@ -15,6 +15,7 @@ use App\Repository\UtilisateurRepository;
 use App\Service\Commission\DateCommission;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
+use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
 use App\Service\Platau\PieceJointeExportService;
@@ -97,11 +98,15 @@ class DossierController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
+        DossierDocumentManquantService $documentManquantService,
         DocumentConsulteTransferService $documentConsulteTransferService,
         PieceJointeExportService $pieceJointeExportService,
         DossierAffectationService $dossierAffectationService,
         LoggerInterface $logger
     ): Response {
+        // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
+        $documentManquantService->organizeDocumentsManquants($dossier);
+
         // Sauvegarder les valeurs initiales pour détecter les changements
         $ancienType = $dossier->getType();
         $ancienneNature = $dossier->getNature();
