@@ -227,7 +227,7 @@ class Dossier
     /**
      * @var Collection<int, DossierDocumentManquant>
      *
-     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $documentsManquants;
 

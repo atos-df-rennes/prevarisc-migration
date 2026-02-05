@@ -15,13 +15,13 @@ use App\Repository\UtilisateurRepository;
 use App\Service\Commission\DateCommission;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
-use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
 use App\Service\Platau\PieceJointeExportService;
 use App\Service\PlatauConsultation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,14 +97,11 @@ class DossierController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
-        DossierDocumentManquantService $documentManquantService,
         DocumentConsulteTransferService $documentConsulteTransferService,
         PieceJointeExportService $pieceJointeExportService,
-        DossierAffectationService $dossierAffectationService
+        DossierAffectationService $dossierAffectationService,
+        LoggerInterface $logger
     ): Response {
-        // Organiser les documents manquants (tri + séparation actifs/historique)
-        $documentManquantService->organizeDocumentsManquants($dossier);
-
         // Sauvegarder les valeurs initiales pour détecter les changements
         $ancienType = $dossier->getType();
         $ancienneNature = $dossier->getNature();
@@ -171,8 +168,15 @@ class DossierController extends AbstractController
                 // Rollback en cas d'erreur
                 $this->entityManager->rollback();
 
-                // Log de l'erreur pour investigation
-                $this->addFlash('danger', 'Une erreur est survenue lors de la sauvegarde du dossier : '.$e->getMessage());
+                // Log de l'erreur technique pour le service informatique
+                $logger->error('Erreur lors de la sauvegarde du dossier', [
+                    'dossier_id' => $dossier->getId(),
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                // Message générique pour l'utilisateur
+                $this->addFlash('danger', 'Une erreur est survenue lors de la sauvegarde du dossier. Veuillez réessayer ou contacter le service informatique.');
             }
         }
 
