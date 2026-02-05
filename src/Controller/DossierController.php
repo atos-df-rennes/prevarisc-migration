@@ -172,7 +172,7 @@ class DossierController extends AbstractController
                 $this->entityManager->rollback();
 
                 // Log de l'erreur pour investigation
-                $this->addFlash('error', 'Une erreur est survenue lors de la sauvegarde du dossier : '.$e->getMessage());
+                $this->addFlash('danger', 'Une erreur est survenue lors de la sauvegarde du dossier : '.$e->getMessage());
             }
         }
 
