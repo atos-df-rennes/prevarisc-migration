@@ -5,6 +5,7 @@ namespace App\Service\Dossier;
 use App\Constant\CommissionTypeEvenement as TypeEvenement;
 use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
+use App\Entity\DossierNatureListe;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Service\DossierFields;
@@ -56,7 +57,7 @@ class DossierAffectationService
     ): void {
         // Vérifier si la nature du dossier nécessite des affectations
         $nature = $dossier->getNature();
-        $natureId = $nature ? $nature->getId() : null;
+        $natureId = $nature instanceof DossierNatureListe ? $nature->getId() : null;
 
         if (null === $nature || null === $natureId) {
             // Pas de nature → Supprimer toutes affectations
@@ -114,45 +115,54 @@ class DossierAffectationService
             $typesEvenement
         );
 
-        if ($idDateCommission) {
-            // Cas : Affectation demandée
-            $dateCommission = $this->dateCommissionRepository->find($idDateCommission);
-            if (!$dateCommission) {
-                throw new \InvalidArgumentException(sprintf('DateCommission avec ID %d introuvable', $idDateCommission));
-            }
-
-            if ($affectationExistante) {
-                // Affectation existe déjà → Vérifier si changée
-                $affectationDateCommission = $affectationExistante->getDateCommission();
-
-                if ($affectationDateCommission && $affectationDateCommission->getId() !== $idDateCommission) {
-                    // Date changée → UPDATE avec reset heures/numéro
-                    $affectationExistante->setDateCommission($dateCommission);
-                    $affectationExistante->setHeureDebut(null);
-                    $affectationExistante->setHeureFin(null);
-                    $affectationExistante->setNumero(0);
-                }
-            } else {
-                // Affectation n'existe pas → INSERT
-                $nouvelleAffectation = new DossierAffectation();
-                $nouvelleAffectation->setDossier($dossier);
-                $nouvelleAffectation->setDateCommission($dateCommission);
-                $nouvelleAffectation->setNumero(0);
-                $this->entityManager->persist($nouvelleAffectation);
-            }
-
-            // Dénormalisation : Copier DATE_COMMISSION dans colonne dossier
-            $setter = 'set'.ucfirst($colonneDate);
-            $dossier->$setter($dateCommission->getDate());
-        } else {
-            // Cas : Désaffectation (null)
+        // Cas 1 : Désaffectation (paramètre null) → Early return
+        if (!$idDateCommission) {
             $setter = 'set'.ucfirst($colonneDate);
             $dossier->$setter(null);
 
             if ($affectationExistante) {
-                // Supprimer affectation existante
                 $this->entityManager->remove($affectationExistante);
             }
+
+            return;
         }
+
+        // Cas 2 : Affectation demandée (à partir d'ici, $idDateCommission existe)
+        $dateCommission = $this->dateCommissionRepository->find($idDateCommission);
+        if (!$dateCommission) {
+            throw new \InvalidArgumentException(sprintf('DateCommission avec ID %d introuvable', $idDateCommission));
+        }
+
+        // Cas 2.1 : Nouvelle affectation → INSERT et early return
+        if (!$affectationExistante) {
+            $nouvelleAffectation = new DossierAffectation();
+            $nouvelleAffectation->setDossier($dossier);
+            $nouvelleAffectation->setDateCommission($dateCommission);
+            $nouvelleAffectation->setNumero(0);
+            $this->entityManager->persist($nouvelleAffectation);
+
+            // Dénormalisation
+            $setter = 'set'.ucfirst($colonneDate);
+            $dossier->$setter($dateCommission->getDate());
+
+            return;
+        }
+
+        // Cas 2.2 : Affectation existe déjà → Vérifier si date changée
+        $affectationDateCommission = $affectationExistante->getDateCommission();
+        if (!$affectationDateCommission || $affectationDateCommission->getId() === $idDateCommission) {
+            // Même date → Rien à faire
+            return;
+        }
+
+        // Date changée → UPDATE avec reset heures/numéro
+        $affectationExistante->setDateCommission($dateCommission);
+        $affectationExistante->setHeureDebut(null);
+        $affectationExistante->setHeureFin(null);
+        $affectationExistante->setNumero(0);
+
+        // Dénormalisation
+        $setter = 'set'.ucfirst($colonneDate);
+        $dossier->$setter($dateCommission->getDate());
     }
 }
