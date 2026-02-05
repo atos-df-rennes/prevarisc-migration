@@ -138,7 +138,9 @@ class DossierController extends AbstractController
                     $pieceJointeExportService->markForExport($piecesJointesPlatau);
                 }
 
-                // @todo BLOC 13 : Documents manquants
+                // BLOC 13 : Documents manquants
+                // Gestion automatique via CollectionType + orphanRemoval=true
+                // Doctrine persist/remove automatiquement selon modifications Collection
 
                 // BLOC 16 : Affectations commissions/visites + dénormalisation dates
                 /** @var string|null $idAffectationCommission */
