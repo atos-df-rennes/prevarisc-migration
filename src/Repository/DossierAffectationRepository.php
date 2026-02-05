@@ -48,7 +48,7 @@ class DossierAffectationRepository extends ServiceEntityRepository
     /**
      * Supprime toutes les affectations d'un dossier.
      *
-     * @param Dossier $dossier Dossier dont supprimer les affectations
+     * @param Dossier $dossier Dossier dont on veut supprimer les affectations
      *
      * @return int Nombre d'affectations supprimées
      */

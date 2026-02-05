@@ -57,7 +57,7 @@ class DossierAffectationService
         // Vérifier si la nature du dossier nécessite des affectations
         $nature = $dossier->getNature();
         $natureId = $nature ? $nature->getId() : null;
-        
+
         if (null === $nature || null === $natureId) {
             // Pas de nature → Supprimer toutes affectations
             $this->affectationRepository->deleteAllAffectations($dossier);
@@ -67,7 +67,6 @@ class DossierAffectationService
             return;
         }
 
-        /** @var string[] $champsNature */
         $champsNature = $this->dossierFieldsService->getFieldsForNature($natureId);
         if (!in_array('commission', $champsNature, true)) {
             // Nature ne nécessite pas de commission → Supprimer toutes affectations
@@ -125,6 +124,7 @@ class DossierAffectationService
             if ($affectationExistante) {
                 // Affectation existe déjà → Vérifier si changée
                 $affectationDateCommission = $affectationExistante->getDateCommission();
+
                 if ($affectationDateCommission && $affectationDateCommission->getId() !== $idDateCommission) {
                     // Date changée → UPDATE avec reset heures/numéro
                     $affectationExistante->setDateCommission($dateCommission);
@@ -132,8 +132,6 @@ class DossierAffectationService
                     $affectationExistante->setHeureFin(null);
                     $affectationExistante->setNumero(0);
                 }
-
-            // Si même date → Rien à faire (pas de persist nécessaire)
             } else {
                 // Affectation n'existe pas → INSERT
                 $nouvelleAffectation = new DossierAffectation();
