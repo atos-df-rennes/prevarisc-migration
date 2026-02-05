@@ -103,10 +103,57 @@ class DossierController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
-            $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
+            // Début transaction explicite pour rollback en cas d'erreur
+            $this->entityManager->beginTransaction();
 
-            return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+            try {
+                // @todo BLOC 1 : Transfert documents consultés (si changement type/nature)
+                
+                // @todo BLOC 3 : Traitement POST (dates, booléens) - géré par DataTransformers
+                
+                // @todo BLOC 5 : Service instructeur (simplifié)
+                
+                // @todo BLOC 6 : Dates spéciales
+                
+                // @todo BLOC 7 : Établissements
+                
+                // @todo BLOC 8 : Liaison nature
+                
+                // @todo BLOC 12 : Export Plat'AU
+                
+                // @todo BLOC 13 : Documents manquants
+                
+                // @todo BLOC 14 : Documents urbanisme
+                
+                // @todo BLOC 15 : Préventionnistes
+                
+                // @todo BLOC 16 : Affectations (commissions/visites)
+                
+                // @todo BLOC 17 : Dossier donnant avis
+                
+                // Persist et flush toutes les modifications
+                $this->entityManager->persist($dossier);
+                $this->entityManager->flush();
+                
+                // Commit transaction
+                $this->entityManager->commit();
+                
+                // @todo BLOC 18 : Cache + Redirect
+                $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
+
+                return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+            } catch (\Exception $e) {
+                // Rollback en cas d'erreur
+                $this->entityManager->rollback();
+                
+                // Log de l'erreur pour investigation
+                $this->addFlash('error', 'Une erreur est survenue lors de la sauvegarde du dossier : '.$e->getMessage());
+                
+                // Re-throw pour debug en dev
+                if ('dev' === $this->getParameter('kernel.environment')) {
+                    throw $e;
+                }
+            }
         }
 
         // Récupération des données nécessaires pour l'affichage
