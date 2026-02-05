@@ -3,7 +3,6 @@
 namespace App\Validator;
 
 use App\Entity\Dossier;
-use App\Entity\DossierNatureListe;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;

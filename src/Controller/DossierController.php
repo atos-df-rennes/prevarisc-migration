@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
 use App\Entity\Utilisateur;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
@@ -12,6 +13,7 @@ use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Commission\DateCommission;
+use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -92,10 +94,16 @@ class DossierController extends AbstractController
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
-        DossierDocumentManquantService $documentManquantService
+        DossierDocumentManquantService $documentManquantService,
+        DocumentConsulteTransferService $documentConsulteTransferService
     ): Response {
         // Organiser les documents manquants (tri + séparation actifs/historique)
         $documentManquantService->organizeDocumentsManquants($dossier);
+
+        // Sauvegarder les valeurs initiales pour détecter les changements
+        $type = $dossier->getType();
+        $ancienTypeId = $type instanceof \App\Entity\DossierType ? $type->getId() : null;
+        $ancienneNatureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
 
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
@@ -107,7 +115,18 @@ class DossierController extends AbstractController
             $this->entityManager->beginTransaction();
 
             try {
-                // @todo BLOC 1 : Transfert documents consultés (si changement type/nature)
+                // BLOC 1 : Transfert documents consultés (si changement type/nature)
+                $nouveauType = $dossier->getType();
+                $nouveauTypeId = $nouveauType instanceof \App\Entity\DossierType ? $nouveauType->getId() : null;
+                $nouvelleNatureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+
+                if ($nouveauTypeId && ($ancienTypeId !== $nouveauTypeId || $ancienneNatureId !== $nouvelleNatureId)) {
+                    $documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
+                        $dossier,
+                        $nouveauTypeId,
+                        $nouvelleNatureId
+                    );
+                }
 
                 // @todo BLOC 3 : Traitement POST (dates, booléens) - géré par DataTransformers
 

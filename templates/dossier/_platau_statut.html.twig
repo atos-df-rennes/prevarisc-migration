@@ -17,11 +17,11 @@
 {% endif %}
 
 {# Bouton retry PEC : si PRISE_EN_COMPTE et date_avis null #}
-{% if type == 'pec' 
+{% if type == 'pec'
    and statut == constant('App\\Enum\\PlatauStatutPecEnum::PRISE_EN_COMPTE')
    and date_avis is null %}
-    <button type="button" 
-            id="retry-export-pec" 
+    <button type="button"
+            id="retry-export-pec"
             class="btn btn-warning btn-xs"
             data-statut-type="pec"
             data-label-nouveau="{{ constant('App\\Enum\\PlatauStatutPecEnum::LABELS')['to_export'] }}"
@@ -31,10 +31,10 @@
 {% endif %}
 
 {# Bouton retry Avis : si TRAITE #}
-{% if type == 'avis' 
+{% if type == 'avis'
    and statut == constant('App\\Enum\\PlatauStatutAvisEnum::TRAITE') %}
-    <button type="button" 
-            id="retry-export-avis" 
+    <button type="button"
+            id="retry-export-avis"
             class="btn btn-warning btn-xs"
             data-statut-type="avis"
             data-label-nouveau="{{ constant('App\\Enum\\PlatauStatutAvisEnum::LABELS')['to_export'] }}"

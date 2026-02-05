@@ -115,8 +115,6 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
      *
      * @param int         $natureId ID de la nature
      * @param string|null $objet    Objet du dossier
-     *
-     * @return Dossier
      */
     private function createDossier(int $natureId, ?string $objet): Dossier
     {
