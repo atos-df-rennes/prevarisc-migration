@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Dossier;
+use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
@@ -16,7 +17,9 @@ use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
+use App\Service\Platau\PieceJointeExportService;
 use App\Service\PlatauConsultation;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -94,7 +97,8 @@ class DossierController extends AbstractController
         DossierFields $dossierFieldsService,
         Etablissement $etablissementService,
         DossierDocumentManquantService $documentManquantService,
-        DocumentConsulteTransferService $documentConsulteTransferService
+        DocumentConsulteTransferService $documentConsulteTransferService,
+        PieceJointeExportService $pieceJointeExportService
     ): Response {
         // Organiser les documents manquants (tri + séparation actifs/historique)
         $documentManquantService->organizeDocumentsManquants($dossier);
@@ -126,16 +130,16 @@ class DossierController extends AbstractController
                 }
 
                 // @todo BLOC 3 : Traitement POST (dates, booléens) - géré par DataTransformers
-
                 // @todo BLOC 5 : Service instructeur (simplifié)
-
                 // @todo BLOC 6 : Dates spéciales
-
                 // @todo BLOC 7 : Établissements
-
                 // @todo BLOC 8 : Liaison nature
-
-                // @todo BLOC 12 : Export Plat'AU
+                // BLOC 12 : Export Plat'AU - Marquer PJ sélectionnées pour export
+                /** @var Collection<int, PieceJointe>|null $piecesJointesPlatau */
+                $piecesJointesPlatau = $form->get('piecesJointesPlatau')->getData();
+                if ($piecesJointesPlatau instanceof Collection && $piecesJointesPlatau->count() > 0) {
+                    $pieceJointeExportService->markForExport($piecesJointesPlatau->toArray());
+                }
 
                 // @todo BLOC 13 : Documents manquants
 
