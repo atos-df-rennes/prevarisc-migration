@@ -2,8 +2,11 @@
 
 namespace App\Service\Dossier;
 
+use App\Constant\DossierNature;
+use App\Constant\DossierType;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType as DossierTypeEntity;
 use App\Repository\DossierDocumentConsulteRepository;
 use App\Repository\ListeDocumentAjouteRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,20 +28,6 @@ final class DocumentConsulteTransferService
     /** @var ListeDocumentAjouteRepository */
     private $documentAjouteRepository;
 
-    /**
-     * Types visite (interchangeables).
-     *
-     * @var int[]
-     */
-    private const TYPES_VISITE = [2, 3]; // Visite de commission, Groupe de visite
-
-    /**
-     * Natures Réception Travaux / Visite Avant Ouverture (interchangeables).
-     *
-     * @var int[]
-     */
-    private const NATURES_RT_VAO = [20, 47, 25, 48]; // RT, VAO, RT groupe, VAO groupe
-
     public function __construct(
         EntityManagerInterface $entityManager,
         DossierDocumentConsulteRepository $documentConsulteRepository,
@@ -58,26 +47,30 @@ final class DocumentConsulteTransferService
      * - Si incompatible : suppression des documents consultés/ajoutés
      * - Si compatible : mise à jour de la nature
      *
-     * @param Dossier  $dossier          Dossier en cours d'édition
-     * @param int      $nouveauTypeId    Nouveau type sélectionné
-     * @param int|null $nouvelleNatureId Nouvelle nature sélectionnée
+     * @param Dossier                 $dossier        Dossier en cours d'édition
+     * @param DossierTypeEntity       $nouveauType    Nouveau type sélectionné
+     * @param DossierNatureListe|null $nouvelleNature Nouvelle nature sélectionnée
      */
     public function transfertOuSupprimeDocumentsConsultes(
         Dossier $dossier,
-        int $nouveauTypeId,
-        ?int $nouvelleNatureId
+        DossierTypeEntity $nouveauType,
+        ?DossierNatureListe $nouvelleNature
     ): void {
-        $type = $dossier->getType();
-        if (null === $type) {
+        $ancienType = $dossier->getType();
+        if (null === $ancienType) {
             return; // Pas de type : rien à faire
         }
 
-        $ancienTypeId = $type->getId();
-        if (null === $ancienTypeId) {
-            return; // ID type null : situation anormale, on ne fait rien
+        $ancienTypeId = $ancienType->getId();
+        $nouveauTypeId = $nouveauType->getId();
+
+        if (null === $ancienTypeId || null === $nouveauTypeId) {
+            return; // ID type null : situation anormale
         }
 
-        $ancienneNatureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+        $ancienneNature = $dossier->getNature();
+        $ancienneNatureId = $ancienneNature instanceof DossierNatureListe ? $ancienneNature->getId() : null;
+        $nouvelleNatureId = $nouvelleNature instanceof DossierNatureListe ? $nouvelleNature->getId() : null;
 
         // Pas de changement : rien à faire
         if ($ancienTypeId === $nouveauTypeId && $ancienneNatureId === $nouvelleNatureId) {
@@ -98,7 +91,7 @@ final class DocumentConsulteTransferService
         }
 
         // Si compatible : mise à jour de la nature
-        $this->updateNatureDocumentsConsultes($dossier);
+        $this->updateNatureDocumentsConsultes($dossier, $nouvelleNature);
     }
 
     /**
@@ -110,8 +103,8 @@ final class DocumentConsulteTransferService
      */
     private function hasIncompatibleTypes(int $ancienTypeId, int $nouveauTypeId): bool
     {
-        $ancienEstVisite = in_array($ancienTypeId, self::TYPES_VISITE, true);
-        $nouveauEstVisite = in_array($nouveauTypeId, self::TYPES_VISITE, true);
+        $ancienEstVisite = in_array($ancienTypeId, DossierType::TYPES_VISITE, true);
+        $nouveauEstVisite = in_array($nouveauTypeId, DossierType::TYPES_VISITE, true);
 
         // Incompatible si :
         // - Ancien = visite ET nouveau != visite
@@ -135,7 +128,7 @@ final class DocumentConsulteTransferService
 
         // Vérifie si une seule des deux natures est dans RT/VAO
         $natures = [$ancienneNatureId, $nouvelleNatureId];
-        $naturesHorsRtVao = array_diff($natures, self::NATURES_RT_VAO);
+        $naturesHorsRtVao = array_diff($natures, DossierNature::NATURES_RT_VAO);
 
         // Incompatible si une seule nature est hors RT/VAO (count = 1)
         return 1 === count($naturesHorsRtVao);
@@ -162,20 +155,24 @@ final class DocumentConsulteTransferService
     /**
      * Met à jour la nature des documents consultés et ajoutés.
      */
-    private function updateNatureDocumentsConsultes(Dossier $dossier): void
+    private function updateNatureDocumentsConsultes(Dossier $dossier, ?DossierNatureListe $nouvelleNature): void
     {
+        // Si la nouvelle nature est null, on ne peut pas mettre à jour (setNature n'accepte pas null)
+        // Dans ce cas, on ne fait rien (les documents gardent leur ancienne nature)
+        if (null === $nouvelleNature) {
+            return;
+        }
+
         // Mise à jour nature dans documents consultés
         $documentsConsultes = $this->documentConsulteRepository->findBy(['dossier' => $dossier]);
         foreach ($documentsConsultes as $doc) {
-            // @todo : Vérifier si la relation nature existe sur DossierDocumentConsulte
-            // $doc->setNature($nouvelleNature);
+            $doc->setNature($nouvelleNature);
         }
 
         // Mise à jour nature dans documents ajoutés
         $documentsAjoutes = $this->documentAjouteRepository->findBy(['dossier' => $dossier]);
         foreach ($documentsAjoutes as $doc) {
-            // @todo : Vérifier si la relation nature existe sur ListeDocumentAjoute
-            // $doc->setNature($nouvelleNature);
+            $doc->setNature($nouvelleNature);
         }
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Dossier;
-use App\Entity\DossierNatureListe;
 use App\Entity\Utilisateur;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
@@ -101,9 +100,8 @@ class DossierController extends AbstractController
         $documentManquantService->organizeDocumentsManquants($dossier);
 
         // Sauvegarder les valeurs initiales pour détecter les changements
-        $type = $dossier->getType();
-        $ancienTypeId = $type instanceof \App\Entity\DossierType ? $type->getId() : null;
-        $ancienneNatureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+        $ancienType = $dossier->getType();
+        $ancienneNature = $dossier->getNature();
 
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
@@ -117,14 +115,13 @@ class DossierController extends AbstractController
             try {
                 // BLOC 1 : Transfert documents consultés (si changement type/nature)
                 $nouveauType = $dossier->getType();
-                $nouveauTypeId = $nouveauType instanceof \App\Entity\DossierType ? $nouveauType->getId() : null;
-                $nouvelleNatureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+                $nouvelleNature = $dossier->getNature();
 
-                if ($nouveauTypeId && ($ancienTypeId !== $nouveauTypeId || $ancienneNatureId !== $nouvelleNatureId)) {
+                if ($nouveauType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
                     $documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
                         $dossier,
-                        $nouveauTypeId,
-                        $nouvelleNatureId
+                        $nouveauType,
+                        $nouvelleNature
                     );
                 }
 

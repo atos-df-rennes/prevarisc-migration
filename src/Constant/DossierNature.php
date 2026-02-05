@@ -26,6 +26,13 @@ final class DossierNature
      */
     public const RECEPTIONS_TRAVAUX = [20, 25];
 
+    /**
+     * Natures Réception Travaux et Visite Avant Ouverture (interchangeables).
+     *
+     * @var int[]
+     */
+    public const NATURES_RT_VAO = [20, 47, 25, 48]; // RT, VAO, RT groupe, VAO groupe
+
     public const NATURES_SANS_DESCRIPTIF = [3, 9];
 
     public const NATURES_DESCRIPTIF_TRAVAUX = [1, 2];
