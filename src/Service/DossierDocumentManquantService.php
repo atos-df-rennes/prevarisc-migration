@@ -7,7 +7,7 @@ use App\Entity\Dossier;
 /**
  * Service gérant la logique métier des documents manquants.
  */
-class DossierDocumentManquantService
+final class DossierDocumentManquantService
 {
     /**
      * Organise les documents manquants d'un dossier par ordre décroissant.

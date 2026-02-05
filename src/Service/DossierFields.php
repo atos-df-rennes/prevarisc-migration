@@ -7,7 +7,7 @@ use App\Entity\Dossier;
 /**
  * Service de gestion des champs à afficher selon la nature du dossier.
  */
-class DossierFields
+final class DossierFields
 {
     private const LISTE_CHAMPS = [
         // ETUDES

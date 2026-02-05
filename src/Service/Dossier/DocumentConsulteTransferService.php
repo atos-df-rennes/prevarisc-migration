@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * @see prevarisc/application/services/Dossier.php::transfertOuSupprimeDocumentsConsultes()
  */
-class DocumentConsulteTransferService
+final class DocumentConsulteTransferService
 {
     /** @var EntityManagerInterface */
     private $entityManager;
