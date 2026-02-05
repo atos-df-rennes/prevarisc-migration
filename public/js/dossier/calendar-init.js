@@ -112,7 +112,12 @@
 
     function handleEventClick(event, $dateField, calendarType, dossierType) {
         $dateField.val(formatDateISO(event.start, event.end, true));
-        // @todo: ajouter les identifiants d'affectation à la date de commission/visite
+        
+        // Mettre à jour le champ Hidden d'affectation avec l'ID de l'événement
+        const affectationFieldId = (calendarType === 'visite') 
+            ? 'dossier_idAffectationDossierVisite' 
+            : 'dossier_idAffectationDossierCommission';
+        $('#' + affectationFieldId).val(event.id);
 
         /**
          * @fixme: La condition && (dossierType === '2' || dossierType === '3') est en théorie inutile

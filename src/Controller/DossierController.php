@@ -145,6 +145,7 @@ class DossierController extends AbstractController
                 $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
                 /** @var string|null $idAffectationVisite */
                 $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+
                 $dossierAffectationService->gererAffectations(
                     $dossier,
                     $idAffectationCommission ? (int) $idAffectationCommission : null,
