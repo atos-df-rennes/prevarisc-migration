@@ -28,6 +28,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
 
@@ -445,6 +447,51 @@ class DossierType extends AbstractType
 
         // Ajout du transformer pour dateCommission (stockée en string dd/mm/yyyy)
         $builder->get('dateCommission')->addModelTransformer(new DateCommissionTransformer());
+
+        // PRE_SUBMIT : Recalculer les natures disponibles en fonction du type sélectionné
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $data = $event->getData();
+            $form = $event->getForm();
+
+            // Vérification que data est un array
+            if (!is_array($data)) {
+                return;
+            }
+
+            // Si un type est soumis, recalculer les natures disponibles
+            if (!isset($data['type']) || empty($data['type'])) {
+                return;
+            }
+
+            // Cast sécurisé : vérifier que c'est un scalar avant de caster en int
+            if (!is_scalar($data['type'])) {
+                return;
+            }
+
+            $typeId = (int) $data['type'];
+            $type = $this->entityManager->getRepository(DossierTypeEntity::class)->find($typeId);
+
+            if (null === $type) {
+                return;
+            }
+
+            /** @var DossierNatureListeRepository $repository */
+            $repository = $this->entityManager->getRepository(DossierNatureListe::class);
+            $availableNatures = $repository->findByTypeOrderedByOrdre($type);
+
+            // Remplacer le champ nature avec les nouvelles options
+            $form->add('nature', EntityType::class, [
+                'label' => 'Nature',
+                'class' => DossierNatureListe::class,
+                'choices' => $availableNatures,
+                'choice_label' => 'libelle',
+                'placeholder' => 'Sélectionner une nature',
+                'required' => true,
+                'attr' => [
+                    'data-action' => 'change',
+                ],
+            ]);
+        });
     }
 
     /**
