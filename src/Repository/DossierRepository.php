@@ -210,8 +210,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         // Tri par dateCommission puis dateVisite (DESC)
-        // Utilise COALESCE pour gérer les valeurs nulles
-        $qb->orderBy('COALESCE(d.dateCommission, d.dateVisite, d.dateInsert)', 'DESC');
+        // COALESCE dans addSelect() est interprété comme SQL brut (pas parsé par DQL)
+        $qb->addSelect('COALESCE(d.dateCommission, d.dateVisite, d.dateInsert) as HIDDEN sortDate');
+        $qb->orderBy('sortDate', 'DESC');
         $qb->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();
