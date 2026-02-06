@@ -248,7 +248,11 @@ class DossierDonnantAvisService
         // Pour chaque établissement lié au dossier
         foreach ($dossier->getEtablissements() as $etablissement) {
             // Chercher le dernier dossier valide donnant avis pour cet établissement
-            $dernierDossierValide = $this->dossierRepository->findLastDossierDonnantAvisForEtablissement($etablissement);
+            // Exclure le dossier courant car il a encore sa nature donnant avis (pas encore flush)
+            $dernierDossierValide = $this->dossierRepository->findLastDossierDonnantAvisForEtablissement(
+                $etablissement,
+                $dossier
+            );
 
             // Mettre à jour l'établissement
             $etablissement->setDossierDonnantAvis($dernierDossierValide);

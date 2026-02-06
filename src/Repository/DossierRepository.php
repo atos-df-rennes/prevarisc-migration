@@ -189,11 +189,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * - Non supprimé
      * - Tri par date commission ou date visite (DESC)
      *
-     * @param Etablissement $etablissement Établissement pour lequel chercher le dernier dossier
+     * @param Etablissement $etablissement  Établissement pour lequel chercher le dernier dossier
+     * @param Dossier|null  $excludeDossier Dossier à exclure de la recherche (ex: dossier courant en désaffectation)
      *
      * @return Dossier|null Dernier dossier valide ou null si aucun
      */
-    public function findLastDossierDonnantAvisForEtablissement(Etablissement $etablissement): ?Dossier
+    public function findLastDossierDonnantAvisForEtablissement(Etablissement $etablissement, ?Dossier $excludeDossier = null): ?Dossier
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -208,6 +209,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->setParameter('etablissementId', $etablissement->getId())
             ->setParameter('naturesIds', DossierNature::NATURES_DONNANT_AVIS)
         ;
+
+        // Exclure le dossier spécifié (pour éviter de retrouver le dossier courant en désaffectation)
+        if (null !== $excludeDossier) {
+            $qb->andWhere('d.id != :excludeDossierId')
+                ->setParameter('excludeDossierId', $excludeDossier->getId());
+        }
 
         // Tri par dateCommission puis dateVisite (DESC)
         // COALESCE dans addSelect() est interprété comme SQL brut (pas parsé par DQL)
