@@ -111,7 +111,8 @@ class DossierController extends AbstractController
         DossierAffectationRepository $dossierAffectationRepository,
         DossierDonnantAvisService $dossierDonnantAvisService,
         AlerteService $alerteService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        bool $mailEnabled
     ): Response {
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
         $documentManquantService->organizeDocumentsManquants($dossier);
@@ -225,8 +226,7 @@ class DossierController extends AbstractController
                 $this->entityManager->commit();
 
                 // BLOC 17 Part 3A : Alertes email si changement d'avis (flash messages)
-                $mailEnabled = '1' === ($_ENV['PREVARISC_MAIL_ENABLED'] ?? '0');
-                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_email_alerte_avis')) {
+                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
                     // Vérifier pour chaque établissement modifié si l'avis a changé
                     foreach ($dossier->getEtablissements() as $etablissement) {
                         $etablissementId = $etablissement->getId();

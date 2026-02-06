@@ -28,11 +28,11 @@ class AlerteService
     {
         $etabData = '';
         if (null !== $idEtablissement) {
-            $etabData = sprintf(' data-ets="%d"', $idEtablissement);
+            $etabData = sprintf('data-ets="%d"', $idEtablissement);
         }
 
         return sprintf(
-            '<a data-value="%d"%s class="pull-right alerte-link"><i class="icon-bell icon-black"></i>Alerter</a>',
+            '<a data-value="%d" %s class="pull-right alerte-link"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span>Alerter</a>',
             $idTypeChangement,
             $etabData
         );

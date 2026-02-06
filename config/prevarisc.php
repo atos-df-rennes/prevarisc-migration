@@ -226,4 +226,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_DOSSIERS_MAX_A_AFFICHER)', 5);
 
     $parameters->set('app.nb_dossiers_a_afficher', '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%');
+
+    $parameters->set('env(PREVARISC_MAIL_ENABLED)', 1);
+
+    $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');
 };

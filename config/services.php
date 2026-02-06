@@ -19,6 +19,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$realDataPath', '%app.files_path%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
+        ->bind('$mailEnabled', '%app.mail_enabled%')
     ;
 
 
