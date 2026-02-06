@@ -185,9 +185,9 @@ class DossierAffectationService
             return;
         }
 
-        // dateCommission nécessite conversion string dd/mm/yyyy
+        // dateCommission nécessite conversion string Y-m-d
         if ('dateCommission' === $colonneDate) {
-            $dossier->$setter($date->format('d/m/Y'));
+            $dossier->$setter($date->format('Y-m-d'));
 
             return;
         }
