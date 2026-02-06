@@ -165,6 +165,7 @@ class DossierController extends AbstractController
 
                 // Cas 1 : Nouvelle nature donne avis → Affectation
                 if ($dossier->donneAvis()) {
+                    // @todo BLOC 17 Partie 3 : Capturer retour pour EventSubscriber emails
                     $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
                 }
                 // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
