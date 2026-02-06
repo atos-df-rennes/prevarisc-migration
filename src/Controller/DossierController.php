@@ -87,6 +87,8 @@ class DossierController extends AbstractController
      * Édition des informations générales d'un dossier.
      *
      * @Route("/dossier/{id}/modifier", name="dossier_edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
      */
     public function edit(
         Request $request,
@@ -163,15 +165,19 @@ class DossierController extends AbstractController
                 /** @var bool $repercuterAvis */
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
 
+                // Liste des IDs établissements modifiés (pour vidage cache BLOC 18)
+                /** @var int[] $etablissementsIds */
+                $etablissementsIds = [];
+
                 // Cas 1 : Nouvelle nature donne avis → Affectation
                 if ($dossier->donneAvis()) {
-                    // @todo BLOC 17 Partie 3 : Capturer retour pour EventSubscriber emails
-                    $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
+                    // @todo BLOC 17 Partie 3 : Utiliser retour pour EventSubscriber emails
+                    $etablissementsIds = $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
                 }
                 // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
                 // Note : Le elseif garantit qu'on ne passe ici QUE si nouvelle nature ne donne PAS avis
                 elseif (null !== $ancienneNature) {
-                    $dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
+                    $etablissementsIds = $dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
                 }
 
                 // Persist et flush toutes les modifications
@@ -181,9 +187,24 @@ class DossierController extends AbstractController
                 // Commit transaction
                 $this->entityManager->commit();
 
-                // @todo BLOC 18 : Cache + Redirect
+                // BLOC 18 : Redirect vers legacy pour vidage cache établissements (si modifications)
                 $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
 
+                if ([] !== $etablissementsIds) {
+                    // Rediriger vers route legacy pour vidage cache + redirect Symfony
+                    $etablissementsJson = json_encode($etablissementsIds);
+                    if (false === $etablissementsJson) {
+                        throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
+                    }
+
+                    return $this->redirect(sprintf(
+                        '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
+                        $dossier->getId(),
+                        urlencode($etablissementsJson)
+                    ));
+                }
+
+                // Cas sans modification établissements : redirect direct vers page dossier
                 return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
             } catch (\Exception $e) {
                 // Rollback en cas d'erreur

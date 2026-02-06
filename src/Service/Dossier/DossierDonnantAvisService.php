@@ -50,7 +50,7 @@ class DossierDonnantAvisService
      * @param Dossier $dossier        Dossier à affecter
      * @param bool    $repercuterAvis Si true, répercute aux établissements enfants (cellules)
      *
-     * @return Etablissement[] Liste des établissements mis à jour (pour alertes emails)
+     * @return int[] Liste des IDs établissements modifiés (pour vidage cache + alertes emails)
      */
     public function affecterDossierDonnantAvis(Dossier $dossier, bool $repercuterAvis = false): array
     {
@@ -64,14 +64,14 @@ class DossierDonnantAvisService
             return [];
         }
 
-        $etablissementsModifies = [];
+        $etablissementsIds = [];
 
         // Itérer sur les établissements liés au dossier
         foreach ($dossier->getEtablissements() as $etablissement) {
             if ($this->devraitMettreAJour($etablissement, $dossier)) {
                 $etablissement->setDossierDonnantAvis($dossier);
                 $this->entityManager->persist($etablissement);
-                $etablissementsModifies[] = $etablissement;
+                $etablissementsIds[] = $etablissement->getId();
 
                 $this->logger->info('Établissement mis à jour avec dossier donnant avis', [
                     'etablissement_id' => $etablissement->getId(),
@@ -80,22 +80,18 @@ class DossierDonnantAvisService
 
                 // Répercuter aux enfants si demandé
                 if ($repercuterAvis) {
-                    $enfantsModifies = $this->repercuterAuxEnfants($etablissement, $dossier);
-                    $etablissementsModifies = array_merge($etablissementsModifies, $enfantsModifies);
+                    $enfantsIds = $this->repercuterAuxEnfants($etablissement, $dossier);
+                    $etablissementsIds = array_merge($etablissementsIds, $enfantsIds);
                 }
             }
         }
 
-        if ([] !== $etablissementsModifies) {
+        if ([] !== $etablissementsIds) {
             $this->entityManager->flush();
-
-            // @todo CACHE : Invalidation cache établissements via LegacyController
-            // Le cache Zend doit être vidé pour chaque établissement modifié et son parent
-            // Format clé cache : 'etablissement_' . $etablissementId
-            // Doit être fait via pattern LegacyController pour accès au cache Zend
+            // Note : Cache Zend vidé via LegacyController (BLOC 18) après redirect
         }
 
-        return $etablissementsModifies;
+        return $etablissementsIds;
     }
 
     /**
@@ -135,11 +131,11 @@ class DossierDonnantAvisService
      * @param Etablissement $etablissementParent Établissement parent
      * @param Dossier       $dossier             Dossier à répercuter
      *
-     * @return Etablissement[] Liste des enfants mis à jour (pour alertes emails)
+     * @return int[] Liste des IDs enfants mis à jour (pour vidage cache + alertes emails)
      */
     private function repercuterAuxEnfants(Etablissement $etablissementParent, Dossier $dossier): array
     {
-        $enfantsModifies = [];
+        $enfantsIds = [];
 
         // Récupérer les enfants (Collection fils)
         foreach ($etablissementParent->getFils() as $enfant) {
@@ -164,7 +160,7 @@ class DossierDonnantAvisService
             // Mettre à jour l'enfant
             $enfant->setDossierDonnantAvis($dossier);
             $this->entityManager->persist($enfant);
-            $enfantsModifies[] = $enfant;
+            $enfantsIds[] = $enfant->getId();
 
             $this->logger->info('Enfant mis à jour avec dossier donnant avis (répercussion)', [
                 'enfant_id' => $enfant->getId(),
@@ -173,7 +169,7 @@ class DossierDonnantAvisService
             ]);
         }
 
-        return $enfantsModifies;
+        return $enfantsIds;
     }
 
     /**
@@ -225,8 +221,10 @@ class DossierDonnantAvisService
      *
      * @param Dossier            $dossier        Dossier en cours de modification
      * @param DossierNatureListe $ancienneNature Nature avant modification (garantie non-null par Controller)
+     *
+     * @return int[] Liste des IDs établissements modifiés (pour vidage cache BLOC 18)
      */
-    public function desaffecterDossierDonnantAvis(Dossier $dossier, DossierNatureListe $ancienneNature): void
+    public function desaffecterDossierDonnantAvis(Dossier $dossier, DossierNatureListe $ancienneNature): array
     {
         // Early return : Ancienne nature ne donnait pas avis, rien à faire
         $ancienneDonnaitAvis = in_array(
@@ -236,7 +234,7 @@ class DossierDonnantAvisService
         );
 
         if (!$ancienneDonnaitAvis) {
-            return;
+            return [];
         }
 
         $this->logger->info('Désaffectation dossier donnant avis (changement nature)', [
@@ -245,7 +243,7 @@ class DossierDonnantAvisService
             'nouvelle_nature_id' => $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null,
         ]);
 
-        $etablissementsModifies = false;
+        $etablissementsIds = [];
 
         // Pour chaque établissement lié au dossier
         foreach ($dossier->getEtablissements() as $etablissement) {
@@ -255,7 +253,7 @@ class DossierDonnantAvisService
             // Mettre à jour l'établissement
             $etablissement->setDossierDonnantAvis($dernierDossierValide);
             $this->entityManager->persist($etablissement);
-            $etablissementsModifies = true;
+            $etablissementsIds[] = $etablissement->getId();
 
             $this->logger->info('Établissement mis à jour après désaffectation', [
                 'etablissement_id' => $etablissement->getId(),
@@ -263,13 +261,11 @@ class DossierDonnantAvisService
             ]);
         }
 
-        if ($etablissementsModifies) {
+        if ([] !== $etablissementsIds) {
             $this->entityManager->flush();
-
-            // @todo CACHE : Invalidation cache établissements via LegacyController
-            // Le cache Zend doit être vidé pour chaque établissement modifié et son parent
-            // Format clé cache : 'etablissement_' . $etablissementId
-            // Doit être fait via pattern LegacyController pour accès au cache Zend
+            // Note : Cache Zend vidé via LegacyController (BLOC 18) après redirect
         }
+
+        return $etablissementsIds;
     }
 }
