@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Etablissement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +22,7 @@ class AlerteController extends AbstractController
      *
      * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"})
      */
-    public function formulaire(Request $request, Etablissement $etablissementService): Response
+    public function formulaire(Request $request): Response
     {
         $etablissementId = $request->query->getInt('etablissement');
         $typeChangement = $request->query->getInt('type', 2); // 2 = avis

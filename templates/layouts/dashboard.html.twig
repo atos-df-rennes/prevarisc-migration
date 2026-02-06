@@ -40,8 +40,18 @@
                 {% block body_structure %}{% endblock %}
             </div>
         </div>
+
+        {# Modale Bootstrap 3 pour alertes email (BLOC 17 Part 3B) #}
+        <div class="modal fade" id="modalAlerte" tabindex="-1" role="dialog" aria-labelledby="modalAlerteLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    {# Contenu chargé dynamiquement via AJAX #}
+                </div>
+            </div>
+        </div>
+
         <button id="go-top" type="button" class="btn btn-default" style="display: none;" onclick="scrollToTop()">
-            <i class="glyphicon glyphicon-arrow-up"></i>
+            <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
         </button>
     </div>
 

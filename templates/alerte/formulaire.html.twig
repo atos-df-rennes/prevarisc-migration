@@ -24,7 +24,7 @@
                         <span id="dst_{{ destinataire.id }}" class="label label-info">
                             {{ destinataire.nom }}, {{ destinataire.prenom }}
                             <a href="#" class="remove-dst" data-id="{{ destinataire.id }}" data-email="{{ destinataire.email }}">
-                                <i class="glyphicon glyphicon-remove"></i>
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </a>
                         </span>
                     {% endfor %}
@@ -53,7 +53,7 @@
     {% else %}
         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
         <button type="button" class="btn btn-primary" id="btn-envoyer-alerte">
-            <i class="glyphicon glyphicon-send"></i> Envoyer
+            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> Envoyer
         </button>
     {% endif %}
 </div>
