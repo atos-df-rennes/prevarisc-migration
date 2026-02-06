@@ -141,9 +141,8 @@ class DossierAffectationService
             $nouvelleAffectation->setNumero(0);
             $this->entityManager->persist($nouvelleAffectation);
 
-            // Dénormalisation
-            $setter = 'set'.ucfirst($colonneDate);
-            $dossier->$setter($dateCommission->getDate());
+            // Dénormalisation (dateCommission est string, dateVisite est DateTime)
+            $this->denormaliserDate($dossier, $colonneDate, $dateCommission->getDate());
 
             return;
         }
@@ -161,8 +160,39 @@ class DossierAffectationService
         $affectationExistante->setHeureFin(null);
         $affectationExistante->setNumero(0);
 
-        // Dénormalisation
+        // Dénormalisation (dateCommission est string, dateVisite est DateTime)
+        $this->denormaliserDate($dossier, $colonneDate, $dateCommission->getDate());
+    }
+
+    /**
+     * Dénormalise une date dans les colonnes Dossier.
+     *
+     * dateCommission : stockée en string format dd/mm/yyyy (legacy)
+     * dateVisite : stockée en DateTime natif
+     *
+     * @param Dossier                 $dossier     Dossier à mettre à jour
+     * @param string                  $colonneDate Nom propriété ('dateCommission' ou 'dateVisite')
+     * @param \DateTimeInterface|null $date        Date source (null = effacement)
+     */
+    private function denormaliserDate(Dossier $dossier, string $colonneDate, ?\DateTimeInterface $date): void
+    {
         $setter = 'set'.ucfirst($colonneDate);
-        $dossier->$setter($dateCommission->getDate());
+
+        // Si date null → effacement
+        if (null === $date) {
+            $dossier->$setter(null);
+
+            return;
+        }
+
+        // dateCommission nécessite conversion string dd/mm/yyyy
+        if ('dateCommission' === $colonneDate) {
+            $dossier->$setter($date->format('d/m/Y'));
+
+            return;
+        }
+
+        // dateVisite stocke le DateTime directement
+        $dossier->$setter($date);
     }
 }
