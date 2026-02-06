@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constant\CommissionTypeEvenement;
 use App\Entity\Dossier;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
@@ -9,6 +10,7 @@ use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
+use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
@@ -105,6 +107,7 @@ class DossierController extends AbstractController
         DocumentConsulteTransferService $documentConsulteTransferService,
         PieceJointeExportService $pieceJointeExportService,
         DossierAffectationService $dossierAffectationService,
+        DossierAffectationRepository $dossierAffectationRepository,
         DossierDonnantAvisService $dossierDonnantAvisService,
         LoggerInterface $logger
     ): Response {
@@ -118,6 +121,29 @@ class DossierController extends AbstractController
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
         ]);
+
+        // Pré-remplir les champs Hidden avec IDs affectations existantes (BLOC 16)
+        // Nécessaire pour que la sauvegarde sans modification ne désaffecte pas
+        $affectationCommission = $dossierAffectationRepository->findAffectationByDossierAndType(
+            $dossier,
+            CommissionTypeEvenement::TYPE_COMMISSION_SALLE
+        );
+        $affectationVisite = $dossierAffectationRepository->findAffectationByDossierAndType(
+            $dossier,
+            [CommissionTypeEvenement::TYPE_VISITE, CommissionTypeEvenement::TYPE_GROUPE_VISITE]
+        );
+
+        $form->get('idAffectationDossierCommission')->setData(
+            $affectationCommission && $affectationCommission->getDateCommission()
+                ? (string) $affectationCommission->getDateCommission()->getId()
+                : null
+        );
+        $form->get('idAffectationDossierVisite')->setData(
+            $affectationVisite && $affectationVisite->getDateCommission()
+                ? (string) $affectationVisite->getDateCommission()->getId()
+                : null
+        );
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
