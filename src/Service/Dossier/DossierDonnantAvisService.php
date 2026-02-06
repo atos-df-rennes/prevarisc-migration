@@ -50,7 +50,7 @@ class DossierDonnantAvisService
      * @param Dossier $dossier        Dossier à affecter
      * @param bool    $repercuterAvis Si true, répercute aux établissements enfants (cellules)
      *
-     * @return Etablissement[] Liste des établissements mis à jour
+     * @return Etablissement[] Liste des établissements mis à jour (pour alertes emails)
      */
     public function affecterDossierDonnantAvis(Dossier $dossier, bool $repercuterAvis = false): array
     {
@@ -135,7 +135,7 @@ class DossierDonnantAvisService
      * @param Etablissement $etablissementParent Établissement parent
      * @param Dossier       $dossier             Dossier à répercuter
      *
-     * @return Etablissement[] Liste des enfants mis à jour
+     * @return Etablissement[] Liste des enfants mis à jour (pour alertes emails)
      */
     private function repercuterAuxEnfants(Etablissement $etablissementParent, Dossier $dossier): array
     {
@@ -223,18 +223,12 @@ class DossierDonnantAvisService
      * - Pour chaque établissement : cherche le dernier dossier valide donnant avis
      * - Met à jour l'établissement avec ce dossier (ou null si aucun)
      *
-     * @param Dossier                 $dossier        Dossier en cours de modification
-     * @param DossierNatureListe|null $ancienneNature Nature avant modification
-     *
-     * @return Etablissement[] Liste des établissements mis à jour
+     * @param Dossier            $dossier        Dossier en cours de modification
+     * @param DossierNatureListe $ancienneNature Nature avant modification (garantie non-null par Controller)
      */
-    public function desaffecterDossierDonnantAvis(Dossier $dossier, ?DossierNatureListe $ancienneNature): array
+    public function desaffecterDossierDonnantAvis(Dossier $dossier, DossierNatureListe $ancienneNature): void
     {
-        // Early return : Vérifier qu'on passe bien d'une nature donnant avis → non donnant avis
-        if (null === $ancienneNature) {
-            return [];
-        }
-
+        // Early return : Ancienne nature ne donnait pas avis, rien à faire
         $ancienneDonnaitAvis = in_array(
             $ancienneNature->getId(),
             DossierNature::NATURES_DONNANT_AVIS,
@@ -242,12 +236,7 @@ class DossierDonnantAvisService
         );
 
         if (!$ancienneDonnaitAvis) {
-            return [];
-        }
-
-        // Early return : Nouvelle nature donne encore avis, pas de désaffectation
-        if ($dossier->donneAvis()) {
-            return [];
+            return;
         }
 
         $this->logger->info('Désaffectation dossier donnant avis (changement nature)', [
@@ -256,7 +245,7 @@ class DossierDonnantAvisService
             'nouvelle_nature_id' => $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null,
         ]);
 
-        $etablissementsModifies = [];
+        $etablissementsModifies = false;
 
         // Pour chaque établissement lié au dossier
         foreach ($dossier->getEtablissements() as $etablissement) {
@@ -266,7 +255,7 @@ class DossierDonnantAvisService
             // Mettre à jour l'établissement
             $etablissement->setDossierDonnantAvis($dernierDossierValide);
             $this->entityManager->persist($etablissement);
-            $etablissementsModifies[] = $etablissement;
+            $etablissementsModifies = true;
 
             $this->logger->info('Établissement mis à jour après désaffectation', [
                 'etablissement_id' => $etablissement->getId(),
@@ -274,7 +263,7 @@ class DossierDonnantAvisService
             ]);
         }
 
-        if ([] !== $etablissementsModifies) {
+        if ($etablissementsModifies) {
             $this->entityManager->flush();
 
             // @todo CACHE : Invalidation cache établissements via LegacyController
@@ -282,7 +271,5 @@ class DossierDonnantAvisService
             // Format clé cache : 'etablissement_' . $etablissementId
             // Doit être fait via pattern LegacyController pour accès au cache Zend
         }
-
-        return $etablissementsModifies;
     }
 }

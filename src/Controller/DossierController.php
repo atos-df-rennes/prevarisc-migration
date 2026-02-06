@@ -167,7 +167,8 @@ class DossierController extends AbstractController
                 if ($dossier->donneAvis()) {
                     $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
                 }
-                // Cas 2 : Ancienne nature donnait avis ET nouvelle ne donne PAS avis → Désaffectation
+                // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
+                // Note : Le elseif garantit qu'on ne passe ici QUE si nouvelle nature ne donne PAS avis
                 elseif (null !== $ancienneNature) {
                     $dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
                 }
