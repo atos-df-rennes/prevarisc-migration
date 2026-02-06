@@ -200,7 +200,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $qb
             ->join('d.etablissements', 'e')
             ->join('d.nature', 'n')
-            ->join('d.avis', 'a')
+            ->join('d.avisCommission', 'a') // AVIS_DOSSIER_COMMISSION (pas AVIS_DOSSIER)
             ->where('e.id = :etablissementId')
             ->andWhere('n.id IN (:naturesIds)')
             ->andWhere('a.id IN (1, 2)') // 1 = favorable, 2 = défavorable
