@@ -14,6 +14,7 @@ use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
@@ -109,6 +110,7 @@ class DossierController extends AbstractController
         DossierAffectationService $dossierAffectationService,
         DossierAffectationRepository $dossierAffectationRepository,
         DossierDonnantAvisService $dossierDonnantAvisService,
+        AlerteService $alerteService,
         LoggerInterface $logger
     ): Response {
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
@@ -117,6 +119,15 @@ class DossierController extends AbstractController
         // Sauvegarder les valeurs initiales pour détecter les changements
         $ancienType = $dossier->getType();
         $ancienneNature = $dossier->getNature();
+
+        // BLOC 17 Part 3A : Sauvegarder anciens avis établissements pour détecter changements (alertes email)
+        $anciensAvis = [];
+        foreach ($dossier->getEtablissements() as $etablissement) {
+            $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+            $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
+                ? $dossierDonnantAvis->getAvisCommission()
+                : null;
+        }
 
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
@@ -212,6 +223,44 @@ class DossierController extends AbstractController
 
                 // Commit transaction
                 $this->entityManager->commit();
+
+                // BLOC 17 Part 3A : Alertes email si changement d'avis (flash messages)
+                $mailEnabled = '1' === ($_ENV['PREVARISC_MAIL_ENABLED'] ?? '0');
+                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_email_alerte_avis')) {
+                    // Vérifier pour chaque établissement modifié si l'avis a changé
+                    foreach ($dossier->getEtablissements() as $etablissement) {
+                        $etablissementId = $etablissement->getId();
+
+                        // Uniquement établissements qui ont été modifiés par affectation
+                        if (!in_array($etablissementId, $etablissementsIds, true)) {
+                            continue;
+                        }
+
+                        // Récupérer nouvel avis
+                        $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+                        $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
+
+                        // Comparer avec ancien avis
+                        $ancienAvis = $anciensAvis[$etablissementId] ?? null;
+
+                        // Si avis a changé, ajouter flash avec lien "Alerter"
+                        if ($ancienAvis !== $nouvelAvis) {
+                            $informations = $etablissement->getLatestInformations();
+                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
+
+                            $lienAlerter = $alerteService->getLink(
+                                AlerteService::TYPE_CHANGEMENT_AVIS,
+                                $etablissementId
+                            );
+
+                            $this->addFlash('success', sprintf(
+                                'L\'établissement %s a bien été mis à jour.%s',
+                                $libelle,
+                                $lienAlerter
+                            ));
+                        }
+                    }
+                }
 
                 // BLOC 18 : Redirect vers legacy pour vidage cache établissements (si modifications)
                 $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
