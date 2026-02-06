@@ -32,7 +32,7 @@ class AlerteService
         }
 
         return sprintf(
-            '<a data-value="%d" %s class="pull-right alerte-link"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span>Alerter</a>',
+            '<a data-value="%d" %s class="alerte-link"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span>Alerter</a>',
             $idTypeChangement,
             $etabData
         );

@@ -254,7 +254,7 @@ class DossierController extends AbstractController
                             );
 
                             $this->addFlash('success', sprintf(
-                                'L\'établissement %s a bien été mis à jour.%s',
+                                '<p>L\'établissement %s a bien été mis à jour.</p>%s',
                                 $libelle,
                                 $lienAlerter
                             ));
