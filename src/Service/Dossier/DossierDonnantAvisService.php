@@ -187,7 +187,7 @@ class DossierDonnantAvisService
     {
         // Priorité 1 : dateCommission (string dd/mm/yyyy à convertir)
         if (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
-            $dateCommission = \DateTime::createFromFormat('d/m/Y', $dossier->getDateCommission());
+            $dateCommission = \DateTime::createFromFormat('Y-m-d', $dossier->getDateCommission());
             if (false !== $dateCommission) {
                 return $dateCommission;
             }
