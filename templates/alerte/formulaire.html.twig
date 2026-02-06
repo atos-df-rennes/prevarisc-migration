@@ -1,0 +1,106 @@
+{# Template pour formulaire d'alerte email (modale Bootstrap 3) #}
+{# Équivalent legacy : changement/alerteform.phtml #}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Alerter par email</h4>
+</div>
+
+<div class="modal-body">
+    {% if emails is empty %}
+        <div id="mail-no-destinataires">
+            <h3>Aucun destinataire pour l'envoi par mail de l'alerte.</h3>
+            <p>Pour y remédier, vérifier que les utilisateurs concernés ont les droits concernant les alertes par emails.</p>
+            <p>Si tous les destinataires ont été retirés, fermer cette popup, et recliquer sur "Alerter".</p>
+        </div>
+    {% else %}
+        <form id="formAlerte" method="POST" action="{{ path('alerte_envoyer') }}">
+            <div class="form-group">
+                <label class="control-label">À :</label>
+                <div class="bcc-rcpt">
+                    {% for destinataire in destinataires %}
+                        <span id="dst_{{ destinataire.id }}" class="label label-info">
+                            {{ destinataire.nom }}, {{ destinataire.prenom }}
+                            <a href="#" class="remove-dst" data-id="{{ destinataire.id }}" data-email="{{ destinataire.email }}">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        </span>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="emails" id="mail-emails-dst" value="{{ emails }}" />
+                <input type="hidden" name="etablissement" value="{{ etablissementId }}" />
+                <input type="hidden" name="type" value="{{ typeChangement }}" />
+            </div>
+
+            <div class="form-group">
+                <label for="alerte-objet" class="control-label">Objet :</label>
+                <input type="text" class="form-control" name="objet" id="alerte-objet" value="{{ objet }}" required />
+            </div>
+
+            <div class="form-group">
+                <label for="alerte-message" class="control-label">Message :</label>
+                <textarea name="message" id="alerte-message" class="form-control tinymce-editor" rows="10">{{ message }}</textarea>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+<div class="modal-footer">
+    {% if emails is empty %}
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+    {% else %}
+        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="btn-envoyer-alerte">
+            <i class="glyphicon glyphicon-send"></i> Envoyer
+        </button>
+    {% endif %}
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    // Initialiser TinyMCE sur le textarea
+    {% if emails is not empty %}
+    tinymce.init({
+        selector: '#alerte-message',
+        height: 300,
+        menubar: false,
+        plugins: 'link lists code',
+        toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link | code',
+        language: 'fr_FR'
+    });
+    {% endif %}
+
+    // Retirer un destinataire
+    $('.remove-dst').on('click', function(e) {
+        e.preventDefault();
+        var userId = $(this).data('id');
+        var email = $(this).data('email');
+
+        // Retirer de la liste des emails
+        var emails = $('#mail-emails-dst').val().split(';');
+        var index = emails.indexOf(email);
+        if (index > -1) {
+            emails.splice(index, 1);
+        }
+        $('#mail-emails-dst').val(emails.join(';'));
+
+        // Retirer visuellement
+        $('#dst_' + userId).remove();
+
+        // Si plus de destinataires, afficher message
+        if (emails.length === 0 || (emails.length === 1 && emails[0] === '')) {
+            $('#formAlerte').hide();
+            $('#mail-no-destinataires').show();
+            $('#btn-envoyer-alerte').text('Fermer').removeClass('btn-primary').addClass('btn-default');
+        }
+    });
+
+    // Envoi du formulaire (Part 3B2)
+    $('#btn-envoyer-alerte').on('click', function() {
+        // @todo Part 3B2 : Soumettre formulaire via AJAX
+        console.log('Envoi email - à implémenter en Part 3B2');
+    });
+});
+</script>
