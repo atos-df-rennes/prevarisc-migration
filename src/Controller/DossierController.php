@@ -15,6 +15,7 @@ use App\Repository\UtilisateurRepository;
 use App\Service\Commission\DateCommission;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
+use App\Service\Dossier\DossierDonnantAvisService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -102,6 +103,7 @@ class DossierController extends AbstractController
         DocumentConsulteTransferService $documentConsulteTransferService,
         PieceJointeExportService $pieceJointeExportService,
         DossierAffectationService $dossierAffectationService,
+        DossierDonnantAvisService $dossierDonnantAvisService,
         LoggerInterface $logger
     ): Response {
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
@@ -156,7 +158,13 @@ class DossierController extends AbstractController
                     $idAffectationVisite ? (int) $idAffectationVisite : null
                 );
 
-                // @todo BLOC 17 : Dossier donnant avis
+                // BLOC 17 : Dossier donnant avis
+                // Récupérer la valeur de la checkbox repercuterAvis
+                /** @var bool $repercuterAvis */
+                $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
+
+                // Affecter le dossier donnant avis aux établissements concernés
+                $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
 
                 // Persist et flush toutes les modifications
                 $this->entityManager->persist($dossier);

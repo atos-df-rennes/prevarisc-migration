@@ -14,7 +14,7 @@ final class DossierNature
     /**
      * @var int[]
      */
-    public const NATURES_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 47, 26, 28, 29, 48];
+    public const NATURES_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
 
     /**
      * @var int[]

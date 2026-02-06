@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Constant\DossierNature;
 use App\Repository\DossierRepository;
 use App\Validator\DossierObjet;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -1730,5 +1731,22 @@ class Dossier
         $this->dateSignature = $dateSignature;
 
         return $this;
+    }
+
+    /**
+     * Vérifie si ce dossier donne un avis pour l'établissement.
+     *
+     * Un dossier donne avis si sa nature fait partie de la liste définie
+     * dans DossierNature::NATURES_DONNANT_AVIS.
+     */
+    public function donneAvis(): bool
+    {
+        $nature = $this->getNature();
+
+        if (null === $nature) {
+            return false;
+        }
+
+        return in_array($nature->getId(), DossierNature::NATURES_DONNANT_AVIS, true);
     }
 }
