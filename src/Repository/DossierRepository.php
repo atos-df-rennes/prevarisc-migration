@@ -178,4 +178,42 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * Trouve le dernier dossier donnant avis valide pour un établissement.
+     *
+     * Logique legacy (getDernierIdDossierDonnantAvis) :
+     * - Dossier lié à l'établissement
+     * - Nature dans NATURES_DONNANT_AVIS
+     * - Avis favorable (1) ou défavorable (2)
+     * - Non supprimé
+     * - Tri par date commission ou date visite (DESC)
+     *
+     * @param Etablissement $etablissement Établissement pour lequel chercher le dernier dossier
+     *
+     * @return Dossier|null Dernier dossier valide ou null si aucun
+     */
+    public function findLastDossierDonnantAvisForEtablissement(Etablissement $etablissement): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb
+            ->join('d.etablissements', 'e')
+            ->join('d.nature', 'n')
+            ->join('d.avis', 'a')
+            ->where('e.id = :etablissementId')
+            ->andWhere('n.id IN (:naturesIds)')
+            ->andWhere('a.id IN (1, 2)') // 1 = favorable, 2 = défavorable
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'))
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('naturesIds', DossierNature::NATURES_DONNANT_AVIS)
+        ;
+
+        // Tri par dateCommission puis dateVisite (DESC)
+        // Utilise COALESCE pour gérer les valeurs nulles
+        $qb->orderBy('COALESCE(d.dateCommission, d.dateVisite, d.dateInsert)', 'DESC');
+        $qb->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }

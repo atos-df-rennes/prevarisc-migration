@@ -2,9 +2,11 @@
 
 namespace App\Service\Dossier;
 
+use App\Constant\DossierNature;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\Etablissement;
+use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -19,15 +21,20 @@ class DossierDonnantAvisService
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var DossierRepository */
+    private $dossierRepository;
+
     /** ID statut établissement "ouvert" (pour répercussion aux enfants) */
     private const STATUT_OUVERT = 2;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        DossierRepository $dossierRepository
     ) {
         $this->entityManager = $entityManager;
         $this->logger = $logger;
+        $this->dossierRepository = $dossierRepository;
     }
 
     /**
@@ -81,6 +88,11 @@ class DossierDonnantAvisService
 
         if ([] !== $etablissementsModifies) {
             $this->entityManager->flush();
+
+            // @todo CACHE : Invalidation cache établissements via LegacyController
+            // Le cache Zend doit être vidé pour chaque établissement modifié et son parent
+            // Format clé cache : 'etablissement_' . $etablissementId
+            // Doit être fait via pattern LegacyController pour accès au cache Zend
         }
 
         return $etablissementsModifies;
@@ -198,5 +210,79 @@ class DossierDonnantAvisService
 
         // Ne devrait jamais arriver (dateInsert est requis)
         throw new \RuntimeException('Impossible de récupérer une date pour le dossier '.$dossier->getId());
+    }
+
+    /**
+     * Désaffecte le dossier courant et cherche le dernier dossier donnant avis valide.
+     *
+     * Cas d'usage : Quand on change la nature d'un dossier de "donnant avis" → "ne donnant PAS avis"
+     * Il faut alors retrouver le dernier dossier valide donnant avis pour l'établissement.
+     *
+     * Logique legacy (lignes 1386-1403) :
+     * - Vérifie qu'on passe d'une nature donnant avis à une nature ne donnant pas avis
+     * - Pour chaque établissement : cherche le dernier dossier valide donnant avis
+     * - Met à jour l'établissement avec ce dossier (ou null si aucun)
+     *
+     * @param Dossier                 $dossier        Dossier en cours de modification
+     * @param DossierNatureListe|null $ancienneNature Nature avant modification
+     *
+     * @return Etablissement[] Liste des établissements mis à jour
+     */
+    public function desaffecterDossierDonnantAvis(Dossier $dossier, ?DossierNatureListe $ancienneNature): array
+    {
+        // Early return : Vérifier qu'on passe bien d'une nature donnant avis → non donnant avis
+        if (null === $ancienneNature) {
+            return [];
+        }
+
+        $ancienneDonnaitAvis = in_array(
+            $ancienneNature->getId(),
+            DossierNature::NATURES_DONNANT_AVIS,
+            true
+        );
+
+        if (!$ancienneDonnaitAvis) {
+            return [];
+        }
+
+        // Early return : Nouvelle nature donne encore avis, pas de désaffectation
+        if ($dossier->donneAvis()) {
+            return [];
+        }
+
+        $this->logger->info('Désaffectation dossier donnant avis (changement nature)', [
+            'dossier_id' => $dossier->getId(),
+            'ancienne_nature_id' => $ancienneNature->getId(),
+            'nouvelle_nature_id' => $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null,
+        ]);
+
+        $etablissementsModifies = [];
+
+        // Pour chaque établissement lié au dossier
+        foreach ($dossier->getEtablissements() as $etablissement) {
+            // Chercher le dernier dossier valide donnant avis pour cet établissement
+            $dernierDossierValide = $this->dossierRepository->findLastDossierDonnantAvisForEtablissement($etablissement);
+
+            // Mettre à jour l'établissement
+            $etablissement->setDossierDonnantAvis($dernierDossierValide);
+            $this->entityManager->persist($etablissement);
+            $etablissementsModifies[] = $etablissement;
+
+            $this->logger->info('Établissement mis à jour après désaffectation', [
+                'etablissement_id' => $etablissement->getId(),
+                'dernier_dossier_valide_id' => $dernierDossierValide ? $dernierDossierValide->getId() : null,
+            ]);
+        }
+
+        if ([] !== $etablissementsModifies) {
+            $this->entityManager->flush();
+
+            // @todo CACHE : Invalidation cache établissements via LegacyController
+            // Le cache Zend doit être vidé pour chaque établissement modifié et son parent
+            // Format clé cache : 'etablissement_' . $etablissementId
+            // Doit être fait via pattern LegacyController pour accès au cache Zend
+        }
+
+        return $etablissementsModifies;
     }
 }

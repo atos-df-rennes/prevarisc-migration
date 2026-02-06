@@ -163,8 +163,14 @@ class DossierController extends AbstractController
                 /** @var bool $repercuterAvis */
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
 
-                // Affecter le dossier donnant avis aux établissements concernés
-                $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
+                // Cas 1 : Nouvelle nature donne avis → Affectation
+                if ($dossier->donneAvis()) {
+                    $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
+                }
+                // Cas 2 : Ancienne nature donnait avis ET nouvelle ne donne PAS avis → Désaffectation
+                elseif (null !== $ancienneNature) {
+                    $dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
+                }
 
                 // Persist et flush toutes les modifications
                 $this->entityManager->persist($dossier);
