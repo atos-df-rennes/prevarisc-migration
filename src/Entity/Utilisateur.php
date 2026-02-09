@@ -7,7 +7,6 @@ use App\Validator as PrevariscAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -15,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
  *
- * @UniqueEntity(fields="username", message="Nom d'utilisateur déjà enregistré. Veuillez en choisir un autre.")
+ * @PrevariscAssert\UniqueUtilisateur
  *
  * @PrevariscAssert\Password
  */
@@ -37,7 +36,7 @@ class Utilisateur implements UserInterface
      *
      * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true, nullable=false)
      *
-     * @Assert\NotBlank(message="Le nom d'utilisateur ne doit pas être vide.")
+     * @Assert\NotNull(message="Le nom d'utilisateur ne doit pas être null.")
      */
     private $username;
 
