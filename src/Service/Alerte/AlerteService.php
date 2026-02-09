@@ -3,6 +3,7 @@
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
+use App\Repository\DossierRepository;
 use App\Repository\UtilisateurRepository;
 
 /**
@@ -39,9 +40,15 @@ class AlerteService
     /** @var UtilisateurRepository */
     private $utilisateurRepository;
 
-    public function __construct(UtilisateurRepository $utilisateurRepository)
-    {
+    /** @var DossierRepository */
+    private $dossierRepository;
+
+    public function __construct(
+        UtilisateurRepository $utilisateurRepository,
+        DossierRepository $dossierRepository
+    ) {
         $this->utilisateurRepository = $utilisateurRepository;
+        $this->dossierRepository = $dossierRepository;
     }
 
     /**
@@ -251,12 +258,13 @@ class AlerteService
     /**
      * Récupère le texte d'avis de l'établissement.
      *
-     * Équivalent legacy : Service_Changement::getAvis()
+     * Équivalent legacy : Service_Changement::getAvis() + Service_Etablissement::getAvisEtablissement()
      *
      * Logique :
-     * - Vérifie présence avis différé
-     * - Sinon récupère avis du dossier donnant avis
-     * - Ajoute " à l'exploitation" sauf pour genre Cellule
+     * 1. Cherche dernier dossier avec avis différé
+     * 2. Si existe ET plus récent que dossier donnant avis → "Présence d'un dossier avec avis differé"
+     * 3. Sinon récupère avis du dossier donnant avis
+     * 4. Ajoute " à l'exploitation" sauf pour genre Cellule
      *
      * @param Etablissement $etablissement Établissement concerné
      *
@@ -264,15 +272,27 @@ class AlerteService
      */
     private function getAvisTexte(Etablissement $etablissement): string
     {
-        // @todo Implémenter logique complète avis différé + getAvisEtablissement()
-        // Pour l'instant, version simplifiée basée sur dossier donnant avis
-
         $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
 
         if (!$dossierDonnantAvis) {
             return "Avis d'exploitation indisponible";
         }
 
+        // 1. Chercher dernier dossier avec avis différé
+        $dossierAvisDiffere = $this->dossierRepository->findLastDossierAvisDiffere($etablissement);
+
+        // 2. Si dossier différé existe et est plus récent que dossier donnant avis
+        if ($dossierAvisDiffere) {
+            $dateInsertDonnantAvis = $dossierDonnantAvis->getDateInsert();
+            $dateInsertDiffere = $dossierAvisDiffere->getDateInsert();
+
+            // Compare : si différé plus récent (ou égal) → avis différé prioritaire
+            if ($dateInsertDiffere >= $dateInsertDonnantAvis) {
+                return "Présence d'un dossier avec avis differé";
+            }
+        }
+
+        // 3. Sinon, avis du dossier donnant avis
         $avisCommission = $dossierDonnantAvis->getAvisCommission();
 
         if (!$avisCommission) {

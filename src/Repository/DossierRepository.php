@@ -224,4 +224,36 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $qb->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * Trouve le dernier dossier avec avis différé pour un établissement.
+     *
+     * Équivalent legacy : Service_Etablissement::getAvisEtablissement()
+     *                      → Search avec DIFFEREAVIS_DOSSIER = 1
+     *
+     * Cherche parmi tous les dossiers de l'établissement celui avec :
+     * - differeAvis = true
+     * - Plus récente date d'insertion
+     *
+     * @param Etablissement $etablissement Établissement concerné
+     *
+     * @return Dossier|null Dernier dossier avec avis différé ou null
+     */
+    public function findLastDossierAvisDiffere(Etablissement $etablissement): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->join('d.etablissementDossiers', 'ed')
+            ->join('ed.etablissement', 'e')
+            ->where('e.id = :etablissementId')
+            ->andWhere('d.differeAvis = :avisDiffere')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('avisDiffere', true)
+            ->orderBy('d.dateInsert', 'DESC')
+            ->setMaxResults(1)
+        ;
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }
