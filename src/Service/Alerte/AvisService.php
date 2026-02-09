@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Alerte;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 
@@ -15,9 +16,6 @@ use App\Repository\DossierRepository;
  */
 class AvisService
 {
-    /** @var int ID du genre Cellule (pas de suffixe "à l'exploitation") */
-    private const ID_GENRE_CELLULE = 2;
-
     /** @var DossierRepository */
     private $dossierRepository;
 
@@ -72,7 +70,7 @@ class AvisService
 
                 // Pas de suffixe pour genre Cellule
                 $genre = $latestInfos->getGenre();
-                $ajouterSuffixe = null === $genre || self::ID_GENRE_CELLULE !== $genre->getId();
+                $ajouterSuffixe = null === $genre || GenreEtablissement::CELLULE !== $genre->getId();
 
                 if ($ajouterSuffixe && '' !== $texteAvis) {
                     return $texteAvis." à l'exploitation";
