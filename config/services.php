@@ -33,6 +33,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->load('App\Controller\\', __DIR__ . '/../src/Controller/')
         ->tag('controller.service_arguments');
 
+    // Environment Variable Processor pour construire MAILER_DSN depuis PREVARISC_MAIL_*
+    $services->set('App\DependencyInjection\PrevariscMailerDsnProcessor')
+        ->tag('container.env_var_processor');
+
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
 
