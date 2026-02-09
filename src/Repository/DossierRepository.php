@@ -243,8 +243,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     {
         $qb = $this->createQueryBuilder('d');
 
-        $qb->join('d.etablissementDossiers', 'ed')
-            ->join('ed.etablissement', 'e')
+        $qb->join('d.etablissements', 'e')
             ->where('e.id = :etablissementId')
             ->andWhere('d.differeAvis = :avisDiffere')
             ->andWhere('d.dateSuppression IS NULL')

@@ -2,6 +2,7 @@
 
 namespace App\Service\Alerte;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 use App\Repository\UtilisateurRepository;
@@ -301,7 +302,7 @@ class AlerteService
 
         $latestInfos = $etablissement->getLatestInformations();
         $genre = $latestInfos->getGenre();
-        $isCellule = $genre && 2 === $genre->getId(); // ID_GENRE_CELLULE = 2
+        $isCellule = $genre && GenreEtablissement::CELLULE === $genre->getId();
 
         $avisId = $avisCommission->getId();
 
