@@ -3,6 +3,7 @@
 namespace App\EventSubscriber;
 
 use App\Entity\Utilisateur;
+use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,11 +24,20 @@ class LastActionSubscriber implements EventSubscriberInterface
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(Security $security, EntityManagerInterface $entityManager, LoggerInterface $logger)
+    /** @var UtilisateurRepository */
+    private $utilisateurRepository;
+
+    public function __construct(
+        Security $security,
+        EntityManagerInterface $entityManager,
+        LoggerInterface $logger,
+        UtilisateurRepository $utilisateurRepository
+    )
     {
         $this->security = $security;
         $this->entityManager = $entityManager;
         $this->logger = $logger;
+        $this->utilisateurRepository = $utilisateurRepository;
     }
 
     /**
@@ -45,6 +55,7 @@ class LastActionSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $utilisateur = $this->utilisateurRepository->find($utilisateur->getId());
         $utilisateur->setLastAction(new \DateTime());
 
         try {
