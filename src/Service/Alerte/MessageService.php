@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
+use App\Service\Changement;
 
 /**
  * Service de génération de message email pour les alertes.
@@ -14,45 +15,6 @@ use App\Entity\Etablissement;
  */
 class MessageService
 {
-    /**
-     * Définition des balises disponibles.
-     *
-     * Mapping des balises vers les accesseurs d'entité.
-     * La balise '{etablissementAvis}' est traitée spécialement via AvisService.
-     *
-     * @var array<string, array{description: string, method: string}>
-     */
-    private const BALISES = [
-        '{activitePrincipaleEtablissement}' => [
-            'description' => "L'activité principale de l'établissement",
-            'method' => 'getTypeActivite', // Sur EtablissementInformations
-        ],
-        '{categorieEtablissement}' => [
-            'description' => "La catégorie de l'établissement",
-            'method' => 'getCategorie', // Sur EtablissementInformations
-        ],
-        '{etablissementAvis}' => [
-            'description' => "L'avis de l'établissement",
-            'method' => 'SPECIAL', // Géré par AvisService
-        ],
-        '{etablissementLibelle}' => [
-            'description' => "Le libellé de l'établissement",
-            'method' => 'getLibelle', // Sur EtablissementInformations
-        ],
-        '{etablissementNumeroId}' => [
-            'description' => "Le numéro Id de l'établissement",
-            'method' => 'getNumero', // Sur Etablissement
-        ],
-        '{etablissementStatut}' => [
-            'description' => "Le statut (Ouvert ou Fermé) de l'établissement",
-            'method' => 'getStatut', // Sur EtablissementInformations
-        ],
-        '{typePrincipalEtablissement}' => [
-            'description' => "Le type principal de l'établissement",
-            'method' => 'getType', // Sur EtablissementInformations
-        ],
-    ];
-
     /** @var AvisService */
     private $avisService;
 
@@ -81,7 +43,7 @@ class MessageService
     {
         $replacements = [];
 
-        foreach (self::BALISES as $balise => $config) {
+        foreach (Changement::BALISES as $balise => $config) {
             $valeur = $this->getValeurBalise($config['method'], $etablissement);
             $replacements[$balise] = $valeur;
         }
