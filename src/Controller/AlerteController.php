@@ -8,6 +8,7 @@ use App\Service\Alerte\AlerteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
@@ -148,7 +149,7 @@ class AlerteController extends AbstractController
                 'success' => true,
                 'message' => sprintf('Email envoyé avec succès à %d destinataire(s)', count($destinataires)),
             ]);
-        } catch (\Exception $e) {
+        } catch (TransportExceptionInterface $e) {
             return $this->json([
                 'success' => false,
                 'message' => 'Erreur : '.$e->getMessage(),
