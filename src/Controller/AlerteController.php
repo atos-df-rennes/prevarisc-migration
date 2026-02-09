@@ -17,8 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
  * Controller pour la gestion des alertes email.
  *
  * Équivalent legacy : ChangementController (alerteformAction)
- *
- * @Route("/symfony/alerte", name="alerte_")
  */
 class AlerteController extends AbstractController
 {
@@ -28,7 +26,7 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::alerteformAction()
      * Route legacy : /changement/alerteform
      *
-     * @Route("/formulaire", name="formulaire", methods={"GET"})
+     * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"})
      */
     public function formulaire(
         Request $request,
@@ -87,7 +85,7 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::sendmailalerteAction()
      * Route legacy : /changement/sendmailalerte
      *
-     * @Route("/envoyer", name="envoyer", methods={"POST"})
+     * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"})
      *
      * @param Request         $request Requête HTTP
      * @param MailerInterface $mailer  Service Symfony Mailer (injecté)
@@ -149,10 +147,10 @@ class AlerteController extends AbstractController
                 'success' => true,
                 'message' => sprintf('Email envoyé avec succès à %d destinataire(s)', count($destinataires)),
             ]);
-        } catch (TransportExceptionInterface $e) {
+        } catch (TransportExceptionInterface $transportException) {
             return $this->json([
                 'success' => false,
-                'message' => 'Erreur : '.$e->getMessage(),
+                'message' => 'Erreur : '.$transportException->getMessage(),
             ]);
         }
     }

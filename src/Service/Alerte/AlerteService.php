@@ -3,6 +3,7 @@
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
+use App\Entity\EtablissementAdresse;
 use App\Repository\UtilisateurRepository;
 
 /**
@@ -164,7 +165,7 @@ class AlerteService
             return null;
         }
 
-        /** @var \App\Entity\EtablissementAdresse|false $premiereAdresse */
+        /** @var EtablissementAdresse|false $premiereAdresse */
         $premiereAdresse = $adresses->first();
         if (false === $premiereAdresse) {
             return null;

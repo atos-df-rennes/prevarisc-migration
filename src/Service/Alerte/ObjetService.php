@@ -3,6 +3,11 @@
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
+use App\Entity\EtablissementActivite;
+use App\Entity\EtablissementAdresse;
+use App\Entity\EtablissementCategorie;
+use App\Entity\EtablissementStatut;
+use App\Entity\EtablissementType;
 
 /**
  * Service de génération d'objet email pour les alertes.
@@ -48,7 +53,7 @@ class ObjetService
 
         // Ajouter parent direct si existe
         $parent = $etablissement->getParent();
-        if ($parent) {
+        if (null !== $parent) {
             $parentInfos = $parent->getLatestInformations();
             $parentLibelle = $parentInfos->getLibelle() ?? '';
             if ('' !== $parentLibelle) {
@@ -64,7 +69,7 @@ class ObjetService
         $commune = '';
         $adresses = $etablissement->getAdresses();
         if (!$adresses->isEmpty()) {
-            /** @var \App\Entity\EtablissementAdresse|false $premiereAdresse */
+            /** @var EtablissementAdresse|false $premiereAdresse */
             $premiereAdresse = $adresses->first();
             if (false !== $premiereAdresse) {
                 $communeEntity = $premiereAdresse->getCommune();
@@ -121,7 +126,7 @@ class ObjetService
     {
         $latestInfos = $etablissement->getLatestInformations();
         $statut = $latestInfos->getStatut();
-        $libelleStatut = ($statut ? $statut->getLibelle() : null) ?? 'Inconnu';
+        $libelleStatut = ($statut instanceof EtablissementStatut ? $statut->getLibelle() : null) ?? 'Inconnu';
 
         return sprintf('Passage au statut "%s"', $libelleStatut);
     }
@@ -159,9 +164,9 @@ class ObjetService
         $type = $latestInfos->getType();
         $typeActivite = $latestInfos->getTypeActivite();
 
-        $libelleCategorie = ($categorie ? $categorie->getLibelle() : null) ?? '';
-        $libelleType = ($type ? $type->getLibelle() : null) ?? '';
-        $libelleTypeActivite = ($typeActivite ? $typeActivite->getLibelle() : null) ?? '';
+        $libelleCategorie = ($categorie instanceof EtablissementCategorie ? $categorie->getLibelle() : null) ?? '';
+        $libelleType = ($type instanceof EtablissementType ? $type->getLibelle() : null) ?? '';
+        $libelleTypeActivite = ($typeActivite instanceof EtablissementActivite ? $typeActivite->getLibelle() : null) ?? '';
 
         return sprintf(
             'Changement de classement "%s - %s %s"',

@@ -20,7 +20,7 @@
     </div>
 
     {# Formulaire affiché quand il y a des destinataires #}
-    <form id="formAlerte" method="POST" {% if emails is empty %}style="display: none;"{% endif %}{# action="{{ path('alerte_envoyer') }}"#}>
+    <form id="formAlerte" method="POST" {% if emails is empty %}style="display: none;"{% endif %}{# action="{{ path('alerte_envoyer') }}" #}>
         <div class="form-group">
             <label class="control-label">À :</label>
             <div class="bcc-rcpt">
@@ -105,14 +105,14 @@ $(document).ready(function() {
     $('#btn-envoyer-alerte').on('click', function() {
         var $btn = $(this);
         var originalHtml = $btn.html();
-        
+
         // Récupérer contenu TinyMCE
         var message = tinymce.get('alerte-message').getContent();
-        
+
         // Désactiver bouton pendant envoi
         $btn.prop('disabled', true)
             .html('<span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> Envoi en cours...');
-        
+
         $.ajax({
             url: '{{ path('alerte_envoyer') }}',
             type: 'POST',
@@ -133,7 +133,7 @@ $(document).ready(function() {
                         response.message +
                         '</div>'
                     );
-                    
+
                     // Fermer modale
                     $('#modal-alerte').modal('hide');
                 } else {

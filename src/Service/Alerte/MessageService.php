@@ -73,17 +73,17 @@ class MessageService
 
         // Autres cas : méthode sur LatestInformations
         $latestInfos = $etablissement->getLatestInformations();
-        
+
         if (!method_exists($latestInfos, $method)) {
             return '';
         }
 
-        /** @var mixed $entity */
         $entity = $latestInfos->$method();
 
         // Si l'entité a une méthode getLibelle(), l'utiliser
         if (is_object($entity) && method_exists($entity, 'getLibelle')) {
             $libelle = $entity->getLibelle();
+
             return is_string($libelle) ? $libelle : '';
         }
 
