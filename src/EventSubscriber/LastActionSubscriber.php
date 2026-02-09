@@ -11,10 +11,6 @@ use Symfony\Component\Security\Core\Security;
 
 /**
  * Met à jour la date de dernière action de l'utilisateur connecté.
- *
- * Utilise kernel.terminate pour exécuter après l'envoi de la réponse HTTP.
- * Utilise une requête SQL directe pour ne pas impacter l'UnitOfWork Doctrine
- * (évite de flusher accidentellement des entités en cours de modification).
  */
 class LastActionSubscriber implements EventSubscriberInterface
 {
@@ -34,22 +30,26 @@ class LastActionSubscriber implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
+    /**
+     * Utilise kernel.terminate pour exécuter après l'envoi de la réponse HTTP.
+     * Utilise clear() pour ne flush() que la modification effectuée dans cette méthode.
+     * Cela prévient notamment la mise à jour d'une entité comportant des erreurs de validation.
+     */
     public function onKernelTerminate(TerminateEvent $event): void
     {
+        $this->entityManager->clear();
+
         $utilisateur = $this->security->getUser();
 
         if (!$utilisateur instanceof Utilisateur || null === $utilisateur->getId()) {
             return;
         }
 
+        $utilisateur->setLastAction(new \DateTime());
+
         try {
-            // Utilise une requête SQL directe pour éviter d'impacter l'UnitOfWork
-            // et de flusher accidentellement d'autres entités managées
-            $conn = $this->entityManager->getConnection();
-            $conn->executeStatement(
-                'UPDATE utilisateur SET LASTACTION_UTILISATEUR = NOW() WHERE ID_UTILISATEUR = ?',
-                [$utilisateur->getId()]
-            );
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
         } catch (\Exception $exception) {
             $this->logger->error('LastActionSubscriber: '.$exception->getMessage());
         }
