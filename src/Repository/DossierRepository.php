@@ -245,7 +245,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         $qb->join('d.etablissements', 'e')
             ->where('e.id = :etablissementId')
-            ->andWhere('d.differeAvis = :avisDiffere')
+            ->andWhere('d.avisDiffere = :avisDiffere')
             ->andWhere('d.dateSuppression IS NULL')
             ->setParameter('etablissementId', $etablissement->getId())
             ->setParameter('avisDiffere', true)
