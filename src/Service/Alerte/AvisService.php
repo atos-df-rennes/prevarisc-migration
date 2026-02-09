@@ -63,7 +63,7 @@ class AvisService
 
         // Cas 2 : Avis du dossier donnant avis
         if (null !== $dossierDonnantAvis) {
-            $avis = $dossierDonnantAvis->getAvis();
+            $avis = $dossierDonnantAvis->getAvisCommission();
             if (null !== $avis) {
                 $libelleAvis = $avis->getLibelle();
                 $texteAvis = is_string($libelleAvis) ? $libelleAvis : '';

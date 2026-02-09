@@ -20,7 +20,7 @@
     </div>
 
     {# Formulaire affiché quand il y a des destinataires #}
-    <form id="formAlerte" method="POST" {% if emails is empty %}style="display: none;"{% endif %}{# action="{{ path('alerte_envoyer') }}" #}>
+    <form id="formAlerte" method="POST" {% if emails is empty %}style="display: none;"{% endif %} action="{{ path('alerte_envoyer') }}" >
         <div class="form-group">
             <label class="control-label">À :</label>
             <div class="bcc-rcpt">
