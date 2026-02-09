@@ -96,19 +96,28 @@ class AlerteController extends AbstractController
         $objetRaw = $request->request->get('objet');
         $messageRaw = $request->request->get('message');
 
-        $emails = is_string($emailsRaw) ? $emailsRaw : '';
-        $objet = is_string($objetRaw) ? $objetRaw : '';
-        $message = is_string($messageRaw) ? $messageRaw : '';
+        // Validation types (strict)
+        if (!is_string($emailsRaw)) {
+            throw new \InvalidArgumentException('Le paramètre emails doit être une chaîne');
+        }
 
-        // Validation
-        if (empty($emails)) {
+        if (!is_string($objetRaw)) {
+            throw new \InvalidArgumentException('Le paramètre objet doit être une chaîne');
+        }
+
+        if (!is_string($messageRaw)) {
+            throw new \InvalidArgumentException('Le paramètre message doit être une chaîne');
+        }
+
+        // Validation valeurs
+        if ('' === $emailsRaw) {
             return $this->json([
                 'success' => false,
                 'message' => 'Aucun destinataire spécifié',
             ]);
         }
 
-        if (empty($objet) || empty($message)) {
+        if ('' === $objetRaw || '' === $messageRaw) {
             return $this->json([
                 'success' => false,
                 'message' => 'Objet et message requis',
@@ -116,8 +125,8 @@ class AlerteController extends AbstractController
         }
 
         // Extraction destinataires
-        $destinataires = array_filter(array_map('trim', explode(';', $emails)));
-        if (empty($destinataires)) {
+        $destinataires = array_filter(array_map('trim', explode(';', $emailsRaw)));
+        if ([] === $destinataires) {
             return $this->json([
                 'success' => false,
                 'message' => 'Format emails invalide',
@@ -132,8 +141,8 @@ class AlerteController extends AbstractController
             // Création email avec nouveau composant Symfony Mailer
             $email = new Email();
             $email->from($from);
-            $email->subject($objet);
-            $email->html($message);
+            $email->subject($objetRaw);
+            $email->html($messageRaw);
 
             // Ajout destinataires en BCC (comme legacy)
             foreach ($destinataires as $destinataire) {
