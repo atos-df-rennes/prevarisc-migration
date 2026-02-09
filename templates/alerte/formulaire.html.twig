@@ -101,10 +101,52 @@ $(document).ready(function() {
         }
     });
 
-    // Envoi du formulaire (Part 3B2)
+    // Envoi du formulaire
     $('#btn-envoyer-alerte').on('click', function() {
-        // @todo Part 3B2 : Soumettre formulaire via AJAX
-        console.log('Envoi email - à implémenter en Part 3B2');
+        var $btn = $(this);
+        var originalHtml = $btn.html();
+        
+        // Récupérer contenu TinyMCE
+        var message = tinymce.get('alerte-message').getContent();
+        
+        // Désactiver bouton pendant envoi
+        $btn.prop('disabled', true)
+            .html('<span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span> Envoi en cours...');
+        
+        $.ajax({
+            url: '{{ path('alerte_envoyer') }}',
+            type: 'POST',
+            data: {
+                emails: $('#mail-emails-dst').val(),
+                objet: $('#alerte-objet').val(),
+                message: message
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Toast succès
+                    $('#main_content').prepend(
+                        '<div class="alert alert-success alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Fermer">' +
+                        '<span aria-hidden="true">&times;</span></button>' +
+                        '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ' +
+                        response.message +
+                        '</div>'
+                    );
+                    
+                    // Fermer modale
+                    $('#modal-alerte').modal('hide');
+                } else {
+                    // Toast erreur
+                    alert('Erreur : ' + response.message);
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            },
+            error: function(xhr) {
+                alert('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+                $btn.prop('disabled', false).html(originalHtml);
+            }
+        });
     });
 });
 </script>
