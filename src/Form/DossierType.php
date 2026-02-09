@@ -160,7 +160,7 @@ class DossierType extends AbstractType
                     'Incomplet' => 1,
                 ],
                 'expanded' => true, // Radios au lieu de select
-                'required' => true,
+                'required' => false, // Pas required car champ peut être masqué dynamiquement
                 'empty_data' => 0, // Par défaut : Complet
                 'attr' => [
                     'class' => 'incomplet-radios',
