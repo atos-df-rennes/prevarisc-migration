@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ChangementRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Alerte\AlerteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +30,7 @@ class AlerteController extends AbstractController
     public function formulaire(
         Request $request,
         EtablissementRepository $etablissementRepository,
+        ChangementRepository $changementRepository,
         AlerteService $alerteService
     ): Response {
         $etablissementId = $request->query->getInt('etablissement');
@@ -44,6 +46,12 @@ class AlerteController extends AbstractController
             throw $this->createNotFoundException(sprintf('Établissement #%d introuvable', $etablissementId));
         }
 
+        // Récupérer le template de changement
+        $changement = $changementRepository->find($typeChangement);
+        if (!$changement) {
+            throw $this->createNotFoundException(sprintf('Type changement #%d introuvable', $typeChangement));
+        }
+
         // Récupérer les destinataires
         $destinataires = $alerteService->getDestinataires($typeChangement, $etablissement);
 
@@ -56,13 +64,17 @@ class AlerteController extends AbstractController
         // Générer objet email
         $objet = $alerteService->getObjet($typeChangement, $etablissement);
 
+        // Générer message email avec remplacement balises
+        $messageTemplate = $changement->getMessage() ?? '';
+        $message = $alerteService->getMessage($messageTemplate, $etablissement);
+
         return $this->render('alerte/formulaire.html.twig', [
             'etablissementId' => $etablissementId,
             'typeChangement' => $typeChangement,
             'destinataires' => $destinataires,
             'emails' => implode(';', $emails),
             'objet' => $objet,
-            'message' => 'Message par défaut', // @todo Part 3
+            'message' => $message,
         ]);
     }
 }
