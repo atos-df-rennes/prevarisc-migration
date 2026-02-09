@@ -33,6 +33,11 @@ final class PasswordValidator extends ConstraintValidator
             return;
         }
 
+        // Pas de validation s'il n'y a pas de login, ce n'est pas réellement un utilisateur
+        if ('' === $value->getUsername()) {
+            return;
+        }
+
         $plainPassword = $value->getPlainPassword();
         $password = $value->getPassword();
 

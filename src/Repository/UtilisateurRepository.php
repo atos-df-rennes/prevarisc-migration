@@ -225,7 +225,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->setParameter('mail', $mail)
         ;
 
-        // Ne prend pas en compte l'utilisateur en cours d'édition.
+        // Ne prend pas en compte l'utilisateur en cours d'édition
         if (null !== $utilisateur) {
             $queryBuilder->andWhere('u.id != :utilisateurId')
                 ->setParameter('utilisateurId', $utilisateur->getId())
