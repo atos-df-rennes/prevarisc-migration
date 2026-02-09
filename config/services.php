@@ -49,4 +49,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Service\Etablissement')
         ->arg('$logger', ref('monolog.logger.datastore'));
+
+    $services->set('App\Service\Mail\MailerConfiguration')
+        ->arg('$transport', '%app.mail_transport%')
+        ->arg('$host', '%app.mail_host%')
+        ->arg('$port', '%app.mail_port%')
+        ->arg('$username', '%app.mail_username%')
+        ->arg('$password', '%app.mail_password%')
+        ->arg('$sender', '%app.mail_sender%')
+        ->arg('$senderName', '%app.mail_sender_name%')
+        ->arg('$enabled', '%app.mail_enabled%');
 };

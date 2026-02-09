@@ -32,8 +32,7 @@ class LastActionSubscriber implements EventSubscriberInterface
         EntityManagerInterface $entityManager,
         LoggerInterface $logger,
         UtilisateurRepository $utilisateurRepository
-    )
-    {
+    ) {
         $this->security = $security;
         $this->entityManager = $entityManager;
         $this->logger = $logger;
@@ -55,7 +54,13 @@ class LastActionSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Recharger l'utilisateur depuis la BDD (après clear())
         $utilisateur = $this->utilisateurRepository->find($utilisateur->getId());
+
+        if (null === $utilisateur) {
+            return;
+        }
+
         $utilisateur->setLastAction(new \DateTime());
 
         try {

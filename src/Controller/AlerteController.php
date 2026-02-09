@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Repository\ChangementRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Alerte\AlerteService;
+use App\Service\Mail\MailerConfiguration;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -87,10 +89,11 @@ class AlerteController extends AbstractController
      *
      * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"})
      *
-     * @param Request         $request Requête HTTP
-     * @param MailerInterface $mailer  Service Symfony Mailer (injecté)
+     * @param Request             $request      Requête HTTP
+     * @param MailerInterface     $mailer       Service Symfony Mailer (injecté)
+     * @param MailerConfiguration $mailerConfig Configuration mail Prevarisc
      */
-    public function envoyer(Request $request, MailerInterface $mailer): Response
+    public function envoyer(Request $request, MailerInterface $mailer, MailerConfiguration $mailerConfig): Response
     {
         $emailsRaw = $request->request->get('emails');
         $objetRaw = $request->request->get('objet');
@@ -133,14 +136,29 @@ class AlerteController extends AbstractController
             ]);
         }
 
-        // Récupération expéditeur depuis config
-        $fromEnv = $_ENV['MAILER_FROM'] ?? null;
-        $from = is_string($fromEnv) ? $fromEnv : 'noreply@prevarisc.local';
+        // Vérifier si mail activé
+        if (!$mailerConfig->isEnabled()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'L\'envoi d\'email est désactivé dans la configuration',
+            ]);
+        }
+
+        // Récupération expéditeur depuis configuration Prevarisc
+        $from = $mailerConfig->getSender();
+        $fromName = $mailerConfig->getSenderName();
 
         try {
             // Création email avec nouveau composant Symfony Mailer
             $email = new Email();
-            $email->from($from);
+
+            // Expéditeur avec nom optionnel
+            if ('' !== $fromName) {
+                $email->from(new Address($from, $fromName));
+            } else {
+                $email->from($from);
+            }
+
             $email->subject($objetRaw);
             $email->html($messageRaw);
 
