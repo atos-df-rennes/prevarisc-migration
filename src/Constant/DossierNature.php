@@ -12,6 +12,13 @@ final class DossierNature
     public const ECHEANCIER_TRAVAUX = 46;
 
     /**
+     * Natures Visite Avant Ouverture (VAO).
+     *
+     * @var int[]
+     */
+    public const VISITE_AVANT_OUVERTURE = [47, 48]; // VAO, VAO groupe
+
+    /**
      * @var int[]
      */
     public const NATURES_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];

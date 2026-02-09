@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
+use App\Constant\DossierNature;
+use App\Entity\Avis;
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DossierType;
@@ -224,6 +227,34 @@ class DossierController extends AbstractController
 
                 // Commit transaction
                 $this->entityManager->commit();
+
+                // BLOC 17 : Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
+                // Legacy : DossierController.php lignes 1364-1383
+                $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+                $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
+
+                if (
+                    1 === $avisCommission // Avis favorable
+                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true) // Nature 47 ou 48
+                ) {
+                    foreach ($dossier->getEtablissements() as $etablissement) {
+                        $informations = $etablissement->getLatestInformations();
+                        $statut = $informations->getStatut();
+
+                        // Si établissement en statut "Projet" (ID=1)
+                        if ($statut && 1 === $statut->getId()) {
+                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
+
+                            $this->addFlash('warning', sprintf(
+                                '<strong>Avertissement</strong><br>'.
+                                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
+                                '<a title="Ouvrir" href="/etablissement/edit/id/%d">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
+                                $etablissement->getId(),
+                                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
+                            ));
+                        }
+                    }
+                }
 
                 // BLOC 17 Part 3A : Alertes email si changement d'avis (flash messages)
                 if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
