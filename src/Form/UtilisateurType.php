@@ -46,6 +46,8 @@ class UtilisateurType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Login de connexion ...',
                 ],
+                'required' => false,
+                'empty_data' => '',
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Mot de passe',
