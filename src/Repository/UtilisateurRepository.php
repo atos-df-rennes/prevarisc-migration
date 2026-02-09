@@ -169,4 +169,48 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * Trouve les utilisateurs destinataires pour une alerte.
+     *
+     * Équivalent legacy : Model_DbTable_Utilisateur::findUtilisateursForAlerte()
+     *
+     * Récupère les utilisateurs ayant :
+     * - Le privilege spécifié (ex: alerte_avis)
+     * - Une adresse email valide (non null, non vide)
+     * - Un lien avec la commune (directement OU via groupement)
+     *
+     * @param string $privilegeName Nom du privilege requis (ex: 'alerte_avis')
+     * @param string $numInsee      Numéro INSEE de la commune
+     *
+     * @return array<int, array{id: int, nom: string, prenom: string, mail: string}> Liste utilisateurs
+     */
+    public function findUtilisateursForAlerte(string $privilegeName, string $numInsee): array
+    {
+        $qb = $this->createQueryBuilder('u');
+
+        $qb->select('DISTINCT u.id as id', 'ui.nom as nom', 'ui.prenom as prenom', 'ui.mail as mail')
+            ->join('u.informations', 'ui')
+            ->join('u.groupe', 'g')
+            ->join('g.privileges', 'p')
+            ->leftJoin('u.groupements', 'ug')
+            ->leftJoin('ug.communes', 'gc')
+            ->where('ui.mail IS NOT NULL')
+            ->andWhere('ui.mail != :emptyMail')
+            ->andWhere('p.name = :privilegeName')
+            ->andWhere($qb->expr()->orX(
+                'u.commune = :numInsee',  // Commune directe
+                'gc.id = :numInsee'       // Commune via groupement
+            ))
+            ->setParameter('emptyMail', '')
+            ->setParameter('privilegeName', $privilegeName)
+            ->setParameter('numInsee', $numInsee)
+            ->groupBy('u.id')
+        ;
+
+        /** @var array<int, array{id: int, nom: string, prenom: string, mail: string}> $results */
+        $results = $qb->getQuery()->getResult();
+
+        return $results;
+    }
 }

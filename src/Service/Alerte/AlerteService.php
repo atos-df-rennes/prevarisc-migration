@@ -3,7 +3,7 @@
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UtilisateurRepository;
 
 /**
  * Service de gestion des alertes par email.
@@ -36,12 +36,12 @@ class AlerteService
         self::TYPE_CHANGEMENT_CLASSEMENT => 'alerte_classement',
     ];
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    /** @var UtilisateurRepository */
+    private $utilisateurRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(UtilisateurRepository $utilisateurRepository)
     {
-        $this->entityManager = $entityManager;
+        $this->utilisateurRepository = $utilisateurRepository;
     }
 
     /**
@@ -81,7 +81,7 @@ class AlerteService
      * @param int           $typeChangement Type de changement (1=statut, 2=avis, 3=classement)
      * @param Etablissement $etablissement  Établissement concerné
      *
-     * @return array<int, array{id: int, nom: string, prenom: string, email: string}> Liste utilisateurs
+     * @return array<int, array{id: int, nom: string, prenom: string, mail: string}> Liste utilisateurs
      */
     public function getDestinataires(int $typeChangement, Etablissement $etablissement): array
     {
@@ -95,34 +95,8 @@ class AlerteService
             return []; // Pas de commune = pas de destinataires
         }
 
-        // 3. Query Doctrine avec LEFT JOIN pour groupement
-        $qb = $this->entityManager->createQueryBuilder();
-
-        $qb->select('DISTINCT u.id as id', 'ui.nom as nom', 'ui.prenom as prenom', 'ui.mail as mail')
-            ->from('App\Entity\Utilisateur', 'u')
-            ->join('u.informations', 'ui')
-            ->join('u.groupe', 'g')
-            ->join('g.privileges', 'p') // p est déjà Privileges, pas besoin de join supplémentaire
-            ->leftJoin('u.groupements', 'ug')
-            ->leftJoin('ug.communes', 'gc')
-            ->where('ui.mail IS NOT NULL')
-            ->andWhere('ui.mail != :emptyEmail')
-            ->andWhere('p.name = :privilegeName')
-            ->andWhere($qb->expr()->orX(
-                'u.commune = :numInsee', // Commune est un ManyToOne, on compare l'objet
-                'gc.id = :numInsee'     // gc.id est le NUMINSEE_COMMUNE
-            ))
-            ->setParameter('emptyEmail', '')
-            ->setParameter('privilegeName', $privilegeName)
-            ->setParameter('numInsee', $numInsee)
-            ->groupBy('u.id')
-        ;
-
-        // Exécuter la requête
-        /** @var array<int, array{id: int, nom: string, prenom: string, email: string}> $results */
-        $results = $qb->getQuery()->getResult();
-
-        return $results;
+        // 3. Déléguer requête au Repository
+        return $this->utilisateurRepository->findUtilisateursForAlerte($privilegeName, $numInsee);
     }
 
     /**

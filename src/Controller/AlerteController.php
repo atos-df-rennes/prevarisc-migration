@@ -50,7 +50,7 @@ class AlerteController extends AbstractController
         // Formater pour le template
         $emails = [];
         foreach ($destinataires as $destinataire) {
-            $emails[] = $destinataire['email'];
+            $emails[] = $destinataire['mail'];
         }
 
         return $this->render('alerte/formulaire.html.twig', [

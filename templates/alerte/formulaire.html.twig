@@ -27,7 +27,7 @@
                 {% for destinataire in destinataires %}
                     <span id="dst_{{ destinataire.id }}" class="label label-info">
                         {{ destinataire.nom }}, {{ destinataire.prenom }}
-                        <a href="#" class="remove-dst" data-id="{{ destinataire.id }}" data-email="{{ destinataire.email }}">
+                        <a href="#" class="remove-dst" data-id="{{ destinataire.id }}" data-email="{{ destinataire.mail }}">
                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                         </a>
                     </span>
