@@ -16,14 +16,14 @@
             <p>Si tous les destinataires ont été retirés, fermer cette popup, et recliquer sur "Alerter".</p>
         </div>
     {% else %}
-        <form id="formAlerte" method="POST" action="{{ path('alerte_envoyer') }}">
+        <form id="formAlerte" method="POST"{# action="{{ path('alerte_envoyer') }}"#}>
             <div class="form-group">
                 <label class="control-label">À :</label>
                 <div class="bcc-rcpt">
                     {% for destinataire in destinataires %}
                         <span id="dst_{{ destinataire.id }}" class="label label-info">
                             {{ destinataire.nom }}, {{ destinataire.prenom }}
-                            <a href="#" class="remove-dst" data-id="{{ destinataire.id }}" data-email="{{ destinataire.email }}">
+                            <a href="#" class="remove-dst" data-id="{{ destinataire.id }}" data-email="{{ destinataire.mail }}">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </a>
                         </span>

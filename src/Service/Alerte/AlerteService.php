@@ -98,15 +98,15 @@ class AlerteService
         // 3. Query Doctrine avec LEFT JOIN pour groupement
         $qb = $this->entityManager->createQueryBuilder();
 
-        $qb->select('DISTINCT u.id as id', 'ui.nom as nom', 'ui.prenom as prenom', 'ui.email as email')
+        $qb->select('DISTINCT u.id as id', 'ui.nom as nom', 'ui.prenom as prenom', 'ui.mail as mail')
             ->from('App\Entity\Utilisateur', 'u')
             ->join('u.informations', 'ui')
             ->join('u.groupe', 'g')
             ->join('g.privileges', 'p') // p est déjà Privileges, pas besoin de join supplémentaire
             ->leftJoin('u.groupements', 'ug')
             ->leftJoin('ug.communes', 'gc')
-            ->where('ui.email IS NOT NULL')
-            ->andWhere('ui.email != :emptyEmail')
+            ->where('ui.mail IS NOT NULL')
+            ->andWhere('ui.mail != :emptyEmail')
             ->andWhere('p.name = :privilegeName')
             ->andWhere($qb->expr()->orX(
                 'u.commune = :numInsee', // Commune est un ManyToOne, on compare l'objet
@@ -147,7 +147,7 @@ class AlerteService
         }
 
         $commune = $premiereAdresse->getCommune();
-        
+
         return $commune ? $commune->getId() : null;
     }
 }
