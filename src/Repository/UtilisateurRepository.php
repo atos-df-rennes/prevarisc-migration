@@ -213,4 +213,28 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
 
         return $results;
     }
+
+    /**
+     * @return Utilisateur[]
+     */
+    public function findExistingByMail(string $mail, ?Utilisateur $utilisateur = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->join('u.informations', 'i')
+            ->where('i.mail = :mail')
+            ->setParameter('mail', $mail)
+        ;
+
+        // Ne prend pas en compte l'utilisateur en cours d'édition.
+        if (null !== $utilisateur) {
+            $queryBuilder->andWhere('u.id != :utilisateurId')
+                ->setParameter('utilisateurId', $utilisateur->getId())
+            ;
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

@@ -40,7 +40,7 @@ final class UniqueUtilisateurValidator extends ConstraintValidator
         $informations = $value->getInformations();
 
         // Cas 1 : Login renseigné → vérifier unicité du login
-        if (!empty($username)) {
+        if ('' !== $username) {
             $existingByUsername = $this->utilisateurRepository->findOneBy([
                 'username' => $username,
             ]);
@@ -58,31 +58,18 @@ final class UniqueUtilisateurValidator extends ConstraintValidator
         }
 
         // Cas 2 : Login vide → vérifier unicité du mail
-        if (empty($username) && null !== $informations) {
+        if (null !== $informations) {
             $mail = $informations->getMail();
 
             // Vérifier que le mail est renseigné
-            if (empty($mail)) {
+            if (null === $mail) {
                 // Pas de validation si ni login ni mail (sera géré par @Assert\NotNull si nécessaire)
                 return;
             }
 
-            // Rechercher un utilisateur avec ce mail
-            $qb = $this->utilisateurRepository->createQueryBuilder('u');
-            $qb->innerJoin('u.informations', 'i')
-                ->where('i.mail = :mail')
-                ->setParameter('mail', $mail);
+            $existingByMail = $this->utilisateurRepository->findExistingByMail($mail, $value);
 
-            // Exclure l'utilisateur en cours d'édition
-            if (null !== $value->getId()) {
-                $qb->andWhere('u.id != :id')
-                    ->setParameter('id', $value->getId());
-            }
-
-            /** @var Utilisateur|null $existingByMail */
-            $existingByMail = $qb->getQuery()->getOneOrNullResult();
-
-            if (null !== $existingByMail) {
+            if ([] !== $existingByMail) {
                 $this->context
                     ->buildViolation($constraint->mailMessage)
                     ->atPath('informations.mail')
