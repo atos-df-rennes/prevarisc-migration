@@ -64,10 +64,15 @@ $(document).ready(function() {
     {% if emails is not empty %}
     tinymce.init({
         selector: '#alerte-message',
-        height: 300,
+        height: 220,
         menubar: false,
-        plugins: 'link lists code',
-        toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link | code',
+        statusbar: false,
+        toolbar: false,
+        plugins: [
+            'advlist autolink lists link image charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table contextmenu paste code'
+        ],
         language: 'fr_FR'
     });
     {% endif %}
