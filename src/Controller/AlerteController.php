@@ -53,12 +53,15 @@ class AlerteController extends AbstractController
             $emails[] = $destinataire['mail'];
         }
 
+        // Générer objet email
+        $objet = $alerteService->getObjet($typeChangement, $etablissement);
+
         return $this->render('alerte/formulaire.html.twig', [
             'etablissementId' => $etablissementId,
             'typeChangement' => $typeChangement,
             'destinataires' => $destinataires,
             'emails' => implode(';', $emails),
-            'objet' => "Changement d'avis de commission", // @todo Part 2
+            'objet' => $objet,
             'message' => 'Message par défaut', // @todo Part 3
         ]);
     }
