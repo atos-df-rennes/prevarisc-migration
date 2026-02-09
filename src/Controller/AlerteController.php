@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Repository\EtablissementRepository;
+use App\Service\Alerte\AlerteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * Controller pour la gestion des alertes email.
  *
  * Équivalent legacy : ChangementController (alerteformAction)
+ *
+ * @Route("/symfony/alerte", name="alerte_")
  */
 class AlerteController extends AbstractController
 {
@@ -20,10 +24,13 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::alerteformAction()
      * Route legacy : /changement/alerteform
      *
-     * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"})
+     * @Route("/formulaire", name="formulaire", methods={"GET"})
      */
-    public function formulaire(Request $request): Response
-    {
+    public function formulaire(
+        Request $request,
+        EtablissementRepository $etablissementRepository,
+        AlerteService $alerteService
+    ): Response {
         $etablissementId = $request->query->getInt('etablissement');
         $typeChangement = $request->query->getInt('type', 2); // 2 = avis
 
@@ -31,17 +38,28 @@ class AlerteController extends AbstractController
             throw $this->createNotFoundException('ID établissement requis');
         }
 
-        // @todo : Récupérer établissement et utilisateurs destinataires
-        // @todo : Générer objet et message avec Service_Changement
+        // Récupérer l'établissement
+        $etablissement = $etablissementRepository->find($etablissementId);
+        if (!$etablissement) {
+            throw $this->createNotFoundException(sprintf('Établissement #%d introuvable', $etablissementId));
+        }
 
-        // Pour l'instant, retour simple pour tester la modale
+        // Récupérer les destinataires
+        $destinataires = $alerteService->getDestinataires($typeChangement, $etablissement);
+
+        // Formater pour le template
+        $emails = [];
+        foreach ($destinataires as $destinataire) {
+            $emails[] = $destinataire['email'];
+        }
+
         return $this->render('alerte/formulaire.html.twig', [
             'etablissementId' => $etablissementId,
             'typeChangement' => $typeChangement,
-            'destinataires' => [], // @todo
-            'emails' => '', // @todo
-            'objet' => "Changement d'avis de commission", // @todo
-            'message' => 'Message par défaut', // @todo
+            'destinataires' => $destinataires,
+            'emails' => implode(';', $emails),
+            'objet' => "Changement d'avis de commission", // @todo Part 2
+            'message' => 'Message par défaut', // @todo Part 3
         ]);
     }
 }
