@@ -139,14 +139,14 @@ class AlerteService
      *
      * Délègue à MessageService.
      *
-     * @param int           $typeChangement Type de changement (1=statut, 2=avis, 3=classement)
-     * @param Etablissement $etablissement  Établissement concerné
+     * @param string        $messageTemplate Template de message avec balises
+     * @param Etablissement $etablissement   Établissement concerné
      *
-     * @return string Message email formaté
+     * @return string Message email avec balises remplacées
      */
-    public function getMessage(int $typeChangement, Etablissement $etablissement): string
+    public function getMessage(string $messageTemplate, Etablissement $etablissement): string
     {
-        return $this->messageService->generer($typeChangement, $etablissement);
+        return $this->messageService->generer($messageTemplate, $etablissement);
     }
 
     /**

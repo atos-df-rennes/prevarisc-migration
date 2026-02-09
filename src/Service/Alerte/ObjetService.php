@@ -3,21 +3,23 @@
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
-use App\Repository\DossierRepository;
 
 /**
  * Service de génération d'objet email pour les alertes.
  *
- * Équivalent legacy : Service_Changement::getObjet() + getAvis()
+ * Équivalent legacy : Service_Changement::getObjet()
  */
 class ObjetService
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
+    /** @var AvisService */
+    private $avisService;
 
-    public function __construct(DossierRepository $dossierRepository)
+    /**
+     * @param AvisService $avisService Service utilitaire pour récupération avis
+     */
+    public function __construct(AvisService $avisService)
     {
-        $this->dossierRepository = $dossierRepository;
+        $this->avisService = $avisService;
     }
 
     /**
@@ -135,7 +137,7 @@ class ObjetService
      */
     private function getObjetAvis(Etablissement $etablissement): string
     {
-        $avisTexte = $this->getAvisTexte($etablissement);
+        $avisTexte = $this->avisService->getTexte($etablissement);
 
         return sprintf('Passage en avis "%s"', $avisTexte);
     }
@@ -167,68 +169,5 @@ class ObjetService
             $libelleType,
             $libelleTypeActivite
         );
-    }
-
-    /**
-     * Récupère le texte d'avis de l'établissement.
-     *
-     * Équivalent legacy : Service_Changement::getAvis() + Service_Etablissement::getAvisEtablissement()
-     *
-     * Logique :
-     * 1. Cherche dernier dossier avec avis différé
-     * 2. Si existe ET plus récent que dossier donnant avis → "Présence d'un dossier avec avis differé"
-     * 3. Sinon récupère avis du dossier donnant avis
-     * 4. Ajoute " à l'exploitation" sauf pour genre Cellule
-     *
-     * @param Etablissement $etablissement Établissement concerné
-     *
-     * @return string Texte avis
-     */
-    private function getAvisTexte(Etablissement $etablissement): string
-    {
-        $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
-
-        if (!$dossierDonnantAvis) {
-            return "Avis d'exploitation indisponible";
-        }
-
-        // 1. Chercher dernier dossier avec avis différé
-        $dossierAvisDiffere = $this->dossierRepository->findLastDossierAvisDiffere($etablissement);
-
-        // 2. Si dossier différé existe et est plus récent que dossier donnant avis
-        if ($dossierAvisDiffere) {
-            $dateInsertDonnantAvis = $dossierDonnantAvis->getDateInsert();
-            $dateInsertDiffere = $dossierAvisDiffere->getDateInsert();
-
-            // Compare : si différé plus récent (ou égal) → avis différé prioritaire
-            if ($dateInsertDiffere >= $dateInsertDonnantAvis) {
-                return "Présence d'un dossier avec avis differé";
-            }
-        }
-
-        // 3. Sinon, avis du dossier donnant avis
-        $avisCommission = $dossierDonnantAvis->getAvisCommission();
-
-        if (!$avisCommission) {
-            return "Avis d'exploitation indisponible";
-        }
-
-        $latestInfos = $etablissement->getLatestInformations();
-        $genre = $latestInfos->getGenre();
-        $isCellule = $genre && 2 === $genre->getId(); // ID_GENRE_CELLULE = 2
-
-        $avisId = $avisCommission->getId();
-
-        if (1 === $avisId) {
-            return 'Favorable'.($isCellule ? '' : " à l'exploitation");
-        }
-
-        if (2 === $avisId) {
-            return 'Défavorable'.($isCellule ? '' : " à l'exploitation");
-        }
-
-        $libelle = $avisCommission->getLibelle();
-
-        return $libelle ?? "Avis d'exploitation indisponible";
     }
 }
