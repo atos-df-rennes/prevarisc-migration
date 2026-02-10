@@ -1304,7 +1304,7 @@ class Dossier
     {
         // Normaliser les valeurs legacy héritées de l'ancien système
         // "0" et chaînes vides sont considérés comme absence de service instructeur
-        // TODO: Nettoyer la BDD avec migration SQL quand création dossier migrée dans Symfony
+        // Note : Nettoyage BDD possible via migration SQL future
         if (in_array($this->serviceInstructeur, ['0', ''], true)) {
             return null;
         }

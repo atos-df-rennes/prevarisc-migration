@@ -47,7 +47,7 @@ class DossierType extends AbstractType
         $this->entityManager = $entityManager;
     }
 
-    // @todo: Séparer en plusieurs FormTypes selon le type de dossier (Phase future)
+    // Note : Possibilité future de séparer en plusieurs FormTypes selon le type de dossier
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $canEditAvis = $this->security->isGranted('edit_avis_com');

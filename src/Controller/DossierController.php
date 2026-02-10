@@ -126,7 +126,7 @@ class DossierController extends AbstractController
         $ancienType = $dossier->getType();
         $ancienneNature = $dossier->getNature();
 
-        // BLOC 17 Part 3A : Sauvegarder anciens avis établissements pour détecter changements (alertes email)
+        // Sauvegarder anciens avis établissements pour détecter changements (alertes email)
         $anciensAvis = [];
         foreach ($dossier->getEtablissements() as $etablissement) {
             $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
@@ -139,7 +139,7 @@ class DossierController extends AbstractController
             'is_edit' => true,
         ]);
 
-        // Pré-remplir les champs Hidden avec IDs affectations existantes (BLOC 16)
+        // Pré-remplir les champs Hidden avec IDs affectations existantes
         // Nécessaire pour que la sauvegarde sans modification ne désaffecte pas
         $affectationCommission = $dossierAffectationRepository->findAffectationByDossierAndType(
             $dossier,
@@ -168,7 +168,7 @@ class DossierController extends AbstractController
             $this->entityManager->beginTransaction();
 
             try {
-                // BLOC 1 : Transfert documents consultés (si changement type/nature)
+                // Transfert documents consultés (si changement type/nature)
                 $nouveauType = $dossier->getType();
                 $nouvelleNature = $dossier->getNature();
 
@@ -180,18 +180,17 @@ class DossierController extends AbstractController
                     );
                 }
 
-                // BLOC 12 : Export Plat'AU - Marquer PJ sélectionnées pour export
+                // Export Plat'AU - Marquer PJ sélectionnées pour export
                 /** @var Collection<int, PieceJointe>|null $piecesJointesPlatau */
                 $piecesJointesPlatau = $form->get('piecesJointesPlatau')->getData();
                 if ($piecesJointesPlatau) {
                     $pieceJointeExportService->markForExport($piecesJointesPlatau);
                 }
 
-                // BLOC 13 : Documents manquants
-                // Gestion automatique via CollectionType + orphanRemoval=true
+                // Documents manquants : gestion automatique via CollectionType + orphanRemoval=true
                 // Doctrine persist/remove automatiquement selon modifications Collection
 
-                // BLOC 16 : Affectations commissions/visites + dénormalisation dates
+                // Affectations commissions/visites + dénormalisation dates
                 /** @var string|null $idAffectationCommission */
                 $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
                 /** @var string|null $idAffectationVisite */
@@ -203,18 +202,17 @@ class DossierController extends AbstractController
                     $idAffectationVisite ? (int) $idAffectationVisite : null
                 );
 
-                // BLOC 17 : Dossier donnant avis
+                // Dossier donnant avis : gestion affectation/désaffectation
                 // Récupérer la valeur de la checkbox repercuterAvis
                 /** @var bool $repercuterAvis */
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
 
-                // Liste des IDs établissements modifiés (pour vidage cache BLOC 18)
+                // Liste des IDs établissements modifiés (pour vidage cache legacy)
                 /** @var int[] $etablissementsIds */
                 $etablissementsIds = [];
 
                 // Cas 1 : Nouvelle nature donne avis → Affectation
                 if ($dossier->donneAvis()) {
-                    // @todo BLOC 17 Partie 3 : Utiliser retour pour EventSubscriber emails
                     $etablissementsIds = $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
                 }
                 // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
@@ -230,8 +228,7 @@ class DossierController extends AbstractController
                 // Commit transaction
                 $this->entityManager->commit();
 
-                // BLOC 17 : Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
-                // Legacy : DossierController.php lignes 1364-1383
+                // Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
                 $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
                 $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
 
@@ -259,7 +256,7 @@ class DossierController extends AbstractController
                     }
                 }
 
-                // BLOC 17 Part 3A : Alertes email si changement d'avis (flash messages)
+                // Alertes email si changement d'avis (flash messages)
                 if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
                     // Vérifier pour chaque établissement modifié si l'avis a changé
                     foreach ($dossier->getEtablissements() as $etablissement) {
@@ -296,7 +293,7 @@ class DossierController extends AbstractController
                     }
                 }
 
-                // BLOC 18 : Redirect vers legacy pour vidage cache établissements (si modifications)
+                // Redirect vers legacy pour vidage cache établissements (si modifications)
                 $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
 
                 if ([] !== $etablissementsIds) {

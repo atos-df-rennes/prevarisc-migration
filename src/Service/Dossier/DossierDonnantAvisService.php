@@ -88,7 +88,7 @@ class DossierDonnantAvisService
 
         if ([] !== $etablissementsIds) {
             $this->entityManager->flush();
-            // Note : Cache Zend vidé via LegacyController (BLOC 18) après redirect
+            // Note : Cache Zend vidé via LegacyController après redirect
         }
 
         return $etablissementsIds;
@@ -222,7 +222,7 @@ class DossierDonnantAvisService
      * @param Dossier            $dossier        Dossier en cours de modification
      * @param DossierNatureListe $ancienneNature Nature avant modification (garantie non-null par Controller)
      *
-     * @return int[] Liste des IDs établissements modifiés (pour vidage cache BLOC 18)
+     * @return int[] Liste des IDs établissements modifiés (pour vidage cache legacy)
      */
     public function desaffecterDossierDonnantAvis(Dossier $dossier, DossierNatureListe $ancienneNature): array
     {
@@ -267,7 +267,7 @@ class DossierDonnantAvisService
 
         if ([] !== $etablissementsIds) {
             $this->entityManager->flush();
-            // Note : Cache Zend vidé via LegacyController (BLOC 18) après redirect
+            // Note : Cache Zend vidé via LegacyController après redirect
         }
 
         return $etablissementsIds;
