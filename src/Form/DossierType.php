@@ -156,15 +156,12 @@ class DossierType extends AbstractType
             ->add('incomplet', ChoiceType::class, [
                 'label' => 'État dossier',
                 'choices' => [
-                    'Complet' => 0,
-                    'Incomplet' => 1,
+                    'Vide' => '',
+                    'Complet' => false,
+                    'Incomplet' => true,
                 ],
                 'expanded' => true, // Radios au lieu de select
-                'required' => false, // Pas required car champ peut être masqué dynamiquement
-                'empty_data' => 0, // Par défaut : Complet
-                'attr' => [
-                    'class' => 'incomplet-radios',
-                ],
+                'required' => false,
             ])
             ->add('documentsManquants', CollectionType::class, [
                 'entry_type' => DossierDocumentManquantType::class,
