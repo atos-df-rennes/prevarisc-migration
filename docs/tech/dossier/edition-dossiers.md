@@ -1,4 +1,4 @@
-# Migration - Édition des informations générales des dossiers
+# Documentation - Édition des informations générales des dossiers
 
 **Date :** 10 février 2026  
 **Dernière mise à jour :** 10 février 2026  
@@ -10,7 +10,7 @@
 
 1. [Vue d'ensemble](#vue-d'ensemble)
 2. [Architecture](#architecture)
-3. [Blocs fonctionnels implémentés](#blocs-fonctionnels-implémentés)
+3. [Fonctionnalités implémentées](#fonctionnalités-implémentées)
 4. [Services métier](#services-métier)
 5. [Architecture JavaScript](#architecture-javascript)
 6. [Validations et règles métier](#validations-et-règles-métier)
@@ -25,12 +25,12 @@
 
 ### Contexte
 
-L'édition des dossiers est la fonctionnalité la plus complexe de Prevarisc. Elle permet de modifier toutes les informations d'un dossier (nature, dates, avis, affectations, documents manquants, prescriptions, etc.) avec des validations métier strictes et des workflows conditionnels.
+L'édition des dossiers permet de modifier toutes les informations d'un dossier (type, nature, dates, avis, affectations, documents manquants, prescriptions, etc.) avec des validations métier strictes et des workflows conditionnels.
 
 **Périmètre migré :**
-- ✅ Formulaire d'édition complet (18 blocs fonctionnels)
-- ✅ Sauvegarde backend (Phase B) avec toutes les validations
-- ✅ JavaScript modulaire (8 modules)
+- ✅ Formulaire d'édition complet avec toutes les fonctionnalités
+- ✅ Sauvegarde backend (Phase B) avec validations
+- ✅ JavaScript modulaire avec orchestrateur
 - ✅ Système d'alertes email
 - ✅ Validation custom (UniqueUtilisateur)
 - ✅ Configuration Mailer dynamique
@@ -43,7 +43,7 @@ L'édition des dossiers est la fonctionnalité la plus complexe de Prevarisc. El
 - `src/Controller/DossierController.php` (257 lignes)
 - `src/Form/DossierType.php` (300+ lignes)
 - `templates/dossier/edit.html.twig` (600+ lignes)
-- `public/js/dossier/*` (8 fichiers modulaires)
+- `public/js/dossier/*` (17 fichiers JavaScript)
 
 ---
 
@@ -58,7 +58,7 @@ L'édition des dossiers est la fonctionnalité la plus complexe de Prevarisc. El
 | **ORM** | Doctrine | 2.14 |
 | **Forms** | Symfony Form | 4.4 |
 | **Templates** | Twig | 2.x |
-| **JavaScript** | Vanilla JS | ES6 (transpilé) |
+| **JavaScript** | Vanilla JS | ES6 modules |
 | **CSS** | Bootstrap | 3.x |
 | **Validation** | Symfony Validator | 4.4 |
 | **Email** | Symfony Mailer | 4.4 |
@@ -112,14 +112,18 @@ prevarisc-migration/
 │   └── alerte/
 │       └── formulaire.html.twig           # Modale alertes email
 ├── public/js/dossier/
-│   ├── commission.js                      # Gestion commission/calendrier
-│   ├── calendar-init.js                   # Initialisation calendriers
-│   ├── gestion-incomplet.js               # Workflow documents manquants
-│   ├── gestion-avis.js                    # Affichage conditionnel avis
-│   ├── gestion-affectations.js            # Affectations préventionnistes
-│   ├── gestion-prescriptions.js           # Prescriptions réglementaires
-│   ├── gestion-avis-donnant.js            # Dossiers donnant avis
-│   └── mixte-handler.js                   # Dossiers mixtes
+│   ├── form.js                            # Orchestrateur principal (188 lignes)
+│   ├── commission.js                      # Gestion commission (59 lignes)
+│   ├── calendar-init.js                   # Calendriers Flatpickr (509 lignes)
+│   ├── gestion-incomplet.js               # Workflow documents manquants (681 lignes)
+│   ├── platau.js                          # Intégration Plat'AU (215 lignes)
+│   ├── dossierDocConsulte.js              # Documents consultables (228 lignes)
+│   ├── dossierGeneral.js                  # Initialisation générale (59 lignes)
+│   └── modules/
+│       ├── type-nature.js                 # Gestion Type/Nature (332 lignes)
+│       ├── avis.js                        # Gestion avis (270 lignes)
+│       ├── documents-urbanisme.js         # Documents urbanisme (64 lignes)
+│       └── today-buttons.js               # Boutons "Aujourd'hui" (48 lignes)
 └── config/
     ├── prevarisc.php                      # Paramètres PREVARISC_MAIL_*
     └── packages/mailer.php                # Configuration Mailer dynamique
@@ -127,9 +131,9 @@ prevarisc-migration/
 
 ---
 
-## Blocs fonctionnels implémentés
+## Fonctionnalités implémentées
 
-### BLOC 3 : Commission et dates
+### Commission et calendrier
 
 **Fonctionnalité :** Sélection commission + dates réunion/visite/réponse avec calendriers
 
@@ -146,97 +150,56 @@ prevarisc-migration/
 - `Informations::getDateProchaineDansCalendrier()` - Calcule prochaine date disponible
 
 **Événements custom :**
-- `commission:changed` - Déclenché au changement de commission
-- `commission:cleared` - Déclenché au vidage de commission
+- `calendar:hideAll` - Déclenché pour masquer tous les calendriers
 
 ---
 
-### BLOC 4 : Avis de commission
+### Avis de commission
 
 **Fonctionnalité :** Affichage conditionnel de l'avis de commission
 
-**JavaScript :** `gestion-avis.js`
+**JavaScript :** `modules/avis.js`
 
 **Règles métier :**
-- Avis affiché uniquement si commission ET nature donnant avis (via `DossierNature::NATURES_DONNANT_AVIS`)
+- Avis affiché uniquement si commission ET nature donnant avis
 - Masqué si dossier incomplet (workflow documents manquants)
 - Masqué si nature ne donne pas d'avis (étude, AT, etc.)
 
 **Constantes :**
-- `DossierNature::NATURES_DONNANT_AVIS` - Natures 1-6, 12-13, 17-21, 26, 28-29, 46-48
+- `DossierNature::NATURES_DONNANT_AVIS` - Liste des natures donnant avis
 
-**Événements custom :**
+**Événements custom écoutés :**
 - `dossier:updateAvisVisibility` - Recalcule visibilité avis
+- `dossier:natureChanged` - Déclenché au changement de nature
 
 ---
 
-### BLOC 6 : Calendrier de la commission
+### Type et Nature du dossier
 
-**Fonctionnalité :** Affichage/masquage du calendrier selon la commission
+**Fonctionnalité :** Gestion changements Type/Nature avec affichage conditionnel des champs
 
-**JavaScript :** `commission.js`
+**JavaScript :** `modules/type-nature.js` (332 lignes)
 
 **Règles métier :**
-- Calendrier affiché uniquement si commission sélectionnée
-- Bouton "Prochaine date disponible" calcule date via service `Informations`
-- Bouton "Masquer calendrier" ferme le widget
+- Changement de type → Réinitialise nature + affiche champs conditionnels
+- Changement de nature → Affiche/masque champs selon configuration
+- Configuration des champs par nature (objet, dates, avis, etc.)
 
-**Services :**
-- `Informations::getDateProchaineDansCalendrier()` - Calcul date disponible
+**Événements custom déclenchés :**
+- `dossier:typeChanged` - Déclenché au changement de type
+- `dossier:natureChanged` - Déclenché au changement de nature
+- `dossier:fieldsUpdated` - Déclenché après mise à jour de l'affichage
 
----
-
-### BLOC 7 : Dates des pièces
-
-**Fonctionnalité :** Dates dépôt, mise à l'ordre du jour, réception service consulté
-
-**JavaScript :** `commission.js` (gestion `dateDepot`)
-
-**Règles métier :**
-- `dateDepot` obligatoire pour créer un dossier
-- `dateInsert` (mise à l'ordre du jour) dépend de la commission
-- `dateReception` pour service consulté (workflow spécifique)
+**Événements custom écoutés :**
+- (Aucun - module émetteur)
 
 ---
 
-### BLOC 8 : Informations Plat'AU
-
-**Fonctionnalité :** Envoi vers Plat'AU si commission CCDSA
-
-**JavaScript :** `commission.js`
-
-**Règles métier :**
-- Champ `preventionniste` affiché uniquement si commission = CCDSA (ID=3)
-- Requis pour envoi Plat'AU
-- Masqué pour autres commissions
-
-**API :**
-- `prevarisc-passerelle-platau` - API de synchronisation
-
----
-
-### BLOC 12 : Documents consultables (Mixte)
-
-**Fonctionnalité :** Liaison avec dossiers liés (documents consultables)
-
-**JavaScript :** `mixte-handler.js`
-
-**Entité :** `DossierMixte` (table `dossiermixte`)
-
-**Règles métier :**
-- Collection de dossiers liés
-- Recherche autocomplete (TomSelect)
-- Suppression sans cascade (conservation historique)
-
-**FormType :** `DossierMixteType` (champ `dossierLie`)
-
----
-
-### BLOC 13 : Documents manquants
+### Documents manquants (workflow incomplet)
 
 **Fonctionnalité :** Workflow documents manquants avec validation réception
 
-**JavaScript :** `gestion-incomplet.js` (682 lignes)
+**JavaScript :** `gestion-incomplet.js` (681 lignes)
 
 **Entités :** 
 - `Dossier::$incomplet` (boolean)
@@ -258,35 +221,52 @@ prevarisc-migration/
 
 **Thème Twig :** Masquage option vide radios via bloc `_dossier_incomplet_widget`
 
+**Événements custom déclenchés :**
+- `dossier:updateAvisVisibility` - Déclenché au changement d'état incomplet (4 occurrences)
+
 **Services :**
 - `DossierService::saveDossier()` - Persiste collection documents manquants
 
 ---
 
-### BLOC 14 : Observations
+### Informations Plat'AU
 
-**Fonctionnalité :** Champ texte libre pour observations
+**Fonctionnalité :** Affichage conditionnel du champ préventionniste pour commission CCDSA
 
-**Champ :** `Dossier::$objet` (textarea)
+**JavaScript :** `platau.js` (215 lignes)
 
----
+**Règles métier :**
+- Champ `preventionniste` affiché uniquement si commission = CCDSA (ID=3)
+- Requis pour envoi Plat'AU
+- Masqué pour autres commissions
 
-### BLOC 15 : Descriptifs
-
-**Fonctionnalité :** Descriptif établissement, activité, moyens de secours
-
-**Champs :**
-- `descEtablissement` - Descriptif général établissement
-- `descActivite` - Descriptif activité
-- `descMoyens` - Descriptif moyens de secours
+**API :**
+- `prevarisc-passerelle-platau` - API de synchronisation
 
 ---
 
-### BLOC 16 : Affectations préventionnistes
+### Documents consultables (Mixte)
+
+**Fonctionnalité :** Liaison avec dossiers liés (documents consultables)
+
+**JavaScript :** `dossierDocConsulte.js` (228 lignes)
+
+**Entité :** `DossierMixte` (table `dossiermixte`)
+
+**Règles métier :**
+- Collection de dossiers liés
+- Recherche autocomplete (TomSelect)
+- Suppression sans cascade (conservation historique)
+
+**FormType :** `DossierMixteType` (champ `dossierLie`)
+
+---
+
+### Affectations préventionnistes
 
 **Fonctionnalité :** Affectation préventionnistes au dossier
 
-**JavaScript :** `gestion-affectations.js`
+**JavaScript :** (Géré via formulaire Symfony + TomSelect natif)
 
 **Service :** `AffectationService`
 
@@ -307,17 +287,17 @@ prevarisc-migration/
 
 ---
 
-### BLOC 17 : Dossiers donnant avis (Parties 1, 2, 3)
+### Dossiers donnant avis
 
 **Fonctionnalité :** Gestion avis rendus pour autres dossiers
 
-**JavaScript :** `gestion-avis-donnant.js`
+**JavaScript :** (Géré via formulaire Symfony + TomSelect)
 
 **Service :** `AvisService`, `Message`, `AlerteService`
 
 **Entité :** `DossierDonnantAvis` (table `dossierdonnantavis`)
 
-#### Partie 1 : Affectation dossier
+#### Affectation dossier
 
 **Workflow :**
 1. Recherche dossier lié (autocomplete)
@@ -329,28 +309,24 @@ prevarisc-migration/
 - Dossiers liés conservés en historique (pas de suppression cascade)
 - Cache préventif avec `findDossiersAvecInfos()` pour éviter N+1
 
-#### Partie 2 : Désaffectation
+#### Désaffectation
 
 **Workflow :**
 - Bouton "Désaffecter" retire le dossier lié
 - Confirmation visuelle (carte supprimée)
 - Pas de cascade DELETE (conservation historique)
 
-#### Partie 3 : Alertes email
+#### Alertes email
 
-**Sous-partie 3A : Détection dossier prioritaire**
-
-**Règles métier :**
+**Détection dossier prioritaire :**
 - Dossier prioritaire = statut "En cours" (ID=2) + présence dossiers liés avis non traités
 - Flash info orange affiché après sauvegarde
 - Message : "Ce dossier est prioritaire (avis d'autres dossiers en attente)"
 
-**Sous-partie 3B.1 : Alerte destinataires existants**
-
 **Modale formulaire :**
 - Champ objet (pré-rempli)
 - Champ message (pré-rempli via service `Message`)
-- Destinataires auto-détectés (créateur + affectés dossier lié)
+- Destinataires auto-détectés (créateur + affectés dossier lié) OU personnalisés
 
 **Services :**
 - `AlerteService::envoyerAlerte()` - Envoi email
@@ -368,14 +344,6 @@ prevarisc-migration/
 - Partie 3 : Avis de commission avec texte
 - Balises HTML personnalisées : `[GRAS]`, `[FIN-GRAS]`, `[SOUSLIGNE]`, `[FIN-SOUSLIGNE]`
 
-**Sous-partie 3B.2 : Alerte destinataires personnalisés**
-
-**Modale formulaire :**
-- Recherche destinataires (TomSelect sur utilisateurs actifs)
-- Champ objet modifiable
-- Champ message modifiable
-- Toast notifications pour succès/erreur
-
 **Validation :**
 - Objet et message requis (strict, pas `empty()` mais `=== ''`)
 - Destinataires requis (strict, pas `empty()` mais `=== []`)
@@ -383,11 +351,11 @@ prevarisc-migration/
 
 ---
 
-### BLOC 18 : Prescriptions réglementaires
+### Prescriptions réglementaires
 
 **Fonctionnalité :** Gestion prescriptions applicables au dossier
 
-**JavaScript :** `gestion-prescriptions.js`
+**JavaScript :** (Géré via formulaire Symfony Collection)
 
 **Entité :** `DossierPrescription` (table `dossierprescription`)
 
@@ -403,7 +371,7 @@ prevarisc-migration/
 
 ---
 
-### BLOC 19 : Visite Avant Ouverture (VAO)
+### Visite Avant Ouverture (VAO)
 
 **Fonctionnalité :** Alerte changement statut établissement
 
@@ -431,6 +399,35 @@ if (in_array($dossier->getNature()?->getId(), DossierNature::VISITE_AVANT_OUVERT
     ));
 }
 ```
+
+---
+
+### Documents d'urbanisme
+
+**Fonctionnalité :** Gestion documents d'urbanisme avec préfixes automatiques
+
+**JavaScript :** `modules/documents-urbanisme.js` (64 lignes)
+
+**Règles métier :**
+- Ajout automatique de préfixes aux libellés (PC, AT, etc.)
+- Gestion collection Symfony Forms
+- Historique conservé
+
+---
+
+### Boutons "Aujourd'hui"
+
+**Fonctionnalité :** Boutons pour remplir automatiquement les champs date avec la date du jour
+
+**JavaScript :** `modules/today-buttons.js` (48 lignes)
+
+**Règles métier :**
+- Bouton "Aujourd'hui" à côté des champs date
+- Remplit avec date actuelle formatée
+- Réinitialisation possible
+
+**Événements custom écoutés :**
+- `dossier:fieldsUpdated` - Réapplique les boutons après mise à jour DOM
 
 ---
 
@@ -635,27 +632,50 @@ null://null
 
 ### Organisation modulaire
 
-**Principe :** Chaque fonctionnalité = 1 module JavaScript isolé
+**Principe :** Orchestrateur + modules spécialisés
+
+**Fichier principal :** `form.js` (188 lignes)
+
+**Responsabilité orchestrateur :**
+- Initialise et coordonne les modules :
+  - `type-nature.js` : Gestion Type/Nature et affichage conditionnel
+  - `avis.js` : Gestion des avis et dérogations
+  - `documents-urbanisme.js` : Documents urbanisme
+  - `today-buttons.js` : Boutons "Aujourd'hui"
+- Gère l'initialisation dans le bon ordre
+- Passe la configuration aux modules
 
 **Avantages :**
 - ✅ Séparation des responsabilités
+- ✅ Modules découplés via événements custom
 - ✅ Maintenance facilitée
 - ✅ Réutilisabilité
-- ✅ Tests unitaires possibles
 - ✅ Pas de conflits de noms
 
-### Modules JavaScript
+### Fichiers JavaScript (17 fichiers)
 
-| Module | Lignes | Responsabilité |
-|--------|--------|----------------|
-| `commission.js` | ~250 | Gestion commission, calendrier, dates |
-| `calendar-init.js` | ~150 | Initialisation Flatpickr, boutons calendrier |
-| `gestion-incomplet.js` | 682 | Workflow documents manquants complet |
-| `gestion-avis.js` | ~100 | Affichage conditionnel avis commission |
-| `gestion-affectations.js` | ~200 | Affectations préventionnistes, TomSelect |
-| `gestion-prescriptions.js` | ~180 | Prescriptions réglementaires, TomSelect |
-| `gestion-avis-donnant.js` | ~220 | Dossiers donnant avis, autocomplete |
-| `mixte-handler.js` | ~120 | Dossiers mixtes, TomSelect |
+**Fichiers principaux :**
+
+| Fichier | Lignes | Responsabilité |
+|---------|--------|----------------|
+| `form.js` | 188 | Orchestrateur principal |
+| `calendar-init.js` | 509 | Calendriers Flatpickr (dates) |
+| `gestion-incomplet.js` | 681 | Workflow documents manquants complet |
+| `modules/type-nature.js` | 332 | Gestion Type/Nature et affichage conditionnel |
+| `modules/avis.js` | 270 | Gestion avis et dérogations |
+| `dossierDocConsulte.js` | 228 | Documents consultables (mixte) |
+| `platau.js` | 215 | Intégration Plat'AU CCDSA |
+| `modules/documents-urbanisme.js` | 64 | Documents urbanisme |
+| `commission.js` | 59 | Gestion commission |
+| `dossierGeneral.js` | 59 | Initialisation générale |
+| `modules/today-buttons.js` | 48 | Boutons "Aujourd'hui" |
+| `avisDerogation.js` | 30 | Avis dérogation (legacy) |
+| `avisDerogation-bs3.js` | 31 | Avis dérogation Bootstrap 3 |
+| `drop-list-button.js` | 12 | Dropdown lists |
+| `drop-list-button-bs3.js` | 16 | Dropdown lists Bootstrap 3 |
+| `pieceJointe.js` | 12 | Pièces jointes |
+
+**Total :** ~2982 lignes JavaScript
 
 ### Événements custom
 
@@ -668,41 +688,82 @@ null://null
 
 **Événements disponibles :**
 
+#### Émis par `modules/type-nature.js` :
 ```javascript
-// Commission
-document.dispatchEvent(new CustomEvent('commission:changed', { 
-    detail: { commissionId: 3 } 
+// Changement de type
+document.dispatchEvent(new CustomEvent('dossier:typeChanged', { 
+    detail: { typeId: 1 } 
 }));
-document.dispatchEvent(new CustomEvent('commission:cleared'));
 
-// Calendrier
-document.dispatchEvent(new CustomEvent('calendar:dateSelected', { 
-    detail: { date: '2025-02-10' } 
+// Changement de nature
+document.dispatchEvent(new CustomEvent('dossier:natureChanged', { 
+    detail: { natureId: 2 } 
 }));
-document.dispatchEvent(new CustomEvent('calendar:hidden'));
-document.dispatchEvent(new CustomEvent('calendar:shown'));
 
-// Avis
+// Champs mis à jour
+document.dispatchEvent(new CustomEvent('dossier:fieldsUpdated', { 
+    detail: { fields: ['objet', 'avis'] } 
+}));
+```
+
+#### Émis par `gestion-incomplet.js` :
+```javascript
+// Mise à jour visibilité avis (4 occurrences)
 document.dispatchEvent(new CustomEvent('dossier:updateAvisVisibility'));
+```
 
-// Documents manquants
-document.dispatchEvent(new CustomEvent('incomplet:changed', { 
-    detail: { incomplet: true } 
-}));
+#### Émis par `commission.js` :
+```javascript
+// Masquer tous les calendriers
+document.dispatchEvent(new CustomEvent('calendar:hideAll'));
+```
+
+#### Écoutés par `modules/avis.js` :
+```javascript
+// Recalcule visibilité avis
+document.addEventListener('dossier:updateAvisVisibility', function() {
+    updateAvisVisibility();
+});
+
+// Réagit au changement de nature
+document.addEventListener('dossier:natureChanged', function() {
+    updateAvisLabels();
+});
+```
+
+#### Écoutés par `calendar-init.js` :
+```javascript
+// Masque un calendrier spécifique
+document.addEventListener('calendar:hide', function(event) {
+    hideCalendar(event.detail.calendarId);
+});
+
+// Masque tous les calendriers
+document.addEventListener('calendar:hideAll', function() {
+    hideAllCalendars();
+});
+```
+
+#### Écoutés par `modules/today-buttons.js` :
+```javascript
+// Réapplique les boutons après mise à jour DOM
+document.addEventListener('dossier:fieldsUpdated', function() {
+    initTodayButtons();
+});
 ```
 
 **Exemple d'utilisation :**
 
 ```javascript
-// Émetteur (commission.js)
-commissionSelect.addEventListener('change', (e) => {
-    document.dispatchEvent(new CustomEvent('commission:changed', {
-        detail: { commissionId: e.target.value }
+// Émetteur (modules/type-nature.js)
+natureSelect.addEventListener('change', (e) => {
+    document.dispatchEvent(new CustomEvent('dossier:natureChanged', {
+        detail: { natureId: e.target.value }
     }));
 });
 
-// Récepteur (gestion-avis.js)
-document.addEventListener('commission:changed', (e) => {
+// Récepteur (modules/avis.js)
+document.addEventListener('dossier:natureChanged', (e) => {
     updateAvisVisibility();
 });
 ```
@@ -728,6 +789,21 @@ document.addEventListener('commission:changed', (e) => {
         // Setup listeners, etc.
     }
 })();
+```
+
+**Pattern ES6 Modules (utilisé dans `modules/`) :**
+
+```javascript
+/**
+ * Initialise le module
+ */
+export function initModule(config) {
+    // Initialisation avec configuration
+}
+
+// Appelé depuis form.js :
+import { initModule } from './modules/avis.js';
+initModule(fieldsConfig);
 ```
 
 ---
@@ -1026,7 +1102,7 @@ updateAvisVisibility(); // Dépendance directe !
 // ✅ Bon : découplage
 document.dispatchEvent(new CustomEvent('dossier:updateAvisVisibility'));
 
-// gestion-avis.js écoute l'événement
+// modules/avis.js écoute l'événement
 document.addEventListener('dossier:updateAvisVisibility', () => {
     // Réagit à l'événement
 });
@@ -1173,7 +1249,7 @@ public function getEnv($prefix, $name, \Closure $getEnv)
 ### JavaScript
 
 - ✅ **Modules** : 1 fichier = 1 responsabilité
-- ✅ **IIFE** : Isolation scope (pas de pollution globale)
+- ✅ **Orchestrateur** : `form.js` coordonne les modules
 - ✅ **Événements custom** : Découplage inter-modules
 - ✅ **'use strict'** : Mode strict activé
 - ✅ **Nommage** : Fonctions explicites (`handleIncompletChangeModerne`)
@@ -1232,5 +1308,5 @@ public function getEnv($prefix, $name, \Closure $getEnv)
 
 **Auteurs :** Équipe migration Prevarisc  
 **Dernière mise à jour :** 10 février 2026  
-**Version :** 1.0.0  
+**Version :** 1.0.1  
 **Statut :** ✅ Production ready
