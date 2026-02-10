@@ -12,6 +12,7 @@ Cette documentation reflète l'**état actuel** du code migré vers Symfony 4.4.
 
 ### 📖 Guides fonctionnels
 
+- **[edition-dossiers.md](dossier/edition-dossiers.md)** - Documentation complète de l'édition des dossiers (architecture, services, validations, JavaScript)
 - **[migration-affichage-dossiers.md](dossier/migration-affichage-dossiers.md)** - Documentation de l'affichage des dossiers (services, entités, templates)
 - **[affichage-dossiers.md](../guide/affichage-dossiers.md)** - Guide utilisateur pour l'affichage des dossiers
 
