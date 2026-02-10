@@ -161,7 +161,11 @@ class DossierType extends AbstractType
                     'Incomplet' => true,
                 ],
                 'expanded' => true, // Radios au lieu de select
-                'required' => false,
+                'required' => false, // Pas required car champ masqué dynamiquement
+                'empty_data' => '', // Valeur par défaut si radios désactivés (sera null en base)
+                'attr' => [
+                    'class' => 'incomplet-radios',
+                ],
             ])
             ->add('documentsManquants', CollectionType::class, [
                 'entry_type' => DossierDocumentManquantType::class,
