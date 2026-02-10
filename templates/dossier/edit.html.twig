@@ -47,6 +47,15 @@
 
 {% block body %}
 <div id='dossierInfos'>
+    <div class='action-buttons pull-right'>
+        <a href="{{ path('dossier_index', {id: dossier.id}) }}" class='btn btn-default'>
+            <span class='glyphicon glyphicon-remove' aria-hidden="true"></span> Annuler
+        </a>
+        <button type='submit' class='btn btn-success' form="editDossier">
+            <span class='glyphicon glyphicon-ok' aria-hidden="true"></span> Sauvegarder
+        </button>
+    </div>
+
     <h3>Informations générales</h3>
 
     {# Informations Plat'AU #}
@@ -331,6 +340,7 @@
             </li>
 
             {# Champs spécifiques études - État dossier (incomplet) avec documents manquants #}
+            {% do form.documentsManquants.setRendered %}
             <li class='row' id='field-incomplet'>
                 <div class='left libelle col-md-3'>{{ form_label(form.incomplet) }}</div>
                 <div class='right form col-md-9'>
@@ -585,16 +595,6 @@
 
     {# Les champs non rendus explicitement seront affichés ici (hidden, csrf, etc.) #}
     {{ form_rest(form) }}
-
-    <div class='form-actions'>
-        <a href="{{ path('dossier_index', {id: dossier.id}) }}" class='btn btn-default'>
-            <span class='glyphicon glyphicon-remove' aria-hidden="true"></span> Annuler
-        </a>
-        <button type='submit' class='btn btn-success'>
-            <span class='glyphicon glyphicon-ok' aria-hidden="true"></span> Sauvegarder
-        </button>
-    </div>
-
     {{ form_end(form) }}
 
     {{ include('calendrier_des_commissions/_modal_creation_date.html.twig') }}
