@@ -35,6 +35,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DossierController extends AbstractController
 {
@@ -115,6 +116,7 @@ class DossierController extends AbstractController
         DossierDonnantAvisService $dossierDonnantAvisService,
         AlerteService $alerteService,
         LoggerInterface $logger,
+        UrlGeneratorInterface $urlGenerator,
         bool $mailEnabled
     ): Response {
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
@@ -245,11 +247,12 @@ class DossierController extends AbstractController
                         if ($statut && 1 === $statut->getId()) {
                             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
 
+                            $informationsEtablissement = $urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
                             $this->addFlash('warning', sprintf(
                                 '<strong>Avertissement</strong><br>'.
                                 'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
-                                '<a title="Ouvrir" href="/etablissement/edit/id/%d">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
-                                $etablissement->getId(),
+                                '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
+                                $informationsEtablissement,
                                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
                             ));
                         }
