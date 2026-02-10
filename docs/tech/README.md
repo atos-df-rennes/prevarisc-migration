@@ -1,42 +1,51 @@
 # Documentation Technique - Prevarisc Migration
 
-Ce répertoire contient l'ensemble de la documentation technique du projet de migration de Prevarisc (Zend v1 → Symfony v4).
+## 📚 Index de la documentation
 
-## 📁 Organisation
+Cette documentation reflète l'**état actuel** du code migré vers Symfony 4.4.
 
-### `/dossier`
-Documentation relative aux fonctionnalités de gestion des dossiers :
-- **AVANCEMENT_EDITION_DOSSIER.md** : État d'avancement de la migration de l'édition des dossiers
-- **MAPPING_CHAMPS_DOSSIER.md** : Mapping des champs entre legacy et Symfony
-- **PLAN_MIGRATION_EDITION_DOSSIER.md** : Plan détaillé de la migration de l'édition
-- **migration-affichage-dossiers.md** : Documentation de la migration de l'affichage des dossiers
+### 🏗️ Architecture
 
-### `/tests`
-Documentation sur les stratégies de tests et de validation :
-- **SYSTEME_TESTS_COMPARAISON.md** : Système de tests de comparaison avec le legacy
-- **TESTS_FONCTIONNELS_AFFICHAGE.md** : Tests fonctionnels automatisés pour l'affichage des dossiers
+- **[ARCHITECTURE_JS_MODULAIRE.md](dossier/ARCHITECTURE_JS_MODULAIRE.md)** - Architecture JavaScript modulaire pour l'édition des dossiers
+- **[CONSTANTES_METIER.md](CONSTANTES_METIER.md)** - Constantes métier (natures, genres, types, statuts)
+- **[TOAST_NOTIFICATIONS.md](TOAST_NOTIFICATIONS.md)** - Système de notifications toast
 
-### `/migration`
-Documentation générale sur la migration :
-- **MAPPING_LEGACY_REFERENCE.md** : Référence de mapping entre l'ancien et le nouveau système
+### 📖 Guides fonctionnels
 
-### `/legacy`
-Documentation sur le fonctionnement du système legacy (Zend v1) :
-- **ACL.md** : Documentation du système de droits et d'ACL du legacy
+- **[migration-affichage-dossiers.md](dossier/migration-affichage-dossiers.md)** - Documentation de l'affichage des dossiers (services, entités, templates)
+- **[affichage-dossiers.md](../guide/affichage-dossiers.md)** - Guide utilisateur pour l'affichage des dossiers
 
-### `/suggestions`
-Propositions d'améliorations et recommandations :
-- **SUGGESTIONS_AMELIORATION_AFFICHAGE_DOSSIER.md** : Suggestions pour l'affichage des dossiers
-- **SUGGESTIONS_AMELIORATION_EDITION_DOSSIER.md** : Suggestions pour l'édition des dossiers
+### 🧪 Tests
 
-## 📄 Fichiers à la racine
+- **[SYSTEME_TESTS_COMPARAISON.md](tests/SYSTEME_TESTS_COMPARAISON.md)** - Système de tests comparatifs Legacy vs Symfony
+- **[TESTS_FONCTIONNELS_AFFICHAGE.md](tests/TESTS_FONCTIONNELS_AFFICHAGE.md)** - Tests fonctionnels pour l'affichage
 
-- **REPRENDRE_ICI.md** : Point de reprise du développement (TODO actuel)
-- **datastore_configuration.md** : Configuration du datastore
-- **SESSION_2025-12-11.md** : Synthèse de la session du 11 décembre 2025 (organisation + tests)
+### 💡 Améliorations futures
 
-## 🔍 Conventions
+- **[SUGGESTIONS_AMELIORATION_AFFICHAGE_DOSSIER.md](suggestions/SUGGESTIONS_AMELIORATION_AFFICHAGE_DOSSIER.md)** - Propositions d'optimisation affichage
+- **[SUGGESTIONS_AMELIORATION_EDITION_DOSSIER.md](suggestions/SUGGESTIONS_AMELIORATION_EDITION_DOSSIER.md)** - Propositions d'optimisation édition
 
-- Les fichiers en MAJUSCULES sont généralement des documents de suivi ou de planification
-- Les fichiers en minuscules sont des documentations techniques détaillées
-- Chaque sous-dossier peut contenir son propre README.md si nécessaire
+### 🔧 Configuration
+
+- **[datastore_configuration.md](datastore_configuration.md)** - Configuration Datastore (Redis/APCu)
+
+### 📚 Legacy
+
+- **[ACL.md](legacy/ACL.md)** - Documentation du système ACL legacy (référence)
+- **[MAPPING_LEGACY_REFERENCE.md](migration/MAPPING_LEGACY_REFERENCE.md)** - Mapping Zend → Symfony (référence)
+
+---
+
+## 📝 Conventions
+
+- **README.md** : Index et navigation
+- **ARCHITECTURE_*.md** : Documentation d'architecture technique
+- **GUIDE_*.md** : Guides pratiques
+- **SUGGESTIONS_*.md** : Propositions d'amélioration
+- **TESTS_*.md** : Documentation des tests
+
+---
+
+**Dernière mise à jour :** 10 février 2026  
+**Version Symfony :** 4.4 LTS  
+**PHP :** 7.1.33
