@@ -28,30 +28,48 @@ class DocumentsController extends AbstractController
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /**
+     * @var CommissionRepository
+     */
+    private $commissionRepository;
+
+    /**
+     * @var CommissionDocumentBuilder
+     */
+    private $commissionDocumentBuilder;
+
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    public function __construct(LoggerInterface $logger, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder, Filesystem $filesystem)
     {
         $this->logger = $logger;
+        $this->commissionRepository = $commissionRepository;
+        $this->commissionDocumentBuilder = $commissionDocumentBuilder;
+        $this->filesystem = $filesystem;
     }
 
     /**
      * @Route("/admin/documents", name="admin_documents")
      */
-    public function index(Documents $documents, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder): Response
+    public function index(Documents $documents): Response
     {
-        $commissions = $commissionRepository->findAll();
+        $commissions = $this->commissionRepository->findAll();
 
         return $this->render('documents/index.html.twig', [
             'visibles_apres_verrouillage' => $documents->findForCommission(0),
-            'commissions' => $commissionDocumentBuilder->buildWithCommissions($commissions),
+            'commissions' => $this->commissionDocumentBuilder->buildWithCommissions($commissions),
         ]);
     }
 
     /**
      * @Route("/admin/documents/ajouter", name="admin_documents_add")
      */
-    public function ajouter(Request $request, CommissionRepository $commissionRepository, string $documentsRealDataPath): Response
+    public function ajouter(Request $request, string $documentsRealDataPath): Response
     {
-        $commissions = $commissionRepository->findAll();
+        $commissions = $this->commissionRepository->findAll();
         $commissionsAsArray = [
             new FormDocument(0, 'Disponibles après verrouillage'),
         ];
@@ -125,7 +143,7 @@ class DocumentsController extends AbstractController
     /**
      * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"})
      */
-    public function supprimer(Request $request, Filesystem $filesystem, string $documentsRealDataPath): Response
+    public function supprimer(Request $request, string $documentsRealDataPath): Response
     {
         // @todo: Générer un nom de fichier plus sûr
         $nomFichier = $request->request->get('nomFichier');
@@ -152,7 +170,7 @@ class DocumentsController extends AbstractController
         $this->logger->debug('Suppression du document.', ['chemin' => $filepath]);
 
         try {
-            $filesystem->remove($filepath);
+            $this->filesystem->remove($filepath);
         } catch (IOException $ioException) {
             $this->logger->error($ioException->getMessage());
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');

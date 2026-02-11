@@ -15,12 +15,28 @@ use Symfony\Component\Routing\Annotation\Route;
 class ElementsSupprimesController extends AbstractController
 {
     /**
+     * @var EtablissementRepository
+     */
+    private $etablissementRepository;
+
+    /**
+     * @var DossierRepository
+     */
+    private $dossierRepository;
+
+    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository)
+    {
+        $this->etablissementRepository = $etablissementRepository;
+        $this->dossierRepository = $dossierRepository;
+    }
+
+    /**
      * @Route("/admin/elements-supprimes", name="admin_elements_supprimes")
      */
-    public function index(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository): Response
+    public function index(): Response
     {
-        $etablissementsSupprimes = $etablissementRepository->findDeleted();
-        $dossiersSupprimes = $dossierRepository->findDeleted();
+        $etablissementsSupprimes = $this->etablissementRepository->findDeleted();
+        $dossiersSupprimes = $this->dossierRepository->findDeleted();
 
         return $this->render('elements_supprimes/index.html.twig', [
             'etablissements_supprimes' => $etablissementsSupprimes,

@@ -19,11 +19,21 @@ use Symfony\Component\Routing\Annotation\Route;
 class CommunesController extends AbstractController
 {
     /**
+     * @var CommuneRepository
+     */
+    private $communeRepository;
+
+    public function __construct(CommuneRepository $communeRepository)
+    {
+        $this->communeRepository = $communeRepository;
+    }
+
+    /**
      * @Route("/admin/communes", name="admin_communes")
      */
-    public function index(CommuneRepository $communeRepository): Response
+    public function index(): Response
     {
-        $communes = $communeRepository->findBy([], ['libelle' => 'ASC']);
+        $communes = $this->communeRepository->findBy([], ['libelle' => 'ASC']);
 
         return $this->render('communes/index.html.twig', [
             'communes' => $communes,
