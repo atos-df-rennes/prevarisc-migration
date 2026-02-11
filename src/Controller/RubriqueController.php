@@ -25,10 +25,20 @@ class RubriqueController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+    /**
+     * @var RubriqueRepository
+     */
+    private $rubriqueRepository;
+    /**
+     * @var ChampValeurListeRepository
+     */
+    private $champValeurListeRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, RubriqueRepository $rubriqueRepository, ChampValeurListeRepository $champValeurListeRepository)
     {
         $this->entityManager = $entityManager;
+        $this->rubriqueRepository = $rubriqueRepository;
+        $this->champValeurListeRepository = $champValeurListeRepository;
     }
 
     /**
@@ -40,11 +50,9 @@ class RubriqueController extends AbstractController
     public function edit(
         Request $request,
         CapsuleRubrique $formulaire,
-        Rubrique $rubrique,
-        RubriqueRepository $rubriqueRepository,
-        ChampValeurListeRepository $champValeurListeRepository
+        Rubrique $rubrique
     ): Response {
-        $rubrique = $rubriqueRepository->findAllInformations($rubrique);
+        $rubrique = $this->rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
 
         $champ = new Champ();
@@ -81,7 +89,7 @@ class RubriqueController extends AbstractController
             'rubrique' => $rubrique,
             'form_rubrique' => $formRubrique->createView(),
             'form_champ' => $formChamp->createView(),
-            'champ_valeurs_liste' => $champValeurListeRepository->findAll(),
+            'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
         ]);
     }
 

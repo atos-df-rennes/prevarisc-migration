@@ -49,6 +49,34 @@ class EtablissementController extends AbstractController
 
     /** @var EntityManagerInterface */
     private $entityManager;
+    /**
+     * @var CoucheCartoRepository
+     */
+    private $coucheCartoRepository;
+    /**
+     * @var PeriodiciteRepository
+     */
+    private $periodiciteRepository;
+    /**
+     * @var GroupementRepository
+     */
+    private $groupementRepository;
+    /**
+     * @var DataStore
+     */
+    private $dataStore;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+    /**
+     * @var UtilisateurInformationsRepository
+     */
+    private $utilisateurInformationsRepository;
+    /**
+     * @var Contact
+     */
+    private $contactService;
 
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
@@ -56,7 +84,14 @@ class EtablissementController extends AbstractController
         DossierRepository $dossierRepository,
         EtablissementService $etablissementService,
         EtablissementRepository $etablissementRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        CoucheCartoRepository $coucheCartoRepository,
+        PeriodiciteRepository $periodiciteRepository,
+        GroupementRepository $groupementRepository,
+        DataStore $dataStore,
+        SerializerInterface $serializer,
+        UtilisateurInformationsRepository $utilisateurInformationsRepository,
+        Contact $contactService
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -64,6 +99,13 @@ class EtablissementController extends AbstractController
         $this->etablissementService = $etablissementService;
         $this->etablissementRepository = $etablissementRepository;
         $this->entityManager = $entityManager;
+        $this->coucheCartoRepository = $coucheCartoRepository;
+        $this->periodiciteRepository = $periodiciteRepository;
+        $this->groupementRepository = $groupementRepository;
+        $this->dataStore = $dataStore;
+        $this->serializer = $serializer;
+        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+        $this->contactService = $contactService;
     }
 
     /**
@@ -72,19 +114,14 @@ class EtablissementController extends AbstractController
      * @IsGranted("view_ets", subject="etablissement")
      */
     public function informations(
-        Etablissement $etablissement,
-        CoucheCartoRepository $coucheCartoRepository,
-        PeriodiciteRepository $periodiciteRepository,
-        GroupementRepository $groupementRepository,
-        DataStore $dataStore,
-        SerializerInterface $serializer
+        Etablissement $etablissement
     ): Response {
         // Récupération des couches cartographiques
-        $couchesCartographiques = $coucheCartoRepository->findAll();
-        $couchesCartographiquesJson = $serializer->serialize($couchesCartographiques, 'json');
+        $couchesCartographiques = $this->coucheCartoRepository->findAll();
+        $couchesCartographiquesJson = $this->serializer->serialize($couchesCartographiques, 'json');
 
         // Récupération de la périodicité par défaut
-        $defaultPeriodicite = $periodiciteRepository->gn4ForEtablissement($etablissement);
+        $defaultPeriodicite = $this->periodiciteRepository->gn4ForEtablissement($etablissement);
 
         // Récupération de la périodicité affichée
         $periodicity = $this->etablissementService->getDisplayedPeriodicity($etablissement);
@@ -97,7 +134,7 @@ class EtablissementController extends AbstractController
         if (0 !== count($adresses)) {
             $firstAddress = current($adresses);
             if ($firstAddress instanceof EtablissementAdresse && $firstAddress->getCommune() instanceof Commune) {
-                $groupementsDeCommunes = $groupementRepository->findByNumInsee(
+                $groupementsDeCommunes = $this->groupementRepository->findByNumInsee(
                     $firstAddress->getCommune()->getId()
                 );
             }
@@ -117,7 +154,7 @@ class EtablissementController extends AbstractController
             'default_periodicite' => $defaultPeriodicite,
             'periodicity' => $periodicity,
             'groupements_de_communes' => $groupementsDeCommunes,
-            'store' => $dataStore,
+            'store' => $this->dataStore,
             'diapo_plans' => $diapoPlans,
             'diapo' => $diapo,
             'last_visite' => $datesVisites['lastVisite'],
@@ -291,8 +328,7 @@ class EtablissementController extends AbstractController
      */
     public function addExistingContact(
         Request $request,
-        Etablissement $etablissement,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository
+        Etablissement $etablissement
     ): Response {
         $contactIdsString = $request->request->get('contacts');
 
@@ -307,7 +343,7 @@ class EtablissementController extends AbstractController
         $contactIds = explode(',', $contactIdsString);
 
         foreach ($contactIds as $contactId) {
-            $contact = $utilisateurInformationsRepository->find($contactId);
+            $contact = $this->utilisateurInformationsRepository->find($contactId);
 
             if (null === $contact) {
                 throw new NotFoundHttpException();
@@ -333,14 +369,13 @@ class EtablissementController extends AbstractController
      */
     public function deleteContact(
         Etablissement $etablissement,
-        UtilisateurInformations $contact,
-        Contact $contactService
+        UtilisateurInformations $contact
     ): Response {
         // Suppression de l'association.
         $etablissement->removeContact($contact);
 
         // Suppression définitive du contact
-        if (!$contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
+        if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
             $this->entityManager->remove($contact);
         }
 

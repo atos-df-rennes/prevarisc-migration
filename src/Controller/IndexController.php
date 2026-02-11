@@ -8,10 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IndexController extends AbstractController
 {
-    public function footer(VersionBuilder $versionBuilder): Response
-    {
-        $versionService = $versionBuilder->build();
+    /**
+     * @var VersionBuilder
+     */
+    private $versionBuilder;
 
+    public function __construct(VersionBuilder $versionBuilder)
+    {
+        $this->versionBuilder = $versionBuilder;
+    }
+
+    public function footer(): Response
+    {
+        $versionService = $this->versionBuilder->build();
         $response = $this->render('_footer.html.twig', [
             'link' => $versionService->link(),
             'version' => $versionService->version(),

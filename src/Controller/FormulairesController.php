@@ -33,18 +33,43 @@ class FormulairesController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+    /**
+     * @var CapsuleRubriqueRepository
+     */
+    private $capsuleRubriqueRepository;
+    /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+    /**
+     * @var FormulairesImporter
+     */
+    private $formulairesImporter;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository, FormFactoryInterface $formFactory, SerializerInterface $serializer, FormulairesImporter $formulairesImporter, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
+        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
+        $this->formFactory = $formFactory;
+        $this->serializer = $serializer;
+        $this->formulairesImporter = $formulairesImporter;
+        $this->logger = $logger;
     }
 
     /**
      * @Route("/admin/formulaires", name="admin_formulaires")
      */
-    public function index(Request $request, CapsuleRubriqueRepository $capsuleRubriqueRepository, FormFactoryInterface $formFactory): Response
+    public function index(Request $request): Response
     {
-        $formulaires = $capsuleRubriqueRepository->findAllInformations();
+        $formulaires = $this->capsuleRubriqueRepository->findAllInformations();
 
         /** @var array<string, FormInterface<Rubrique>> $forms */
         $forms = [];
@@ -53,7 +78,7 @@ class FormulairesController extends AbstractController
             $rubrique->setIdx($formulaire->getRubriques()->count() + 1);
             $rubrique->setCapsuleRubrique($formulaire);
 
-            $forms[$formulaire->getNomInterne()] = $formFactory->createNamed($formulaire->getNomInterne(), RubriqueType::class, $rubrique);
+            $forms[$formulaire->getNomInterne()] = $this->formFactory->createNamed($formulaire->getNomInterne(), RubriqueType::class, $rubrique);
         }
 
         $submittedForm = $request->request->get('formulaire');
@@ -93,11 +118,11 @@ class FormulairesController extends AbstractController
     /**
      * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaires_edit_capsule_rubrique_nom")
      */
-    public function editCapsuleRubriqueNom(Request $request, CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
+    public function editCapsuleRubriqueNom(Request $request): JsonResponse
     {
         $idCapsuleRubrique = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
 
-        $capsuleRubrique = $capsuleRubriqueRepository->find($idCapsuleRubrique);
+        $capsuleRubrique = $this->capsuleRubriqueRepository->find($idCapsuleRubrique);
 
         if (null === $capsuleRubrique) {
             throw new NotFoundHttpException(\sprintf("La capsule rubrique d'identifiant %d n'existe pas.", $idCapsuleRubrique));
@@ -118,7 +143,7 @@ class FormulairesController extends AbstractController
     /**
      * @Route("/admin/formulaires/export", name="admin_formulaires_export")
      */
-    public function export(CapsuleRubriqueRepository $capsuleRubriqueRepository): JsonResponse
+    public function export(): JsonResponse
     {
         $context = [
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object, $format, $context): ?int {
@@ -137,38 +162,35 @@ class FormulairesController extends AbstractController
         ];
         $dispositions = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, 'configuration_formulaires_personnalises.json');
 
-        return $this->json($capsuleRubriqueRepository->findAll(), 200, ['Content-Disposition' => $dispositions], $context);
+        return $this->json($this->capsuleRubriqueRepository->findAll(), 200, ['Content-Disposition' => $dispositions], $context);
     }
 
     /**
      * @Route("/admin/formulaires/import", name="admin_formulaires_import")
      */
     public function import(
-        Request $request,
-        SerializerInterface $serializer,
-        FormulairesImporter $formulairesImporter,
-        LoggerInterface $logger
+        Request $request
     ): Response {
         /** @var UploadedFile $configurationFile */
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');
 
         try {
-            $this->entityManager->wrapInTransaction(function (EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration, $serializer, $formulairesImporter): void {
+            $this->entityManager->wrapInTransaction(function (EntityManagerInterface $entityManager) use ($configurationFile, $deleteExistingConfiguration): void {
                 if ($deleteExistingConfiguration) {
-                    $formulairesImporter->deleteExistingConfiguration($entityManager);
+                    $this->formulairesImporter->deleteExistingConfiguration($entityManager);
                 }
 
                 $configurationFileJsonContent = file_get_contents($configurationFile->getPathname());
                 /** @var CapsuleRubrique[] $capsulesRubriques */
-                $capsulesRubriques = $serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class.'[]', 'json');
+                $capsulesRubriques = $this->serializer->deserialize($configurationFileJsonContent, CapsuleRubrique::class.'[]', 'json');
 
-                $formulairesImporter->importConfiguration($entityManager, $capsulesRubriques);
+                $this->formulairesImporter->importConfiguration($entityManager, $capsulesRubriques);
             });
 
             $this->addFlash('success', 'La configuration a bien été importée.');
         } catch (\Exception $exception) {
-            $logger->error($exception->getMessage(), ['service' => 'Importeur de configuration de formulaires']);
+            $this->logger->error($exception->getMessage(), ['service' => 'Importeur de configuration de formulaires']);
 
             $this->addFlash('danger', "Un problème a eu lieu lors de l'import de la configuration.");
         }
