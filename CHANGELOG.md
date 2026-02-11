@@ -4,6 +4,18 @@
 
 <!--- END HEADER -->
 
+## [2.8.14](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.13...v2.8.14) (11-02-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Ressources
+
+* Prend en compte tous les types d'établissement enfant pour donner l'accès à un site (#109) ([990753](https://github.com/atos-df-rennes/prevarisc-migration/commit/9907533db70560ae65da9d979c21baf6193cadc7))
+
+
+---
+
 ## [2.8.13](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.12...v2.8.13) (29-01-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
