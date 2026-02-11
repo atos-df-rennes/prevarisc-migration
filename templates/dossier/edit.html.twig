@@ -60,7 +60,7 @@
 
     {% if platau is not null %}
         {# Informations Plat'AU #}
-        {{ include('dossier/_platau_info.html.twig') }}
+        {{ include('dossier/_platau_info.html.twig', {isEdit: true}) }}
 
         {% if form.piecesJointesPlatau.vars.choices is not empty %}
             {# Badge d'alerte pour sélection des pièces jointes Plat'AU (masqué par défaut) #}

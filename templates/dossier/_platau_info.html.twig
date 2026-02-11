@@ -28,6 +28,7 @@
                     date_pec: platau.date_pec,
                     date_avis: platau.date_avis,
                     dossier_incomplet: dossier.incomplet|default(null),
+                    isEdit: isEdit
                 }) }}
             </div>
         </li>
@@ -39,6 +40,7 @@
                     type: 'avis',
                     statut: platau.statut_avis,
                     date_avis: platau.date_avis,
+                    isEdit: isEdit
                 }) }}
             </div>
         </li>

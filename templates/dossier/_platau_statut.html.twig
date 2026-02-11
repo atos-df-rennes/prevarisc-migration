@@ -17,9 +17,10 @@
 {% endif %}
 
 {# Bouton retry PEC : si PRISE_EN_COMPTE et date_avis null #}
-{% if type == 'pec'
-   and statut == constant('App\\Enum\\PlatauStatutPecEnum::PRISE_EN_COMPTE')
-   and date_avis is null %}
+{% if isEdit
+    and type == 'pec'
+    and statut == constant('App\\Enum\\PlatauStatutPecEnum::PRISE_EN_COMPTE')
+    and date_avis is null %}
     <button type="button"
             id="retry-export-pec"
             class="btn btn-warning btn-xs"
@@ -31,8 +32,9 @@
 {% endif %}
 
 {# Bouton retry Avis : si TRAITE #}
-{% if type == 'avis'
-   and statut == constant('App\\Enum\\PlatauStatutAvisEnum::TRAITE') %}
+{% if isEdit
+    and type == 'avis'
+    and statut == constant('App\\Enum\\PlatauStatutAvisEnum::TRAITE') %}
     <button type="button"
             id="retry-export-avis"
             class="btn btn-warning btn-xs"
@@ -43,7 +45,9 @@
     </button>
 {% endif %}
 
-{% if type == 'pec' and statut == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') and dossier_incomplet is null %}
+{% if type == 'pec'
+    and statut == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE')
+    and dossier_incomplet is null %}
     <div>
         <span class='glyphicon glyphicon-info-sign'></span>
         L'état du dossier est actuellement inconnu dans Prevarisc. Veuillez modifier le dossier pour le renseigner.

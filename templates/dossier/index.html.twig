@@ -14,7 +14,7 @@
 
         {% if platau is not null %}
             {# Informations Plat'AU #}
-            {{ include('dossier/_platau_info.html.twig') }}
+            {{ include('dossier/_platau_info.html.twig', {isEdit: false}) }}
         {% endif %}
 
         <section>
