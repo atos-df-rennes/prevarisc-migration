@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Etablissement;
 
 use App\Entity\Etablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class EtablissementZoneVoter extends EtablissementVoter
+class EtablissementCelluleVoter extends EtablissementVoter
 {
-    public const ID_ZONE = 10;
+    public const ID_CELLULE = 3;
 
     /**
      * @var ResourcesRepository
@@ -30,7 +30,7 @@ class EtablissementZoneVoter extends EtablissementVoter
     protected function supports($attribute, $subject): bool
     {
         return parent::supports($attribute, $subject)
-            && parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
+            && parent::isSubjectGenreAllowed($subject, self::ID_CELLULE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -40,7 +40,7 @@ class EtablissementZoneVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementZone($subject->getLatestInformations()->getClassement());
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule($subject->getLatestInformations()->getTypeActivite());
         if ([] === $resources) {
             return false;
         }

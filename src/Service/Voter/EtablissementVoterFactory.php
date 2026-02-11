@@ -2,15 +2,15 @@
 
 namespace App\Service\Voter;
 
-use App\Security\Voter\EtablissementBupVoter;
-use App\Security\Voter\EtablissementCampingVoter;
-use App\Security\Voter\EtablissementCelluleVoter;
-use App\Security\Voter\EtablissementErpVoter;
-use App\Security\Voter\EtablissementHabitationVoter;
-use App\Security\Voter\EtablissementIghVoter;
-use App\Security\Voter\EtablissementIopVoter;
-use App\Security\Voter\EtablissementManifestationTemporaireVoter;
-use App\Security\Voter\EtablissementZoneVoter;
+use App\Security\Voter\Etablissement\EtablissementBupVoter;
+use App\Security\Voter\Etablissement\EtablissementCampingVoter;
+use App\Security\Voter\Etablissement\EtablissementCelluleVoter;
+use App\Security\Voter\Etablissement\EtablissementErpVoter;
+use App\Security\Voter\Etablissement\EtablissementHabitationVoter;
+use App\Security\Voter\Etablissement\EtablissementIghVoter;
+use App\Security\Voter\Etablissement\EtablissementIopVoter;
+use App\Security\Voter\Etablissement\EtablissementManifestationTemporaireVoter;
+use App\Security\Voter\Etablissement\EtablissementZoneVoter;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 /**

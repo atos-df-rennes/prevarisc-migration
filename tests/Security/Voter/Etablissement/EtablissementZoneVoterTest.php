@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Security\Voter;
+namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Entity\Classement;
 use App\Entity\Etablissement;
@@ -12,8 +12,8 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Security\Voter\EtablissementVoter;
-use App\Security\Voter\EtablissementZoneVoter;
+use App\Security\Voter\Etablissement\EtablissementVoter;
+use App\Security\Voter\Etablissement\EtablissementZoneVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

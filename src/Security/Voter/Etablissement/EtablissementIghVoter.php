@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Etablissement;
 
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
@@ -9,9 +9,9 @@ use App\Repository\ResourcesRepository;
 use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class EtablissementErpVoter extends EtablissementVoter
+class EtablissementIghVoter extends EtablissementVoter
 {
-    public const ID_ERP = 2;
+    public const ID_IGH = 5;
 
     /** @var ResourcesRepository */
     private $resourcesRepository;
@@ -31,7 +31,7 @@ class EtablissementErpVoter extends EtablissementVoter
 
     protected function supports($attribute, $subject): bool
     {
-        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, self::ID_ERP);
+        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, self::ID_IGH);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -41,10 +41,7 @@ class EtablissementErpVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementErp(
-            $subject->getLatestInformations()->getTypeActivite(),
-            $subject->getLatestInformations()->getCategorie()
-        );
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementIgh($subject->getLatestInformations()->getClasse());
         if ([] === $resources) {
             return false;
         }
@@ -63,20 +60,17 @@ class EtablissementErpVoter extends EtablissementVoter
             }
 
             $parts = explode('_', $resourceName);
-            if (7 !== count($parts)) {
+            if (6 !== count($parts)) {
                 continue;
             }
 
-            $typesActivites = array_map('intval', explode('-', $parts[2]));
-            $categories = array_map('intval', explode('-', $parts[3]));
-            $useUserCommissions = (int) $parts[4];
-            $useUserGroupements = (int) $parts[5];
-            $useUserCommune = (int) $parts[6];
+            $useUserCommissions = (int) $parts[3];
+            $useUserGroupements = (int) $parts[4];
+            $useUserCommune = (int) $parts[5];
 
             if (
                 $privilege
                 && $userPrivileges->contains($privilege)
-                && $this->voterUtils->isTypeActiviteAndCategorieAllowed($subject, $typesActivites, $categories)
                 && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
                 && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions)
             ) {

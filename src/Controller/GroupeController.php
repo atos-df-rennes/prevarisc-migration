@@ -13,7 +13,7 @@ use App\Repository\GroupeRepository;
 use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
 use App\Security\Voter\DossierVoter;
-use App\Security\Voter\EtablissementVoter;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierNameGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
