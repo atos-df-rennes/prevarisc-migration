@@ -58,13 +58,10 @@
 
     <h3>Informations générales</h3>
 
-    {# Informations Plat'AU #}
-    {{ include('dossier/_platau_info.html.twig') }}
+    {% if platau is not null %}
+        {# Informations Plat'AU #}
+        {{ include('dossier/_platau_info.html.twig') }}
 
-    {% if
-        platau is not null
-        and form.piecesJointesPlatau is defined
-    %}
         {% if form.piecesJointesPlatau.vars.choices is not empty %}
             {# Badge d'alerte pour sélection des pièces jointes Plat'AU (masqué par défaut) #}
             <span class="label label-warning hidden" id="badge-alerte-platau">
@@ -480,8 +477,11 @@
                 </div>
             </li>
 
-            {# Bloc pièces jointes Plat'AU - affiché dynamiquement par JS #}
-            {{ include('dossier/_platau_pieces_jointes.html.twig') }}
+            {% do form.piecesJointesPlatau.setRendered %}
+            {% if platau is not null %}
+                {# Bloc pièces jointes Plat'AU - affiché dynamiquement par JS #}
+                {{ include('dossier/_platau_pieces_jointes.html.twig') }}
+            {% endif %}
 
             {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
             <li class='row' id='field-facteurDangerosite'>

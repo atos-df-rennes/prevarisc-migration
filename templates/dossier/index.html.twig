@@ -12,8 +12,10 @@
 
         <h3>Informations générales</h3>
 
-        {# Informations Plat'AU #}
-        {{ include('dossier/_platau_info.html.twig') }}
+        {% if platau is not null %}
+            {# Informations Plat'AU #}
+            {{ include('dossier/_platau_info.html.twig') }}
+        {% endif %}
 
         <section>
             <h4>Type et nature du dossier</h4>
