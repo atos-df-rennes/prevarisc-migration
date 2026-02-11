@@ -255,7 +255,6 @@
                 $('#' + CONFIG.selectors.modalName).data('date-observer', observer);
 
                 $('#commission_dates_withPeriodicite').on('click', function () {
-                    $('#' + CONFIG.selectors.modalName).find('.add-collection-widget').toggleClass('hidden')
                     $('#commission_dates_dateFin').closest('.form-group').toggleClass('hidden')
                     $('#commission_dates_periodicite').closest('.form-group').toggleClass('hidden')
                 })

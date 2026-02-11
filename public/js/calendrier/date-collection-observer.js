@@ -2,7 +2,7 @@ class DateCollectionObserver {
     constructor($collectionContainer, $planificationCheckbox) {
         this.$collection = $collectionContainer;
         this.$checkbox = $planificationCheckbox;
-        this.$addButton = $collectionContainer.nextAll('.add-collection-btn').first();
+        this.$addButton = $collectionContainer.next().find('.add-collection-widget');
 
         this.init();
     }
@@ -51,7 +51,6 @@ class DateCollectionObserver {
         if (dateCount === 1) {
             // Une seule date : afficher la checkbox, masquer le bouton d'ajout
             this.showCheckbox();
-            this.hideAddButton();
         } else if (dateCount > 1) {
             // Plusieurs dates : masquer la checkbox et son contenu
             this.hideCheckbox();
