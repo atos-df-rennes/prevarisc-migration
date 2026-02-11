@@ -25,6 +25,7 @@ class CouchesCartographiquesController extends AbstractController
 
     /** @var LoggerInterface */
     private $logger;
+
     /**
      * @var CoucheCartoRepository
      */

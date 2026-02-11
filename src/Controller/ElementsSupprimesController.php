@@ -18,6 +18,7 @@ class ElementsSupprimesController extends AbstractController
      * @var EtablissementRepository
      */
     private $etablissementRepository;
+
     /**
      * @var DossierRepository
      */

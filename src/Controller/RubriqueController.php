@@ -25,10 +25,12 @@ class RubriqueController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+
     /**
      * @var RubriqueRepository
      */
     private $rubriqueRepository;
+
     /**
      * @var ChampValeurListeRepository
      */

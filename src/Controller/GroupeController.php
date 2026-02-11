@@ -35,22 +35,27 @@ class GroupeController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+
     /**
      * @var GroupeRepository
      */
     private $groupeRepository;
+
     /**
      * @var UtilisateurRepository
      */
     private $utilisateurRepository;
+
     /**
      * @var ResourcesRepository
      */
     private $resourcesRepository;
+
     /**
      * @var RessourcesSpecialiseesDossierTextGenerator
      */
     private $ressourcesSpecialiseesDossierTextGenerator;
+
     /**
      * @var RessourcesSpecialiseesEtablissementTextGenerator
      */

@@ -23,14 +23,17 @@ class TableauDesPeriodicitesController extends AbstractController
      * @var PeriodiciteRepository
      */
     private $periodiciteRepository;
+
     /**
      * @var EtablissementTypeRepository
      */
     private $etablissementTypeRepository;
+
     /**
      * @var EtablissementCategorieRepository
      */
     private $etablissementCategorieRepository;
+
     /**
      * @var IghClasseRepository
      */

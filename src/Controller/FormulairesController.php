@@ -33,22 +33,27 @@ class FormulairesController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+
     /**
      * @var CapsuleRubriqueRepository
      */
     private $capsuleRubriqueRepository;
+
     /**
      * @var FormFactoryInterface
      */
     private $formFactory;
+
     /**
      * @var SerializerInterface
      */
     private $serializer;
+
     /**
      * @var FormulairesImporter
      */
     private $formulairesImporter;
+
     /**
      * @var LoggerInterface
      */

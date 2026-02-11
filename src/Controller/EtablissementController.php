@@ -49,30 +49,37 @@ class EtablissementController extends AbstractController
 
     /** @var EntityManagerInterface */
     private $entityManager;
+
     /**
      * @var CoucheCartoRepository
      */
     private $coucheCartoRepository;
+
     /**
      * @var PeriodiciteRepository
      */
     private $periodiciteRepository;
+
     /**
      * @var GroupementRepository
      */
     private $groupementRepository;
+
     /**
      * @var DataStore
      */
     private $dataStore;
+
     /**
      * @var SerializerInterface
      */
     private $serializer;
+
     /**
      * @var UtilisateurInformationsRepository
      */
     private $utilisateurInformationsRepository;
+
     /**
      * @var Contact
      */

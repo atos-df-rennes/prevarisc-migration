@@ -27,14 +27,17 @@ class DocumentsController extends AbstractController
 {
     /** @var LoggerInterface */
     private $logger;
+
     /**
      * @var CommissionRepository
      */
     private $commissionRepository;
+
     /**
      * @var CommissionDocumentBuilder
      */
     private $commissionDocumentBuilder;
+
     /**
      * @var Filesystem
      */

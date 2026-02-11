@@ -20,6 +20,7 @@ class AdminController extends AbstractController
      * @var UtilisateurRepository
      */
     private $utilisateurRepository;
+
     /**
      * @var VersionBuilder
      */
