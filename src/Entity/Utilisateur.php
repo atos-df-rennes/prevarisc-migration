@@ -34,7 +34,7 @@ class Utilisateur implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true, nullable=false)
+     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, nullable=false)
      *
      * @Assert\NotNull(message="Le nom d'utilisateur ne doit pas être null.")
      */

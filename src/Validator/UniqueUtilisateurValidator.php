@@ -52,9 +52,9 @@ final class UniqueUtilisateurValidator extends ConstraintValidator
                     ->atPath('username')
                     ->addViolation()
                 ;
-
-                return;
             }
+
+            return;
         }
 
         // Cas 2 : Login vide → vérifier unicité du mail
