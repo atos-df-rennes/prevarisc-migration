@@ -106,7 +106,7 @@ class MailerConfiguration
 
         // Authentification si username ET password renseignés
         if ('' !== $this->username && '' !== $this->password) {
-            $dsn .= urlencode($this->username).':'.urlencode($this->password).'@';
+            $dsn .= rawurlencode($this->username).':'.rawurlencode($this->password).'@';
         }
 
         // Hôte (requis)
