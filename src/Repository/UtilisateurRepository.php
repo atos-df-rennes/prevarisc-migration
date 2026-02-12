@@ -131,11 +131,13 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
      */
     public function createPreventionnistesQueryBuilder(): QueryBuilder
     {
+        // @todo: utiliser la mécanique d'affichage des actifs + sélectionnés mises en place sur l'édition de dossier
         return $this->createQueryBuilder('u')
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')
             ->where('f.id = :fonction')
             ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
-            ->orderBy('u.id', 'ASC');
+            ->orderBy('i.nom', 'ASC')
+            ->addOrderBy('i.prenom', 'ASC');
     }
 }
