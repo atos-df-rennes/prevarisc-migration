@@ -626,14 +626,8 @@ final class Etablissement
     /**
      * Rétablit un établissement supprimé en remettant à null les champs de suppression.
      */
-    public function restore(int $idEtablissement): void
+    public function restore(EtablissementEntity $etablissement): void
     {
-        $etablissement = $this->etablissementRepository->find($idEtablissement);
-
-        if (!$etablissement instanceof EtablissementEntity) {
-            throw new \InvalidArgumentException(sprintf('L\'établissement avec l\'ID %d n\'existe pas.', $idEtablissement));
-        }
-
         $etablissement->setDateSuppression(null);
         $etablissement->setDeletedBy(null);
 

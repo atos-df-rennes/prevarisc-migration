@@ -25,14 +25,8 @@ final class Dossier
     /**
      * Rétablit un dossier supprimé en remettant à null les champs de suppression.
      */
-    public function restore(int $idDossier): void
+    public function restore(DossierEntity $dossier): void
     {
-        $dossier = $this->dossierRepository->find($idDossier);
-
-        if (!$dossier instanceof DossierEntity) {
-            throw new \InvalidArgumentException(sprintf("Le dossier avec l'ID %d n'existe pas.", $idDossier));
-        }
-
         $dossier->setDateSuppression(null);
         $dossier->setDeletedBy(null);
 

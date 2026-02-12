@@ -2,14 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Dossier;
+use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Dossier as DossierService;
 use App\Service\Etablissement as EtablissementService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")
@@ -36,16 +40,21 @@ class ElementsSupprimesController extends AbstractController
      */
     private $dossierService;
 
+    /** @var \Symfony\Component\Routing\Generator\UrlGeneratorInterface */
+    private $urlGenerator;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         EtablissementService $etablissementService,
-        DossierService $dossierService
+        DossierService $dossierService,
+        UrlGeneratorInterface $urlGenerator
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->etablissementService = $etablissementService;
         $this->dossierService = $dossierService;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -63,44 +72,32 @@ class ElementsSupprimesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/elements-supprimes/restore-dossier/{id}", name="admin_elements_supprimes_restore_dossier", requirements={"id"="\d+"})
+     * @Route("/admin/elements-supprimes/dossier/restaurer/{id}", name="admin_elements_supprimes_restore_dossier", requirements={"id"="\d+"})
      *
-     * @Security("is_granted('delete_dossier')")
+     * @IsGranted("delete_dossier")
      */
-    public function restoreDossier(int $id): Response
+    public function restoreDossier(Dossier $id): Response
     {
-        try {
-            $this->dossierService->restore($id);
-
-            $this->addFlash('success', 'Le dossier a bien été rétabli.');
-        } catch (\InvalidArgumentException $invalidArgumentException) {
-            $this->addFlash('error', $invalidArgumentException->getMessage());
-
-            return $this->redirectToRoute('admin_elements_supprimes');
-        }
+        $this->dossierService->restore($id);
+        $this->addFlash('success', 'Le dossier a bien été rétabli.');
 
         // Redirection vers le LegacyController pour nettoyer le cache
-        return $this->redirect('/legacy/clear-cache-and-redirect?target='.urlencode('/admin/elements-supprimes'));
+        $target = $this->urlGenerator->generate('admin_elements_supprimes');
+        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$target);
     }
 
     /**
-     * @Route("/admin/elements-supprimes/restore-etablissement/{id}", name="admin_elements_supprimes_restore_etablissement", requirements={"id"="\d+"})
+     * @Route("/admin/elements-supprimes/etablissement/restaurer/{id}", name="admin_elements_supprimes_restore_etablissement", requirements={"id"="\d+"})
      *
-     * @Security("is_granted('delete_etablissement')")
+     * @IsGranted("delete_etablissement")
      */
-    public function restoreEtablissement(int $id): Response
+    public function restoreEtablissement(Etablissement $id): Response
     {
-        try {
-            $this->etablissementService->restore($id);
-
-            $this->addFlash('success', 'L\'établissement a bien été rétabli.');
-        } catch (\InvalidArgumentException $invalidArgumentException) {
-            $this->addFlash('error', $invalidArgumentException->getMessage());
-
-            return $this->redirectToRoute('admin_elements_supprimes');
-        }
+        $this->etablissementService->restore($id);
+        $this->addFlash('success', 'L\'établissement a bien été rétabli.');
 
         // Redirection vers le LegacyController pour nettoyer le cache
-        return $this->redirect('/legacy/clear-cache-and-redirect?target='.urlencode('/admin/elements-supprimes'));
+        $target = $this->urlGenerator->generate('admin_elements_supprimes');
+        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$target);
     }
 }
