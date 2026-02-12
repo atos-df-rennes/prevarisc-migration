@@ -8,7 +8,6 @@ use App\Form\AddExistingContactsType;
 use App\Form\ContactType;
 use App\Form\GroupementType as GroupementFormType;
 use App\Repository\CommuneRepository;
-use App\Repository\GroupementRepository;
 use App\Repository\GroupementTypeRepository;
 use App\Service\Contact;
 use App\Service\GroupementCommunes;
@@ -35,20 +34,41 @@ class GroupementController extends AbstractController
     /** @var CommuneRepository */
     private $communeRepository;
 
+    /**
+     * @var GroupementTypeRepository
+     */
+    private $groupementTypeRepository;
+
+    /**
+     * @var GroupementCommunes
+     */
+    private $groupementCommunes;
+
+    /**
+     * @var Contact
+     */
+    private $contactService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository
+        CommuneRepository $communeRepository,
+        GroupementTypeRepository $groupementTypeRepository,
+        GroupementCommunes $groupementCommunes,
+        Contact $contactService
     ) {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
+        $this->groupementTypeRepository = $groupementTypeRepository;
+        $this->groupementCommunes = $groupementCommunes;
+        $this->contactService = $contactService;
     }
 
     /**
      * @Route("/admin/groupements", name="admin_groupement")
      */
-    public function index(Request $request, GroupementTypeRepository $groupementTypeRepository): Response
+    public function index(Request $request): Response
     {
-        $groupementTypes = $groupementTypeRepository->findAll();
+        $groupementTypes = $this->groupementTypeRepository->findAll();
         $communes = $this->communeRepository->findAll();
 
         // Récupérer l'ID du groupement à présélectionner (peut être string ou int)
@@ -95,7 +115,7 @@ class GroupementController extends AbstractController
     /**
      * @Route("/admin/groupements/{id}/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
      */
-    public function formByScope(Groupement $groupement, string $scope, Request $request, GroupementCommunes $groupementCommunes): Response
+    public function formByScope(Groupement $groupement, string $scope, Request $request): Response
     {
         $form = $this->createForm(GroupementFormType::class, $groupement, [
             'scopes' => [$scope]
@@ -109,7 +129,7 @@ class GroupementController extends AbstractController
             if ($form->has('reaffectationAutomatique')) {
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
                 if ('1' === $reaffectationAutomatique) {
-                    $groupementCommunes->reaffectationPreventioniste($groupement);
+                    $this->groupementCommunes->reaffectationPreventioniste($groupement);
                 }
             }
 
@@ -253,8 +273,7 @@ class GroupementController extends AbstractController
     public function deleteContact(
         Request $request,
         Groupement $groupement,
-        UtilisateurInformations $contact,
-        Contact $contactService
+        UtilisateurInformations $contact
     ): Response {
         $form = $this->createFormBuilder()
             ->setMethod(Request::METHOD_DELETE)
@@ -269,7 +288,7 @@ class GroupementController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $groupement->removeContact($contact);
 
-            if (!$contactService->isUsed($contact, Contact::GROUPEMENT)) {
+            if (!$this->contactService->isUsed($contact, Contact::GROUPEMENT)) {
                 $this->entityManager->remove($contact);
             }
 
