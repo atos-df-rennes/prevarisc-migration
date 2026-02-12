@@ -11,6 +11,7 @@ use App\Service\Etablissement as EtablissementService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -76,14 +77,13 @@ class ElementsSupprimesController extends AbstractController
      *
      * @IsGranted("delete_dossier")
      */
-    public function restoreDossier(Dossier $id): Response
+    public function restoreDossier(Request $request, Dossier $id): Response
     {
         $this->dossierService->restore($id);
         $this->addFlash('success', 'Le dossier a bien été rétabli.');
 
         // Redirection vers le LegacyController pour nettoyer le cache
-        $target = $this->urlGenerator->generate('admin_elements_supprimes');
-        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$target);
+        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$request->headers->get('referer'));
     }
 
     /**
