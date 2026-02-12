@@ -45,7 +45,9 @@
                             return query.length > 2;
                         },
                         load: function(query, callback) {
-                            fetch('/contacts/' + encodeURIComponent(query))
+                            const contactsSearchUrlTemplate = "{{ path('contact_autocomplete', {search: '__QUERY__'}) }}";
+                            const url = contactsSearchUrlTemplate.replace('__QUERY__', encodeURIComponent(query));
+                            fetch(url)
                                 .then(response => response.json())
                                 .then(json => {
                                     callback(json.map(contact => {
