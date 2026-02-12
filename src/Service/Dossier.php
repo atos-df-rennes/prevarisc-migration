@@ -8,9 +8,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class Dossier
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
-
     /** @var EntityManagerInterface */
     private $entityManager;
 
@@ -18,7 +15,6 @@ final class Dossier
         DossierRepository $dossierRepository,
         EntityManagerInterface $entityManager
     ) {
-        $this->dossierRepository = $dossierRepository;
         $this->entityManager = $entityManager;
     }
 
