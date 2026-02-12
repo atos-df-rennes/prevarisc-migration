@@ -38,6 +38,10 @@ class ContactController extends AbstractController
                 $redirectRoute = 'etablissement_contacts';
 
                 break;
+            case Contact::GROUPEMENT:
+                $redirectRoute = 'admin_groupement';
+
+                break;
             default:
                 $redirectRoute = null;
 
@@ -67,6 +71,7 @@ class ContactController extends AbstractController
 
         return $this->render('contact/form.html.twig', [
             'form' => $form->createView(),
+            'is_edit' => true,
         ]);
     }
 

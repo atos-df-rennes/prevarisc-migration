@@ -1,0 +1,97 @@
+{{ form_start(form, {attr: {id: 'form-general'}, action: path('admin_groupement_form_scope', {id: groupement.id, scope: 'general'})}) }}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            {{ form_label(form.libelle, null, {label_attr: {class: 'control-label'}}) }}
+            {{ form_widget(form.libelle, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.libelle) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.type, null, {label_attr: {class: 'control-label'}}) }}
+            {{ form_widget(form.type, {attr: {class: 'form-control'}}) }}
+            {{ form_errors(form.type) }}
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group">
+            {% do form.communes.setRendered %}
+            <label class="control-label" for="villes_groupement">Villes du groupement</label>
+            <div class="clearfix"></div>
+
+            <select id="liste_villes" multiple size=20 class="col-md-5" aria-label="Liste des communes disponibles">
+                {% for ville in villes %}
+                    <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="btn-group btn-group-vertical col-md-1">
+                <button id="add_ville" type="button" class="btn" aria-label="Ajouter les communes sélectionnées"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                <button id="remove_ville" type="button" class="btn" aria-label="Retirer les communes sélectionnées"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            </div>
+
+            <select id="villes_groupement" name="groupement[communes][]" class="col-md-5" multiple size=20 >
+                {% if groupement.communes is iterable %}
+                    {% for ville in groupement.communes %}
+                        <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+    </div>
+</div>
+
+{{ form_rest(form) }}
+
+<div class="form-group mt-3 text-right">
+    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+</div>
+{{ form_end(form) }}
+
+<script type="text/javascript">
+    function attachGeneralHandlers() {
+
+        // Ajouter une ville au groupement
+        $('#add_ville').on('click', function() {
+            $('#liste_villes option:selected').each(function() {
+                var option = $(this).clone();
+                $('#villes_groupement').append(option);
+                $(this).attr("disabled","disabled").removeAttr("selected");
+            });
+            $('#liste_villes').change();
+        });
+
+        // Retirer une ville du groupement
+        $('#remove_ville').on('click', function() {
+            $('#villes_groupement option:selected').each(function() {
+                $(this).remove();
+                $("#liste_villes option[value=" + $(this).val() + "]").removeAttr("disabled");
+            });
+            $('#liste_villes').change();
+            $('#villes_groupement').change();
+        });
+
+        // Gestion des boutons du milieux
+        $("#liste_villes, #villes_groupement").change(function() {
+            if( $(this).children(":selected").length == 0 )
+                $( (($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville") ).button("disable");
+            else
+                $( (($(this).attr("id") == "liste_villes") ? "#add_ville" : "#remove_ville") ).button("enable");
+        });
+    }
+
+    function initGeneralForm() {
+        // On cache les villes déjà selectionnées
+        $("#villes_groupement option").each( function() {
+            $( "#liste_villes option[id='" + $(this).attr("id")  + "']" ).attr("disabled","disabled");
+        });
+    }
+
+    // Attacher les handlers au chargement initial
+    $(document).ready(function() {
+        initGeneralForm();
+        attachGeneralHandlers();
+    });
+</script>

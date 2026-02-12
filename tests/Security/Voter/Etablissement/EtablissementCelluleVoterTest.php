@@ -163,7 +163,7 @@ class EtablissementCelluleVoterTest extends TestCase
         // On simule le type d'activité de la cellule à 1
         $this->privilegesRepository
             ->method('findOneBy')
-            ->willReturnCallback(function ($criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
+            ->willReturnCallback(function (array $criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
                 // On accorde le privilège si la ressource est l'une des deux
                 if ($criteria['resource'] === $resourceSingle || $criteria['resource'] === $resourceMulti) {
                     return $privilege;
