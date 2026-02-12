@@ -37,10 +37,9 @@
                                 {% endfor %}
                             </div>
 
-                            {# @todo: Faire le rétablissement #}
                             <a
                                 class='btn btn-default btn-sm deleted-element__restore-button'
-                                href="{{ '/etablissement/retablir-etablissement/idEtablissement/' ~ etablissement.id }}"
+                                href="{{ path('admin_elements_supprimes_restore_etablissement', {id: etablissement.id}) }}"
                             >
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                 Rétablir l'établissement

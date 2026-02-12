@@ -2,12 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\Dossier;
+use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
+use App\Service\Dossier as DossierService;
+use App\Service\Etablissement as EtablissementService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")
@@ -24,10 +31,31 @@ class ElementsSupprimesController extends AbstractController
      */
     private $dossierRepository;
 
-    public function __construct(EtablissementRepository $etablissementRepository, DossierRepository $dossierRepository)
-    {
+    /**
+     * @var EtablissementService
+     */
+    private $etablissementService;
+
+    /**
+     * @var DossierService
+     */
+    private $dossierService;
+
+    /** @var UrlGeneratorInterface */
+    private $urlGenerator;
+
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        DossierRepository $dossierRepository,
+        EtablissementService $etablissementService,
+        DossierService $dossierService,
+        UrlGeneratorInterface $urlGenerator
+    ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
+        $this->etablissementService = $etablissementService;
+        $this->dossierService = $dossierService;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -42,5 +70,35 @@ class ElementsSupprimesController extends AbstractController
             'etablissements_supprimes' => $etablissementsSupprimes,
             'dossiers_supprimes' => $dossiersSupprimes,
         ]);
+    }
+
+    /**
+     * @Route("/admin/elements-supprimes/dossier/restaurer/{id}", name="admin_elements_supprimes_restore_dossier", requirements={"id"="\d+"})
+     *
+     * @IsGranted("delete_dossier")
+     */
+    public function restoreDossier(Request $request, Dossier $id): Response
+    {
+        $this->dossierService->restore($id);
+        $this->addFlash('success', 'Le dossier a bien été rétabli.');
+
+        // Redirection vers le LegacyController pour nettoyer le cache
+        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$request->headers->get('referer'));
+    }
+
+    /**
+     * @Route("/admin/elements-supprimes/etablissement/restaurer/{id}", name="admin_elements_supprimes_restore_etablissement", requirements={"id"="\d+"})
+     *
+     * @IsGranted("delete_etablissement")
+     */
+    public function restoreEtablissement(Etablissement $id): Response
+    {
+        $this->etablissementService->restore($id);
+        $this->addFlash('success', 'L\'établissement a bien été rétabli.');
+
+        // Redirection vers le LegacyController pour nettoyer le cache
+        $target = $this->urlGenerator->generate('admin_elements_supprimes');
+
+        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$target);
     }
 }

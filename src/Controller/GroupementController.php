@@ -180,7 +180,7 @@ class GroupementController extends AbstractController
 
                 $this->addFlash('success', 'Le groupement a été supprimé.');
             } catch (\Exception $exception) {
-                $this->addFlash('error', $exception->getMessage());
+                $this->addFlash('danger', $exception->getMessage());
             }
 
             return $this->redirectToRoute('admin_groupement');

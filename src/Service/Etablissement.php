@@ -19,6 +19,7 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -47,6 +48,9 @@ final class Etablissement
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
@@ -54,7 +58,8 @@ final class Etablissement
         EtablissementPieceJointeRepository $etablissementPJRepository,
         DataStore $dataStore,
         ParameterBagInterface $parameterBag,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EntityManagerInterface $entityManager
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
@@ -63,6 +68,7 @@ final class Etablissement
         $this->dataStore = $dataStore;
         $this->parameterBag = $parameterBag;
         $this->logger = $logger;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -615,5 +621,16 @@ final class Etablissement
         }
 
         return false;
+    }
+
+    /**
+     * Rétablit un établissement supprimé en remettant à null les champs de suppression.
+     */
+    public function restore(EtablissementEntity $etablissement): void
+    {
+        $etablissement->setDateSuppression(null);
+        $etablissement->setDeletedBy(null);
+
+        $this->entityManager->flush();
     }
 }
