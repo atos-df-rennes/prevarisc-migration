@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @IsGranted("admin")
@@ -18,9 +17,19 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class FusionDesCommunesController extends AbstractController
 {
     /**
+     * @var FusionDesCommunes
+     */
+    private $fusionDesCommunes;
+
+    public function __construct(FusionDesCommunes $fusionDesCommunes)
+    {
+        $this->fusionDesCommunes = $fusionDesCommunes;
+    }
+
+    /**
      * @Route("/admin/fusion-des-communes", name="admin_fusion_des_communes")
      */
-    public function index(Request $request, ValidatorInterface $validator, FusionDesCommunes $fusionDesCommunes): Response
+    public function index(Request $request): Response
     {
         $form = $this->createForm(FusionDesCommunesType::class);
 
@@ -30,7 +39,7 @@ class FusionDesCommunesController extends AbstractController
             $fichier = $form->get('fichier')->getData();
 
             try {
-                $fusionDesCommunes->fusionner(file_get_contents($fichier));
+                $this->fusionDesCommunes->fusionner(file_get_contents($fichier));
             } catch (\Exception $exception) {
                 $this->addFlash('danger', $exception->getMessage());
 

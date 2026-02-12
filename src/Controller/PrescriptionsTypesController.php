@@ -73,12 +73,17 @@ class PrescriptionsTypesController extends AbstractController
      */
     public function reOrder(Request $request): Response
     {
-        $order = $request->get('order');
+        $orders = $request->get('order');
         $type = $request->get('type');
 
-        if (!is_array($order)) {
+        if (!is_array($orders)) {
             throw new BadRequestHttpException("Le paramètre order n'est pas valide");
         }
+
+        /** @var array<int, string> $orders */
+        $order = array_map(function (string $identifiant): int {
+            return (int) $identifiant;
+        }, $orders);
 
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);
@@ -181,9 +186,9 @@ class PrescriptionsTypesController extends AbstractController
     /**
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}", name="admin_prescriptions_types_texte_voir_articles")
      */
-    public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticleRepository $prescriptionArticleRepository, Prescriptions $prescriptions): Response
+    public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte): Response
     {
-        $articles = $prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
+        $articles = $this->prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
 
         return $this->render('prescriptions_types/voir_texte.html.twig', [
             'articles' => $articles,
@@ -251,6 +256,8 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_textes_ajouter")
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_texte_modifier")
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_ajouter")
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_modifier")
      *
@@ -263,7 +270,7 @@ class PrescriptionsTypesController extends AbstractController
         Request $request,
         PrescriptionCategorie $categorie,
         PrescriptionTexte $texte,
-        PrescriptionArticle $article,
+        ?PrescriptionArticle $article = null,
         ?PrescriptionType $prescription = null
     ): Response {
         $actionUrl = $this->getCurrentUrl($request);
@@ -271,11 +278,16 @@ class PrescriptionsTypesController extends AbstractController
         if (null === $prescription) {
             $maxNumCat = $this->prescriptionTypeRepository->recupMaxNumCat();
 
+            $articleId = 0;
+            if (null !== $article) {
+                $articleId = $article->getId();
+            }
+
             $prescription = new PrescriptionType();
             $prescription
                 ->setCategorie($categorie->getId())
                 ->setTexte($texte->getId())
-                ->setArticle($article->getId())
+                ->setArticle($articleId)
                 ->setNumero($maxNumCat + 1)
             ;
         }
@@ -296,6 +308,7 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->render('prescriptions_types/form_prescription.html.twig', [
+            'texte' => $texte,
             'article' => $article,
             'prescription' => $prescription,
             'form' => $form->createView(),
@@ -303,6 +316,7 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_texte_supprimer")
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_supprimer")
      *
      * @ParamConverter("categorie", options={"id" = "categorie"})
@@ -314,8 +328,8 @@ class PrescriptionsTypesController extends AbstractController
         Request $request,
         PrescriptionCategorie $categorie,
         PrescriptionTexte $texte,
-        PrescriptionArticle $article,
-        PrescriptionType $prescription
+        PrescriptionType $prescription,
+        ?PrescriptionArticle $article = null
     ): Response {
         $form = $this->createFormBuilder(null, [
             'action' => $this->getCurrentUrl($request),

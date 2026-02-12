@@ -22,16 +22,20 @@ class SimpleFileDataStore implements DataStore
     protected $etablissementRepository;
 
     /** @var string */
-    protected $realDataPath;
+    protected $dataPath;
 
     /** @var string */
-    protected $dataPath;
+    protected $realDataPath;
 
     /**
      * @param array<string>|null $options
      */
-    public function __construct(EtablissementRepository $etablissementRepository, ?array $options = null)
-    {
+    public function __construct(
+        EtablissementRepository $etablissementRepository,
+        string $dataPath,
+        string $realDataPath,
+        ?array $options = null
+    ) {
         $this->types = [
             'etablissement' => 'pieces jointes',
             'etablissement_minature' => 'pieces jointes/miniatures',
@@ -47,8 +51,8 @@ class SimpleFileDataStore implements DataStore
         }
 
         $this->etablissementRepository = $etablissementRepository;
-        $this->realDataPath = getenv('PREVARISC_REAL_DATA_PATH') ?: __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'data';
-        $this->dataPath = getenv('PREVARISC_DATA_PATH') ?: DIRECTORY_SEPARATOR.'data';
+        $this->dataPath = $dataPath;
+        $this->realDataPath = $realDataPath ?: __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'data';
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string
@@ -65,7 +69,6 @@ class SimpleFileDataStore implements DataStore
 
         return implode(DIRECTORY_SEPARATOR, [
             $directory,
-            //            !empty($piece_jointe) ? $piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'] : '',
             $piece_jointe->getId().$piece_jointe->getExtension(),
         ]);
     }
@@ -75,7 +78,6 @@ class SimpleFileDataStore implements DataStore
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;
 
         return implode(DIRECTORY_SEPARATOR, [
-            //            DATA_PATH, 'uploads', $type, $piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'],
             $this->dataPath, 'uploads', $type, $piece_jointe->getId().$piece_jointe->getExtension(),
         ]);
     }

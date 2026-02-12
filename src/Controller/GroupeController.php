@@ -13,7 +13,7 @@ use App\Repository\GroupeRepository;
 use App\Repository\ResourcesRepository;
 use App\Repository\UtilisateurRepository;
 use App\Security\Voter\DossierVoter;
-use App\Security\Voter\EtablissementVoter;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierNameGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
@@ -36,22 +36,52 @@ class GroupeController extends AbstractController
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @var GroupeRepository
+     */
+    private $groupeRepository;
+
+    /**
+     * @var UtilisateurRepository
+     */
+    private $utilisateurRepository;
+
+    /**
+     * @var ResourcesRepository
+     */
+    private $resourcesRepository;
+
+    /**
+     * @var RessourcesSpecialiseesDossierTextGenerator
+     */
+    private $ressourcesSpecialiseesDossierTextGenerator;
+
+    /**
+     * @var RessourcesSpecialiseesEtablissementTextGenerator
+     */
+    private $ressourcesSpecialiseesEtablissementTextGenerator;
+
+    public function __construct(EntityManagerInterface $entityManager, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository, ResourcesRepository $resourcesRepository, RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {
         $this->entityManager = $entityManager;
+        $this->groupeRepository = $groupeRepository;
+        $this->utilisateurRepository = $utilisateurRepository;
+        $this->resourcesRepository = $resourcesRepository;
+        $this->ressourcesSpecialiseesDossierTextGenerator = $ressourcesSpecialiseesDossierTextGenerator;
+        $this->ressourcesSpecialiseesEtablissementTextGenerator = $ressourcesSpecialiseesEtablissementTextGenerator;
     }
 
     /**
      * @Route("/admin/groupes/{id}/utilisateurs", name="admin_groupe_index")
      */
-    public function index(Groupe $groupe, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository): Response
+    public function index(Groupe $groupe): Response
     {
         $groupeId = $groupe->getId();
 
         return $this->render('utilisateurs/index.html.twig', [
-            'utilisateurs_actifs' => $utilisateurRepository->findActives($groupeId),
-            'utilisateurs_inactifs' => $utilisateurRepository->findInactives($groupeId),
-            'groupes' => $groupeRepository->findAll(),
+            'utilisateurs_actifs' => $this->utilisateurRepository->findActives($groupeId),
+            'utilisateurs_inactifs' => $this->utilisateurRepository->findInactives($groupeId),
+            'groupes' => $this->groupeRepository->findAll(),
             'groupe_id' => $groupeId,
         ]);
     }
@@ -107,7 +137,7 @@ class GroupeController extends AbstractController
     /**
      * @Route("/admin/groupes/{id}/supprimer", name="admin_groupe_delete")
      */
-    public function supprimer(Groupe $groupe, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
+    public function supprimer(Groupe $groupe): Response
     {
         $groupeId = $groupe->getId();
 
@@ -116,8 +146,8 @@ class GroupeController extends AbstractController
             return $this->redirectToRoute('admin_utilisateurs_index');
         }
 
-        $utilisateurs = $utilisateurRepository->findBy(['groupe' => $groupeId]);
-        $groupeParDefaut = $groupeRepository->find(1);
+        $utilisateurs = $this->utilisateurRepository->findBy(['groupe' => $groupeId]);
+        $groupeParDefaut = $this->groupeRepository->find(1);
 
         foreach ($utilisateurs as $utilisateur) {
             $utilisateur->setGroupe($groupeParDefaut);
@@ -136,9 +166,9 @@ class GroupeController extends AbstractController
     /**
      * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
      */
-    public function matriceDesDroits(Request $request, GroupeRepository $groupeRepository): Response
+    public function matriceDesDroits(Request $request): Response
     {
-        $groupes = $groupeRepository->findAll();
+        $groupes = $this->groupeRepository->findAll();
 
         $form = $this->createForm(MatriceDesDroitsType::class, ['groupes' => $groupes]);
 
@@ -159,7 +189,7 @@ class GroupeController extends AbstractController
     /**
      * @Route("/admin/groupes/ressources-specialisees", name="admin_groupe_ressources_specialisees")
      */
-    public function ressourcesSpecialisees(ResourcesRepository $resourcesRepository): Response
+    public function ressourcesSpecialisees(): Response
     {
         $ressourceDossierForm = $this->createForm(RessourceSpecialiseeDossierType::class, null, [
             'action' => $this->generateUrl('admin_groupe_ressources_specialisees_add_dossier'),
@@ -169,8 +199,8 @@ class GroupeController extends AbstractController
         ]);
 
         return $this->render('groupe/ressources_specialisees/index.html.twig', [
-            'ressources_dossier' => $resourcesRepository->findRessourcesSpecialiseesDossier(),
-            'ressources_etablissement' => $resourcesRepository->findRessourcesSpecialiseesEtablissement(),
+            'ressources_dossier' => $this->resourcesRepository->findRessourcesSpecialiseesDossier(),
+            'ressources_etablissement' => $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(),
             'form_dossier' => $ressourceDossierForm->createView(),
             'form_etablissement' => $ressourceEtablissementForm->createView(),
         ]);
@@ -190,12 +220,12 @@ class GroupeController extends AbstractController
     /**
      * @Route("/admin/groupes/ressources-specialisees/dossier/ajouter", name="admin_groupe_ressources_specialisees_add_dossier", methods={"POST"}))
      */
-    public function ajouterRessourceSpecialiseeDossier(Request $request, RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator): RedirectResponse
+    public function ajouterRessourceSpecialiseeDossier(Request $request): RedirectResponse
     {
         $resource = new Resources();
 
         $name = RessourcesSpecialiseesDossierNameGenerator::fromRequest($request);
-        $text = $ressourcesSpecialiseesDossierTextGenerator->fromRequest($request);
+        $text = $this->ressourcesSpecialiseesDossierTextGenerator->fromRequest($request);
 
         $resource->setName($name);
         $resource->setText($text);
@@ -231,12 +261,12 @@ class GroupeController extends AbstractController
     /**
      * @Route("/admin/groupes/ressources-specialisees/etablissement/ajouter", name="admin_groupe_ressources_specialisees_add_etablissement", methods={"POST"}))
      */
-    public function ajouterRessourceSpecialiseeEtablissement(Request $request, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator): RedirectResponse
+    public function ajouterRessourceSpecialiseeEtablissement(Request $request): RedirectResponse
     {
         $resource = new Resources();
 
         $name = RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request);
-        $text = $ressourcesSpecialiseesEtablissementTextGenerator->fromRequest($request);
+        $text = $this->ressourcesSpecialiseesEtablissementTextGenerator->fromRequest($request);
 
         $resource->setName($name);
         $resource->setText($text);

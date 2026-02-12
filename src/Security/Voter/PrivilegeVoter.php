@@ -4,6 +4,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 

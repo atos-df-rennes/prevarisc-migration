@@ -16,6 +16,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class ContactController extends AbstractController
 {
     /**
+     * @var UtilisateurInformationsRepository
+     */
+    private $utilisateurInformationsRepository;
+
+    public function __construct(UtilisateurInformationsRepository $utilisateurInformationsRepository)
+    {
+        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+    }
+
+    /**
      * @Route("/contact/{id}/modifier", name="contact_edit")
      */
     public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
@@ -68,8 +78,8 @@ class ContactController extends AbstractController
     /**
      * @Route("/contacts/{search}", name="contact_autocomplete")
      */
-    public function autocomplete(string $search, UtilisateurInformationsRepository $utilisateurInformationsRepository): JsonResponse
+    public function autocomplete(string $search): JsonResponse
     {
-        return $this->json($utilisateurInformationsRepository->findByNameNotInUser($search));
+        return $this->json($this->utilisateurInformationsRepository->findByNameNotInUser($search));
     }
 }

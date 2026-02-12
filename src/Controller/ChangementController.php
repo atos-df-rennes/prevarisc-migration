@@ -17,11 +17,27 @@ use Symfony\Component\Routing\Annotation\Route;
 class ChangementController extends AbstractController
 {
     /**
+     * @var ChangementRepository
+     */
+    private $changementRepository;
+
+    /**
+     * @var Changement
+     */
+    private $changement;
+
+    public function __construct(ChangementRepository $changementRepository, Changement $changement)
+    {
+        $this->changementRepository = $changementRepository;
+        $this->changement = $changement;
+    }
+
+    /**
      * @Route("/admin/changement", name="admin_changement")
      */
-    public function index(Request $request, ChangementRepository $changementRepository): Response
+    public function index(Request $request): Response
     {
-        $messages = $changementRepository->findAll();
+        $messages = $this->changementRepository->findAll();
 
         $form = $this->createForm(MessagesAlerteType::class, ['messages' => $messages]);
 
@@ -48,10 +64,10 @@ class ChangementController extends AbstractController
     /**
      * @Route("/changement/balises", name="changement_balises")
      */
-    public function balises(Changement $changement): Response
+    public function balises(): Response
     {
         return $this->render('changement/balises.html.twig', [
-            'balises' => $changement->getBalises(),
+            'balises' => $this->changement->getBalises(),
         ]);
     }
 }
