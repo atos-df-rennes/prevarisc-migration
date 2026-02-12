@@ -35,21 +35,16 @@ class GroupementController extends AbstractController
     /** @var CommuneRepository */
     private $communeRepository;
 
-    /** @var GroupementRepository */
-    private $groupementRepository;
-
     public function __construct(
         EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository,
-        GroupementRepository $groupementRepository
+        CommuneRepository $communeRepository
     ) {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
-        $this->groupementRepository = $groupementRepository;
     }
 
     /**
-     * @Route("/admin/groupement", name="admin_groupement")
+     * @Route("/admin/groupements", name="admin_groupement")
      */
     public function index(Request $request, GroupementTypeRepository $groupementTypeRepository): Response
     {
@@ -71,7 +66,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/creer", name="admin_groupement_creation")
+     * @Route("/admin/groupements/creer", name="admin_groupement_creation")
      */
     public function create(Request $request): Response
     {
@@ -98,7 +93,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
+     * @Route("/admin/groupements/{id}/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
      */
     public function formByScope(Groupement $groupement, string $scope, Request $request, GroupementCommunes $groupementCommunes): Response
     {
@@ -143,7 +138,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/supprimer", name="admin_groupement_delete", methods={"GET", "POST"})
+     * @Route("/admin/groupements/{id}/supprimer", name="admin_groupement_delete", methods={"GET", "POST"})
      */
     public function delete(Request $request, Groupement $groupement): Response
     {
@@ -178,7 +173,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/contacts", name="admin_groupement_contacts")
+     * @Route("/admin/groupements/{id}/contacts", name="admin_groupement_contacts")
      */
     public function contacts(Groupement $groupement): Response
     {
@@ -189,7 +184,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/contacts/ajouter", name="admin_groupement_contacts_add")
+     * @Route("/admin/groupements/{id}/contacts/ajouter", name="admin_groupement_contacts_add")
      */
     public function addNewContact(Request $request, Groupement $groupement): Response
     {
@@ -216,7 +211,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/contacts/ajouter/existant", name="admin_groupement_contacts_add_existing")
+     * @Route("/admin/groupements/{id}/contacts/ajouter/existant", name="admin_groupement_contacts_add_existing")
      */
     public function addExistingContact(
         Request $request,
@@ -250,7 +245,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"})
+     * @Route("/admin/groupements/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"})
      *
      * @ParamConverter("groupement", options={"id" = "id"})
      * @ParamConverter("contact", options={"id" = "contact"})
