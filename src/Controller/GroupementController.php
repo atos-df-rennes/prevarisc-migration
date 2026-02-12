@@ -49,7 +49,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/", name="admin_groupement")
+     * @Route("/admin/groupement", name="admin_groupement")
      */
     public function index(Request $request, GroupementTypeRepository $groupementTypeRepository): Response
     {
@@ -71,7 +71,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/creation", name="admin_groupement_creation")
+     * @Route("/admin/groupement/creer", name="admin_groupement_creation")
      */
     public function create(Request $request): Response
     {
@@ -143,7 +143,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupement/{id}/delete", name="admin_groupement_delete", methods={"GET", "POST"})
+     * @Route("/admin/groupement/{id}/supprimer", name="admin_groupement_delete", methods={"GET", "POST"})
      */
     public function delete(Request $request, Groupement $groupement): Response
     {
