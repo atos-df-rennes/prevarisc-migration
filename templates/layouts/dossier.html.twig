@@ -178,6 +178,7 @@
         %}
             <li>
                 {% if dossier.dateSuppression is not null %}
+                    {# @todo: Utiliser la route Symfony une fois le merge de ou dans develop fait #}
                     <a id="retablissementDossier" href="{{ '/dossier/retablir-dossier/idDossier/' ~ dossier.id }}">
                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                         Rétablir le dossier
