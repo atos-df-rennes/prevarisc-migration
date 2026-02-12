@@ -25,6 +25,8 @@ class UtilisateurInformationsType extends AbstractType
 
     public const SCOPE_SOCIETE = 'societe';
 
+    public const SCOPE_CIVILITE = 'civilite';
+
     /**
      * Construit le formulaire en ajoutant différents champs selon les options et portées fournies.
      *
@@ -45,11 +47,6 @@ class UtilisateurInformationsType extends AbstractType
         }
 
         $builder
-            ->add('civilite', EntityType::class, [
-                'class' => UtilisateurCivilite::class,
-                'choice_label' => 'libelle',
-                'required' => false,
-            ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
                 'required' => false,
@@ -88,6 +85,14 @@ class UtilisateurInformationsType extends AbstractType
                 'required' => false,
             ])
         ;
+
+        if (in_array(self::SCOPE_CIVILITE, $options['scopes'])) {
+            $builder->add('civilite', EntityType::class, [
+                'class' => UtilisateurCivilite::class,
+                'choice_label' => 'libelle',
+                'required' => false,
+            ]);
+        }
 
         if (in_array(self::SCOPE_FONCTION, $options['scopes'])) {
             $builder->add('fonction', EntityType::class, [

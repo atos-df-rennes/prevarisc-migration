@@ -109,7 +109,7 @@ class GroupementType extends AbstractType
             $builder->add('informations', UtilisateurInformationsType::class, [
                 'label' => 'Coordonnées du groupement',
                 'required' => false,
-                'scopes' => [UtilisateurInformationsType::SCOPE_ADRESSE, UtilisateurInformationsType::SCOPE_SOCIETE],
+                'scopes' => [UtilisateurInformationsType::SCOPE_CIVILITE, UtilisateurInformationsType::SCOPE_ADRESSE, UtilisateurInformationsType::SCOPE_SOCIETE],
             ]);
         }
     }
