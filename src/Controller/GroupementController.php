@@ -182,15 +182,9 @@ class GroupementController extends AbstractController
      */
     public function contacts(Groupement $groupement): Response
     {
-        $contacts = $this->groupementRepository->find($groupement->getId());
-
-        if (null !== $contacts) {
-            $contacts = $contacts->getContacts();
-        }
-
         return $this->render('groupement/_contacts.html.twig', [
             'groupement' => $groupement,
-            'contacts' => $contacts,
+            'contacts' => $groupement->getContacts(),
         ]);
     }
 
