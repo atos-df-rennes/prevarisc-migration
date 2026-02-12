@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Dossier as DossierEntity;
-use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class Dossier
@@ -12,7 +11,6 @@ final class Dossier
     private $entityManager;
 
     public function __construct(
-        DossierRepository $dossierRepository,
         EntityManagerInterface $entityManager
     ) {
         $this->entityManager = $entityManager;
