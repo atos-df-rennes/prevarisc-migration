@@ -11,9 +11,11 @@
 {{ form_rest(form) }}
 
 <div class="form-group text-right">
-    <button id="preventionniste" type="button" class="btn btn-default">
-        Affecter aux établissements
-    </button>
+    {% if form.preventionnistes.vars.data|length > 0 %}
+        <button id="preventionniste" type="button" class="btn btn-default">
+            Affecter aux établissements
+        </button>
+    {% endif %}
     <button type="submit" class="btn btn-primary">Sauvegarder</button>
 </div>
 
