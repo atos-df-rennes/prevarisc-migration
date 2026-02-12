@@ -92,7 +92,7 @@ class GroupementController extends AbstractController
             return $this->redirectToRoute('admin_groupement');
         }
 
-        return $this->render('groupement/_ajout.html.twig', [
+        return $this->render('groupement/_form_ajout.html.twig', [
             'form' => $form->createView(),
         ]);
     }
