@@ -2,7 +2,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title"><i class="glyphicon glyphicon-user"></i> Contact principal</h3>
+        <h3 class="panel-title"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Contact principal</h3>
     </div>
     <div class="panel-body">
         <div class="row">
@@ -42,7 +42,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title"><i class="glyphicon glyphicon-phone-alt"></i> Coordonnées</h3>
+        <h3 class="panel-title"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> Coordonnées</h3>
     </div>
     <div class="panel-body">
         <div class="row">
@@ -50,7 +50,7 @@
                 <div class="form-group">
                     {{ form_label(form.informations.telephoneFixe, null, {label_attr: {class: 'control-label'}}) }}
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-earphone"></i></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-earphone" aria-hidden="true"></span></span>
                         {{ form_widget(form.informations.telephoneFixe, {attr: {class: 'form-control', placeholder: '01 23 45 67 89'}}) }}
                     </div>
                     {{ form_errors(form.informations.telephoneFixe) }}
@@ -60,7 +60,7 @@
                 <div class="form-group">
                     {{ form_label(form.informations.telephonePortable, null, {label_attr: {class: 'control-label'}}) }}
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-phone"></i></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></span>
                         {{ form_widget(form.informations.telephonePortable, {attr: {class: 'form-control', placeholder: '06 12 34 56 78'}}) }}
                     </div>
                     {{ form_errors(form.informations.telephonePortable) }}
@@ -70,7 +70,7 @@
                 <div class="form-group">
                     {{ form_label(form.informations.telephoneFax, null, {label_attr: {class: 'control-label'}}) }}
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-print"></i></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></span>
                         {{ form_widget(form.informations.telephoneFax, {attr: {class: 'form-control', placeholder: '01 23 45 67 89'}}) }}
                     </div>
                     {{ form_errors(form.informations.telephoneFax) }}
@@ -82,7 +82,7 @@
                 <div class="form-group">
                     {{ form_label(form.informations.mail, null, {label_attr: {class: 'control-label'}}) }}
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span>
                         {{ form_widget(form.informations.mail, {attr: {class: 'form-control', placeholder: 'contact@exemple.fr'}}) }}
                     </div>
                     {{ form_errors(form.informations.mail) }}
@@ -92,7 +92,7 @@
                 <div class="form-group">
                     {{ form_label(form.informations.siteWeb, null, {label_attr: {class: 'control-label'}}) }}
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span></span>
                         {{ form_widget(form.informations.siteWeb, {attr: {class: 'form-control', placeholder: 'https://www.exemple.fr'}}) }}
                     </div>
                     {{ form_errors(form.informations.siteWeb) }}
@@ -104,7 +104,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title"><i class="glyphicon glyphicon-home"></i> Adresse</h3>
+        <h3 class="panel-title"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> Adresse</h3>
     </div>
     <div class="panel-body">
         <div class="row">
@@ -144,7 +144,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title"><i class="glyphicon glyphicon-info-sign"></i> Autres informations</h3>
+        <h3 class="panel-title"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Autres informations</h3>
     </div>
     <div class="panel-body">
         <div class="form-group">
@@ -157,7 +157,7 @@
 
 {{ form_rest(form) }}
 
-<div class="form-group">
+<div class="form-group text-right">
     <button type="submit" class="btn btn-primary">Sauvegarder</button>
 </div>
 
