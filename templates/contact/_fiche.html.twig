@@ -1,7 +1,7 @@
 <div class="panel panel-default mb-0">
     <div class="panel-heading clearfix">
         <h4 class="panel-title pull-left mt-2">
-            <i class="glyphicon glyphicon-user"></i> {{ contact.nom ~ ' ' ~ contact.prenom }}
+            <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ contact.nom ~ ' ' ~ contact.prenom }}
             {% if contact.fonction or contact.societe %}
                 <small>
                     {% if contact.fonction %}
@@ -16,10 +16,10 @@
         {% if can_edit %}
             <div class="btn-group btn-group-sm pull-right" role="group">
                 <button type="button" class="btn btn-default edit-contact-button" data-toggle="modal" data-target="#ajout-contact" data-contact-id="{{ contact.id }}" title="Modifier">
-                    <i class="glyphicon glyphicon-pencil"></i>
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 </button>
                 <button type="button" class="btn btn-danger delete-contact-button" data-contact-id="{{ contact.id }}" title="Supprimer">
-                    <i class="glyphicon glyphicon-trash"></i>
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                 </button>
             </div>
         {% endif %}
@@ -28,7 +28,7 @@
         {% if contact.telephoneFixe or contact.telephonePortable or contact.telephoneFax or contact.mail or contact.siteWeb or contact.numeroAdresse or contact.rueAdresse or contact.codePostalAdresse or contact.villeAdresse or contact.observations %}
             <dl class="dl-horizontal" style="margin-bottom: 0;">
                 {% if contact.telephoneFixe or contact.telephonePortable %}
-                    <dt><i class="fa fa-phone"></i> Téléphone</dt>
+                    <dt><span class="glyphicon glyphicon-phone" aria-hidden="true"></span> Téléphone</dt>
                     <dd>
                         {{ contact.telephoneFixe }}
                         {% if contact.telephonePortable %}
@@ -38,17 +38,17 @@
                 {% endif %}
 
                 {% if contact.telephoneFax %}
-                    <dt><i class="fa fa-fax"></i> Fax</dt>
+                    <dt><span class="glyphicon glyphicon-print" aria-hidden="true"></span> Fax</dt>
                     <dd>{{ contact.telephoneFax }}</dd>
                 {% endif %}
 
                 {% if contact.mail %}
-                    <dt><i class="fa fa-envelope"></i> Courriel</dt>
+                    <dt><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Courriel</dt>
                     <dd><a href="mailto:{{ contact.mail }}">{{ contact.mail }}</a></dd>
                 {% endif %}
 
                 {% if contact.siteWeb %}
-                    <dt><i class="fa fa-globe"></i> Site web</dt>
+                    <dt><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Site web</dt>
                     {% if contact.siteWeb starts with 'http://' or contact.siteWeb starts with 'https://' %}
                         <dd><a href="{{ contact.siteWeb }}" target="_blank">{{ contact.siteWeb }}</a></dd>
                     {% else %}
@@ -58,7 +58,7 @@
                 {% endif %}
 
                 {% if contact.numeroAdresse or contact.rueAdresse or contact.codePostalAdresse or contact.villeAdresse %}
-                    <dt><i class="fa fa-map-marker"></i> Adresse</dt>
+                    <dt><span class="glyphicon glyphicon-home" aria-hidden="true"></span> Adresse</dt>
                     <dd>
                         {{ contact.numeroAdresse }} {{ contact.rueAdresse }}
                         {% if contact.numeroAdresse or contact.rueAdresse %}<br>{% endif %}
@@ -67,7 +67,7 @@
                 {% endif %}
 
                 {% if contact.observations %}
-                    <dt><i class="fa fa-comment"></i> Observations</dt>
+                    <dt><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Observations</dt>
                     <dd>{{ contact.observations }}</dd>
                 {% endif %}
             </dl>
