@@ -1,173 +1,220 @@
+<link rel="stylesheet" href="{{ asset('css/commission/champ_competence.css') }}">
+
 <div class="commission-competences">
-    {% if regles|length == 0 %}
+    {{ form_start(form) }}
+
+    <div class="competence-actions text-right" style="margin-bottom: 15px;">
+        <button type="button" class="btn btn-primary btn-sm" id="add-regle-btn">
+            <span class="glyphicon glyphicon-plus"></span> Ajouter une règle
+        </button>
+    </div>
+
+    {% do form.regles.setRendered %}
+    {% if form.regles|length == 0 %}
         <div class="no-competences-message">
             <p class="text-muted"><em>Aucune règle de compétence définie pour cette commission.</em></p>
-            <p>
-                <button class="btn btn-primary" disabled title="Prochainement disponible">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une règle
-                </button>
-            </p>
         </div>
     {% else %}
-        <div class="text-right" style="margin-bottom: 15px;">
-            <button class="btn btn-primary btn-sm" disabled title="Prochainement disponible">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une règle
-            </button>
-        </div>
-
-        <div class="panel-group" id="competences-accordion" role="tablist">
-        {% for regle in regles %}
+        <div class="panel-group regles-collection" id="competences-accordion" role="tablist" aria-multiselectable="true" data-prototype="{{ form_widget(form.regles.vars.prototype)|e('html_attr') }}">
+        {% for regle_form in form.regles %}
+            {% set index = loop.index0 %}
             <div class="panel panel-default competence-rule">
-                <div class="panel-heading" role="tab" id="heading-regle-{{ regle.id }}">
-                    <h6 class="panel-title">
-                        <div>
-                            <a role="button"
-                               data-toggle="collapse"
-                               data-parent="#competences-accordion"
-                               href="#collapse-regle-{{ regle.id }}"
-                               aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
-                               aria-controls="collapse-regle-{{ regle.id }}">
-                                <span class="caret-toggle glyphicon glyphicon-chevron-down {% if not loop.first %}collapsed{% endif %}"></span>
-                                Règle de compétence #{{ loop.index }}
-                            </a>
-                        </div>
-                        <button class="btn btn-danger btn-xs" disabled title="Prochainement disponible" style="margin-top: 5px;">
+                <div class="panel-heading" role="tab" id="heading-regle-{{ index }}">
+                    <h4 class="panel-title">
+                        <a role="button"
+                           data-toggle="collapse"
+                           data-parent="#competences-accordion"
+                           href="#collapse-regle-{{ index }}"
+                           aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
+                           aria-controls="collapse-regle-{{ index }}">
+                            <span class="caret-toggle glyphicon glyphicon-chevron-down {% if not loop.first %}collapsed{% endif %}"></span>
+                            <span class="competence-rule-number">{{ loop.index }}</span>
+                            Règle de compétence #{{ loop.index }}
+                        </a>
+                        <button type="button" class="btn btn-danger btn-xs pull-right remove-regle-btn" style="margin-top: 5px;" data-index="{{ index }}">
                             <span class="glyphicon glyphicon-trash"></span> Supprimer
                         </button>
-                    </h6>
+                    </h4>
                 </div>
-                <div id="collapse-regle-{{ regle.id }}"
+                <div id="collapse-regle-{{ index }}"
                      class="panel-collapse collapse {% if loop.first %}in{% endif %}"
                      role="tabpanel"
-                     aria-labelledby="heading-regle-{{ regle.id }}">
-                <ul class="list-group">
-                    {# Zone géographique #}
-                    <li class="list-group-item">
-                        <strong>Zone géographique :</strong>
-                        {% if regle.commune %}
-                            Commune <span class="badge">{{ regle.commune.libelle }}</span>
-                            {% if regle.commune.numInsee %}
-                                <small class="text-muted">({{ regle.commune.numInsee }})</small>
+                     aria-labelledby="heading-regle-{{ index }}">
+                    <div class="panel-body">
+                        {# Zone géographique #}
+                        <div class="form-group">
+                            {% if regle_form.commune is defined %}
+                                {{ form_row(regle_form.commune) }}
+                            {% elseif regle_form.groupement is defined %}
+                                {{ form_row(regle_form.groupement) }}
                             {% endif %}
-                        {% elseif regle.groupement %}
-                            Groupement <span class="badge">{{ regle.groupement.libelle }}</span>
-                        {% else %}
-                            <span class="text-muted">Non définie</span>
-                        {% endif %}
-                    </li>
+                        </div>
 
-                    {# Catégories ERP #}
-                    <li class="list-group-item">
-                        <strong>Catégories ERP :</strong>
-                        {% if regle.categories|length > 0 %}
-                            <ul class="criteria-list">
-                                {% for categorie in regle.categories %}
-                                    <li>
-                                        <span class="glyphicon glyphicon-ok text-success"></span>
-                                        {{ categorie.libelle }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <span class="text-muted">Toutes les catégories</span>
-                        {% endif %}
-                    </li>
+                        {# Catégories ERP - Checkbox avec bouton "Tout sélectionner" #}
+                        <div class="form-group">
+                            {{ form_label(regle_form.categories) }}
+                            <div style="margin-bottom: 10px;">
+                                <button type="button" class="btn btn-xs btn-default select-all-checkbox-btn" data-target="categories-{{ index }}">
+                                    <span class="glyphicon glyphicon-check"></span> Tout sélectionner
+                                </button>
+                            </div>
+                            <div id="categories-{{ index }}" class="checkbox-container">
+                                {{ form_widget(regle_form.categories) }}
+                            </div>
+                            {{ form_errors(regle_form.categories) }}
+                        </div>
 
-                    {# Types ERP #}
-                    <li class="list-group-item">
-                        <strong>Types ERP :</strong>
-                        {% if regle.types|length > 0 %}
-                            <ul class="criteria-list">
-                                {% for type in regle.types %}
-                                    <li>
-                                        <span class="glyphicon glyphicon-ok text-success"></span>
-                                        {{ type.libelle }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <span class="text-muted">Tous les types</span>
-                        {% endif %}
-                    </li>
+                        {# Types ERP - Select multiple avec bouton "Tout sélectionner" #}
+                        <div class="form-group">
+                            {{ form_label(regle_form.types) }}
+                            <div style="margin-bottom: 10px;">
+                                <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ regle_form.types.vars.id }}">
+                                    <span class="glyphicon glyphicon-check"></span> Tout sélectionner
+                                </button>
+                            </div>
+                            {{ form_widget(regle_form.types) }}
+                            {{ form_errors(regle_form.types) }}
+                        </div>
 
-                    {# Classes IGH #}
-                    <li class="list-group-item">
-                        <strong>Classes IGH :</strong>
-                        {% if regle.classes|length > 0 %}
-                            <ul class="criteria-list">
-                                {% for classe in regle.classes %}
-                                    <li>
-                                        <span class="glyphicon glyphicon-ok text-success"></span>
-                                        {{ classe.libelle }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <span class="text-muted">Toutes les classes</span>
-                        {% endif %}
-                    </li>
+                        {# Classes IGH - Select multiple avec bouton "Tout sélectionner" #}
+                        <div class="form-group">
+                            {{ form_label(regle_form.classes) }}
+                            <div style="margin-bottom: 10px;">
+                                <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ regle_form.classes.vars.id }}">
+                                    <span class="glyphicon glyphicon-check"></span> Tout sélectionner
+                                </button>
+                            </div>
+                            {{ form_widget(regle_form.classes) }}
+                            {{ form_errors(regle_form.classes) }}
+                        </div>
 
-                    {# Local sommeil #}
-                    <li class="list-group-item">
-                        <strong>Local à sommeil :</strong>
-                        {% set local_sommeil_values = [] %}
-                        {% for ls in regle.localSommeil %}
-                            {% set local_sommeil_values = local_sommeil_values|merge([ls.localSommeil]) %}
-                        {% endfor %}
+                        {# Local Sommeil - Checkbox #}
+                        <div class="form-group">
+                            {{ form_row(regle_form.localSommeilValues) }}
+                        </div>
 
-                        {% if local_sommeil_values|length > 0 %}
-                            <ul class="criteria-list">
-                                {% if 1 in local_sommeil_values %}
-                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Oui</li>
-                                {% endif %}
-                                {% if 0 in local_sommeil_values %}
-                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Non</li>
-                                {% endif %}
-                            </ul>
-                        {% else %}
-                            <span class="text-muted">Tous</span>
-                        {% endif %}
-                    </li>
-
-                    {# Étude/Visite #}
-                    <li class="list-group-item">
-                        <strong>Type de dossier :</strong>
-                        {% set etude_visite_values = [] %}
-                        {% for ev in regle.etudeVisite %}
-                            {% set etude_visite_values = etude_visite_values|merge([ev.etudeVisite]) %}
-                        {% endfor %}
-
-                        {% if etude_visite_values|length > 0 %}
-                            <ul class="criteria-list">
-                                {% if 1 in etude_visite_values %}
-                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Étude</li>
-                                {% endif %}
-                                {% if 0 in etude_visite_values %}
-                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Visite</li>
-                                {% endif %}
-                            </ul>
-                        {% else %}
-                            <span class="text-muted">Tous</span>
-                        {% endif %}
-                    </li>
-                </ul>
+                        {# Étude/Visite - Checkbox #}
+                        <div class="form-group">
+                            {{ form_row(regle_form.etudeVisiteValues) }}
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endfor %}
         </div>
-
-        <div class="competence-actions text-center">
-            <button class="btn btn-success" disabled title="Prochainement disponible">
-                <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder les règles
-            </button>
-            <button class="btn btn-primary" disabled title="Prochainement disponible">
-                <span class="glyphicon glyphicon-ok"></span> Appliquer aux établissements
-            </button>
-        </div>
-
-        <div class="alert alert-warning" style="margin-top: 20px;">
-            <span class="glyphicon glyphicon-info-sign"></span>
-            <strong>Mode lecture seule :</strong> L'édition et la gestion des règles seront disponibles prochainement.
-        </div>
     {% endif %}
+
+    <div class="competence-actions text-center" style="margin-top: 20px;">
+        <button type="submit" class="btn btn-success">
+            <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder les règles
+        </button>
+        <button type="button" class="btn btn-default" disabled title="Prochainement disponible">
+            <span class="glyphicon glyphicon-ok"></span> Appliquer aux établissements
+        </button>
+    </div>
+
+    {{ form_end(form) }}
 </div>
+
+<script>
+$(document).ready(function() {
+    // Initialiser Tom-Select sur les selects existants
+    initTomSelect();
+
+    function initTomSelect() {
+        $('.tom-select').each(function() {
+            if (!this.tomselect) {
+                new TomSelect(this, {
+                    plugins: ['remove_button'],
+                    maxOptions: null
+                });
+            }
+        });
+    }
+
+    // Bouton "Tout sélectionner" pour les checkbox
+    $(document).on('click', '.select-all-checkbox-btn', function() {
+        var targetId = $(this).data('target');
+        var $container = $('#' + targetId);
+        var $checkboxes = $container.find('input[type="checkbox"]');
+        var allChecked = $checkboxes.filter(':checked').length === $checkboxes.length;
+
+        $checkboxes.prop('checked', !allChecked);
+
+        var $icon = $(this).find('span.glyphicon');
+        if (allChecked) {
+            $icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+            $(this).html('<span class="glyphicon glyphicon-check"></span> Tout sélectionner');
+        } else {
+            $icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+            $(this).html('<span class="glyphicon glyphicon-unchecked"></span> Tout désélectionner');
+        }
+    });
+
+    // Bouton "Tout sélectionner" pour les select multiple (TomSelect)
+    $(document).on('click', '.select-all-select-btn', function() {
+        var targetFieldId = $(this).data('target-field');
+        var $select = $('#' + targetFieldId);
+
+        if ($select.length && $select[0].tomselect) {
+            var tomselect = $select[0].tomselect;
+            var options = Object.keys(tomselect.options);
+            var allSelected = tomselect.items.length === options.length;
+
+            if (allSelected) {
+                tomselect.clear();
+                $(this).html('<span class="glyphicon glyphicon-check"></span> Tout sélectionner');
+            } else {
+                tomselect.setValue(options);
+                $(this).html('<span class="glyphicon glyphicon-unchecked"></span> Tout désélectionner');
+            }
+        }
+    });
+
+    // Gestion de l'ajout de règles (collection Symfony)
+    var $collectionContainer = $('#competences-accordion');
+    var index = {{ form.regles|length }};
+
+    $('#add-regle-btn').on('click', function() {
+        var prototype = $collectionContainer.data('prototype');
+        if (!prototype) {
+            alert('Erreur : prototype non trouvé');
+            return;
+        }
+
+        var newForm = prototype.replace(/__name__/g, index);
+
+        // Créer le panel pour la nouvelle règle
+        var $newPanel = $(newForm);
+        $collectionContainer.append($newPanel);
+
+        // Initialiser Tom-Select sur les nouveaux champs
+        $newPanel.find('.tom-select').each(function() {
+            if (!this.tomselect) {
+                new TomSelect(this, {
+                    plugins: ['remove_button'],
+                    maxOptions: null
+                });
+            }
+        });
+
+        index++;
+
+        // Fermer tous les autres panneaux et ouvrir le nouveau
+        $collectionContainer.find('.panel-collapse').removeClass('in');
+        $newPanel.find('.panel-collapse').addClass('in');
+    });
+
+    // Gestion de la suppression de règles
+    $(document).on('click', '.remove-regle-btn', function() {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette règle ?')) {
+            $(this).closest('.competence-rule').remove();
+
+            // Vérifier s'il reste des règles
+            if ($collectionContainer.find('.competence-rule').length === 0) {
+                $collectionContainer.html('<div class="no-competences-message"><p class="text-muted"><em>Aucune règle de compétence définie pour cette commission.</em></p></div>');
+            }
+        }
+    });
+});
+</script>

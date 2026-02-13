@@ -3,7 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
+use App\Entity\CommissionRegle;
+use App\Entity\CommissionRegleEtudeVisite;
+use App\Entity\CommissionRegleLocalSommeil;
 use App\Entity\CommissionType;
+use App\Form\CommissionReglesCollectionType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRegleRepository;
 use App\Repository\CommissionRepository;
@@ -157,15 +161,135 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"})
+     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function competences(Commission $commission): Response
+    public function competences(Commission $commission, Request $request): Response
     {
         $regles = $this->commissionRegleRepository->findByCommissionWithRelations($commission);
+
+        // Créer le formulaire avec la collection de règles
+        $form = $this->createForm(CommissionReglesCollectionType::class, ['regles' => $regles], [
+            'commission' => $commission,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var array<string, mixed> $data */
+            $data = $form->getData();
+            /** @var CommissionRegle[] $submittedRegles */
+            $submittedRegles = $data['regles'] ?? [];
+
+            // Récupérer les IDs des règles soumises
+            $submittedIds = [];
+            foreach ($submittedRegles as $regle) {
+                $regleId = $regle->getId();
+                if ($regleId) {
+                    $submittedIds[] = $regleId;
+                }
+            }
+
+            // Supprimer les règles non soumises (suppression)
+            foreach ($regles as $existingRegle) {
+                $existingId = $existingRegle->getId();
+                if ($existingId && !in_array($existingId, $submittedIds, true)) {
+                    $this->entityManager->remove($existingRegle);
+                }
+            }
+
+            // Persister/mettre à jour les règles soumises
+            foreach ($submittedRegles as $index => $regle) {
+                // Associer la commission
+                $regle->setCommission($commission);
+
+                // Gérer localSommeil
+                $localSommeilData = $form->get('regles')->get((string) $index)->get('localSommeilValues')->getData();
+                $localSommeilValues = [];
+                if (is_array($localSommeilData)) {
+                    foreach ($localSommeilData as $value) {
+                        if (is_numeric($value)) {
+                            $localSommeilValues[] = (int) $value;
+                        }
+                    }
+                }
+
+                $this->syncLocalSommeil($regle, $localSommeilValues);
+
+                // Gérer etudeVisite
+                $etudeVisiteData = $form->get('regles')->get((string) $index)->get('etudeVisiteValues')->getData();
+                $etudeVisiteValues = [];
+                if (is_array($etudeVisiteData)) {
+                    foreach ($etudeVisiteData as $value) {
+                        if (is_numeric($value)) {
+                            $etudeVisiteValues[] = (int) $value;
+                        }
+                    }
+                }
+
+                $this->syncEtudeVisite($regle, $etudeVisiteValues);
+
+                $this->entityManager->persist($regle);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les règles de compétence ont été sauvegardées avec succès.');
+
+            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
+        }
 
         return $this->render('commissions/_competences.html.twig', [
             'commission' => $commission,
             'regles' => $regles,
+            'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Synchronise les valeurs LocalSommeil d'une règle.
+     *
+     * @param array<int> $values
+     */
+    private function syncLocalSommeil(CommissionRegle $regle, array $values): void
+    {
+        // Supprimer les anciennes valeurs
+        foreach ($regle->getLocalSommeil() as $ls) {
+            $this->entityManager->remove($ls);
+        }
+
+        $regle->getLocalSommeil()->clear();
+
+        // Ajouter les nouvelles valeurs
+        foreach ($values as $value) {
+            $localSommeil = new CommissionRegleLocalSommeil();
+            $localSommeil->setRegle($regle);
+            $localSommeil->setLocalSommeil((int) $value);
+            $regle->getLocalSommeil()->add($localSommeil);
+            $this->entityManager->persist($localSommeil);
+        }
+    }
+
+    /**
+     * Synchronise les valeurs EtudeVisite d'une règle.
+     *
+     * @param array<int> $values
+     */
+    private function syncEtudeVisite(CommissionRegle $regle, array $values): void
+    {
+        // Supprimer les anciennes valeurs
+        foreach ($regle->getEtudeVisite() as $ev) {
+            $this->entityManager->remove($ev);
+        }
+
+        $regle->getEtudeVisite()->clear();
+
+        // Ajouter les nouvelles valeurs
+        foreach ($values as $value) {
+            $etudeVisite = new CommissionRegleEtudeVisite();
+            $etudeVisite->setRegle($regle);
+            $etudeVisite->setEtudeVisite((int) $value);
+            $regle->getEtudeVisite()->add($etudeVisite);
+            $this->entityManager->persist($etudeVisite);
+        }
     }
 }
