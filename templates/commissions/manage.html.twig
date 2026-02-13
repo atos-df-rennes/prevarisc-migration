@@ -1,6 +1,6 @@
 {% extends 'layouts/admin.html.twig' %}
 
-{% form_theme form '_form_theme.html.twig' %}
+{#{% form_theme form '_form_theme.html.twig' %}#}
 
 {% block title %}Administration / Gestion des commissions / Édition{% endblock %}
 
@@ -61,7 +61,7 @@
 
     {{ form_end(form) }}
 
-    <div class="alert alert-warning mt-4">
+    <div class="alert alert-info mt-4">
         <strong><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Note :</strong>
         <p>Pour supprimer une commission, cliquez sur l'icône de corbeille. Les suppressions seront effectives après la sauvegarde.</p>
     </div>

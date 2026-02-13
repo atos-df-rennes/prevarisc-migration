@@ -16,14 +16,17 @@ class CommissionType extends AbstractType
     {
         $builder
             ->add('libelle', TextType::class, [
-                'label' => 'Libellé',
+                'label' => false,
                 'required' => true,
                 'row_attr' => [
                     'class' => 'col-sm-5'
-                ]
+                ],
+                'attr' => [
+                    'placeholder' => 'Libellé de la commission',
+                ],
             ])
             ->add('type', EntityType::class, [
-                'label' => 'Type de commission',
+                'label' => false,
                 'class' => CommissionTypeEntity::class,
                 'choice_label' => 'libelle',
                 'required' => true,
