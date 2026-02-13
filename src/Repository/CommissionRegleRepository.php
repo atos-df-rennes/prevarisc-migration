@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Commission;
 use App\Entity\CommissionRegle;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -75,4 +76,27 @@ class CommissionRegleRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * Récupère toutes les règles d'une commission avec leurs relations chargées.
+     *
+     * @return CommissionRegle[]
+     */
+    public function findByCommissionWithRelations(Commission $commission): array
+    {
+        return $this->createQueryBuilder('cr')
+            ->leftJoin('cr.commune', 'commune')->addSelect('commune')
+            ->leftJoin('cr.groupement', 'groupement')->addSelect('groupement')
+            ->leftJoin('cr.categories', 'categories')->addSelect('categories')
+            ->leftJoin('cr.classes', 'classes')->addSelect('classes')
+            ->leftJoin('cr.types', 'types')->addSelect('types')
+            ->leftJoin('cr.etudeVisite', 'etudeVisite')->addSelect('etudeVisite')
+            ->leftJoin('cr.localSommeil', 'localSommeil')->addSelect('localSommeil')
+            ->where('cr.commission = :commission')
+            ->setParameter('commission', $commission)
+            ->orderBy('cr.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

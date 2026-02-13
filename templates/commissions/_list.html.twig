@@ -11,7 +11,8 @@
                            data-parent="#commissions-accordion"
                            href="#collapse-{{ commission.id }}"
                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
-                           aria-controls="collapse-{{ commission.id }}">
+                           aria-controls="collapse-{{ commission.id }}"
+                           data-commission-id="{{ commission.id }}">
                             {{ commission.libelle }}
                         </a>
                     </h4>
@@ -22,18 +23,52 @@
                      role="tabpanel"
                      aria-labelledby="heading-{{ commission.id }}">
                     <div class="panel-body">
-                        <div class="alert alert-info">
-                            <p><strong>Configuration de la commission :</strong></p>
-                            <p>Les fonctionnalités avancées (compétences, membres, contacts, courriers, documents) seront disponibles prochainement.</p>
-                        </div>
+                        <h5>Champ de compétence</h5>
 
-                        <dl class="dl-horizontal">
-                            <dt>Type</dt>
-                            <dd>{{ commission.type.libelle }}</dd>
-                        </dl>
+                        <div class="commission-competences-container" data-commission-id="{{ commission.id }}">
+                            <div class="text-center">
+                                <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement des compétences...
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
+
+    <script>
+        $(document).ready(function() {
+            // Fonction pour charger les compétences d'une commission
+            function loadCompetences($panel) {
+                const $link = $panel.prev().find('a[data-commission-id]');
+                const commissionId = $link.data('commission-id');
+                const $container = $panel.find('.commission-competences-container[data-commission-id="' + commissionId + '"]');
+
+                // Charger seulement si pas déjà chargé
+                if ($container.find('.glyphicon-refresh').length > 0) {
+                    $.ajax({
+                        url: "{{ path('admin_commissions_competences', {id: 0}) }}".replace('0', commissionId),
+                        method: 'GET',
+                        success: function(html) {
+                            $container.html(html);
+                        },
+                        error: function() {
+                            $container.html('<div class="alert alert-danger">Erreur lors du chargement des compétences.</div>');
+                        }
+                    });
+                }
+            }
+
+            // Charger les compétences de l'accordéon ouvert par défaut
+            const $defaultOpen = $('.panel-collapse.collapse.in');
+            if ($defaultOpen.length > 0) {
+                loadCompetences($defaultOpen);
+            }
+
+            // Charger les compétences lors de l'ouverture d'un accordéon
+            $('.panel-collapse.collapse').on('shown.bs.collapse', function(e) {
+                loadCompetences($(e.target));
+            });
+        });
+    </script>
 {% endif %}

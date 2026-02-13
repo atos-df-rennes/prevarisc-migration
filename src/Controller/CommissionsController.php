@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Commission;
 use App\Entity\CommissionType;
 use App\Form\CommissionsCollectionType;
+use App\Repository\CommissionRegleRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionFilesystem;
@@ -32,16 +33,21 @@ class CommissionsController extends AbstractController
     /** @var CommissionFilesystem */
     private $commissionFilesystem;
 
+    /** @var CommissionRegleRepository */
+    private $commissionRegleRepository;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionFilesystem $commissionFilesystem
+        CommissionFilesystem $commissionFilesystem,
+        CommissionRegleRepository $commissionRegleRepository
     ) {
         $this->entityManager = $entityManager;
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionFilesystem = $commissionFilesystem;
+        $this->commissionRegleRepository = $commissionRegleRepository;
     }
 
     /**
@@ -147,6 +153,19 @@ class CommissionsController extends AbstractController
         return $this->render('commissions/_list.html.twig', [
             'commissions' => $commissions,
             'commission_type' => $typeId,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"})
+     */
+    public function competences(Commission $commission): Response
+    {
+        $regles = $this->commissionRegleRepository->findByCommissionWithRelations($commission);
+
+        return $this->render('commissions/_competences.html.twig', [
+            'commission' => $commission,
+            'regles' => $regles,
         ]);
     }
 }
