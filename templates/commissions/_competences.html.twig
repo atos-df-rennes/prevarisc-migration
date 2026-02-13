@@ -1,7 +1,9 @@
+<link rel="stylesheet" href="{{ asset('css/commission/champ_competence.css') }}">
+
 <div class="commission-competences">
     {% if regles|length == 0 %}
-        <div class="alert alert-info mt-3">
-            <p><strong>Aucune règle définie pour cette commission.</strong></p>
+        <div class="no-competences-message">
+            <p class="text-muted"><em>Aucune règle de compétence définie pour cette commission.</em></p>
             <p>
                 <button class="btn btn-primary" disabled title="Prochainement disponible">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une règle
@@ -9,178 +11,147 @@
             </p>
         </div>
     {% else %}
-        <div class="text-right mt-3 mb-3">
-            <button class="btn btn-primary" disabled title="Prochainement disponible">
+        <div class="text-right" style="margin-bottom: 15px;">
+            <button class="btn btn-primary btn-sm" disabled title="Prochainement disponible">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une règle
             </button>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-bordered table-condensed">
-                <thead>
-                    <tr>
-                        <th rowspan="2">Zone géographique</th>
-                        <th colspan="2">ERP</th>
-                        <th colspan="1">IGH</th>
-                        <th rowspan="2">Local Sommeil</th>
-                        <th rowspan="2">Étude / visite</th>
-                        <th rowspan="2">Actions</th>
-                    </tr>
-                    <tr>
-                        <th>Catégorie</th>
-                        <th>Type</th>
-                        <th>Classe</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for regle in regles %}
-                        <tr>
-                            {# Zone géographique #}
-                            <td style="width: 250px;">
-                                {% if regle.commune %}
-                                    <strong>Commune :</strong> {{ regle.commune.libelle }}
-                                    {% if regle.commune.numInsee %}
-                                        <br><small class="text-muted">({{ regle.commune.numInsee }})</small>
-                                    {% endif %}
-                                {% elseif regle.groupement %}
-                                    <strong>Groupement :</strong> {{ regle.groupement.libelle }}
-                                {% else %}
-                                    <span class="text-muted">Non défini</span>
-                                {% endif %}
-                            </td>
+        {% for regle in regles %}
+            <div class="panel panel-default competence-rule">
+                <div class="panel-heading">
+                    <span class="competence-rule-number">{{ loop.index }}</span>
+                    Règle de compétence #{{ loop.index }}
+                    <button class="btn btn-danger btn-xs pull-right" disabled title="Prochainement disponible">
+                        <span class="glyphicon glyphicon-trash"></span> Supprimer
+                    </button>
+                </div>
+                <ul class="list-group">
+                    {# Zone géographique #}
+                    <li class="list-group-item">
+                        <strong>Zone géographique :</strong>
+                        {% if regle.commune %}
+                            Commune <span class="badge">{{ regle.commune.libelle }}</span>
+                            {% if regle.commune.numInsee %}
+                                <small class="text-muted">({{ regle.commune.numInsee }})</small>
+                            {% endif %}
+                        {% elseif regle.groupement %}
+                            Groupement <span class="badge">{{ regle.groupement.libelle }}</span>
+                        {% else %}
+                            <span class="text-muted">Non définie</span>
+                        {% endif %}
+                    </li>
 
-                            {# Catégories ERP #}
-                            <td>
-                                {% if regle.categories|length > 0 %}
-                                    <ul class="list-unstyled mb-0">
-                                        {% for categorie in regle.categories %}
-                                            <li>
-                                                <span class="glyphicon glyphicon-ok text-success"></span>
-                                                {{ categorie.libelle }}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">Toutes</span>
-                                {% endif %}
-                            </td>
-
-                            {# Types ERP #}
-                            <td>
-                                {% if regle.types|length > 0 %}
-                                    <ul class="list-unstyled mb-0">
-                                        {% for type in regle.types %}
-                                            <li>
-                                                <span class="glyphicon glyphicon-ok text-success"></span>
-                                                {{ type.libelle }}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">Tous</span>
-                                {% endif %}
-                            </td>
-
-                            {# Classes IGH #}
-                            <td>
-                                {% if regle.classes|length > 0 %}
-                                    <ul class="list-unstyled mb-0">
-                                        {% for classe in regle.classes %}
-                                            <li>
-                                                <span class="glyphicon glyphicon-ok text-success"></span>
-                                                {{ classe.libelle }}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">Toutes</span>
-                                {% endif %}
-                            </td>
-
-                            {# Local sommeil #}
-                            <td>
-                                {% set local_sommeil_values = [] %}
-                                {% for ls in regle.localSommeil %}
-                                    {% set local_sommeil_values = local_sommeil_values|merge([ls.localSommeil]) %}
+                    {# Catégories ERP #}
+                    <li class="list-group-item">
+                        <strong>Catégories ERP :</strong>
+                        {% if regle.categories|length > 0 %}
+                            <ul class="criteria-list">
+                                {% for categorie in regle.categories %}
+                                    <li>
+                                        <span class="glyphicon glyphicon-ok text-success"></span>
+                                        {{ categorie.libelle }}
+                                    </li>
                                 {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Toutes les catégories</span>
+                        {% endif %}
+                    </li>
 
-                                {% if local_sommeil_values|length > 0 %}
-                                    <ul class="list-unstyled mb-0">
-                                        {% if 1 in local_sommeil_values %}
-                                            <li><span class="glyphicon glyphicon-ok text-success"></span> Oui</li>
-                                        {% endif %}
-                                        {% if 0 in local_sommeil_values %}
-                                            <li><span class="glyphicon glyphicon-ok text-success"></span> Non</li>
-                                        {% endif %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">Tous</span>
-                                {% endif %}
-                            </td>
-
-                            {# Étude/Visite #}
-                            <td>
-                                {% set etude_visite_values = [] %}
-                                {% for ev in regle.etudeVisite %}
-                                    {% set etude_visite_values = etude_visite_values|merge([ev.etudeVisite]) %}
+                    {# Types ERP #}
+                    <li class="list-group-item">
+                        <strong>Types ERP :</strong>
+                        {% if regle.types|length > 0 %}
+                            <ul class="criteria-list">
+                                {% for type in regle.types %}
+                                    <li>
+                                        <span class="glyphicon glyphicon-ok text-success"></span>
+                                        {{ type.libelle }}
+                                    </li>
                                 {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Tous les types</span>
+                        {% endif %}
+                    </li>
 
-                                {% if etude_visite_values|length > 0 %}
-                                    <ul class="list-unstyled mb-0">
-                                        {% if 1 in etude_visite_values %}
-                                            <li><span class="glyphicon glyphicon-ok text-success"></span> Étude</li>
-                                        {% endif %}
-                                        {% if 0 in etude_visite_values %}
-                                            <li><span class="glyphicon glyphicon-ok text-success"></span> Visite</li>
-                                        {% endif %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-muted">Tous</span>
+                    {# Classes IGH #}
+                    <li class="list-group-item">
+                        <strong>Classes IGH :</strong>
+                        {% if regle.classes|length > 0 %}
+                            <ul class="criteria-list">
+                                {% for classe in regle.classes %}
+                                    <li>
+                                        <span class="glyphicon glyphicon-ok text-success"></span>
+                                        {{ classe.libelle }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Toutes les classes</span>
+                        {% endif %}
+                    </li>
+
+                    {# Local sommeil #}
+                    <li class="list-group-item">
+                        <strong>Local à sommeil :</strong>
+                        {% set local_sommeil_values = [] %}
+                        {% for ls in regle.localSommeil %}
+                            {% set local_sommeil_values = local_sommeil_values|merge([ls.localSommeil]) %}
+                        {% endfor %}
+
+                        {% if local_sommeil_values|length > 0 %}
+                            <ul class="criteria-list">
+                                {% if 1 in local_sommeil_values %}
+                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Oui</li>
                                 {% endif %}
-                            </td>
+                                {% if 0 in local_sommeil_values %}
+                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Non</li>
+                                {% endif %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Tous</span>
+                        {% endif %}
+                    </li>
 
-                            {# Actions #}
-                            <td class="text-center">
-                                <button class="btn btn-danger btn-sm" disabled title="Prochainement disponible">
-                                    <span class="glyphicon glyphicon-trash"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    {# Étude/Visite #}
+                    <li class="list-group-item">
+                        <strong>Type de dossier :</strong>
+                        {% set etude_visite_values = [] %}
+                        {% for ev in regle.etudeVisite %}
+                            {% set etude_visite_values = etude_visite_values|merge([ev.etudeVisite]) %}
+                        {% endfor %}
 
-        <div class="text-center mt-3">
+                        {% if etude_visite_values|length > 0 %}
+                            <ul class="criteria-list">
+                                {% if 1 in etude_visite_values %}
+                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Étude</li>
+                                {% endif %}
+                                {% if 0 in etude_visite_values %}
+                                    <li><span class="glyphicon glyphicon-ok text-success"></span> Visite</li>
+                                {% endif %}
+                            </ul>
+                        {% else %}
+                            <span class="text-muted">Tous</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+
+        <div class="competence-actions text-center">
             <button class="btn btn-success" disabled title="Prochainement disponible">
                 <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder les règles
             </button>
             <button class="btn btn-primary" disabled title="Prochainement disponible">
-                <span class="glyphicon glyphicon-ok"></span> Appliquer les règles
+                <span class="glyphicon glyphicon-ok"></span> Appliquer aux établissements
             </button>
         </div>
 
-        <div class="alert alert-warning mt-3">
+        <div class="alert alert-warning" style="margin-top: 20px;">
             <span class="glyphicon glyphicon-info-sign"></span>
             <strong>Mode lecture seule :</strong> L'édition et la gestion des règles seront disponibles prochainement.
         </div>
     {% endif %}
 </div>
-
-<style>
-    .commission-competences .table > tbody > tr > td {
-        vertical-align: top;
-    }
-    .commission-competences .list-unstyled li {
-        padding: 2px 0;
-    }
-    .commission-competences .mb-0 {
-        margin-bottom: 0;
-    }
-    .commission-competences .mt-3 {
-        margin-top: 15px;
-    }
-    .commission-competences .mb-3 {
-        margin-bottom: 15px;
-    }
-</style>
