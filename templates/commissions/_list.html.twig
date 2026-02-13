@@ -1,0 +1,39 @@
+{% if commissions|length == 0 %}
+    <p class="text-center"><strong>Aucune commission trouvée pour ce type.</strong></p>
+{% else %}
+    <div class="panel-group" id="commissions-accordion" role="tablist" aria-multiselectable="true">
+        {% for commission in commissions %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading-{{ commission.id }}">
+                    <h4 class="panel-title">
+                        <a role="button"
+                           data-toggle="collapse"
+                           data-parent="#commissions-accordion"
+                           href="#collapse-{{ commission.id }}"
+                           aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
+                           aria-controls="collapse-{{ commission.id }}">
+                            {{ commission.libelle }}
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse-{{ commission.id }}"
+                     class="panel-collapse collapse {% if loop.first %}in{% endif %}"
+                     aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
+                     role="tabpanel"
+                     aria-labelledby="heading-{{ commission.id }}">
+                    <div class="panel-body">
+                        <div class="alert alert-info">
+                            <p><strong>Configuration de la commission :</strong></p>
+                            <p>Les fonctionnalités avancées (compétences, membres, contacts, courriers, documents) seront disponibles prochainement.</p>
+                        </div>
+
+                        <dl class="dl-horizontal">
+                            <dt>Type</dt>
+                            <dd>{{ commission.type.libelle }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
