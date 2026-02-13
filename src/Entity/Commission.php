@@ -51,6 +51,7 @@ class Commission
      */
     private $type;
 
+    // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, Utilisateur>
      *
@@ -85,6 +86,7 @@ class Commission
      */
     private $membres;
 
+    // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, DateCommission>
      *
