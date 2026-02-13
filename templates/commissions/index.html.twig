@@ -43,6 +43,12 @@
     {% endif %}
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/commission/champ_competence.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     <script>

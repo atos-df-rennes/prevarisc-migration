@@ -13,6 +13,7 @@
                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
                            aria-controls="collapse-{{ commission.id }}"
                            data-commission-id="{{ commission.id }}">
+                            <span class="caret-toggle glyphicon glyphicon-chevron-down {% if not loop.first %}collapsed{% endif %}"></span>
                             {{ commission.libelle }}
                         </a>
                     </h4>
