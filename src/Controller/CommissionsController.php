@@ -7,12 +7,10 @@ use App\Entity\CommissionType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
+use App\Service\Commission\CommissionFilesystem;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,29 +29,19 @@ class CommissionsController extends AbstractController
     /** @var CommissionTypeRepository */
     private $commissionTypeRepository;
 
-    /** @var \Symfony\Component\Filesystem\Filesystem */
-    private $filesystem;
-
-    /** @var \Psr\Log\LoggerInterface */
-    private $logger;
-
-    /** @var string */
-    private $documentsRealDataPath;
+    /** @var CommissionFilesystem */
+    private $commissionFilesystem;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        Filesystem $filesystem,
-        LoggerInterface $logger,
-        string $documentsRealDataPath
+        CommissionFilesystem $commissionFilesystem
     ) {
         $this->entityManager = $entityManager;
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
-        $this->filesystem = $filesystem;
-        $this->logger = $logger;
-        $this->documentsRealDataPath = $documentsRealDataPath;
+        $this->commissionFilesystem = $commissionFilesystem;
     }
 
     /**
@@ -104,10 +92,12 @@ class CommissionsController extends AbstractController
             }
 
             // Identifier les commissions à supprimer AVANT le flush
+            /** @var int[] $commissionsToDelete */
             $commissionsToDelete = [];
             foreach ($commissions as $commission) {
-                if (!in_array($commission->getId(), $submittedIds, true)) {
-                    $commissionsToDelete[] = $commission->getId();
+                $commissionId = $commission->getId();
+                if ($commissionId && !in_array($commissionId, $submittedIds, true)) {
+                    $commissionsToDelete[] = $commissionId;
                     $this->entityManager->remove($commission);
                 }
             }
@@ -116,8 +106,7 @@ class CommissionsController extends AbstractController
             try {
                 $this->entityManager->flush();
             } catch (\Exception $e) {
-                $this->logger->error('Erreur lors de la sauvegarde des commissions : '.$e->getMessage());
-                $this->addFlash('danger', 'Erreur lors de la sauvegarde des commissions.');
+                $this->addFlash('error', 'Erreur lors de la sauvegarde : '.$e->getMessage());
 
                 return $this->redirectToRoute('admin_commissions_manage');
             }
@@ -126,33 +115,13 @@ class CommissionsController extends AbstractController
             // Créer les dossiers pour les nouvelles commissions
             foreach ($submittedCommissions as $commission) {
                 if ($commission->getId()) {
-                    $commissionDir = $this->documentsRealDataPath.$commission->getId();
-
-                    try {
-                        $this->filesystem->mkdir($commissionDir);
-                    } catch (IOException $IOException) {
-                        $this->logger->error('Impossible de créer le dossier pour la commission.', [
-                            'commission_dir' => $commissionDir,
-                            'commission_id' => $commission->getId(),
-                            'error' => $IOException->getMessage(),
-                        ]);
-                    }
+                    $this->commissionFilesystem->createCommissionDirectory($commission->getId());
                 }
             }
 
             // Supprimer les dossiers des commissions supprimées
             foreach ($commissionsToDelete as $commissionId) {
-                $commissionDir = $this->documentsRealDataPath.$commissionId;
-
-                try {
-                    $this->filesystem->remove($commissionDir);
-                } catch (IOException $IOException) {
-                    $this->logger->error('Impossible de supprimer le dossier pour la commission.', [
-                        'commission_dir' => $commissionDir,
-                        'commission_id' => $commission->getId(),
-                        'error' => $IOException->getMessage(),
-                    ]);
-                }
+                $this->commissionFilesystem->removeCommissionDirectory($commissionId);
             }
 
             $this->addFlash('success', 'Les commissions ont été sauvegardées avec succès.');
