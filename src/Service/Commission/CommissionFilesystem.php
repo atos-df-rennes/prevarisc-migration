@@ -34,11 +34,11 @@ final class CommissionFilesystem
 
         try {
             $this->filesystem->mkdir($commissionDir);
-        } catch (IOException $IOException) {
+        } catch (IOException $ioException) {
             $this->logger->error('Impossible de créer le dossier de commission', [
                 'commission_id' => $commissionId,
                 'path' => $commissionDir,
-                'error' => $IOException->getMessage(),
+                'error' => $ioException->getMessage(),
             ]);
         }
     }
@@ -49,11 +49,11 @@ final class CommissionFilesystem
 
         try {
             $this->filesystem->remove($commissionDir);
-        } catch (IOException $IOException) {
+        } catch (IOException $ioException) {
             $this->logger->error('Impossible de supprimer le dossier de commission', [
                 'commission_id' => $commissionId,
                 'path' => $commissionDir,
-                'error' => $IOException->getMessage(),
+                'error' => $ioException->getMessage(),
             ]);
         }
     }
