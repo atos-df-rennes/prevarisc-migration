@@ -18,6 +18,11 @@ class RubriqueType extends AbstractType
                 'label' => 'Afficher par défaut',
                 'required' => false,
             ])
+            ->add('ouverte', CheckboxType::class, [
+                'label' => 'Ouvrir par défaut',
+                'required' => false,
+                'help' => "Cette option contrôle le mode d'ouverture par défaut du panneau de la rubrique."
+            ])
         ;
     }
 

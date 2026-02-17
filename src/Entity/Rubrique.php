@@ -60,6 +60,13 @@ class Rubrique
      */
     private $champs;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $ouverte = false;
+
     public function __construct()
     {
         $this->champs = new ArrayCollection();
@@ -145,6 +152,18 @@ class Rubrique
         if ($this->champs->removeElement($champ) && $champ->getRubrique() === $this) {
             $champ->setRubrique(null);
         }
+
+        return $this;
+    }
+
+    public function getOuverte(): ?bool
+    {
+        return $this->ouverte;
+    }
+
+    public function setOuverte(bool $ouverte): self
+    {
+        $this->ouverte = $ouverte;
 
         return $this;
     }
