@@ -28,12 +28,13 @@
 
                 <table class="table table-bordered table-condensed">
                     <thead>
-                    <tr>
-                        <th></th>
-                        <th>Nom</th>
-                        <th>Affichage par défaut</th>
-                        <th></th>
-                    </tr>
+                        <tr>
+                            <th></th>
+                            <th>Nom</th>
+                            <th>Affichage</th>
+                            <th>Ouverture</th>
+                            <th></th>
+                        </tr>
                     </thead>
 
                     <tbody id="capsule-rubrique-{{ formulaire.id }}" class="grp">
@@ -41,14 +42,21 @@
                             <tr id="{{ rubrique.id }}">
                                 <td class='tdMove'><span class="glyphicon glyphicon-move"></span></td>
                                 <td>{{ rubrique.nom }}</td>
-                                <td id='default-display'>
+                                <td>
                                     {% if rubrique.defaultDisplay %}
                                         <div class="text-center">
                                             <span class="glyphicon glyphicon-ok"></span>
                                         </div>
                                     {% endif %}
                                 </td>
-                                <td id='actions'>
+                                <td>
+                                    {% if rubrique.ouverte %}
+                                        <div class="text-center">
+                                            <span class="glyphicon glyphicon-ok"></span>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class='actions'>
                                     <div class='text-center'>
                                         <a href="{{ path('admin_formulaires_edit_rubrique', {formulaire: formulaire.id, rubrique: rubrique.id}) }}">
                                             <span title='Modifier' class="glyphicon glyphicon-pencil"></span>
