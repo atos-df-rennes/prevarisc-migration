@@ -170,7 +170,7 @@ class FormulairesController extends AbstractController
         } catch (\Exception $exception) {
             $logger->error($exception->getMessage(), ['service' => 'Importeur de configuration de formulaires']);
 
-            $this->addFlash('error', "Un problème a eu lieu lors de l'import de la configuration.");
+            $this->addFlash('danger', "Un problème a eu lieu lors de l'import de la configuration.");
         }
 
         return $this->redirectToRoute('admin_formulaires');
