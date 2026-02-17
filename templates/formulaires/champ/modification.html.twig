@@ -73,11 +73,13 @@
                     <h3 class="panel-title">Informations sur la rubrique</h3>
                 </div>
                 <div class="panel-body">
-                    <p>
-                        <b>{{ rubrique.nom }}</b>
-                        {% if rubrique.defaultDisplay %}
-                            <small class="text-muted">(Affichée par défaut)</small>
-                        {% endif %}
+                    <p class="row">
+                        <b class="col-xs-12">{{ rubrique.nom }}</b>
+                        <small class="col-xs-12 text-muted">
+                            ({% if rubrique.defaultDisplay %}Affichée{% else %}Masquée{% endif %} par défaut
+                            /
+                            {% if rubrique.ouverte %}Ouverte{% else %}Fermée{% endif %} par défaut)
+                        </small>
                     </p>
 
                     {% if champ.parent is not null %}
