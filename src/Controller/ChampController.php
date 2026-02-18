@@ -144,28 +144,19 @@ class ChampController extends AbstractController
      */
     public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository): JsonResponse
     {
-        $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
+        $changesJson = $request->request->get('changes');
+        $changes = json_decode($changesJson, true);
 
-        if (false === $champValeurListeId) {
-            throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
+        if (!\is_array($changes)) {
+            throw new \InvalidArgumentException("Format de données invalide");
         }
 
-        $champValeurListe = $champValeurListeRepository->find($champValeurListeId);
-
-        if (null === $champValeurListe) {
-            throw new NotFoundHttpException(\sprintf("La valeur de liste d'identifiant %d n'existe pas.", $champValeurListeId));
+        if ([] === $changes) {
+            throw new \InvalidArgumentException("Aucun changement fourni");
         }
 
-        $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
+        $champValeurListeRepository->updateIndexesBatch($changes);
 
-        if (false === $idx) {
-            throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
-        }
-
-        $champValeurListe->setIdx($idx);
-
-        $this->entityManager->flush();
-
-        return $this->json([]);
+        return $this->json(['success' => true, 'message' => 'Les valeurs ont bien été réordonnées.']);
     }
 }

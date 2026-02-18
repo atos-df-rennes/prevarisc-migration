@@ -29,24 +29,34 @@
                     ID: el.id
                 }));
             };
+            let originalList = [];
 
-            const updateAllValuesIdx = (list) => {
-                list.forEach((val) => {
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
-                        data: { ID: val.ID, idx: val.idx },
-                        datatype: 'json'
+            const updateAllValuesIdx = (originalList, newList) => {
+                const changes = newList
+                    .filter(item => {
+                        const originalItem = originalList.find(originalItem => originalItem.ID === item.ID);
+                        return originalItem && originalItem.idx !== item.idx;
                     });
+
+                if (changes.length === 0) return;
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
+                    data: { changes: JSON.stringify(changes) },
+                    datatype: 'json'
                 });
             };
 
             new Sortable(listValuesContainer, {
                 handle: '.tdMove',
                 animation: 100,
+                onStart: function () {
+                    originalList = getValuesOrder();
+                },
                 onEnd: function () {
                     const newList = getValuesOrder();
-                    updateAllValuesIdx(newList);
+                    updateAllValuesIdx(originalList, newList);
                 }
             });
         });
