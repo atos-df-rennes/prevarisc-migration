@@ -40,6 +40,7 @@
 
                 if (changes.length === 0) return;
 
+                // @todo: ajouter un toast indiquant le succès/échec de la mise à jour de l'ordre
                 $.ajax({
                     type: "POST",
                     url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
