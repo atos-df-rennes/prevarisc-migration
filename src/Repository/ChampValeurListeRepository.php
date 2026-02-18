@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\ChampValeurListe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,7 +22,7 @@ class ChampValeurListeRepository extends ServiceEntityRepository
     }
 
     /**
-     * Met à jour les indices de plusieurs valeurs en une seule requête DQL
+     * Met à jour les indices de plusieurs valeurs en une seule requête DQL.
      *
      * @param non-empty-array<int, array{ID: int, idx: int}> $changes
      */
@@ -40,7 +38,7 @@ class ChampValeurListeRepository extends ServiceEntityRepository
             $id = (int) $change['ID'];
             $idx = (int) $change['idx'];
             $ids[] = $id;
-            $cases[] = "WHEN {$id} THEN {$idx}";
+            $cases[] = sprintf('WHEN %d THEN %d', $id, $idx);
         }
 
         $idList = implode(',', $ids);
