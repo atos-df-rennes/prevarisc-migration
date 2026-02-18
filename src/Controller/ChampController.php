@@ -145,6 +145,11 @@ class ChampController extends AbstractController
     public function orderChampValeurListe(Request $request, ChampValeurListeRepository $champValeurListeRepository): JsonResponse
     {
         $changesJson = $request->request->get('changes');
+
+        if (!\is_string($changesJson)) {
+            throw new \InvalidArgumentException("Format de données invalide");
+        }
+
         $changes = json_decode($changesJson, true);
 
         if (!\is_array($changes)) {
@@ -155,6 +160,8 @@ class ChampController extends AbstractController
             throw new \InvalidArgumentException("Aucun changement fourni");
         }
 
+        // @todo: voir pour utiliser un DTO ou un mécanisme plus robuste que la PHPDoc
+        /** @var non-empty-array<int, array{ID: int, idx: int}> $changes */
         $champValeurListeRepository->updateIndexesBatch($changes);
 
         return $this->json(['success' => true, 'message' => 'Les valeurs ont bien été réordonnées.']);
