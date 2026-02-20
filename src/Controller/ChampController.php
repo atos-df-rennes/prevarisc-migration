@@ -18,7 +18,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -164,28 +163,26 @@ class ChampController extends AbstractController
      */
     public function orderChampValeurListe(Request $request): JsonResponse
     {
-        $champValeurListeId = filter_var($request->request->get('ID'), FILTER_VALIDATE_INT);
+        $changesJson = $request->request->get('changes');
 
-        if (false === $champValeurListeId) {
-            throw new \InvalidArgumentException("L'identifiant de la valeur de liste n'a pas pu être récupéré correctement.");
+        if (!\is_string($changesJson)) {
+            throw new \InvalidArgumentException('Format de données invalide');
         }
 
-        $champValeurListe = $this->champValeurListeRepository->find($champValeurListeId);
+        $changes = json_decode($changesJson, true);
 
-        if (null === $champValeurListe) {
-            throw new NotFoundHttpException(\sprintf("La valeur de liste d'identifiant %d n'existe pas.", $champValeurListeId));
+        if (!\is_array($changes)) {
+            throw new \InvalidArgumentException('Format de données invalide');
         }
 
-        $idx = filter_var($request->request->get('idx'), FILTER_VALIDATE_INT);
-
-        if (false === $idx) {
-            throw new \InvalidArgumentException("L'index de la valeur de liste n'a pas pu être récupéré correctement.");
+        if ([] === $changes) {
+            throw new \InvalidArgumentException('Aucun changement fourni');
         }
 
-        $champValeurListe->setIdx($idx);
+        // @todo: voir pour utiliser un DTO ou un mécanisme plus robuste que la PHPDoc
+        /* @var non-empty-array<int, array{ID: int, idx: int}> $changes */
+        $this->champValeurListeRepository->updateIndexesBatch($changes);
 
-        $this->entityManager->flush();
-
-        return $this->json([]);
+        return $this->json(['success' => true, 'message' => 'Les valeurs ont bien été réordonnées.']);
     }
 }

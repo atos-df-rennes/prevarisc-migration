@@ -29,24 +29,35 @@
                     ID: el.id
                 }));
             };
+            let originalList = [];
 
-            const updateAllValuesIdx = (list) => {
-                list.forEach((val) => {
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
-                        data: { ID: val.ID, idx: val.idx },
-                        datatype: 'json'
+            const updateAllValuesIdx = (originalList, newList) => {
+                const changes = newList
+                    .filter(item => {
+                        const originalItem = originalList.find(originalItem => originalItem.ID === item.ID);
+                        return originalItem && originalItem.idx !== item.idx;
                     });
+
+                if (changes.length === 0) return;
+
+                // @todo: ajouter un toast indiquant le succès/échec de la mise à jour de l'ordre
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
+                    data: { changes: JSON.stringify(changes) },
+                    datatype: 'json'
                 });
             };
 
             new Sortable(listValuesContainer, {
                 handle: '.tdMove',
                 animation: 100,
+                onStart: function () {
+                    originalList = getValuesOrder();
+                },
                 onEnd: function () {
                     const newList = getValuesOrder();
-                    updateAllValuesIdx(newList);
+                    updateAllValuesIdx(originalList, newList);
                 }
             });
         });
@@ -73,11 +84,13 @@
                     <h3 class="panel-title">Informations sur la rubrique</h3>
                 </div>
                 <div class="panel-body">
-                    <p>
-                        <b>{{ rubrique.nom }}</b>
-                        {% if rubrique.defaultDisplay %}
-                            <small class="text-muted">(Affichée par défaut)</small>
-                        {% endif %}
+                    <p class="row">
+                        <b class="col-xs-12">{{ rubrique.nom }}</b>
+                        <small class="col-xs-12 text-muted">
+                            ({% if rubrique.defaultDisplay %}Affichée{% else %}Masquée{% endif %} par défaut
+                            /
+                            {% if rubrique.ouverte %}Ouverte{% else %}Fermée{% endif %} par défaut)
+                        </small>
                     </p>
 
                     {% if champ.parent is not null %}
@@ -142,7 +155,7 @@
                                                 </ul>
                                             {% endif %}
                                         </td>
-                                        <td id='actions'>
+                                        <td class='actions'>
                                             <div class='text-center'>
                                                 <a href="{{ path('admin_formulaires_edit_champ', {formulaire: formulaire.id, rubrique: rubrique.id, champ: champ_enfant.id}) }}">
                                                     <i title='Modifier' class='glyphicon glyphicon-pencil'></i>
