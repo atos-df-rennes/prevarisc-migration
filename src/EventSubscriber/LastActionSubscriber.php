@@ -29,6 +29,10 @@ class LastActionSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        if (!$event->isMasterRequest()) {
+            return;
+        }
+
         $utilisateur = $this->security->getUser();
 
         if (!$utilisateur instanceof Utilisateur) {
