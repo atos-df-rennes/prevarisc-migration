@@ -94,7 +94,7 @@ class CommissionRegle
     /**
      * @var Collection<int, CommissionRegleEtudeVisite>
      *
-     * @ORM\OneToMany(targetEntity=CommissionRegleEtudeVisite::class, mappedBy="regle", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionRegleEtudeVisite::class, mappedBy="regle", cascade={"persist"}, orphanRemoval=true)
      *
      * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
      */
@@ -103,7 +103,7 @@ class CommissionRegle
     /**
      * @var Collection<int, CommissionRegleLocalSommeil>
      *
-     * @ORM\OneToMany(targetEntity=CommissionRegleLocalSommeil::class, mappedBy="regle", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionRegleLocalSommeil::class, mappedBy="regle", cascade={"persist"}, orphanRemoval=true)
      *
      * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
      */
