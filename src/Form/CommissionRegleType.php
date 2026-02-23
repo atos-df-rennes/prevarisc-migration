@@ -62,7 +62,7 @@ class CommissionRegleType extends AbstractType
                     return $er->createQueryBuilder('g')
                         ->leftJoin('g.type', 't')
                         ->addSelect('t')
-                        ->orderBy('t.libelle', 'ASC')
+                        ->orderBy('t.id', 'ASC')
                         ->addOrderBy('g.libelle', 'ASC');
                 },
             ]);
