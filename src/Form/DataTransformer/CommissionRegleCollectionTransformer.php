@@ -33,9 +33,11 @@ class CommissionRegleCollectionTransformer implements DataTransformerInterface
     }
 
     /**
-     * Collection<Entity> → array<int> (pour le rendu des checkboxes).
+     * Collection<Entity> → array<string> (pour le rendu des checkboxes).
+     * Les valeurs sont retournées en tant que chaînes pour correspondre au type
+     * attendu par CheckboxListMapper::mapDataToForms (comparaison stricte).
      *
-     * @return array<int>
+     * @return array<string>
      */
     public function transform($collection): array
     {
@@ -54,7 +56,7 @@ class CommissionRegleCollectionTransformer implements DataTransformerInterface
                 throw new TransformationFailedException('Entity getter must return int, string or null.');
             }
 
-            $values[] = (int) $raw;
+            $values[] = (string) (int) $raw;
         }
 
         return $values;
