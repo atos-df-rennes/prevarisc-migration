@@ -4,19 +4,20 @@ namespace App\Form;
 
 use App\Entity\Commission;
 use App\Entity\CommissionRegle;
+use App\Entity\CommissionRegleEtudeVisite;
+use App\Entity\CommissionRegleLocalSommeil;
 use App\Entity\Commune;
 use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementType;
 use App\Entity\Groupement;
 use App\Entity\GroupementType;
 use App\Entity\IghClasse;
+use App\Form\DataTransformer\CommissionRegleCollectionTransformer;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommissionRegleType extends AbstractType
@@ -126,8 +127,8 @@ class CommissionRegleType extends AbstractType
             },
         ]);
 
-        // Local Sommeil - Checkbox individuelles (Oui/Non/Les deux)
-        $builder->add('localSommeilValues', ChoiceType::class, [
+        // Local Sommeil - Checkboxes mappées via DataTransformer (Collection ↔ array<int>)
+        $builder->add('localSommeil', ChoiceType::class, [
             'choices' => [
                 'Oui' => 1,
                 'Non' => 0,
@@ -136,14 +137,21 @@ class CommissionRegleType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Local à sommeil',
-            'mapped' => false,
             'attr' => [
                 'class' => 'checkbox-group',
             ],
         ]);
 
-        // Étude/Visite - Checkbox individuelles (Étude/Visite/Les deux)
-        $builder->add('etudeVisiteValues', ChoiceType::class, [
+        $builder->get('localSommeil')->addModelTransformer(
+            new CommissionRegleCollectionTransformer(
+                CommissionRegleLocalSommeil::class,
+                'getLocalSommeil',
+                'setLocalSommeil'
+            )
+        );
+
+        // Étude/Visite - Checkboxes mappées via DataTransformer (Collection ↔ array<int>)
+        $builder->add('etudeVisite', ChoiceType::class, [
             'choices' => [
                 'Étude' => 1,
                 'Visite' => 0,
@@ -152,38 +160,18 @@ class CommissionRegleType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Type de dossier',
-            'mapped' => false,
             'attr' => [
                 'class' => 'checkbox-group',
             ],
         ]);
 
-        // Charger les valeurs existantes pour localSommeil et etudeVisite
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
-            /** @var ?CommissionRegle $regle */
-            $regle = $event->getData();
-            $form = $event->getForm();
-
-            if (!$regle) {
-                return;
-            }
-
-            // Extraire les valeurs de localSommeil
-            $localSommeilValues = [];
-            foreach ($regle->getLocalSommeil() as $ls) {
-                $localSommeilValues[] = $ls->getLocalSommeil();
-            }
-
-            $form->get('localSommeilValues')->setData($localSommeilValues);
-
-            // Extraire les valeurs de etudeVisite
-            $etudeVisiteValues = [];
-            foreach ($regle->getEtudeVisite() as $ev) {
-                $etudeVisiteValues[] = $ev->getEtudeVisite();
-            }
-
-            $form->get('etudeVisiteValues')->setData($etudeVisiteValues);
-        });
+        $builder->get('etudeVisite')->addModelTransformer(
+            new CommissionRegleCollectionTransformer(
+                CommissionRegleEtudeVisite::class,
+                'getEtudeVisite',
+                'setEtudeVisite'
+            )
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

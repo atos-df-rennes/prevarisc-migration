@@ -1,0 +1,49 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}Administration / {{ commission.libelle }} — Règles de compétence{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/commission/champ_competence.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+    {# Fil d'Ariane #}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('admin_commissions_index') }}">Commissions</a></li>
+        {% if commission.type %}
+            <li>{{ commission.type.libelle }}</li>
+        {% endif %}
+        <li class="active">{{ commission.libelle }}</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="pull-right">
+                <a href="{{ path('admin_commissions_index') }}" class="btn btn-default">
+                    <span class="glyphicon glyphicon-arrow-left"></span> Retour à la liste
+                </a>
+            </div>
+            <h3 class="page-header">
+                Règles de compétence — {{ commission.libelle }}
+                {% if commission.type %}
+                    <small>{{ commission.type.libelle }}</small>
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'error' ? 'danger' : label) }} alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <span class="glyphicon glyphicon-{{ label == 'success' ? 'ok' : 'warning-sign' }}"></span>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ form_start(form) }}
+        {{ include('commissions/_competences.html.twig', {form: form, commission: commission}) }}
+    {{ form_end(form) }}
+{% endblock %}

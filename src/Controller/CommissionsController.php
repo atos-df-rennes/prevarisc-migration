@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Commission;
 use App\Entity\CommissionRegle;
-use App\Entity\CommissionRegleEtudeVisite;
-use App\Entity\CommissionRegleLocalSommeil;
 use App\Entity\CommissionType;
 use App\Form\CommissionReglesCollectionType;
 use App\Form\CommissionsCollectionType;
@@ -57,18 +55,12 @@ class CommissionsController extends AbstractController
     /**
      * @Route("/admin/commissions", name="admin_commissions_index")
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $commissionTypes = $this->commissionTypeRepository->findAll();
 
-        $selectedTypeId = $request->query->get('type');
-        if (null === $selectedTypeId && count($commissionTypes) > 0) {
-            $selectedTypeId = $commissionTypes[0]->getId();
-        }
-
         return $this->render('commissions/index.html.twig', [
             'commission_types' => $commissionTypes,
-            'selected_type_id' => $selectedTypeId,
         ]);
     }
 
@@ -161,13 +153,15 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * Page dédiée d'édition des règles de compétence d'une commission.
+     * Remplace l'ancienne approche AJAX fragmentée.
+     *
+     * @Route("/admin/commissions/{id}", name="admin_commissions_edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function competences(Commission $commission, Request $request): Response
+    public function edit(Commission $commission, Request $request): Response
     {
         $regles = $this->commissionRegleRepository->findByCommissionWithRelations($commission);
 
-        // Créer le formulaire avec la collection de règles
         $form = $this->createForm(CommissionReglesCollectionType::class, ['regles' => $regles], [
             'commission' => $commission,
         ]);
@@ -180,7 +174,7 @@ class CommissionsController extends AbstractController
             /** @var CommissionRegle[] $submittedRegles */
             $submittedRegles = $data['regles'] ?? [];
 
-            // Récupérer les IDs des règles soumises
+            // Supprimer les règles retirées du formulaire
             $submittedIds = [];
             foreach ($submittedRegles as $regle) {
                 $regleId = $regle->getId();
@@ -189,7 +183,6 @@ class CommissionsController extends AbstractController
                 }
             }
 
-            // Supprimer les règles non soumises (suppression)
             foreach ($regles as $existingRegle) {
                 $existingId = $existingRegle->getId();
                 if ($existingId && !in_array($existingId, $submittedIds, true)) {
@@ -197,116 +190,32 @@ class CommissionsController extends AbstractController
                 }
             }
 
-            // Persister/mettre à jour les règles soumises
-            foreach ($submittedRegles as $index => $regle) {
-                // Associer la commission
+            // Persister les règles soumises
+            foreach ($submittedRegles as $regle) {
                 $regle->setCommission($commission);
-
-                // Gérer localSommeil
-                $localSommeilData = $form->get('regles')->get((string) $index)->get('localSommeilValues')->getData();
-                $localSommeilValues = [];
-                if (is_array($localSommeilData)) {
-                    foreach ($localSommeilData as $value) {
-                        if (is_numeric($value)) {
-                            $localSommeilValues[] = (int) $value;
-                        }
-                    }
-                }
-
-                $this->syncLocalSommeil($regle, $localSommeilValues);
-
-                // Gérer etudeVisite
-                $etudeVisiteData = $form->get('regles')->get((string) $index)->get('etudeVisiteValues')->getData();
-                $etudeVisiteValues = [];
-                if (is_array($etudeVisiteData)) {
-                    foreach ($etudeVisiteData as $value) {
-                        if (is_numeric($value)) {
-                            $etudeVisiteValues[] = (int) $value;
-                        }
-                    }
-                }
-
-                $this->syncEtudeVisite($regle, $etudeVisiteValues);
-
                 $this->entityManager->persist($regle);
             }
 
             $this->entityManager->flush();
 
-            // Pour les requêtes AJAX (soumission depuis la page de gestion), retourner
-            // le fragment mis à jour directement plutôt que de rediriger, afin d'éviter
-            // que le navigateur ne quitte le contexte AJAX de la page.
-            if ($request->isXmlHttpRequest()) {
-                $regles = $this->commissionRegleRepository->findByCommissionWithRelations($commission);
-                $form = $this->createForm(CommissionReglesCollectionType::class, ['regles' => $regles], [
-                    'commission' => $commission,
-                ]);
-
-                return $this->render('commissions/_competences.html.twig', [
-                    'commission' => $commission,
-                    'regles' => $regles,
-                    'form' => $form->createView(),
-                    'saved' => true,
-                ]);
-            }
-
             $this->addFlash('success', 'Les règles de compétence ont été sauvegardées avec succès.');
 
-            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
+            return $this->redirectToRoute('admin_commissions_edit', ['id' => $commission->getId()]);
         }
 
-        return $this->render('commissions/_competences.html.twig', [
+        return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
-            'regles' => $regles,
             'form' => $form->createView(),
         ]);
     }
 
     /**
-     * Synchronise les valeurs LocalSommeil d'une règle.
+     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
      *
-     * @param array<int> $values
+     * @deprecated utiliser admin_commissions_edit à la place
      */
-    private function syncLocalSommeil(CommissionRegle $regle, array $values): void
+    public function competences(Commission $commission): Response
     {
-        // Supprimer les anciennes valeurs
-        foreach ($regle->getLocalSommeil() as $ls) {
-            $this->entityManager->remove($ls);
-        }
-
-        $regle->getLocalSommeil()->clear();
-
-        // Ajouter les nouvelles valeurs
-        foreach ($values as $value) {
-            $localSommeil = new CommissionRegleLocalSommeil();
-            $localSommeil->setRegle($regle);
-            $localSommeil->setLocalSommeil((int) $value);
-            $regle->getLocalSommeil()->add($localSommeil);
-            $this->entityManager->persist($localSommeil);
-        }
-    }
-
-    /**
-     * Synchronise les valeurs EtudeVisite d'une règle.
-     *
-     * @param array<int> $values
-     */
-    private function syncEtudeVisite(CommissionRegle $regle, array $values): void
-    {
-        // Supprimer les anciennes valeurs
-        foreach ($regle->getEtudeVisite() as $ev) {
-            $this->entityManager->remove($ev);
-        }
-
-        $regle->getEtudeVisite()->clear();
-
-        // Ajouter les nouvelles valeurs
-        foreach ($values as $value) {
-            $etudeVisite = new CommissionRegleEtudeVisite();
-            $etudeVisite->setRegle($regle);
-            $etudeVisite->setEtudeVisite((int) $value);
-            $regle->getEtudeVisite()->add($etudeVisite);
-            $this->entityManager->persist($etudeVisite);
-        }
+        return $this->redirectToRoute('admin_commissions_edit', ['id' => $commission->getId()], 301);
     }
 }
