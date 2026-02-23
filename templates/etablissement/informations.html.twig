@@ -2,6 +2,7 @@
 
 {% block title %}{{ parent() }} / Fiche établissement{% endblock %}
 
+{% set infos = etablissement.latestInformations %}
 {% block body %}
     <div id="etablissement">
         <div class="pull-right">
@@ -13,12 +14,12 @@
         <div class="row">
             <!-- Informations générales de l'établissement -->
             <div class="col-md-6">
-                {{ include('etablissement/_informations/_general.html.twig') }}
+                {{ include('etablissement/_informations/_general.html.twig', {infos: infos}) }}
             </div>
 
             <!-- Carte de l'emplacement de l'établissement / informations  -->
             <div class="col-md-6">
-                {{ include('etablissement/_informations/_carto.html.twig') }}
+                {{ include('etablissement/_informations/_carto.html.twig', {infos: infos}) }}
             </div>
         </div>
     </div>

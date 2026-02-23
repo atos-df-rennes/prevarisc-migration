@@ -37,7 +37,7 @@
                         {{ adresses[0].longitude }},
                         {{ adresses[0].latitude }}
                     ],
-                    "<b>{{ etablissement.latestInformations.libelle|e('html_attr') }}</b><br/>" +
+                    "<b>{{ infos.libelle|e('html_attr') }}</b><br/>" +
                     "{{ adresses[0].numero }}, " +
                     "{{ adresses[0].rue.libelle|e('html_attr') }}<br/>" +
                     "{{ adresses[0].commune.codePostal }} " +
@@ -118,7 +118,7 @@
                     var marker = new google.maps.Marker({
                         position: point,
                         map: map,
-                        title: "{{ etablissement.latestInformations.libelle }}"
+                        title: "{{ infos.libelle }}"
                     });
 
                     var infowindow = new google.maps.InfoWindow({
@@ -281,20 +281,20 @@
 <h4 class="h4_subtitle">Données prévention</h4>
 <dl class="dl-horizontal">
     <!-- Commission compétente -->
-    {% if etablissement.latestInformations.genre.id in [2, 5] %}
+    {% if infos.genre.id in [2, 5] %}
         <dt>Commission</dt>
         <dd>
-            <p>{{ etablissement.latestInformations.commission.libelle }} ({{ etablissement.latestInformations.commission.type.libelle }})</p>
+            <p>{{ infos.commission.libelle }} ({{ infos.commission.type.libelle }})</p>
         </dd>
     {% endif %}
 
     <!-- Préventionnistes -->
     <dt>Préventionnistes</dt>
     <dd>
-        {% if etablissement.latestInformations.preventionnistes|length == 0 %}
+        {% if infos.preventionnistes|length == 0 %}
             <p class="text-muted">Aucun préventionniste lié.</p>
         {% else %}
-            {% for preventionniste in etablissement.latestInformations.preventionnistes %}
+            {% for preventionniste in infos.preventionnistes %}
                 {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
                 <div style="clear: both; margin-bottom: 10px;"></div>
             {% endfor %}
@@ -332,10 +332,10 @@
     </dd>
 
     <!-- Données pratiques -->
-    {% if etablissement.latestInformations.genre.id in [1, 2, 3, 5] %}
+    {% if infos.genre.id in [1, 2, 3, 5] %}
         <dt>Données pratiques</dt>
         <dd>
-            {% if etablissement.latestInformations.genre.id != 1 %}
+            {% if infos.genre.id != 1 %}
                 Nb. de préventionnistes/visite : {{ donnees_pratiques.nbPreventionnistes }}<br/>
             {% endif %}
             {% if donnees_pratiques.dureeVisite is not null %}
