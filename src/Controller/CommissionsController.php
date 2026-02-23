@@ -233,6 +233,23 @@ class CommissionsController extends AbstractController
 
             $this->entityManager->flush();
 
+            // Pour les requêtes AJAX (soumission depuis la page de gestion), retourner
+            // le fragment mis à jour directement plutôt que de rediriger, afin d'éviter
+            // que le navigateur ne quitte le contexte AJAX de la page.
+            if ($request->isXmlHttpRequest()) {
+                $regles = $this->commissionRegleRepository->findByCommissionWithRelations($commission);
+                $form = $this->createForm(CommissionReglesCollectionType::class, ['regles' => $regles], [
+                    'commission' => $commission,
+                ]);
+
+                return $this->render('commissions/_competences.html.twig', [
+                    'commission' => $commission,
+                    'regles' => $regles,
+                    'form' => $form->createView(),
+                    'saved' => true,
+                ]);
+            }
+
             $this->addFlash('success', 'Les règles de compétence ont été sauvegardées avec succès.');
 
             return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);

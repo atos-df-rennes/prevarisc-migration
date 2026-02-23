@@ -8,6 +8,7 @@ use App\Entity\Commune;
 use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementType;
 use App\Entity\Groupement;
+use App\Entity\GroupementType;
 use App\Entity\IghClasse;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -54,9 +55,15 @@ class CommissionRegleType extends AbstractType
                     'class' => 'tom-select',
                     'data-placeholder' => 'Sélectionnez un groupement',
                 ],
+                'group_by' => function (Groupement $groupement): ?string {
+                    return $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre';
+                },
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('g')
-                        ->orderBy('g.libelle', 'ASC');
+                        ->leftJoin('g.type', 't')
+                        ->addSelect('t')
+                        ->orderBy('t.libelle', 'ASC')
+                        ->addOrderBy('g.libelle', 'ASC');
                 },
             ]);
         }
