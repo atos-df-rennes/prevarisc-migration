@@ -147,10 +147,6 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
 
     /**
      * Vérifie si un établissement possède au moins un avis de dérogation visible dans l'historique.
-     *
-     * Remplace le parcours PHP de collections lazy-loadées (N+1 requêtes) par une seule requête COUNT.
-     *
-     * Chaîne de jointures : Etablissement → dossiers (ManyToMany) → avisDerogations (OneToMany)
      */
     public function hasAvisDerogationsVisibles(int $etablissementId): bool
     {
