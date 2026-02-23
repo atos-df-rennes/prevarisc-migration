@@ -144,4 +144,22 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
 
         return $query->getSingleScalarResult();
     }
+
+    /**
+     * Vérifie si un établissement possède au moins un avis de dérogation visible dans l'historique.
+     */
+    public function hasAvisDerogationsVisibles(int $etablissementId): bool
+    {
+        $count = $this->createQueryBuilder('e')
+            ->select('COUNT(ad.id)')
+            ->join('e.dossiers', 'd')
+            ->join('d.avisDerogations', 'ad')
+            ->where('e.id = :id')
+            ->andWhere('ad.displayHistorique = true')
+            ->setParameter('id', $etablissementId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
 }

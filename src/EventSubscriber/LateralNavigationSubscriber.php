@@ -77,15 +77,11 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
             $parents = [];
 
             do {
-                if (null === $etablissementCourant) {
-                    break;
-                }
-
                 $parent = $etablissementCourant->getParent();
 
                 if (null !== $parent) {
                     $parents[] = $parent;
-                    $etablissementCourant = $this->etablissementRepository->find($parent->getId());
+                    $etablissementCourant = $parent;
                 }
             } while (null !== $parent);
 
@@ -97,7 +93,7 @@ class LateralNavigationSubscriber implements EventSubscriberInterface
             $event->getRequest()->attributes->set('libelle_descriptif', null !== $capsuleDescriptifEtablissement ? $capsuleDescriptifEtablissement->getNom() : 'Descriptif');
             $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
 
-            $event->getRequest()->attributes->set('has_avis_derogations', $etablissement->hasAvisDerogations());
+            $event->getRequest()->attributes->set('has_avis_derogations', $this->etablissementRepository->hasAvisDerogationsVisibles($etablissement->getId()));
         }
     }
 
