@@ -27,7 +27,8 @@ class CommissionRegleType extends AbstractType
     {
         /** @var Commission $commission */
         $commission = $options['commission'];
-        $isCommunale = $commission->getType() && 'Communale' === $commission->getType()->getLibelle();
+        // @todo: à ajouter dans un fichier Constant une fois la PR sur les dossiers mergés
+        $isCommunale = $commission->getType() && 2 === $commission->getType()->getId();
 
         // Zone géographique : Commune OU Groupement selon type de commission
         if ($isCommunale) {
@@ -79,7 +80,6 @@ class CommissionRegleType extends AbstractType
             'required' => false,
             'label' => 'Catégories ERP',
             'attr' => [
-                'class' => 'checkbox-group',
                 'data-select-all-target' => 'categories',
             ],
             'query_builder' => function (EntityRepository $er) {

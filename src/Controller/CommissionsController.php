@@ -137,22 +137,6 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/commissions/liste/{typeId}", name="admin_commissions_list", requirements={"typeId"="\d+"})
-     */
-    public function getCommissions(CommissionType $typeId): Response
-    {
-        $commissions = $this->commissionRepository->findBy(
-            ['type' => $typeId],
-            ['libelle' => 'ASC']
-        );
-
-        return $this->render('commissions/_list.html.twig', [
-            'commissions' => $commissions,
-            'commission_type' => $typeId,
-        ]);
-    }
-
-    /**
      * Redirige vers l'onglet compétences (point d'entrée générique par commission).
      *
      * @Route("/admin/commissions/{id}", name="admin_commissions_show", requirements={"id"="\d+"}, methods={"GET"})
@@ -162,6 +146,7 @@ class CommissionsController extends AbstractController
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
     }
 
+    // @todo: à regarder
     /**
      * Onglet Compétences — édition des règles de compétence d'une commission.
      *

@@ -1,6 +1,6 @@
 {% extends 'layouts/admin.html.twig' %}
 
-{% block title %}Administration / {{ commission.libelle }} — {{ active_tab|capitalize }}{% endblock %}
+{% block title %}Administration / Gestion des commissions / {{ commission.libelle }} — {{ active_tab|capitalize }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -21,7 +21,7 @@
         <div class="col-md-12">
             <div class="pull-right">
                 <a href="{{ path('admin_commissions_index') }}" class="btn btn-default">
-                    <span class="glyphicon glyphicon-arrow-left"></span> Retour à la liste
+                    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Retour à la liste
                 </a>
             </div>
             <h3 class="page-header">
@@ -41,7 +41,7 @@
         {key: 'courriers', label: 'Courriers', icon: 'print', route: 'admin_commissions_courriers'},
         {key: 'documents', label: 'Documents', icon: 'folder-open', route: 'admin_commissions_documents'},
     ] %}
-    <ul class="nav nav-tabs" style="margin-bottom: 20px;">
+    <ul class="nav nav-tabs mb-4">
         {% for tab in tabs %}
             <li{% if active_tab == tab.key %} class="active"{% endif %}>
                 <a href="{{ path(tab.route, {id: commission.id}) }}">
@@ -51,17 +51,6 @@
             </li>
         {% endfor %}
     </ul>
-
-    {# Messages flash #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'error' ? 'danger' : label) }} alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <span class="glyphicon glyphicon-{{ label == 'success' ? 'ok' : 'warning-sign' }}"></span>
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endfor %}
 
     {# Contenu selon l'onglet actif #}
     {% if active_tab == 'competences' %}

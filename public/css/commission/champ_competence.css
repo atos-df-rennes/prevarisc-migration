@@ -1,14 +1,7 @@
-/**
- * Styles pour l'affichage des champs de compétence des commissions
- */
-
-.panel-group .panel .competence-rule {
-    margin-bottom: 10px;
-}
-
-.competence-rule .panel-heading {
-    background-color: #f5f5f5;
-    font-weight: 600;
+.no-competences-message {
+  text-align: center;
+  padding: 30px;
+  color: #999;
 }
 
 .competence-rule .panel-heading:hover {
@@ -49,31 +42,6 @@
 
 .competence-rule ul.criteria-list li {
     margin-bottom: 3px;
-}
-
-.competence-actions {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
-}
-
-.no-competences-message {
-    text-align: center;
-    padding: 30px;
-    color: #999;
-}
-
-.competence-rule-number {
-    display: inline-block;
-    min-width: 30px;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    background-color: #337ab7;
-    color: #fff;
-    border-radius: 50%;
-    font-weight: bold;
-    margin-right: 10px;
 }
 
 .competence-rule .panel-title {

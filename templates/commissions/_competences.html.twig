@@ -1,8 +1,8 @@
 {% do form.regles.setRendered %}
 
-<div class="competence-actions text-right" style="margin-bottom: 15px;">
+<div class="text-right mb-4">
     <button type="button" class="btn btn-primary btn-sm add-regle-btn">
-        <span class="glyphicon glyphicon-plus"></span> Ajouter une règle
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une règle
     </button>
 </div>
 
@@ -28,11 +28,11 @@
                            href="#collapse-regle-{{ index }}"
                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
                            aria-controls="collapse-regle-{{ index }}">
-                            <span class="caret-toggle glyphicon glyphicon-chevron-down {% if not loop.first %}collapsed{% endif %}"></span>
+                            <span class="caret-toggle glyphicon glyphicon-chevron-down {% if not loop.first %}collapsed{% endif %}" aria-hidden="true"></span>
                             Règle de compétence #{{ loop.index }}
                         </a>
-                        <button type="button" class="btn btn-danger btn-xs pull-right remove-regle-btn" style="margin-top: 5px;">
-                            <span class="glyphicon glyphicon-trash"></span> Supprimer
+                        <button type="button" class="btn btn-danger btn-xs pull-right remove-regle-btn">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
                         </button>
                     </h4>
                 </div>
@@ -42,34 +42,30 @@
                      aria-labelledby="heading-regle-{{ index }}">
                     <div class="panel-body">
                         {# Zone géographique #}
-                        <div class="form-group">
-                            {% if regle_form.commune is defined %}
-                                {{ form_row(regle_form.commune) }}
-                            {% elseif regle_form.groupement is defined %}
-                                {{ form_row(regle_form.groupement) }}
-                            {% endif %}
-                        </div>
+                        {% if regle_form.commune is defined %}
+                            {{ form_row(regle_form.commune) }}
+                        {% elseif regle_form.groupement is defined %}
+                            {{ form_row(regle_form.groupement) }}
+                        {% endif %}
 
                         {# Catégories ERP - Checkbox avec bouton "Tout sélectionner" #}
                         <div class="form-group">
                             {{ form_label(regle_form.categories) }}
-                            <div style="margin-bottom: 10px;">
+                            <div class="mb-3">
                                 <button type="button" class="btn btn-xs btn-default select-all-checkbox-btn" data-target="{{ regle_form.categories.vars.id }}">
-                                    <span class="glyphicon glyphicon-check"></span> Tout sélectionner
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner
                                 </button>
                             </div>
-                            <div id="{{ regle_form.categories.vars.id }}-container" class="checkbox-container">
-                                {{ form_widget(regle_form.categories) }}
-                            </div>
+                            {{ form_widget(regle_form.categories) }}
                             {{ form_errors(regle_form.categories) }}
                         </div>
 
                         {# Types ERP - Select multiple avec bouton "Tout sélectionner" #}
                         <div class="form-group">
                             {{ form_label(regle_form.types) }}
-                            <div style="margin-bottom: 10px;">
+                            <div class="mb-3">
                                 <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ regle_form.types.vars.id }}">
-                                    <span class="glyphicon glyphicon-check"></span> Tout sélectionner
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner
                                 </button>
                             </div>
                             {{ form_widget(regle_form.types) }}
@@ -79,7 +75,7 @@
                         {# Classes IGH - Select multiple avec bouton "Tout sélectionner" #}
                         <div class="form-group">
                             {{ form_label(regle_form.classes) }}
-                            <div style="margin-bottom: 10px;">
+                            <div class="mb-3">
                                 <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ regle_form.classes.vars.id }}">
                                     <span class="glyphicon glyphicon-check"></span> Tout sélectionner
                                 </button>
@@ -89,10 +85,14 @@
                         </div>
 
                         {# Local Sommeil - Checkbox #}
-                        {{ form_row(regle_form.localSommeil) }}
+                        <div class="form-group">
+                            {{ form_row(regle_form.localSommeil) }}
+                        </div>
 
                         {# Étude/Visite - Checkbox #}
-                        {{ form_row(regle_form.etudeVisite) }}
+                        <div class="form-group">
+                            {{ form_row(regle_form.etudeVisite) }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
     {% endif %}
 </div>
 
-<div class="competence-actions text-center" style="margin-top: 20px;">
+<div class="text-center mt-5">
     <button type="submit" class="btn btn-success save-competences-btn">
         <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder les règles
     </button>
@@ -108,34 +108,34 @@
 
 <script>
 $(document).ready(function() {
-    var $collection = $('#competences-accordion');
-    var index = {{ form.regles|length }};
+    const $collection = $('#competences-accordion');
+    let index = {{ form.regles|length }};
 
     function initTomSelect($container) {
-        $container.find('.tom-select').each(function() {
-            if (!this.tomselect) {
-                new TomSelect(this, { plugins: ['remove_button'], maxOptions: null });
+        $container.find('.tom-select').each(function(_index, value) {
+            if (!value.tomselect) {
+                new TomSelect(value, { plugins: ['remove_button'], maxOptions: null });
             }
         });
     }
 
     function updateSelectAllButton($btn) {
-        var targetId = $btn.data('target');
+        const targetId = $btn.data('target');
         if (targetId) {
             // Bouton checkbox
-            var $checkboxes = $('#' + targetId + '-container input[type="checkbox"]');
+            const $checkboxes = $('#' + targetId + ' input[type="checkbox"]');
             if ($checkboxes.length > 0 && $checkboxes.filter(':checked').length === $checkboxes.length) {
-                $btn.html('<span class="glyphicon glyphicon-unchecked"></span> Tout désélectionner');
+                $btn.html('<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Tout désélectionner');
             } else {
-                $btn.html('<span class="glyphicon glyphicon-check"></span> Tout sélectionner');
+                $btn.html('<span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner');
             }
         } else {
             // Bouton select multiple (TomSelect)
-            var fieldId = $btn.data('target-field');
-            var $select = $('#' + fieldId);
+            const fieldId = $btn.data('target-field');
+            const $select = $('#' + fieldId);
             if ($select.length && $select[0].tomselect) {
-                var ts = $select[0].tomselect;
-                var optionCount = Object.keys(ts.options).length;
+                const ts = $select[0].tomselect;
+                const optionCount = Object.keys(ts.options).length;
                 if (optionCount > 0 && ts.items.length === optionCount) {
                     $btn.html('<span class="glyphicon glyphicon-unchecked"></span> Tout désélectionner');
                 } else {
@@ -152,20 +152,20 @@ $(document).ready(function() {
 
     // Tout sélectionner/désélectionner - checkboxes
     $(document).on('click', '.select-all-checkbox-btn', function() {
-        var targetId = $(this).data('target');
-        var $checkboxes = $('#' + targetId + '-container input[type="checkbox"]');
-        var allChecked = $checkboxes.filter(':checked').length === $checkboxes.length;
+        const targetId = $(this).data('target');
+        const $checkboxes = $('#' + targetId + ' input[type="checkbox"]');
+        const allChecked = $checkboxes.filter(':checked').length === $checkboxes.length;
         $checkboxes.prop('checked', !allChecked);
         updateSelectAllButton($(this));
     });
 
     // Tout sélectionner/désélectionner - select multiple (TomSelect)
     $(document).on('click', '.select-all-select-btn', function() {
-        var fieldId = $(this).data('target-field');
-        var $select = $('#' + fieldId);
+        const fieldId = $(this).data('target-field');
+        const $select = $('#' + fieldId);
         if ($select.length && $select[0].tomselect) {
-            var ts = $select[0].tomselect;
-            var options = Object.keys(ts.options);
+            const ts = $select[0].tomselect;
+            const options = Object.keys(ts.options);
             if (ts.items.length === options.length) {
                 ts.clear();
             } else {
@@ -175,17 +175,20 @@ $(document).ready(function() {
         }
     });
 
+    // @todo: Vérifier ça parce que l'ajout en JS comme ça moyen fan :/
+    // On peut pas avoir un prototype global ??
+
     // Ajout d'une règle via prototype
     $(document).on('click', '.add-regle-btn', function() {
-        var prototype = $collection.data('prototype');
+        const prototype = $collection.data('prototype');
         if (!prototype) { return; }
 
-        var newForm = prototype.replace(/__name__/g, index);
-        var collapseId = 'collapse-regle-' + index;
-        var headingId  = 'heading-regle-' + index;
-        var ruleNum    = $collection.find('.competence-rule').length + 1;
+        const newForm = prototype.replace(/__name__/g, index);
+        const collapseId = 'collapse-regle-' + index;
+        const headingId  = 'heading-regle-' + index;
+        const ruleNum    = $collection.find('.competence-rule').length + 1;
 
-        var panelHtml =
+        const panelHtml =
             '<div class="panel panel-default competence-rule">' +
             '<div class="panel-heading" role="tab" id="' + headingId + '">' +
             '<h4 class="panel-title">' +
@@ -201,7 +204,7 @@ $(document).ready(function() {
             '<div class="panel-body">' + newForm + '</div>' +
             '</div></div>';
 
-        var $panel = $(panelHtml);
+        const $panel = $(panelHtml);
         $collection.find('.no-competences-message').remove();
         $collection.find('.panel-collapse.in').removeClass('in');
         $collection.append($panel);
@@ -211,11 +214,9 @@ $(document).ready(function() {
 
     // Suppression d'une règle - retire du DOM uniquement
     $(document).on('click', '.remove-regle-btn', function() {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cette règle ?')) { return; }
-
-        var $panel = $(this).closest('.competence-rule');
-        $panel.find('.tom-select').each(function() {
-            if (this.tomselect) { this.tomselect.destroy(); }
+        const $panel = $(this).closest('.competence-rule');
+        $panel.find('.tom-select').each(function(_index, value) {
+            if (value.tomselect) { value.tomselect.destroy(); }
         });
         $panel.remove();
 
@@ -226,9 +227,9 @@ $(document).ready(function() {
 
     // Indicateur de chargement sur soumission
     $('form').on('submit', function() {
-        var $btn = $(this).find('.save-competences-btn');
+        const $btn = $(this).find('.save-competences-btn');
         $btn.prop('disabled', true).html(
-            '<span class="glyphicon glyphicon-refresh spinning"></span> Sauvegarde en cours...'
+            '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Sauvegarde en cours...'
         );
     });
 });

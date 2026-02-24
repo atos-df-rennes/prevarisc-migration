@@ -23,9 +23,6 @@ class CommissionReglesCollectionType extends AbstractType
             'delete_empty' => true,
             'prototype' => true,
             'prototype_name' => '__name__',
-            'attr' => [
-                'class' => 'regles-collection',
-            ],
         ]);
     }
 
