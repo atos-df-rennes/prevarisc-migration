@@ -239,41 +239,6 @@ class CommissionRegle
         return $this->etudeVisite;
     }
 
-    /**
-     * Setter utilisé par le formulaire (DataTransformer) pour remplacer la collection.
-     * La comparaison par valeur entière évite les doublons sur la clé composite.
-     *
-     * @param Collection<int, CommissionRegleEtudeVisite> $newValues
-     */
-    public function setEtudeVisite(Collection $newValues): self
-    {
-        $newInts = [];
-        foreach ($newValues as $ev) {
-            $newInts[] = (int) $ev->getEtudeVisite();
-        }
-
-        // Retirer les entrées qui ne sont plus sélectionnées
-        foreach ($this->etudeVisite->toArray() as $existing) {
-            if (!in_array((int) $existing->getEtudeVisite(), $newInts, true)) {
-                $this->removeEtudeVisite($existing);
-            }
-        }
-
-        // Ajouter les nouvelles valeurs absentes de la collection courante
-        $currentInts = [];
-        foreach ($this->etudeVisite as $ev) {
-            $currentInts[] = (int) $ev->getEtudeVisite();
-        }
-
-        foreach ($newValues as $ev) {
-            if (!in_array((int) $ev->getEtudeVisite(), $currentInts, true)) {
-                $this->addEtudeVisite($ev);
-            }
-        }
-
-        return $this;
-    }
-
     public function addEtudeVisite(CommissionRegleEtudeVisite $etudeVisite): self
     {
         if (!$this->etudeVisite->contains($etudeVisite)) {
@@ -286,10 +251,7 @@ class CommissionRegle
 
     public function removeEtudeVisite(CommissionRegleEtudeVisite $etudeVisite): self
     {
-        // set the owning side to null (unless already changed)
-        if ($this->etudeVisite->removeElement($etudeVisite) && $etudeVisite->getRegle() === $this) {
-            $etudeVisite->setRegle(null);
-        }
+        $this->etudeVisite->removeElement($etudeVisite);
 
         return $this;
     }
@@ -300,41 +262,6 @@ class CommissionRegle
     public function getLocalSommeil(): Collection
     {
         return $this->localSommeil;
-    }
-
-    /**
-     * Setter utilisé par le formulaire (DataTransformer) pour remplacer la collection.
-     * La comparaison par valeur entière évite les doublons sur la clé composite.
-     *
-     * @param Collection<int, CommissionRegleLocalSommeil> $newValues
-     */
-    public function setLocalSommeil(Collection $newValues): self
-    {
-        $newInts = [];
-        foreach ($newValues as $ls) {
-            $newInts[] = (int) $ls->getLocalSommeil();
-        }
-
-        // Retirer les entrées qui ne sont plus sélectionnées
-        foreach ($this->localSommeil->toArray() as $existing) {
-            if (!in_array((int) $existing->getLocalSommeil(), $newInts, true)) {
-                $this->removeLocalSommeil($existing);
-            }
-        }
-
-        // Ajouter les nouvelles valeurs absentes de la collection courante
-        $currentInts = [];
-        foreach ($this->localSommeil as $ls) {
-            $currentInts[] = (int) $ls->getLocalSommeil();
-        }
-
-        foreach ($newValues as $ls) {
-            if (!in_array((int) $ls->getLocalSommeil(), $currentInts, true)) {
-                $this->addLocalSommeil($ls);
-            }
-        }
-
-        return $this;
     }
 
     public function addLocalSommeil(CommissionRegleLocalSommeil $localSommeil): self
@@ -349,10 +276,7 @@ class CommissionRegle
 
     public function removeLocalSommeil(CommissionRegleLocalSommeil $localSommeil): self
     {
-        // set the owning side to null (unless already changed)
-        if ($this->localSommeil->removeElement($localSommeil) && $localSommeil->getRegle() === $this) {
-            $localSommeil->setRegle(null);
-        }
+        $this->localSommeil->removeElement($localSommeil);
 
         return $this;
     }
