@@ -2,11 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Commission;
 use App\Entity\CommissionRegle;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,91 +19,5 @@ class CommissionRegleRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CommissionRegle::class);
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(CommissionRegle $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(CommissionRegle $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    // /**
-    //  * @return CommissionRegle[] Returns an array of CommissionRegle objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?CommissionRegle
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
-
-    /**
-     * Récupère toutes les règles d'une commission avec leurs relations chargées.
-     *
-     * @return CommissionRegle[]
-     */
-    public function findByCommissionWithRelations(Commission $commission): array
-    {
-        return $this->createQueryBuilder('cr')
-            ->addSelect('commune')
-            ->addSelect('groupement')
-            ->addSelect('categories')
-            ->addSelect('classes')
-            ->addSelect('types')
-            ->addSelect('etudeVisite')
-            ->addSelect('localSommeil')
-            ->leftJoin('cr.commune', 'commune')
-            ->leftJoin('cr.groupement', 'groupement')
-            ->leftJoin('cr.categories', 'categories')
-            ->leftJoin('cr.classes', 'classes')
-            ->leftJoin('cr.types', 'types')
-            ->leftJoin('cr.etudeVisite', 'etudeVisite')
-            ->leftJoin('cr.localSommeil', 'localSommeil')
-            ->where('cr.commission = :commission')
-            ->setParameter('commission', $commission)
-            ->orderBy('cr.id', 'ASC')
-            ->addOrderBy('categories.id', 'ASC')
-            ->addOrderBy('types.libelle', 'ASC')
-            ->addOrderBy('classes.libelle', 'ASC')
-            ->getQuery()
-            ->getResult()
-        ;
     }
 }

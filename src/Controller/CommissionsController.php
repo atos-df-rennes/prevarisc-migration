@@ -145,6 +145,11 @@ class CommissionsController extends AbstractController
      */
     public function competences(Commission $commission, Request $request): Response
     {
+        /*
+         * Le fait de passer uniquement la commission sans requête avec select et jointures au repository
+         * crée des requêtes N+1. Dans ce cas on l'accepte car il y a un nombre limité de règles pour chaque commission et
+         * le fait de créer une requête custom pour éviter les N+1 dégrade grandement les temps de réponse.
+         */
         $form = $this->createForm(CommissionReglesCollectionType::class, $commission, [
             'commission' => $commission,
         ]);
