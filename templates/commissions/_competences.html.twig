@@ -1,0 +1,140 @@
+{% do form.regles.setRendered %}
+
+<div class="text-right mb-4">
+    <button type="button" class="btn btn-primary btn-sm add-regle-btn">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une règle
+    </button>
+</div>
+
+{# Le container est toujours rendu pour que le prototype soit accessible même sans règles #}
+<div class="panel-group regles-collection"
+     id="competences-accordion"
+     role="tablist"
+     aria-multiselectable="true"
+     data-prototype="{{ form_row(form.regles.vars.prototype)|e('html_attr') }}">
+    {% if form.regles|length == 0 %}
+        <div class="no-competences-message">
+            <p class="text-muted"><em>Aucune règle de compétence définie pour cette commission.</em></p>
+        </div>
+    {% else %}
+        {% for regle_form in form.regles %}
+            {{ form_row(regle_form) }}
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="text-center mt-5">
+    <button type="submit" class="btn btn-success save-competences-btn">
+        <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder les règles
+    </button>
+</div>
+
+<script>
+$(document).ready(function() {
+    const $collection = $('#competences-accordion');
+    let index = {{ form.regles|length }};
+
+    function initTomSelect($container) {
+        $container.find('.tom-select').each(function(_index, value) {
+            if (!value.tomselect) {
+                new TomSelect(value, { plugins: ['remove_button'], maxOptions: null });
+            }
+        });
+    }
+
+    function updateSelectAllButton($btn) {
+        const targetId = $btn.data('target');
+        if (targetId) {
+            // Bouton checkbox
+            const $checkboxes = $('#' + targetId + ' input[type="checkbox"]');
+            if ($checkboxes.length > 0 && $checkboxes.filter(':checked').length === $checkboxes.length) {
+                $btn.html('<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Tout désélectionner');
+            } else {
+                $btn.html('<span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner');
+            }
+        } else {
+            // Bouton select multiple (TomSelect)
+            const fieldId = $btn.data('target-field');
+            const $select = $('#' + fieldId);
+            if ($select.length && $select[0].tomselect) {
+                const ts = $select[0].tomselect;
+                const optionCount = Object.keys(ts.options).length;
+                if (optionCount > 0 && ts.items.length === optionCount) {
+                    $btn.html('<span class="glyphicon glyphicon-unchecked"></span> Tout désélectionner');
+                } else {
+                    $btn.html('<span class="glyphicon glyphicon-check"></span> Tout sélectionner');
+                }
+            }
+        }
+    }
+
+    initTomSelect($collection);
+    $collection.find('.select-all-checkbox-btn, .select-all-select-btn').each(function() {
+        updateSelectAllButton($(this));
+    });
+
+    // Ferme toutes les règles existantes sauf la première (le bloc les rend toutes ouvertes)
+    $collection.find('.competence-rule:not(:first-child) .panel-collapse').removeClass('in');
+    $collection.find('.competence-rule:not(:first-child) .panel-title a').attr('aria-expanded', 'false');
+    $collection.find('.competence-rule:not(:first-child) .panel-title__link').addClass('collapsed');
+
+    // Tout sélectionner/désélectionner - checkboxes
+    $(document).on('click', '.select-all-checkbox-btn', function() {
+        const targetId = $(this).data('target');
+        const $checkboxes = $('#' + targetId + ' input[type="checkbox"]');
+        const allChecked = $checkboxes.filter(':checked').length === $checkboxes.length;
+        $checkboxes.prop('checked', !allChecked);
+        updateSelectAllButton($(this));
+    });
+
+    // Tout sélectionner/désélectionner - select multiple (TomSelect)
+    $(document).on('click', '.select-all-select-btn', function() {
+        const fieldId = $(this).data('target-field');
+        const $select = $('#' + fieldId);
+        if ($select.length && $select[0].tomselect) {
+            const ts = $select[0].tomselect;
+            const options = Object.keys(ts.options);
+            if (ts.items.length === options.length) {
+                ts.clear();
+            } else {
+                ts.setValue(options);
+            }
+            updateSelectAllButton($(this));
+        }
+    });
+
+    // Ajout d'une règle via prototype
+    $(document).on('click', '.add-regle-btn', function() {
+        const prototype = $collection.data('prototype');
+        if (!prototype) { return; }
+
+        const newForm = prototype.replace(/__name__/g, index);
+        $collection.find('.no-competences-message').remove();
+        $collection.find('.panel-collapse.in').removeClass('in');
+        $collection.append(newForm);
+        initTomSelect($collection.find('.competence-rule:last'));
+        index++;
+    });
+
+    // Suppression d'une règle - retire du DOM uniquement
+    $(document).on('click', '.remove-regle-btn', function() {
+        const $panel = $(this).closest('.competence-rule');
+        $panel.find('.tom-select').each(function(_index, value) {
+            if (value.tomselect) { value.tomselect.destroy(); }
+        });
+        $panel.remove();
+
+        if ($collection.find('.competence-rule').length === 0) {
+            $collection.html('<div class="no-competences-message"><p class="text-muted"><em>Aucune règle de compétence définie pour cette commission.</em></p></div>');
+        }
+    });
+
+    // Indicateur de chargement sur soumission
+    $('form').on('submit', function() {
+        const $btn = $(this).find('.save-competences-btn');
+        $btn.prop('disabled', true).html(
+            '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Sauvegarde en cours...'
+        );
+    });
+});
+</script>

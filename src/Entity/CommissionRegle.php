@@ -94,7 +94,7 @@ class CommissionRegle
     /**
      * @var Collection<int, CommissionRegleEtudeVisite>
      *
-     * @ORM\OneToMany(targetEntity=CommissionRegleEtudeVisite::class, mappedBy="regle", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionRegleEtudeVisite::class, mappedBy="regle", cascade={"persist"}, orphanRemoval=true)
      *
      * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
      */
@@ -103,7 +103,7 @@ class CommissionRegle
     /**
      * @var Collection<int, CommissionRegleLocalSommeil>
      *
-     * @ORM\OneToMany(targetEntity=CommissionRegleLocalSommeil::class, mappedBy="regle", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionRegleLocalSommeil::class, mappedBy="regle", cascade={"persist"}, orphanRemoval=true)
      *
      * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
      */
@@ -251,10 +251,7 @@ class CommissionRegle
 
     public function removeEtudeVisite(CommissionRegleEtudeVisite $etudeVisite): self
     {
-        // set the owning side to null (unless already changed)
-        if ($this->etudeVisite->removeElement($etudeVisite) && $etudeVisite->getRegle() === $this) {
-            $etudeVisite->setRegle(null);
-        }
+        $this->etudeVisite->removeElement($etudeVisite);
 
         return $this;
     }
@@ -279,10 +276,7 @@ class CommissionRegle
 
     public function removeLocalSommeil(CommissionRegleLocalSommeil $localSommeil): self
     {
-        // set the owning side to null (unless already changed)
-        if ($this->localSommeil->removeElement($localSommeil) && $localSommeil->getRegle() === $this) {
-            $localSommeil->setRegle(null);
-        }
+        $this->localSommeil->removeElement($localSommeil);
 
         return $this;
     }
