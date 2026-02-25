@@ -138,7 +138,6 @@ class CommissionsController extends AbstractController
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
     }
 
-    // @todo: à regarder
     /**
      * Onglet Compétences — édition des règles de compétence d'une commission.
      *
