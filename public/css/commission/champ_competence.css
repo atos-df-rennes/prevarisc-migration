@@ -8,42 +8,6 @@
     background-color: #e8e8e8;
 }
 
-/* Réinitialisation des marges pour les list-group dans ce contexte */
-.competence-rule .list-group {
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-top: 0;
-}
-
-.competence-rule .list-group-item {
-    padding: 10px 15px;
-}
-
-.competence-rule .list-group-item strong {
-    display: inline-block;
-    min-width: 180px;
-    color: #555;
-}
-
-.competence-rule .list-group-item .badge {
-    background-color: #5bc0de;
-    margin-left: 5px;
-}
-
-.competence-rule .text-muted {
-    font-style: italic;
-}
-
-.competence-rule ul.criteria-list {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.competence-rule ul.criteria-list li {
-    margin-bottom: 3px;
-}
-
 .competence-rule .panel-title {
     display: flex;
     justify-content: space-between;
