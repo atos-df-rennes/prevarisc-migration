@@ -226,4 +226,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_DOSSIERS_MAX_A_AFFICHER)', 5);
 
     $parameters->set('app.nb_dossiers_a_afficher', '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%');
+
+    $parameters->set('env(PREVARISC_COMMISSION_COMMUNALE_TYPE)', 2);
+
+    $parameters->set('app.commission_communale_type', '%env(int:PREVARISC_COMMISSION_COMMUNALE_TYPE)%');
 };

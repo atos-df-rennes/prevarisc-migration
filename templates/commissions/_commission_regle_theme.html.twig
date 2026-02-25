@@ -1,0 +1,75 @@
+{% block commission_regle_row %}
+<div class="panel panel-default competence-rule">
+    <div class="panel-heading" role="tab" id="heading-regle-{{ name }}">
+        <h4 class="panel-title">
+            <a role="button"
+               class="panel-title__link"
+               data-toggle="collapse"
+               data-parent="#competences-accordion"
+               href="#collapse-regle-{{ name }}"
+               aria-expanded="true"
+               aria-controls="collapse-regle-{{ name }}">
+                <span class="caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                Règle de compétence
+            </a>
+            <button type="button" class="btn btn-danger btn-xs pull-right remove-regle-btn">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
+            </button>
+        </h4>
+    </div>
+    <div id="collapse-regle-{{ name }}"
+         class="panel-collapse collapse in"
+         role="tabpanel"
+         aria-labelledby="heading-regle-{{ name }}">
+        <div class="panel-body">
+            {% if form.commune is defined %}
+                {{ form_row(form.commune) }}
+            {% elseif form.groupement is defined %}
+                {{ form_row(form.groupement) }}
+            {% endif %}
+
+            {# Catégories ERP - Checkbox avec bouton "Tout sélectionner" #}
+            <div class="form-group">
+                {{ form_label(form.categories) }}
+                <div class="mb-3">
+                    <button type="button" class="btn btn-xs btn-default select-all-checkbox-btn" data-target="{{ form.categories.vars.id }}">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner
+                    </button>
+                </div>
+                {{ form_widget(form.categories) }}
+                {{ form_errors(form.categories) }}
+            </div>
+
+            {# Types ERP - Select multiple avec bouton "Tout sélectionner" #}
+            <div class="form-group">
+                {{ form_label(form.types) }}
+                <div class="mb-3">
+                    <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ form.types.vars.id }}">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner
+                    </button>
+                </div>
+                {{ form_widget(form.types) }}
+                {{ form_errors(form.types) }}
+            </div>
+
+            {# Classes IGH - Select multiple avec bouton "Tout sélectionner" #}
+            <div class="form-group">
+                {{ form_label(form.classes) }}
+                <div class="mb-3">
+                    <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ form.classes.vars.id }}">
+                        <span class="glyphicon glyphicon-check"></span> Tout sélectionner
+                    </button>
+                </div>
+                {{ form_widget(form.classes) }}
+                {{ form_errors(form.classes) }}
+            </div>
+
+            {# Local Sommeil - Checkbox #}
+            {{ form_row(form['localSommeil']) }}
+
+            {# Étude/Visite - Checkbox #}
+            {{ form_row(form['etudeVisite']) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -62,7 +62,7 @@ class Commission
     /**
      * @var Collection<int, CommissionRegle>
      *
-     * @ORM\OneToMany(targetEntity=CommissionRegle::class, mappedBy="commission", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionRegle::class, mappedBy="commission", cascade={"persist"}, orphanRemoval=true)
      */
     private $regles;
 

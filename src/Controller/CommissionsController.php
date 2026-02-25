@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
-use App\Entity\CommissionType;
+use App\Form\CommissionReglesCollectionType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
@@ -47,18 +47,12 @@ class CommissionsController extends AbstractController
     /**
      * @Route("/admin/commissions", name="admin_commissions_index")
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $commissionTypes = $this->commissionTypeRepository->findAll();
 
-        $selectedTypeId = $request->query->get('type');
-        if (null === $selectedTypeId && count($commissionTypes) > 0) {
-            $selectedTypeId = $commissionTypes[0]->getId();
-        }
-
         return $this->render('commissions/index.html.twig', [
             'commission_types' => $commissionTypes,
-            'selected_type_id' => $selectedTypeId,
         ]);
     }
 
@@ -135,18 +129,97 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/commissions/liste/{typeId}", name="admin_commissions_list", requirements={"typeId"="\d+"})
+     * Redirige vers l'onglet compétences (point d'entrée générique par commission).
+     *
+     * @Route("/admin/commissions/{id}", name="admin_commissions_show", requirements={"id"="\d+"}, methods={"GET"})
      */
-    public function getCommissions(CommissionType $typeId): Response
+    public function show(Commission $commission): Response
     {
-        $commissions = $this->commissionRepository->findBy(
-            ['type' => $typeId],
-            ['libelle' => 'ASC']
-        );
+        return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
+    }
 
-        return $this->render('commissions/_list.html.twig', [
-            'commissions' => $commissions,
-            'commission_type' => $typeId,
+    /**
+     * Onglet Compétences — édition des règles de compétence d'une commission.
+     *
+     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     */
+    public function competences(Commission $commission, Request $request): Response
+    {
+        /*
+         * Le fait de passer uniquement la commission sans requête avec select et jointures au repository
+         * crée des requêtes N+1. Dans ce cas on l'accepte car il y a un nombre limité de règles pour chaque commission et
+         * le fait de créer une requête custom pour éviter les N+1 dégrade grandement les temps de réponse.
+         */
+        $form = $this->createForm(CommissionReglesCollectionType::class, $commission, [
+            'commission' => $commission,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les règles de compétence ont été sauvegardées avec succès.');
+
+            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
+        }
+
+        return $this->render('commissions/edit.html.twig', [
+            'commission' => $commission,
+            'active_tab' => 'competences',
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Onglet Membres (placeholder démo).
+     *
+     * @Route("/admin/commissions/{id}/membres", name="admin_commissions_membres", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function membres(Commission $commission): Response
+    {
+        return $this->render('commissions/edit.html.twig', [
+            'commission' => $commission,
+            'active_tab' => 'membres',
+        ]);
+    }
+
+    /**
+     * Onglet Contacts (placeholder démo).
+     *
+     * @Route("/admin/commissions/{id}/contacts", name="admin_commissions_contacts", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function contacts(Commission $commission): Response
+    {
+        return $this->render('commissions/edit.html.twig', [
+            'commission' => $commission,
+            'active_tab' => 'contacts',
+        ]);
+    }
+
+    /**
+     * Onglet Courriers (placeholder démo).
+     *
+     * @Route("/admin/commissions/{id}/courriers", name="admin_commissions_courriers", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function courriers(Commission $commission): Response
+    {
+        return $this->render('commissions/edit.html.twig', [
+            'commission' => $commission,
+            'active_tab' => 'courriers',
+        ]);
+    }
+
+    /**
+     * Onglet Documents (placeholder démo).
+     *
+     * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents", requirements={"id"="\d+"}, methods={"GET"})
+     */
+    public function documents(Commission $commission): Response
+    {
+        return $this->render('commissions/edit.html.twig', [
+            'commission' => $commission,
+            'active_tab' => 'documents',
         ]);
     }
 }
