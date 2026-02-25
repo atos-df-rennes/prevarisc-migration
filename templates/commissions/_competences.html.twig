@@ -76,7 +76,7 @@ $(document).ready(function() {
     // Ferme toutes les règles existantes sauf la première (le bloc les rend toutes ouvertes)
     $collection.find('.competence-rule:not(:first-child) .panel-collapse').removeClass('in');
     $collection.find('.competence-rule:not(:first-child) .panel-title a').attr('aria-expanded', 'false');
-    $collection.find('.competence-rule:not(:first-child) .caret-toggle').addClass('collapsed');
+    $collection.find('.competence-rule:not(:first-child) .panel-title__link').addClass('collapsed');
 
     // Tout sélectionner/désélectionner - checkboxes
     $(document).on('click', '.select-all-checkbox-btn', function() {
