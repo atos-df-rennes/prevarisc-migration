@@ -136,6 +136,11 @@ class CommissionRegleType extends AbstractType
         ;
     }
 
+    public function getBlockPrefix(): string
+    {
+        return 'commission_regle';
+    }
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -207,7 +212,7 @@ class CommissionRegleType extends AbstractType
 
     /**
      * Ajoute les soumissions non existantes en base
-     * Supprime celles en base non soumises
+     * Supprime celles en base non soumises.
      *
      * @param array<int> $submittedLocalSommeil
      */
@@ -228,6 +233,7 @@ class CommissionRegleType extends AbstractType
                 $entity->setLocalSommeil($value);
                 $regle->addLocalSommeil($entity);
             }
+
             unset($existingLocalSommeil[$value]);
         }
 
@@ -256,6 +262,7 @@ class CommissionRegleType extends AbstractType
                 $entity->setEtudeVisite($value);
                 $regle->addEtudeVisite($entity);
             }
+
             unset($existingEtudeVisite[$value]);
         }
 

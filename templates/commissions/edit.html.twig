@@ -54,6 +54,7 @@
 
     {# Contenu selon l'onglet actif #}
     {% if active_tab == 'competences' %}
+        {% form_theme form 'commissions/_commission_regle_theme.html.twig' %}
         {{ form_start(form) }}
             {{ include('commissions/_competences.html.twig', {form: form, commission: commission}) }}
         {{ form_end(form) }}

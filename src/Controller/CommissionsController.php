@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Commission;
 use App\Entity\CommissionRegle;
-use App\Entity\CommissionType;
 use App\Form\CommissionReglesCollectionType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRegleRepository;

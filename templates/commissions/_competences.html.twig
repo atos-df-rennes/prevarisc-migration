@@ -11,91 +11,14 @@
      id="competences-accordion"
      role="tablist"
      aria-multiselectable="true"
-     data-prototype="{{ form_widget(form.regles.vars.prototype)|e('html_attr') }}">
+     data-prototype="{{ form_row(form.regles.vars.prototype)|e('html_attr') }}">
     {% if form.regles|length == 0 %}
         <div class="no-competences-message">
             <p class="text-muted"><em>Aucune règle de compétence définie pour cette commission.</em></p>
         </div>
     {% else %}
         {% for regle_form in form.regles %}
-            {% set index = loop.index0 %}
-            <div class="panel panel-default competence-rule">
-                <div class="panel-heading" role="tab" id="heading-regle-{{ index }}">
-                    <h4 class="panel-title">
-                        <a role="button"
-                           data-toggle="collapse"
-                           data-parent="#competences-accordion"
-                           href="#collapse-regle-{{ index }}"
-                           aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
-                           aria-controls="collapse-regle-{{ index }}">
-                            <span class="caret-toggle glyphicon glyphicon-chevron-down {% if not loop.first %}collapsed{% endif %}" aria-hidden="true"></span>
-                            Règle de compétence #{{ loop.index }}
-                        </a>
-                        <button type="button" class="btn btn-danger btn-xs pull-right remove-regle-btn">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
-                        </button>
-                    </h4>
-                </div>
-                <div id="collapse-regle-{{ index }}"
-                     class="panel-collapse collapse {% if loop.first %}in{% endif %}"
-                     role="tabpanel"
-                     aria-labelledby="heading-regle-{{ index }}">
-                    <div class="panel-body">
-                        {# Zone géographique #}
-                        {% if regle_form.commune is defined %}
-                            {{ form_row(regle_form.commune) }}
-                        {% elseif regle_form.groupement is defined %}
-                            {{ form_row(regle_form.groupement) }}
-                        {% endif %}
-
-                        {# Catégories ERP - Checkbox avec bouton "Tout sélectionner" #}
-                        <div class="form-group">
-                            {{ form_label(regle_form.categories) }}
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-xs btn-default select-all-checkbox-btn" data-target="{{ regle_form.categories.vars.id }}">
-                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner
-                                </button>
-                            </div>
-                            {{ form_widget(regle_form.categories) }}
-                            {{ form_errors(regle_form.categories) }}
-                        </div>
-
-                        {# Types ERP - Select multiple avec bouton "Tout sélectionner" #}
-                        <div class="form-group">
-                            {{ form_label(regle_form.types) }}
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ regle_form.types.vars.id }}">
-                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout sélectionner
-                                </button>
-                            </div>
-                            {{ form_widget(regle_form.types) }}
-                            {{ form_errors(regle_form.types) }}
-                        </div>
-
-                        {# Classes IGH - Select multiple avec bouton "Tout sélectionner" #}
-                        <div class="form-group">
-                            {{ form_label(regle_form.classes) }}
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-xs btn-default select-all-select-btn" data-target-field="{{ regle_form.classes.vars.id }}">
-                                    <span class="glyphicon glyphicon-check"></span> Tout sélectionner
-                                </button>
-                            </div>
-                            {{ form_widget(regle_form.classes) }}
-                            {{ form_errors(regle_form.classes) }}
-                        </div>
-
-                        {# Local Sommeil - Checkbox #}
-                        <div class="form-group">
-                            {{ form_row(regle_form.localSommeil) }}
-                        </div>
-
-                        {# Étude/Visite - Checkbox #}
-                        <div class="form-group">
-                            {{ form_row(regle_form.etudeVisite) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{ form_row(regle_form) }}
         {% endfor %}
     {% endif %}
 </div>
@@ -150,6 +73,11 @@ $(document).ready(function() {
         updateSelectAllButton($(this));
     });
 
+    // Ferme toutes les règles existantes sauf la première (le bloc les rend toutes ouvertes)
+    $collection.find('.competence-rule:not(:first-child) .panel-collapse').removeClass('in');
+    $collection.find('.competence-rule:not(:first-child) .panel-title a').attr('aria-expanded', 'false');
+    $collection.find('.competence-rule:not(:first-child) .caret-toggle').addClass('collapsed');
+
     // Tout sélectionner/désélectionner - checkboxes
     $(document).on('click', '.select-all-checkbox-btn', function() {
         const targetId = $(this).data('target');
@@ -175,40 +103,16 @@ $(document).ready(function() {
         }
     });
 
-    // @todo: Vérifier ça parce que l'ajout en JS comme ça moyen fan :/
-    // On peut pas avoir un prototype global ??
-
     // Ajout d'une règle via prototype
     $(document).on('click', '.add-regle-btn', function() {
         const prototype = $collection.data('prototype');
         if (!prototype) { return; }
 
         const newForm = prototype.replace(/__name__/g, index);
-        const collapseId = 'collapse-regle-' + index;
-        const headingId  = 'heading-regle-' + index;
-        const ruleNum    = $collection.find('.competence-rule').length + 1;
-
-        const panelHtml =
-            '<div class="panel panel-default competence-rule">' +
-            '<div class="panel-heading" role="tab" id="' + headingId + '">' +
-            '<h4 class="panel-title">' +
-            '<a role="button" data-toggle="collapse" data-parent="#competences-accordion"' +
-            ' href="#' + collapseId + '" aria-expanded="true" aria-controls="' + collapseId + '">' +
-            '<span class="caret-toggle glyphicon glyphicon-chevron-down"></span>' +
-            ' R\u00e8gle de comp\u00e9tence #' + ruleNum + '</a>' +
-            '<button type="button" class="btn btn-danger btn-xs pull-right remove-regle-btn" style="margin-top:5px;">' +
-            '<span class="glyphicon glyphicon-trash"></span> Supprimer</button>' +
-            '</h4></div>' +
-            '<div id="' + collapseId + '" class="panel-collapse collapse in" role="tabpanel"' +
-            ' aria-labelledby="' + headingId + '">' +
-            '<div class="panel-body">' + newForm + '</div>' +
-            '</div></div>';
-
-        const $panel = $(panelHtml);
         $collection.find('.no-competences-message').remove();
         $collection.find('.panel-collapse.in').removeClass('in');
-        $collection.append($panel);
-        initTomSelect($panel);
+        $collection.append(newForm);
+        initTomSelect($collection.find('.competence-rule:last'));
         index++;
     });
 
