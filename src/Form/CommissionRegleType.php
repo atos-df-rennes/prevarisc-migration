@@ -23,12 +23,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommissionRegleType extends AbstractType
 {
+    /** @var int */
+    private $commissionCommunaleType;
+
+    public function __construct(int $commissionCommunaleType)
+    {
+        $this->commissionCommunaleType = $commissionCommunaleType;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var Commission $commission */
         $commission = $options['commission'];
-        // @todo: à ajouter dans un fichier Constant une fois la PR sur les dossiers mergés
-        $isCommunale = $commission->getType() && 2 === $commission->getType()->getId();
+        $isCommunale = $commission->getType() && $this->commissionCommunaleType === $commission->getType()->getId();
 
         // Zone géographique : Commune OU Groupement selon type de commission
         if ($isCommunale) {
