@@ -39,6 +39,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
+    $services->set('App\Form\CommissionRegleType')
+        ->arg('$commissionCommunaleType', '%app.commission_communale_type%');
 
     $services->set('App\Validator\PasswordValidator')
         ->arg('$enforceSecurity', '%app.enforce_security%');

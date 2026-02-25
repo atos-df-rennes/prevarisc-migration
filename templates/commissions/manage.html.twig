@@ -1,8 +1,11 @@
 {% extends 'layouts/admin.html.twig' %}
 
-{#{% form_theme form '_form_theme.html.twig' %}#}
-
 {% block title %}Administration / Gestion des commissions / Édition{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -36,13 +39,11 @@
                 {% endfor %}
             </ul>
 
-            <div class="clearfix"></div>
-
             <div class="text-center mt-3">
                 <button type="button"
                     class="btn btn-default add-collection-widget"
                     data-list-selector="#commissions-list">
-                    <span class="glyphicon glyphicon-plus"></span> Ajouter une commission
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter une commission
                 </button>
             </div>
         </div>
@@ -60,14 +61,4 @@
     </div>
 
     {{ form_end(form) }}
-
-    <div class="alert alert-info mt-4">
-        <strong><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Note :</strong>
-        <p>Pour supprimer une commission, cliquez sur l'icône de corbeille. Les suppressions seront effectives après la sauvegarde.</p>
-    </div>
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
 {% endblock %}
