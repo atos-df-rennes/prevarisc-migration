@@ -49,7 +49,7 @@ class CommissionsController extends AbstractController
      */
     public function index(): Response
     {
-        $commissionTypes = $this->commissionTypeRepository->findAll();
+        $commissionTypes = $this->commissionTypeRepository->findWithCommissions();
 
         return $this->render('commissions/index.html.twig', [
             'commission_types' => $commissionTypes,
