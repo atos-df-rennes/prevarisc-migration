@@ -1330,6 +1330,7 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 
 /* Formulaire boostrap avec TomSelect */
 .form-control.ts-wrapper {
+    height: auto;
     padding: 0;
     border: none;
     box-shadow: none;
