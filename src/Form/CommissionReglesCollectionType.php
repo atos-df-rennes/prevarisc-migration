@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Commission;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -29,7 +30,7 @@ class CommissionReglesCollectionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => null,
+            'data_class' => Commission::class,
         ]);
 
         $resolver->setRequired('commission');

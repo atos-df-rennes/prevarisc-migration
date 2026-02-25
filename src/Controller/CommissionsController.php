@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
-use App\Entity\CommissionRegle;
 use App\Form\CommissionReglesCollectionType;
 use App\Form\CommissionsCollectionType;
-use App\Repository\CommissionRegleRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionFilesystem;
@@ -34,21 +32,16 @@ class CommissionsController extends AbstractController
     /** @var CommissionFilesystem */
     private $commissionFilesystem;
 
-    /** @var CommissionRegleRepository */
-    private $commissionRegleRepository;
-
     public function __construct(
         EntityManagerInterface $entityManager,
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionFilesystem $commissionFilesystem,
-        CommissionRegleRepository $commissionRegleRepository
+        CommissionFilesystem $commissionFilesystem
     ) {
         $this->entityManager = $entityManager;
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionFilesystem = $commissionFilesystem;
-        $this->commissionRegleRepository = $commissionRegleRepository;
     }
 
     /**
@@ -153,40 +146,13 @@ class CommissionsController extends AbstractController
      */
     public function competences(Commission $commission, Request $request): Response
     {
-        $regles = $this->commissionRegleRepository->findByCommissionWithRelations($commission);
-
-        $form = $this->createForm(CommissionReglesCollectionType::class, ['regles' => $regles], [
+        $form = $this->createForm(CommissionReglesCollectionType::class, $commission, [
             'commission' => $commission,
         ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var array<string, mixed> $data */
-            $data = $form->getData();
-            /** @var CommissionRegle[] $submittedRegles */
-            $submittedRegles = $data['regles'] ?? [];
-
-            $submittedIds = [];
-            foreach ($submittedRegles as $regle) {
-                $regleId = $regle->getId();
-                if ($regleId) {
-                    $submittedIds[] = $regleId;
-                }
-            }
-
-            foreach ($regles as $existingRegle) {
-                $existingId = $existingRegle->getId();
-                if ($existingId && !in_array($existingId, $submittedIds, true)) {
-                    $this->entityManager->remove($existingRegle);
-                }
-            }
-
-            foreach ($submittedRegles as $regle) {
-                $regle->setCommission($commission);
-                $this->entityManager->persist($regle);
-            }
-
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Les règles de compétence ont été sauvegardées avec succès.');
