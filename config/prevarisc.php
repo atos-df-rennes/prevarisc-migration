@@ -7,6 +7,10 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
 
+    $parameters->set('env(PREVARISC_PATH)', '/home/prv/current/prevarisc');
+
+    $parameters->set('app.prevarisc_path', '%env(string:PREVARISC_PATH)%');
+
     $parameters->set('env(PREVARISC_DEBUG_ENABLED)', 0);
 
     $parameters->set('app.debug', '%env(bool:PREVARISC_DEBUG_ENABLED)%');
@@ -111,9 +115,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.data_path', '%env(string:PREVARISC_DATA_PATH)%');
 
-    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '');
+    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '%app.prevarisc_path%/public/data');
 
-    $parameters->set('app.files_path', '%env(string:PREVARISC_REAL_DATA_PATH)%');
+    $parameters->set('app.files_path', '%env(resolve:PREVARISC_REAL_DATA_PATH)%');
 
     $parameters->set('env(PREVARISC_PLUGIN_IGNKEY)', '');
 
