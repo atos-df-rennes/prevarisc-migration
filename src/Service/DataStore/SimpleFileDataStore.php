@@ -52,7 +52,7 @@ class SimpleFileDataStore implements DataStore
 
         $this->etablissementRepository = $etablissementRepository;
         $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath ?: __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'data';
+        $this->realDataPath = $realDataPath;
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string
