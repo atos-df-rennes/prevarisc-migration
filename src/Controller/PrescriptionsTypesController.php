@@ -247,11 +247,13 @@ class PrescriptionsTypesController extends AbstractController
     {
         $associations = $this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, $article->getId() ?? 0);
 
-        return $this->render('prescriptions_types/voir_article.html.twig', [
-            'prescription_associations' => $associations,
+        return $this->render('prescriptions_types/_voir_prescriptions_type.html.twig', [
+            'prescriptions_associations' => $associations,
             'categorie' => $categorie,
             'texte' => $texte,
             'article' => $article,
+            'url_modifier' => 'admin_prescriptions_types_prescriptions_modifier',
+            'url_supprimer' => 'admin_prescriptions_types_prescriptions_supprimer',
         ]);
     }
 
@@ -324,6 +326,7 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
+     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_supprimer")
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_texte_supprimer")
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_supprimer")
      *
@@ -335,8 +338,8 @@ class PrescriptionsTypesController extends AbstractController
     public function prescriptionTypeRemove(
         Request $request,
         PrescriptionCategorie $categorie,
-        PrescriptionTexte $texte,
         PrescriptionType $prescription,
+        ?PrescriptionTexte $texte = null,
         ?PrescriptionArticle $article = null
     ): Response {
         $form = $this->createFormBuilder(null, [

@@ -49,7 +49,11 @@
                 <h4 class="panel-title">Sans Articles</h4>
             </div>
             <div class="panel-body">
-                {{ include('prescriptions_types/voir_sans_article.html.twig') }}
+                {{ include('prescriptions_types/_voir_prescriptions_type.html.twig',{
+                    prescriptions_associations: sans_articles,
+                    url_modifier: 'admin_prescriptions_types_prescriptions_texte_modifier',
+                    url_supprimer: 'admin_prescriptions_types_prescriptions_texte_supprimer'
+                }) }}
             </div>
         </div>
     {% endif %}
