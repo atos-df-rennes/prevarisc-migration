@@ -24,26 +24,22 @@ class AvisDerogationsRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Retourne les avis et dérogations des dossiers d'un établissement ayant été indiqués comme historisés.
+     *
+     * @return AvisDerogations[]
      */
-    public function add(AvisDerogations $entity, bool $flush = true): void
+    public function findForEtablissement(int $idEtablissement): array
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(AvisDerogations $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('a')
+            ->addSelect('d')
+            ->addSelect('e')
+            ->join('a.dossier', 'd')
+            ->join('d.etablissements', 'e')
+            ->where('e.id = :idEtablissement')
+            ->andWhere('a.displayHistorique = 1')
+            ->setParameter('idEtablissement', $idEtablissement)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }
