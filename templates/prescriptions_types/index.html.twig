@@ -27,6 +27,11 @@
                     >
                         {{ category.libelle }}
                         <button class="btn btn-info btn-icon ajax-modal-trigger"
+                                data-content="{{ path('admin_prescriptions_types_ajouter', {categorie: category.id}) }}"
+                                data-target="#modal-prescription" title="Ajouter une prescription type">
+                            <span class="glyphicon glyphicon-flag"></span>
+                        </button>
+                        <button class="btn btn-info btn-icon ajax-modal-trigger"
                                 data-content="{{ path('admin_prescriptions_types_textes_ajouter', {categorie: category.id}) }}"
                                 data-target="#modal-prescription" title="Ajouter un texte">
                             <span class="glyphicon glyphicon-plus"></span>
@@ -46,9 +51,9 @@
         {% endfor %}
     </div>
 
-    <hr>
-
     {% if sans_categories|length > 0 %}
+        <hr>
+
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">Sans catégories</h4>

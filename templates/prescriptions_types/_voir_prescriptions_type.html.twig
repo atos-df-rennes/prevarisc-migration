@@ -1,25 +1,86 @@
-<table class="table">
-    <thead>
-    <tr>
-        <th>Texte</th>
-        <th>Article</th>
-        <th>Contenu</th>
-    </tr>
-    </thead>
-    <tbody>
-        {% for associations in prescriptions %}
-            {% set nb_associations = associations|length %}
-            {% for association in associations %}
-                <tr>
-                    <td class="col-xs-2">{{ association.texte.libelle }}</td>
-                    <td class="col-xs-2">{{ association.article.libelle }}</td>
-                    {% if loop.first %}
-                        <td class="col-xs-8" rowspan="{{ nb_associations }}">
-                            {{ association.prescriptionType.libelle|nl2br }}
-                        </td>
-                    {% endif %}
+{% if prescriptions_associations|length == 0 %}
+    <p><em>Aucune association renseignée.</em></p>
+{% else %}
+    <table class="table table-bordered">
+        <tbody class="classement-prescription">
+            {% for prescriptions in prescriptions_associations %}
+                <tr data-id="{{ prescriptions|first.prescriptionType.id }}">
+                    <td>
+                        <span class="handle-prescription glyphicon glyphicon-move"></span>
+                    </td>
+                    <td>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Texte</th>
+                                    <th>Article</th>
+                                    <th>Contenu</th>
+                                    <th>Édition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set nb_assoc = prescriptions|length %}
+                                {% for prescription in prescriptions %}
+                                    {% set texte_id = texte is defined and texte is not null ? texte.id : null %}
+                                    {% set article_id = article is defined and article is not null ? article.id : null %}
+                                    <tr>
+                                        <td class="col-xs-2">{{ prescription.texte.libelle }}</td>
+                                        <td class="col-xs-2">{{ prescription.article.libelle }}</td>
+                                        {% if loop.first %}
+                                            <td class="col-xs-6" rowspan="{{ nb_assoc }}">
+                                                {{ prescription.prescriptionType.libelle|nl2br }}
+                                            </td>
+                                            <td class="col-xs-2" rowspan="{{ nb_assoc }}">
+                                                <button class="btn btn-info btn-icon mb-2 ajax-modal-trigger"
+                                                        data-content="{{ path(url_modifier,
+                                                            {categorie: categorie.id, texte: texte_id, article: article_id, prescription: prescription.prescriptionType.id}) }}"
+                                                        data-target="#modal-prescription" title="Modifier la prescription">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </button>
+                                                <button class="btn btn-danger btn-icon mb-2 ajax-modal-trigger"
+                                                        data-content="{{ path(url_supprimer,
+                                                            {categorie: categorie.id, texte: texte_id, article: article_id, prescription: prescription.prescriptionType.id}) }}"
+                                                        data-target="#modal-prescription" title="Supprimer la prescription">
+                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                </button>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
                 </tr>
             {% endfor %}
-        {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
+{% endif %}
+<script type="text/javascript">
+    $(".classement-prescription").sortable({
+        handle: ".handle-prescription",
+        axis: 'y',
+        update: function(_event, _ui) {
+            let list = []
+            $(this).find('> tr').each(function (_index, el) {
+                list.push(el.dataset.id)
+            })
+
+            const data = {
+                "type": "prescription",
+                "order": list
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/admin/prescriptions/changement-ordre",
+                data: data,
+                beforeSend: function() {
+                    $(this).disableSelection();
+                },
+                success: function() {
+                    $(this).enableSelection();
+                }
+            });
+        }
+    });
+</script>

@@ -66,3 +66,7 @@
 .collection-item-wrapper .form-group {
     margin-bottom: 0;
 }
+
+.glyphicon.glyphicon-move {
+    cursor: move;
+}
