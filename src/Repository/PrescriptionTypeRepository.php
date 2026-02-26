@@ -48,6 +48,9 @@ class PrescriptionTypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * @todo: il faudrait idéalement avoir l'id de la catégorie, du texte et de l'article
+     * pour aligner les identifiants d'un même groupe.
+     *
      * Met à jour l'ordre en fonction d'un tableau fourni.
      *
      * @param array $order tableau contenant l'ordre des éléments (identifiants)

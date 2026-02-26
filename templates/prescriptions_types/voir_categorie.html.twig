@@ -16,17 +16,17 @@
                             </a>
                         </div>
                         <div class="col-xs-2 text-right">
-                            <button class="btn btn-info btn-icon ajax-modal-trigger"
-                                    data-content="{{ path('admin_prescriptions_types_prescriptions_textes_ajouter', {categorie: categorie.id, texte: prescription_texte.id}) }}"
+                            <button class="btn btn-info btn-icon mb-2 ajax-modal-trigger"
+                                    data-content="{{ path('admin_prescriptions_types_ajouter', {categorie: categorie.id}) }}"
                                     data-target="#modal-prescription" title="Ajouter une prescription type">
                                 <span class="glyphicon glyphicon-flag"></span>
                             </button>
-                            <button class="btn btn-info btn-icon ajax-modal-trigger"
+                            <button class="btn btn-info btn-icon mb-2 ajax-modal-trigger"
                                     data-content="{{ path('admin_prescriptions_types_article_ajouter', {categorie: categorie.id, texte: prescription_texte.id}) }}"
                                     data-target="#modal-prescription" title="Ajouter un article">
                                 <span class="glyphicon glyphicon-plus"></span>
                             </button>
-                            <button class="btn btn-info btn-icon ajax-modal-trigger"
+                            <button class="btn btn-info btn-icon mb-2 ajax-modal-trigger"
                                     data-content="{{ path('admin_prescriptions_types_textes_modifier', {categorie: categorie.id, texte: prescription_texte.id}) }}"
                                     data-target="#modal-prescription" title="Modifier le texte">
                                 <span class="glyphicon glyphicon-pencil"></span>
@@ -53,7 +53,11 @@
                 <h4 class="panel-title">Sans Textes</h4>
             </div>
             <div class="panel-body">
-                {{ include('prescriptions_types/_voir_prescriptions_type.html.twig', {prescriptions: sans_textes}, false) }}
+                {{ include('prescriptions_types/_voir_prescriptions_type.html.twig', {
+                    prescriptions_associations: sans_textes,
+                    url_modifier: 'admin_prescriptions_types_modifier',
+                    url_supprimer: 'admin_prescriptions_types_supprimer',
+                }) }}
             </div>
         </div>
     {% endif %}
