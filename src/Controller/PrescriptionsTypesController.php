@@ -186,9 +186,9 @@ class PrescriptionsTypesController extends AbstractController
     /**
      * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}", name="admin_prescriptions_types_texte_voir_articles")
      */
-    public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticleRepository $prescriptionArticleRepository, Prescriptions $prescriptions): Response
+    public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte): Response
     {
-        $articles = $prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
+        $articles = $this->prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
 
         return $this->render('prescriptions_types/voir_texte.html.twig', [
             'articles' => $articles,
