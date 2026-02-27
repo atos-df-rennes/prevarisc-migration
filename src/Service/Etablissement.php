@@ -407,10 +407,10 @@ final class Etablissement
             }
 
             if (
-                !\is_int($dossierAvisDerogation->getId())
-                || !\is_int($avisDerogation->getId())
-                || !\is_string($avisDerogation->getTitre())
-                || !\is_string($avisDerogation->getType())
+                null === $dossierAvisDerogation->getId()
+                || null === $avisDerogation->getId()
+                || null === $avisDerogation->getTitre()
+                || null === $avisDerogation->getType()
             ) {
                 $this->logger->warning("Une des données requises de l'avis/dérogation n'est pas renseignée", [
                     'dossier_id' => $dossierAvisDerogation->getId(),
