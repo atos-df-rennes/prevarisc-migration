@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -19,6 +20,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UtilisateurRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    private const FONCTION_PREVENTIONNISTE = 13;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Utilisateur::class);
@@ -120,6 +123,22 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * Crée un QueryBuilder pour récupérer les préventionnistes.
+     * Utilisé dans les formulaires avec EntityType.
+     */
+    public function createPreventionnistesQueryBuilder(): QueryBuilder
+    {
+        // @todo: utiliser la mécanique d'affichage des actifs + sélectionnés mises en place sur l'édition de dossier
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.informations', 'i')
+            ->innerJoin('i.fonction', 'f')
+            ->where('f.id = :fonction')
+            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->orderBy('i.nom', 'ASC')
+            ->addOrderBy('i.prenom', 'ASC');
     }
 
     /**

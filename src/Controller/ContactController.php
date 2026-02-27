@@ -16,6 +16,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class ContactController extends AbstractController
 {
     /**
+     * @var UtilisateurInformationsRepository
+     */
+    private $utilisateurInformationsRepository;
+
+    public function __construct(UtilisateurInformationsRepository $utilisateurInformationsRepository)
+    {
+        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+    }
+
+    /**
      * @Route("/contact/{id}/modifier", name="contact_edit")
      */
     public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
@@ -26,6 +36,10 @@ class ContactController extends AbstractController
         switch ($elementLie) {
             case Contact::ETABLISSEMENT:
                 $redirectRoute = 'etablissement_contacts';
+
+                break;
+            case Contact::GROUPEMENT:
+                $redirectRoute = 'admin_groupement';
 
                 break;
             default:
@@ -57,14 +71,15 @@ class ContactController extends AbstractController
 
         return $this->render('contact/form.html.twig', [
             'form' => $form->createView(),
+            'is_edit' => true,
         ]);
     }
 
     /**
      * @Route("/contacts/{search}", name="contact_autocomplete")
      */
-    public function autocomplete(string $search, UtilisateurInformationsRepository $utilisateurInformationsRepository): JsonResponse
+    public function autocomplete(string $search): JsonResponse
     {
-        return $this->json($utilisateurInformationsRepository->findByNameNotInUser($search));
+        return $this->json($this->utilisateurInformationsRepository->findByNameNotInUser($search));
     }
 }

@@ -26,9 +26,21 @@ class RubriqueController extends AbstractController
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @var RubriqueRepository
+     */
+    private $rubriqueRepository;
+
+    /**
+     * @var ChampValeurListeRepository
+     */
+    private $champValeurListeRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, RubriqueRepository $rubriqueRepository, ChampValeurListeRepository $champValeurListeRepository)
     {
         $this->entityManager = $entityManager;
+        $this->rubriqueRepository = $rubriqueRepository;
+        $this->champValeurListeRepository = $champValeurListeRepository;
     }
 
     /**
@@ -40,16 +52,12 @@ class RubriqueController extends AbstractController
     public function edit(
         Request $request,
         CapsuleRubrique $formulaire,
-        Rubrique $rubrique,
-        RubriqueRepository $rubriqueRepository,
-        ChampValeurListeRepository $champValeurListeRepository
+        Rubrique $rubrique
     ): Response {
-        $rubrique = $rubriqueRepository->findAllInformations($rubrique);
+        $rubrique = $this->rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
 
         $champ = new Champ();
-        $champ->setIdx($rubrique->getChamps()->count() + 1);
-        $champ->setRubrique($rubrique);
 
         $formChamp = $this->createForm(ChampType::class, $champ);
 
@@ -67,7 +75,7 @@ class RubriqueController extends AbstractController
 
         $formChamp->handleRequest($request);
         if ($formChamp->isSubmitted() && $formChamp->isValid()) {
-            $this->entityManager->persist($champ);
+            $rubrique->addChamp($champ);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Le champ a bien été ajouté.');
@@ -83,7 +91,7 @@ class RubriqueController extends AbstractController
             'rubrique' => $rubrique,
             'form_rubrique' => $formRubrique->createView(),
             'form_champ' => $formChamp->createView(),
-            'champ_valeurs_liste' => $champValeurListeRepository->findAll(),
+            'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
         ]);
     }
 

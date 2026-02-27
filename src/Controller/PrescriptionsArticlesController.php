@@ -19,11 +19,27 @@ use Symfony\Component\Routing\Annotation\Route;
 class PrescriptionsArticlesController extends AbstractController
 {
     /**
+     * @var Prescriptions
+     */
+    private $servicePresc;
+
+    /**
+     * @var PrescriptionArticleListeRepository
+     */
+    private $prescriptionArticleListeRepository;
+
+    public function __construct(Prescriptions $servicePresc, PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
+    {
+        $this->servicePresc = $servicePresc;
+        $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
+    }
+
+    /**
      * @Route("/admin/prescriptions/articles/", name="admin_prescriptions_articles")
      */
-    public function gestionArticles(Prescriptions $servicePresc): Response
+    public function gestionArticles(): Response
     {
-        $listeArticles = $servicePresc->getArticlesListe();
+        $listeArticles = $this->servicePresc->getArticlesListe();
 
         return $this->render('prescriptions_articles/articles.html.twig', [
             'liste_articles' => $listeArticles,
@@ -68,8 +84,7 @@ class PrescriptionsArticlesController extends AbstractController
      */
     public function suppressionArticle(
         Request $request,
-        PrescriptionArticleListe $articleListe,
-        PrescriptionArticleListeRepository $prescriptionArticleListeRepository
+        PrescriptionArticleListe $articleListe
     ): Response {
         $form = $this->createForm(ReplacePrescriptionArticleListeType::class);
         $form->handleRequest($request);
@@ -82,7 +97,7 @@ class PrescriptionsArticlesController extends AbstractController
             }
 
             try {
-                $prescriptionArticleListeRepository->replaceAndRemove($articleListe, $newArticle);
+                $this->prescriptionArticleListeRepository->replaceAndRemove($articleListe, $newArticle);
                 $this->addFlash('success', 'L\'article a bien été supprimé');
             } catch (\Exception $e) {
                 $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du article (".$e->getMessage().')');

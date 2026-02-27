@@ -404,7 +404,6 @@ div.thumbnail + div.thumbnail {
   font-size: 14px;
 }
 
-#tabs h4,
 #dossierInfos h4,
 #dossier_Pdroite h4,
 h4.h4_subtitle {
@@ -429,60 +428,15 @@ h4.h4_subtitle input {
   margin-right: 0;
 }
 
-/* Contacts */
-.fiche_contact {
-  display: inline-block;
-  border: 1px dotted #818183;
-  padding: 20px 20px 20px 20px;
-  width: 500px;
-  margin: 5px;
-}
-.fiche_contact_nom {
-  font-family: Verdana;
-  color: #ca0425;
-  font-size: 10px;
-  margin: 0 0 6px 0;
-}
-.fiche_contact_fonction {
+/* Liste de panels en deux colonnes, utilisé notamment pour les contacts */
+.panel-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 2vw;
 
-  font-family: Verdana;
-  color: #858585;
-  font-size: 10px;
-  font-style: italic;
-  margin: 0 0 20px 0;
-}
-.fiche_contact li {
-  width: 100%;
-  border-bottom: 1px solid #e9e9e9;
-  line-height: 18px;
-  color: #858585;
-}
-.fiche_contact li:last-child {
-  margin: 0 0 15px 0;
-}
-.fiche_contact .valeur {
-  display: block;
-  float: right;
-}
-.fiche_edit {
-  float: right;
-}
-.fiche_edit button {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.fiche_delete {
-  float: right;
-  margin: 0 0 0 3px;
-}
-.fiche_delete button {
-  padding-top: 0;
-  padding-bottom: 0;
-  color: #9b9b9b;
-}
-.fiche_contact_nom a {
-  color: #9b9b9b;
-  text-decoration: none;
+    @media (min-width: 992px) {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 /* Dialog sans barre de titre */
@@ -1373,4 +1327,20 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 #resource-dossier-modal .ui-multiselect,
 #resource-ets-modal .ui-multiselect {
   display: block;
+}
+
+/* Formulaire boostrap avec TomSelect */
+.form-control.ts-wrapper {
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.form-group .ts-wrapper.multi .ts-control [data-value] {
+    background-image: none;
+}
+.form-group .ts-wrapper.multi .ts-control>div {
+    background-color: #337ab7;
+    border: 1px solid #2e6da4;
 }

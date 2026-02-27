@@ -76,6 +76,7 @@ class UtilisateurType extends AbstractType
             ->add('informations', UtilisateurInformationsType::class, [
                 'label' => "Informations de l'utilisateur",
                 'required' => false,
+                'scopes' => [UtilisateurInformationsType::SCOPE_GRADE, UtilisateurInformationsType::SCOPE_FONCTION]
             ])
             ->add('commune', EntityType::class, [
                 'class' => Commune::class,

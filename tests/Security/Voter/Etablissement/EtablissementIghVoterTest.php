@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Security\Voter;
+namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
 use App\Entity\Commission;
@@ -17,8 +17,8 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Security\Voter\EtablissementIghVoter;
-use App\Security\Voter\EtablissementVoter;
+use App\Security\Voter\Etablissement\EtablissementIghVoter;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Voter\VoterUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

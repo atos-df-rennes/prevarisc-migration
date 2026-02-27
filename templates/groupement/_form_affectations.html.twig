@@ -1,0 +1,36 @@
+{% form_theme form with ['form_div_layout.html.twig'] only %}
+
+{{ form_start(form, {attr: {id: 'form-affectations'}, action: path('admin_groupement_form_scope', {id: groupement.id, scope: 'affectations'})}) }}
+
+<div class="form-group">
+    {{ form_label(form.preventionnistes) }}
+    {{ form_widget(form.preventionnistes, {attr: {class: 'tom-select', size: 10}}) }}
+    {{ form_errors(form.preventionnistes) }}
+</div>
+
+{{ form_rest(form) }}
+
+<div class="form-group text-right">
+    {% if form.preventionnistes.vars.data|length > 0 %}
+        <button id="preventionniste" type="button" class="btn btn-default">
+            Affecter aux établissements
+        </button>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+</div>
+
+{{ form_end(form) }}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        new TomSelect("#groupement_preventionnistes", {
+            plugins: ['remove_button'],
+        });
+
+        $("#preventionniste").click(function () {
+            var form = $("#form-affectations");
+            form.find("#groupement_reaffectationAutomatique").val('1');
+            form.submit();
+        });
+    });
+</script>

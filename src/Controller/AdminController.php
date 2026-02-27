@@ -17,11 +17,27 @@ use Symfony\Component\Routing\Annotation\Route;
 class AdminController extends AbstractController
 {
     /**
+     * @var UtilisateurRepository
+     */
+    private $utilisateurRepository;
+
+    /**
+     * @var VersionBuilder
+     */
+    private $versionBuilder;
+
+    public function __construct(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder)
+    {
+        $this->utilisateurRepository = $utilisateurRepository;
+        $this->versionBuilder = $versionBuilder;
+    }
+
+    /**
      * @Route("/admin/", name="admin_index")
      */
-    public function index(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder): Response
+    public function index(): Response
     {
-        $versionService = $versionBuilder->build();
+        $versionService = $this->versionBuilder->build();
 
         return $this->render('admin/index.html.twig', [
             'version' => $versionService->version(),
@@ -62,7 +78,7 @@ class AdminController extends AbstractController
             'periodicite_annees' => $this->getParameter('app.periodicite_annees'),
             'deactivate_platau' => $this->getParameter('app.deactivate_platau'),
             'nb_dossiers_a_afficher' => $this->getParameter('app.nb_dossiers_a_afficher'),
-            'utilisateurs' => $utilisateurRepository->findConnected(),
+            'utilisateurs' => $this->utilisateurRepository->findConnected(),
         ]);
     }
 }

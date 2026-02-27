@@ -46,6 +46,10 @@ class LastActionSubscriber implements EventSubscriberInterface
      */
     public function onKernelTerminate(TerminateEvent $event): void
     {
+        if (!$event->isMasterRequest()) {
+            return;
+        }
+
         $this->entityManager->clear();
 
         $utilisateur = $this->security->getUser();

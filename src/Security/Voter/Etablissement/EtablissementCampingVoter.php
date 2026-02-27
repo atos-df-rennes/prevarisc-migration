@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Etablissement;
 
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -9,9 +9,9 @@ use Doctrine\ORM\NoResultException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class EtablissementManifestationTemporaireVoter extends EtablissementVoter
+class EtablissementCampingVoter extends EtablissementVoter
 {
-    public const ID_MANIFESTATION_TEMPORAIRE = 8;
+    public const ID_CAMPING = 7;
 
     /**
      * @var ResourcesRepository
@@ -41,7 +41,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        return parent::isSubjectGenreAllowed($subject, self::ID_MANIFESTATION_TEMPORAIRE);
+        return parent::isSubjectGenreAllowed($subject, self::ID_CAMPING);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -51,13 +51,13 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
         }
 
         try {
-            $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementManifestationTemporaire();
+            $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCamping();
         } catch (NoResultException $noResultException) {
-            $this->logger->warning("Aucune règle trouvée pour les manifestations temporaires. Il est recommandé d'en ajouter une.");
+            $this->logger->warning("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une.");
 
             return false;
         } catch (NonUniqueResultException $nonUniqueResultException) {
-            $this->logger->warning('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.');
+            $this->logger->warning('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.');
 
             return false;
         }

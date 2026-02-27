@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Security\Voter;
+namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
@@ -12,8 +12,8 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Security\Voter\EtablissementCelluleVoter;
-use App\Security\Voter\EtablissementVoter;
+use App\Security\Voter\Etablissement\EtablissementCelluleVoter;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -163,7 +163,7 @@ class EtablissementCelluleVoterTest extends TestCase
         // On simule le type d'activité de la cellule à 1
         $this->privilegesRepository
             ->method('findOneBy')
-            ->willReturnCallback(function ($criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
+            ->willReturnCallback(function (array $criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
                 // On accorde le privilège si la ressource est l'une des deux
                 if ($criteria['resource'] === $resourceSingle || $criteria['resource'] === $resourceMulti) {
                     return $privilege;

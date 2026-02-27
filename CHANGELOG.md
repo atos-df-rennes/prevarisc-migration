@@ -4,6 +4,73 @@
 
 <!--- END HEADER -->
 
+## [2.8.15](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.14...v2.8.15) (20-02-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+##### Formulaires
+
+* [#5006] choix du mode d'ouverture par défaut des rubriques (#300) ([3e282ff](https://github.com/atos-df-rennes/prevarisc/commit/3e282ffba3e271a024056c0dc07bf9374fe362f8))
+* [#5005] copie/reprise des effectifs et dégagements entre établissement et dossier (#299) ([0be40ef](https://github.com/atos-df-rennes/prevarisc/commit/0be40ef0f045688b51ec0b732b0514129ad1dc7c))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Formulaires
+
+* Harmonisation de l'ordre d'affichage des valeurs de liste (#115) ([5ba8ea](https://github.com/atos-df-rennes/prevarisc-migration/commit/5ba8ea2de4d9ac75a33c67386b88ab7fe5e74612))
+
+
+---
+
+## [2.8.14](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.13...v2.8.14) (11-02-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Ressources
+
+* Prend en compte tous les types d'établissement enfant pour donner l'accès à un site (#109) ([990753](https://github.com/atos-df-rennes/prevarisc-migration/commit/9907533db70560ae65da9d979c21baf6193cadc7))
+
+
+---
+
+## [2.8.13](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.12...v2.8.13) (29-01-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Documents
+
+* [#4989] erreur sur la suppression de documents contenant des apostrophes (#103) ([4183cf](https://github.com/atos-df-rennes/prevarisc-migration/commit/4183cf12eb16a9923ee3ce243ed63c156b423f51))
+
+##### Prescriptions
+
+* Possibilité d'ajouter une prescription type sur un texte sans article (#104) ([424376](https://github.com/atos-df-rennes/prevarisc-migration/commit/424376628cacc3fcb482e992958234ffbf8047e7))
+
+
+---
+
+## [2.8.12](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.11...v2.8.12) (08-01-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Ordonnancement des valeurs à l'ajout d'une liste (#101) ([184a1b](https://github.com/atos-df-rennes/prevarisc-migration/commit/184a1b7c4dcc95a6aafd9e3d1fa880a31c27c9bf))
+* Conserve le type et l'indication de tableau à la sauvegarde d'un champ (#100) ([5d3925](https://github.com/atos-df-rennes/prevarisc-migration/commit/5d39259fa81f697deb988cb708f9a043576a9f2e))
+
+
+---
+
+## [2.8.11](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.10...v2.8.11) (08-12-2025)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Corrige l'application des droits aux répertoires de cache (#97) ([fc1ede](https://github.com/atos-df-rennes/prevarisc-migration/commit/fc1ede725669a003a13932951576e16707431e61))
+* Résolution du datastore au runtime (#95) ([1e9b3a](https://github.com/atos-df-rennes/prevarisc-migration/commit/1e9b3a0ff31a46df42dfa6282af2f18cebb71ea5))
+
+
+---
+
 ## [2.8.8](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.7...v2.8.8) (18-11-2025)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections

@@ -56,9 +56,16 @@ class Rubrique
     /**
      * @var Collection<int, Champ>
      *
-     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true, cascade={"persist"})
      */
     private $champs;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $ouverte = false;
 
     public function __construct()
     {
@@ -131,6 +138,9 @@ class Rubrique
         if (!$this->champs->contains($champ)) {
             $this->champs[] = $champ;
             $champ->setRubrique($this);
+            $champ->setIdx($this->champs->filter(function (Champ $champ): bool {
+                return null === $champ->getParent();
+            })->count());
         }
 
         return $this;
@@ -142,6 +152,18 @@ class Rubrique
         if ($this->champs->removeElement($champ) && $champ->getRubrique() === $this) {
             $champ->setRubrique(null);
         }
+
+        return $this;
+    }
+
+    public function getOuverte(): ?bool
+    {
+        return $this->ouverte;
+    }
+
+    public function setOuverte(bool $ouverte): self
+    {
+        $this->ouverte = $ouverte;
 
         return $this;
     }

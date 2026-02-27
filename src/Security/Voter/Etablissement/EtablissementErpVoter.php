@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;

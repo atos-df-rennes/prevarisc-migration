@@ -52,7 +52,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$adapter', '%app.datastore_adapter%');
 
     $services->set('App\Service\Etablissement')
-        ->arg('$logger', ref('monolog.logger.datastore'));
+        ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
 
     $services->set('App\Service\Mail\MailerConfiguration')
         ->arg('$transport', '%app.mail_transport%')

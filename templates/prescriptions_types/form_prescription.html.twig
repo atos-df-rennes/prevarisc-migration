@@ -4,7 +4,15 @@
     </button>
     <h3 class="modal-title">
         {% if prescription.id is null %}
-            Ajouter une association dans l'article "{{ article.libelle }}"
+            Ajouter une association dans
+
+            {% if texte is null %}
+                la catégorie "{{ categorie.libelle }}"
+            {% elseif article is null %}
+                le texte "{{ texte.libelle }}"
+            {% else %}
+                l'article "{{ article.libelle }}"
+            {% endif %}
         {% else %}
             Modifier une association
         {% endif %}

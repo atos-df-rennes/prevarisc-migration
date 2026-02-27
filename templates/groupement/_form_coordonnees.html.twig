@@ -1,0 +1,164 @@
+{{ form_start(form, {attr: {id: 'form-coordonnees'}, action: path('admin_groupement_form_scope', {id: groupement.id, scope: 'coordonnees'})}) }}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Contact principal</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    {{ form_label(form.informations.civilite, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.civilite, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.civilite) }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form_label(form.informations.nom, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.nom, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.nom) }}
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    {{ form_label(form.informations.prenom, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.prenom, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.prenom) }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    {{ form_label(form.informations.societe, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.societe, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.informations.societe) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> Coordonnées</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form_label(form.informations.telephoneFixe, null, {label_attr: {class: 'control-label'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-earphone" aria-hidden="true"></span></span>
+                        {{ form_widget(form.informations.telephoneFixe, {attr: {class: 'form-control', placeholder: '01 23 45 67 89'}}) }}
+                    </div>
+                    {{ form_errors(form.informations.telephoneFixe) }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form_label(form.informations.telephonePortable, null, {label_attr: {class: 'control-label'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></span>
+                        {{ form_widget(form.informations.telephonePortable, {attr: {class: 'form-control', placeholder: '06 12 34 56 78'}}) }}
+                    </div>
+                    {{ form_errors(form.informations.telephonePortable) }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form_label(form.informations.telephoneFax, null, {label_attr: {class: 'control-label'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></span>
+                        {{ form_widget(form.informations.telephoneFax, {attr: {class: 'form-control', placeholder: '01 23 45 67 89'}}) }}
+                    </div>
+                    {{ form_errors(form.informations.telephoneFax) }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(form.informations.mail, null, {label_attr: {class: 'control-label'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span>
+                        {{ form_widget(form.informations.mail, {attr: {class: 'form-control', placeholder: 'contact@exemple.fr'}}) }}
+                    </div>
+                    {{ form_errors(form.informations.mail) }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(form.informations.siteWeb, null, {label_attr: {class: 'control-label'}}) }}
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span></span>
+                        {{ form_widget(form.informations.siteWeb, {attr: {class: 'form-control', placeholder: 'https://www.exemple.fr'}}) }}
+                    </div>
+                    {{ form_errors(form.informations.siteWeb) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> Adresse</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    {{ form_label(form.informations.numeroAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.numeroAdresse, {attr: {class: 'form-control', placeholder: '123'}}) }}
+                    {{ form_errors(form.informations.numeroAdresse) }}
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="form-group">
+                    {{ form_label(form.informations.rueAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.rueAdresse, {attr: {class: 'form-control', placeholder: 'Rue de la République'}}) }}
+                    {{ form_errors(form.informations.rueAdresse) }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    {{ form_label(form.informations.codePostalAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.codePostalAdresse, {attr: {class: 'form-control', placeholder: '75001'}}) }}
+                    {{ form_errors(form.informations.codePostalAdresse) }}
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    {{ form_label(form.informations.villeAdresse, null, {label_attr: {class: 'control-label'}}) }}
+                    {{ form_widget(form.informations.villeAdresse, {attr: {class: 'form-control', placeholder: 'Paris'}}) }}
+                    {{ form_errors(form.informations.villeAdresse) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Autres informations</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            {{ form_label(form.informations.observations, null, {label: 'Observations', label_attr: {class: 'control-label'}}) }}
+            {{ form_widget(form.informations.observations, {attr: {class: 'form-control', rows: 4, placeholder: 'Informations complémentaires...'}}) }}
+            {{ form_errors(form.informations.observations) }}
+        </div>
+    </div>
+</div>
+
+{{ form_rest(form) }}
+
+<div class="form-group text-right">
+    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+</div>
+
+{{ form_end(form) }}

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
@@ -10,15 +10,21 @@ use App\Repository\ResourcesRepository;
 use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class EtablissementIghVoter extends EtablissementVoter
+class EtablissementHabitationVoter extends EtablissementVoter
 {
-    /** @var ResourcesRepository */
+    /**
+     * @var ResourcesRepository
+     */
     private $resourcesRepository;
 
-    /** @var PrivilegesRepository */
+    /**
+     * @var PrivilegesRepository
+     */
     private $privilegesRepository;
 
-    /** @var VoterUtils */
+    /**
+     * @var VoterUtils
+     */
     private $voterUtils;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
@@ -30,7 +36,11 @@ class EtablissementIghVoter extends EtablissementVoter
 
     protected function supports($attribute, $subject): bool
     {
-        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, GenreEtablissement::IGH);
+        if (!parent::supports($attribute, $subject)) {
+            return false;
+        }
+
+        return parent::isSubjectGenreAllowed($subject, GenreEtablissement::HABITATION);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -40,7 +50,7 @@ class EtablissementIghVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementIgh($subject->getLatestInformations()->getClasse());
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementHabitation($subject->getLatestInformations()->getFamille());
         if ([] === $resources) {
             return false;
         }
@@ -59,19 +69,17 @@ class EtablissementIghVoter extends EtablissementVoter
             }
 
             $parts = explode('_', $resourceName);
-            if (6 !== count($parts)) {
+            if (5 !== count($parts)) {
                 continue;
             }
 
-            $useUserCommissions = (int) $parts[3];
-            $useUserGroupements = (int) $parts[4];
-            $useUserCommune = (int) $parts[5];
+            $useUserGroupements = (int) $parts[3];
+            $useUserCommune = (int) $parts[4];
 
             if (
                 $privilege
                 && $userPrivileges->contains($privilege)
                 && $this->voterUtils->isUserGroupementsAndCommuneAllowed($user, $subject, $useUserGroupements, $useUserCommune)
-                && $this->voterUtils->isUserCommissionsAllowed($user, $subject, $useUserCommissions)
             ) {
                 return true;
             }
