@@ -1,0 +1,23 @@
+.calendar-date-field {
+  display: inline-block;
+  width: 200px;
+}
+
+.calendrier__select-month {
+  display: inline-block;
+  width: 110px;
+}
+
+.calendrier__select-year {
+  display: inline-block;
+  width: 80px;
+}
+
+.dates-liees__wrapper {
+  margin-top: 10px;
+  width: fit-content;
+}
+
+.dates-liees__alert {
+  margin-bottom: 0;
+}

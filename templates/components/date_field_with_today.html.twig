@@ -1,0 +1,35 @@
+{#
+    Composant pour afficher un champ date avec bouton "Aujourd'hui"
+
+    Paramètres:
+    - form_field: Le champ de formulaire (ex: form.dateInsert)
+    - label: Le label du champ (optionnel, par défaut utilise le label du form)
+    - show_today: Afficher le bouton "Aujourd'hui" (défaut: true)
+#}
+{% set show_today_button = show_today ?? true %}
+{% set field_id = form_field.vars.id %}
+
+<li class='row' id='field-{{ form_field.vars.name }}'>
+    <div class='left libelle col-md-3'>
+        {% if label is defined %}
+            <label for="{{ field_id }}">{{ label }}</label>
+        {% else %}
+            {{ form_label(form_field) }}
+        {% endif %}
+    </div>
+    <div class='right form col-md-9'>
+        {% if show_today_button %}
+            <div class="input-group">
+                {{ form_widget(form_field) }}
+                <div class="input-group-btn">
+                    <button type='button' class='btn btn-default btn-today' data-target='{{ field_id }}'>
+                        <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Aujourd'hui
+                    </button>
+                </div>
+            </div>
+        {% else %}
+            {{ form_widget(form_field) }}
+        {% endif %}
+        {{ form_errors(form_field) }}
+    </div>
+</li>

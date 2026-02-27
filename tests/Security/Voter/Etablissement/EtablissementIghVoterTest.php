@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
@@ -55,7 +56,7 @@ class EtablissementIghVoterTest extends TestCase
 
         $latestInformations = $this->createMock(EtablissementInformations::class);
         $latestInformations->method('getClasse')->willReturn($classe);
-        $latestInformations->method('getGenre')->willReturn($this->createConfiguredMock(Genre::class, ['getId' => EtablissementIghVoter::ID_IGH]));
+        $latestInformations->method('getGenre')->willReturn($this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::IGH]));
         $latestInformations->method('getCommission')->willReturn($commission);
 
         $etablissement = $this->createMock(Etablissement::class);

@@ -290,13 +290,12 @@
 
     <!-- Préventionnistes -->
     <dt>Préventionnistes</dt>
-    <dd>
+    <dd class="thumbnail-container" {% if etablissement.latestInformations.preventionnistes|length > 0 %}style="margin-bottom: 10px;"{% endif %}>
         {% if etablissement.latestInformations.preventionnistes|length == 0 %}
             <p class="text-muted">Aucun préventionniste lié.</p>
         {% else %}
             {% for preventionniste in etablissement.latestInformations.preventionnistes %}
                 {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
-                <div style="clear: both; margin-bottom: 10px;"></div>
             {% endfor %}
         {% endif %}
     </dd>

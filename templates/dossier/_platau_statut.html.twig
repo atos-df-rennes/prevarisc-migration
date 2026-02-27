@@ -16,7 +16,38 @@
     le {{ date_statut|date('d/m/Y') }}
 {% endif %}
 
-{% if type == 'pec' and statut == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE') and dossier_incomplet is null %}
+{# Bouton retry PEC : si PRISE_EN_COMPTE et date_avis null #}
+{% if isEdit
+    and type == 'pec'
+    and statut == constant('App\\Enum\\PlatauStatutPecEnum::PRISE_EN_COMPTE')
+    and date_avis is null %}
+    <button type="button"
+            id="retry-export-pec"
+            class="btn btn-warning btn-xs"
+            data-statut-type="pec"
+            data-label-nouveau="{{ constant('App\\Enum\\PlatauStatutPecEnum::LABELS')['to_export'] }}"
+            title="Renvoyer la prise en compte métier">
+        <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Renvoyer
+    </button>
+{% endif %}
+
+{# Bouton retry Avis : si TRAITE #}
+{% if isEdit
+    and type == 'avis'
+    and statut == constant('App\\Enum\\PlatauStatutAvisEnum::TRAITE') %}
+    <button type="button"
+            id="retry-export-avis"
+            class="btn btn-warning btn-xs"
+            data-statut-type="avis"
+            data-label-nouveau="{{ constant('App\\Enum\\PlatauStatutAvisEnum::LABELS')['to_export'] }}"
+            title="Renvoyer l'avis">
+        <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Renvoyer
+    </button>
+{% endif %}
+
+{% if type == 'pec'
+    and statut == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE')
+    and dossier_incomplet is null %}
     <div>
         <span class='glyphicon glyphicon-info-sign'></span>
         L'état du dossier est actuellement inconnu dans Prevarisc. Veuillez modifier le dossier pour le renseigner.

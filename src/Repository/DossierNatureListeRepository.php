@@ -3,9 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,55 +23,18 @@ class DossierNatureListeRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Récupère les natures de dossier pour un type donné, triées par ordre.
+     *
+     * @return DossierNatureListe[]
      */
-    public function add(DossierNatureListe $entity, bool $flush = true): void
+    public function findByTypeOrderedByOrdre(DossierType $type): array
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(DossierNatureListe $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    // /**
-    //  * @return DossierNatureListe[] Returns an array of DossierNatureListe objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
+        return $this->createQueryBuilder('dnl')
+            ->where('dnl.type = :type')
+            ->setParameter('type', $type)
+            ->orderBy('dnl.ordre', 'ASC')
+            ->addOrderBy('dnl.libelle', 'ASC')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?DossierNatureListe
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

@@ -32,12 +32,19 @@ $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 
-// Uses legacy index.php if route is not found in SF app.
-if (true === $response->isNotFound()) {
+// Strangler Pattern : Fallback vers legacy si route Symfony pas trouvée
+// Note : On vérifie le header X-Symfony-Route-Found pour distinguer :
+// - Route pas trouvée dans Symfony (pas de header) → fallback legacy
+// - Route trouvée mais 404 métier (header présent) → retourner la 404 Symfony
+$isSymfonyRouteFound = $response->headers->has('X-Symfony-Route-Found');
+
+if (!$isSymfonyRouteFound && true === $response->isNotFound()) {
     $prevariscPath = $_SERVER['PREVARISC_PATH'] ?? $_ENV['PREVARISC_PATH'] ?? '/home/prv/current/prevarisc';
 
     require realpath($prevariscPath.'/public/index.php');
 } else {
+    // Supprimer le header technique avant d'envoyer la réponse
+    $response->headers->remove('X-Symfony-Route-Found');
     $response->send();
 }
 

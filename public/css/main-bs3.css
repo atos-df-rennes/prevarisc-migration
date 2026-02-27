@@ -1209,10 +1209,6 @@ dl.champ_effectif_camping dd input {
   text-align: left;
 }
 
-#dossierInfos .form .input-group input {
-  height: unset;
-}
-
 #ign-accordion .row,
 .date + .btn.today {
   margin-bottom: 10px;

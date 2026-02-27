@@ -103,6 +103,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');
 
+    $parameters->set('env(PREVARISC_MAIL_TRANSPORT)', 'smtp');
+
+    $parameters->set('app.mail_transport', '%env(string:PREVARISC_MAIL_TRANSPORT)%');
+
+    $parameters->set('env(PREVARISC_MAIL_HOST)', 'localhost');
+
+    $parameters->set('app.mail_host', '%env(string:PREVARISC_MAIL_HOST)%');
+
+    $parameters->set('env(PREVARISC_MAIL_PORT)', '');
+
+    $parameters->set('app.mail_port', '%env(string:PREVARISC_MAIL_PORT)%');
+
+    $parameters->set('env(PREVARISC_MAIL_USERNAME)', '');
+
+    $parameters->set('app.mail_username', '%env(string:PREVARISC_MAIL_USERNAME)%');
+
+    $parameters->set('env(PREVARISC_MAIL_PASSWORD)', '');
+
+    $parameters->set('app.mail_password', '%env(string:PREVARISC_MAIL_PASSWORD)%');
+
+    $parameters->set('env(PREVARISC_MAIL_SENDER)', 'noreply@prevarisc.local');
+
+    $parameters->set('app.mail_sender', '%env(string:PREVARISC_MAIL_SENDER)%');
+
+    $parameters->set('env(PREVARISC_MAIL_SENDER_NAME)', '');
+
+    $parameters->set('app.mail_sender_name', '%env(string:PREVARISC_MAIL_SENDER_NAME)%');
+
     $parameters->set('env(PREVARISC_DATASTORE_ADAPTER)', 'Plugin_SimpleFileDataStore');
 
     $parameters->set('app.datastore_adapter', '%env(string:PREVARISC_DATASTORE_ADAPTER)%');

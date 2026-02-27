@@ -2,16 +2,21 @@
 
 namespace App\Entity;
 
+use App\Constant\DossierNature;
 use App\Repository\DossierRepository;
+use App\Validator\DossierObjet;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=DossierRepository::class)
  *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
+ *
+ * @DossierObjet
  */
 class Dossier
 {
@@ -50,11 +55,34 @@ class Dossier
     private $objet;
 
     /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCGEN_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifGeneral;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCEFF_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifEffectifs;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="COORDSSI_DOSSIER", type="text", nullable=true)
+     */
+    private $coordonneesSsi;
+
+    /**
      * @var DossierType
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
      * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
+     *
+     * @Assert\NotNull(message="Le type de dossier est obligatoire.")
      */
     private $type;
 
@@ -67,6 +95,11 @@ class Dossier
      * )
      *
      * @ORM\ManyToMany(targetEntity=DossierNatureListe::class)
+     *
+     * @Assert\Count(
+     *     min=1,
+     *     minMessage="La nature du dossier est obligatoire."
+     * )
      */
     private $nature;
 
@@ -115,7 +148,11 @@ class Dossier
     /**
      * @var ?\DateTimeInterface
      *
-     * @ORM\Column(type="datetime", nullable=true, name="DATEINSERT_DOSSIER")
+     * @ORM\Column(type="datetime", nullable=false, name="DATEINSERT_DOSSIER")
+     *
+     * @Assert\NotNull(message="La date de création du dossier est obligatoire.")
+     *
+     * @Assert\DateTime(message="La date de création doit être une date valide.")
      */
     private $dateInsert;
 
@@ -191,7 +228,7 @@ class Dossier
     /**
      * @var Collection<int, DossierDocumentManquant>
      *
-     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $documentsManquants;
 
@@ -622,6 +659,42 @@ class Dossier
     public function setObjet(?string $objet): self
     {
         $this->objet = $objet;
+
+        return $this;
+    }
+
+    public function getDescriptifGeneral(): ?string
+    {
+        return $this->descriptifGeneral;
+    }
+
+    public function setDescriptifGeneral(?string $descriptifGeneral): self
+    {
+        $this->descriptifGeneral = $descriptifGeneral;
+
+        return $this;
+    }
+
+    public function getDescriptifEffectifs(): ?string
+    {
+        return $this->descriptifEffectifs;
+    }
+
+    public function setDescriptifEffectifs(?string $descriptifEffectifs): self
+    {
+        $this->descriptifEffectifs = $descriptifEffectifs;
+
+        return $this;
+    }
+
+    public function getCoordonneesSsi(): ?string
+    {
+        return $this->coordonneesSsi;
+    }
+
+    public function setCoordonneesSsi(?string $coordonneesSsi): self
+    {
+        $this->coordonneesSsi = $coordonneesSsi;
 
         return $this;
     }
@@ -1223,14 +1296,31 @@ class Dossier
         return $this;
     }
 
+    /**
+     * Retourne le service instructeur.
+     * Normalise les valeurs legacy "0" et chaînes vides en null.
+     */
     public function getServiceInstructeur(): ?string
     {
+        // Normaliser les valeurs legacy héritées de l'ancien système
+        // "0" et chaînes vides sont considérés comme absence de service instructeur
+        // Note : Nettoyage BDD possible via migration SQL future
+        if (in_array($this->serviceInstructeur, ['0', ''], true)) {
+            return null;
+        }
+
         return $this->serviceInstructeur;
     }
 
+    /**
+     * Définit le service instructeur.
+     * Normalise les valeurs "0" et chaînes vides en null avant persistence.
+     */
     public function setServiceInstructeur(?string $serviceInstructeur): self
     {
-        $this->serviceInstructeur = $serviceInstructeur;
+        // Normaliser les valeurs "0" et vides en null
+        // Évite de persister des données legacy depuis le code Symfony
+        $this->serviceInstructeur = in_array($serviceInstructeur, ['0', ''], true) ? null : $serviceInstructeur;
 
         return $this;
     }
@@ -1641,5 +1731,22 @@ class Dossier
         $this->dateSignature = $dateSignature;
 
         return $this;
+    }
+
+    /**
+     * Vérifie si ce dossier donne un avis pour l'établissement.
+     *
+     * Un dossier donne avis si sa nature fait partie de la liste définie
+     * dans DossierNature::NATURES_DONNANT_AVIS.
+     */
+    public function donneAvis(): bool
+    {
+        $nature = $this->getNature();
+
+        if (null === $nature) {
+            return false;
+        }
+
+        return in_array($nature->getId(), DossierNature::NATURES_DONNANT_AVIS, true);
     }
 }

@@ -2,48 +2,63 @@
 
 namespace App\Service;
 
+/**
+ * Service de gestion des changements d'établissement.
+ *
+ * Contient les définitions de balises pour templates email.
+ * Équivalent legacy : Service_Changement
+ */
 final class Changement
 {
+    /**
+     * Définition des balises disponibles pour les templates d'email.
+     *
+     * Chaque balise contient :
+     * - description : Description lisible de la balise
+     * - method : Méthode à appeler pour récupérer la valeur (ou 'SPECIAL' pour traitement spécial)
+     *
+     * Équivalent legacy : Service_Changement::BALISES
+     * Structure adaptée Symfony : 'method' au lieu de 'model'/'champ'
+     *
+     * @var array<string, array{description: string, method: string}>
+     */
     public const BALISES = [
         '{activitePrincipaleEtablissement}' => [
             'description' => "L'activité principale de l'établissement",
-            'model' => 'informations',
-            'champ' => 'LIBELLE_TYPEACTIVITE_PRINCIPAL',
+            'method' => 'getTypeActivite', // Sur EtablissementInformations
         ],
         '{categorieEtablissement}' => [
-            'description' => "La catégorie de l'etablissement",
-            'model' => 'informations',
-            'champ' => 'LIBELLE_CATEGORIE',
+            'description' => "La catégorie de l'établissement",
+            'method' => 'getCategorie', // Sur EtablissementInformations
         ],
         '{etablissementAvis}' => [
             'description' => "L'avis de l'établissement",
-            'model' => 'avis',
-            'champ' => '',
+            'method' => 'SPECIAL', // Géré par AvisService
         ],
         '{etablissementLibelle}' => [
-            'description' => "Le libelle de l'établissement",
-            'model' => 'informations',
-            'champ' => 'LIBELLE_ETABLISSEMENTINFORMATIONS',
+            'description' => "Le libellé de l'établissement",
+            'method' => 'getLibelle', // Sur EtablissementInformations
         ],
         '{etablissementNumeroId}' => [
             'description' => "Le numéro Id de l'établissement",
-            'model' => 'general',
-            'champ' => 'NUMEROID_ETABLISSEMENT',
+            'method' => 'getNumero', // Sur Etablissement
         ],
         '{etablissementStatut}' => [
             'description' => "Le statut (Ouvert ou Fermé) de l'établissement",
-            'model' => 'informations',
-            'champ' => 'LIBELLE_STATUT',
+            'method' => 'getStatut', // Sur EtablissementInformations
         ],
         '{typePrincipalEtablissement}' => [
             'description' => "Le type principal de l'établissement",
-            'model' => 'informations',
-            'champ' => 'LIBELLE_TYPE_PRINCIPAL',
+            'method' => 'getType', // Sur EtablissementInformations
         ],
     ];
 
     /**
-     * @return array<string, array<string, string>>
+     * Retourne la liste des balises disponibles.
+     *
+     * Équivalent legacy : Service_Changement::getBalises()
+     *
+     * @return array<string, array{description: string, method: string}>
      */
     public function getBalises(): array
     {

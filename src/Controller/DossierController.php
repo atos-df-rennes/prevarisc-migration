@@ -2,31 +2,60 @@
 
 namespace App\Controller;
 
+use App\Constant\CommissionTypeEvenement;
+use App\Constant\DossierNature;
+use App\Entity\Avis;
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
+use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
+use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\Alerte\AlerteService;
+use App\Service\Commission\DateCommission;
+use App\Service\Dossier\DocumentConsulteTransferService;
+use App\Service\Dossier\DossierAffectationService;
+use App\Service\Dossier\DossierDonnantAvisService;
+use App\Service\DossierDocumentManquantService;
+use App\Service\DossierFields;
+use App\Service\Etablissement;
+use App\Service\Platau\PieceJointeExportService;
 use App\Service\PlatauConsultation;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DossierController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
+    /** @var PlatauConsultation */
+    private $platauConsultationService;
+
+    /** @var DateCommission */
+    private $dateCommissionService;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        PlatauConsultation $platauConsultationService,
+        DateCommission $dateCommissionService
+    ) {
         $this->entityManager = $entityManager;
+        $this->platauConsultationService = $platauConsultationService;
+        $this->dateCommissionService = $dateCommissionService;
     }
 
     /**
@@ -36,7 +65,7 @@ class DossierController extends AbstractController
      *
      * @IsGranted("view_doss", subject="dossier")
      */
-    public function index(Dossier $dossier, PlatauConsultation $platauConsultationService): Response
+    public function index(Dossier $dossier): Response
     {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
             && !$dossier->isHorsDelai()
@@ -45,19 +74,28 @@ class DossierController extends AbstractController
             && !$dossier->hasNePeutSePrononcer()
         ;
 
-        $platauData = $platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+
+        $datesCommissionLiees = $this->dateCommissionService->getDatesLiees($dossier);
 
         return $this->render('dossier/index.html.twig', [
             'dossier' => $dossier,
             'afficher_avis' => $afficherAvis,
             'platau' => $platauData,
+            'datesCommissionLiees' => $datesCommissionLiees,
         ]);
     }
 
+    /* @fixme(bug-legacy): Lorsqu'on met un avis différé sur un dossier donnant avis,
+     * cela change l'ID_DOSSIER_DONNANT_AVIS sur l'établissement. (ok)
+     * En revanche cela ne remet pas l'ID_DOSSIER_DONNANT_AVIS sur l'ancien dossier si on enlève l'avis différé.
+     */
     /**
      * Édition des informations générales d'un dossier.
      *
      * @Route("/dossier/{id}/modifier", name="dossier_edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
      */
     public function edit(
         Request $request,
@@ -67,16 +105,223 @@ class DossierController extends AbstractController
         CommissionTypeRepository $commissionTypeRepository,
         CommissionRepository $commissionRepository,
         EtablissementRepository $etablissementRepository,
-        UtilisateurRepository $utilisateurRepository
+        UtilisateurRepository $utilisateurRepository,
+        DossierFields $dossierFieldsService,
+        Etablissement $etablissementService,
+        DossierDocumentManquantService $documentManquantService,
+        DocumentConsulteTransferService $documentConsulteTransferService,
+        PieceJointeExportService $pieceJointeExportService,
+        DossierAffectationService $dossierAffectationService,
+        DossierAffectationRepository $dossierAffectationRepository,
+        DossierDonnantAvisService $dossierDonnantAvisService,
+        AlerteService $alerteService,
+        LoggerInterface $logger,
+        UrlGeneratorInterface $urlGenerator,
+        bool $mailEnabled
     ): Response {
-        $form = $this->createForm(DossierType::class, $dossier);
+        // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
+        $documentManquantService->organizeDocumentsManquants($dossier);
+
+        // Sauvegarder les valeurs initiales pour détecter les changements
+        $ancienType = $dossier->getType();
+        $ancienneNature = $dossier->getNature();
+
+        // Sauvegarder anciens avis établissements pour détecter changements (alertes email)
+        $anciensAvis = [];
+        foreach ($dossier->getEtablissements() as $etablissement) {
+            $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+            $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
+                ? $dossierDonnantAvis->getAvisCommission()
+                : null;
+        }
+
+        $form = $this->createForm(DossierType::class, $dossier, [
+            'is_edit' => true,
+        ]);
+
+        // Pré-remplir les champs Hidden avec IDs affectations existantes
+        // Nécessaire pour que la sauvegarde sans modification ne désaffecte pas
+        $affectationCommission = $dossierAffectationRepository->findAffectationByDossierAndType(
+            $dossier,
+            CommissionTypeEvenement::TYPE_COMMISSION_SALLE
+        );
+        $affectationVisite = $dossierAffectationRepository->findAffectationByDossierAndType(
+            $dossier,
+            [CommissionTypeEvenement::TYPE_VISITE, CommissionTypeEvenement::TYPE_GROUPE_VISITE]
+        );
+
+        $form->get('idAffectationDossierCommission')->setData(
+            $affectationCommission && $affectationCommission->getDateCommission()
+                ? (string) $affectationCommission->getDateCommission()->getId()
+                : null
+        );
+        $form->get('idAffectationDossierVisite')->setData(
+            $affectationVisite && $affectationVisite->getDateCommission()
+                ? (string) $affectationVisite->getDateCommission()->getId()
+                : null
+        );
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
-            $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
+            // Début transaction explicite pour rollback en cas d'erreur
+            $this->entityManager->beginTransaction();
 
-            return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+            try {
+                // Transfert documents consultés (si changement type/nature)
+                $nouveauType = $dossier->getType();
+                $nouvelleNature = $dossier->getNature();
+
+                if ($nouveauType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
+                    $documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
+                        $dossier,
+                        $nouveauType,
+                        $nouvelleNature
+                    );
+                }
+
+                // Export Plat'AU - Marquer PJ sélectionnées pour export
+                /** @var Collection<int, PieceJointe>|null $piecesJointesPlatau */
+                $piecesJointesPlatau = $form->get('piecesJointesPlatau')->getData();
+                if ($piecesJointesPlatau) {
+                    $pieceJointeExportService->markForExport($piecesJointesPlatau);
+                }
+
+                // Affectations commissions/visites + dénormalisation dates
+                /** @var string|null $idAffectationCommission */
+                $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
+                /** @var string|null $idAffectationVisite */
+                $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+
+                $dossierAffectationService->gererAffectations(
+                    $dossier,
+                    $idAffectationCommission ? (int) $idAffectationCommission : null,
+                    $idAffectationVisite ? (int) $idAffectationVisite : null
+                );
+
+                // Dossier donnant avis : gestion affectation/désaffectation
+                // Récupérer la valeur de la checkbox repercuterAvis
+                $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
+
+                // Liste des IDs établissements modifiés (pour vidage cache legacy)
+                /** @var int[] $etablissementsIds */
+                $etablissementsIds = [];
+
+                // Cas 1 : Nouvelle nature donne avis → Affectation
+                if ($dossier->donneAvis()) {
+                    $etablissementsIds = $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
+                }
+                // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
+                // Note : Le elseif garantit qu'on ne passe ici QUE si nouvelle nature ne donne PAS avis
+                elseif (null !== $ancienneNature) {
+                    $etablissementsIds = $dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
+                }
+
+                // Persist et flush toutes les modifications
+                $this->entityManager->persist($dossier);
+                $this->entityManager->flush();
+
+                // Commit transaction
+                $this->entityManager->commit();
+
+                // Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
+                $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+                $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
+
+                if (
+                    1 === $avisCommission // Avis favorable
+                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true) // Nature 47 ou 48
+                ) {
+                    foreach ($dossier->getEtablissements() as $etablissement) {
+                        $informations = $etablissement->getLatestInformations();
+                        $statut = $informations->getStatut();
+
+                        // Si établissement en statut "Projet" (ID=1)
+                        if ($statut && 1 === $statut->getId()) {
+                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
+
+                            $informationsEtablissement = $urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+                            $this->addFlash('warning', sprintf(
+                                '<strong>Avertissement</strong><br>'.
+                                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
+                                '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
+                                $informationsEtablissement,
+                                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
+                            ));
+                        }
+                    }
+                }
+
+                // Alertes email si changement d'avis (flash messages)
+                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
+                    // Vérifier pour chaque établissement modifié si l'avis a changé
+                    foreach ($dossier->getEtablissements() as $etablissement) {
+                        $etablissementId = $etablissement->getId();
+
+                        // Uniquement établissements qui ont été modifiés par affectation
+                        if (!in_array($etablissementId, $etablissementsIds, true)) {
+                            continue;
+                        }
+
+                        // Récupérer nouvel avis
+                        $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+                        $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
+
+                        // Comparer avec ancien avis
+                        $ancienAvis = $anciensAvis[$etablissementId] ?? null;
+
+                        // Si avis a changé, ajouter flash avec lien "Alerter"
+                        if ($ancienAvis !== $nouvelAvis) {
+                            $informations = $etablissement->getLatestInformations();
+                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
+
+                            $lienAlerter = $alerteService->getLink(
+                                AlerteService::TYPE_CHANGEMENT_AVIS,
+                                $etablissementId
+                            );
+
+                            $this->addFlash('success', sprintf(
+                                '<p>L\'établissement %s a bien été mis à jour.</p>%s',
+                                $libelle,
+                                $lienAlerter
+                            ));
+                        }
+                    }
+                }
+
+                // Redirect vers legacy pour vidage cache établissements (si modifications)
+                $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
+
+                if ([] !== $etablissementsIds) {
+                    // Rediriger vers route legacy pour vidage cache + redirect Symfony
+                    $etablissementsJson = json_encode($etablissementsIds);
+                    if (false === $etablissementsJson) {
+                        throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
+                    }
+
+                    return $this->redirect(sprintf(
+                        '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
+                        $dossier->getId(),
+                        urlencode($etablissementsJson)
+                    ));
+                }
+
+                // Cas sans modification établissements : redirect direct vers page dossier
+                return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+            } catch (\Exception $e) {
+                // Rollback en cas d'erreur
+                $this->entityManager->rollback();
+
+                // Log de l'erreur technique pour le service informatique
+                $logger->error('Erreur lors de la sauvegarde du dossier', [
+                    'dossier_id' => $dossier->getId(),
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                // Message générique pour l'utilisateur
+                $this->addFlash('danger', 'Une erreur est survenue lors de la sauvegarde du dossier. Veuillez réessayer ou contacter le service informatique.');
+            }
         }
 
         // Récupération des données nécessaires pour l'affichage
@@ -95,10 +340,18 @@ class DossierController extends AbstractController
         // Récupération des établissements liés au dossier
         $etablissements = $dossier->getEtablissements();
         $enteteEtab = null;
+        $lastAvisEtab = '';
+
         if ($etablissements->count() > 0) {
             $premierEtablissement = $etablissements->first();
+
             if ($premierEtablissement) {
                 $enteteEtab = $etablissementRepository->find($premierEtablissement->getId());
+
+                // Récupération du dernier avis via l'historique des dossiers
+                if ($enteteEtab) {
+                    $lastAvisEtab = $etablissementService->getLastAvisLibelle($enteteEtab->getId());
+                }
             }
         }
 
@@ -116,6 +369,15 @@ class DossierController extends AbstractController
             $userInfoVerrou = $utilisateurRepository->find($dossier->getUtilisateurVerrou());
         }
 
+        // Configuration des champs pour JavaScript
+        $fieldsConfig = json_encode($dossierFieldsService->getAllFieldsByNature());
+
+        // Informations Plat'AU
+        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+
+        // Dates de commission liées
+        $datesCommissionLiees = $this->dateCommissionService->getDatesLiees($dossier);
+
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
@@ -124,10 +386,14 @@ class DossierController extends AbstractController
             'commissionsParType' => $commissionsParType,
             'etablissements' => $etablissements,
             'enteteEtab' => $enteteEtab,
+            'lastAvisEtab' => $lastAvisEtab,
             'user' => $user,
             'isAllowedChangeAvis' => $isAllowedChangeAvis,
             'isAllowedDeleteDossier' => $isAllowedDeleteDossier,
             'userInfoVerrou' => $userInfoVerrou,
+            'fieldsConfig' => $fieldsConfig,
+            'platau' => $platauData,
+            'datesCommissionLiees' => $datesCommissionLiees,
         ]);
     }
 

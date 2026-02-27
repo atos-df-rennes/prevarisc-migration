@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\DossierNatureListeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=DossierNatureListeRepository::class)
@@ -20,6 +21,8 @@ class DossierNatureListe
      * @ORM\GeneratedValue
      *
      * @ORM\Column(name="ID_DOSSIERNATURE", type="bigint")
+     *
+     * @Groups({"api_response"})
      */
     private $id;
 
@@ -27,6 +30,8 @@ class DossierNatureListe
      * @var string
      *
      * @ORM\Column(name="LIBELLE_DOSSIERNATURE", type="string", length=100, nullable=false)
+     *
+     * @Groups({"api_response"})
      */
     private $libelle;
 

@@ -166,7 +166,7 @@ class DossierFieldsService
 
 1. **Ordre des champs :** L'ordre dans le tableau correspond à l'ordre d'affichage historique
 2. **Champs spéciaux :** `type`, `DEMANDEUR` présents uniquement dans certaines natures
-3. **Champs inutilisés dans l'affichage :** `COORDSSI`, `DESCGEN`, `DESCEFF`, `NUMCHRONO` sont dans la liste mais utilisés uniquement dans les formulaires d'édition
+3. **Champs inutilisés dans l'affichage :** `COORDSSI`, `DESCGEN`, `DESCEFF`, `NUMCHRONO` sont dans les listes de champs legacy mais **JAMAIS affichés dans les templates** (ni en affichage, ni en édition)
 
 ---
 

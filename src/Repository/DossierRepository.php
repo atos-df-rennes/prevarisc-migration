@@ -178,4 +178,81 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * Trouve le dernier dossier donnant avis valide pour un établissement.
+     *
+     * Logique legacy (getDernierIdDossierDonnantAvis) :
+     * - Dossier lié à l'établissement
+     * - Nature dans NATURES_DONNANT_AVIS
+     * - Avis favorable (1) ou défavorable (2)
+     * - Non supprimé
+     * - Tri par date commission ou date visite (DESC)
+     *
+     * @param Etablissement $etablissement  Établissement pour lequel chercher le dernier dossier
+     * @param Dossier|null  $excludeDossier Dossier à exclure de la recherche (ex: dossier courant en désaffectation)
+     *
+     * @return Dossier|null Dernier dossier valide ou null si aucun
+     */
+    public function findLastDossierDonnantAvisForEtablissement(Etablissement $etablissement, ?Dossier $excludeDossier = null): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb
+            ->join('d.etablissements', 'e')
+            ->join('d.nature', 'n')
+            ->join('d.avisCommission', 'a') // AVIS_DOSSIER_COMMISSION (pas AVIS_DOSSIER)
+            ->where('e.id = :etablissementId')
+            ->andWhere('n.id IN (:naturesIds)')
+            ->andWhere('a.id IN (1, 2)') // 1 = favorable, 2 = défavorable
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'))
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('naturesIds', DossierNature::NATURES_DONNANT_AVIS)
+        ;
+
+        // Exclure le dossier spécifié (pour éviter de retrouver le dossier courant en désaffectation)
+        if (null !== $excludeDossier) {
+            $qb->andWhere('d.id != :excludeDossierId')
+                ->setParameter('excludeDossierId', $excludeDossier->getId());
+        }
+
+        // Tri par dateCommission puis dateVisite (DESC)
+        // COALESCE dans addSelect() est interprété comme SQL brut (pas parsé par DQL)
+        $qb->addSelect('COALESCE(d.dateCommission, d.dateVisite, d.dateInsert) as HIDDEN sortDate');
+        $qb->orderBy('sortDate', 'DESC');
+        $qb->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Trouve le dernier dossier avec avis différé pour un établissement.
+     *
+     * Équivalent legacy : Service_Etablissement::getAvisEtablissement()
+     *                      → Search avec DIFFEREAVIS_DOSSIER = 1
+     *
+     * Cherche parmi tous les dossiers de l'établissement celui avec :
+     * - differeAvis = true
+     * - Plus récente date d'insertion
+     *
+     * @param Etablissement $etablissement Établissement concerné
+     *
+     * @return Dossier|null Dernier dossier avec avis différé ou null
+     */
+    public function findLastDossierAvisDiffere(Etablissement $etablissement): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->join('d.etablissements', 'e')
+            ->where('e.id = :etablissementId')
+            ->andWhere('d.avisDiffere = :avisDiffere')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('avisDiffere', true)
+            ->orderBy('d.dateInsert', 'DESC')
+            ->setMaxResults(1)
+        ;
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }
