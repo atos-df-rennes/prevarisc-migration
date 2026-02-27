@@ -8,7 +8,7 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $("select#choix_commune").change(function() {
-                $("#informations_commune").load("/admin/communes/" + $(this).val())
+                $("#informations_commune").load(Routing.generate('admin_commune_infos', {id: $(this).val()}))
             }).change()
         })
     </script>

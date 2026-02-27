@@ -41,7 +41,7 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add")
+     * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add", options={"expose"=true})
      */
     public function ajouter(Request $request): Response
     {
@@ -69,7 +69,7 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit")
+     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit", options={"expose"=true})
      */
     public function modifier(Request $request, TexteApplicable $texteApplicable): Response
     {
@@ -93,7 +93,7 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder")
+     * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder", options={"expose"=true})
      */
     public function ordonner(Request $request): Response
     {

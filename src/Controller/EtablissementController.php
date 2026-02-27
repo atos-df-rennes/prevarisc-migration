@@ -116,7 +116,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/informations", name="etablissement_informations")
+     * @Route("/etablissement/{id}/informations", name="etablissement_informations", options={"expose"=true})
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
