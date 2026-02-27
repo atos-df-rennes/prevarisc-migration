@@ -184,19 +184,18 @@ class DossierDonnantAvisService
         if (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
             $dateCommission = \DateTime::createFromFormat('Y-m-d', $dossier->getDateCommission());
             if (false !== $dateCommission) {
-                return $dateCommission;
+                return $dateCommission->setTime(0, 0, 0);
             }
         }
 
         // Priorité 2 : dateVisite
         if (null !== $dossier->getDateVisite()) {
-            return $dossier->getDateVisite();
+            return (clone $dossier->getDateVisite())->setTime(0, 0, 0);
         }
 
         // Priorité 3 : dateInsert (toujours définie à la création)
-        $dateInsert = $dossier->getDateInsert();
-        if (null !== $dateInsert) {
-            return $dateInsert;
+        if (null !== $dossier->getDateInsert()) {
+            return (clone $dossier->getDateInsert())->setTime(0, 0, 0);
         }
 
         // Ne devrait jamais arriver (dateInsert est requis)
