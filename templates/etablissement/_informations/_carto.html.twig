@@ -66,14 +66,14 @@
 
         <div id="geoconcept" class="tab-pane in" style="height: 350px; max-height: 350px;width: 100%">
             <div id="geoconcept-container"  style="height: 100%; max-height: 100%;width: 100%"></div>
-            <script type="text/javascript" src="/js/geoconcept/OpenLayers.js"></script>
-            <script type="text/javascript" src="/js/geoconcept/proj4js.js"></script>
-            <script type="text/javascript" src="/js/geoconcept/htc-lite.js"></script>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/OpenLayers.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/proj4js.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/htc-lite.js') }}"></script>
             {% if projection is defined and projection == true %}
-                <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
+                <script type="text/javascript" src="{{ asset('/js/geoconcept/defs/' ~ projection ~ '.js') }}"></script>
             {% endif %}
-            <script type="text/javascript" src="/js/geoconcept/geoconcept.js"></script>
-            <link rel="stylesheet" href="/css/geoconcept/htc.css"/>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/geoconcept.js') }}"></script>
+            <link rel="stylesheet" href="{{ asset('/css/geoconcept/htc.css') }}"/>
             <script>
                 $(document).ready(function() {
                     {% if token and app_id %}
