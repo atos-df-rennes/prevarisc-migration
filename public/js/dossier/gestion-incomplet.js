@@ -551,7 +551,6 @@
         
         // Créer ou afficher "Valider la réception"
         let validateBtn = docItem.querySelector('.validate-reception');
-        const todayBtns = docItem.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
 
         if (!validateBtn) {
             // Le bouton n'existe pas (rendu avec "Modifier") → le créer
