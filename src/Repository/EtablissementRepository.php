@@ -90,25 +90,6 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
     }
 
     /**
-     * @return array<int, array{'id': int, 'dateCommission': ?string, 'dateVisite': ?string, 'idAvisDerogation': int, 'titre': string, 'type': string}>
-     */
-    public function getAvisDerogationsEtablissement(int $id): array
-    {
-        $queryBuilder = $this->createQueryBuilder('e');
-        $query = $queryBuilder
-            ->select('d.id, d.dateCommission, d.dateVisite')
-            ->addSelect('da.id as idAvisDerogation, da.titre, da.type')
-            ->join('e.dossiers', 'd')
-            ->join('d.avisDerogations', 'da')
-            ->where('e.id = :id')
-            ->andWhere('da.displayHistorique = 1')
-            ->setParameter(':id', $id)
-            ->getQuery();
-
-        return $query->getResult();
-    }
-
-    /**
      * Retourne l'établissement demandé avec la liste des contacts ordonnée par nom.
      */
     public function findContactsOrderedByNom(int $id): ?Etablissement
