@@ -234,7 +234,7 @@ class EtablissementController extends AbstractController
      */
     public function avisDerogations(Etablissement $etablissement): Response
     {
-        $historiqueAvisDerogations = $this->etablissementService->getAvisDerogations($etablissement->getId());
+        $historiqueAvisDerogations = $this->etablissementService->getAvisDerogations($etablissement);
         $derogationsOriginales = $etablissement->getDescriptifDerogation();
 
         return $this->render('etablissement/avis_derogations.html.twig', [

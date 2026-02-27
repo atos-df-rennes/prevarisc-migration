@@ -46,6 +46,9 @@ final class Etablissement
     private $parameterBag;
 
     /** @var LoggerInterface */
+    private $datastoreLogger;
+
+    /** @var LoggerInterface */
     private $logger;
 
     /** @var EntityManagerInterface */
@@ -58,8 +61,9 @@ final class Etablissement
         EtablissementPieceJointeRepository $etablissementPJRepository,
         DataStore $dataStore,
         ParameterBagInterface $parameterBag,
-        LoggerInterface $logger,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        LoggerInterface $datastoreLogger,
+        LoggerInterface $logger
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
@@ -67,8 +71,9 @@ final class Etablissement
         $this->etablissementPJRepository = $etablissementPJRepository;
         $this->dataStore = $dataStore;
         $this->parameterBag = $parameterBag;
-        $this->logger = $logger;
         $this->entityManager = $entityManager;
+        $this->datastoreLogger = $datastoreLogger;
+        $this->logger = $logger;
     }
 
     /**
@@ -400,7 +405,7 @@ final class Etablissement
 
                 if ('' === $path || !is_readable($path)) {
                     $piece = $pj->getPieceJointe();
-                    $this->logger->warning('La pièce jointe n\'est pas accessible en lecture.', [
+                    $this->datastoreLogger->warning('La pièce jointe n\'est pas accessible en lecture.', [
                         'path' => $path,
                         'filename' => $piece instanceof PieceJointe ? $piece->getNom().$piece->getExtension() : 'Nom de la pièce inconnu',
                     ]);
@@ -424,18 +429,32 @@ final class Etablissement
     /**
      * @return AvisDerogationEtablissement[]
      */
-    public function getAvisDerogations(int $id): array
+    public function getAvisDerogations(EtablissementEntity $etablissement): array
     {
-        $listeAvisDerogationsEtablissement = $this->etablissementRepository->getAvisDerogationsEtablissement($id);
+        $listeAvisDerogationsEtablissement = $this->avisDerogationsRepository->findForEtablissement($etablissement->getId());
+
+        $filsEtablissement = $etablissement->getFils();
+        foreach ($filsEtablissement as $fils) {
+            $listeAvisDerogationsFils = $this->avisDerogationsRepository->findForEtablissement($fils->getId());
+            $listeAvisDerogationsEtablissement = array_merge($listeAvisDerogationsEtablissement, $listeAvisDerogationsFils);
+        }
 
         $avisDerogations = [];
-        foreach ($listeAvisDerogationsEtablissement as $dossier) {
-            $avisDerogation = $this->avisDerogationsRepository->find($dossier['idAvisDerogation']);
+        foreach ($listeAvisDerogationsEtablissement as $avisDerogation) {
             $leve = false;
             $debut = null;
             $typeDossier = null;
+            $dossierAvisDerogation = $avisDerogation->getDossier();
 
-            if (null !== $avisDerogation && null !== $avisDerogation->getDossierLie()) {
+            if (null === $dossierAvisDerogation) {
+                $this->logger->warning("Aucun dossier associé à l'avis/dérogation.", [
+                    'avis_derogation_id' => $avisDerogation->getId(),
+                ]);
+
+                continue;
+            }
+
+            if (null !== $avisDerogation->getDossierLie()) {
                 if (null !== $avisDerogation->getDossierLie()->getType() && null !== $avisDerogation->getDossierLie()->getType()->getId()) {
                     $typeDossier = $avisDerogation->getDossierLie()->getType()->getId();
                 }
@@ -443,17 +462,33 @@ final class Etablissement
                 $leve = true;
             }
 
-            if (null !== $dossier['dateCommission']) {
-                $debut = $dossier['dateCommission'];
-            } elseif (null !== $dossier['dateVisite']) {
-                $debut = $dossier['dateVisite'];
+            if (null !== $dossierAvisDerogation->getDateCommission()) {
+                $debut = $dossierAvisDerogation->getDateCommission();
+            } elseif (null !== $dossierAvisDerogation->getDateVisite()) {
+                $debut = $dossierAvisDerogation->getDateVisite()->format('Y-m-d');
+            }
+
+            if (
+                null === $dossierAvisDerogation->getId()
+                || null === $avisDerogation->getId()
+                || null === $avisDerogation->getTitre()
+                || null === $avisDerogation->getType()
+            ) {
+                $this->logger->warning("Une des données requises de l'avis/dérogation n'est pas renseignée", [
+                    'dossier_id' => $dossierAvisDerogation->getId(),
+                    'avis_derogation_id' => $avisDerogation->getId(),
+                    'avis_derogation_titre' => $avisDerogation->getTitre(),
+                    'avis_derogation_type' => $avisDerogation->getType(),
+                ]);
+
+                continue;
             }
 
             $avisDerogations[] = new AvisDerogationEtablissement(
-                $dossier['id'],
-                $dossier['idAvisDerogation'],
-                $dossier['titre'],
-                $dossier['type'],
+                $dossierAvisDerogation->getId(),
+                $avisDerogation->getId(),
+                $avisDerogation->getTitre(),
+                $avisDerogation->getType(),
                 $leve,
                 $debut,
                 $typeDossier
