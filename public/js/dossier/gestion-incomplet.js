@@ -555,7 +555,7 @@
         if (!validateBtn) {
             // Le bouton n'existe pas (rendu avec "Modifier") → le créer
             const buttonContainer = button.parentElement;
-            validateBtn = createButton('valider', buttonContainer);
+            createButton('valider', buttonContainer);
         } else {
             // Le bouton existe déjà → l'afficher
             validateBtn.style.display = '';
