@@ -187,9 +187,6 @@ class DossierController extends AbstractController
                     $pieceJointeExportService->markForExport($piecesJointesPlatau);
                 }
 
-                // Documents manquants : gestion automatique via CollectionType + orphanRemoval=true
-                // Doctrine persist/remove automatiquement selon modifications Collection
-
                 // Affectations commissions/visites + dénormalisation dates
                 /** @var string|null $idAffectationCommission */
                 $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
@@ -204,7 +201,6 @@ class DossierController extends AbstractController
 
                 // Dossier donnant avis : gestion affectation/désaffectation
                 // Récupérer la valeur de la checkbox repercuterAvis
-                /** @var bool $repercuterAvis */
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
 
                 // Liste des IDs établissements modifiés (pour vidage cache legacy)

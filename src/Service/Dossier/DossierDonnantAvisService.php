@@ -86,11 +86,6 @@ class DossierDonnantAvisService
             }
         }
 
-        if ([] !== $etablissementsIds) {
-            $this->entityManager->flush();
-            // Note : Cache Zend vidé via LegacyController après redirect
-        }
-
         return $etablissementsIds;
     }
 
@@ -263,11 +258,6 @@ class DossierDonnantAvisService
                 'etablissement_id' => $etablissement->getId(),
                 'dernier_dossier_valide_id' => $dernierDossierValide ? $dernierDossierValide->getId() : null,
             ]);
-        }
-
-        if ([] !== $etablissementsIds) {
-            $this->entityManager->flush();
-            // Note : Cache Zend vidé via LegacyController après redirect
         }
 
         return $etablissementsIds;
