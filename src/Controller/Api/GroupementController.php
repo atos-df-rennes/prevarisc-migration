@@ -6,6 +6,7 @@ use App\Repository\GroupementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -48,16 +49,9 @@ class GroupementController extends AbstractController
         // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10)
         $groupements = $this->groupementRepository->searchByLibelle($query, $limit, 10);
 
-        $results = [];
-        foreach ($groupements as $groupement) {
-            $results[] = [
-                'id' => $groupement->getId(),
-                'libelle' => $groupement->getLibelle(),
-                'type' => $groupement->getType() ? $groupement->getType()->getLibelle() : null,
-            ];
-        }
-
-        return new JsonResponse($results);
+        return $this->json($groupements, Response::HTTP_OK, [], [
+            'groups' => 'api_response',
+        ]);
     }
 
     /**
@@ -69,15 +63,8 @@ class GroupementController extends AbstractController
     {
         $groupements = $this->groupementRepository->findAllOrdered();
 
-        $results = [];
-        foreach ($groupements as $groupement) {
-            $results[] = [
-                'id' => $groupement->getId(),
-                'libelle' => $groupement->getLibelle(),
-                'type' => $groupement->getType() ? $groupement->getType()->getLibelle() : null,
-            ];
-        }
-
-        return new JsonResponse($results);
+        return $this->json($groupements, Response::HTTP_OK, [], [
+            'groups' => 'api_response',
+        ]);
     }
 }

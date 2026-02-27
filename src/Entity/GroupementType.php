@@ -6,6 +6,7 @@ use App\Repository\GroupementTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=GroupementTypeRepository::class)
@@ -29,6 +30,8 @@ class GroupementType
      * @var string
      *
      * @ORM\Column(name="LIBELLE_GROUPEMENTTYPE", type="string", length=255, nullable=false)
+     *
+     * @Groups({"api_response"})
      */
     private $libelle;
 

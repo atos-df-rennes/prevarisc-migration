@@ -6,6 +6,7 @@ use App\Entity\DossierType;
 use App\Repository\DossierNatureListeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DossierController extends AbstractController
@@ -24,7 +25,7 @@ class DossierController extends AbstractController
     {
         $natures = $dossierNatureListeRepository->findByTypeOrderedByOrdre($type);
 
-        return $this->json($natures, 200, [], [
+        return $this->json($natures, Response::HTTP_OK, [], [
             'groups' => 'api_response'
         ]);
     }

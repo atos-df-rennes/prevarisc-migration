@@ -7,7 +7,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-// @todo: Renvoyer directement les entités ?
 class DocumentManquantController extends AbstractController
 {
     /**
@@ -17,14 +16,6 @@ class DocumentManquantController extends AbstractController
     {
         $documents = $repository->findAll();
 
-        $data = [];
-        foreach ($documents as $doc) {
-            $data[] = [
-                'id' => $doc->getId(),
-                'libelle' => $doc->getLibelle(),
-            ];
-        }
-
-        return $this->json($data);
+        return $this->json($documents);
     }
 }

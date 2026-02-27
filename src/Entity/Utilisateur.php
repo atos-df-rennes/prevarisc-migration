@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -28,6 +29,8 @@ class Utilisateur implements UserInterface
      * @ORM\GeneratedValue
      *
      * @ORM\Column(name="ID_UTILISATEUR", type="bigint", options={"unsigned":true})
+     *
+     * @Groups({"api_response"})
      */
     private $id;
 
@@ -171,6 +174,13 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $sso;
+
+    /**
+     * @var string
+     *
+     * @Groups({"api_response"})
+     */
+    private $displayLabel;
 
     public function __construct()
     {
@@ -495,7 +505,8 @@ class Utilisateur implements UserInterface
                 $label = $fullName;
             }
         }
+        $this->displayLabel = $label.($this->actif ? '' : ' (inactif)');
 
-        return $label.($this->actif ? '' : ' (inactif)');
+        return $this->displayLabel;
     }
 }

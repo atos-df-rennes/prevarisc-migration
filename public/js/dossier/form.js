@@ -92,7 +92,7 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                             .then(json => {
                                 callback(json.map(item => ({
                                     libelle: item.libelle,
-                                    type: item.type || '',
+                                    type: item.type.libelle || '',
                                 })));
                             })
                             .catch(() => {

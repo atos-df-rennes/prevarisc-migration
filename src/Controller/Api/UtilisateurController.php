@@ -6,6 +6,7 @@ use App\Repository\UtilisateurRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -49,24 +50,8 @@ class UtilisateurController extends AbstractController
         // Rechercher uniquement les préventionnistes actifs
         $utilisateurs = $this->utilisateurRepository->searchPreventionnistes($query, $limit, true);
 
-        $results = [];
-        foreach ($utilisateurs as $utilisateur) {
-            $informations = $utilisateur->getInformations();
-
-            // Sécurité : ignorer si pas d'informations (ne devrait pas arriver avec la jointure)
-            if (null === $informations) {
-                continue;
-            }
-
-            $results[] = [
-                'id' => $utilisateur->getId(),
-                'nom' => $informations->getNom(),
-                'prenom' => $informations->getPrenom(),
-                // Utilise la méthode displayLabel pour cohérence avec le formulaire
-                'displayLabel' => $utilisateur->getDisplayLabel(),
-            ];
-        }
-
-        return new JsonResponse($results);
+        return $this->json($utilisateurs, Response::HTTP_OK, [], [
+            'groups' => 'api_response',
+        ]);
     }
 }
