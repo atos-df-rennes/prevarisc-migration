@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
@@ -49,7 +50,7 @@ class EtablissementCampingVoterTest extends TestCase
 
     private function createEtablissementMock(): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementCampingVoter::ID_CAMPING]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::CAMPING]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
 
         return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);

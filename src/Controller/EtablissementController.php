@@ -367,7 +367,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"DELETE"})
+     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      *
@@ -375,21 +375,40 @@ class EtablissementController extends AbstractController
      * @ParamConverter("contact", options={"id" = "contact"})
      */
     public function deleteContact(
+        Request $request,
         Etablissement $etablissement,
         UtilisateurInformations $contact
     ): Response {
-        // Suppression de l'association.
-        $etablissement->removeContact($contact);
+        $form = $this->createFormBuilder()
+            ->setMethod(Request::METHOD_DELETE)
+            ->setAction($this->generateUrl('etablissement_contacts_delete', [
+                'id' => $etablissement->getId(),
+                'contact' => $contact->getId()
+            ]))
+            ->getForm();
 
-        // Suppression définitive du contact
-        if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
-            $this->entityManager->remove($contact);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Suppression de l'association.
+            $etablissement->removeContact($contact);
+
+            // Suppression définitive du contact
+            if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
+                $this->entityManager->remove($contact);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été supprimé.');
+
+            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
         }
 
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Le contact a bien été supprimé.');
-
-        return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+        return $this->render('etablissement/_form_delete_contact.html.twig', [
+            'form' => $form->createView(),
+            'etablissement' => $etablissement,
+            'contact' => $contact,
+        ]);
     }
 }

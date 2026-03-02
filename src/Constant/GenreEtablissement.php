@@ -18,9 +18,6 @@ final class GenreEtablissement
 
     public const CELLULE = 3;
 
-    /**
-     * Habitation.
-     */
     public const HABITATION = 4;
 
     /**
@@ -35,13 +32,17 @@ final class GenreEtablissement
 
     public const CAMPING = 7;
 
+    public const MANIFESTATION_TEMPORAIRE = 8;
+
+    public const IOP = 9;
+
     public const ZONE = 10;
 
-    public const GENRES_AVEC_PERIODICITE = [1, 2, 3, 5];
+    public const GENRES_AVEC_PERIODICITE = [self::SITE, self::ERP, self::CELLULE, self::IGH];
 
-    public const GENRES_AVEC_EFFECTIF = [2, 3, 5, 6];
+    public const GENRES_AVEC_EFFECTIF = [self::ERP, self::CELLULE, self::IGH, self::BUP];
 
-    public const GENRES_AVEC_EFFECTIF_PUBLIC = [2, 3, 5];
+    public const GENRES_AVEC_EFFECTIF_PUBLIC = [self::ERP, self::CELLULE, self::IGH];
 
     /**
      * Liste de tous les genres disponibles.
@@ -56,6 +57,8 @@ final class GenreEtablissement
         self::IGH,
         self::BUP,
         self::CAMPING,
+        self::MANIFESTATION_TEMPORAIRE,
+        self::IOP,
         self::ZONE,
     ];
 
