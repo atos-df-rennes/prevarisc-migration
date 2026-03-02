@@ -10,6 +10,7 @@ use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Etablissement;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -25,6 +26,8 @@ final class EtablissementTest extends TestCase
         $etablissementPJRepository = $this->createMock(EtablissementPieceJointeRepository::class);
         $dataStore = $this->createMock(DataStore::class);
         $parameterBag = $this->createMock(ParameterBagInterface::class);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $datastoreLogger = $this->createMock(LoggerInterface::class);
         $logger = $this->createMock(LoggerInterface::class);
 
         // Construire les mocks de dossiers à partir des paramètres
@@ -45,6 +48,8 @@ final class EtablissementTest extends TestCase
             $etablissementPJRepository,
             $dataStore,
             $parameterBag,
+            $entityManager,
+            $datastoreLogger,
             $logger
         );
 
