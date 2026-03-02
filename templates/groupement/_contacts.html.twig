@@ -18,8 +18,9 @@
 {% endif %}
 
 {{ include('contact/_modal_ajout.html.twig') }}
+{# @todo: Utiliser le template _modal_existant.html.twig du dossier contact pour ne pas dupliquer #}
 {{ include('groupement/_modal_existant.html.twig') }}
-{{ include('groupement/_modal_suppression.html.twig') }}
+{{ include('contact/_modal_suppression.html.twig') }}
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -45,8 +46,7 @@
                             return query.length > 2;
                         },
                         load: function(query, callback) {
-                            const contactsSearchUrlTemplate = "{{ path('contact_autocomplete', {search: '__QUERY__'}) }}";
-                            const url = contactsSearchUrlTemplate.replace('__QUERY__', encodeURIComponent(query));
+                            const url = Routing.generate('contact_autocomplete', {search: encodeURIComponent(query)});
                             fetch(url)
                                 .then(response => response.json())
                                 .then(json => {
@@ -87,17 +87,16 @@
             })
         })
 
-        let groupementId
+        const groupementId = "{{ groupement.id }}"
         let contactId
 
         $('.delete-contact-button').on('click', function () {
-            groupementId = $(this).attr('data-id')
             contactId = $(this).attr('data-contact-id')
 
             // Charger le formulaire de suppression dans la modal
             $.ajax({
                 type: "GET",
-                url: '{{ path('admin_groupement_contacts_delete', {id: groupement.id, contact: 0}) }}'.replace('0', contactId),
+                url: Routing.generate('admin_groupement_contacts_delete', {id: groupementId, contact: contactId}),
                 success: function(html) {
                     $('#modal-suppression-contact .modal-content').html(html);
                     $('#modal-suppression-contact').modal('show');
@@ -109,13 +108,11 @@
         })
 
         $('.edit-contact-button').on('click', function () {
-            groupementId = $(this).attr('data-id')
             contactId = $(this).attr('data-contact-id')
 
             $.ajax({
-                url: '{{ path('contact_edit', {id: 0, elementLie: 'groupement'}) }}'.replace('0', contactId),
+                url: Routing.generate('contact_edit', {id: contactId, elementLie: 'groupement', elementId: groupementId}),
                 success: function (result) {
-
                     const modalAjout = document.getElementById('ajout-contact')
                     modalAjout.querySelector('#ajout-contact-label').innerHTML = 'Modifier un contact'
 
