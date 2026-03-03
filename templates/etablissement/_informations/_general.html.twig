@@ -21,28 +21,40 @@
         </dd>
     {% endif %}
 
-    {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::HABITATION') %}
+    {% if
+        infos.genre.id == constant('App\\Constant\\GenreEtablissement::HABITATION')
+        and infos.famille is not null
+    %}
         <dt>Famille</dt>
         <dd>
             <p>{{ infos.famille.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::IGH') %}
+    {% if
+        infos.genre.id == constant('App\\Constant\\GenreEtablissement::IGH')
+        and infos.classe is not null
+    %}
         <dt>Classe</dt>
         <dd>
             <p>{{ infos.classe.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::ZONE') %}
+    {% if
+        infos.genre.id == constant('App\\Constant\\GenreEtablissement::ZONE')
+        and infos.classement is not null
+    %}
         <dt>Classement</dt>
         <dd>
             <p>{{ infos.classement.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE') and periodicity is not null %}
+    {% if
+        infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE')
+        and periodicity is not null
+    %}
         <dt>Périodicité</dt>
         <dd>
             <p>
@@ -51,6 +63,7 @@
                 {% endif %}
                 {% if
                     infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::IGH')]
+                    and default_periodicite is not null
                     and infos.periodicite != default_periodicite.periodicite
                 %}
                     <i class="glyphicon glyphicon-exclamation-sign" title="Périodicité non standard"></i>

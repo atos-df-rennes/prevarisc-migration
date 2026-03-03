@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Periodicite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -17,8 +18,6 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PeriodiciteRepository extends ServiceEntityRepository
 {
-    public const ID_GENRE_ETABLISSEMENT = 2;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Periodicite::class);
@@ -60,17 +59,22 @@ class PeriodiciteRepository extends ServiceEntityRepository
     {
         $information = $etablissement->getLatestInformations();
 
-        if (!in_array($information->getGenre()->getId(), [2, 5])) {
+        if (!in_array($information->getGenre()->getId(), [GenreEtablissement::ERP, GenreEtablissement::IGH])) {
             return null;
         }
 
-        $type = self::ID_GENRE_ETABLISSEMENT === $information->getGenre()->getId() ? $information->getType() : $information->getClasse();
+        $type = GenreEtablissement::ERP === $information->getGenre()->getId() ? $information->getType() : $information->getClasse();
+
+        $typeId = 0;
+        if ($type !== null) {
+            $typeId = $type->getId();
+        }
 
         $categorieId = 0;
         if (($categorie = $information->getCategorie()) !== null) {
             $categorieId = $categorie->getId();
         }
 
-        return $this->gn4($categorieId, $type->getId(), $information->getLocalSommeil());
+        return $this->gn4($categorieId, $typeId, $information->getLocalSommeil());
     }
 }
