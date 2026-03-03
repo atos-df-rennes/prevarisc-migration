@@ -41,7 +41,7 @@ class CommunesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/communes/{id}", name="admin_commune_infos")
+     * @Route("/admin/communes/{id}", name="admin_commune_infos", options={"expose"=true})
      */
     public function informations(Request $request, Commune $commune): Response
     {

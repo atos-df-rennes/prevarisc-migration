@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementInformations;
@@ -36,7 +37,7 @@ class EtablissementCelluleVoterTest extends TestCase
 
     private function createEtablissementMock(?EtablissementActivite $typeActivite = null): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementCelluleVoter::ID_CELLULE]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::CELLULE]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
         $latestInformations->method('getTypeActivite')->willReturn($typeActivite);
 

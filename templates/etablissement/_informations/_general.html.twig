@@ -11,42 +11,48 @@
         </p>
     </dd>
 
-    {% if infos.genre.id in [2, 3] and infos.categorie is not null %}
+    {% if
+        infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')]
+        and infos.categorie is not null
+    %}
         <dt>Catégorie</dt>
         <dd>
             <p>{{ infos.categorie.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id == 4 %}
+    {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::HABITATION') %}
         <dt>Famille</dt>
         <dd>
             <p>{{ infos.famille.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id == 5 %}
+    {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::IGH') %}
         <dt>Classe</dt>
         <dd>
             <p>{{ infos.classe.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id == 10 %}
+    {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::ZONE') %}
         <dt>Classement</dt>
         <dd>
             <p>{{ infos.classement.libelle }}</p>
         </dd>
     {% endif %}
 
-    {% if infos.genre.id in [1, 2, 3, 5] and periodicity is not null %}
+    {% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE') and periodicity is not null %}
         <dt>Périodicité</dt>
         <dd>
             <p>
-                {% if infos.genre.id == 1 %}
+                {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::SITE') %}
                     <i class="glyphicon glyphicon-info-sign" title="Périodicité la plus contraignante des fils ERP"></i>
                 {% endif %}
-                {% if infos.genre.id in [2, 5] and infos.periodicite != default_periodicite.periodicite %}
+                {% if
+                    infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::IGH')]
+                    and infos.periodicite != default_periodicite.periodicite
+                %}
                     <i class="glyphicon glyphicon-exclamation-sign" title="Périodicité non standard"></i>
                 {% endif %}
                 {{ periodicity }}
@@ -56,10 +62,12 @@
 </dl>
 
 <!-- Activités de l'établissement -->
-{% if infos.genre.id in [2, 3] %}
-    <h4 class="h4_subtitle">Activités {% if infos.localSommeil and infos.genre.id == 2 %}
+{% if infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')] %}
+    <h4 class="h4_subtitle">Activités
+        {% if infos.localSommeil and infos.genre.id == constant('App\\Constant\\GenreEtablissement::ERP') %}
             <span class="label label-primary pull-right">Présence de locaux à sommeil</span>
-        {% endif %}</h4>
+        {% endif %}
+    </h4>
     <dl class="dl-horizontal">
         <!-- Type et activités -->
         <dt>Types & activités</dt>
@@ -93,7 +101,7 @@
             {% if infos.r14320 %}
                 <p>Le <strong>R143-20</strong> est appliqué sur cet établissement.</p>
             {% endif %}
-            {% if infos.genre.id in [2] %}
+            {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::ERP') %}
                 {% if infos.droitPublic %}
                     <p>Le <strong>R143-16</strong> est appliqué sur cet établissement (droit public).</p>
                 {% endif %}
@@ -133,7 +141,7 @@
     {% endif %}
 {% endif %}
 
-{% if infos.genre.id in [7] %}
+{% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::CAMPING') %}
     <h4 class="h4_subtitle">Nombre d'emplacements</h4>
     <dl class="dl-horizontal champ_effectif_camping index_camping">
         <dt>Mobil-homes ou habitations</dt>
@@ -166,11 +174,11 @@
 {% endif %}
 
 <!-- Les effectifs -->
-{% if infos.genre.id in [2, 3, 5, 6] %}
+{% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF') %}
     <h4 class="h4_subtitle">Les effectifs</h4>
     <dl class="dl-horizontal">
         <!-- Effectif public -->
-        {% if infos.genre.id in [2, 3, 5] %}
+        {% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF_PUBLIC') %}
             <dt>Public</dt>
             <dd>
                 <p>{{ infos.effectifPublic }}</p>
@@ -184,7 +192,10 @@
         </dd>
 
         <!-- Effectif hebergé -->
-        {% if infos.localSommeil and infos.genre.id == 2 %}
+        {% if
+            infos.localSommeil
+            and infos.genre.id == constant('App\\Constant\\GenreEtablissement::ERP')
+        %}
             <dt>Dont hebergé</dt>
             <dd>
                 <p>{{ infos.effectifHeberge }}</p>
@@ -200,7 +211,10 @@
         </dd>
 
         <!-- Effectif justifant le classement (que pour les 5ème catégorie) -->
-        {% if infos.categorie is not null and infos.categorie.id == 5 %}
+        {% if
+            infos.categorie is not null
+            and infos.categorie.id == constant('App\\Constant\\CategorieEtablissement::CINQUIEME')
+        %}
             <dt>Justifiant le classement</dt>
             <dd>
                 <p>{{ infos.effectifJustifiantClassement }}</p>
@@ -210,7 +224,7 @@
 {% endif %}
 
 <!-- Plan -->
-{% if infos.genre.id in [2, 3, 5, 6] %}
+{% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF') %}
     <h4 class="h4_subtitle">Plans d'intervention</h4>
     {% if infos.plans|length == 0 %}
         <p class="text-muted text-center">Pas de plans disponible</p>

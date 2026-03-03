@@ -30,7 +30,7 @@
         $(".see-balises").click(function() {
           $.ajax({
             type: "GET",
-            url: "/changement/balises",
+            url: Routing.generate('changement_balises'),
             success: function(msg){
               $('#liste-balises .modal-body').html(msg);
             },

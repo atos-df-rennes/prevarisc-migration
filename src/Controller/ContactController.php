@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 
 class ContactController extends AbstractController
 {
@@ -20,13 +21,19 @@ class ContactController extends AbstractController
      */
     private $utilisateurInformationsRepository;
 
-    public function __construct(UtilisateurInformationsRepository $utilisateurInformationsRepository)
-    {
+    /** @var RouterInterface */
+    private $router;
+
+    public function __construct(
+        UtilisateurInformationsRepository $utilisateurInformationsRepository,
+        RouterInterface $router
+    ) {
         $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+        $this->router = $router;
     }
 
     /**
-     * @Route("/contact/{id}/modifier", name="contact_edit")
+     * @Route("/contact/{id}/modifier", name="contact_edit", options={"expose"=true})
      */
     public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
     {
@@ -35,11 +42,11 @@ class ContactController extends AbstractController
 
         switch ($elementLie) {
             case Contact::ETABLISSEMENT:
-                $redirectRoute = 'etablissement_contacts';
+                $redirectRoute = $this->router->generate('etablissement_contacts', ['id' => $elementId]);
 
                 break;
             case Contact::GROUPEMENT:
-                $redirectRoute = 'admin_groupement';
+                $redirectRoute = $this->router->generate('admin_groupement', ['id' => $elementId]);
 
                 break;
             default:
@@ -66,7 +73,7 @@ class ContactController extends AbstractController
 
             $this->addFlash('success', 'Le contact a bien été modifié.');
 
-            return $this->redirectToRoute($redirectRoute, ['id' => $elementId]);
+            return $this->redirect($redirectRoute);
         }
 
         return $this->render('contact/form.html.twig', [
@@ -76,7 +83,7 @@ class ContactController extends AbstractController
     }
 
     /**
-     * @Route("/contacts/{search}", name="contact_autocomplete")
+     * @Route("/contacts/{search}", name="contact_autocomplete", options={"expose"=true})
      */
     public function autocomplete(string $search): JsonResponse
     {

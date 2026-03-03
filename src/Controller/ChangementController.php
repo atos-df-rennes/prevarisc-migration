@@ -62,7 +62,7 @@ class ChangementController extends AbstractController
     }
 
     /**
-     * @Route("/changement/balises", name="changement_balises")
+     * @Route("/changement/balises", name="changement_balises", options={"expose"=true})
      */
     public function balises(): Response
     {

@@ -265,7 +265,7 @@ class GroupementController extends AbstractController
     }
 
     /**
-     * @Route("/admin/groupements/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"})
+     * @Route("/admin/groupements/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
      *
      * @ParamConverter("groupement", options={"id" = "id"})
      * @ParamConverter("contact", options={"id" = "contact"})

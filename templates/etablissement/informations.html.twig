@@ -45,6 +45,7 @@
         </div>
     </div>
 
+    {# @todo: utiliser le FOSJSRoutingBundle pour les actions à effectuer => Voir comment c'est fait sur les dossiers #}
     <script type="text/javascript">
         $(document).ready(function() {
             // Par défaut, on montre le premier onglet disponible (carte, diapo, ou plans) sinon rien
@@ -128,12 +129,12 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="/js/tinymce.min.js"></script>
-    <script src="/js/geoportail/sdk-ol/GpSDK2D.js" type="text/javascript"></script>
-    <script src="/js/geoportail/manageMap.js" type="text/javascript"></script>
+    <script src="{{ asset('/js/tinymce.min.js') }}"></script>
+    <script src="{{ asset('/js/geoportail/sdk-ol/GpSDK2D.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/js/geoportail/manageMap.js') }}" type="text/javascript"></script>
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="/js/geoportail/sdk-ol/GpSDK2D.css" media="all">
+    <link rel="stylesheet" href="{{ asset('/js/geoportail/sdk-ol/GpSDK2D.css') }}" media="all">
 {% endblock %}

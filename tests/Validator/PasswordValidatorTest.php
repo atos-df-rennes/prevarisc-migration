@@ -14,33 +14,22 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
         return new PasswordValidator(true);
     }
 
-    public function testWithSsoIsValid(): void
+    /**
+     * @dataProvider passwordIsValid
+     */
+    public function testIsValid(Utilisateur $utilisateur): void
     {
-        $utilisateur = new Utilisateur();
-        $utilisateur->setSso(true);
-
         $this->validator->validate($utilisateur, new Password());
-
-        $this->assertNoViolation();
-    }
-
-    public function testWithoutSsoAndValidPasswordIsValid(): void
-    {
-        $utilisateur = new Utilisateur();
-        $utilisateur->setSso(false);
-        $utilisateur->setPlainPassword('M3g4S3cur3P4ssw0rd.');
-
-        $this->validator->validate($utilisateur, new Password());
-
         $this->assertNoViolation();
     }
 
     /**
      * @dataProvider provideInvalidConstraints
      */
-    public function testWithoutSsoAndWithoutPasswordIsInvalid(Password $constraint): void
+    public function testWithoutSsoAndWithoutPasswordIsInvalidIfHasLogin(Password $constraint): void
     {
         $utilisateur = new Utilisateur();
+        $utilisateur->setUsername('test');
         $utilisateur->setSso(false);
 
         $this->validator->validate($utilisateur, $constraint);
@@ -57,6 +46,7 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
     public function testWithoutSsoAndInvalidPasswordIsInvalid(Password $constraint): void
     {
         $utilisateur = new Utilisateur();
+        $utilisateur->setUsername('test');
         $utilisateur->setSso(false);
         $utilisateur->setPlainPassword('test');
 
@@ -68,7 +58,14 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
         ;
     }
 
-    public function provideInvalidConstraints(): iterable
+    public static function passwordIsValid(): iterable
+    {
+        yield 'SSO' => [(new Utilisateur())->setSso(true)];
+        yield 'No SSO and valid password' => [(new Utilisateur())->setSso(false)->setPlainPassword('M3g4S3cur3P4ssw0rd.')];
+        yield 'No SSO, no password and no login' => [(new Utilisateur())->setSso(false)];
+    }
+
+    public static function provideInvalidConstraints(): iterable
     {
         yield [new Password()];
     }

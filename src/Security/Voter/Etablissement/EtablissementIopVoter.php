@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -11,8 +12,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementIopVoter extends EtablissementVoter
 {
-    public const ID_IOP = 9;
-
     /**
      * @var ResourcesRepository
      */
@@ -41,7 +40,7 @@ class EtablissementIopVoter extends EtablissementVoter
             return false;
         }
 
-        return parent::isSubjectGenreAllowed($subject, self::ID_IOP);
+        return parent::isSubjectGenreAllowed($subject, GenreEtablissement::IOP);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

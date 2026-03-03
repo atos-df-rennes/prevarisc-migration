@@ -72,7 +72,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "/admin/prescriptions/changement-ordre",
+                url: Routing.generate('admin_prescriptions_types_changement_ordre'),
                 data: data,
                 beforeSend: function() {
                     $(this).disableSelection();

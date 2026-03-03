@@ -1,0 +1,67 @@
+{# Template pour un document manquant individuel #}
+<div class='doc-manquant-item' style='margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;'>
+    {# Ligne 1 : Date incomplet + Bouton Aujourd'hui (Bouton Annuler ajouté en JS pour nouveaux blocs) #}
+    <div class='row'>
+        <div class='col-md-12'>
+            <label>Dossier incomplet le</label>
+            <div class='date-incomplet-container'>
+                {{ form_widget(form.date, {
+                    attr: {
+                        class: 'date-incomplet',
+                        style: 'width: 150px; display: inline-block;',
+                    },
+                }) }}
+                <button type='button' class='btn btn-default btn-sm btn-today-incomplet' style='margin-left: 10px;'>
+                    <i class='glyphicon glyphicon-calendar'></i> Aujourd'hui
+                </button>
+                {# Bouton Annuler sera ajouté ici par JS pour les nouveaux documents #}
+            </div>
+            {{ form_errors(form.date) }}
+        </div>
+    </div>
+
+    {# Ligne 2 : Documents manquants (textarea) #}
+    <div class='row' style='margin-top: 10px;'>
+        <div class='col-md-12'>
+            {{ form_row(form.documentManquant) }}
+        </div>
+    </div>
+
+    {# Ligne 3 : Date réception + Boutons #}
+    <div class='row' style='margin-top: 10px;'>
+        <div class='col-md-12'>
+            <label>Date de réception des pièces</label>
+            <div>
+                {{ form_widget(form.dateReception, {
+                    attr: {
+                        class: 'date-reception',
+                        style: 'width: 150px; display: inline-block;',
+                    },
+                }) }}
+                <button type='button' class='btn btn-default btn-sm btn-today-reception' style='margin-left: 10px;'>
+                    <i class='glyphicon glyphicon-calendar'></i> Aujourd'hui
+                </button>
+
+                {% if form.dateReception.vars.value %}
+                    {# Document validé - Bouton Modifier (visibilité géré par JS) #}
+                    <button type='button' class='btn btn-sm btn-warning modifier-reception' style='display: none; margin-left: 10px;'>
+                        <i class='glyphicon glyphicon-pencil'></i> Modifier
+                    </button>
+                {% else %}
+                    {# Document non validé - Bouton Valider #}
+                    <button type='button' class='btn btn-sm btn-success validate-reception' style='margin-left: 10px;'>
+                        <i class='glyphicon glyphicon-ok'></i> Valider la réception
+                    </button>
+                {% endif %}
+            </div>
+            {{ form_errors(form.dateReception) }}
+
+            {% if form.dateReception.vars.value %}
+                <div class='reception-confirmed text-success' style='margin-top: 10px;'>
+                    <i class='glyphicon glyphicon-ok'></i>
+                    Document reçu le {{ form.dateReception.vars.value|date('d/m/Y') }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

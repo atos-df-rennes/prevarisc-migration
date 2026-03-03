@@ -1,0 +1,16 @@
+{% if dossier.incomplet and dossier.documentsManquants is not empty %}
+    <br><br>
+    {% for document_manquant in dossier.documentsManquants %}
+        <strong>Incomplet le {{ document_manquant.date|date('d/m/Y') }}</strong>
+        <br>
+        {{ document_manquant.documentManquant|nl2br }}
+        {% if document_manquant.dateReception %}
+            <br>
+            <span class="text-success">
+                Réception document(s) le {{ document_manquant.dateReception|date('d/m/Y') }}
+            </span>
+            <br>
+        {% endif %}
+        <br>
+    {% endfor %}
+{% endif %}

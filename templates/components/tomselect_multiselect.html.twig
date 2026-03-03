@@ -1,0 +1,44 @@
+{#
+    Composant TomSelect pour sélection multiple avec autocomplete
+
+    Paramètres:
+    - form_field: Le champ de formulaire (ex: form.preventionnistes)
+    - label: Le label du champ (optionnel, utilise form_label par défaut)
+    - search_url: URL pour l'autocomplete (ex: '/api/preventionnistes/search')
+    - value_field: Nom du champ pour la valeur (défaut: 'id')
+    - label_field: Nom du champ pour le label (défaut: 'name')
+    - search_field: Nom du champ pour la recherche (défaut: 'name')
+    - placeholder: Placeholder du champ (défaut: 'Rechercher...')
+    - min_query_length: Longueur minimale de recherche (défaut: 2)
+#}
+{% set value_field = value_field|default('id') %}
+{% set label_field = label_field|default('name') %}
+{% set search_field = search_field|default('name') %}
+{% set placeholder = placeholder|default('Rechercher...') %}
+{% set min_query_length = min_query_length|default(2) %}
+{% set field_id = form_field.vars.id %}
+
+<li class='row' id='field-{{ form_field.vars.name }}'>
+    <div class='left libelle col-md-3'>
+        {% if label is defined %}
+            <label for="{{ field_id }}">{{ label }}</label>
+        {% else %}
+            {{ form_label(form_field) }}
+        {% endif %}
+    </div>
+    <div class='right form col-md-9'>
+        {{ form_widget(form_field, {
+            attr: {
+                class: 'form-control tomselect-ajax',
+                'data-search-url': search_url,
+                'data-value-field': value_field,
+                'data-label-field': label_field,
+                'data-search-field': search_field,
+                'data-placeholder': placeholder,
+                'data-min-query': min_query_length,
+                multiple: 'multiple',
+            },
+        }) }}
+        {{ form_errors(form_field) }}
+    </div>
+</li>

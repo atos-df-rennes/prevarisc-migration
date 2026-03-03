@@ -1,0 +1,15 @@
+{# Template partial pour le bloc de sélection des pièces jointes Plat'AU #}
+{% if form.piecesJointesPlatau.vars.choices is not empty %}
+    <li id="field-piecesJointesPlatau" class="row hidden" tabindex="0">
+        <div class="left libelle col-md-3">
+            {{ form_label(form.piecesJointesPlatau) }}
+        </div>
+        <div class="right form col-md-9">
+            {% for child in form.piecesJointesPlatau %}
+                {{ form_widget(child) }}
+            {% endfor %}
+
+            {{ form_errors(form.piecesJointesPlatau) }}
+        </div>
+    </li>
+{% endif %}

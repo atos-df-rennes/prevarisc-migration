@@ -2,15 +2,21 @@
 
 namespace App\Entity;
 
+use App\Constant\DossierNature;
 use App\Repository\DossierRepository;
+use App\Validator\DossierObjet;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=DossierRepository::class)
  *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
+ *
+ * @DossierObjet
  */
 class Dossier
 {
@@ -49,11 +55,34 @@ class Dossier
     private $objet;
 
     /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCGEN_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifGeneral;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCEFF_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifEffectifs;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="COORDSSI_DOSSIER", type="text", nullable=true)
+     */
+    private $coordonneesSsi;
+
+    /**
      * @var DossierType
      *
      * @ORM\ManyToOne(targetEntity=DossierType::class)
      *
      * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
+     *
+     * @Assert\NotNull(message="Le type de dossier est obligatoire.")
      */
     private $type;
 
@@ -66,6 +95,11 @@ class Dossier
      * )
      *
      * @ORM\ManyToMany(targetEntity=DossierNatureListe::class)
+     *
+     * @Assert\Count(
+     *     min=1,
+     *     minMessage="La nature du dossier est obligatoire."
+     * )
      */
     private $nature;
 
@@ -114,7 +148,11 @@ class Dossier
     /**
      * @var ?\DateTimeInterface
      *
-     * @ORM\Column(type="datetime", nullable=true, name="DATEINSERT_DOSSIER")
+     * @ORM\Column(type="datetime", nullable=false, name="DATEINSERT_DOSSIER")
+     *
+     * @Assert\NotNull(message="La date de création du dossier est obligatoire.")
+     *
+     * @Assert\DateTime(message="La date de création doit être une date valide.")
      */
     private $dateInsert;
 
@@ -190,7 +228,7 @@ class Dossier
     /**
      * @var Collection<int, DossierDocumentManquant>
      *
-     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $documentsManquants;
 
@@ -269,6 +307,300 @@ class Dossier
      */
     private $utilisateurVerrou;
 
+    /**
+     * @var ?PlatauConsultation
+     *
+     * @ORM\OneToOne(targetEntity=PlatauConsultation::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinColumn(name="ID_PLATAU", referencedColumnName="ID_PLATAU", options={"fixed":true})
+     */
+    private $consultationPlatau;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DEMANDEUR_DOSSIER", type="text", nullable=true)
+     */
+    private $demandeur;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATESDIS_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateReception;
+
+    /**
+     * @var ?Commission
+     *
+     * @ORM\ManyToOne(targetEntity=Commission::class)
+     *
+     * @ORM\JoinColumn(name="COMMISSION_DOSSIER", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
+     */
+    private $commission;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEMAIRIE_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateMairie;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATESECRETARIAT_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateSecretariat;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="SERVICEINSTRUC_DOSSIER", type="string", length=255, nullable=true)
+     */
+    private $serviceInstructeur;
+
+    /**
+     * @var ?Avis
+     *
+     * @ORM\ManyToOne(targetEntity=Avis::class)
+     *
+     * @ORM\JoinColumn(name="AVIS_DOSSIER", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
+     */
+    private $avis;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="ANOMALIE_DOSSIER", type="text", nullable=true)
+     */
+    private $analyseDeRisque;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="OBSERVATION_DOSSIER", type="text", nullable=true)
+     */
+    private $observations;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEREP_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateReponse;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="HORSDELAI_DOSSIER", type="boolean", nullable=true, options={"default": 0})
+     */
+    private $horsDelai;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="ABSQUORUM_DOSSIER", type="boolean", nullable=true)
+     */
+    private $absenceDeQuorum;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DELAIPRESC_DOSSIER", type="date", nullable=true)
+     */
+    private $dateLimitePrescription;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="ECHEANCIERTRAV_DOSSIER", type="date", nullable=true)
+     */
+    private $echeancierTravaux;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="INCOMPLET_DOSSIER", type="boolean", nullable=true, options={"default": 0})
+     */
+    private $incomplet;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEINCOMPLET_DOSSIER", type="date", nullable=true)
+     */
+    private $dateIncomplet;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="LIEUREUNION_DOSSIER", type="text", nullable=true)
+     */
+    private $lieuReunion;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEENVTRANSIT_DOSSIER", type="date", nullable=true)
+     */
+    private $dateEnvoiTransit;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATERVRAT_DOSSIER", type="date", nullable=true)
+     */
+    private $dateReceptionRvrat;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCANAL_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptifAnalyseRisque;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="REGLEDEROG_DOSSIER", type="text", nullable=true)
+     */
+    private $reglesDerogation;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="JUSTIFDEROG_DOSSIER", type="text", nullable=true)
+     */
+    private $justificationDerogation;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="MESURESCOMPENS_DOSSIER", type="text", nullable=true)
+     */
+    private $mesuresCompensatoires;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="MESURESCOMPLE_DOSSIER", type="text", nullable=true)
+     */
+    private $mesuresComplementaires;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="NPSP_DOSSIER", type="boolean", nullable=true)
+     */
+    private $nePeutSePrononcer;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="CNE_DOSSIER", type="boolean", nullable=true)
+     */
+    private $celluleNonExploitee;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEPREF_DOSSIER", type="datetime", nullable=true)
+     */
+    private $datePrefecture;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATETRANSFERTCOMM_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateTransfertCommission;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATERECEPTIONCOMM_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateReceptionCommission;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEREUN_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateReunion;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="OPERSDIS_DOSSIER", type="boolean", nullable=true)
+     */
+    private $operationSdis;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="RCCI_DOSSIER", type="boolean", nullable=true)
+     */
+    private $rcci;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="REX_DOSSIER", type="text", nullable=true)
+     */
+    private $rex;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="CHARGESEC_DOSSIER", type="text", nullable=true)
+     */
+    private $chargeSecurite;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DUREEDEPL_DOSSIER", type="integer", nullable=true)
+     */
+    private $dureeDeplacement;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="GRAVPRESC_DOSSIER", type="text", nullable=true)
+     */
+    private $gravitePrescription;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="NUMINTERV_DOSSIER", type="integer", nullable=true)
+     */
+    private $numeroIntervention;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATEINTERV_DOSSIER", type="datetime", nullable=true)
+     */
+    private $dateIntervention;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DUREEINTERV_DOSSIER", type="time", nullable=true)
+     */
+    private $dureeIntervention;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATESIGN_DOSSIER", type="date", nullable=true)
+     */
+    private $dateSignature;
+
+    // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
     public function __construct()
     {
         $this->nature = new ArrayCollection();
@@ -286,6 +618,8 @@ class Dossier
         $this->documentsConsultes = new ArrayCollection();
         $this->piecesJointes = new ArrayCollection();
         $this->prescriptions = new ArrayCollection();
+        $this->horsDelai = false;
+        $this->incomplet = false;
     }
 
     public function getId(): ?int
@@ -329,6 +663,42 @@ class Dossier
         return $this;
     }
 
+    public function getDescriptifGeneral(): ?string
+    {
+        return $this->descriptifGeneral;
+    }
+
+    public function setDescriptifGeneral(?string $descriptifGeneral): self
+    {
+        $this->descriptifGeneral = $descriptifGeneral;
+
+        return $this;
+    }
+
+    public function getDescriptifEffectifs(): ?string
+    {
+        return $this->descriptifEffectifs;
+    }
+
+    public function setDescriptifEffectifs(?string $descriptifEffectifs): self
+    {
+        $this->descriptifEffectifs = $descriptifEffectifs;
+
+        return $this;
+    }
+
+    public function getCoordonneesSsi(): ?string
+    {
+        return $this->coordonneesSsi;
+    }
+
+    public function setCoordonneesSsi(?string $coordonneesSsi): self
+    {
+        $this->coordonneesSsi = $coordonneesSsi;
+
+        return $this;
+    }
+
     public function getType(): ?DossierType
     {
         return $this->type;
@@ -364,11 +734,17 @@ class Dossier
     }
 
     /**
+     * Par défaut, ne récupère pas les établissements qui ont été supprimés.
+     *
      * @return Collection<int, Etablissement>
      */
     public function getEtablissements(): Collection
     {
-        return $this->etablissements;
+        $criteria = Criteria::create()->andWhere(Criteria::expr()->isNull('dateSuppression'));
+
+        // PHPStan n'a pas l'extension Doctrine et n'est donc pas au courant que ça fonctionne bien.
+        /* @phpstan-ignore-next-line */
+        return $this->etablissements->matching($criteria);
     }
 
     public function addEtablissement(Etablissement $etablissement): self
@@ -493,7 +869,7 @@ class Dossier
         return $this;
     }
 
-    public function getAvisDiffere(): ?bool
+    public function hasAvisDiffere(): ?bool
     {
         return $this->avisDiffere;
     }
@@ -565,18 +941,18 @@ class Dossier
         return $this->dossiersLies;
     }
 
-    public function addDossiersLy(self $dossiersLy): self
+    public function addDossiersLies(self $dossiersLies): self
     {
-        if (!$this->dossiersLies->contains($dossiersLy)) {
-            $this->dossiersLies[] = $dossiersLy;
+        if (!$this->dossiersLies->contains($dossiersLies)) {
+            $this->dossiersLies[] = $dossiersLies;
         }
 
         return $this;
     }
 
-    public function removeDossiersLy(self $dossiersLy): self
+    public function removeDossiersLies(self $dossiersLies): self
     {
-        $this->dossiersLies->removeElement($dossiersLy);
+        $this->dossiersLies->removeElement($dossiersLies);
 
         return $this;
     }
@@ -593,7 +969,7 @@ class Dossier
     {
         if (!$this->dossiersAyantLie->contains($dossiersAyantLie)) {
             $this->dossiersAyantLie[] = $dossiersAyantLie;
-            $dossiersAyantLie->addDossiersLy($this);
+            $dossiersAyantLie->addDossiersLies($this);
         }
 
         return $this;
@@ -602,7 +978,7 @@ class Dossier
     public function removeDossiersAyantLie(self $dossiersAyantLie): self
     {
         if ($this->dossiersAyantLie->removeElement($dossiersAyantLie)) {
-            $dossiersAyantLie->removeDossiersLy($this);
+            $dossiersAyantLie->removeDossiersLies($this);
         }
 
         return $this;
@@ -824,7 +1200,7 @@ class Dossier
         return $this;
     }
 
-    public function getVerrou(): ?bool
+    public function hasVerrou(): ?bool
     {
         return $this->verrou;
     }
@@ -846,5 +1222,531 @@ class Dossier
         $this->utilisateurVerrou = $utilisateurVerrou;
 
         return $this;
+    }
+
+    public function getConsultationPlatau(): ?PlatauConsultation
+    {
+        return $this->consultationPlatau;
+    }
+
+    public function setConsultationPlatau(?PlatauConsultation $consultationPlatau): self
+    {
+        $this->consultationPlatau = $consultationPlatau;
+
+        return $this;
+    }
+
+    public function getDemandeur(): ?string
+    {
+        return $this->demandeur;
+    }
+
+    public function setDemandeur(?string $demandeur): self
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    public function getDateReception(): ?\DateTimeInterface
+    {
+        return $this->dateReception;
+    }
+
+    public function setDateReception(?\DateTimeInterface $dateReception): self
+    {
+        $this->dateReception = $dateReception;
+
+        return $this;
+    }
+
+    public function getCommission(): ?Commission
+    {
+        return $this->commission;
+    }
+
+    public function setCommission(?Commission $commission): self
+    {
+        $this->commission = $commission;
+
+        return $this;
+    }
+
+    public function getDateMairie(): ?\DateTimeInterface
+    {
+        return $this->dateMairie;
+    }
+
+    public function setDateMairie(?\DateTimeInterface $dateMairie): self
+    {
+        $this->dateMairie = $dateMairie;
+
+        return $this;
+    }
+
+    public function getDateSecretariat(): ?\DateTimeInterface
+    {
+        return $this->dateSecretariat;
+    }
+
+    public function setDateSecretariat(?\DateTimeInterface $dateSecretariat): self
+    {
+        $this->dateSecretariat = $dateSecretariat;
+
+        return $this;
+    }
+
+    /**
+     * Retourne le service instructeur.
+     * Normalise les valeurs legacy "0" et chaînes vides en null.
+     */
+    public function getServiceInstructeur(): ?string
+    {
+        // Normaliser les valeurs legacy héritées de l'ancien système
+        // "0" et chaînes vides sont considérés comme absence de service instructeur
+        // Note : Nettoyage BDD possible via migration SQL future
+        if (in_array($this->serviceInstructeur, ['0', ''], true)) {
+            return null;
+        }
+
+        return $this->serviceInstructeur;
+    }
+
+    /**
+     * Définit le service instructeur.
+     * Normalise les valeurs "0" et chaînes vides en null avant persistence.
+     */
+    public function setServiceInstructeur(?string $serviceInstructeur): self
+    {
+        // Normaliser les valeurs "0" et vides en null
+        // Évite de persister des données legacy depuis le code Symfony
+        $this->serviceInstructeur = in_array($serviceInstructeur, ['0', ''], true) ? null : $serviceInstructeur;
+
+        return $this;
+    }
+
+    public function getAvis(): ?Avis
+    {
+        return $this->avis;
+    }
+
+    public function setAvis(?Avis $avis): self
+    {
+        $this->avis = $avis;
+
+        return $this;
+    }
+
+    public function getAnalyseDeRisque(): ?string
+    {
+        return $this->analyseDeRisque;
+    }
+
+    public function setAnalyseDeRisque(?string $analyseDeRisque): self
+    {
+        $this->analyseDeRisque = $analyseDeRisque;
+
+        return $this;
+    }
+
+    public function getObservations(): ?string
+    {
+        return $this->observations;
+    }
+
+    public function setObservations(?string $observations): self
+    {
+        $this->observations = $observations;
+
+        return $this;
+    }
+
+    public function getDateReponse(): ?\DateTimeInterface
+    {
+        return $this->dateReponse;
+    }
+
+    public function setDateReponse(?\DateTimeInterface $dateReponse): self
+    {
+        $this->dateReponse = $dateReponse;
+
+        return $this;
+    }
+
+    public function isHorsDelai(): ?bool
+    {
+        return $this->horsDelai;
+    }
+
+    public function setHorsDelai(?bool $horsDelai): self
+    {
+        $this->horsDelai = $horsDelai;
+
+        return $this;
+    }
+
+    public function hasAbsenceDeQuorum(): ?bool
+    {
+        return $this->absenceDeQuorum;
+    }
+
+    public function setAbsenceDeQuorum(?bool $absenceDeQuorum): self
+    {
+        $this->absenceDeQuorum = $absenceDeQuorum;
+
+        return $this;
+    }
+
+    public function getDateLimitePrescription(): ?\DateTimeInterface
+    {
+        return $this->dateLimitePrescription;
+    }
+
+    public function setDateLimitePrescription(?\DateTimeInterface $dateLimitePrescription): self
+    {
+        $this->dateLimitePrescription = $dateLimitePrescription;
+
+        return $this;
+    }
+
+    public function getEcheancierTravaux(): ?\DateTimeInterface
+    {
+        return $this->echeancierTravaux;
+    }
+
+    public function setEcheancierTravaux(?\DateTimeInterface $echeancierTravaux): self
+    {
+        $this->echeancierTravaux = $echeancierTravaux;
+
+        return $this;
+    }
+
+    public function isIncomplet(): ?bool
+    {
+        return $this->incomplet;
+    }
+
+    public function setIncomplet(?bool $incomplet): self
+    {
+        $this->incomplet = $incomplet;
+
+        return $this;
+    }
+
+    public function getDateIncomplet(): ?\DateTimeInterface
+    {
+        return $this->dateIncomplet;
+    }
+
+    public function setDateIncomplet(?\DateTimeInterface $dateIncomplet): self
+    {
+        $this->dateIncomplet = $dateIncomplet;
+
+        return $this;
+    }
+
+    public function getLieuReunion(): ?string
+    {
+        return $this->lieuReunion;
+    }
+
+    public function setLieuReunion(?string $lieuReunion): self
+    {
+        $this->lieuReunion = $lieuReunion;
+
+        return $this;
+    }
+
+    public function getDateEnvoiTransit(): ?\DateTimeInterface
+    {
+        return $this->dateEnvoiTransit;
+    }
+
+    public function setDateEnvoiTransit(?\DateTimeInterface $dateEnvoiTransit): self
+    {
+        $this->dateEnvoiTransit = $dateEnvoiTransit;
+
+        return $this;
+    }
+
+    public function getDateReceptionRvrat(): ?\DateTimeInterface
+    {
+        return $this->dateReceptionRvrat;
+    }
+
+    public function setDateReceptionRvrat(?\DateTimeInterface $dateReceptionRvrat): self
+    {
+        $this->dateReceptionRvrat = $dateReceptionRvrat;
+
+        return $this;
+    }
+
+    public function getDescriptifAnalyseRisque(): ?string
+    {
+        return $this->descriptifAnalyseRisque;
+    }
+
+    public function setDescriptifAnalyseRisque(?string $descriptifAnalyseRisque): self
+    {
+        $this->descriptifAnalyseRisque = $descriptifAnalyseRisque;
+
+        return $this;
+    }
+
+    public function getReglesDerogation(): ?string
+    {
+        return $this->reglesDerogation;
+    }
+
+    public function setReglesDerogation(?string $reglesDerogation): self
+    {
+        $this->reglesDerogation = $reglesDerogation;
+
+        return $this;
+    }
+
+    public function getJustificationDerogation(): ?string
+    {
+        return $this->justificationDerogation;
+    }
+
+    public function setJustificationDerogation(?string $justificationDerogation): self
+    {
+        $this->justificationDerogation = $justificationDerogation;
+
+        return $this;
+    }
+
+    public function getMesuresCompensatoires(): ?string
+    {
+        return $this->mesuresCompensatoires;
+    }
+
+    public function setMesuresCompensatoires(?string $mesuresCompensatoires): self
+    {
+        $this->mesuresCompensatoires = $mesuresCompensatoires;
+
+        return $this;
+    }
+
+    public function getMesuresComplementaires(): ?string
+    {
+        return $this->mesuresComplementaires;
+    }
+
+    public function setMesuresComplementaires(?string $mesuresComplementaires): self
+    {
+        $this->mesuresComplementaires = $mesuresComplementaires;
+
+        return $this;
+    }
+
+    public function hasNePeutSePrononcer(): ?bool
+    {
+        return $this->nePeutSePrononcer;
+    }
+
+    public function setNePeutSePrononcer(?bool $nePeutSePrononcer): self
+    {
+        $this->nePeutSePrononcer = $nePeutSePrononcer;
+
+        return $this;
+    }
+
+    public function getCelluleNonExploitee(): ?bool
+    {
+        return $this->celluleNonExploitee;
+    }
+
+    public function setCelluleNonExploitee(?bool $celluleNonExploitee): self
+    {
+        $this->celluleNonExploitee = $celluleNonExploitee;
+
+        return $this;
+    }
+
+    public function getDatePrefecture(): ?\DateTimeInterface
+    {
+        return $this->datePrefecture;
+    }
+
+    public function setDatePrefecture(?\DateTimeInterface $datePrefecture): self
+    {
+        $this->datePrefecture = $datePrefecture;
+
+        return $this;
+    }
+
+    public function getDateTransfertCommission(): ?\DateTimeInterface
+    {
+        return $this->dateTransfertCommission;
+    }
+
+    public function setDateTransfertCommission(?\DateTimeInterface $dateTransfertCommission): self
+    {
+        $this->dateTransfertCommission = $dateTransfertCommission;
+
+        return $this;
+    }
+
+    public function getDateReceptionCommission(): ?\DateTimeInterface
+    {
+        return $this->dateReceptionCommission;
+    }
+
+    public function setDateReceptionCommission(?\DateTimeInterface $dateReceptionCommission): self
+    {
+        $this->dateReceptionCommission = $dateReceptionCommission;
+
+        return $this;
+    }
+
+    public function getDateReunion(): ?\DateTimeInterface
+    {
+        return $this->dateReunion;
+    }
+
+    public function setDateReunion(?\DateTimeInterface $dateReunion): self
+    {
+        $this->dateReunion = $dateReunion;
+
+        return $this;
+    }
+
+    public function getOperationSdis(): ?bool
+    {
+        return $this->operationSdis;
+    }
+
+    public function setOperationSdis(?bool $operationSdis): self
+    {
+        $this->operationSdis = $operationSdis;
+
+        return $this;
+    }
+
+    public function getRcci(): ?bool
+    {
+        return $this->rcci;
+    }
+
+    public function setRcci(?bool $rcci): self
+    {
+        $this->rcci = $rcci;
+
+        return $this;
+    }
+
+    public function getRex(): ?string
+    {
+        return $this->rex;
+    }
+
+    public function setRex(?string $rex): self
+    {
+        $this->rex = $rex;
+
+        return $this;
+    }
+
+    public function getChargeSecurite(): ?string
+    {
+        return $this->chargeSecurite;
+    }
+
+    public function setChargeSecurite(?string $chargeSecurite): self
+    {
+        $this->chargeSecurite = $chargeSecurite;
+
+        return $this;
+    }
+
+    public function getDureeDeplacement(): ?int
+    {
+        return $this->dureeDeplacement;
+    }
+
+    public function setDureeDeplacement(?int $dureeDeplacement): self
+    {
+        $this->dureeDeplacement = $dureeDeplacement;
+
+        return $this;
+    }
+
+    public function getGravitePrescription(): ?string
+    {
+        return $this->gravitePrescription;
+    }
+
+    public function setGravitePrescription(?string $gravitePrescription): self
+    {
+        $this->gravitePrescription = $gravitePrescription;
+
+        return $this;
+    }
+
+    public function getNumeroIntervention(): ?int
+    {
+        return $this->numeroIntervention;
+    }
+
+    public function setNumeroIntervention(?int $numeroIntervention): self
+    {
+        $this->numeroIntervention = $numeroIntervention;
+
+        return $this;
+    }
+
+    public function getDateIntervention(): ?\DateTimeInterface
+    {
+        return $this->dateIntervention;
+    }
+
+    public function setDateIntervention(?\DateTimeInterface $dateIntervention): self
+    {
+        $this->dateIntervention = $dateIntervention;
+
+        return $this;
+    }
+
+    public function getDureeIntervention(): ?\DateTimeInterface
+    {
+        return $this->dureeIntervention;
+    }
+
+    public function setDureeIntervention(?\DateTimeInterface $dureeIntervention): self
+    {
+        $this->dureeIntervention = $dureeIntervention;
+
+        return $this;
+    }
+
+    public function getDateSignature(): ?\DateTimeInterface
+    {
+        return $this->dateSignature;
+    }
+
+    public function setDateSignature(?\DateTimeInterface $dateSignature): self
+    {
+        $this->dateSignature = $dateSignature;
+
+        return $this;
+    }
+
+    /**
+     * Vérifie si ce dossier donne un avis pour l'établissement.
+     *
+     * Un dossier donne avis si sa nature fait partie de la liste définie
+     * dans DossierNature::NATURES_DONNANT_AVIS.
+     */
+    public function donneAvis(): bool
+    {
+        $nature = $this->getNature();
+
+        if (null === $nature) {
+            return false;
+        }
+
+        return in_array($nature->getId(), DossierNature::NATURES_DONNANT_AVIS, true);
     }
 }
