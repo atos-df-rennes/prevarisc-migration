@@ -4,6 +4,70 @@
 
 <!--- END HEADER -->
 
+## [2.9.0-rc.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.15...v2.9.0-rc.1) (03-03-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+
+##### Rapports
+
+* Ajoute les avis et dérogations d'une cellule dans les données de l'établissement parent (#121) ([b94e74](https://github.com/atos-df-rennes/prevarisc-migration/commit/b94e74e0d3e1c69f35ccb0a320012b7573c7b562))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances
+
+
+##### Etablissement
+
+* Optimisation des requêtes et affichages (#116) ([b93f82](https://github.com/atos-df-rennes/prevarisc-migration/commit/b93f821bd9b09e24e99d5c942ac1c531afdd78a6))
+
+##### Formulaires
+
+* Traitement par batch pour diminuer significativement le temps d'import avec une configuration volumineuse (#107) ([0997ca](https://github.com/atos-df-rennes/prevarisc-migration/commit/0997ca1a76a3e27110ebb0d03643f48cbef73cba))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Nom de colonne erroné pour les ressources ([11d4e4](https://github.com/atos-df-rennes/prevarisc-migration/commit/11d4e424a616282e211346c2126915174759e457))
+
+##### Etablissement
+
+* Correction d'orthographe des libellés "Lycee" (#102) ([7c4f5e](https://github.com/atos-df-rennes/prevarisc-migration/commit/7c4f5e7bd70fbfba1361b19fef71105cd706c472))
+
+##### Pieces-jointes
+
+* Chemin de stockage par défaut incorrect (#119) ([50bc5e](https://github.com/atos-df-rennes/prevarisc-migration/commit/50bc5e01b2be09bc346cdd9bd18f604d9d10bd63))
+
+##### Prescriptions
+
+* Permet l'ajout d'une prescription type à n'importe quel niveau de la hiérarchie (#120) ([a308e0](https://github.com/atos-df-rennes/prevarisc-migration/commit/a308e0bb0f590f33a7b36852c94764ee418f907f))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style
+
+##### Formulaires
+
+* Les longs noms de boucle créaient un overflow sur la page (#108) ([963e6a](https://github.com/atos-df-rennes/prevarisc-migration/commit/963e6a914e7c89661c849c19aba9dea6aa18cdf2))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration
+
+
+##### Administration
+
+* Groupement des communes (#99) ([5439c3](https://github.com/atos-df-rennes/prevarisc-migration/commit/5439c39835fdb8c3506073ffb0e10d3566accffa))
+
+##### Dossier
+
+* Affichage et édition d'un dossier (#122) ([907e69](https://github.com/atos-df-rennes/prevarisc-migration/commit/907e69e24094654772db92fa9ccd3efb94844a3f))
+
+##### Elements-supprimes
+
+* Rétablissement des éléments (#111) ([d3d907](https://github.com/atos-df-rennes/prevarisc-migration/commit/d3d907c7358a96c072df09cab4bdf5aa27fa5a38))
+
+##### Etablissement
+
+* Affichage de la page établissement (#90) ([64db81](https://github.com/atos-df-rennes/prevarisc-migration/commit/64db814de91ac55896d12583e08238fcc17cf46f))
+
+
+---
+
 ## [2.8.15](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.14...v2.8.15) (20-02-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
