@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\EtablissementInformationsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -557,7 +558,11 @@ class EtablissementInformations
      */
     public function getPreventionnistes(): Collection
     {
-        return $this->preventionnistes;
+        $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('actif', true));
+
+        // PHPStan n'a pas l'extension Doctrine et n'est donc pas au courant que ça fonctionne bien.
+        /* @phpstan-ignore-next-line */
+        return $this->preventionnistes->matching($criteria);
     }
 
     public function addPreventionniste(Utilisateur $preventionniste): self
