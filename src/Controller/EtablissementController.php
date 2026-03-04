@@ -21,6 +21,7 @@ use App\Service\Alerte\AlerteService;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
 use App\Service\Etablissement as EtablissementService;
+use App\Service\Dossier;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -88,6 +89,9 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $contactService;
 
+    /** @var Dossier */
+    private $dossierService;
+
     /**
      * @var MailerConfiguration
      */
@@ -105,6 +109,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         EtablissementService $etablissementService,
         EtablissementRepository $etablissementRepository,
         EntityManagerInterface $entityManager,
+        Dossier $dossierService,
         CoucheCartoRepository $coucheCartoRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
@@ -121,6 +126,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->etablissementService = $etablissementService;
         $this->etablissementRepository = $etablissementRepository;
         $this->entityManager = $entityManager;
+        $this->dossierService = $dossierService;
         $this->coucheCartoRepository = $coucheCartoRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->groupementRepository = $groupementRepository;
@@ -471,5 +477,102 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'contact' => $contact,
         ]);
+    }
+
+    /**
+     * @Route("/etablissement/{id}/dossiers", name="etablissement_dossiers")
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function dossiers(
+        Etablissement $etablissement,
+        Request $request
+    ): Response {
+        $id = $etablissement->getId();
+        $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
+
+        $etudes = $this->dossierRepository->getDossiersEtablissement($id, [1]);
+        $visites = $this->dossierRepository->getDossiersEtablissement($id, [2,3]);
+        $autres = $this->dossierRepository->getDossiersEtablissement($id, [1,2,3], true);
+        if (null != $etudes) {
+//            dump($etablissementEtudes);
+            $nbEtudes = count($etudes);
+            $donneesUtilesEtudes = $this->dossierService->extraireDonneesUtiles($etudes);
+            $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $nbElemMax);
+        }
+        else {
+            $nbEtudes = 0;
+            $etudesAffichees = [];
+        }
+
+        if (null != $visites) {
+//            dump($etablissementVisites);
+            $nbVisites = count($visites);
+            $donneesUtilesVisites = $this->dossierService->extraireDonneesUtiles($visites);
+            $visitesAffichees = array_slice($donneesUtilesVisites, 0, $nbElemMax);
+        }
+        else {
+            $nbVisites = 0;
+            $visitesAffichees = [];
+        }
+
+        if (null != $autres) {
+//            dump($etablissementAutres);
+            $nbAutres = count($autres);
+            $donneesUtilesAutres = $this->dossierService->extraireDonneesUtiles($autres);
+            $autresAffichees = array_slice($donneesUtilesAutres, 0, $nbElemMax);
+        }
+        else {
+            $nbAutres = 0;
+            $autresAffichees = [];
+        }
+
+        return $this->render('etablissement/dossiers.html.twig', [
+            'etablissement' => $etablissement,
+            'etudes' => $etudesAffichees,
+            'visites' => $visitesAffichees,
+            'autres' => $autresAffichees,
+            'nbEtudes' => $nbEtudes,
+            'nbVisites' => $nbVisites,
+            'nbAutres' => $nbAutres,
+            'nbElemMax' => $nbElemMax,
+        ]);
+    }
+
+    /**
+     * @Route("/etablissement/get-dossiers-after-n", name="etablissement_get_dossiers_after_n", methods={"POST"})
+     */
+    public function getDossiersAfterN(Request $request): Response
+    {
+        $id = $request->request->get('id');
+        $typeDossier = $request->request->get('typeDossier');
+        $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
+//        $ID_DOSSIERTYPE_ETUDE = 1;
+//        $ID_DOSSIERTYPE_VISITE = 2;
+//        $ID_DOSSIERTYPE_GRPVISITE = 3;
+//        $allTypes = $this->getDoctrine()->getRepository('App:DossierType')->findAll();
+//        $typesEtude = [$ID_DOSSIERTYPE_ETUDE];
+//        $typesVisite = [$ID_DOSSIERTYPE_VISITE, $ID_DOSSIERTYPE_GRPVISITE];
+//        $typesAutres = [];
+//        foreach ($allTypes as $type) {
+//            $idType = $type->getId();
+//            if (!in_array($idType, [$ID_DOSSIERTYPE_ETUDE, $ID_DOSSIERTYPE_VISITE, $ID_DOSSIERTYPE_GRPVISITE], true)) {
+//                $typesAutres[] = $idType;
+//            }
+//        }
+//        $repo = $this->getDoctrine()->getRepository('App:Etablissement');
+        if ($typeDossier === 'etudes') {
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1]);
+        } elseif ($typeDossier === 'visites') {
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1,2]);
+        } else {
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1,2,3], true);
+        }
+        $dossiersRestants = array_slice($dossiers, $nbElemMax);
+        $html = '';
+        foreach ($dossiersRestants as $dossier) {
+            $html .= $this->renderView('etablissement/dossiers/_item.html.twig', ['dossier' => $dossier]);
+        }
+        return new Response($html);
     }
 }

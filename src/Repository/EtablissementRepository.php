@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;

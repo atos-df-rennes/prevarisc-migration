@@ -56,4 +56,76 @@ final class Dossier
 
         return $this->dossierRepository->findNombreNouvellesPieces($dossier, $dateDerniereVisitePage);
     }
+
+    public function extraireDonneesUtiles(array $dossiers): array
+    {
+        $donneesUtiles = [];
+        foreach ($dossiers as $dossier) {
+            $donneeUtile = [];
+//            $donneeUtile['nature'] = $dossier['nature'];
+//            $donneeUtile['type'] = $dossier['type'];
+//            $donneeUtile['etablissement'] = $dossier['etablissement'];
+            /** @var \App\Entity\Dossier $dossierEntity */
+            $dossierEntity = $dossier[0];
+            $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
+            $donneeUtile['verrou'] = $dossierEntity->getVerrou();
+            $donneeUtile['id'] = $dossierEntity->getId();
+            $donneeUtile['nbPJ'] = count($dossierEntity->getPiecesJointes());
+            $donneeUtile['objet'] = $dossierEntity->getObjet();
+            if (null !== $donneeUtile['objet']) {
+                if (strlen($donneeUtile['objet']) > 70) {
+                    $donneeUtile['objet'] = substr($donneeUtile['objet'], 0, 70) . '(...)';
+                }
+                if (count($dossierEntity->getDocumentsUrbanisme()) > 0) {
+                    $donneeUtile['objet'] .= ' - ' . count($dossierEntity->getDocumentsUrbanisme());
+                }
+            } else {
+                if (count($dossierEntity->getDocumentsUrbanisme()) > 0) {
+                    $donneeUtile['objet'] = count($dossierEntity->getDocumentsUrbanisme());
+                } else {
+                    $donneeUtile['objet'] = '';
+                }
+            }
+
+            $libelle = '';
+            if (!empty($dossier['type'])) {
+                $libelle .= $dossier['type'];
+            }
+            if (!empty($dossier['nature'])) {
+                if (!empty($libelle)) {
+                    $libelle .= ' - ';
+                }
+                $libelle .= $dossier['nature'];
+            }
+            if (!empty($donneeUtile['objet'])) {
+                if (!empty($libelle)) {
+                    $libelle .= ' - ';
+                }
+                $libelle .= $donneeUtile['objet'];
+            }
+            $donneeUtile['objet'] = $libelle;
+            $donneeUtile['etablissement'] = $dossier['etablissement'];
+
+            if ($dossierEntity->getDateCommission() != null) {
+                $donneeUtile['date'] = $dossierEntity->getDateCommission();
+                $donneeUtile['libelleDate'] = "ayant pour date de passage en commission le";
+            } elseif ($dossierEntity->getDateVisite() != null) {
+                $donneeUtile['date'] = $dossierEntity->getDateVisite();
+                $donneeUtile['libelleDate'] = "ayant pour date de visite le";
+            } else {
+                $donneeUtile['date'] = $dossierEntity->getDateInsert();
+                $donneeUtile['libelleDate'] = "créé le";
+            }
+
+            // TODO : recuperer les infos du connecteur Platau et le service TempsRestant apres merge branche Maxime
+            // is_new, has_new_pj
+            $donneeUtile['tempsRestant'] = '';
+            $donneeUtile['couleur'] = '';
+            $donneeUtile['isNew'] = null;
+            $donneeUtile['hasNewPJ'] = null;
+
+            $donneesUtiles[] = $donneeUtile;
+        }
+        return $donneesUtiles;
+    }
 }
