@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Dossier;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,9 +13,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierController extends AbstractController
 {
-    // @todo: Ajouter la vérification du privilège verrouillage de dossier
     /**
      * @Route("/dossier/{id}/verrouiller", name="dossier_verrouiller")
+     *
+     * @IsGranted("verrouillage_dossier", subject="dossier")
      */
     public function verrouiller(Request $request, Dossier $dossier, EntityManagerInterface $entityManager): Response
     {
@@ -36,6 +38,8 @@ class DossierController extends AbstractController
 
     /**
      * @Route("/dossier/{id}/deverrouiller", name="dossier_deverrouiller")
+     *
+     * @IsGranted("verrouillage_dossier", subject="dossier")
      */
     public function deverrouiller(Request $request, Dossier $dossier, EntityManagerInterface $entityManager): Response
     {
