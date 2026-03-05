@@ -66,7 +66,7 @@ class PeriodiciteRepository extends ServiceEntityRepository
         $type = GenreEtablissement::ERP === $information->getGenre()->getId() ? $information->getType() : $information->getClasse();
 
         $typeId = 0;
-        if ($type !== null) {
+        if (null !== $type) {
             $typeId = $type->getId();
         }
 

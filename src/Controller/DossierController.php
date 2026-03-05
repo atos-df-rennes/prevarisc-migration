@@ -47,15 +47,111 @@ class DossierController extends AbstractController
 
     /** @var DateCommission */
     private $dateCommissionService;
+    /**
+     * @var DossierTypeRepository
+     */
+    private $dossierTypeRepository;
+    /**
+     * @var AvisRepository
+     */
+    private $avisRepository;
+    /**
+     * @var CommissionTypeRepository
+     */
+    private $commissionTypeRepository;
+    /**
+     * @var CommissionRepository
+     */
+    private $commissionRepository;
+    /**
+     * @var EtablissementRepository
+     */
+    private $etablissementRepository;
+    /**
+     * @var UtilisateurRepository
+     */
+    private $utilisateurRepository;
+    /**
+     * @var DossierFields
+     */
+    private $dossierFieldsService;
+    /**
+     * @var Etablissement
+     */
+    private $etablissementService;
+    /**
+     * @var DossierDocumentManquantService
+     */
+    private $documentManquantService;
+    /**
+     * @var PieceJointeExportService
+     */
+    private $pieceJointeExportService;
+    /**
+     * @var DossierAffectationService
+     */
+    private $dossierAffectationService;
+    /**
+     * @var DossierAffectationRepository
+     */
+    private $dossierAffectationRepository;
+    /**
+     * @var DossierDonnantAvisService
+     */
+    private $dossierDonnantAvisService;
+    /**
+     * @var AlerteService
+     */
+    private $alerteService;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
-        DateCommission $dateCommissionService
+        DateCommission $dateCommissionService,
+        DossierTypeRepository $dossierTypeRepository,
+        AvisRepository $avisRepository,
+        CommissionTypeRepository $commissionTypeRepository,
+        CommissionRepository $commissionRepository,
+        EtablissementRepository $etablissementRepository,
+        UtilisateurRepository $utilisateurRepository,
+        DossierFields $dossierFieldsService,
+        Etablissement $etablissementService,
+        DossierDocumentManquantService $documentManquantService,
+        PieceJointeExportService $pieceJointeExportService,
+        DossierAffectationService $dossierAffectationService,
+        DossierAffectationRepository $dossierAffectationRepository,
+        DossierDonnantAvisService $dossierDonnantAvisService,
+        AlerteService $alerteService,
+        LoggerInterface $logger,
+        UrlGeneratorInterface $urlGenerator
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
         $this->dateCommissionService = $dateCommissionService;
+        $this->dossierTypeRepository = $dossierTypeRepository;
+        $this->avisRepository = $avisRepository;
+        $this->commissionTypeRepository = $commissionTypeRepository;
+        $this->commissionRepository = $commissionRepository;
+        $this->etablissementRepository = $etablissementRepository;
+        $this->utilisateurRepository = $utilisateurRepository;
+        $this->dossierFieldsService = $dossierFieldsService;
+        $this->etablissementService = $etablissementService;
+        $this->documentManquantService = $documentManquantService;
+        $this->pieceJointeExportService = $pieceJointeExportService;
+        $this->dossierAffectationService = $dossierAffectationService;
+        $this->dossierAffectationRepository = $dossierAffectationRepository;
+        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
+        $this->alerteService = $alerteService;
+        $this->logger = $logger;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -100,27 +196,11 @@ class DossierController extends AbstractController
     public function edit(
         Request $request,
         Dossier $dossier,
-        DossierTypeRepository $dossierTypeRepository,
-        AvisRepository $avisRepository,
-        CommissionTypeRepository $commissionTypeRepository,
-        CommissionRepository $commissionRepository,
-        EtablissementRepository $etablissementRepository,
-        UtilisateurRepository $utilisateurRepository,
-        DossierFields $dossierFieldsService,
-        Etablissement $etablissementService,
-        DossierDocumentManquantService $documentManquantService,
         DocumentConsulteTransferService $documentConsulteTransferService,
-        PieceJointeExportService $pieceJointeExportService,
-        DossierAffectationService $dossierAffectationService,
-        DossierAffectationRepository $dossierAffectationRepository,
-        DossierDonnantAvisService $dossierDonnantAvisService,
-        AlerteService $alerteService,
-        LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator,
         bool $mailEnabled
     ): Response {
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
-        $documentManquantService->organizeDocumentsManquants($dossier);
+        $this->documentManquantService->organizeDocumentsManquants($dossier);
 
         // Sauvegarder les valeurs initiales pour détecter les changements
         $ancienType = $dossier->getType();
@@ -141,11 +221,11 @@ class DossierController extends AbstractController
 
         // Pré-remplir les champs Hidden avec IDs affectations existantes
         // Nécessaire pour que la sauvegarde sans modification ne désaffecte pas
-        $affectationCommission = $dossierAffectationRepository->findAffectationByDossierAndType(
+        $affectationCommission = $this->dossierAffectationRepository->findAffectationByDossierAndType(
             $dossier,
             CommissionTypeEvenement::TYPE_COMMISSION_SALLE
         );
-        $affectationVisite = $dossierAffectationRepository->findAffectationByDossierAndType(
+        $affectationVisite = $this->dossierAffectationRepository->findAffectationByDossierAndType(
             $dossier,
             [CommissionTypeEvenement::TYPE_VISITE, CommissionTypeEvenement::TYPE_GROUPE_VISITE]
         );
@@ -184,7 +264,7 @@ class DossierController extends AbstractController
                 /** @var Collection<int, PieceJointe>|null $piecesJointesPlatau */
                 $piecesJointesPlatau = $form->get('piecesJointesPlatau')->getData();
                 if ($piecesJointesPlatau) {
-                    $pieceJointeExportService->markForExport($piecesJointesPlatau);
+                    $this->pieceJointeExportService->markForExport($piecesJointesPlatau);
                 }
 
                 // Affectations commissions/visites + dénormalisation dates
@@ -193,7 +273,7 @@ class DossierController extends AbstractController
                 /** @var string|null $idAffectationVisite */
                 $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
 
-                $dossierAffectationService->gererAffectations(
+                $this->dossierAffectationService->gererAffectations(
                     $dossier,
                     $idAffectationCommission ? (int) $idAffectationCommission : null,
                     $idAffectationVisite ? (int) $idAffectationVisite : null
@@ -209,12 +289,12 @@ class DossierController extends AbstractController
 
                 // Cas 1 : Nouvelle nature donne avis → Affectation
                 if ($dossier->donneAvis()) {
-                    $etablissementsIds = $dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
+                    $etablissementsIds = $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
                 }
                 // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
                 // Note : Le elseif garantit qu'on ne passe ici QUE si nouvelle nature ne donne PAS avis
                 elseif (null !== $ancienneNature) {
-                    $etablissementsIds = $dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
+                    $etablissementsIds = $this->dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
                 }
 
                 // Persist et flush toutes les modifications
@@ -240,7 +320,7 @@ class DossierController extends AbstractController
                         if ($statut && 1 === $statut->getId()) {
                             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
 
-                            $informationsEtablissement = $urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+                            $informationsEtablissement = $this->urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
                             $this->addFlash('warning', sprintf(
                                 '<strong>Avertissement</strong><br>'.
                                 'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
@@ -275,7 +355,7 @@ class DossierController extends AbstractController
                             $informations = $etablissement->getLatestInformations();
                             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
 
-                            $lienAlerter = $alerteService->getLink(
+                            $lienAlerter = $this->alerteService->getLink(
                                 AlerteService::TYPE_CHANGEMENT_AVIS,
                                 $etablissementId
                             );
@@ -313,7 +393,7 @@ class DossierController extends AbstractController
                 $this->entityManager->rollback();
 
                 // Log de l'erreur technique pour le service informatique
-                $logger->error('Erreur lors de la sauvegarde du dossier', [
+                $this->logger->error('Erreur lors de la sauvegarde du dossier', [
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
@@ -325,15 +405,15 @@ class DossierController extends AbstractController
         }
 
         // Récupération des données nécessaires pour l'affichage
-        $dossierTypes = $dossierTypeRepository->findAll();
-        $avis = $avisRepository->findAll();
+        $dossierTypes = $this->dossierTypeRepository->findAll();
+        $avis = $this->avisRepository->findAll();
 
         // Récupération des commissions par type
         $commissionsParType = [];
-        foreach ($commissionTypeRepository->findAll() as $type) {
+        foreach ($this->commissionTypeRepository->findAll() as $type) {
             $commissionsParType[$type->getId()] = [
                 'libelle' => $type->getLibelle(),
-                'commissions' => $commissionRepository->findBy(['type' => $type]),
+                'commissions' => $this->commissionRepository->findBy(['type' => $type]),
             ];
         }
 
@@ -346,11 +426,11 @@ class DossierController extends AbstractController
             $premierEtablissement = $etablissements->first();
 
             if ($premierEtablissement) {
-                $enteteEtab = $etablissementRepository->find($premierEtablissement->getId());
+                $enteteEtab = $this->etablissementRepository->find($premierEtablissement->getId());
 
                 // Récupération du dernier avis via l'historique des dossiers
                 if ($enteteEtab) {
-                    $lastAvisEtab = $etablissementService->getLastAvisLibelle($enteteEtab->getId());
+                    $lastAvisEtab = $this->etablissementService->getLastAvisLibelle($enteteEtab->getId());
                 }
             }
         }
@@ -366,11 +446,11 @@ class DossierController extends AbstractController
         // Informations sur le verrouillage
         $userInfoVerrou = null;
         if ($dossier->hasVerrou() && $dossier->getUtilisateurVerrou()) {
-            $userInfoVerrou = $utilisateurRepository->find($dossier->getUtilisateurVerrou());
+            $userInfoVerrou = $this->utilisateurRepository->find($dossier->getUtilisateurVerrou());
         }
 
         // Configuration des champs pour JavaScript
-        $fieldsConfig = json_encode($dossierFieldsService->getAllFieldsByNature());
+        $fieldsConfig = json_encode($this->dossierFieldsService->getAllFieldsByNature());
 
         // Informations Plat'AU
         $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());

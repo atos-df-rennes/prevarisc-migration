@@ -505,6 +505,7 @@ class Utilisateur implements UserInterface
                 $label = $fullName;
             }
         }
+
         $this->displayLabel = $label.($this->actif ? '' : ' (inactif)');
 
         return $this->displayLabel;

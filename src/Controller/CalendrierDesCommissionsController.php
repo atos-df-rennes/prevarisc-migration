@@ -20,11 +20,31 @@ use Symfony\Component\Routing\Annotation\Route;
 class CalendrierDesCommissionsController extends AbstractController
 {
     /**
+     * @var CalendarService
+     */
+    private $calendarService;
+    /**
+     * @var DateCommissionRepository
+     */
+    private $dateCommissionRepository;
+    /**
+     * @var CommissionDatesTransformer
+     */
+    private $commissionDatesTransformer;
+
+    public function __construct(CalendarService $calendarService, DateCommissionRepository $dateCommissionRepository, CommissionDatesTransformer $commissionDatesTransformer)
+    {
+        $this->calendarService = $calendarService;
+        $this->dateCommissionRepository = $dateCommissionRepository;
+        $this->commissionDatesTransformer = $commissionDatesTransformer;
+    }
+
+    /**
      * Récupère les événements du calendrier des commissions.
      *
      * @Route("/calendrier-des-commissions/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
      */
-    public function recupevenement(Request $request, CalendarService $calendarService): JsonResponse
+    public function recupevenement(Request $request): JsonResponse
     {
         /** @var string|null $start */
         $start = $request->query->get('start');
@@ -39,14 +59,14 @@ class CalendrierDesCommissionsController extends AbstractController
             return $this->json(['items' => []]);
         }
 
-        $dateDebut = $calendarService->parseTimestamp($start);
-        $dateFin = $calendarService->parseTimestamp($end);
+        $dateDebut = $this->calendarService->parseTimestamp($start);
+        $dateFin = $this->calendarService->parseTimestamp($end);
 
         if (null === $dateDebut || null === $dateFin) {
             return $this->json(['items' => []]);
         }
 
-        $events = $calendarService->getEvents(
+        $events = $this->calendarService->getEvents(
             $dateDebut,
             $dateFin,
             null !== $idCommission && '' !== $idCommission ? (int) $idCommission : null,
@@ -71,7 +91,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
      */
-    public function recupdateliee(Request $request, DateCommissionRepository $dateCommissionRepository): JsonResponse
+    public function recupdateliee(Request $request): JsonResponse
     {
         $idDate = filter_var($request->query->get('idDate'), FILTER_VALIDATE_INT);
 
@@ -79,13 +99,13 @@ class CalendrierDesCommissionsController extends AbstractController
             return $this->json([]);
         }
 
-        $dateCommission = $dateCommissionRepository->find($idDate);
+        $dateCommission = $this->dateCommissionRepository->find($idDate);
 
         if (null === $dateCommission) {
             return $this->json([]);
         }
 
-        $datesLiees = $dateCommissionRepository->findDatesLiees($dateCommission);
+        $datesLiees = $this->dateCommissionRepository->findDatesLiees($dateCommission);
 
         $dtos = array_map([DateCommissionLieeDto::class, 'fromEntity'], $datesLiees);
 
@@ -104,7 +124,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/symfony/calendrier-des-commissions/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
      */
-    public function resizecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
+    public function resizecommissiondate(Request $request): JsonResponse
     {
         try {
             $idComm = filter_var($request->request->get('idComm'), FILTER_VALIDATE_INT);
@@ -118,9 +138,9 @@ class CalendrierDesCommissionsController extends AbstractController
                 ], 400);
             }
 
-            $heureFin = $calendarService->parseJavaScriptDateToTime($fin);
+            $heureFin = $this->calendarService->parseJavaScriptDateToTime($fin);
 
-            $calendarService->updateHeureFin($idComm, $heureFin);
+            $this->calendarService->updateHeureFin($idComm, $heureFin);
 
             return $this->json([
                 'success' => true,
@@ -144,7 +164,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/symfony/calendrier-des-commissions/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
      */
-    public function deplacecommissiondate(Request $request, CalendarService $calendarService): JsonResponse
+    public function deplacecommissiondate(Request $request): JsonResponse
     {
         try {
             $idComm = filter_var($request->request->get('idComm'), FILTER_VALIDATE_INT);
@@ -159,24 +179,24 @@ class CalendrierDesCommissionsController extends AbstractController
             }
 
             // Parse de la date (format ISO 8601 JavaScript)
-            $nouvelleDate = $calendarService->parseJavaScriptDate($debut);
+            $nouvelleDate = $this->calendarService->parseJavaScriptDate($debut);
 
             // Parse des heures optionnelles
             $nouvelleHeureDebut = null;
             /** @var string|null $debutParam */
             $debutParam = $request->request->get('debut');
             if (null !== $debutParam) {
-                $nouvelleHeureDebut = $calendarService->parseJavaScriptDateToTime($debutParam);
+                $nouvelleHeureDebut = $this->calendarService->parseJavaScriptDateToTime($debutParam);
             }
 
             $nouvelleHeureFin = null;
             /** @var string|null $finParam */
             $finParam = $request->request->get('fin');
             if (null !== $finParam) {
-                $nouvelleHeureFin = $calendarService->parseJavaScriptDateToTime($finParam);
+                $nouvelleHeureFin = $this->calendarService->parseJavaScriptDateToTime($finParam);
             }
 
-            $calendarService->deplacerDateCommission(
+            $this->calendarService->deplacerDateCommission(
                 $idComm,
                 $nouvelleDate,
                 $nouvelleHeureDebut,
@@ -204,15 +224,13 @@ class CalendrierDesCommissionsController extends AbstractController
      * @Route("/calendrier-des-commissions/creer-date", name="calendrier_des_commissions_creer_date", methods={"GET", "POST"}, options={"expose"=true})
      */
     public function creerDate(
-        Request $request,
-        CalendarService $calendarService,
-        CommissionDatesTransformer $commissionDatesTransformer
+        Request $request
     ): Response {
         $dateCommissionDto = new CommissionDatesDto();
 
         // Hydratation du DTO via l'événement FullCalendar et les données du dossier.
         if ($request->isMethod(Request::METHOD_GET)) {
-            $dateCommissionDto = $calendarService->createDatesDtoFromRequest($request);
+            $dateCommissionDto = $this->calendarService->createDatesDtoFromRequest($request);
         }
 
         $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto, [
@@ -224,9 +242,9 @@ class CalendrierDesCommissionsController extends AbstractController
             /** @var CommissionDatesDto $data */
             $data = $form->getData();
 
-            $datesCommission = $commissionDatesTransformer->transformToEntities($data);
+            $datesCommission = $this->commissionDatesTransformer->transformToEntities($data);
             try {
-                $idAffectation = $calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
+                $idAffectation = $this->calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
             } catch (EntityNotFoundException $entityNotFoundException) {
                 return $this->json([
                     'success' => false,

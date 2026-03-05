@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use App\Entity\Dossier as DossierEntity;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
 final class Dossier

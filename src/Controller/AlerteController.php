@@ -23,6 +23,36 @@ use Symfony\Component\Routing\Annotation\Route;
 class AlerteController extends AbstractController
 {
     /**
+     * @var EtablissementRepository
+     */
+    private $etablissementRepository;
+    /**
+     * @var ChangementRepository
+     */
+    private $changementRepository;
+    /**
+     * @var AlerteService
+     */
+    private $alerteService;
+    /**
+     * @var MailerInterface
+     */
+    private $mailer;
+    /**
+     * @var MailerConfiguration
+     */
+    private $mailerConfig;
+
+    public function __construct(EtablissementRepository $etablissementRepository, ChangementRepository $changementRepository, AlerteService $alerteService, MailerInterface $mailer, MailerConfiguration $mailerConfig)
+    {
+        $this->etablissementRepository = $etablissementRepository;
+        $this->changementRepository = $changementRepository;
+        $this->alerteService = $alerteService;
+        $this->mailer = $mailer;
+        $this->mailerConfig = $mailerConfig;
+    }
+
+    /**
      * Affiche le formulaire d'alerte email (modale).
      *
      * Équivalent legacy : ChangementController::alerteformAction()
@@ -31,10 +61,7 @@ class AlerteController extends AbstractController
      * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"})
      */
     public function formulaire(
-        Request $request,
-        EtablissementRepository $etablissementRepository,
-        ChangementRepository $changementRepository,
-        AlerteService $alerteService
+        Request $request
     ): Response {
         $etablissementId = $request->query->getInt('etablissement');
         $typeChangement = $request->query->getInt('type', 2); // 2 = avis
@@ -44,19 +71,19 @@ class AlerteController extends AbstractController
         }
 
         // Récupérer l'établissement
-        $etablissement = $etablissementRepository->find($etablissementId);
+        $etablissement = $this->etablissementRepository->find($etablissementId);
         if (!$etablissement) {
             throw $this->createNotFoundException(sprintf('Établissement #%d introuvable', $etablissementId));
         }
 
         // Récupérer le template de changement
-        $changement = $changementRepository->find($typeChangement);
+        $changement = $this->changementRepository->find($typeChangement);
         if (!$changement) {
             throw $this->createNotFoundException(sprintf('Type changement #%d introuvable', $typeChangement));
         }
 
         // Récupérer les destinataires
-        $destinataires = $alerteService->getDestinataires($typeChangement, $etablissement);
+        $destinataires = $this->alerteService->getDestinataires($typeChangement, $etablissement);
 
         // Formater pour le template
         $emails = [];
@@ -65,11 +92,11 @@ class AlerteController extends AbstractController
         }
 
         // Générer objet email
-        $objet = $alerteService->getObjet($typeChangement, $etablissement);
+        $objet = $this->alerteService->getObjet($typeChangement, $etablissement);
 
         // Générer message email avec remplacement balises
         $messageTemplate = $changement->getMessage() ?? '';
-        $message = $alerteService->getMessage($messageTemplate, $etablissement);
+        $message = $this->alerteService->getMessage($messageTemplate, $etablissement);
 
         return $this->render('alerte/formulaire.html.twig', [
             'etablissementId' => $etablissementId,
@@ -89,11 +116,9 @@ class AlerteController extends AbstractController
      *
      * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"})
      *
-     * @param Request             $request      Requête HTTP
-     * @param MailerInterface     $mailer       Service Symfony Mailer (injecté)
-     * @param MailerConfiguration $mailerConfig Configuration mail Prevarisc
+     * @param Request $request Requête HTTP
      */
-    public function envoyer(Request $request, MailerInterface $mailer, MailerConfiguration $mailerConfig): Response
+    public function envoyer(Request $request): Response
     {
         $emailsRaw = $request->request->get('emails');
         $objetRaw = $request->request->get('objet');
@@ -139,7 +164,7 @@ class AlerteController extends AbstractController
         }
 
         // Vérifier si mail activé
-        if (!$mailerConfig->isEnabled()) {
+        if (!$this->mailerConfig->isEnabled()) {
             return $this->json([
                 'success' => false,
                 'message' => 'L\'envoi d\'email est désactivé dans la configuration',
@@ -147,8 +172,8 @@ class AlerteController extends AbstractController
         }
 
         // Récupération expéditeur depuis configuration Prevarisc
-        $from = $mailerConfig->getSender();
-        $fromName = $mailerConfig->getSenderName();
+        $from = $this->mailerConfig->getSender();
+        $fromName = $this->mailerConfig->getSenderName();
 
         try {
             // Création email avec nouveau composant Symfony Mailer
@@ -170,7 +195,7 @@ class AlerteController extends AbstractController
             }
 
             // Envoi
-            $mailer->send($email);
+            $this->mailer->send($email);
 
             return $this->json([
                 'success' => true,

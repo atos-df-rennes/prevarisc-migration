@@ -154,6 +154,9 @@ class EtablissementController extends AbstractController
         // Récupération des dates de visite
         $datesVisites = $this->etablissementService->getDatesVisites($etablissement);
 
+        // Récupération des fils triés par libellé de leur dernière information
+        $filsOrdonnes = $this->etablissementRepository->findFilsOrderedByLibelle($etablissement);
+
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
             'couches_cartographiques' => $couchesCartographiquesJson,
@@ -168,7 +171,8 @@ class EtablissementController extends AbstractController
             'next_visite' => $datesVisites['nextVisite'],
             'pc_initial' => $this->dossierRepository->getPCInitial($etablissement),
             'presence_dus' => $this->etablissementService->hasContactDus($etablissement),
-            'donnees_pratiques' => $this->etablissementService->calculateDonneesPratiques($etablissement)
+            'donnees_pratiques' => $this->etablissementService->calculateDonneesPratiques($etablissement),
+            'fils_ordonnes' => $filsOrdonnes,
         ]);
     }
 

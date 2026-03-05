@@ -266,15 +266,15 @@
 {% endif %}
 
 <!-- Etablissement lié -->
-{% if etablissement.fils|length > 0 %}
+{% if fils_ordonnes|length > 0 %}
     <h4 class="h4_subtitle">
         <label for="filterLinkedEts">
-            Établissements liés <small>{{ etablissement.fils|length > 0 ? '(' ~ etablissement.fils|length ~ ')' }}</small>
+            Établissements liés <small>{{ fils_ordonnes|length > 0 ? '(' ~ fils_ordonnes|length ~ ')' }}</small>
         </label>
         <input type="text" class="form-control" id="filterLinkedEts" placeholder="Filtrer les établissements" />
     </h4>
     <ul class="recherche_liste list-unstyled no_slide" style="max-height: 500px; overflow-y: scroll;">
-        {% for etablissement_fils in etablissement.fils %}
+        {% for etablissement_fils in fils_ordonnes %}
             {{ include('etablissement/_informations/_etablissement_lies.html.twig', {etablissement: etablissement_fils}) }}
         {% endfor %}
     </ul>
