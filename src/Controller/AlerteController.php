@@ -26,18 +26,22 @@ class AlerteController extends AbstractController
      * @var EtablissementRepository
      */
     private $etablissementRepository;
+
     /**
      * @var ChangementRepository
      */
     private $changementRepository;
+
     /**
      * @var AlerteService
      */
     private $alerteService;
+
     /**
      * @var MailerInterface
      */
     private $mailer;
+
     /**
      * @var MailerConfiguration
      */
@@ -58,7 +62,7 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::alerteformAction()
      * Route legacy : /changement/alerteform
      *
-     * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"})
+     * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"}, options={"expose"=true})
      */
     public function formulaire(
         Request $request
@@ -114,7 +118,7 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::sendmailalerteAction()
      * Route legacy : /changement/sendmailalerte
      *
-     * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"})
+     * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request Requête HTTP
      */

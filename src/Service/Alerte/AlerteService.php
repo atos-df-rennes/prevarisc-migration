@@ -40,7 +40,7 @@ class AlerteService
     /**
      * Mapping type changement → nom privilege.
      */
-    private const PRIVILEGES_CHANGEMENT = [
+    public const PRIVILEGES_CHANGEMENT = [
         self::TYPE_CHANGEMENT_STATUT => 'alerte_statut',
         self::TYPE_CHANGEMENT_AVIS => 'alerte_avis',
         self::TYPE_CHANGEMENT_CLASSEMENT => 'alerte_classement',
@@ -107,7 +107,7 @@ class AlerteService
     public function getDestinataires(int $typeChangement, Etablissement $etablissement): array
     {
         // 1. Récupérer nom du privilege
-        $privilegeName = self::PRIVILEGES_CHANGEMENT[$typeChangement] ?? 'alerte_statut';
+        $privilegeName = self::PRIVILEGES_CHANGEMENT[$typeChangement] ?? self::PRIVILEGES_CHANGEMENT[self::TYPE_CHANGEMENT_STATUT];
 
         // 2. Récupérer NUMINSEE depuis première adresse établissement
         $numInsee = $this->getNumInseeFromEtablissement($etablissement);

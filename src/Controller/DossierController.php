@@ -47,66 +47,82 @@ class DossierController extends AbstractController
 
     /** @var DateCommission */
     private $dateCommissionService;
+
     /**
      * @var DossierTypeRepository
      */
     private $dossierTypeRepository;
+
     /**
      * @var AvisRepository
      */
     private $avisRepository;
+
     /**
      * @var CommissionTypeRepository
      */
     private $commissionTypeRepository;
+
     /**
      * @var CommissionRepository
      */
     private $commissionRepository;
+
     /**
      * @var EtablissementRepository
      */
     private $etablissementRepository;
+
     /**
      * @var UtilisateurRepository
      */
     private $utilisateurRepository;
+
     /**
      * @var DossierFields
      */
     private $dossierFieldsService;
+
     /**
      * @var Etablissement
      */
     private $etablissementService;
+
     /**
      * @var DossierDocumentManquantService
      */
     private $documentManquantService;
+
     /**
      * @var PieceJointeExportService
      */
     private $pieceJointeExportService;
+
     /**
      * @var DossierAffectationService
      */
     private $dossierAffectationService;
+
     /**
      * @var DossierAffectationRepository
      */
     private $dossierAffectationRepository;
+
     /**
      * @var DossierDonnantAvisService
      */
     private $dossierDonnantAvisService;
+
     /**
      * @var AlerteService
      */
     private $alerteService;
+
     /**
      * @var LoggerInterface
      */
     private $logger;
+
     /**
      * @var UrlGeneratorInterface
      */

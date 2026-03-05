@@ -23,10 +23,12 @@ class CalendrierDesCommissionsController extends AbstractController
      * @var CalendarService
      */
     private $calendarService;
+
     /**
      * @var DateCommissionRepository
      */
     private $dateCommissionRepository;
+
     /**
      * @var CommissionDatesTransformer
      */

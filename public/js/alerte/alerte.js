@@ -18,7 +18,7 @@ $(document).ready(function() {
             return;
         }
 
-        var url = '/symfony/alerte/formulaire?etablissement=' + etablissementId + '&type=' + typeChangement;
+        var url = Routing.generate('alerte_formulaire', { etablissement: etablissementId, type: typeChangement });
         var $modal = $('#modalAlerte');
         
         // Afficher état loading
