@@ -74,7 +74,7 @@ class CommissionCompetencesController extends AbstractController
      * Applique les règles de compétence d'une commission à l'ensemble des établissements ERP et IGH.
      * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
      *
-     * @Route("/admin/commissions/{id}/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
+     * @Route("/admin/commissions/{id}/competences/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
      */
     public function applyRegles(Commission $commission): Response
     {
@@ -94,6 +94,6 @@ class CommissionCompetencesController extends AbstractController
 
         $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
 
-        return $this->redirect('/legacy/admin/commissions/clear-cache-and-redirect?target='.urlencode($target));
+        return $this->redirect('/legacy/admin/clear-cache-and-redirect?target='.urlencode($target));
     }
 }
