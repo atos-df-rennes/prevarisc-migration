@@ -3,13 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
-use App\Form\CommissionReglesCollectionType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
-use App\Repository\EtablissementInformationsRepository;
 use App\Service\Commission\CommissionFilesystem;
-use App\Service\Commission\CommissionRegleCompetenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,26 +31,16 @@ class CommissionsController extends AbstractController
     /** @var CommissionFilesystem */
     private $commissionFilesystem;
 
-    /** @var CommissionRegleCompetenceService */
-    private $competenceService;
-
-    /** @var EtablissementInformationsRepository */
-    private $etablissementInformationsRepository;
-
     public function __construct(
         EntityManagerInterface $entityManager,
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionFilesystem $commissionFilesystem,
-        CommissionRegleCompetenceService $competenceService,
-        EtablissementInformationsRepository $etablissementInformationsRepository
+        CommissionFilesystem $commissionFilesystem
     ) {
         $this->entityManager = $entityManager;
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionFilesystem = $commissionFilesystem;
-        $this->competenceService = $competenceService;
-        $this->etablissementInformationsRepository = $etablissementInformationsRepository;
     }
 
     /**
@@ -148,66 +135,6 @@ class CommissionsController extends AbstractController
     public function show(Commission $commission): Response
     {
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
-    }
-
-    /**
-     * Onglet Compétences — édition des règles de compétence d'une commission.
-     *
-     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
-     */
-    public function competences(Commission $commission, Request $request): Response
-    {
-        /*
-         * Le fait de passer uniquement la commission sans requête avec select et jointures au repository
-         * crée des requêtes N+1. Dans ce cas on l'accepte car il y a un nombre limité de règles pour chaque commission et
-         * le fait de créer une requête custom pour éviter les N+1 dégrade grandement les temps de réponse.
-         */
-        $form = $this->createForm(CommissionReglesCollectionType::class, $commission, [
-            'commission' => $commission,
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Les règles de compétence ont été sauvegardées avec succès.');
-
-            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
-        }
-
-        return $this->render('commissions/edit.html.twig', [
-            'commission' => $commission,
-            'active_tab' => 'competences',
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * Applique les règles de compétence d'une commission à l'ensemble des établissements ERP et IGH.
-     * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
-     *
-     * @Route("/admin/commissions/{id}/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
-     */
-    public function applyRegles(Commission $commission): Response
-    {
-        $etablissements = $this->etablissementInformationsRepository->findForCompetenceApplication();
-        $matchingIds = $this->competenceService->findMatchingEtablissementIds($commission, $etablissements);
-
-        if ([] === $matchingIds) {
-            $this->addFlash('info', 'Aucun établissement ne correspond aux règles de compétence définies.');
-
-            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
-        }
-
-        $this->etablissementInformationsRepository->updateCommissionForEtablissements(
-            (int) $commission->getId(),
-            $matchingIds
-        );
-
-        $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
-
-        return $this->redirect('/legacy/admin/clear-cache-and-redirect?target='.urlencode($target));
     }
 
     /**
