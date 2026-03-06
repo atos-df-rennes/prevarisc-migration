@@ -6,8 +6,7 @@ use App\Entity\Commission;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
-use App\Service\Commission\CommissionFilesystem;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Commission\CommissionManagerService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,28 +18,23 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionsController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
     /** @var CommissionRepository */
     private $commissionRepository;
 
     /** @var CommissionTypeRepository */
     private $commissionTypeRepository;
 
-    /** @var CommissionFilesystem */
-    private $commissionFilesystem;
+    /** @var CommissionManagerService */
+    private $commissionManagerService;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionFilesystem $commissionFilesystem
+        CommissionManagerService $commissionManagerService
     ) {
-        $this->entityManager = $entityManager;
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
-        $this->commissionFilesystem = $commissionFilesystem;
+        $this->commissionManagerService = $commissionManagerService;
     }
 
     /**
@@ -74,47 +68,12 @@ class CommissionsController extends AbstractController
             /** @var Commission[] $submittedCommissions */
             $submittedCommissions = $data['commissions'] ?? [];
 
-            // Récupérer les IDs des commissions soumises
-            $submittedIds = [];
-            foreach ($submittedCommissions as $commission) {
-                $this->entityManager->persist($commission);
-
-                if ($commission->getId()) {
-                    $submittedIds[] = $commission->getId();
-                }
-            }
-
-            // Identifier les commissions à supprimer AVANT le flush
-            /** @var int[] $commissionsToDelete */
-            $commissionsToDelete = [];
-            foreach ($commissions as $commission) {
-                $commissionId = $commission->getId();
-                if ($commissionId && !in_array($commissionId, $submittedIds, true)) {
-                    $commissionsToDelete[] = $commissionId;
-                    $this->entityManager->remove($commission);
-                }
-            }
-
-            // Transaction Doctrine : flush database
             try {
-                $this->entityManager->flush();
+                $this->commissionManagerService->saveCommissions($commissions, $submittedCommissions);
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Erreur lors de la sauvegarde : '.$e->getMessage());
 
                 return $this->redirectToRoute('admin_commissions_manage');
-            }
-
-            // SEULEMENT si le flush a réussi, on modifie le filesystem
-            // Créer les dossiers pour les nouvelles commissions
-            foreach ($submittedCommissions as $commission) {
-                if ($commission->getId()) {
-                    $this->commissionFilesystem->createCommissionDirectory($commission->getId());
-                }
-            }
-
-            // Supprimer les dossiers des commissions supprimées
-            foreach ($commissionsToDelete as $commissionId) {
-                $this->commissionFilesystem->removeCommissionDirectory($commissionId);
             }
 
             $this->addFlash('success', 'Les commissions ont été sauvegardées avec succès.');
