@@ -259,6 +259,6 @@ class CommissionsController extends AbstractController
 
         $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
 
-        return $this->redirect('/legacy/admin/commissions/clear-cache-and-redirect?target='.urlencode($target));
+        return $this->redirect('/legacy/admin/clear-cache-and-redirect?target='.urlencode($target));
     }
 }
