@@ -55,9 +55,17 @@
     {# Contenu selon l'onglet actif #}
     {% if active_tab == 'competences' %}
         {% form_theme form 'commissions/_commission_regle_theme.html.twig' %}
-        {{ form_start(form) }}
+        {{ form_start(form, {attr: {id: 'competences-form'}}) }}
             {{ include('commissions/_competences.html.twig', {form: form, commission: commission}) }}
         {{ form_end(form) }}
+
+        <div class="text-center mt-3">
+            <form method="post" action="{{ path('admin_commissions_apply_regles', {id: commission.id}) }}" id="apply-regles-form">
+                <button type="submit" class="btn btn-warning">
+                    <span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Appliquer les règles à tous les établissements
+                </button>
+            </form>
+        </div>
     {% else %}
         <div class="panel panel-default">
             <div class="panel-body text-center" style="padding: 40px;">
