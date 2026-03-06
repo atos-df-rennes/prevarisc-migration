@@ -1,60 +1,50 @@
 {# Onglet Document type de la commission (Compte Rendu type) #}
 
-{% for message in app.flashes('success') %}
-    <div class="alert alert-success">{{ message }}</div>
-{% endfor %}
-{% for message in app.flashes('error') %}
-    <div class="alert alert-danger">{{ message }}</div>
-{% endfor %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+            Compte Rendu type
+        </h4>
+    </div>
+    <div class="panel-body">
 
-<table class="table table-condensed">
-    <thead>
-        <tr>
-            <th>Compte Rendu type de la commission</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="text-align: center;">
-                <p style="line-height: 37px; padding-top: 16px;">
-                    {% if commission.documentCr is not null %}
-                        <span>
-                            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                        </span>
-                        <span style="vertical-align: top;">
-                            <strong style="font-size: 1.3em;">
-                                <a href="{{ documentsCommissionDataPath ~ commission.documentCr }}" style="color: #0174A7">
-                                    {{ commission.documentCr }}
-                                </a>
-                            </strong>
-                            <form method="post"
-                                  action="{{ path('admin_commissions_documents_delete', {id: commission.id}) }}"
-                                  style="display: inline;"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
-                                <button type="submit" class="btn btn-link" style="color: #c9302c; padding: 0; vertical-align: top;">
-                                    supprimer
-                                </button>
-                            </form>
-                        </span>
-                    {% else %}
-                        <strong>Aucun document défini.</strong>
-                    {% endif %}
-                </p>
-                <p>
-                    <form action="{{ path('admin_commissions_documents_upload', {id: commission.id}) }}"
-                          enctype="multipart/form-data"
-                          method="post"
-                          id="form-upload-document-cr">
-                        <input id="document-cr-file"
-                               type="file"
-                               name="document_cr"
-                               accept=".odt" />
+        {% if commission.documentCr is not null %}
+            <div class="media">
+                <div class="media-left">
+                    <span class="glyphicon glyphicon-file" style="font-size: 2em; color: #0174A7;" aria-hidden="true"></span>
+                </div>
+                <div class="media-body">
+                    <a href="{{ documentsCommissionDataPath ~ commission.documentCr }}" class="media-heading" style="font-size: 1.1em;">
+                        {{ commission.documentCr }}
+                    </a>
+                    <form method="post"
+                          action="{{ path('admin_commissions_documents_delete', {id: commission.id}) }}"
+                          style="display: inline; margin-left: 10px;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_commission_document_' ~ commission.id) }}" />
+                        <button type="submit"
+                                class="btn btn-link btn-sm"
+                                style="color: #c9302c; padding: 0;"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
+                        </button>
                     </form>
-                </p>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                </div>
+            </div>
+            <hr />
+            <p class="text-muted"><small>Pour remplacer le document, sélectionnez un nouveau fichier ODT ci-dessous.</small></p>
+        {% else %}
+            <p class="text-muted">Aucun document défini.</p>
+        {% endif %}
+
+        {{ form_start(uploadForm, {attr: {id: 'form-upload-document-cr', enctype: 'multipart/form-data'}}) }}
+            {{ form_errors(uploadForm) }}
+            {{ form_widget(uploadForm.documentCr, {attr: {accept: '.odt', id: 'document-cr-file'}}) }}
+            {{ form_errors(uploadForm.documentCr) }}
+        {{ form_end(uploadForm) }}
+
+    </div>
+</div>
 
 <script type="text/javascript">
     document.getElementById('document-cr-file').addEventListener('change', function () {

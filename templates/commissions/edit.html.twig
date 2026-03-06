@@ -67,7 +67,7 @@
             </form>
         </div>
     {% elseif active_tab == 'documents' %}
-        {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath}) }}
+        {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath, uploadForm: uploadForm}) }}
     {% else %}
         <div class="panel panel-default">
             <div class="panel-body text-center" style="padding: 40px;">

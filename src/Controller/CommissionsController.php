@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
+use App\Form\CommissionDocumentCrType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
@@ -149,45 +150,37 @@ class CommissionsController extends AbstractController
 
     /**
      * Onglet Document type de la commission.
+     * Gère l'affichage (GET) et l'upload (POST) du Compte Rendu type.
      *
-     * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents", requirements={"id"="\d+"}, methods={"GET"})
+     * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
-    public function documents(Commission $commission): Response
+    public function documents(Commission $commission, Request $request): Response
     {
-        return $this->render('commissions/edit.html.twig', [
-            'commission' => $commission,
-            'active_tab' => 'documents',
-            'documentsCommissionDataPath' => $this->documentsCommissionDataPath,
-        ]);
-    }
+        $form = $this->createForm(CommissionDocumentCrType::class);
+        $form->handleRequest($request);
 
-    /**
-     * Upload du document type (Compte Rendu) de la commission.
-     * Accepte uniquement les fichiers .odt.
-     *
-     * @Route("/admin/commissions/{id}/documents/upload", name="admin_commissions_documents_upload", requirements={"id"="\d+"}, methods={"POST"})
-     */
-    public function uploadDocument(Commission $commission, Request $request): Response
-    {
-        /** @var UploadedFile|null $file */
-        $file = $request->files->get('document_cr');
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var array<string, mixed> $data */
+            $data = $form->getData();
+            /** @var UploadedFile $file */
+            $file = $data['documentCr'];
 
-        if (null === $file) {
-            $this->addFlash('error', 'Aucun fichier sélectionné.');
+            try {
+                $this->commissionDocumentCrService->upload($commission, $file);
+                $this->addFlash('success', 'Le document a bien été sauvegardé.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Le téléchargement a échoué.');
+            }
 
             return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
         }
 
-        try {
-            $this->commissionDocumentCrService->upload($commission, $file);
-            $this->addFlash('success', 'Le document a bien été sauvegardé.');
-        } catch (\InvalidArgumentException $e) {
-            $this->addFlash('error', $e->getMessage());
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Le téléchargement a échoué.');
-        }
-
-        return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
+        return $this->render('commissions/edit.html.twig', [
+            'commission' => $commission,
+            'active_tab' => 'documents',
+            'documentsCommissionDataPath' => $this->documentsCommissionDataPath,
+            'uploadForm' => $form->createView(),
+        ]);
     }
 
     /**
@@ -195,8 +188,17 @@ class CommissionsController extends AbstractController
      *
      * @Route("/admin/commissions/{id}/documents/delete", name="admin_commissions_documents_delete", requirements={"id"="\d+"}, methods={"POST"})
      */
-    public function deleteDocument(Commission $commission): Response
+    public function deleteDocument(Commission $commission, Request $request): Response
     {
+        /** @var string $token */
+        $token = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('delete_commission_document_'.$commission->getId(), $token)) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+
+            return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
+        }
+
         try {
             $this->commissionDocumentCrService->delete($commission);
             $this->addFlash('success', 'Le document a bien été supprimé.');

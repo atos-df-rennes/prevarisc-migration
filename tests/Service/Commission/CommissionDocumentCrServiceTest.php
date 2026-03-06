@@ -66,23 +66,6 @@ final class CommissionDocumentCrServiceTest extends TestCase
         self::assertFileExists($this->tmpDir.'compte_rendu.odt');
     }
 
-    public function testUploadExtensionInvalideLeveException(): void
-    {
-        $tmpFile = $this->tmpDir.'source.pdf';
-        file_put_contents($tmpFile, 'contenu pdf');
-
-        $uploadedFile = new UploadedFile($tmpFile, 'document.pdf', 'application/pdf', null, true);
-
-        $commission = new Commission();
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/Extension non supportée/');
-
-        $this->entityManager->expects(self::never())->method('flush');
-
-        $this->service->upload($commission, $uploadedFile);
-    }
-
     public function testUploadRemplaceAncienFichier(): void
     {
         $ancienFichier = $this->tmpDir.'ancien.odt';

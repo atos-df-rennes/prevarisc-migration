@@ -43,7 +43,7 @@ final class CommissionDocumentCrService
 
     /**
      * Upload le document type (Compte Rendu) d'une commission.
-     * Seuls les fichiers .odt sont acceptés.
+     * La validation du type de fichier est assurée par CommissionDocumentCrType.
      * Si un document existait, il est remplacé.
      *
      * @throws \InvalidArgumentException Si l'extension du fichier n'est pas .odt
@@ -52,11 +52,6 @@ final class CommissionDocumentCrService
     public function upload(Commission $commission, UploadedFile $file): void
     {
         $originalFilename = $file->getClientOriginalName();
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-
-        if ('odt' !== $extension) {
-            throw new \InvalidArgumentException(sprintf('Extension non supportée : ".%s". Seuls les fichiers .odt sont acceptés.', $extension));
-        }
 
         $this->ensureDirectoryExists();
 
