@@ -184,6 +184,33 @@ class CommissionsController extends AbstractController
     }
 
     /**
+     * Applique les règles de compétence d'une commission à l'ensemble des établissements ERP et IGH.
+     * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
+     *
+     * @Route("/admin/commissions/{id}/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
+     */
+    public function applyRegles(Commission $commission): Response
+    {
+        $etablissements = $this->etablissementInformationsRepository->findForCompetenceApplication();
+        $matchingIds = $this->competenceService->findMatchingEtablissementIds($commission, $etablissements);
+
+        if ([] === $matchingIds) {
+            $this->addFlash('info', 'Aucun établissement ne correspond aux règles de compétence définies.');
+
+            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
+        }
+
+        $this->etablissementInformationsRepository->updateCommissionForEtablissements(
+            (int) $commission->getId(),
+            $matchingIds
+        );
+
+        $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
+
+        return $this->redirect('/legacy/admin/clear-cache-and-redirect?target='.urlencode($target));
+    }
+
+    /**
      * Onglet Membres (placeholder démo).
      *
      * @Route("/admin/commissions/{id}/membres", name="admin_commissions_membres", requirements={"id"="\d+"}, methods={"GET"})
@@ -233,32 +260,5 @@ class CommissionsController extends AbstractController
             'commission' => $commission,
             'active_tab' => 'documents',
         ]);
-    }
-
-    /**
-     * Applique les règles de compétence d'une commission à l'ensemble des établissements ERP et IGH.
-     * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
-     *
-     * @Route("/admin/commissions/{id}/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
-     */
-    public function applyRegles(Commission $commission): Response
-    {
-        $etablissements = $this->etablissementInformationsRepository->findForCompetenceApplication();
-        $matchingIds = $this->competenceService->findMatchingEtablissementIds($commission, $etablissements);
-
-        if ([] === $matchingIds) {
-            $this->addFlash('info', 'Aucun établissement ne correspond aux règles de compétence définies.');
-
-            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
-        }
-
-        $this->etablissementInformationsRepository->updateCommissionForEtablissements(
-            (int) $commission->getId(),
-            $matchingIds
-        );
-
-        $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
-
-        return $this->redirect('/legacy/admin/clear-cache-and-redirect?target='.urlencode($target));
     }
 }
