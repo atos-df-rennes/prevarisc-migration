@@ -235,7 +235,8 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
             ->innerJoin('e.adresses', 'ea')
             ->where('IDENTITY(ei.genre) IN (:genres)')
             ->andWhere('ei.date = (SELECT MAX(ei2.date) FROM App\Entity\EtablissementInformations ei2 WHERE ei2.etablissement = ei.etablissement)')
-            ->setParameter('genres', [self::ID_GENRE_ETABLISSEMENT, self::ID_GENRE_IGH])
+            // @todo: Remplacer pour l'utilisation des constantes
+            ->setParameter('genres', [2, 5])
             ->getQuery()
             ->getArrayResult();
     }
