@@ -217,7 +217,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
      * pour les établissements ERP (genre=2) et IGH (genre=5) ayant une commune renseignée.
      * Seule la fiche d'informations la plus récente par établissement est retournée.
      *
-     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_GENRE: int, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: int|null, ID_TYPE: int|null, ID_CATEGORIE: int|null, ID_CLASSE: int|null}>
+     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: string, ID_GENRE: string, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: bool|null, ID_TYPE: string|null, ID_CATEGORIE: string|null, ID_CLASSE: string|null}>
      */
     public function findForCompetenceApplication(): array
     {
