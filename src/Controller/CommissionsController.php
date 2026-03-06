@@ -6,9 +6,11 @@ use App\Entity\Commission;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
+use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionManagerService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,14 +29,24 @@ class CommissionsController extends AbstractController
     /** @var CommissionManagerService */
     private $commissionManagerService;
 
+    /** @var CommissionDocumentCrService */
+    private $commissionDocumentCrService;
+
+    /** @var string */
+    private $documentsCommissionDataPath;
+
     public function __construct(
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionManagerService $commissionManagerService
+        CommissionManagerService $commissionManagerService,
+        CommissionDocumentCrService $commissionDocumentCrService,
+        string $documentsCommissionDataPath
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionManagerService = $commissionManagerService;
+        $this->commissionDocumentCrService = $commissionDocumentCrService;
+        $this->documentsCommissionDataPath = $documentsCommissionDataPath;
     }
 
     /**
@@ -136,7 +148,7 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * Onglet Documents (placeholder démo).
+     * Onglet Document type de la commission.
      *
      * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents", requirements={"id"="\d+"}, methods={"GET"})
      */
@@ -145,6 +157,53 @@ class CommissionsController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'documents',
+            'documentsCommissionDataPath' => $this->documentsCommissionDataPath,
         ]);
+    }
+
+    /**
+     * Upload du document type (Compte Rendu) de la commission.
+     * Accepte uniquement les fichiers .odt.
+     *
+     * @Route("/admin/commissions/{id}/documents/upload", name="admin_commissions_documents_upload", requirements={"id"="\d+"}, methods={"POST"})
+     */
+    public function uploadDocument(Commission $commission, Request $request): Response
+    {
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('document_cr');
+
+        if (null === $file) {
+            $this->addFlash('error', 'Aucun fichier sélectionné.');
+
+            return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
+        }
+
+        try {
+            $this->commissionDocumentCrService->upload($commission, $file);
+            $this->addFlash('success', 'Le document a bien été sauvegardé.');
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlash('error', $e->getMessage());
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Le téléchargement a échoué.');
+        }
+
+        return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
+    }
+
+    /**
+     * Suppression du document type (Compte Rendu) de la commission.
+     *
+     * @Route("/admin/commissions/{id}/documents/delete", name="admin_commissions_documents_delete", requirements={"id"="\d+"}, methods={"POST"})
+     */
+    public function deleteDocument(Commission $commission): Response
+    {
+        try {
+            $this->commissionDocumentCrService->delete($commission);
+            $this->addFlash('success', 'Le document a bien été supprimé.');
+        } catch (\Exception $exception) {
+            $this->addFlash('error', 'Erreur lors de la suppression du document.');
+        }
+
+        return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
     }
 }

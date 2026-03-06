@@ -19,6 +19,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$realDataPath', '%app.files_path%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
+        ->bind('$documentsCommissionDataPath', '%app.data_path%/uploads/documents_commission/')
+        ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
     ;
 
 
