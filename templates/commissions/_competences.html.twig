@@ -139,9 +139,10 @@ $(document).ready(function() {
 
     // Confirmation avant application des règles à tous les établissements
     $('#apply-regles-form').on('submit', function(e) {
-        if (!confirm('Êtes-vous sûr de vouloir appliquer ces règles à l\'ensemble des établissements ? Cette action mettra à jour la commission par défaut de tous les ERP et IGH correspondants.')) {
-            e.preventDefault();
-        }
+        const $btn = $(this).find('.apply-competences-btn');
+        $btn.prop('disabled', true).html(
+            '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Application en cours...'
+        );
     });
 });
 </script>
