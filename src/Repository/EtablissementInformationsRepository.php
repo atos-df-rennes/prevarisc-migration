@@ -221,28 +221,23 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
      */
     public function findForCompetenceApplication(): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = 'SELECT ei.ID_ETABLISSEMENTINFORMATIONS,
-                       ei.ID_GENRE,
-                       ea.NUMINSEE_COMMUNE,
-                       ei.LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS,
-                       ei.ID_TYPE,
-                       ei.ID_CATEGORIE,
-                       ei.ID_CLASSE
-                FROM etablissementinformations ei
-                INNER JOIN etablissement e ON ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                INNER JOIN etablissementadresse ea ON e.ID_ETABLISSEMENT = ea.ID_ETABLISSEMENT
-                INNER JOIN (
-                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
-                    FROM etablissementinformations
-                    GROUP BY ID_ETABLISSEMENT
-                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
-                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
-                WHERE ei.ID_GENRE IN (2, 5)
-                AND ea.NUMINSEE_COMMUNE IS NOT NULL';
-
-        return $conn->fetchAllAssociative($sql);
+        return $this->createQueryBuilder('ei')
+            ->select([
+                'ei.id as ID_ETABLISSEMENTINFORMATIONS',
+                'IDENTITY(ei.genre) as ID_GENRE',
+                'IDENTITY(ea.commune) as NUMINSEE_COMMUNE',
+                'ei.localSommeil as LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS',
+                'IDENTITY(ei.type) as ID_TYPE',
+                'IDENTITY(ei.categorie) as ID_CATEGORIE',
+                'IDENTITY(ei.classe) as ID_CLASSE',
+            ])
+            ->innerJoin('ei.etablissement', 'e')
+            ->innerJoin('e.adresses', 'ea')
+            ->where('IDENTITY(ei.genre) IN (:genres)')
+            ->andWhere('ei.date = (SELECT MAX(ei2.date) FROM App\Entity\EtablissementInformations ei2 WHERE ei2.etablissement = ei.etablissement)')
+            ->setParameter('genres', [self::ID_GENRE_ETABLISSEMENT, self::ID_GENRE_IGH])
+            ->getQuery()
+            ->getArrayResult();
     }
 
     /**
