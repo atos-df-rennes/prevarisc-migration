@@ -27,7 +27,7 @@ class CommissionRegleCompetenceService
     /**
      * Retourne les IDs des établissements correspondant à au moins une règle de compétence.
      *
-     * @param array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_GENRE: int, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: int|null, ID_TYPE: int|null, ID_CATEGORIE: int|null, ID_CLASSE: int|null}> $etablissements
+     * @param array<int, array{ID_ETABLISSEMENTINFORMATIONS: string, ID_GENRE: string, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: bool|null, ID_TYPE: string|null, ID_CATEGORIE: string|null, ID_CLASSE: string|null}> $etablissements
      *
      * @return int[]
      */
@@ -63,7 +63,7 @@ class CommissionRegleCompetenceService
      * La sémantique reproduit le comportement legacy :
      * si une collection est vide, la valeur attendue est NULL (correspondance stricte).
      *
-     * @param array{ID_ETABLISSEMENTINFORMATIONS: int, ID_GENRE: int, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: int|null, ID_TYPE: int|null, ID_CATEGORIE: int|null, ID_CLASSE: int|null} $ets
+     * @param array{ID_ETABLISSEMENTINFORMATIONS: string, ID_GENRE: string, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: bool|null, ID_TYPE: string|null, ID_CATEGORIE: string|null, ID_CLASSE: string|null} $ets
      */
     private function matchesErp(array $ets, CommissionRegle $regle): bool
     {
@@ -72,7 +72,7 @@ class CommissionRegleCompetenceService
         }
 
         $localSommeilValues = array_map(
-            static function (CommissionRegleLocalSommeil $ls): ?int { return $ls->getLocalSommeil(); },
+            static function (CommissionRegleLocalSommeil $ls): bool { return (bool) $ls->getLocalSommeil(); },
             $regle->getLocalSommeil()->toArray()
         );
         if (!in_array($ets['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'], $localSommeilValues, true)) {
@@ -80,20 +80,20 @@ class CommissionRegleCompetenceService
         }
 
         $typeIds = array_map(static function (EtablissementType $t): ?int { return $t->getId(); }, $regle->getTypes()->toArray());
-        if (!in_array($ets['ID_TYPE'], $typeIds, true)) {
+        if (!in_array((int) $ets['ID_TYPE'], $typeIds, true)) {
             return false;
         }
 
         $categoryIds = array_map(static function (EtablissementCategorie $c): ?int { return $c->getId(); }, $regle->getCategories()->toArray());
 
-        return in_array($ets['ID_CATEGORIE'], $categoryIds, true);
+        return in_array((int) $ets['ID_CATEGORIE'], $categoryIds, true);
     }
 
     /**
      * Vérifie si un établissement IGH correspond à une règle de compétence.
      * Critères : commune, classe IGH.
      *
-     * @param array{ID_ETABLISSEMENTINFORMATIONS: int, ID_GENRE: int, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: int|null, ID_TYPE: int|null, ID_CATEGORIE: int|null, ID_CLASSE: int|null} $ets
+     * @param array{ID_ETABLISSEMENTINFORMATIONS: string, ID_GENRE: string, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: bool|null, ID_TYPE: string|null, ID_CATEGORIE: string|null, ID_CLASSE: string|null} $ets
      */
     private function matchesIgh(array $ets, CommissionRegle $regle): bool
     {
@@ -103,7 +103,7 @@ class CommissionRegleCompetenceService
 
         $classeIds = array_map(static function (IghClasse $cl): ?int { return $cl->getId(); }, $regle->getClasses()->toArray());
 
-        return in_array($ets['ID_CLASSE'], $classeIds, true);
+        return in_array((int) $ets['ID_CLASSE'], $classeIds, true);
     }
 
     /**
