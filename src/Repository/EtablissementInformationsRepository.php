@@ -209,4 +209,57 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
 
         return $conn->executeStatement($sql, ['genre' => self::GENRE_SITE, 'groupement' => $groupement]);
     }
+
+    /**
+     * Retourne uniquement les colonnes nécessaires à l'application des règles de compétence,
+     * pour les établissements ERP (genre=2) et IGH (genre=5) ayant une commune renseignée.
+     * Seule la fiche d'informations la plus récente par établissement est retournée.
+     *
+     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: int, ID_GENRE: int, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: int|null, ID_TYPE: int|null, ID_CATEGORIE: int|null, ID_CLASSE: int|null}>
+     */
+    public function findForCompetenceApplication(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT ei.ID_ETABLISSEMENTINFORMATIONS,
+                       ei.ID_GENRE,
+                       ea.NUMINSEE_COMMUNE,
+                       ei.LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS,
+                       ei.ID_TYPE,
+                       ei.ID_CATEGORIE,
+                       ei.ID_CLASSE
+                FROM etablissementinformations ei
+                INNER JOIN etablissement e ON ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                INNER JOIN etablissementadresse ea ON e.ID_ETABLISSEMENT = ea.ID_ETABLISSEMENT
+                INNER JOIN (
+                    SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) as MAX_DATE
+                    FROM etablissementinformations
+                    GROUP BY ID_ETABLISSEMENT
+                ) ei_max ON ei.ID_ETABLISSEMENT = ei_max.ID_ETABLISSEMENT
+                    AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
+                WHERE ei.ID_GENRE IN (2, 5)
+                AND ea.NUMINSEE_COMMUNE IS NOT NULL';
+
+        return $conn->fetchAllAssociative($sql);
+    }
+
+    /**
+     * Met à jour en masse la commission par défaut des établissements dont les IDs sont fournis.
+     *
+     * @param int[] $ids
+     */
+    public function updateCommissionForEtablissements(int $commissionId, array $ids): int
+    {
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        return $conn->executeStatement(
+            'UPDATE etablissementinformations SET ID_COMMISSION = :commissionId WHERE ID_ETABLISSEMENTINFORMATIONS IN (:ids)',
+            ['commissionId' => $commissionId, 'ids' => $ids],
+            ['ids' => Connection::PARAM_INT_ARRAY]
+        );
+    }
 }
