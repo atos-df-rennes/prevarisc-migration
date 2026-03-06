@@ -19,6 +19,7 @@ use App\Entity\IghClasse;
  */
 class CommissionRegleCompetenceService
 {
+    // @todo: A remplacer par l'utilisation des constantes une fois la release/2.9 dispo.
     private const ID_GENRE_ETABLISSEMENT = 2;
 
     private const ID_GENRE_IGH = 5;
@@ -34,7 +35,7 @@ class CommissionRegleCompetenceService
     {
         $regles = $commission->getRegles()->toArray();
 
-        if (empty($regles)) {
+        if ([] === $regles) {
             return [];
         }
 
@@ -74,21 +75,18 @@ class CommissionRegleCompetenceService
             static function (CommissionRegleLocalSommeil $ls): ?int { return $ls->getLocalSommeil(); },
             $regle->getLocalSommeil()->toArray()
         );
-        // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators -- comportement legacy (comparaison lâche)
-        if (!in_array($ets['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'], empty($localSommeilValues) ? [null] : $localSommeilValues)) {
+        if (!in_array($ets['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'], $localSommeilValues, true)) {
             return false;
         }
 
         $typeIds = array_map(static function (EtablissementType $t): ?int { return $t->getId(); }, $regle->getTypes()->toArray());
-        // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators -- comportement legacy
-        if (!in_array($ets['ID_TYPE'], empty($typeIds) ? [null] : $typeIds)) {
+        if (!in_array($ets['ID_TYPE'], $typeIds, true)) {
             return false;
         }
 
         $categoryIds = array_map(static function (EtablissementCategorie $c): ?int { return $c->getId(); }, $regle->getCategories()->toArray());
 
-        // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators -- comportement legacy
-        return in_array($ets['ID_CATEGORIE'], empty($categoryIds) ? [null] : $categoryIds);
+        return in_array($ets['ID_CATEGORIE'], $categoryIds, true);
     }
 
     /**
@@ -105,8 +103,7 @@ class CommissionRegleCompetenceService
 
         $classeIds = array_map(static function (IghClasse $cl): ?int { return $cl->getId(); }, $regle->getClasses()->toArray());
 
-        // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators -- comportement legacy
-        return in_array($ets['ID_CLASSE'], empty($classeIds) ? [null] : $classeIds);
+        return in_array($ets['ID_CLASSE'], $classeIds, true);
     }
 
     /**

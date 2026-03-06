@@ -17,6 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EtablissementInformationsRepository extends ServiceEntityRepository
 {
+    // @todo: A remplacer par l'utilisation des constantes une fois la release/2.9 dispo.
+    // @todo: Penser aussi à remplacer les usages en direct (2, 5) en plus des constantes privées déclarées ici.
     private const GENRE_SITE = 1;
 
     private const GENRE_ETABLISSEMENT = 2;
@@ -250,7 +252,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
      */
     public function updateCommissionForEtablissements(int $commissionId, array $ids): int
     {
-        if (empty($ids)) {
+        if ([] === $ids) {
             return 0;
         }
 
