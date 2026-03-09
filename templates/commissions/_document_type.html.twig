@@ -1,5 +1,4 @@
 {# Onglet Document type de la commission (Compte Rendu type) #}
-
 <div class="panel panel-default">
     <div class="panel-heading">
         <h4 class="panel-title">
@@ -8,7 +7,6 @@
         </h4>
     </div>
     <div class="panel-body">
-
         {% if commission.documentCr is not null %}
             <div class="media">
                 <div class="media-left">
@@ -39,15 +37,16 @@
 
         {{ form_start(uploadForm, {attr: {id: 'form-upload-document-cr', enctype: 'multipart/form-data'}}) }}
             {{ form_errors(uploadForm) }}
-            {{ form_widget(uploadForm.documentCr, {attr: {accept: '.odt', id: 'document-cr-file'}}) }}
+            {{ form_widget(uploadForm.documentCr, {attr: {accept: '.odt'}}) }}
             {{ form_errors(uploadForm.documentCr) }}
         {{ form_end(uploadForm) }}
-
     </div>
 </div>
 
 <script type="text/javascript">
-    document.getElementById('document-cr-file').addEventListener('change', function () {
+$(document).ready(function() {
+    document.getElementById('commission_document_cr_documentCr').addEventListener('change', function () {
         document.getElementById('form-upload-document-cr').submit();
     });
+})
 </script>
