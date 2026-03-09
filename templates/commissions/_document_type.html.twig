@@ -19,6 +19,7 @@
                     <form method="post"
                           action="{{ path('admin_commissions_documents_delete', {id: commission.id}) }}"
                           style="display: inline; margin-left: 10px;">
+                        <input type="hidden" name="_method" value="DELETE" />
                         <input type="hidden" name="_token" value="{{ csrf_token('delete_commission_document_' ~ commission.id) }}" />
                         <button type="submit"
                                 class="btn btn-link btn-sm"

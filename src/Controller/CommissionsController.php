@@ -186,7 +186,7 @@ class CommissionsController extends AbstractController
     /**
      * Suppression du document type (Compte Rendu) de la commission.
      *
-     * @Route("/admin/commissions/{id}/documents/delete", name="admin_commissions_documents_delete", requirements={"id"="\d+"}, methods={"POST"})
+     * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents_delete", requirements={"id"="\d+"}, methods={"DELETE"})
      */
     public function deleteDocument(Commission $commission, Request $request): Response
     {
