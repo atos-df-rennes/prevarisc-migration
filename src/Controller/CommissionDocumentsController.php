@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Gère les onglets "Courriers types" et "Document type" d'une commission.
  *
- * @IsGranted("admin")
+ * @IsGranted("gestion_commissions")
  */
 class CommissionDocumentsController extends AbstractController
 {
