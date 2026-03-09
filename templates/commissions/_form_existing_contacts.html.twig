@@ -1,0 +1,10 @@
+{{ form_start(form) }}
+    <div class="form-group">
+        {{ form_row(form.contacts, {help: 'Recherchez et sélectionnez un ou plusieurs contacts. Saisissez au moins 3 caractères pour lancer la recherche.'}) }}
+    </div>
+
+    <div class="form-actions">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter les contacts</button>
+    </div>
+{{ form_end(form) }}

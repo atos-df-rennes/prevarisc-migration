@@ -1,0 +1,124 @@
+<div class="mb-4 clearfix">
+    <div class="pull-right btn-group" role="group">
+        <button type="button" class="btn btn-primary" id="ajout-contact-existant-bouton" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
+        <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
+    </div>
+</div>
+
+{% if contacts is empty %}
+    <p class="text-center text-muted">
+        <i class="fa fa-info-circle"></i> Aucun contact lié à cette commission
+    </p>
+{% else %}
+    <div class="panel-list">
+        {% for contact in contacts %}
+            {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact, commission: commission}) }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{{ include('contact/_modal_ajout.html.twig') }}
+{{ include('commissions/_modal_existant.html.twig') }}
+{{ include('contact/_modal_suppression.html.twig') }}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Réinitialiser la modale lors de sa fermeture
+        $('#ajout-contact').on('hidden.bs.modal', function () {
+            $(this).find('.modal-title').html('Ajouter un contact');
+            $(this).find('.modal-body').html('');
+        });
+
+        $('#ajout-contact-existant-bouton').click(function () {
+            $.ajax({
+                url: "{{ path('admin_commissions_contacts_add_existing', {id: commission.id}) }}",
+                success: function (result) {
+                    $('#ajout-contact-existant .modal-body').html(result);
+                    $('#ajout-contact-existant').modal('show');
+
+                    new TomSelect('#add_existing_contacts_contacts', {
+                        valueField: 'id',
+                        labelField: 'name',
+                        searchField: 'name',
+                        plugins: ['remove_button'],
+                        shouldLoad: function(query) {
+                            return query.length > 2;
+                        },
+                        load: function(query, callback) {
+                            const url = Routing.generate('contact_autocomplete', {search: encodeURIComponent(query)});
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(json => {
+                                    callback(json.map(contact => {
+                                        let nameParts = []
+
+                                        if (contact.societe) {
+                                            nameParts.push(contact.societe)
+                                        }
+                                        if (contact.nom) {
+                                            nameParts.push(contact.nom)
+                                        }
+                                        if (contact.prenom) {
+                                            nameParts.push(contact.prenom)
+                                        }
+
+                                        return {
+                                            id: contact.id,
+                                            name: nameParts.join(" ")
+                                        }
+                                    }))
+                                }).catch(() => {
+                                callback()
+                            })
+                        },
+                    })
+                }
+            })
+        })
+
+        $('#ajout-contact-bouton').click(function () {
+            $.ajax({
+                url: "{{ path('admin_commissions_contacts_add', {id: commission.id}) }}",
+                success: function (result) {
+                    $('#ajout-contact .modal-body').html(result);
+                    $('#ajout-contact').modal('show');
+                }
+            })
+        })
+
+        const commissionId = "{{ commission.id }}"
+        let contactId
+
+        $('.delete-contact-button').on('click', function () {
+            contactId = $(this).attr('data-contact-id')
+
+            $.ajax({
+                type: "GET",
+                url: Routing.generate('admin_commissions_contacts_delete', {id: commissionId, contact: contactId}),
+                success: function(html) {
+                    $('#modal-suppression-contact .modal-content').html(html);
+                    $('#modal-suppression-contact').modal('show');
+                },
+                error: function() {
+                    alert("Erreur lors du chargement du formulaire de suppression.");
+                }
+            });
+        })
+
+        $('.edit-contact-button').on('click', function () {
+            contactId = $(this).attr('data-contact-id')
+
+            $.ajax({
+                url: Routing.generate('contact_edit', {id: contactId, elementLie: 'commission', elementId: commissionId}),
+                success: function (result) {
+                    const modalAjout = document.getElementById('ajout-contact')
+                    modalAjout.querySelector('#ajout-contact-label').innerHTML = 'Modifier un contact'
+
+                    modalAjout.querySelector('.modal-body').innerHTML = result
+
+                    $('#ajout-contact').modal('show')
+                }
+            })
+        })
+    })
+</script>

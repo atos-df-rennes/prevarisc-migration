@@ -3,11 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
+use App\Entity\UtilisateurInformations;
+use App\Form\AddExistingContactsType;
 use App\Form\CommissionsCollectionType;
+use App\Form\ContactType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionManagerService;
+use App\Service\Contact;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +33,24 @@ class CommissionsController extends AbstractController
     /** @var CommissionManagerService */
     private $commissionManagerService;
 
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var Contact */
+    private $contactService;
+
     public function __construct(
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionManagerService $commissionManagerService
+        CommissionManagerService $commissionManagerService,
+        EntityManagerInterface $entityManager,
+        Contact $contactService
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionManagerService = $commissionManagerService;
+        $this->entityManager = $entityManager;
+        $this->contactService = $contactService;
     }
 
     /**
@@ -110,7 +126,7 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * Onglet Contacts (placeholder démo).
+     * Onglet Contacts.
      *
      * @Route("/admin/commissions/{id}/contacts", name="admin_commissions_contacts", requirements={"id"="\d+"}, methods={"GET"})
      */
@@ -119,6 +135,108 @@ class CommissionsController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'contacts',
+            'contacts' => $commission->getContacts(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/{id}/contacts/ajouter", name="admin_commissions_contacts_add", requirements={"id"="\d+"})
+     */
+    public function addNewContact(Request $request, Commission $commission): Response
+    {
+        $contact = new UtilisateurInformations();
+
+        $form = $this->createForm(ContactType::class, $contact, [
+            'action' => $this->generateUrl('admin_commissions_contacts_add', ['id' => $commission->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($contact);
+            $commission->addContact($contact);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été ajouté.');
+
+            return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
+        }
+
+        return $this->render('contact/form.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/{id}/contacts/ajouter/existant", name="admin_commissions_contacts_add_existing", requirements={"id"="\d+"})
+     */
+    public function addExistingContact(Request $request, Commission $commission): Response
+    {
+        $form = $this->createForm(AddExistingContactsType::class, null, [
+            'action' => $this->generateUrl('admin_commissions_contacts_add_existing', ['id' => $commission->getId()]),
+            'is_post' => $request->isMethod('POST'),
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var array<int, UtilisateurInformations> $contacts */
+            $contacts = $form->get('contacts')->getData();
+            foreach ($contacts as $contact) {
+                $commission->addContact($contact);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
+
+            return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
+        }
+
+        return $this->render('commissions/_form_existing_contacts.html.twig', [
+            'form' => $form->createView(),
+            'commission' => $commission,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/commissions/{id}/contacts/{contact}/supprimer", name="admin_commissions_contacts_delete", requirements={"id"="\d+", "contact"="\d+"}, methods={"GET", "DELETE"}, options={"expose"=true})
+     *
+     * @ParamConverter("commission", options={"id" = "id"})
+     * @ParamConverter("contact", options={"id" = "contact"})
+     */
+    public function deleteContact(
+        Request $request,
+        Commission $commission,
+        UtilisateurInformations $contact
+    ): Response {
+        $form = $this->createFormBuilder()
+            ->setMethod(Request::METHOD_DELETE)
+            ->setAction($this->generateUrl('admin_commissions_contacts_delete', [
+                'id' => $commission->getId(),
+                'contact' => $contact->getId(),
+            ]))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $commission->removeContact($contact);
+
+            if (!$this->contactService->isUsed($contact, Contact::COMMISSION)) {
+                $this->entityManager->remove($contact);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été supprimé.');
+
+            return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
+        }
+
+        return $this->render('commissions/_form_delete_contact.html.twig', [
+            'form' => $form->createView(),
+            'commission' => $commission,
+            'contact' => $contact,
         ]);
     }
 }
