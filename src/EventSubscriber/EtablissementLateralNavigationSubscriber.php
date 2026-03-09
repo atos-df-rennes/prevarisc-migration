@@ -58,6 +58,10 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         }
 
         $idEtablissement = filter_var($event->getRequest()->attributes->get('id'), FILTER_VALIDATE_INT);
+        if (false === $idEtablissement) {
+            $idEtablissement = filter_var($event->getRequest()->request->get('id'), FILTER_VALIDATE_INT);
+        }
+
         $etablissement = $this->etablissementRepository->find($idEtablissement);
 
         if (null === $etablissement) {

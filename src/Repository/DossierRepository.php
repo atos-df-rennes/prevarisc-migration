@@ -165,19 +165,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
-     * Retourne les dossiers d'un établissement en fonction de leur type.
+     *  Retourne les dossiers d'un établissement en fonction de leur type.
      *
      * @param int $id
-     * @param int[] $types
+     * @param array $types
      * @param bool $reverse
      * @return array
      */
     public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false): array
     {
-        // TODO : ne recuperer que les dossiers de l'etablissement et du bon type.
         $qb = $this->createQueryBuilder('d');
         $query = $qb
-            ->select('d, dn.libelle as nature, dt.libelle as type, dl, dpj, du, ei.libelle as etablissement')
+            ->select('d, dn.libelle as nature, dt.libelle as type, dl, dpj, du, ei.libelle as etablissement, dcp')
             ->join('d.etablissements', 'e')
             ->leftJoin('d.piecesJointes', 'dpj')
             ->leftJoin('d.documentsUrbanisme', 'du')
@@ -185,6 +184,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->join('d.type', 'dt')
             ->join('e.informations', 'ei')
             ->leftJoin('d.dossiersLies', 'dl')
+            ->leftJoin('d.consultationPlatau', 'dcp')
             ->where('e.id = :id');
         if (!empty($types)) {
             if ($reverse) {
@@ -192,11 +192,13 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             } else {
                 $query->andWhere($query->expr()->in('d.type', ':types'));
             }
+
             $query->setParameter('types', $types);
         }
+
         $query->setParameter('id', $id);
         $query->orderBy('d.dateInsert', 'DESC');
-        dump($query->getQuery()->getResult());
+
         return $query->getQuery()->getResult();
     }
 
@@ -290,5 +292,44 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param Dossier $dossier
+     * @return bool
+     */
+    public function hasAlerteReceptionTravaux(Dossier $dossier): bool
+    {
+        return $this->hasTravaux($dossier, [2, 1, 13, 12]);
+    }
+
+    /**
+     * @param Dossier $dossier
+     * @return bool
+     */
+    public function hasEcheancierTravaux(Dossier $dossier): bool
+    {
+        return $this->hasTravaux($dossier, [46]);
+    }
+
+    /**
+     * @param Dossier $dossier
+     * @param array $natures
+     * @return bool
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    private function hasTravaux(Dossier $dossier, array $natures): bool
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->select('COUNT(dl.id)')
+            ->leftjoin('d.dossiersLies', 'dl')
+            ->join('dl.nature', 'dln')
+            ->where('dln.id in (:natures)')
+            ->andWhere('d.id = :idDossier')
+            ->setParameter('natures', $natures)
+            ->setParameter('idDossier', $dossier->getId());
+
+        return $query->getQuery()->getSingleScalarResult() > 0;
     }
 }

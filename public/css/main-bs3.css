@@ -1345,3 +1345,13 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
     background-color: #337ab7;
     border: 1px solid #2e6da4;
 }
+
+.label-inverse {
+    background-color: #333;
+}
+.buttonOpenClose {
+    width: fit-content;
+    margin-bottom: 1rem;
+    margin-left: 50%;
+    margin-right: 50%;
+}

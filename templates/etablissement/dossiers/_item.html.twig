@@ -2,142 +2,99 @@
 
 <!-- Icone représentant le dropdown des fils -->
 {% if dossier.nbDossiersLies > 0 %}
-<span class="icone_enfants" ><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;' ></i></span>
+    <span class="icone_enfants" ><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;' ></i></span>
 {% endif %}
 
 <div class="pull-left">
-        <span class="doss-nom">
-            {% if dossier.verrou %}
-                <i class="icon-lock"></i>
-            {% endif %}
-            {% if dossier.nbPJ > 0 %}
-                <!-- TODO : changement d'url lorsque la migration de la partie dossier sera terminée -->
-                <a href='/dossier/piece-jointe/id/{{ dossier.id }}'>
-                    <i class="icon-file"></i>
-                </a>
-            {% endif %}
-            <a href='/dossier/index/id/{{ dossier.id }}' title='{{ dossier.objet|e('html_attr') }}'>
-                {% if dossier.etablissement is not null %}
-                    {{ '[' ~ dossier.etablissement ~ '] ' }}
-                {% endif %}
-                {{ dossier.objet }}
+    <span class="doss-nom">
+        {% if dossier.verrou %}
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+        {% endif %}
+        {% if dossier.nbPJ > 0 %}
+            <!-- TODO : changement d'url lorsque la migration de la partie dossier sera terminée -->
+            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+            <a href='/dossier/piece-jointe/id/{{ dossier.id }}'>
             </a>
-        </span>
+        {% endif %}
+        <a href='/dossier/index/id/{{ dossier.id }}' title='{{ dossier.objet|e('html_attr') }}'>
+            {% if dossier.etablissement is not null %}
+                {{ '[' ~ dossier.etablissement ~ '] ' }}
+            {% endif %}
+            {{ dossier.objet }}
+        </a>
+    </span>
 
     <!-- Icone de chargement des enfants (si il y'en a, et si on est en mode niveau -->
     {% if dossier.nbDossiersLies > 0 %}
-    <span class='load ui-helper-hidden' ><img src='/images/load.gif' alt='Chargement ...' /></span>
+        <span class='load ui-helper-hidden' ><img src='/images/load.gif' alt='Chargement ...' /></span>
     {% endif %}
 </div>
 
 <div style='clear: both'></div>
 
 <div class="pull-left mt-2">
-    <?php
-{#    if($this->DATECOMM_DOSSIER != null)#}
-{#    {#}
-{#        $date = substr($this->DATECOMM_DOSSIER, 0, 10);#}
-{#        if($date != '0000-00-00'){#}
-{#            $date = new DateTime(substr($this->DATECOMM_DOSSIER,0,10));#}
-{#            $date = date_format($date, 'd/m/Y');#}
-{#        }else{#}
-{#            $date = "00/00/0000";#}
-{#        }#}
-{#        $date_text = "ayant pour date de passage en commission le";#}
-{#    }#}
-{#    elseif($this->DATEVISITE_DOSSIER != null)#}
-{#    {#}
-{#        $date = substr($this->DATEVISITE_DOSSIER, 0, 10);#}
-{#        if($date != '0000-00-00'){#}
-{#            $date = new DateTime(substr($this->DATEVISITE_DOSSIER,0,10));#}
-{#            $date = date_format($date, 'd/m/Y');#}
-{#        }else{#}
-{#            $date = "00/00/0000";#}
-{#        }#}
-{#        $date_text = "ayant pour date de visite le";#}
-{#    }#}
-{#    else#}
-{#    {#}
-{#        $date = substr($this->DATEINSERT_DOSSIER, 0, 10);#}
-{#        if($date != '0000-00-00'){#}
-{#            $date = new DateTime(substr($this->DATEINSERT_DOSSIER,0,10));#}
-{#            $date = date_format($date, 'd/m/Y');#}
-{#        }else{#}
-{#            $date = "00/00/0000";#}
-{#        }#}
-{#        $date_text = "créé le";#}
-{#    }#}
-{#    ?>#}
     <span class='label label-inverse'>
-        <i class="icon-calendar icon-white"></i>&nbsp;{{ dossier.libelleDate }} {{ dossier.date|date('d/m/Y') }}
+        <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{ dossier.libelleDate }} {{ dossier.date|date('d/m/Y') }}
     </span>
 
-{#    <?php#}
-{#            $tempsRestant = Service_Utils_TempsRestant::calculate($this->DATE_REPONSE_ATTENDUE);#}
-
-{#    if (null !== $tempsRestant)#}
-{#    $couleur = Service_Utils_TempsRestant::getCouleurTempsRestant($this->DATE_REPONSE_ATTENDUE);#}
-{#    ?>#}
-    {% if dossier.tempsRestant %}
-    <span class="label label-{{ dossier.couleurTempsRestant }}">
-        <i class='icon-time icon-white'></i>&nbsp;Temps restant : {{ dossier.tempsRestant }}>
-    </span>
-{#    <?php endif#}
-{#        ?>#}
+    {% if dossier.tempsRestant is not null %}
+        <span class="label label-{{ dossier.couleur }}">
+            <span class="glyphicon glyphicon-time icon-white" aria-hidden="true"></span>&nbsp;Temps restant : {{ dossier.tempsRestant }}>
+        </span>
     {% endif %}
 
-{#    <?php if ($this->IS_NEW): ?>#}
     {% if dossier.isNew %}
-    <span class="label label-important">
-                <i class="icon-folder-open icon-white"></i>&nbsp;Nouveau dossier !
-            </span>
-{#    <?php endif ?>#}
+        <span class="label label-important">
+            <span class="glyphicon glyphicon-folder-open icon-white" aria-hidden="true"></span>&nbsp;Nouveau dossier !
+        </span>
     {% endif %}
-{#    <?php if ($this->HAS_NEW_PJ): ?>#}
     {% if dossier.hasNewPJ %}
-    <span class="label label-warning">
-                <i class="icon-share icon-white"></i>&nbsp;Nouvelles pièces !
-            </span>
-{#    <?php endif ?>#}
+        <span class="label label-warning">
+            <span class="glyphicon glyphicon-share icon-white" aria-hidden="true"></span>&nbsp;Nouvelles pièces !
+        </span>
     {% endif %}
 </div>
 
 <div style='clear: both'></div>
 
 <div class="pull-left mt-3">
-{#    <?php if($this->ID_PLATAU !== null) : echo "<span class='label label-info'>CONSULTATION PLATAU : " . $this->ID_PLATAU . "</span>"; endif ?>#}
-{#    <?php if($this->ID_PLATAU !== null && $this->INCOMPLET_DOSSIER === null) : echo "<span class='label label-info'>EN ATTENTE DE PEC</span>"; endif ?>#}
+    {% if dossier.consultationPlatauId is not null %}
+        <span class='label label-info'>CONSULTATION PLATAU : {{ dossier.consultationPlatauId }}</span>
+        {% if not dossier.incomplet %}
+            <span class='label label-info'>EN ATTENTE DE PEC</span>
+        {% endif %}
+    {% endif %}
 
-{#    <!-- Avis du dossier -->#}
-{#    <?php if($this->INCOMPLET_DOSSIER == 1) : ?>#}
-{#    <span class='avis' style='background-color: #f89406;'>Dossier incomplet</span>#}
-{#    <?php elseif($this->DIFFEREAVIS_DOSSIER == 1) : ?>#}
-{#    <span class='avis' style='background-color: #3a87ad;'>Avis différé</span>#}
-{#    <?php elseif($this->TYPE_DOSSIER == 5 && !is_null($this->DATEREP_DOSSIER)) : ?>#}
-{#    <span class="avis F">Répondu</span>#}
-{#    <?php elseif($this->TYPE_DOSSIER == 5 && is_null($this->DATEREP_DOSSIER)) : ?>#}
-{#    <span class="avis">Réponse à faire#}
-{#        <?php if (!is_null($this->DATESDIS_DOSSIER)): ?>#}
-{#                    (<?php echo $this->formatDateDiff(new DateTime($this->DATESDIS_DOSSIER)) ?>)#}
-{#        <?php endif ?>#}
-{#            </span>#}
-{#    <?php elseif($this->ID_AVIS == 1) : ?>#}
-{#    <span class="avis F">Favorable <?php echo in_array($this->ID_DOSSIERNATURE, array(7, 16, 17, 19, 21, 23, 24, 47, 26, 28 ,29, 48)) ? ' à l\'exploitation' : '' ?></span>#}
-{#    <?php elseif($this->ID_AVIS == 2) : ?>#}
-{#    <span class="avis D">Défavorable <?php echo in_array($this->ID_DOSSIERNATURE, array(7, 16, 17, 19, 21, 23, 24, 47, 26, 28 ,29, 48)) ? ' à l\'exploitation' : '' ?></span>#}
-{#    <?php else : ?>#}
-{#    <span class="avis">Avis indisponible</span>#}
-{#    <?php endif ?>#}
+{# <!-- Avis du dossier --> #}
+    {% if dossier.incomplet %}
+        <span class='avis' style='background-color: #f89406;'>Dossier incomplet</span>
+    {% elseif dossier.avisDiffere %}
+        <span class='avis' style='background-color: #3a87ad;'>Avis différé</span>
+    {% elseif dossier.typeId == 5 and dossier.dateReponse is not null %}
+        <span class="avis F">Répondu</span>
+    {% elseif dossier.typeId == 5 and dossier.dateReponse is null %}
+        <span class="avis">Réponse à faire
+            {% if dossier.dateReception %}
+                {{ dossier.dateReception|date('d/m/Y') }}
+            {% endif %}
+        </span>
+    {% elseif dossier.avisId == 1 %}
+        <span class="avis F">Favorable {% if dossier.donneAvis %}à l'exploitation{% endif %}</span>
+    {% elseif dossier.avisId == 2 %}
+        <span class="avis D">Défavorable {% if dossier.donneAvis %}à l'exploitation{% endif %}</span>
+    {% else %}
+        <span class="avis">Avis indisponible</span>
+    {% endif %}
 
-{#    <!-- Alerte sur la reception de travaux -->#}
-{#    <?php if($this->ALERTE_RECEPTION_TRAVAUX > 0) : ?>#}
-{#    <span class='avis' style='background-color: #3a87ad'>Présence d'un dossier de reception de travaux</span>#}
-{#    <?php endif ?>#}
+{# <!-- Alerte sur la reception de travaux --> #}
+    {% if dossier.alerteReceptionTravaux %}
+        <span class='avis' style='background-color: #3a87ad'>Présence d'un dossier de reception de travaux</span>
+    {% endif %}
 
-{#    <!-- Alerte sur le fait que la visite fait partie d'un échéancier de travaux -->#}
-{#    <?php if($this->ECHEANCIER_TRAVAUX > 0) : ?>#}
-{#    <span class='avis' style='background-color: #3a87ad'>Fait l'objet d'un échéancier de travaux</span>#}
-{#    <?php endif ?>#}
+{# <!-- Alerte sur le fait que la visite fait partie d'un échéancier de travaux --> #}
+    {% if dossier.echeancierTravaux %}
+        <span class='avis' style='background-color: #3a87ad'>Fait l'objet d'un échéancier de travaux</span>
+    {% endif %}
 </div>
 
 <div style='clear: both'></div>

@@ -5,7 +5,7 @@
 {% block body %}
     <input name="idEtablissement" type="hidden" value="{{ etablissement.id }}" />
     <div class="pull-right">
-{#        <a class="btn" href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}">Ajouter un dossier</a>#}
+{# <a class="btn" href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}">Ajouter un dossier</a> #}
         <a class="btn btn-default" href="">Ajouter un dossier</a>
     </div>
 
@@ -14,7 +14,7 @@
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
         <div class="well well-large text-center">
             <p class="lead">Il n'y a pas de dossier.</p>
-{#            <p><a href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}" class="btn btn-large">Ajouter un dossier</a></p>#}
+{# <p><a href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}" class="btn btn-large">Ajouter un dossier</a></p> #}
             <p><a href="" class="btn btn-large">Ajouter un dossier</a></p>
         </div>
     {% else %}
@@ -23,8 +23,7 @@
                 <h4>Visites</h4>
                 <ul class="recherche_liste">
                     {% for dossier in visites %}
-{#                        {{ dump(dossier) }}#}
-                        {% include 'etablissement/dossiers/_item.html.twig' with { dossier: dossier } %}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
                     {% endfor %}
                     <div class="voir-plus" id="divcompleteListeVisite"></div>
                 </ul>
@@ -40,8 +39,7 @@
                 <h4>Études</h4>
                 <ul class="recherche_liste">
                     {% for dossier in etudes %}
-{#                        {{ dump(dossier) }}#}
-                        {% include 'etablissement/dossiers/_item.html.twig' with { dossier: dossier } %}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
                     {% endfor %}
                     <div class="voir-plus" id="divcompleteListeEtude"></div>
                 </ul>
@@ -57,8 +55,7 @@
                 <h4>Autres</h4>
                 <ul class="recherche_liste">
                     {% for dossier in autres %}
-{#                        {{ dump(dossier) }}#}
-                        {% include 'etablissement/dossiers/_item.html.twig' with { dossier: dossier } %}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
                     {% endfor %}
                     <div class="voir-plus" id="divcompleteListeAutres"></div>
                 </ul>
@@ -72,62 +69,79 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {# JS legacy conservé, à adapter si besoin #}
     <script>
         $(document).ready(function() {
-            let tableDisplay = new Map()
-            tableDisplay.set("divcompleteListeEtude", {isDeployed : false, isLoaded : false, typeDossier: "etudes"})
-            tableDisplay.set("divcompleteListeVisite", {isDeployed : false, isLoaded : false, typeDossier: "visites"})
-            tableDisplay.set("divcompleteListeAutres", {isDeployed : false, isLoaded : false, typeDossier: "autres"})
+            // Map pour gérer l'état d'affichage de chaque liste de dossiers
+            let tableDisplay = new Map();
+            tableDisplay.set("divcompleteListeEtude", {isDeployed: false, isLoaded: false, typeDossier: "etudes"});
+            tableDisplay.set("divcompleteListeVisite", {isDeployed: false, isLoaded: false, typeDossier: "visites"});
+            tableDisplay.set("divcompleteListeAutres", {isDeployed: false, isLoaded: false, typeDossier: "autres"});
 
+            /**
+             * Charge les dossiers supplémentaires via AJAX
+             */
             const loadData = (idelement) => {
-                if(!tableDisplay.get(idelement).isLoaded){
-                    let newObjValue = tableDisplay.get(idelement)
-                    newObjValue.isLoaded = !newObjValue.isLoaded
-                    tableDisplay.set(idelement, newObjValue)
+                if (!tableDisplay.get(idelement).isLoaded) {
+                    let newObjValue = tableDisplay.get(idelement);
+                    newObjValue.isLoaded = true;
+                    tableDisplay.set(idelement, newObjValue);
 
                     $.ajax({
-                        url: "/etablissement/get-dossiers-after-n",
-                        type: 'post',
+                        url: "{{ path('etablissement_get_dossiers_after_n') }}",
+                        type: 'POST',
                         data: {
                             id: document.getElementsByName("idEtablissement")[0].value,
                             typeDossier: tableDisplay.get(idelement).typeDossier
                         },
                         success: function (html) {
-                            $('#'+idelement).append(html)
+                            $('#' + idelement).append(html);
+                        },
+                        error: function() {
+                            console.error('Erreur lors du chargement des dossiers supplémentaires');
                         }
                     });
                 }
-            }
+            };
 
+            // Initialisation des boutons "Voir plus/Voir moins"
             Array.from(document.getElementsByClassName('buttonOpenClose')).forEach(function(element) {
-                tableDisplay.get("div"+element.id).isDeployed ? $("#div"+element.id).show() : $("#div"+element.id).hide()
+                const divId = "div" + element.id;
 
-                element.addEventListener(
-                    'click',
-                    () => {
-                        loadData("div"+element.id)
-                        let newObjValue = tableDisplay.get("div"+element.id)
-                        newObjValue.isDeployed = !newObjValue.isDeployed
-                        tableDisplay.set("div"+element.id, newObjValue)
-                        tableDisplay.get("div"+element.id).isDeployed ? $("#div"+element.id).show() : $("#div"+element.id).hide()
-                        tableDisplay.get("div"+element.id).isDeployed ? $("#"+element.id)[0].innerText = "Voir moins" : $("#"+element.id)[0].innerText = "Voir plus"
+                // Masquer initialement les conteneurs de dossiers supplémentaires
+                $("#" + divId).hide();
+
+                // Gestionnaire de clic
+                element.addEventListener('click', () => {
+                    loadData(divId);
+
+                    let newObjValue = tableDisplay.get(divId);
+                    newObjValue.isDeployed = !newObjValue.isDeployed;
+                    tableDisplay.set(divId, newObjValue);
+
+                    // Toggle affichage
+                    if (tableDisplay.get(divId).isDeployed) {
+                        $("#" + divId).show();
+                        element.innerText = "Voir moins";
+                    } else {
+                        $("#" + divId).hide();
+                        element.innerText = "Voir plus";
                     }
-                );
+                });
             });
 
-            // Affichage des dossiers enfants
+            // Affichage des dossiers enfants (comportement legacy conservé)
             $("ul.recherche_liste li.slide").live("click", function() {
                 var container = this;
-                if( $(this).hasClass("active") ) {
-                    $(this).next().slideUp(400, function() {$(container).next().remove()});
+                if ($(this).hasClass("active")) {
+                    $(this).next().slideUp(400, function() {
+                        $(container).next().remove();
+                    });
                     $(this).toggleClass("active");
-                }
-                else {
+                } else {
                     $(container).find(".load").show();
                     $.post("/search/display-ajax-search-dossier", {parent: $(this).attr("id")}, function(html) {
                         $(container).toggleClass("active").find(".load").hide();
-                        $(container).after("<li class='ui-helper-hidden' style='overflow: auto; height: auto;' >" + html + "</li>").next().slideDown();
+                        $(container).after("<li class='ui-helper-hidden' style='overflow: auto; height: auto;'>" + html + "</li>").next().slideDown();
                     });
                 }
             });

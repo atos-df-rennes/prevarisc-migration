@@ -600,6 +600,13 @@ class Dossier
      */
     private $dateSignature;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATE_NOTIFICATION", type="datetime", nullable=true)
+     */
+    private $dateNotification;
+
     // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
     public function __construct()
     {
@@ -1748,5 +1755,17 @@ class Dossier
         }
 
         return in_array($nature->getId(), DossierNature::NATURES_DONNANT_AVIS, true);
+    }
+
+    public function getDateNotification(): ?\DateTimeInterface
+    {
+        return $this->dateNotification;
+    }
+
+    public function setDateNotification(?\DateTimeInterface $dateNotification): self
+    {
+        $this->dateNotification = $dateNotification;
+
+        return $this;
     }
 }

@@ -20,8 +20,8 @@ use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
-use App\Service\Etablissement as EtablissementService;
 use App\Service\Dossier;
+use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -491,38 +491,37 @@ class EtablissementController extends AbstractController implements Etablissemen
         $id = $etablissement->getId();
         $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
 
+        // Récupération des dossiers par type
         $etudes = $this->dossierRepository->getDossiersEtablissement($id, [1]);
-        $visites = $this->dossierRepository->getDossiersEtablissement($id, [2,3]);
-        $autres = $this->dossierRepository->getDossiersEtablissement($id, [1,2,3], true);
+        $visites = $this->dossierRepository->getDossiersEtablissement($id, [2, 3]);
+        $autres = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
+
+        // Traitement des études
         if (null != $etudes) {
-//            dump($etablissementEtudes);
             $nbEtudes = count($etudes);
             $donneesUtilesEtudes = $this->dossierService->extraireDonneesUtiles($etudes);
             $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $nbElemMax);
-        }
-        else {
+        } else {
             $nbEtudes = 0;
             $etudesAffichees = [];
         }
 
+        // Traitement des visites
         if (null != $visites) {
-//            dump($etablissementVisites);
             $nbVisites = count($visites);
             $donneesUtilesVisites = $this->dossierService->extraireDonneesUtiles($visites);
             $visitesAffichees = array_slice($donneesUtilesVisites, 0, $nbElemMax);
-        }
-        else {
+        } else {
             $nbVisites = 0;
             $visitesAffichees = [];
         }
 
+        // Traitement des autres dossiers
         if (null != $autres) {
-//            dump($etablissementAutres);
             $nbAutres = count($autres);
             $donneesUtilesAutres = $this->dossierService->extraireDonneesUtiles($autres);
             $autresAffichees = array_slice($donneesUtilesAutres, 0, $nbElemMax);
-        }
-        else {
+        } else {
             $nbAutres = 0;
             $autresAffichees = [];
         }
@@ -547,32 +546,30 @@ class EtablissementController extends AbstractController implements Etablissemen
         $id = $request->request->get('id');
         $typeDossier = $request->request->get('typeDossier');
         $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
-//        $ID_DOSSIERTYPE_ETUDE = 1;
-//        $ID_DOSSIERTYPE_VISITE = 2;
-//        $ID_DOSSIERTYPE_GRPVISITE = 3;
-//        $allTypes = $this->getDoctrine()->getRepository('App:DossierType')->findAll();
-//        $typesEtude = [$ID_DOSSIERTYPE_ETUDE];
-//        $typesVisite = [$ID_DOSSIERTYPE_VISITE, $ID_DOSSIERTYPE_GRPVISITE];
-//        $typesAutres = [];
-//        foreach ($allTypes as $type) {
-//            $idType = $type->getId();
-//            if (!in_array($idType, [$ID_DOSSIERTYPE_ETUDE, $ID_DOSSIERTYPE_VISITE, $ID_DOSSIERTYPE_GRPVISITE], true)) {
-//                $typesAutres[] = $idType;
-//            }
-//        }
-//        $repo = $this->getDoctrine()->getRepository('App:Etablissement');
-        if ($typeDossier === 'etudes') {
+
+        // Récupération des dossiers selon le type
+        if ('etudes' === $typeDossier) {
             $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1]);
-        } elseif ($typeDossier === 'visites') {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1,2]);
+        } elseif ('visites' === $typeDossier) {
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [2, 3]);
         } else {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1,2,3], true);
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
         }
-        $dossiersRestants = array_slice($dossiers, $nbElemMax);
+
+        if (null === $dossiers) {
+            return new Response('');
+        }
+
+        // Extraction des données utiles et slice pour récupérer uniquement les dossiers après N
+        $donneesUtiles = $this->dossierService->extraireDonneesUtiles($dossiers);
+        $dossiersRestants = array_slice($donneesUtiles, $nbElemMax);
+
+        // Génération du HTML
         $html = '';
         foreach ($dossiersRestants as $dossier) {
             $html .= $this->renderView('etablissement/dossiers/_item.html.twig', ['dossier' => $dossier]);
         }
+
         return new Response($html);
     }
 }
