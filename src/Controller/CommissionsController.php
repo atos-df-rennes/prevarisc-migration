@@ -169,6 +169,7 @@ class CommissionsController extends AbstractController
         $membresWithForms = [];
         foreach ($membres as $membre) {
             $uploadForms = [];
+            $filesExist = [];
             foreach (CommissionMembreCourrierType::ALL as $type) {
                 $form = $this->createForm(CommissionMembreCourrierUploadType::class, null, [
                     'action' => $this->generateUrl('admin_commissions_courriers_upload', [
@@ -178,11 +179,13 @@ class CommissionsController extends AbstractController
                     ]),
                 ]);
                 $uploadForms[$type] = $form->createView();
+                $filesExist[$type] = $this->commissionMembreCourrierService->courrierExists($membre, $type);
             }
 
             $membresWithForms[] = [
                 'membre' => $membre,
                 'upload_forms' => $uploadForms,
+                'files_exist' => $filesExist,
             ];
         }
 
@@ -304,6 +307,7 @@ class CommissionsController extends AbstractController
             'commission' => $commission,
             'active_tab' => 'documents',
             'documentsCommissionDataPath' => $this->documentsCommissionDataPath,
+            'documentCrExists' => $this->commissionDocumentCrService->documentCrExists($commission),
             'uploadForm' => $form->createView(),
         ]);
     }

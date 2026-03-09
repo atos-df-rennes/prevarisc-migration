@@ -6,6 +6,7 @@
     {% for item in membres_with_forms %}
         {% set membre = item.membre %}
         {% set upload_forms = item.upload_forms %}
+        {% set files_exist = item.files_exist %}
 
         <h4>{{ membre.libelle }}</h4>
 
@@ -28,6 +29,7 @@
                         membre: membre,
                         type: 'CONVOCATIONVISITE',
                         filename: membre.courrierConvocationVisite,
+                        file_accessible: files_exist['CONVOCATIONVISITE'],
                         uploadForm: upload_forms['CONVOCATIONVISITE'],
                         courriersMembresDataPath: courriersMembresDataPath,
                     }) }}
@@ -37,6 +39,7 @@
                         membre: membre,
                         type: 'CONVOCATIONSALLE',
                         filename: membre.courrierConvocationSalle,
+                        file_accessible: files_exist['CONVOCATIONSALLE'],
                         uploadForm: upload_forms['CONVOCATIONSALLE'],
                         courriersMembresDataPath: courriersMembresDataPath,
                     }) }}
@@ -46,6 +49,7 @@
                         membre: membre,
                         type: 'ODJ',
                         filename: membre.courrierOrdreDuJour,
+                        file_accessible: files_exist['ODJ'],
                         uploadForm: upload_forms['ODJ'],
                         courriersMembresDataPath: courriersMembresDataPath,
                     }) }}
@@ -56,6 +60,7 @@
                             membre: membre,
                             type: 'PV',
                             filename: membre.courrierProcesVerbal,
+                            file_accessible: files_exist['PV'],
                             uploadForm: upload_forms['PV'],
                             courriersMembresDataPath: courriersMembresDataPath,
                         }) }}

@@ -46,6 +46,26 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
     }
 
     /**
+     * Vérifie si le courrier d'un type donné est accessible sur le disque.
+     *
+     * @throws \InvalidArgumentException Si le type est invalide
+     */
+    public function courrierExists(CommissionMembre $membre, string $type): bool
+    {
+        if (!CommissionMembreCourrierType::isValid($type)) {
+            throw new \InvalidArgumentException(sprintf('Type de courrier invalide : "%s"', $type));
+        }
+
+        $filename = $this->getCourrierFilename($membre, $type);
+
+        if (null === $filename) {
+            return false;
+        }
+
+        return $this->storedFileExists($this->buildStoredFilename($membre, $type, $filename));
+    }
+
+    /**
      * Upload un courrier type pour un membre de commission.
      * Si un courrier du même type existait, il est remplacé.
      *

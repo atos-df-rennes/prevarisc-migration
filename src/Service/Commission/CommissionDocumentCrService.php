@@ -40,6 +40,20 @@ final class CommissionDocumentCrService extends AbstractOdtDocumentService
     }
 
     /**
+     * Vérifie si le document CR de la commission est accessible sur le disque.
+     */
+    public function documentCrExists(Commission $commission): bool
+    {
+        $doc = $commission->getDocumentCr();
+
+        if (null === $doc) {
+            return false;
+        }
+
+        return $this->storedFileExists($doc);
+    }
+
+    /**
      * Upload le document type (Compte Rendu) d'une commission.
      * La validation du type de fichier est assurée par CommissionDocumentCrType.
      * Si un document existait, il est remplacé.

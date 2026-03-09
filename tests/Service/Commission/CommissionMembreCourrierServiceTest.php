@@ -166,6 +166,41 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $this->service->delete($membre, 'TYPEINVALIDE');
     }
 
+    public function testCourrierExistsRetourneTrueSiFichierPresent(): void
+    {
+        $fichier = $this->tmpDir.'42ODJ_odj.odt';
+        file_put_contents($fichier, 'contenu');
+
+        $membre = $this->createMembreWithId(42);
+        $membre->setCourrierOrdreDuJour('odj.odt');
+
+        self::assertTrue($this->service->courrierExists($membre, CommissionMembreCourrierType::ODJ));
+    }
+
+    public function testCourrierExistsRetourneFalseSiAucunCourrier(): void
+    {
+        $membre = $this->createMembreWithId(42);
+
+        self::assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::CONVOCATIONVISITE));
+    }
+
+    public function testCourrierExistsRetourneFalseSiFichierAbsent(): void
+    {
+        $membre = $this->createMembreWithId(42);
+        $membre->setCourrierProcesVerbal('fichier_absent.odt');
+
+        self::assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::PV));
+    }
+
+    public function testCourrierExistsTypeInvalideLeveException(): void
+    {
+        $membre = $this->createMembreWithId(42);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->service->courrierExists($membre, 'TYPEINVALIDE');
+    }
+
     /**
      * Crée un CommissionMembre avec un ID forcé via réflexion.
      */

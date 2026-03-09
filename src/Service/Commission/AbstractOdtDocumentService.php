@@ -78,6 +78,14 @@ abstract class AbstractOdtDocumentService
         }
     }
 
+    /**
+     * Vérifie si un fichier stocké existe physiquement sur le disque.
+     */
+    protected function storedFileExists(string $storedFilename): bool
+    {
+        return $this->filesystem->exists($this->getStoragePath().File::sanitize($storedFilename));
+    }
+
     private function ensureDirectoryExists(): void
     {
         if (!$this->filesystem->exists($this->getStoragePath())) {
