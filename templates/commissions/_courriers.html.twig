@@ -1,0 +1,72 @@
+{# Onglet Courriers types des membres de la commission #}
+
+{% if membres_with_forms is empty %}
+    <p class="text-muted"><em>Il n'existe pas de membres pour cette commission.</em></p>
+{% else %}
+    {% for item in membres_with_forms %}
+        {% set membre = item.membre %}
+        {% set upload_forms = item.upload_forms %}
+        {% set files_exist = item.files_exist %}
+
+        <h4>{{ membre.libelle }}</h4>
+
+        <table class="table table-condensed table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">Convocation en visite</th>
+                    <th class="text-center">Convocation en salle</th>
+                    <th class="text-center">Ordre du jour</th>
+
+                    {% if membre.groupement is null %}
+                        <th class="text-center">PV</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {# Convocation visite #}
+                    {{ include('commissions/_courrier_cell.html.twig', {
+                        membre: membre,
+                        type: 'CONVOCATIONVISITE',
+                        filename: membre.courrierConvocationVisite,
+                        file_accessible: files_exist['CONVOCATIONVISITE'],
+                        uploadForm: upload_forms['CONVOCATIONVISITE'],
+                        courriersMembresDataPath: courriersMembresDataPath,
+                    }) }}
+
+                    {# Convocation salle #}
+                    {{ include('commissions/_courrier_cell.html.twig', {
+                        membre: membre,
+                        type: 'CONVOCATIONSALLE',
+                        filename: membre.courrierConvocationSalle,
+                        file_accessible: files_exist['CONVOCATIONSALLE'],
+                        uploadForm: upload_forms['CONVOCATIONSALLE'],
+                        courriersMembresDataPath: courriersMembresDataPath,
+                    }) }}
+
+                    {# Ordre du jour #}
+                    {{ include('commissions/_courrier_cell.html.twig', {
+                        membre: membre,
+                        type: 'ODJ',
+                        filename: membre.courrierOrdreDuJour,
+                        file_accessible: files_exist['ODJ'],
+                        uploadForm: upload_forms['ODJ'],
+                        courriersMembresDataPath: courriersMembresDataPath,
+                    }) }}
+
+                    {# PV — uniquement si le membre n'est pas rattaché à un groupement #}
+                    {% if membre.groupement is null %}
+                        {{ include('commissions/_courrier_cell.html.twig', {
+                            membre: membre,
+                            type: 'PV',
+                            filename: membre.courrierProcesVerbal,
+                            file_accessible: files_exist['PV'],
+                            uploadForm: upload_forms['PV'],
+                            courriersMembresDataPath: courriersMembresDataPath,
+                        }) }}
+                    {% endif %}
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% endif %}

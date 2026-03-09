@@ -3,15 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
-use App\Form\CommissionDocumentCrType;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
-use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionManagerService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,24 +27,14 @@ class CommissionsController extends AbstractController
     /** @var CommissionManagerService */
     private $commissionManagerService;
 
-    /** @var CommissionDocumentCrService */
-    private $commissionDocumentCrService;
-
-    /** @var string */
-    private $documentsCommissionDataPath;
-
     public function __construct(
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
-        CommissionManagerService $commissionManagerService,
-        CommissionDocumentCrService $commissionDocumentCrService,
-        string $documentsCommissionDataPath
+        CommissionManagerService $commissionManagerService
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionManagerService = $commissionManagerService;
-        $this->commissionDocumentCrService = $commissionDocumentCrService;
-        $this->documentsCommissionDataPath = $documentsCommissionDataPath;
     }
 
     /**
@@ -133,79 +120,5 @@ class CommissionsController extends AbstractController
             'commission' => $commission,
             'active_tab' => 'contacts',
         ]);
-    }
-
-    /**
-     * Onglet Courriers (placeholder démo).
-     *
-     * @Route("/admin/commissions/{id}/courriers", name="admin_commissions_courriers", requirements={"id"="\d+"}, methods={"GET"})
-     */
-    public function courriers(Commission $commission): Response
-    {
-        return $this->render('commissions/edit.html.twig', [
-            'commission' => $commission,
-            'active_tab' => 'courriers',
-        ]);
-    }
-
-    /**
-     * Onglet Document type de la commission.
-     * Gère l'affichage (GET) et l'upload (POST) du Compte Rendu type.
-     *
-     * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents", requirements={"id"="\d+"}, methods={"GET", "POST"})
-     */
-    public function documents(Commission $commission, Request $request): Response
-    {
-        $form = $this->createForm(CommissionDocumentCrType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var array<string, mixed> $data */
-            $data = $form->getData();
-            /** @var UploadedFile $file */
-            $file = $data['documentCr'];
-
-            try {
-                $this->commissionDocumentCrService->upload($commission, $file);
-                $this->addFlash('success', 'Le document a bien été sauvegardé.');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Le téléchargement a échoué.');
-            }
-
-            return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
-        }
-
-        return $this->render('commissions/edit.html.twig', [
-            'commission' => $commission,
-            'active_tab' => 'documents',
-            'documentsCommissionDataPath' => $this->documentsCommissionDataPath,
-            'uploadForm' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * Suppression du document type (Compte Rendu) de la commission.
-     *
-     * @Route("/admin/commissions/{id}/documents", name="admin_commissions_documents_delete", requirements={"id"="\d+"}, methods={"DELETE"})
-     */
-    public function deleteDocument(Commission $commission, Request $request): Response
-    {
-        /** @var string $token */
-        $token = $request->request->get('_token', '');
-
-        if (!$this->isCsrfTokenValid('delete_commission_document_'.$commission->getId(), $token)) {
-            $this->addFlash('error', 'Token de sécurité invalide.');
-
-            return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
-        }
-
-        try {
-            $this->commissionDocumentCrService->delete($commission);
-            $this->addFlash('success', 'Le document a bien été supprimé.');
-        } catch (\Exception $exception) {
-            $this->addFlash('error', 'Erreur lors de la suppression du document.');
-        }
-
-        return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
     }
 }

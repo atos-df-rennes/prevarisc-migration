@@ -8,7 +8,6 @@ use App\Entity\Commission;
 use App\Utils\File;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -16,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * Gère l'upload et la suppression du document type (Compte Rendu) d'une commission.
  */
-final class CommissionDocumentCrService
+final class CommissionDocumentCrService extends AbstractOdtDocumentService
 {
     /** @var string */
     private $documentsCommissionRealDataPath;
@@ -24,22 +23,34 @@ final class CommissionDocumentCrService
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    /** @var Filesystem */
-    private $filesystem;
-
-    /** @var LoggerInterface */
-    private $logger;
-
     public function __construct(
         string $documentsCommissionRealDataPath,
         EntityManagerInterface $entityManager,
         Filesystem $filesystem,
         LoggerInterface $logger
     ) {
+        parent::__construct($filesystem, $logger);
         $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
         $this->entityManager = $entityManager;
-        $this->filesystem = $filesystem;
-        $this->logger = $logger;
+    }
+
+    protected function getStoragePath(): string
+    {
+        return $this->documentsCommissionRealDataPath;
+    }
+
+    /**
+     * Vérifie si le document CR de la commission est accessible sur le disque.
+     */
+    public function documentCrExists(Commission $commission): bool
+    {
+        $doc = $commission->getDocumentCr();
+
+        if (null === $doc) {
+            return false;
+        }
+
+        return $this->storedFileExists($doc);
     }
 
     /**
@@ -47,34 +58,18 @@ final class CommissionDocumentCrService
      * La validation du type de fichier est assurée par CommissionDocumentCrType.
      * Si un document existait, il est remplacé.
      *
-     * @throws \InvalidArgumentException Si l'extension du fichier n'est pas .odt
-     * @throws FileException             Si le déplacement du fichier échoue
+     * @throws FileException Si le déplacement du fichier échoue
      */
     public function upload(Commission $commission, UploadedFile $file): void
     {
         $originalFilename = File::sanitize($file->getClientOriginalName());
-
-        $this->ensureDirectoryExists();
 
         $existingDocument = $commission->getDocumentCr();
         if (null !== $existingDocument) {
             $this->removeFile($existingDocument);
         }
 
-        $destination = $this->documentsCommissionRealDataPath.$originalFilename;
-
-        try {
-            $file->move($this->documentsCommissionRealDataPath, $originalFilename);
-        } catch (FileException $fileException) {
-            $this->logger->error('Échec du déplacement du fichier document CR commission', [
-                'commission_id' => $commission->getId(),
-                'filename' => $originalFilename,
-                'destination' => $destination,
-                'error' => $fileException->getMessage(),
-            ]);
-
-            throw $fileException;
-        }
+        $this->moveUploadedFile($file, $originalFilename);
 
         $commission->setDocumentCr($originalFilename);
         $this->entityManager->flush();
@@ -96,37 +91,5 @@ final class CommissionDocumentCrService
 
         $commission->setDocumentCr(null);
         $this->entityManager->flush();
-    }
-
-    private function ensureDirectoryExists(): void
-    {
-        if (!$this->filesystem->exists($this->documentsCommissionRealDataPath)) {
-            try {
-                $this->filesystem->mkdir($this->documentsCommissionRealDataPath);
-            } catch (IOException $ioException) {
-                $this->logger->error('Impossible de créer le dossier documents_commission', [
-                    'path' => $this->documentsCommissionRealDataPath,
-                    'error' => $ioException->getMessage(),
-                ]);
-            }
-        }
-    }
-
-    private function removeFile(string $filename): void
-    {
-        $path = $this->documentsCommissionRealDataPath.File::sanitize($filename);
-
-        if (!$this->filesystem->exists($path)) {
-            return;
-        }
-
-        try {
-            $this->filesystem->remove($path);
-        } catch (IOException $ioException) {
-            $this->logger->warning('Impossible de supprimer le fichier document CR commission', [
-                'path' => $path,
-                'error' => $ioException->getMessage(),
-            ]);
-        }
     }
 }
