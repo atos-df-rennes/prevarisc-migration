@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @IsGranted("admin")
+ * @IsGranted("gestion_prescriptions")
  */
 class PrescriptionsTextesController extends AbstractController
 {
