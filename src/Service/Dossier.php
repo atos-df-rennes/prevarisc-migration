@@ -62,13 +62,17 @@ final class Dossier
         return $this->dossierRepository->findNombreNouvellesPieces($dossier, $dateDerniereVisitePage);
     }
 
+    /**
+     * Extrait les données utiles pour l'affichage des dossiers.
+     *
+     * @param array<DossierEntity> $dossiers Tableau de dossiers (chaque élément est un tableau associatif)
+     * @return array<int, array<string, mixed>> Tableau des données utiles pour chaque dossier
+     */
     public function extraireDonneesUtiles(array $dossiers): array
     {
         $donneesUtiles = [];
-        foreach ($dossiers as $dossier) {
+        foreach ($dossiers as $dossierEntity) {
             $donneeUtile = [];
-            /** @var DossierEntity $dossierEntity */
-            $dossierEntity = $dossier[0];
             $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
             if ($donneeUtile['nbDossiersLies'] > 0) {
                 $donneeUtile['alerteReceptionTravaux'] = $this->dossierRepository->hasAlerteReceptionTravaux($dossierEntity);
@@ -85,7 +89,6 @@ final class Dossier
             $donneeUtile['incomplet'] = $dossierEntity->isIncomplet();
             $donneeUtile['dateReception'] = $dossierEntity->getDateReception();
             $donneeUtile['dateReponse'] = $dossierEntity->getDateReponse();
-            $donneeUtile['typeId'] = $dossierEntity->getType()->getId();
             $donneeUtile['avisDiffere'] = $dossierEntity->hasAvisDiffere();
             $donneeUtile['avisId'] = $dossierEntity->getAvis() ? $dossierEntity->getAvis()->getId() : null;
             $donneeUtile['donneAvis'] = $dossierEntity->donneAvis();
@@ -105,16 +108,23 @@ final class Dossier
             }
 
             $libelle = '';
-            if (!empty($dossier['type'])) {
-                $libelle .= $dossier['type'];
+            $type = $dossierEntity->getType();
+            if (!is_null($type)) {
+                if (!is_null($type->getLibelle())) {
+                    $libelle .= $type->getLibelle();
+                }
+                $donneeUtile['typeId'] = $type->getId();
+            }
+            else {
+                $donneeUtile['typeId'] = null;
             }
 
-            if (!empty($dossier['nature'])) {
+            $nature = !is_null($dossierEntity->getNature()) ? $dossierEntity->getNature()->getLibelle() : null;
+            if (!is_null($nature)) {
                 if (!empty($libelle)) {
                     $libelle .= ' - ';
                 }
-
-                $libelle .= $dossier['nature'];
+                $libelle .= $nature;
             }
 
             if (!empty($donneeUtile['objet'])) {
@@ -126,7 +136,12 @@ final class Dossier
             }
 
             $donneeUtile['objet'] = $libelle;
-            $donneeUtile['etablissement'] = $dossier['etablissement'];
+            if ($dossierEntity->getEtablissements()->first() && $dossierEntity->getEtablissements()->first()->getInformations()->first()) {
+                $donneeUtile['etablissement'] = $dossierEntity->getEtablissements()->first()->getInformations()->first()->getLibelle();
+            }
+            else {
+                $donneeUtile['etablissement'] = null;
+            }
 
             if (null != $dossierEntity->getDateCommission()) {
                 $donneeUtile['date'] = $dossierEntity->getDateCommission();
@@ -159,6 +174,12 @@ final class Dossier
         return $donneesUtiles;
     }
 
+    /**
+     * Indique si un dossier est considéré comme nouveau pour l'utilisateur courant.
+     *
+     * @param DossierEntity $dossier
+     * @return bool
+     */
     public function isNew(DossierEntity $dossier): bool
     {
         $user = $this->security->getUser();

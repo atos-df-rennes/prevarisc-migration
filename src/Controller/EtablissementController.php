@@ -543,7 +543,10 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function getDossiersAfterN(Request $request): Response
     {
-        $id = $request->request->get('id');
+        $id = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
+        if (!$id) {
+            return new Response('');
+        }
         $typeDossier = $request->request->get('typeDossier');
         $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
 
@@ -556,7 +559,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
         }
 
-        if (null === $dossiers) {
+        if (null == $dossiers) {
             return new Response('');
         }
 

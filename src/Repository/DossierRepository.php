@@ -165,19 +165,17 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
-     *  Retourne les dossiers d'un établissement en fonction de leur type.
+     * Retourne les dossiers d'un établissement en fonction de leur type.
      *
-     * @param int $id
-     * @param array $types
-     * @param bool $reverse
-     * @return array
+     * @param int $id Identifiant de l'établissement
+     * @param array<int> $types Types de dossiers à récupérer
+     * @param bool $reverse Si true, récupère les dossiers dont le type n'est pas dans $types
+     * @return array<Dossier> Tableau de dossiers (chaque élément est un tableau associatif)
      */
     public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false): array
     {
         $qb = $this->createQueryBuilder('d');
-        $query = $qb
-            ->select('d, dn.libelle as nature, dt.libelle as type, dl, dpj, du, ei.libelle as etablissement, dcp')
-            ->join('d.etablissements', 'e')
+        $query = $qb->join('d.etablissements', 'e')
             ->leftJoin('d.piecesJointes', 'dpj')
             ->leftJoin('d.documentsUrbanisme', 'du')
             ->join('d.nature', 'dn')
@@ -202,6 +200,13 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * Retourne le nombre de pièces jointes nouvelles pour un dossier.
+     *
+     * @param Dossier $dossier
+     * @param \DateTimeInterface $dateDerniereVisitePage
+     * @return int
+     */
     public function findNombreNouvellesPieces(Dossier $dossier, \DateTimeInterface $dateDerniereVisitePage): int
     {
         $query = $this->createQueryBuilder('d')
