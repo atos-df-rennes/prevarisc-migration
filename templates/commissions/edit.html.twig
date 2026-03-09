@@ -5,6 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link href="{{ asset('css/commission/champ_competence.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/commission/documents.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block body %}
@@ -72,9 +73,9 @@
         {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath, uploadForm: uploadForm}) }}
     {% else %}
         <div class="panel panel-default">
-            <div class="panel-body text-center" style="padding: 40px;">
-                <span class="glyphicon glyphicon-wrench" style="font-size: 48px; color: #ccc;"></span>
-                <h4 style="color: #999; margin-top: 15px;">
+            <div class="panel-body commission-placeholder-body">
+                <span class="glyphicon glyphicon-wrench commission-placeholder-icon"></span>
+                <h4 class="commission-placeholder-title">
                     Section <strong>{{ active_tab|capitalize }}</strong> — en cours de développement
                 </h4>
                 <p class="text-muted">Cette fonctionnalité sera disponible prochainement.</p>

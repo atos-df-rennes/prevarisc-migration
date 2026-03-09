@@ -10,20 +10,19 @@
         {% if documentCrExists %}
             <div class="media">
                 <div class="media-left">
-                    <span class="glyphicon glyphicon-file" style="font-size: 2em; color: #0174A7;" aria-hidden="true"></span>
+                    <span class="glyphicon glyphicon-file commission-doc-icon-lg" aria-hidden="true"></span>
                 </div>
                 <div class="media-body">
-                    <a href="{{ documentsCommissionDataPath ~ commission.documentCr }}" class="media-heading" style="font-size: 1.1em;">
+                    <a href="{{ documentsCommissionDataPath ~ commission.documentCr }}" class="media-heading commission-doc-link commission-doc-link-lg">
                         {{ commission.documentCr }}
                     </a>
                     <form method="post"
                           action="{{ path('admin_commissions_documents_delete', {id: commission.id}) }}"
-                          style="display: inline; margin-left: 10px;">
+                          class="commission-doc-delete-form-spaced">
                         <input type="hidden" name="_method" value="DELETE" />
                         <input type="hidden" name="_token" value="{{ csrf_token('delete_commission_document_' ~ commission.id) }}" />
                         <button type="submit"
-                                class="btn btn-link btn-sm"
-                                style="color: #c9302c; padding: 0;"
+                                class="btn btn-link btn-sm commission-doc-delete-btn"
                                 onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?');">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
                         </button>

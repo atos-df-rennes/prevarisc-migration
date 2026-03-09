@@ -2,19 +2,18 @@
 <td class="text-center">
     {% if file_accessible %}
         <p>
-            <span class="glyphicon glyphicon-file" style="color: #0174A7;" aria-hidden="true"></span>
-            <a href="{{ courriersMembresDataPath ~ membre.id ~ type ~ '_' ~ filename }}" style="color: #0174A7;">
+            <span class="glyphicon glyphicon-file commission-doc-icon" aria-hidden="true"></span>
+            <a href="{{ courriersMembresDataPath ~ membre.id ~ type ~ '_' ~ filename }}" class="commission-doc-link">
                 {{ filename }}
             </a>
         </p>
         <form method="post"
               action="{{ path('admin_commissions_courriers_delete', {id: membre.commission.id, membreId: membre.id, type: type}) }}"
-              style="display: inline;">
+              class="commission-doc-delete-form">
             <input type="hidden" name="_method" value="DELETE" />
             <input type="hidden" name="_token" value="{{ csrf_token('delete_courrier_' ~ membre.id ~ '_' ~ type) }}" />
             <button type="submit"
-                    class="btn btn-link btn-xs"
-                    style="color: #c9302c; padding: 0;"
+                    class="btn btn-link btn-xs commission-doc-delete-btn"
                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?');">
                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
             </button>
