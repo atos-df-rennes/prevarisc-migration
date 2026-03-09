@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(requirements={"id"="\d+"})
  *
- * @IsGranted("admin")
+ * @IsGranted("groupement_communes")
  */
 class GroupementController extends AbstractController
 {

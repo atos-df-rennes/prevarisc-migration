@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @IsGranted("admin")
+ * @IsGranted("gestion_prescriptions")
  */
 class PrescriptionsTypesController extends AbstractController
 {

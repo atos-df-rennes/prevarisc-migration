@@ -14,8 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+// @todo: Faire la route qui applique les périodicités
 /**
- * @IsGranted("admin")
+ * @IsGranted("periodicites")
  */
 class TableauDesPeriodicitesController extends AbstractController
 {

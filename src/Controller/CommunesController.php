@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(requirements={"id"="\d+"})
  *
- * @IsGranted("admin")
+ * @IsGranted("communes")
  */
 class CommunesController extends AbstractController
 {
