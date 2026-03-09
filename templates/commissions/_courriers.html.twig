@@ -15,9 +15,10 @@
                     <th class="text-center">Convocation en visite</th>
                     <th class="text-center">Convocation en salle</th>
                     <th class="text-center">Ordre du jour</th>
-                    <th class="text-center">
-                        {% if membre.groupement is null %}PV{% endif %}
-                    </th>
+
+                    {% if membre.groupement is null %}
+                        <th class="text-center">PV</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -58,8 +59,6 @@
                             uploadForm: upload_forms['PV'],
                             courriersMembresDataPath: courriersMembresDataPath,
                         }) }}
-                    {% else %}
-                        <td></td>
                     {% endif %}
                 </tr>
             </tbody>

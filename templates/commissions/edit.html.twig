@@ -83,12 +83,12 @@
     {% endif %}
 
     {% if active_tab == 'courriers' %}
-    <script type="text/javascript">
-    $(document).ready(function() {
-        $('.courrier-file-input').on('change', function() {
-            $(this).closest('form').submit();
-        });
-    });
-    </script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.courrier-file-input').on('change', function() {
+                    $(this).closest('form').submit();
+                });
+            });
+        </script>
     {% endif %}
 {% endblock %}

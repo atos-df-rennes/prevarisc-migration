@@ -162,8 +162,7 @@ class CommissionsController extends AbstractController
     public function courriers(Commission $commission): Response
     {
         $membres = $this->commissionMembreRepository->findBy(
-            ['commission' => $commission],
-            ['libelle' => 'ASC']
+            ['commission' => $commission]
         );
 
         /** @var array<int, array<string, mixed>> $membresWithForms */
