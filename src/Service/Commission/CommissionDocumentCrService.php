@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Commission;
 
 use App\Entity\Commission;
+use App\Utils\File;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -51,7 +52,7 @@ final class CommissionDocumentCrService
      */
     public function upload(Commission $commission, UploadedFile $file): void
     {
-        $originalFilename = $file->getClientOriginalName();
+        $originalFilename = File::sanitize($file->getClientOriginalName());
 
         $this->ensureDirectoryExists();
 
@@ -113,7 +114,7 @@ final class CommissionDocumentCrService
 
     private function removeFile(string $filename): void
     {
-        $path = $this->documentsCommissionRealDataPath.$filename;
+        $path = $this->documentsCommissionRealDataPath.File::sanitize($filename);
 
         if (!$this->filesystem->exists($path)) {
             return;
