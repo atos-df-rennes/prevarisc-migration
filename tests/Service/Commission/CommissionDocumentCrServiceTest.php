@@ -127,4 +127,30 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
         self::assertNull($commission->getDocumentCr());
     }
+
+    public function testDocumentCrExistsRetourneTrueSiFichierPresent(): void
+    {
+        $fichier = $this->tmpDir.'compte_rendu.odt';
+        file_put_contents($fichier, 'contenu');
+
+        $commission = new Commission();
+        $commission->setDocumentCr('compte_rendu.odt');
+
+        self::assertTrue($this->service->documentCrExists($commission));
+    }
+
+    public function testDocumentCrExistsRetourneFalseSiAucunDocument(): void
+    {
+        $commission = new Commission();
+
+        self::assertFalse($this->service->documentCrExists($commission));
+    }
+
+    public function testDocumentCrExistsRetourneFalseSiFichierAbsent(): void
+    {
+        $commission = new Commission();
+        $commission->setDocumentCr('fichier_absent.odt');
+
+        self::assertFalse($this->service->documentCrExists($commission));
+    }
 }
