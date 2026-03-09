@@ -21,6 +21,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
         ->bind('$documentsCommissionDataPath', '%app.data_path%/uploads/documents_commission/')
         ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
+        ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
+        ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
     ;
 
 
@@ -28,6 +30,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->exclude([
         __DIR__ . '/../src/DependencyInjection/',
         __DIR__ . '/../src/Entity/',
+        __DIR__ . '/../src/Enum/',
         __DIR__ . '/../src/Kernel.php',
     ]);
 

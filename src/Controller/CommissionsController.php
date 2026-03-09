@@ -3,12 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
+use App\Enum\CommissionMembreCourrierType;
 use App\Form\CommissionDocumentCrType;
+use App\Form\CommissionMembreCourrierUploadType;
 use App\Form\CommissionsCollectionType;
+use App\Repository\CommissionMembreRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionManagerService;
+use App\Service\Commission\CommissionMembreCourrierService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -33,21 +37,36 @@ class CommissionsController extends AbstractController
     /** @var CommissionDocumentCrService */
     private $commissionDocumentCrService;
 
+    /** @var CommissionMembreCourrierService */
+    private $commissionMembreCourrierService;
+
+    /** @var CommissionMembreRepository */
+    private $commissionMembreRepository;
+
     /** @var string */
     private $documentsCommissionDataPath;
+
+    /** @var string */
+    private $courriersMembresDataPath;
 
     public function __construct(
         CommissionRepository $commissionRepository,
         CommissionTypeRepository $commissionTypeRepository,
         CommissionManagerService $commissionManagerService,
         CommissionDocumentCrService $commissionDocumentCrService,
-        string $documentsCommissionDataPath
+        CommissionMembreCourrierService $commissionMembreCourrierService,
+        CommissionMembreRepository $commissionMembreRepository,
+        string $documentsCommissionDataPath,
+        string $courriersMembresDataPath
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionManagerService = $commissionManagerService;
         $this->commissionDocumentCrService = $commissionDocumentCrService;
+        $this->commissionMembreCourrierService = $commissionMembreCourrierService;
+        $this->commissionMembreRepository = $commissionMembreRepository;
         $this->documentsCommissionDataPath = $documentsCommissionDataPath;
+        $this->courriersMembresDataPath = $courriersMembresDataPath;
     }
 
     /**
@@ -136,16 +155,123 @@ class CommissionsController extends AbstractController
     }
 
     /**
-     * Onglet Courriers (placeholder démo).
+     * Onglet Courriers types des membres de la commission.
      *
      * @Route("/admin/commissions/{id}/courriers", name="admin_commissions_courriers", requirements={"id"="\d+"}, methods={"GET"})
      */
     public function courriers(Commission $commission): Response
     {
+        $membres = $this->commissionMembreRepository->findBy(
+            ['commission' => $commission],
+            ['libelle' => 'ASC']
+        );
+
+        /** @var array<int, array<string, mixed>> $membresWithForms */
+        $membresWithForms = [];
+        foreach ($membres as $membre) {
+            $uploadForms = [];
+            foreach (CommissionMembreCourrierType::ALL as $type) {
+                $form = $this->createForm(CommissionMembreCourrierUploadType::class, null, [
+                    'action' => $this->generateUrl('admin_commissions_courriers_upload', [
+                        'id' => $commission->getId(),
+                        'membreId' => $membre->getId(),
+                        'type' => $type,
+                    ]),
+                ]);
+                $uploadForms[$type] = $form->createView();
+            }
+
+            $membresWithForms[] = [
+                'membre' => $membre,
+                'upload_forms' => $uploadForms,
+            ];
+        }
+
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'courriers',
+            'membres_with_forms' => $membresWithForms,
+            'courriersMembresDataPath' => $this->courriersMembresDataPath,
         ]);
+    }
+
+    /**
+     * Upload d'un courrier type pour un membre de commission.
+     *
+     * @Route("/admin/commissions/{id}/courriers/{membreId}/{type}", name="admin_commissions_courriers_upload", requirements={"id"="\d+","membreId"="\d+"}, methods={"POST"})
+     */
+    public function uploadCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
+    {
+        if (!CommissionMembreCourrierType::isValid($type)) {
+            $this->addFlash('error', 'Type de courrier invalide.');
+
+            return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
+        }
+
+        $membre = $this->commissionMembreRepository->find($membreId);
+        if (null === $membre || $membre->getCommission() !== $commission) {
+            $this->addFlash('error', 'Membre introuvable.');
+
+            return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
+        }
+
+        $form = $this->createForm(CommissionMembreCourrierUploadType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var array<string, mixed> $data */
+            $data = $form->getData();
+            /** @var UploadedFile $file */
+            $file = $data['courrier'];
+
+            try {
+                $this->commissionMembreCourrierService->upload($membre, $type, $file);
+                $this->addFlash('success', 'Le courrier a bien été sauvegardé.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Le téléchargement a échoué.');
+            }
+        }
+
+        return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
+    }
+
+    /**
+     * Suppression d'un courrier type d'un membre de commission.
+     *
+     * @Route("/admin/commissions/{id}/courriers/{membreId}/{type}", name="admin_commissions_courriers_delete", requirements={"id"="\d+","membreId"="\d+"}, methods={"DELETE"})
+     */
+    public function deleteCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
+    {
+        /** @var string $token */
+        $token = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('delete_courrier_'.$membreId.'_'.$type, $token)) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+
+            return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
+        }
+
+        if (!CommissionMembreCourrierType::isValid($type)) {
+            $this->addFlash('error', 'Type de courrier invalide.');
+
+            return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
+        }
+
+        $membre = $this->commissionMembreRepository->find($membreId);
+        if (null === $membre || $membre->getCommission() !== $commission) {
+            $this->addFlash('error', 'Membre introuvable.');
+
+            return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
+        }
+
+        try {
+            $this->commissionMembreCourrierService->delete($membre, $type);
+            $this->addFlash('success', 'Le courrier a bien été supprimé.');
+        } catch (\Exception $exception) {
+            $this->addFlash('error', 'Erreur lors de la suppression du courrier.');
+        }
+
+        return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
     }
 
     /**
