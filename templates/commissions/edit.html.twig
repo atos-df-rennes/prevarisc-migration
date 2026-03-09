@@ -39,7 +39,7 @@
         {key: 'membres', label: 'Membres', icon: 'user', route: 'admin_commissions_membres'},
         {key: 'contacts', label: 'Contacts', icon: 'envelope', route: 'admin_commissions_contacts'},
         {key: 'courriers', label: 'Courriers', icon: 'print', route: 'admin_commissions_courriers'},
-        {key: 'documents', label: 'Documents', icon: 'folder-open', route: 'admin_commissions_documents'},
+        {key: 'documents', label: 'Document type', icon: 'folder-open', route: 'admin_commissions_documents'},
     ] %}
     <ul class="nav nav-tabs mb-4">
         {% for tab in tabs %}
@@ -66,6 +66,8 @@
                 </button>
             </form>
         </div>
+    {% elseif active_tab == 'documents' %}
+        {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath, uploadForm: uploadForm}) }}
     {% else %}
         <div class="panel panel-default">
             <div class="panel-body text-center" style="padding: 40px;">
