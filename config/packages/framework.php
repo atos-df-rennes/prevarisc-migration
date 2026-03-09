@@ -20,5 +20,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'log' => true,
             'throw' => false,
         ],
+        'http_method_override' => true,
     ]);
 };
