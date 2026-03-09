@@ -84,7 +84,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $this->service->upload($commission, $uploadedFile);
 
         self::assertSame('nouveau.odt', $commission->getDocumentCr());
-        self::assertFileDoesNotExist($ancienFichier);
+        self::assertFileNotExists($ancienFichier);
         self::assertFileExists($this->tmpDir.'nouveau.odt');
     }
 
@@ -101,7 +101,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $this->service->delete($commission);
 
         self::assertNull($commission->getDocumentCr());
-        self::assertFileDoesNotExist($fichier);
+        self::assertFileNotExists($fichier);
     }
 
     public function testDeleteSansDocumentNeFaitRien(): void
