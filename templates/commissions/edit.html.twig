@@ -5,6 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link href="{{ asset('css/commission/champ_competence.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/commission/membres.css') }}" rel="stylesheet" />
     <link href="{{ asset('css/commission/documents.css') }}" rel="stylesheet" />
 {% endblock %}
 
@@ -67,6 +68,15 @@
                 </button>
             </form>
         </div>
+    {% elseif active_tab == 'membres' %}
+        {{ form_start(form, {attr: {id: 'membres-form'}}) }}
+            {{ include('commissions/_membres.html.twig', {
+                form: form,
+                commission: commission,
+                activites_by_type: activites_by_type,
+                natures_by_type: natures_by_type,
+            }) }}
+        {{ form_end(form) }}
     {% elseif active_tab == 'courriers' %}
         {{ include('commissions/_courriers.html.twig', {membres_with_forms: membres_with_forms, courriersMembresDataPath: courriersMembresDataPath}) }}
     {% elseif active_tab == 'contacts' %}

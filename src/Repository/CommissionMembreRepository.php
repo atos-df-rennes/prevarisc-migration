@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Commission;
 use App\Entity\CommissionMembre;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -45,5 +46,67 @@ class CommissionMembreRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Charge tous les membres d'une commission avec leurs relations pour éviter les requêtes N+1.
+     *
+     * @return CommissionMembre[]
+     */
+    public function findByCommissionWithRelations(Commission $commission): array
+    {
+        $membres = $this->createQueryBuilder('m')
+            ->leftJoin('m.groupement', 'g')->addSelect('g')
+            ->leftJoin('m.utilisateurInformations', 'ui')->addSelect('ui')
+            ->where('m.commission = :commission')
+            ->setParameter('commission', $commission)
+            ->orderBy('m.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        if ([] === $membres) {
+            return [];
+        }
+
+        // Initialise les collections ManyToMany pour chaque membre (évite N+1)
+        $ids = array_map(static function (CommissionMembre $m): ?int { return $m->getId(); }, $membres);
+
+        $this->createQueryBuilder('m')
+            ->leftJoin('m.categories', 'cat')->addSelect('cat')
+            ->where('m.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $this->createQueryBuilder('m')
+            ->leftJoin('m.types', 'ta')->addSelect('ta')
+            ->leftJoin('ta.type', 'tat')->addSelect('tat')
+            ->where('m.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $this->createQueryBuilder('m')
+            ->leftJoin('m.classes', 'cl')->addSelect('cl')
+            ->where('m.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $this->createQueryBuilder('m')
+            ->leftJoin('m.typesDossier', 'td')->addSelect('td')
+            ->where('m.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $this->createQueryBuilder('m')
+            ->leftJoin('m.naturesDossier', 'nd')->addSelect('nd')
+            ->where('m.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        return $membres;
     }
 }
