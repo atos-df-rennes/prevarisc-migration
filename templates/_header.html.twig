@@ -105,7 +105,7 @@
                 }
             }
         }).result(function(e, item) {
-            window.location.href= "/etablissement/index/id/" + item.ID_ETABLISSEMENT;
+            window.location.href = Routing.generate('etablissement_informations', {id: item.ID_ETABLISSEMENT});
         });
     });
 </script>

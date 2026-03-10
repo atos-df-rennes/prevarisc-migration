@@ -31,7 +31,7 @@
                         {% for message in messages %}
                             <li class="alert alert-{{ label }}">
                                 <button data-dismiss="alert" class="close">&times;</button>
-                                {{ message }}
+                                {{ message|raw }}
                             </li>
                         {% endfor %}
                     {% endfor %}
@@ -40,8 +40,9 @@
                 {% block body_structure %}{% endblock %}
             </div>
         </div>
-        <button id="go-top" type="button" class="btn btn-default" style="display: none;" onclick="scrollToTop()">
-            <i class="glyphicon glyphicon-arrow-up"></i>
+
+        <button id="go-top" type="button" class="btn btn-default" style="display: none;" onclick="scrollToTop()" aria-label="Retour en haut de page">
+            <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
         </button>
     </div>
 

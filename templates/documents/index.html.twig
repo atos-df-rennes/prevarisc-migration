@@ -10,7 +10,7 @@
             $(".ajouter-document").click(function() {
                 $.ajax({
                     type: "GET",
-                    url: "/admin/documents/ajouter",
+                    url: Routing.generate('admin_documents_add'),
                     success: function(msg){
                         $('#ajout-document .modal-body').html(msg);
                     },
@@ -26,7 +26,7 @@
                 $("#supp-doc").click(function() {
                     $.ajax({
                         type: "POST",
-                        url: "/admin/documents/supprimer",
+                        url: Routing.generate('admin_documents_delete'),
                         data:{
                             nomFichier: nomFichier,
                             idCommission: idCommission

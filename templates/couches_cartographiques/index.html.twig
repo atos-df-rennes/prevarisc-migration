@@ -52,7 +52,6 @@
         <script type="text/javascript" src="{{ asset('js/geoconcept/htc-lite.js') }}"></script>
 
         {% if projection is not null %}
-            <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
             <script type="text/javascript" src="{{ asset('js/geoconcept/defs/' ~ projection ~ '.js') }}"></script>
         {% endif %}
 

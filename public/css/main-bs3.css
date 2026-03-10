@@ -371,23 +371,14 @@ ul.recherche_liste .active .ui-icon {
   background-position: -64px -16px;
 }
 
-a.thumbnail + a.thumbnail {
+div.thumbnail + div.thumbnail {
   margin-left: 5px;
-}
-
-.thumbnail img {
-  width: 100%;
 }
 
 /* 8.Etablissements */
 #ligne_informations {
 
   margin-bottom: 15px;
-}
-
-#ligne_informations p, #ligne_informations div {
-
-  display: inline;
 }
 
 #ligne_informations #libelle {
@@ -397,6 +388,20 @@ a.thumbnail + a.thumbnail {
   font-weight: normal;
   display: inline;
   line-height: 0.8em;
+}
+
+#infosEtabs {
+  line-height: 20px;
+}
+
+.infosEtabs__button-link,
+.infosEtabs__button-link:hover {
+  text-decoration: none;
+  color: black;
+}
+
+.infosEtabs__button-link .glyphicon {
+  font-size: 14px;
 }
 
 #dossierInfos h4,
@@ -1156,10 +1161,6 @@ dl.champ_effectif_camping dd input {
 
 #fiche_etablissement h4 {
   text-align: left;
-}
-
-#dossierInfos .form .input-group input {
-  height: unset;
 }
 
 #ign-accordion .row,

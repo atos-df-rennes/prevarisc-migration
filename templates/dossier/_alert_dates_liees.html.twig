@@ -1,0 +1,10 @@
+<div class="col-md-9 col-md-offset-3 dates-liees__wrapper">
+    <div class="alert alert-info dates-liees__alert" role="alert">
+        <strong>Dates liées : </strong>
+        <span id="dates-liees__content">
+            {% if datesLiees is defined %}
+                {{ datesLiees|map(dateLiee => dateLiee.date.format('d/m/Y'))|join(', ') }}
+            {% endif %}
+        </span>
+    </div>
+</div>

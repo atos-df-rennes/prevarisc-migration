@@ -20,7 +20,7 @@
                         listeTexteApplUpdate.push(liId);
                     });
                     $.ajax({
-                        url: "/admin/textes-applicables/updateorder",
+                        url: Routing.generate('admin_textes_applicables_updateorder'),
                         data: "tableUpdate="+listeTexteApplUpdate,
                         type:"POST",
                     });
@@ -30,7 +30,7 @@
             $(".createTexteAppl").click(function() {
                 $.ajax({
                     type: "GET",
-                    url: "/admin/textes-applicables/add",
+                    url: Routing.generate('admin_textes_applicables_add'),
                     success: function(msg){
                         $('#texteApplModal .modal-body').html(msg);
                     },
@@ -38,10 +38,10 @@
             });
 
             $(".editTexteAppl").click(function(){
-                idTa = this.getAttribute("data-ta-id");
+                idTexteApplicable = this.getAttribute("data-ta-id");
                 $.ajax({
                     type: "GET",
-                    url: "/admin/textes-applicables/" + idTa + "/edit",
+                    url: Routing.generate('admin_textes_applicables_edit', {id: idTexteApplicable}),
                     success: function(msg){
                         $('#texteApplModal .modal-body').html(msg);
                     },

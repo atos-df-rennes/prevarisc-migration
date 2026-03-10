@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use App\Constant\DossierNature;
 use App\Repository\EtablissementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -250,17 +253,32 @@ class Etablissement
     }
 
     /**
+     * Retourne le Criteria permettant de récupérer la dernière information (ID le plus élevé).
+     * Utilisable dans les entités (matching en mémoire) et dans les repositories (sous-requête DQL).
+     */
+    public static function createLatestInformationsCriteria(): Criteria
+    {
+        return Criteria::create()
+            ->orderBy(['id' => Criteria::DESC])
+            ->setMaxResults(1);
+    }
+
+    /**
      * Retourne l'historique le plus récent.
      */
     public function getLatestInformations(): EtablissementInformations
     {
-        $latestInformations = $this->informations->last();
+        assert($this->informations instanceof Selectable);
+        $result = $this->informations->matching(self::createLatestInformationsCriteria());
 
-        if (false === $latestInformations) {
+        if ($result->isEmpty()) {
             throw new \OutOfBoundsException('Aucune information existante pour l\'établissement '.$this->id);
         }
 
-        return $latestInformations;
+        /** @var EtablissementInformations $latest */
+        $latest = $result->first();
+
+        return $latest;
     }
 
     public function addInformations(EtablissementInformations $informations): self
@@ -526,7 +544,7 @@ class Etablissement
     public function hasAvisDiffere(): bool
     {
         $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
-            return $dossier->getAvisDiffere()
+            return $dossier->hasAvisDiffere()
                 && null === $dossier->getDateSuppression();
         });
 
@@ -542,7 +560,7 @@ class Etablissement
                 return false;
             }
 
-            return DossierNatureListe::NATURE_ECHEANCIER_TRAVAUX === $nature->getId()
+            return DossierNature::ECHEANCIER_TRAVAUX === $nature->getId()
                 && null === $dossier->getDateSuppression();
         });
 

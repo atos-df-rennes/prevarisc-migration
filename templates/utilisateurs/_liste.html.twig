@@ -1,6 +1,6 @@
 <h4>{{ 'Utilisateurs ' ~ type }} <small>({{ utilisateurs|length }} utilisateurs)</small></h4>
 
-{% if utilisateurs|length > 0 %}
+{% if utilisateurs is not empty %}
     <table class='table table-condensed table-striped'>
         <thead>
             <tr>

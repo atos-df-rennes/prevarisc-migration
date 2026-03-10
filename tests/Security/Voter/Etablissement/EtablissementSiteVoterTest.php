@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementInformations;
@@ -81,7 +82,7 @@ class EtablissementSiteVoterTest extends TestCase
      */
     private function createMockSite(array $fils = []): MockObject
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementSiteVoter::ID_SITE]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::SITE]);
 
         $latestInformations = $this->createMock(EtablissementInformations::class);
         $latestInformations->method('getGenre')->willReturn($genre);
@@ -100,7 +101,7 @@ class EtablissementSiteVoterTest extends TestCase
      */
     private function createMockErpFils(): MockObject
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementErpVoter::ID_ERP]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::ERP]);
         $categorie = $this->createConfiguredMock(EtablissementCategorie::class, ['getId' => 1]);
 
         $latestInformations = $this->createMock(EtablissementInformations::class);
@@ -122,7 +123,7 @@ class EtablissementSiteVoterTest extends TestCase
      */
     private function createMockIghFils(): MockObject
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementIghVoter::ID_IGH]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::IGH]);
 
         $latestInformations = $this->createMock(EtablissementInformations::class);
         $latestInformations->method('getGenre')->willReturn($genre);
@@ -142,7 +143,7 @@ class EtablissementSiteVoterTest extends TestCase
      */
     private function createMockHabitationFils(): MockObject
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementHabitationVoter::ID_HABITATION]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::HABITATION]);
         $famille = $this->createConfiguredMock(Famille::class, ['getId' => 1]);
 
         $latestInformations = $this->createMock(EtablissementInformations::class);
@@ -195,7 +196,7 @@ class EtablissementSiteVoterTest extends TestCase
         $erpVoter = $this->createGrantingErpVoter();
         $factory = $this->createMock(EtablissementVoterFactory::class);
         $factory->method('getVoterForGenre')
-            ->with(EtablissementErpVoter::ID_ERP)
+            ->with(GenreEtablissement::ERP)
             ->willReturn($erpVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -219,7 +220,7 @@ class EtablissementSiteVoterTest extends TestCase
         $erpVoter = $this->createDenyingErpVoter();
         $factory = $this->createMock(EtablissementVoterFactory::class);
         $factory->method('getVoterForGenre')
-            ->with(EtablissementErpVoter::ID_ERP)
+            ->with(GenreEtablissement::ERP)
             ->willReturn($erpVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -246,7 +247,7 @@ class EtablissementSiteVoterTest extends TestCase
 
         $factory = $this->createMock(EtablissementVoterFactory::class);
         $factory->method('getVoterForGenre')
-            ->with(EtablissementIghVoter::ID_IGH)
+            ->with(GenreEtablissement::IGH)
             ->willReturn($ighVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -273,7 +274,7 @@ class EtablissementSiteVoterTest extends TestCase
 
         $factory = $this->createMock(EtablissementVoterFactory::class);
         $factory->method('getVoterForGenre')
-            ->with(EtablissementHabitationVoter::ID_HABITATION)
+            ->with(GenreEtablissement::HABITATION)
             ->willReturn($habitationVoter);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -305,8 +306,8 @@ class EtablissementSiteVoterTest extends TestCase
         $factory = $this->createMock(EtablissementVoterFactory::class);
         $factory->method('getVoterForGenre')
             ->willReturnMap([
-                [EtablissementErpVoter::ID_ERP, $erpVoter],
-                [EtablissementIghVoter::ID_IGH, $ighVoter],
+                [GenreEtablissement::ERP, $erpVoter],
+                [GenreEtablissement::IGH, $ighVoter],
             ]);
 
         $logger = $this->createMock(LoggerInterface::class);

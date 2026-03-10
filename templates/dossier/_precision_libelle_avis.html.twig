@@ -1,0 +1,13 @@
+{% if dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') %}
+    {% if dossier.nature.id in constant('App\\Constant\\DossierNature::NATURES_EXPLOITATION') %}
+        à l'exploitation
+    {% else %}
+        à l'étude
+    {% endif %}
+{% else %}
+    {% if dossier.nature.id in constant('App\\Constant\\DossierNature::RECEPTIONS_TRAVAUX') %}
+        à la réception de travaux
+    {% else %}
+        à l'exploitation
+    {% endif %}
+{% endif %}

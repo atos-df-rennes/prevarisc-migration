@@ -16,9 +16,11 @@ use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\PeriodiciteRepository;
 use App\Repository\UtilisateurInformationsRepository;
+use App\Service\Alerte\AlerteService;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
 use App\Service\Etablissement as EtablissementService;
+use App\Service\Mail\MailerConfiguration;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -85,6 +87,16 @@ class EtablissementController extends AbstractController
      */
     private $contactService;
 
+    /**
+     * @var MailerConfiguration
+     */
+    private $mailerConfig;
+
+    /**
+     * @var AlerteService
+     */
+    private $alerteService;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -98,7 +110,9 @@ class EtablissementController extends AbstractController
         DataStore $dataStore,
         SerializerInterface $serializer,
         UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        Contact $contactService
+        Contact $contactService,
+        MailerConfiguration $mailerConfig,
+        AlerteService $alerteService
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -113,10 +127,12 @@ class EtablissementController extends AbstractController
         $this->serializer = $serializer;
         $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
         $this->contactService = $contactService;
+        $this->mailerConfig = $mailerConfig;
+        $this->alerteService = $alerteService;
     }
 
     /**
-     * @Route("/etablissement/{id}/informations", name="etablissement_informations")
+     * @Route("/etablissement/{id}/informations", name="etablissement_informations", options={"expose"=true})
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
@@ -154,6 +170,9 @@ class EtablissementController extends AbstractController
         // Récupération des dates de visite
         $datesVisites = $this->etablissementService->getDatesVisites($etablissement);
 
+        // Récupération des fils triés par libellé de leur dernière information
+        $filsOrdonnes = $this->etablissementRepository->findFilsOrderedByLibelle($etablissement);
+
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
             'couches_cartographiques' => $couchesCartographiquesJson,
@@ -168,8 +187,47 @@ class EtablissementController extends AbstractController
             'next_visite' => $datesVisites['nextVisite'],
             'pc_initial' => $this->dossierRepository->getPCInitial($etablissement),
             'presence_dus' => $this->etablissementService->hasContactDus($etablissement),
-            'donnees_pratiques' => $this->etablissementService->calculateDonneesPratiques($etablissement)
+            'donnees_pratiques' => $this->etablissementService->calculateDonneesPratiques($etablissement),
+            'fils_ordonnes' => $filsOrdonnes,
         ]);
+    }
+
+    /**
+     * Point d'entrée Symfony après modification d'un établissement depuis le legacy.
+     *
+     * Reçoit le type d'alerte déterminé par le legacy (checkAlerte), génère le flash
+     * Symfony avec le lien "Alerter" si les conditions sont réunies, puis redirige
+     * vers la page d'informations de l'établissement.
+     *
+     * Équivalent legacy : fin de EtablissementController::editAction() (flash + redirect)
+     *
+     * @Route("/symfony/etablissement/{id}/apres-modification", name="etablissement_apres_modification", methods={"GET"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     *
+     * @param int           $id            Identifiant de l'établissement
+     * @param Request       $request       Requête HTTP (query param type_alerte)
+     * @param Etablissement $etablissement Établissement modifié
+     */
+    public function apresModification(
+        int $id,
+        Request $request,
+        Etablissement $etablissement
+    ): Response {
+        $typeAlerte = $request->query->getInt('type_alerte', 0);
+        $lienAlerte = '';
+
+        if ($typeAlerte > 0 && $this->mailerConfig->isEnabled()) {
+            $privilege = AlerteService::PRIVILEGES_CHANGEMENT[$typeAlerte] ?? null;
+
+            if (null !== $privilege && $this->isGranted($privilege)) {
+                $lienAlerte = $this->alerteService->getLink($typeAlerte, $id);
+            }
+        }
+
+        $this->addFlash('success', 'L\'établissement a bien été mis à jour.'.$lienAlerte);
+
+        return $this->redirectToRoute('etablissement_informations', ['id' => $id]);
     }
 
     /**
@@ -367,7 +425,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"DELETE"})
+     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      *
@@ -375,21 +433,40 @@ class EtablissementController extends AbstractController
      * @ParamConverter("contact", options={"id" = "contact"})
      */
     public function deleteContact(
+        Request $request,
         Etablissement $etablissement,
         UtilisateurInformations $contact
     ): Response {
-        // Suppression de l'association.
-        $etablissement->removeContact($contact);
+        $form = $this->createFormBuilder()
+            ->setMethod(Request::METHOD_DELETE)
+            ->setAction($this->generateUrl('etablissement_contacts_delete', [
+                'id' => $etablissement->getId(),
+                'contact' => $contact->getId()
+            ]))
+            ->getForm();
 
-        // Suppression définitive du contact
-        if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
-            $this->entityManager->remove($contact);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Suppression de l'association.
+            $etablissement->removeContact($contact);
+
+            // Suppression définitive du contact
+            if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
+                $this->entityManager->remove($contact);
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le contact a bien été supprimé.');
+
+            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
         }
 
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Le contact a bien été supprimé.');
-
-        return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+        return $this->render('etablissement/_form_delete_contact.html.twig', [
+            'form' => $form->createView(),
+            'etablissement' => $etablissement,
+            'contact' => $contact,
+        ]);
     }
 }

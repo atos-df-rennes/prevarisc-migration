@@ -69,7 +69,7 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/prescriptions/changement-ordre", name="admin_prescriptions_types_changement_ordre", methods={"POST"})
+     * @Route("/admin/prescriptions/changement-ordre", name="admin_prescriptions_types_changement_ordre", methods={"POST"}, options={"expose"=true})
      */
     public function reOrder(Request $request): Response
     {

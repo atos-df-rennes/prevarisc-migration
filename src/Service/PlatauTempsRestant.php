@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Service;
+
+final class PlatauTempsRestant
+{
+    public const SEUIL_OK = 6;
+
+    public const SEUIL_WARN = 3;
+
+    public function calculate(\DateTimeInterface $limitDate): string
+    {
+        $limit = new \DateTime($limitDate->format('Y-m-d H:i:s'));
+        $now = (new \DateTime())->setTime(0, 0, 0);
+
+        $diff = $now->diff($limit);
+
+        $readableDiff = '';
+
+        if ($diff->y > 0) {
+            $ans = $diff->y > 1 ? 'ans' : 'an';
+            $readableDiff .= sprintf('%d %s', $diff->y, $ans);
+        }
+
+        if ($diff->m > 0) {
+            if ('' !== $readableDiff) {
+                $readableDiff .= ' et ';
+            }
+
+            $readableDiff .= $diff->m.' mois';
+        }
+
+        if ($diff->d > 0) {
+            if ('' !== $readableDiff) {
+                $readableDiff .= ' et ';
+            }
+
+            $jours = $diff->d > 1 ? 'jours' : 'jour';
+            $readableDiff .= sprintf('%d %s', $diff->d, $jours);
+        }
+
+        if (1 === $diff->invert) {
+            return '- '.$readableDiff;
+        }
+
+        return $readableDiff;
+    }
+
+    public function getCouleurTempsRestant(\DateTimeInterface $limitDate): string
+    {
+        $limit = new \DateTime($limitDate->format('Y-m-d H:i:s'));
+        $now = (new \DateTime())->setTime(0, 0, 0);
+
+        $diff = $now->diff($limit);
+
+        if (1 === $diff->invert) {
+            return 'default';
+        }
+
+        if ($diff->y > 0 || $diff->m > self::SEUIL_OK) {
+            return 'success';
+        }
+
+        if ($diff->m > self::SEUIL_WARN) {
+            return 'warning';
+        }
+
+        return 'danger';
+    }
+}

@@ -66,14 +66,14 @@
 
         <div id="geoconcept" class="tab-pane in" style="height: 350px; max-height: 350px;width: 100%">
             <div id="geoconcept-container"  style="height: 100%; max-height: 100%;width: 100%"></div>
-            <script type="text/javascript" src="/js/geoconcept/OpenLayers.js"></script>
-            <script type="text/javascript" src="/js/geoconcept/proj4js.js"></script>
-            <script type="text/javascript" src="/js/geoconcept/htc-lite.js"></script>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/OpenLayers.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/proj4js.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/htc-lite.js') }}"></script>
             {% if projection is defined and projection == true %}
-                <script type="text/javascript" src="/js/geoconcept/defs/{{ projection }}.js"></script>
+                <script type="text/javascript" src="{{ asset('/js/geoconcept/defs/' ~ projection ~ '.js') }}"></script>
             {% endif %}
-            <script type="text/javascript" src="/js/geoconcept/geoconcept.js"></script>
-            <link rel="stylesheet" href="/css/geoconcept/htc.css"/>
+            <script type="text/javascript" src="{{ asset('/js/geoconcept/geoconcept.js') }}"></script>
+            <link rel="stylesheet" href="{{ asset('/css/geoconcept/htc.css') }}"/>
             <script>
                 $(document).ready(function() {
                     {% if token and app_id %}
@@ -281,7 +281,7 @@
 <h4 class="h4_subtitle">Données prévention</h4>
 <dl class="dl-horizontal">
     <!-- Commission compétente -->
-    {% if infos.genre.id in [2, 5] %}
+    {% if infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::IGH')] %}
         <dt>Commission</dt>
         <dd>
             <p>{{ infos.commission.libelle }} ({{ infos.commission.type.libelle }})</p>
@@ -290,13 +290,12 @@
 
     <!-- Préventionnistes -->
     <dt>Préventionnistes</dt>
-    <dd>
+    <dd class="thumbnail-container" {% if infos.preventionnistes|length > 0 %}style="margin-bottom: 10px;"{% endif %}>
         {% if infos.preventionnistes|length == 0 %}
             <p class="text-muted">Aucun préventionniste lié.</p>
         {% else %}
             {% for preventionniste in infos.preventionnistes %}
                 {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
-                <div style="clear: both; margin-bottom: 10px;"></div>
             {% endfor %}
         {% endif %}
     </dd>
@@ -332,10 +331,10 @@
     </dd>
 
     <!-- Données pratiques -->
-    {% if infos.genre.id in [1, 2, 3, 5] %}
+    {% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE') %}
         <dt>Données pratiques</dt>
         <dd>
-            {% if infos.genre.id != 1 %}
+            {% if infos.genre.id != constant('App\\Constant\\GenreEtablissement::SITE') %}
                 Nb. de préventionnistes/visite : {{ donnees_pratiques.nbPreventionnistes }}<br/>
             {% endif %}
             {% if donnees_pratiques.dureeVisite is not null %}

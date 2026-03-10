@@ -65,7 +65,7 @@ class DocumentsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/documents/ajouter", name="admin_documents_add")
+     * @Route("/admin/documents/ajouter", name="admin_documents_add", options={"expose"=true})
      */
     public function ajouter(Request $request, string $documentsRealDataPath): Response
     {
@@ -141,7 +141,7 @@ class DocumentsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"})
+     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"}, options={"expose"=true})
      */
     public function supprimer(Request $request, string $documentsRealDataPath): Response
     {

@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-migrations-bundle": "^2.2",
         "doctrine/orm": "^2.14",
+        "friendsofsymfony/jsrouting-bundle": "^2.8",
         "imagine/imagine": "^1.5",
         "michelf/php-markdown": "^1.9",
         "phpdocumentor/reflection-docblock": "^4.3",
@@ -111,5 +112,5 @@
             "require": "4.4.*"
         }
     },
-    "version": "2.8.15"
+    "version": "2.9.0-rc.1"
 }

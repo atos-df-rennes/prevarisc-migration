@@ -2,10 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,26 +23,42 @@ class DossierAffectationRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Récupère l'affectation d'un dossier pour un ou plusieurs types d'événement.
+     *
+     * @param Dossier   $dossier          Dossier concerné
+     * @param int|int[] $idTypesEvenement ID(s) type événement (1=salle, 2=visite, 3=groupe)
+     *
+     * @return DossierAffectation|null Affectation trouvée ou null
      */
-    public function add(DossierAffectation $entity, bool $flush = true): void
+    public function findAffectationByDossierAndType(Dossier $dossier, $idTypesEvenement): ?DossierAffectation
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        $types = is_array($idTypesEvenement) ? $idTypesEvenement : [$idTypesEvenement];
+
+        return $this->createQueryBuilder('da')
+            ->join('da.dateCommission', 'dc')
+            ->join('dc.typeEvenement', 'te')
+            ->where('da.dossier = :dossier')
+            ->andWhere('te.id IN (:typesEvenement)')
+            ->setParameter('dossier', $dossier)
+            ->setParameter('typesEvenement', $types)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Supprime toutes les affectations d'un dossier.
+     *
+     * @param Dossier $dossier Dossier dont on veut supprimer les affectations
+     *
+     * @return int Nombre d'affectations supprimées
      */
-    public function remove(DossierAffectation $entity, bool $flush = true): void
+    public function deleteAllAffectations(Dossier $dossier): int
     {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('da')
+            ->delete()
+            ->where('da.dossier = :dossier')
+            ->setParameter('dossier', $dossier)
+            ->getQuery()
+            ->execute();
     }
 }

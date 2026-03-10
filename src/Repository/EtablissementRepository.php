@@ -143,4 +143,34 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
 
         return $count > 0;
     }
+
+    /**
+     * Retourne les établissements fils triés par libellé de leur dernière information (ID max).
+     *
+     * La sous-requête DQL isole la dernière EtablissementInformations de chaque fils,
+     * et addSelect('info') permet un eager load évitant les requêtes N+1 dans le template.
+     *
+     * @return Etablissement[]
+     */
+    public function findFilsOrderedByLibelle(Etablissement $etablissement): array
+    {
+        return $this->createQueryBuilder('fils')
+            ->innerJoin('fils.parents', 'parent')
+            ->innerJoin(
+                'fils.informations',
+                'info',
+                'WITH',
+                'info.id = (
+                    SELECT MAX(info_sub.id)
+                    FROM App\Entity\EtablissementInformations info_sub
+                    WHERE info_sub.etablissement = fils
+                )'
+            )
+            ->addSelect('info')
+            ->where('parent = :parent')
+            ->orderBy('info.libelle', 'ASC')
+            ->setParameter('parent', $etablissement)
+            ->getQuery()
+            ->getResult();
+    }
 }

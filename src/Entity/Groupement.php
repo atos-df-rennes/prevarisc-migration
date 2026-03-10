@@ -6,6 +6,7 @@ use App\Repository\GroupementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=GroupementRepository::class)
@@ -20,6 +21,8 @@ class Groupement
      * @ORM\GeneratedValue
      *
      * @ORM\Column(name="ID_GROUPEMENT", type="bigint", options={"unsigned":true})
+     *
+     * @Groups({"api_response"})
      */
     private $id;
 
@@ -27,6 +30,8 @@ class Groupement
      * @var string
      *
      * @ORM\Column(name="LIBELLE_GROUPEMENT", type="string", length=255, nullable=false)
+     *
+     * @Groups({"api_response"})
      */
     private $libelle;
 
@@ -45,6 +50,8 @@ class Groupement
      * @ORM\ManyToOne(targetEntity=GroupementType::class, inversedBy="groupements")
      *
      * @ORM\JoinColumn(name="ID_GROUPEMENTTYPE", referencedColumnName="ID_GROUPEMENTTYPE", nullable=false)
+     *
+     * @Groups({"api_response"})
      */
     private $type;
 
