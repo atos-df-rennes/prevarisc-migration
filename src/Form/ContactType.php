@@ -19,24 +19,24 @@ class ContactType extends AbstractType
                 'class' => Fonction::class,
                 'choice_label' => 'libelle',
             ])
-            ->add('societe')
+            ->add('societe', null, ['required' => false])
             ->add('civilite', EntityType::class, [
                 'class' => UtilisateurCivilite::class,
                 'choice_label' => 'libelle',
                 'required' => false,
             ])
-            ->add('nom')
-            ->add('prenom')
-            ->add('telephoneFixe')
-            ->add('telephoneFax')
-            ->add('telephonePortable')
-            ->add('mail')
-            ->add('siteWeb')
-            ->add('numeroAdresse')
-            ->add('rueAdresse')
-            ->add('codePostalAdresse')
-            ->add('villeAdresse')
-            ->add('observations')
+            ->add('nom', null, ['required' => false])
+            ->add('prenom', null, ['required' => false])
+            ->add('telephoneFixe', null, ['required' => false])
+            ->add('telephoneFax', null, ['required' => false])
+            ->add('telephonePortable', null, ['required' => false])
+            ->add('mail', null, ['required' => false])
+            ->add('siteWeb', null, ['required' => false])
+            ->add('numeroAdresse', null, ['required' => false])
+            ->add('rueAdresse', null, ['required' => false])
+            ->add('codePostalAdresse', null, ['required' => false])
+            ->add('villeAdresse', null, ['required' => false])
+            ->add('observations', null, ['required' => false])
         ;
     }
 

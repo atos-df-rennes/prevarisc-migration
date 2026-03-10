@@ -1,3 +1,10 @@
+{#
+    Paramètres requis :
+    - form          : formulaire Symfony de suppression
+    - contact       : objet UtilisateurInformations
+    - entity_article : préposition + type d'entité, ex: "de la commission" ou "du groupement"
+    - entity_libelle : libellé de l'entité, ex: commission.libelle ou groupement.libelle
+#}
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
         <span aria-hidden="true">&times;</span>
@@ -8,7 +15,7 @@
 <div class="modal-body">
     <div class="alert alert-warning">
         <strong>Attention !</strong> Vous êtes sur le point de supprimer le contact
-        <strong>{{ contact.nom }} {{ contact.prenom }}</strong> du groupement <strong>{{ groupement.libelle }}</strong>.
+        <strong>{{ contact.nom }} {{ contact.prenom }}</strong> {{ entity_article }} <strong>{{ entity_libelle }}</strong>.
         Cette action est irréversible.
     </div>
 </div>

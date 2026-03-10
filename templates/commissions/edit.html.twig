@@ -69,6 +69,16 @@
         </div>
     {% elseif active_tab == 'courriers' %}
         {{ include('commissions/_courriers.html.twig', {membres_with_forms: membres_with_forms, courriersMembresDataPath: courriersMembresDataPath}) }}
+    {% elseif active_tab == 'contacts' %}
+        {{ include('components/_contacts_panel.html.twig', {
+            entity_id: commission.id,
+            contacts: contacts,
+            no_contacts_msg: 'Aucun contact lié à cette commission',
+            url_add_existing: path('admin_commissions_contacts_add_existing', {id: commission.id}),
+            url_add: path('admin_commissions_contacts_add', {id: commission.id}),
+            route_delete: 'admin_commissions_contacts_delete',
+            element_lie: 'commission',
+        }) }}
     {% elseif active_tab == 'documents' %}
         {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath, uploadForm: uploadForm}) }}
     {% else %}

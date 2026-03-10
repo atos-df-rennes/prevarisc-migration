@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Commission;
 
 use App\Entity\Commission;
 use App\Form\CommissionsCollectionType;
@@ -106,19 +106,6 @@ class CommissionsController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'membres',
-        ]);
-    }
-
-    /**
-     * Onglet Contacts (placeholder démo).
-     *
-     * @Route("/admin/commissions/{id}/contacts", name="admin_commissions_contacts", requirements={"id"="\d+"}, methods={"GET"})
-     */
-    public function contacts(Commission $commission): Response
-    {
-        return $this->render('commissions/edit.html.twig', [
-            'commission' => $commission,
-            'active_tab' => 'contacts',
         ]);
     }
 }

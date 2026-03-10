@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Commission;
 
 use App\Entity\Commission;
 use App\Form\CommissionReglesCollectionType;

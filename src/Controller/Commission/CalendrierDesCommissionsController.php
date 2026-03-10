@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Commission;
 
 use App\Dto\Commission\CalendarEventDto;
 use App\Dto\Commission\CommissionDatesDto;

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UtilisateurInformationsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurInformationsRepository::class)
@@ -27,6 +28,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="NOM_UTILISATEURINFORMATIONS", type="string", length=50, nullable=true)
+     *
+     * @Assert\Length(max=50)
      */
     private $nom;
 
@@ -34,6 +37,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="PRENOM_UTILISATEURINFORMATIONS", type="string", length=50, nullable=true)
+     *
+     * @Assert\Length(max=50)
      */
     private $prenom;
 
@@ -41,6 +46,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="TELFIXE_UTILISATEURINFORMATIONS", type="string", length=20, nullable=true)
+     *
+     * @Assert\Length(max=20)
      */
     private $telephoneFixe;
 
@@ -48,6 +55,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="TELPORTABLE_UTILISATEURINFORMATIONS", type="string", length=20, nullable=true)
+     *
+     * @Assert\Length(max=20)
      */
     private $telephonePortable;
 
@@ -55,6 +64,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="TELFAX_UTILISATEURINFORMATIONS", type="string", length=20, nullable=true)
+     *
+     * @Assert\Length(max=20)
      */
     private $telephoneFax;
 
@@ -62,6 +73,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="MAIL_UTILISATEURINFORMATIONS", type="string", length=50, nullable=true)
+     *
+     * @Assert\Length(max=50)
      */
     private $mail;
 
@@ -69,6 +82,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="SOCIETE_UTILISATEURINFORMATIONS", type="string", length=100, nullable=true)
+     *
+     * @Assert\Length(max=100)
      */
     private $societe;
 
@@ -76,6 +91,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="NUMEROADRESSE_UTILISATEURINFORMATIONS", type="string", length=10, nullable=true)
+     *
+     * @Assert\Length(max=10)
      */
     private $numeroAdresse;
 
@@ -83,6 +100,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="RUEADRESSE_UTILISATEURINFORMATIONS", type="string", length=255, nullable=true)
+     *
+     * @Assert\Length(max=255)
      */
     private $rueAdresse;
 
@@ -90,6 +109,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="CPADRESSE_UTILISATEURINFORMATIONS", type="string", length=5, nullable=true)
+     *
+     * @Assert\Length(max=5)
      */
     private $codePostalAdresse;
 
@@ -97,6 +118,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="VILLEADRESSE_UTILISATEURINFORMATIONS", type="string", length=255, nullable=true)
+     *
+     * @Assert\Length(max=255)
      */
     private $villeAdresse;
 
@@ -104,6 +127,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="WEB_UTILISATEURINFORMATIONS", type="string", length=100, nullable=true)
+     *
+     * @Assert\Length(max=100)
      */
     private $siteWeb;
 
@@ -139,6 +164,8 @@ class UtilisateurInformations
      * @var ?string
      *
      * @ORM\Column(name="GRADE_UTILISATEURINFORMATIONS", type="string", length=255, nullable=true)
+     *
+     * @Assert\Length(max=255)
      */
     private $grade;
 
