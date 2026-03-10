@@ -199,7 +199,7 @@ class GroupementController extends AbstractController
     {
         return $this->render('components/_contacts_panel.html.twig', [
             'entity_id' => $groupement->getId(),
-            'contacts' => $groupement->getContacts(),
+            'contacts' => $groupement->getSortedContacts(),
             'no_contacts_msg' => 'Aucun contact lié à ce groupement',
             'url_add_existing' => $this->generateUrl('admin_groupement_contacts_add_existing', ['id' => $groupement->getId()]),
             'url_add' => $this->generateUrl('admin_groupement_contacts_add', ['id' => $groupement->getId()]),

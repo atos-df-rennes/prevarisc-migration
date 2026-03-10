@@ -46,7 +46,7 @@ class CommissionContactsController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'contacts',
-            'contacts' => $commission->getContacts(),
+            'contacts' => $commission->getSortedContacts(),
         ]);
     }
 

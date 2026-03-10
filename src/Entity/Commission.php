@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use App\Doctrine\ContactCriteria;
 use App\Repository\CommissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -205,6 +207,17 @@ class Commission
     public function getContacts(): Collection
     {
         return $this->contacts;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getSortedContacts(): Collection
+    {
+        assert($this->contacts instanceof Selectable);
+
+        /* @phpstan-ignore-next-line */
+        return $this->contacts->matching(ContactCriteria::sortedByName());
     }
 
     public function addContact(UtilisateurInformations $contact): self
