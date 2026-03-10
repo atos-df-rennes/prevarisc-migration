@@ -130,6 +130,12 @@ class CommissionContactsController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$commission->getContacts()->contains($contact)) {
+                $this->addFlash('warning', "Le contact n'appartient pas à la commission.");
+
+                return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
+            }
+
             $commission->removeContact($contact);
 
             if (!$this->contactService->isUsed($contact, Contact::COMMISSION)) {

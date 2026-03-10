@@ -290,6 +290,12 @@ class GroupementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$groupement->getContacts()->contains($contact)) {
+                $this->addFlash('warning', "Le contact n'appartient pas au groupement.");
+
+                return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
+            }
+
             $groupement->removeContact($contact);
 
             if (!$this->contactService->isUsed($contact, Contact::GROUPEMENT)) {

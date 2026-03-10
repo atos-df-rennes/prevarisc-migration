@@ -448,6 +448,12 @@ class EtablissementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$etablissement->getContacts()->contains($contact)) {
+                $this->addFlash('warning', "Le contact n'appartient pas à l'établissement.");
+
+                return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+            }
+
             // Suppression de l'association.
             $etablissement->removeContact($contact);
 
