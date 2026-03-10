@@ -192,9 +192,8 @@ class CommissionsController extends AbstractController
             return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
         }
 
-        return $this->render('commissions/_form_existing_contacts.html.twig', [
+        return $this->render('components/_form_contact_existant.html.twig', [
             'form' => $form->createView(),
-            'commission' => $commission,
         ]);
     }
 
@@ -233,10 +232,11 @@ class CommissionsController extends AbstractController
             return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
         }
 
-        return $this->render('commissions/_form_delete_contact.html.twig', [
+        return $this->render('components/_form_delete_contact.html.twig', [
             'form' => $form->createView(),
-            'commission' => $commission,
             'contact' => $contact,
+            'entity_article' => 'de la commission',
+            'entity_libelle' => $commission->getLibelle(),
         ]);
     }
 }

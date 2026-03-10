@@ -1,3 +1,13 @@
+{#
+    Paramètres requis :
+    - entity_id      : identifiant de l'entité parente (int)
+    - contacts       : collection de contacts liés à l'entité
+    - no_contacts_msg: message affiché quand il n'y a aucun contact
+    - url_add_existing: URL AJAX pour charger le formulaire d'ajout de contact existant
+    - url_add        : URL AJAX pour charger le formulaire de création d'un nouveau contact
+    - route_delete   : nom de la route Symfony exposée JS pour supprimer un contact
+    - element_lie    : type d'entité passé à la route contact_edit ('commission' ou 'groupement')
+#}
 <div class="mb-4 clearfix">
     <div class="pull-right btn-group" role="group">
         <button type="button" class="btn btn-primary" id="ajout-contact-existant-bouton" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
@@ -7,18 +17,18 @@
 
 {% if contacts is empty %}
     <p class="text-center text-muted">
-        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Aucun contact lié à cette commission
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> {{ no_contacts_msg }}
     </p>
 {% else %}
     <div class="panel-list">
         {% for contact in contacts %}
-            {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact, commission: commission}) }}
+            {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
         {% endfor %}
     </div>
 {% endif %}
 
 {{ include('contact/_modal_ajout.html.twig') }}
-{{ include('commissions/_modal_existant.html.twig') }}
+{{ include('components/_modal_contact_existant.html.twig') }}
 {{ include('contact/_modal_suppression.html.twig') }}
 
 <script type="text/javascript">
@@ -31,7 +41,7 @@
 
         $('#ajout-contact-existant-bouton').click(function () {
             $.ajax({
-                url: "{{ path('admin_commissions_contacts_add_existing', {id: commission.id}) }}",
+                url: "{{ url_add_existing }}",
                 success: function (result) {
                     $('#ajout-contact-existant .modal-body').html(result);
                     $('#ajout-contact-existant').modal('show');
@@ -78,7 +88,7 @@
 
         $('#ajout-contact-bouton').click(function () {
             $.ajax({
-                url: "{{ path('admin_commissions_contacts_add', {id: commission.id}) }}",
+                url: "{{ url_add }}",
                 success: function (result) {
                     $('#ajout-contact .modal-body').html(result);
                     $('#ajout-contact').modal('show');
@@ -86,7 +96,7 @@
             })
         })
 
-        const commissionId = "{{ commission.id }}"
+        const entityId = "{{ entity_id }}"
         let contactId
 
         $('.delete-contact-button').on('click', function () {
@@ -94,7 +104,7 @@
 
             $.ajax({
                 type: "GET",
-                url: Routing.generate('admin_commissions_contacts_delete', {id: commissionId, contact: contactId}),
+                url: Routing.generate('{{ route_delete }}', {id: entityId, contact: contactId}),
                 success: function(html) {
                     $('#modal-suppression-contact .modal-content').html(html);
                     $('#modal-suppression-contact').modal('show');
@@ -109,7 +119,7 @@
             contactId = $(this).attr('data-contact-id')
 
             $.ajax({
-                url: Routing.generate('contact_edit', {id: contactId, elementLie: 'commission', elementId: commissionId}),
+                url: Routing.generate('contact_edit', {id: contactId, elementLie: '{{ element_lie }}', elementId: entityId}),
                 success: function (result) {
                     const modalAjout = document.getElementById('ajout-contact')
                     modalAjout.querySelector('#ajout-contact-label').innerHTML = 'Modifier un contact'
