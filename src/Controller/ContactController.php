@@ -49,6 +49,10 @@ class ContactController extends AbstractController
                 $redirectRoute = $this->router->generate('admin_groupement', ['id' => $elementId]);
 
                 break;
+            case Contact::COMMISSION:
+                $redirectRoute = $this->router->generate('admin_commissions_contacts', ['id' => $elementId]);
+
+                break;
             default:
                 $redirectRoute = null;
 
