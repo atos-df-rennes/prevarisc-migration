@@ -26,16 +26,16 @@
     padding: 6px 10px;
 }
 
-/* Groupes activités ERP — affichage compact (style dossier-type-block) */
-.activite-group {
+/* Groupes activités ERP — même style que les blocs types/natures de dossier */
+.activite-group-block {
     border: 1px solid #e8e8e8;
     border-radius: 4px;
-    padding: 6px 10px;
-    margin-bottom: 4px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
 }
 
 .activite-group-header {
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .activite-group-label {
@@ -52,19 +52,22 @@
     flex-shrink: 0;
 }
 
-.activite-group-checkboxes {
-    max-height: 150px;
+.activites-list {
+    max-height: 160px;
     overflow-y: auto;
+    margin-top: 4px;
     padding-left: 20px;
 }
 
-.activite-group-item {
-    margin: 0;
+.activites-list li {
+    list-style: none;
 }
 
-.activite-group-item label {
-    font-weight: normal;
-    padding: 1px 0;
+/* Supprime les marges Bootstrap 3 sur .checkbox imbriqués dans les listes */
+.activites-list .checkbox,
+.dossier-natures-list .checkbox {
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 .dossier-type-block {
@@ -97,10 +100,6 @@
     overflow-y: auto;
     margin-top: 4px;
     padding-left: 20px;
-}
-
-.dossier-natures-list li {
-    list-style: none;
 }
 
 .dossier-nature-item label {

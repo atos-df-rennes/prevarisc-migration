@@ -35,15 +35,6 @@
     {% set name = membre_form.vars.name %}
     {% set libelle = membre_form.libelle.vars.value ?: 'Nouveau membre' %}
 
-    {#
-        Construit le dictionnaire des widgets de natures : nature_id (string) => widget
-        vars.value est la PK de l'entité sous forme string dans Symfony
-    #}
-    {% set nature_widgets = {} %}
-    {% for nature_widget in membre_form.naturesDossier %}
-        {% set nature_widgets = nature_widgets|merge({(nature_widget.vars.value ~ ''): nature_widget}) %}
-    {% endfor %}
-
     <div class="panel panel-default membre-rule">
         <div class="panel-heading" role="tab" id="heading-membre-{{ name }}">
             <h4 class="panel-title">
@@ -112,10 +103,9 @@
 
                 <hr/>
 
-                {# Section ERP #}
+                {# Section ERP — Catégories + Classes sur la même ligne #}
                 <div class="row">
-                    {# Catégories ERP #}
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         <div class="form-group">
                             <label><strong>Catégories ERP</strong></label>
                             <div class="mb-2">
@@ -132,47 +122,7 @@
                         </div>
                     </div>
 
-                    {#
-                        Activités ERP groupées par type ERP.
-                        On utilise membre_form.types.vars.choices (ChoiceGroupView[])
-                        produit par le group_by du FormType — label et choices garantis corrects.
-                        Chaque ChoiceGroupView a : label (libellé du type ERP), choices (ChoiceView[]).
-                        Chaque ChoiceView a : value (ID string de l'activité), label (libellé activité).
-                        Le widget est accessible directement via membre_form.types[choice.value].
-                    #}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <label><strong>Types d'activité ERP</strong></label>
-                            {% do membre_form.types.setRendered %}
-                            {% for group in membre_form.types.vars.choices %}
-                                {% set group_key = name ~ '-act-' ~ loop.index %}
-                                <div class="activite-group">
-                                    <div class="activite-group-header">
-                                        <label class="activite-group-label">
-                                            <input type="checkbox"
-                                                   class="activite-group-toggle"
-                                                   data-group="{{ group_key }}"
-                                                   aria-label="Tout sélectionner {{ group.label }}">
-                                            <strong>{{ group.label }}</strong>
-                                        </label>
-                                    </div>
-                                    <div id="activite-group-{{ group_key }}" class="activite-group-checkboxes">
-                                        {% for choice in group.choices %}
-                                            <div class="checkbox activite-group-item" data-group="{{ group_key }}">
-                                                <label>
-                                                    {{ form_widget(membre_form.types[choice.value]) }}
-                                                </label>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                            {{ form_errors(membre_form.types) }}
-                        </div>
-                    </div>
-
-                    {# Classes IGH #}
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         <div class="form-group">
                             <label><strong>Classes IGH</strong></label>
                             <div class="mb-2">
@@ -190,13 +140,51 @@
                     </div>
                 </div>
 
+                {#
+                    Activités ERP groupées par type ERP — grille 3 colonnes.
+                    On utilise membre_form.types.vars.choices (ChoiceGroupView[])
+                    produit par le group_by du FormType — label et choices garantis corrects.
+                    Chaque ChoiceGroupView a : label (libellé du type ERP), choices (ChoiceView[]).
+                    Le widget est accessible directement via membre_form.types[choice.value].
+                #}
+                <div class="form-group">
+                    <label><strong>Types d'activité ERP</strong></label>
+                    {% do membre_form.types.setRendered %}
+                    <div class="row">
+                        {% for group in membre_form.types.vars.choices %}
+                            {% set group_key = name ~ '-act-' ~ loop.index %}
+                            <div class="col-sm-4 col-xs-12 mb-3">
+                                <div class="activite-group-block">
+                                    <div class="activite-group-header">
+                                        <label class="activite-group-label">
+                                            <input type="checkbox"
+                                                   class="activite-group-toggle"
+                                                   data-group="{{ group_key }}"
+                                                   aria-label="Tout sélectionner {{ group.label }}">
+                                            <strong>{{ group.label }}</strong>
+                                        </label>
+                                    </div>
+                                    <ul class="list-unstyled activites-list"
+                                        id="activite-group-{{ group_key }}">
+                                        {% for choice in group.choices %}
+                                            <li class="activite-item" data-group="{{ group_key }}">
+                                                {{ form_widget(membre_form.types[choice.value]) }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {{ form_errors(membre_form.types) }}
+                </div>
+
                 <hr/>
 
                 {#
                     Types et natures de dossier imbriqués.
                     natures_by_type = array<string typeId, DossierNatureListe[]>  (clés string)
-                    type_widget.vars.value = string (PK du DossierType)
-                    → lookup direct sans conversion de type
+                    membre_form.naturesDossier[nature_id] accède directement au widget par valeur de choix.
                 #}
                 <div class="form-group">
                     <label><strong>Types et natures de dossier</strong></label>
@@ -216,18 +204,13 @@
                                     </div>
                                     {# Natures imbriquées pour ce type #}
                                     {% if natures_by_type[type_id] is defined %}
-                                        <ul class="list-unstyled dossier-natures-list ml-3"
+                                        <ul class="list-unstyled dossier-natures-list"
                                             id="natures-list-{{ name }}-{{ type_id }}">
                                             {% for nature in natures_by_type[type_id] %}
                                                 {% set nature_id = nature.id ~ '' %}
-                                                {% if nature_widgets[nature_id] is defined %}
-                                                    <li class="dossier-nature-item" data-type-id="{{ type_id }}">
-                                                        <label class="font-weight-normal">
-                                                            {{ form_widget(nature_widgets[nature_id]) }}
-                                                            {{ nature.libelle }}
-                                                        </label>
-                                                    </li>
-                                                {% endif %}
+                                                <li class="dossier-nature-item" data-type-id="{{ type_id }}">
+                                                    {{ form_widget(membre_form.naturesDossier[nature_id]) }}
+                                                </li>
                                             {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -378,8 +361,8 @@ $(document).ready(function() {
     });
 
     // Checkbox activité individuelle → met à jour le toggle du groupe
-    $(document).on('change', '.activite-group-item input[type="checkbox"]', function() {
-        const groupKey = $(this).closest('.activite-group-item').data('group');
+    $(document).on('change', '.activite-item input[type="checkbox"]', function() {
+        const groupKey = $(this).closest('.activite-item').data('group');
         const $panel = $(this).closest('.membre-rule');
         updateActiviteGroupToggle($panel, groupKey);
     });
