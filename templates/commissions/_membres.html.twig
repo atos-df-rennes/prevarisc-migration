@@ -304,7 +304,6 @@ $(document).ready(function() {
     // Met à jour la checkbox d'un type de dossier en fonction de ses natures
     function updateDossierTypeCheckbox($panel, typeId) {
         const $typeCheckbox = $panel.find('.dossier-type-checkbox[data-type-id="' + typeId + '"]');
-        const $natures = $panel.find('#natures-list-' + $panel.find('.membre-rule').length + '-' + typeId + ' input[type="checkbox"]');
         // Cherche les natures par data-type-id
         const $natureItems = $panel.find('.dossier-nature-item[data-type-id="' + typeId + '"] input[type="checkbox"]');
         if ($natureItems.length === 0) {
