@@ -183,7 +183,6 @@ class CommissionMembreType extends AbstractType
                     ->leftJoin('n.type', 'dt')
                     ->addSelect('dt')
                     ->orderBy('dt.id', 'ASC')
-                    ->addOrderBy('n.ordre', 'ASC')
                     ->addOrderBy('n.libelle', 'ASC');
             },
         ]);

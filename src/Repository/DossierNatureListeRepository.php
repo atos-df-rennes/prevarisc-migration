@@ -50,7 +50,6 @@ class DossierNatureListeRepository extends ServiceEntityRepository
             ->leftJoin('n.type', 'dt')
             ->addSelect('dt')
             ->orderBy('dt.id', 'ASC')
-            ->addOrderBy('n.ordre', 'ASC')
             ->addOrderBy('n.libelle', 'ASC')
             ->getQuery()
             ->getResult();
