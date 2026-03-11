@@ -90,16 +90,6 @@
         }) }}
     {% elseif active_tab == 'documents' %}
         {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath, uploadForm: uploadForm}) }}
-    {% else %}
-        <div class="panel panel-default">
-            <div class="panel-body commission-placeholder-body">
-                <span class="glyphicon glyphicon-wrench commission-placeholder-icon"></span>
-                <h4 class="commission-placeholder-title">
-                    Section <strong>{{ active_tab|capitalize }}</strong> — en cours de développement
-                </h4>
-                <p class="text-muted">Cette fonctionnalité sera disponible prochainement.</p>
-            </div>
-        </div>
     {% endif %}
 
     {% if active_tab == 'membres' %}
