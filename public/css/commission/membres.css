@@ -56,7 +56,8 @@
     max-height: 160px;
     overflow-y: auto;
     margin-top: 4px;
-    padding-left: 20px;
+    margin-left: 16px;
+    padding-left: 4px;
 }
 
 .activites-list li {
@@ -86,6 +87,7 @@
     align-items: center;
     gap: 6px;
     font-size: 14px;
+    font-weight: bold;
     cursor: pointer;
     margin-bottom: 0;
 }
@@ -99,7 +101,8 @@
     max-height: 160px;
     overflow-y: auto;
     margin-top: 4px;
-    padding-left: 20px;
+    margin-left: 16px;
+    padding-left: 4px;
 }
 
 .dossier-nature-item label {

@@ -49,7 +49,7 @@ class DossierNatureListeRepository extends ServiceEntityRepository
         $natures = $this->createQueryBuilder('n')
             ->leftJoin('n.type', 'dt')
             ->addSelect('dt')
-            ->orderBy('dt.libelle', 'ASC')
+            ->orderBy('dt.id', 'ASC')
             ->addOrderBy('n.ordre', 'ASC')
             ->addOrderBy('n.libelle', 'ASC')
             ->getQuery()

@@ -140,7 +140,7 @@ class CommissionMembreType extends AbstractType
                 return $er->createQueryBuilder('a')
                     ->leftJoin('a.type', 't')
                     ->addSelect('t')
-                    ->orderBy('t.libelle', 'ASC')
+                    ->orderBy('t.id', 'ASC')
                     ->addOrderBy('a.libelle', 'ASC');
             },
         ]);
@@ -166,7 +166,7 @@ class CommissionMembreType extends AbstractType
             'required' => false,
             'label' => 'Types de dossier',
             'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('dt')->orderBy('dt.libelle', 'ASC');
+                return $er->createQueryBuilder('dt')->orderBy('dt.id', 'ASC');
             },
         ]);
 
@@ -182,7 +182,7 @@ class CommissionMembreType extends AbstractType
                 return $er->createQueryBuilder('n')
                     ->leftJoin('n.type', 'dt')
                     ->addSelect('dt')
-                    ->orderBy('dt.libelle', 'ASC')
+                    ->orderBy('dt.id', 'ASC')
                     ->addOrderBy('n.ordre', 'ASC')
                     ->addOrderBy('n.libelle', 'ASC');
             },
