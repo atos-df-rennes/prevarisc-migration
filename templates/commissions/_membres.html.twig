@@ -132,7 +132,7 @@
                     <div class="row">
                         {% for group in membre_form.types.vars.choices %}
                             {% set group_key = name ~ '-act-' ~ loop.index %}
-                            <div class="col-sm-4 col-xs-12 mb-3">
+                            <div class="col-lg-4 col-md-6 col-xs-12 mb-3">
                                 <div class="activite-group-block">
                                     <div class="activite-group-header">
                                         <label class="activite-group-label">
@@ -154,8 +154,12 @@
                                 </div>
                             </div>
 
+                            {% if loop.index % 2 == 0 %}
+                                <div class="clearfix visible-md-block"></div>
+                            {% endif %}
+
                             {% if loop.index % 3 == 0 %}
-                                <div class="clearfix"></div>
+                                <div class="clearfix visible-lg-block"></div>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -193,7 +197,7 @@
                     <div class="row">
                         {% for type_widget in membre_form.typesDossier %}
                             {% set type_id = type_widget.vars.value ~ '' %}
-                            <div class="col-sm-4 col-xs-6 mb-3">
+                            <div class="col-lg-4 col-md-6 col-xs-12 mb-3">
                                 <div class="dossier-type-block">
                                     {# Checkbox du type de dossier = header du groupe #}
                                     <div class="dossier-type-header">
@@ -216,6 +220,14 @@
                                     {% endif %}
                                 </div>
                             </div>
+
+                            {% if loop.index % 2 == 0 %}
+                                <div class="clearfix visible-md-block"></div>
+                            {% endif %}
+
+                            {% if loop.index % 3 == 0 %}
+                                <div class="clearfix visible-lg-block"></div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                     {{ form_errors(membre_form.typesDossier) }}
