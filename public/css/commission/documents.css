@@ -39,22 +39,3 @@
     color: #c9302c;
     padding: 0;
 }
-
-/* ============================================================
-   Onglet placeholder (sections en cours de développement)
-   ============================================================ */
-
-.commission-placeholder-body {
-    padding: 40px;
-    text-align: center;
-}
-
-.commission-placeholder-icon {
-    font-size: 48px;
-    color: #ccc;
-}
-
-.commission-placeholder-title {
-    color: #999;
-    margin-top: 15px;
-}

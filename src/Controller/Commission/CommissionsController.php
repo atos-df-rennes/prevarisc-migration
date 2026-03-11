@@ -95,17 +95,4 @@ class CommissionsController extends AbstractController
     {
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
     }
-
-    /**
-     * Onglet Membres (placeholder démo).
-     *
-     * @Route("/admin/commissions/{id}/membres", name="admin_commissions_membres", requirements={"id"="\d+"}, methods={"GET"})
-     */
-    public function membres(Commission $commission): Response
-    {
-        return $this->render('commissions/edit.html.twig', [
-            'commission' => $commission,
-            'active_tab' => 'membres',
-        ]);
-    }
 }

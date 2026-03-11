@@ -5,6 +5,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link href="{{ asset('css/commission/champ_competence.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/commission/membres.css') }}" rel="stylesheet" />
     <link href="{{ asset('css/commission/documents.css') }}" rel="stylesheet" />
 {% endblock %}
 
@@ -67,6 +68,14 @@
                 </button>
             </form>
         </div>
+    {% elseif active_tab == 'membres' %}
+        {{ form_start(form, {attr: {id: 'membres-form'}}) }}
+            {{ include('commissions/_membres.html.twig', {
+                form: form,
+                commission: commission,
+                natures_by_type: natures_by_type,
+            }) }}
+        {{ form_end(form) }}
     {% elseif active_tab == 'courriers' %}
         {{ include('commissions/_courriers.html.twig', {membres_with_forms: membres_with_forms, courriersMembresDataPath: courriersMembresDataPath}) }}
     {% elseif active_tab == 'contacts' %}
@@ -81,16 +90,10 @@
         }) }}
     {% elseif active_tab == 'documents' %}
         {{ include('commissions/_document_type.html.twig', {commission: commission, documentsCommissionDataPath: documentsCommissionDataPath, uploadForm: uploadForm}) }}
-    {% else %}
-        <div class="panel panel-default">
-            <div class="panel-body commission-placeholder-body">
-                <span class="glyphicon glyphicon-wrench commission-placeholder-icon"></span>
-                <h4 class="commission-placeholder-title">
-                    Section <strong>{{ active_tab|capitalize }}</strong> — en cours de développement
-                </h4>
-                <p class="text-muted">Cette fonctionnalité sera disponible prochainement.</p>
-            </div>
-        </div>
+    {% endif %}
+
+    {% if active_tab == 'membres' %}
+        <script src="{{ asset('js/commission/membres.js') }}"></script>
     {% endif %}
 
     {% if active_tab == 'courriers' %}
