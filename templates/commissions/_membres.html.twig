@@ -11,14 +11,14 @@
      id="membres-accordion"
      role="tablist"
      aria-multiselectable="true"
-     data-prototype="{{ _self.membre_panel(form.membres.vars.prototype, activites_by_type, natures_by_type)|e('html_attr') }}">
+     data-prototype="{{ _self.membre_panel(form.membres.vars.prototype, natures_by_type)|e('html_attr') }}">
     {% if form.membres|length == 0 %}
         <div class="no-membres-message">
             <p class="text-muted"><em>Aucun membre défini pour cette commission.</em></p>
         </div>
     {% else %}
         {% for membre_form in form.membres %}
-            {{ _self.membre_panel(membre_form, activites_by_type, natures_by_type) }}
+            {{ _self.membre_panel(membre_form, natures_by_type) }}
         {% endfor %}
     {% endif %}
 </div>
@@ -30,7 +30,7 @@
 </div>
 
 {# Macro : rendu d'un panel membre #}
-{% macro membre_panel(membre_form, activites_by_type, natures_by_type) %}
+{% macro membre_panel(membre_form, natures_by_type) %}
     {% import _self as macros %}
     {% set name = membre_form.vars.name %}
     {% set libelle = membre_form.libelle.vars.value ?: 'Nouveau membre' %}
@@ -43,17 +43,6 @@
     {% for nature_widget in membre_form.naturesDossier %}
         {% set nature_widgets = nature_widgets|merge({(nature_widget.vars.value ~ ''): nature_widget}) %}
     {% endfor %}
-
-    {#
-        Construit le dictionnaire des widgets d'activités : activite_id (string) => widget
-        Le champ types est un EntityType mappé, groupé par type ERP.
-        En itérant sur membre_form.types on obtient les widgets individuels (checkboxes).
-    #}
-    {% set activite_widgets = {} %}
-    {% for activite_widget in membre_form.types %}
-        {% set activite_widgets = activite_widgets|merge({(activite_widget.vars.value ~ ''): activite_widget}) %}
-    {% endfor %}
-    {% do membre_form.types.setRendered %}
 
     <div class="panel panel-default membre-rule">
         <div class="panel-heading" role="tab" id="heading-membre-{{ name }}">
@@ -145,15 +134,17 @@
 
                     {#
                         Activités ERP groupées par type ERP.
-                        activites_by_type = array<string typeLibelle, EtablissementActivite[]>
-                        activite_widgets  = dict<string activiteId, FormView>
-                        On itère sur les groupes de activites_by_type pour afficher les checkboxes
-                        dans le bon ordre/groupe, en retrouvant le widget via son ID (string).
+                        On utilise membre_form.types.vars.choices (ChoiceGroupView[])
+                        produit par le group_by du FormType — label et choices garantis corrects.
+                        Chaque ChoiceGroupView a : label (libellé du type ERP), choices (ChoiceView[]).
+                        Chaque ChoiceView a : value (ID string de l'activité), label (libellé activité).
+                        Le widget est accessible directement via membre_form.types[choice.value].
                     #}
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label><strong>Types d'activité ERP</strong></label>
-                            {% for type_libelle, activites in activites_by_type %}
+                            {% do membre_form.types.setRendered %}
+                            {% for group in membre_form.types.vars.choices %}
                                 {% set group_key = name ~ '-act-' ~ loop.index %}
                                 <div class="activite-group">
                                     <div class="activite-group-header">
@@ -161,21 +152,18 @@
                                             <input type="checkbox"
                                                    class="activite-group-toggle"
                                                    data-group="{{ group_key }}"
-                                                   aria-label="Tout sélectionner {{ type_libelle }}">
-                                            <strong>{{ type_libelle }}</strong>
+                                                   aria-label="Tout sélectionner {{ group.label }}">
+                                            <strong>{{ group.label }}</strong>
                                         </label>
                                     </div>
                                     <div id="activite-group-{{ group_key }}" class="activite-group-checkboxes">
-                                        {% for activite in activites %}
-                                            {% set activite_id = activite.id ~ '' %}
-                                            {% if activite_widgets[activite_id] is defined %}
-                                                <div class="checkbox activite-group-item" data-group="{{ group_key }}">
-                                                    <label>
-                                                        {{ form_widget(activite_widgets[activite_id]) }}
-                                                        {{ activite.libelle }}
-                                                    </label>
-                                                </div>
-                                            {% endif %}
+                                        {% for choice in group.choices %}
+                                            <div class="checkbox activite-group-item" data-group="{{ group_key }}">
+                                                <label>
+                                                    {{ form_widget(membre_form.types[choice.value]) }}
+                                                    {{ choice.label }}
+                                                </label>
+                                            </div>
                                         {% endfor %}
                                     </div>
                                 </div>

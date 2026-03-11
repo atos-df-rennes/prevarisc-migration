@@ -6,7 +6,6 @@ use App\Entity\Commission;
 use App\Form\CommissionMembresCollectionType;
 use App\Repository\CommissionMembreRepository;
 use App\Repository\DossierNatureListeRepository;
-use App\Repository\EtablissementTypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,21 +24,16 @@ class CommissionMembresController extends AbstractController
     /** @var CommissionMembreRepository */
     private $membreRepository;
 
-    /** @var EtablissementTypeRepository */
-    private $etablissementTypeRepository;
-
     /** @var DossierNatureListeRepository */
     private $dossierNatureListeRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         CommissionMembreRepository $membreRepository,
-        EtablissementTypeRepository $etablissementTypeRepository,
         DossierNatureListeRepository $dossierNatureListeRepository
     ) {
         $this->entityManager = $entityManager;
         $this->membreRepository = $membreRepository;
-        $this->etablissementTypeRepository = $etablissementTypeRepository;
         $this->dossierNatureListeRepository = $dossierNatureListeRepository;
     }
 
@@ -52,8 +46,6 @@ class CommissionMembresController extends AbstractController
     {
         // Pré-chargement des membres avec leurs relations pour éviter N+1
         $this->membreRepository->findByCommissionWithRelations($commission);
-
-        $activitesByType = $this->etablissementTypeRepository->findActivitesGroupedByType();
 
         $form = $this->createForm(CommissionMembresCollectionType::class, $commission, [
             'commission' => $commission,
@@ -73,7 +65,6 @@ class CommissionMembresController extends AbstractController
             'commission' => $commission,
             'active_tab' => 'membres',
             'form' => $form->createView(),
-            'activites_by_type' => $activitesByType,
             'natures_by_type' => $this->dossierNatureListeRepository->findNaturesGroupedByType(),
         ]);
     }
