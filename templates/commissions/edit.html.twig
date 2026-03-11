@@ -102,6 +102,10 @@
         </div>
     {% endif %}
 
+    {% if active_tab == 'membres' %}
+        <script src="{{ asset('js/commission/membres.js') }}"></script>
+    {% endif %}
+
     {% if active_tab == 'courriers' %}
         <script type="text/javascript">
             $(document).ready(function() {
