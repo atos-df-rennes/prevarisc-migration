@@ -26,19 +26,22 @@
     padding: 6px 10px;
 }
 
-/* Groupes activités ERP — même style que les blocs types/natures de dossier */
-.activite-group-block {
+/* Groupes activités ERP et blocs types/natures de dossier — styles partagés */
+.activite-group-block,
+.dossier-type-block {
     border: 1px solid #e8e8e8;
     border-radius: 4px;
     padding: 8px 10px;
     margin-bottom: 8px;
 }
 
-.activite-group-header {
+.activite-group-header,
+.dossier-type-header {
     margin-bottom: 4px;
 }
 
-.activite-group-label {
+.activite-group-label,
+.dossier-type-label {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -47,12 +50,19 @@
     margin-bottom: 0;
 }
 
-.activite-group-label input[type="checkbox"] {
+/* Le libellé du type de dossier est en gras (parent des natures) */
+.dossier-type-label {
+    font-weight: bold;
+}
+
+.activite-group-label input[type="checkbox"],
+.dossier-type-label input[type="checkbox"] {
     margin-top: 0;
     flex-shrink: 0;
 }
 
-.activites-list {
+.activites-list,
+.dossier-natures-list {
     max-height: 160px;
     overflow-y: auto;
     margin-top: 4px;
@@ -69,38 +79,4 @@
 .dossier-natures-list .checkbox {
     margin-top: 2px;
     margin-bottom: 2px;
-}
-
-.dossier-type-block {
-    border: 1px solid #e8e8e8;
-    border-radius: 4px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
-}
-
-.dossier-type-header {
-    margin-bottom: 4px;
-}
-
-.dossier-type-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 0;
-}
-
-.dossier-type-label input[type="checkbox"] {
-    margin-top: 0;
-    flex-shrink: 0;
-}
-
-.dossier-natures-list {
-    max-height: 160px;
-    overflow-y: auto;
-    margin-top: 4px;
-    margin-left: 16px;
-    padding-left: 4px;
 }
