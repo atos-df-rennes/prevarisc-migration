@@ -17,7 +17,6 @@ class CommissionMembresCollectionType extends AbstractType
             'entry_options' => [
                 'label' => false,
                 'commission' => $options['commission'],
-                'activites_by_type' => $options['activites_by_type'],
             ],
             'allow_add' => true,
             'allow_delete' => true,
@@ -32,11 +31,9 @@ class CommissionMembresCollectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Commission::class,
-            'activites_by_type' => [],
         ]);
 
         $resolver->setRequired('commission');
         $resolver->setAllowedTypes('commission', Commission::class);
-        $resolver->setAllowedTypes('activites_by_type', 'array');
     }
 }

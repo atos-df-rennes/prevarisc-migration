@@ -123,8 +123,28 @@ class CommissionMembreType extends AbstractType
             },
         ]);
 
-        // Activités ERP groupées par type - champ non-mappé (ChoiceType)
-        // Synchronisé vers CommissionMembre::types via PRE_SET_DATA / POST_SUBMIT
+        // Activités ERP - EntityType mappé sur CommissionMembre::types, groupé par type ERP
+        $builder->add('types', EntityType::class, [
+            'class' => EtablissementActivite::class,
+            'choice_label' => 'libelle',
+            'multiple' => true,
+            'expanded' => true,
+            'required' => false,
+            'label' => 'Types d\'activité ERP',
+            'group_by' => function (EtablissementActivite $activite): string {
+                $type = $activite->getType();
+
+                return null !== $type ? (string) $type->getLibelle() : 'Autres';
+            },
+            'query_builder' => function (EntityRepository $er) {
+                return $er->createQueryBuilder('a')
+                    ->leftJoin('a.type', 't')
+                    ->addSelect('t')
+                    ->orderBy('t.libelle', 'ASC')
+                    ->addOrderBy('a.libelle', 'ASC');
+            },
+        ]);
+
         $builder->add('classes', EntityType::class, [
             'class' => IghClasse::class,
             'choice_label' => 'libelle',
@@ -178,29 +198,6 @@ class CommissionMembreType extends AbstractType
         $form = $event->getForm();
         $membre = $event->getData();
 
-        // Calcul des activités disponibles groupées par type ERP
-        /** @var array<string, EtablissementActivite[]> $activitesByType */
-        $activitesByType = $form->getConfig()->getOption('activites_by_type');
-        $activiteChoices = $this->buildActiviteChoices($activitesByType);
-
-        // Valeurs initiales : ids des activités déjà sélectionnées
-        $selectedActiviteIds = [];
-        if ($membre instanceof CommissionMembre) {
-            foreach ($membre->getTypes() as $activite) {
-                $selectedActiviteIds[] = $activite->getId();
-            }
-        }
-
-        $form->add('activites', ChoiceType::class, [
-            'label' => 'Types d\'activité ERP',
-            'choices' => $activiteChoices,
-            'multiple' => true,
-            'expanded' => true,
-            'required' => false,
-            'mapped' => false,
-            'data' => $selectedActiviteIds,
-        ]);
-
         // Détermine le type de membre initial
         $typeMembre = 3; // Commune par défaut
         if ($membre instanceof CommissionMembre) {
@@ -237,50 +234,6 @@ class CommissionMembreType extends AbstractType
         if (1 !== $typeMembre) {
             $membre->setGroupement(null);
         }
-
-        // Note : utilisateurInformations n'est volontairement pas sauvegardé selon le type
-        // (comportement iso-fonctionnel avec le legacy qui ne traitait pas ce champ dans saveMembresAction)
-
-        // Synchronise les activités ERP (types) depuis le champ non-mappé
-        $submittedActiviteIds = $form->get('activites')->getData();
-        if (!is_array($submittedActiviteIds)) {
-            $submittedActiviteIds = [];
-        }
-
-        /** @var array<string, EtablissementActivite[]> $activitesByType */
-        $activitesByType = $form->getConfig()->getOption('activites_by_type');
-
-        /** @var array<int, EtablissementActivite> $activitesById */
-        $activitesById = [];
-        foreach ($activitesByType as $activites) {
-            foreach ($activites as $activite) {
-                $activitesById[(int) $activite->getId()] = $activite;
-            }
-        }
-
-        // Supprime les activités non soumises
-        $toRemove = [];
-        foreach ($membre->getTypes() as $existing) {
-            if (!in_array($existing->getId(), $submittedActiviteIds, true)) {
-                $toRemove[] = $existing;
-            }
-        }
-
-        foreach ($toRemove as $activite) {
-            $membre->removeType($activite);
-        }
-
-        // Ajoute les nouvelles activités soumises
-        foreach ($submittedActiviteIds as $id) {
-            if (!is_int($id) && !is_string($id)) {
-                continue;
-            }
-
-            $intId = (int) $id;
-            if (isset($activitesById[$intId])) {
-                $membre->addType($activitesById[$intId]);
-            }
-        }
     }
 
     public function getBlockPrefix(): string
@@ -292,31 +245,9 @@ class CommissionMembreType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => CommissionMembre::class,
-            'activites_by_type' => [],
         ]);
 
         $resolver->setRequired('commission');
         $resolver->setAllowedTypes('commission', Commission::class);
-        $resolver->setAllowedTypes('activites_by_type', 'array');
-    }
-
-    /**
-     * Construit les choix du ChoiceType activites en groupant par libellé de type ERP.
-     *
-     * @param array<string, EtablissementActivite[]> $activitesByType
-     *
-     * @return array<string, array<string, int>>
-     */
-    private function buildActiviteChoices(array $activitesByType): array
-    {
-        $choices = [];
-        foreach ($activitesByType as $typeLibelle => $activites) {
-            $choices[$typeLibelle] = [];
-            foreach ($activites as $activite) {
-                $choices[$typeLibelle][(string) $activite->getLibelle()] = (int) $activite->getId();
-            }
-        }
-
-        return $choices;
     }
 }

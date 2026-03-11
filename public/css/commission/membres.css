@@ -26,23 +26,45 @@
     padding: 6px 10px;
 }
 
+/* Groupes activités ERP — affichage compact (style dossier-type-block) */
 .activite-group {
     border: 1px solid #e8e8e8;
     border-radius: 4px;
     padding: 6px 10px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .activite-group-header {
+    margin-bottom: 2px;
+}
+
+.activite-group-label {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.activite-group-label input[type="checkbox"] {
+    margin-top: 0;
+    flex-shrink: 0;
 }
 
 .activite-group-checkboxes {
     max-height: 150px;
     overflow-y: auto;
+    padding-left: 20px;
+}
+
+.activite-group-item {
+    margin: 0;
+}
+
+.activite-group-item label {
+    font-weight: normal;
+    padding: 1px 0;
 }
 
 .dossier-type-block {
@@ -57,8 +79,17 @@
 }
 
 .dossier-type-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 14px;
     cursor: pointer;
+    margin-bottom: 0;
+}
+
+.dossier-type-label input[type="checkbox"] {
+    margin-top: 0;
+    flex-shrink: 0;
 }
 
 .dossier-natures-list {
@@ -72,10 +103,7 @@
     list-style: none;
 }
 
-.type-membre-widget {
-    padding-top: 25px;
-}
-
-.ml-3 {
-    margin-left: 12px;
+.dossier-nature-item label {
+    font-weight: normal;
+    padding: 1px 0;
 }
