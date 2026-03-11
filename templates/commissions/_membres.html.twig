@@ -103,41 +103,20 @@
 
                 <hr/>
 
-                {# Section ERP — Catégories + Classes sur la même ligne #}
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="form-group">
-                            <label><strong>Catégories ERP</strong></label>
-                            <div class="mb-2">
-                                <button type="button"
-                                        class="btn btn-xs btn-default select-all-checkbox-btn"
-                                        data-target="{{ membre_form.categories.vars.id }}">
-                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
-                                </button>
-                            </div>
-                            <div id="{{ membre_form.categories.vars.id }}" class="checkbox-scrollable-area">
-                                {{ form_widget(membre_form.categories) }}
-                            </div>
-                            {{ form_errors(membre_form.categories) }}
-                        </div>
+                {# Section ERP #}
+                <div class="form-group">
+                    <label><strong>Catégories ERP</strong></label>
+                    <div class="mb-2">
+                        <button type="button"
+                                class="btn btn-xs btn-default select-all-checkbox-btn"
+                                data-target="{{ membre_form.categories.vars.id }}">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
+                        </button>
                     </div>
-
-                    <div class="col-sm-6">
-                        <div class="form-group">
-                            <label><strong>Classes IGH</strong></label>
-                            <div class="mb-2">
-                                <button type="button"
-                                        class="btn btn-xs btn-default select-all-checkbox-btn"
-                                        data-target="{{ membre_form.classes.vars.id }}">
-                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
-                                </button>
-                            </div>
-                            <div id="{{ membre_form.classes.vars.id }}" class="checkbox-scrollable-area">
-                                {{ form_widget(membre_form.classes) }}
-                            </div>
-                            {{ form_errors(membre_form.classes) }}
-                        </div>
+                    <div id="{{ membre_form.categories.vars.id }}" class="checkbox-scrollable-area">
+                        {{ form_widget(membre_form.categories) }}
                     </div>
+                    {{ form_errors(membre_form.categories) }}
                 </div>
 
                 {#
@@ -174,9 +153,30 @@
                                     </ul>
                                 </div>
                             </div>
+
+                            {% if loop.index % 3 == 0 %}
+                                <div class="clearfix"></div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                     {{ form_errors(membre_form.types) }}
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                    <label><strong>Classes IGH</strong></label>
+                    <div class="mb-2">
+                        <button type="button"
+                                class="btn btn-xs btn-default select-all-checkbox-btn"
+                                data-target="{{ membre_form.classes.vars.id }}">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
+                        </button>
+                    </div>
+                    <div id="{{ membre_form.classes.vars.id }}" class="checkbox-scrollable-area">
+                        {{ form_widget(membre_form.classes) }}
+                    </div>
+                    {{ form_errors(membre_form.classes) }}
                 </div>
 
                 <hr/>
