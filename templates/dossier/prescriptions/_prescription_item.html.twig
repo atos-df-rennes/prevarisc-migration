@@ -9,24 +9,24 @@
 {% set nb_assoc = associations|length %}
 
 {% if nb_assoc > 0 %}
-<li class="table-responsive" id="prescriptionDossier_{{ prescription.id }}" style="list-style-type: none; margin-bottom: 15px;">
-    <table class="table">
+<li class="list-unstyled mb-3" id="prescriptionDossier_{{ prescription.id }}">
+    <table class="table table-bordered">
         {% for assoc in associations %}
             <tr>
-                <td class="col-sm-3">{{ assoc.texte ? assoc.texte.libelle : '' }}</td>
-                <td class="col-sm-2">{{ assoc.article ? assoc.article.libelle : '' }}</td>
+                <td class="col-xs-3">{{ assoc.texte ? assoc.texte.libelle : '' }}</td>
+                <td class="col-xs-2">{{ assoc.article ? assoc.article.libelle : '' }}</td>
 
                 {% if loop.first %}
                     {% if prescription.type != 0 %}
-                        <td rowspan="{{ nb_assoc }}" class="col-sm-1 numPresc">
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1 numPresc">
                             {{ prescription.numero }}
                         </td>
                     {% endif %}
 
-                    <td rowspan="{{ nb_assoc }}" class="col-sm-{{ prescription.type != 0 ? 5 : 6 }}">
+                    <td rowspan="{{ nb_assoc }}" class="col-xs-{{ prescription.type != 0 ? 5 : 6 }}">
                         {% if prescription.dossierReprise is not null %}
                             <div>
-                                <span class="label label-warning">
+                                <span class="label label-warning label--prescription-reprise">
                                     Reprise du dossier
                                     <a href="{{ path('dossier_index', {id: prescription.dossierReprise.id}) }}" target="_blank">
                                         {% if prescription.dossierReprise.objet %}
@@ -48,14 +48,15 @@
                         {% endif %}
 
                         {% if prescription.justificatif %}
-                            <i
-                                class="glyphicon glyphicon-info-sign"
+                            <span
+                                class="glyphicon glyphicon-info-sign icon-label-right"
                                 data-toggle="popover"
                                 data-placement="top"
                                 data-content="{{ prescription.justificatif|nl2br|e('html_attr') }}"
                                 data-html="true"
                                 title="Justification"
-                            ></i>
+                                aria-hidden="true"
+                            ></span>
                         {% endif %}
 
                         <p>
@@ -68,7 +69,7 @@
                     </td>
 
                     {% if not dossier.verrou %}
-                        <td rowspan="{{ nb_assoc }}" class="col-sm-1">
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1">
                             {# Placeholder — Phase 3 : modification #}
                             <a class="btn btn-default btn-sm disabled">Modifier</a>
                         </td>
