@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Service\DossierPrescriptionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -28,12 +29,11 @@ class DossierPrescriptionController extends AbstractController
      */
     public function index(Dossier $dossier): Response
     {
-        // @todo: Mettre des constantes plutôt que les int en dur
         return $this->render('dossier/prescriptions/index.html.twig', [
             'dossier' => $dossier,
-            'prescriptionsRegl' => $this->service->getPrescriptionsParType($dossier, 0),
-            'prescriptionsExploitation' => $this->service->getPrescriptionsParType($dossier, 1),
-            'prescriptionsAmelioration' => $this->service->getPrescriptionsParType($dossier, 2),
+            'prescriptionsRegl' => $this->service->getPrescriptionsParType($dossier, TypePrescription::REGLEMENTAIRE),
+            'prescriptionsExploitation' => $this->service->getPrescriptionsParType($dossier, TypePrescription::EXPLOITATION),
+            'prescriptionsAmelioration' => $this->service->getPrescriptionsParType($dossier, TypePrescription::AMELIORATION),
         ]);
     }
 }
