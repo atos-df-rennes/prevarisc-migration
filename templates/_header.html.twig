@@ -18,7 +18,7 @@
                         Établissements <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href='/search/etablissement?label=&page=1'><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Rechercher</a></li>
+                        <li><a href='/search/etablissement?label=&page=1&Rechercher=Rechercher'><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Rechercher</a></li>
                         <li><a href='/etablissement/add'><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter</a></li>
                     </ul>
                 </li>
@@ -27,7 +27,7 @@
                         Dossiers <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href='/search/dossier?objet=&page=1'><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>  Rechercher</a></li>
+                        <li><a href='/search/dossier?objet=&page=1&Rechercher=Rechercher'><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>  Rechercher</a></li>
                         <li><a href='/dossier/add'><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>  Ajouter</a></li>
                     </ul>
                 </li>
@@ -47,14 +47,15 @@
                     <form class="navbar-search navbar-form" action="/search/etablissement" method="get">
                         <div class="input-group">
                             <input name="label" class="form-control" id="nav-main-search-field" type="text" placeholder="Rechercher ..." />
+                            <input name="page" type="hidden" value="1" />
+                            <input name="Rechercher" type="hidden" value="Rechercher"  />
                             <div class="input-group-btn">
                                 <button class="btn btn-default" type="submit">
                                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                 </button>
-                                <a class="btn btn-default" href="/search/etablissement?&statuts%5B%5D=2&statuts%5B%5D=4">Avancée &raquo;</a>
+                                <a class="btn btn-default" href="/search/etablissement?Rechercher=Rechercher&statuts%5B%5D=2&statuts%5B%5D=4">Avancée &raquo;</a>
                             </div>
                         </div>
-                        <input name="page" type="hidden" value="1" />
                     </form>
                 </li>
             </ul>
