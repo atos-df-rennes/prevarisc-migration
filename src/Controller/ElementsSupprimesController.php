@@ -83,7 +83,7 @@ class ElementsSupprimesController extends AbstractController
         $this->addFlash('success', 'Le dossier a bien été rétabli.');
 
         // Redirection vers le LegacyController pour nettoyer le cache
-        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$request->headers->get('referer'));
+        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$request->headers->get('referer'));
     }
 
     /**
@@ -99,6 +99,6 @@ class ElementsSupprimesController extends AbstractController
         // Redirection vers le LegacyController pour nettoyer le cache
         $target = $this->urlGenerator->generate('admin_elements_supprimes');
 
-        return $this->redirect('/legacy/admin/elements-supprimes/clear-search-cache-and-redirect?target='.$target);
+        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$target);
     }
 }
