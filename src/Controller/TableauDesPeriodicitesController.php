@@ -13,8 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-// @todo: Faire la route qui applique les périodicités
 /**
  * @IsGranted("periodicites")
  */
@@ -40,12 +40,21 @@ class TableauDesPeriodicitesController extends AbstractController
      */
     private $ighClasseRepository;
 
-    public function __construct(PeriodiciteRepository $periodiciteRepository, EtablissementTypeRepository $etablissementTypeRepository, EtablissementCategorieRepository $etablissementCategorieRepository, IghClasseRepository $ighClasseRepository)
-    {
+    /** @var \Symfony\Component\Routing\Generator\UrlGeneratorInterface */
+    private $urlGenerator;
+
+    public function __construct(
+        PeriodiciteRepository $periodiciteRepository,
+        EtablissementTypeRepository $etablissementTypeRepository,
+        EtablissementCategorieRepository $etablissementCategorieRepository,
+        IghClasseRepository $ighClasseRepository,
+        UrlGeneratorInterface $urlGenerator
+    ) {
         $this->periodiciteRepository = $periodiciteRepository;
         $this->etablissementTypeRepository = $etablissementTypeRepository;
         $this->etablissementCategorieRepository = $etablissementCategorieRepository;
         $this->ighClasseRepository = $ighClasseRepository;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -114,6 +123,33 @@ class TableauDesPeriodicitesController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Le tableau des périodicités a bien été sauvegardé.');
+
+        return $this->redirectToRoute('admin_tableau_des_periodicites');
+    }
+
+    /**
+     * @Route("/admin/tableau-des-periodicites/appliquer", name="admin_tableau_des_periodicites_apply", methods={"POST"})
+     */
+    public function apply(Request $request): Response
+    {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('apply_periodicites', $csrfToken)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('admin_tableau_des_periodicites');
+        }
+
+        try {
+            $this->periodiciteRepository->applyPeriodicites();
+            $this->addFlash('success', 'Les périodicités ont bien été appliquées à tous les établissements.');
+
+            $target = $this->urlGenerator->generate('admin_tableau_des_periodicites');
+
+            return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$target);
+        } catch (\Throwable $throwable) {
+            $this->addFlash('danger', 'Erreur lors de l\'application des périodicités : '.$throwable->getMessage());
+        }
 
         return $this->redirectToRoute('admin_tableau_des_periodicites');
     }
