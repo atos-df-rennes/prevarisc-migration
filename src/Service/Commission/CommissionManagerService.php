@@ -29,6 +29,10 @@ final class CommissionManagerService
      * Sauvegarde les commissions soumises et supprime celles absentes de la soumission.
      * Synchronise ensuite le filesystem (création/suppression de répertoires).
      *
+     * Note d'intégrité : en cas d'échec filesystem après le flush, la base de données
+     * reste authoritative. Les répertoires manquants peuvent être recréés manuellement.
+     * Probabilité : très faible (échec DB est davantage susceptible d'arriver que l'inverse).
+     *
      * @param Commission[] $originalCommissions  Commissions avant soumission du formulaire
      * @param Commission[] $submittedCommissions Commissions issues du formulaire
      *
