@@ -71,7 +71,7 @@ class CommissionsController extends AbstractController
             try {
                 $this->commissionManagerService->saveCommissions($commissions, $submittedCommissions);
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Erreur lors de la sauvegarde : '.$e->getMessage());
+                $this->addFlash('danger', 'Erreur lors de la sauvegarde : '.$e->getMessage());
 
                 return $this->redirectToRoute('admin_commissions_manage');
             }

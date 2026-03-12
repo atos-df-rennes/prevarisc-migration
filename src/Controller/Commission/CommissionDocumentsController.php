@@ -103,14 +103,14 @@ class CommissionDocumentsController extends AbstractController
     public function uploadCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
     {
         if (!CommissionMembreCourrierType::isValid($type)) {
-            $this->addFlash('error', 'Type de courrier invalide.');
+            $this->addFlash('danger', 'Type de courrier invalide.');
 
             return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
         }
 
         $membre = $this->commissionMembreRepository->find($membreId);
         if (null === $membre || $membre->getCommission() !== $commission) {
-            $this->addFlash('error', 'Membre introuvable.');
+            $this->addFlash('danger', 'Membre introuvable.');
 
             return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
         }
@@ -128,7 +128,7 @@ class CommissionDocumentsController extends AbstractController
                 $this->commissionMembreCourrierService->upload($membre, $type, $file);
                 $this->addFlash('success', 'Le courrier a bien été sauvegardé.');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Le téléchargement a échoué.');
+                $this->addFlash('danger', 'Le téléchargement a échoué.');
             }
         }
 
@@ -146,20 +146,20 @@ class CommissionDocumentsController extends AbstractController
         $token = $request->request->get('_token', '');
 
         if (!$this->isCsrfTokenValid('delete_courrier_'.$membreId.'_'.$type, $token)) {
-            $this->addFlash('error', 'Token de sécurité invalide.');
+            $this->addFlash('danger', 'Token de sécurité invalide.');
 
             return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
         }
 
         if (!CommissionMembreCourrierType::isValid($type)) {
-            $this->addFlash('error', 'Type de courrier invalide.');
+            $this->addFlash('danger', 'Type de courrier invalide.');
 
             return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
         }
 
         $membre = $this->commissionMembreRepository->find($membreId);
         if (null === $membre || $membre->getCommission() !== $commission) {
-            $this->addFlash('error', 'Membre introuvable.');
+            $this->addFlash('danger', 'Membre introuvable.');
 
             return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
         }
@@ -168,7 +168,7 @@ class CommissionDocumentsController extends AbstractController
             $this->commissionMembreCourrierService->delete($membre, $type);
             $this->addFlash('success', 'Le courrier a bien été supprimé.');
         } catch (\Exception $exception) {
-            $this->addFlash('error', 'Erreur lors de la suppression du courrier.');
+            $this->addFlash('danger', 'Erreur lors de la suppression du courrier.');
         }
 
         return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
@@ -195,7 +195,7 @@ class CommissionDocumentsController extends AbstractController
                 $this->commissionDocumentCrService->upload($commission, $file);
                 $this->addFlash('success', 'Le document a bien été sauvegardé.');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Le téléchargement a échoué.');
+                $this->addFlash('danger', 'Le téléchargement a échoué.');
             }
 
             return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
@@ -221,7 +221,7 @@ class CommissionDocumentsController extends AbstractController
         $token = $request->request->get('_token', '');
 
         if (!$this->isCsrfTokenValid('delete_commission_document_'.$commission->getId(), $token)) {
-            $this->addFlash('error', 'Token de sécurité invalide.');
+            $this->addFlash('danger', 'Token de sécurité invalide.');
 
             return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
         }
@@ -230,7 +230,7 @@ class CommissionDocumentsController extends AbstractController
             $this->commissionDocumentCrService->delete($commission);
             $this->addFlash('success', 'Le document a bien été supprimé.');
         } catch (\Exception $exception) {
-            $this->addFlash('error', 'Erreur lors de la suppression du document.');
+            $this->addFlash('danger', 'Erreur lors de la suppression du document.');
         }
 
         return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
