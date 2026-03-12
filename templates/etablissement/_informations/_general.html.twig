@@ -86,19 +86,29 @@
         <dt>Types & activités</dt>
         <dd>
             <ul class="list-unstyled">
-                <li>
-                    <strong>
-                        {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ infos.type.libelle ~ '.png') %}
+                {% if infos.type is not null or infos.typeActivite is not null %}
+                    <li>
+                        <strong>
+                            {% if infos.type is not null %}
+                                {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ infos.type.libelle ~ '.png') %}
 
-                        {% if asset_exist(etablissement_type_asset_path) %}
-                            <img src="{{ etablissement_type_asset_path }}" title="{{ infos.type.libelle }}" />&nbsp;-&nbsp;
-                        {% else %}
-                            {{ infos.type.libelle }}&nbsp;-&nbsp;
-                        {% endif %}
+                                {% if asset_exist(etablissement_type_asset_path) %}
+                                    <img src="{{ etablissement_type_asset_path }}" title="{{ infos.type.libelle }}" />
+                                {% else %}
+                                    {{ infos.type.libelle }}
+                                {% endif %}
+                            {% endif %}
 
-                        {{ infos.typeActivite.libelle }}
-                    </strong>
-                </li>
+                            {% if infos.type is not null and infos.typeActivite is not null %}
+                                -
+                            {% endif %}
+
+                            {% if infos.typeActivite is not null %}
+                                {{ infos.typeActivite.libelle }}
+                            {% endif %}
+                        </strong>
+                    </li>
+                {% endif %}
                 {% for type_activite in infos.typesActivitesSecondaires %}
                     {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ type_activite.type.libelle ~ '.png') %}
                     <li>
