@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -45,5 +46,32 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Retourne les prescriptions d'un dossier pour un type donné, avec toutes les associations chargées.
+     *
+     * @return PrescriptionDossier[]
+     */
+    public function findByDossierAndType(Dossier $dossier, int $type): array
+    {
+        return $this->createQueryBuilder('pd')
+            ->leftJoin('pd.associations', 'a')->addSelect('a')
+            ->leftJoin('a.texte', 't')->addSelect('t')
+            ->leftJoin('a.article', 'ar')->addSelect('ar')
+            ->leftJoin('pd.prescriptionType', 'pt')->addSelect('pt')
+            ->leftJoin('pt.associations', 'pta')->addSelect('pta')
+            ->leftJoin('pta.texte', 'ptt')->addSelect('ptt')
+            ->leftJoin('pta.article', 'ptar')->addSelect('ptar')
+            ->where('pd.dossier = :dossier')
+            ->andWhere('pd.type = :type')
+            ->setParameter('dossier', $dossier)
+            ->setParameter('type', $type)
+            ->orderBy('pd.numero', 'ASC')
+            ->addOrderBy('a.numero', 'ASC')
+            ->addOrderBy('pta.numero', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

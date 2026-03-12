@@ -40,7 +40,7 @@ class TableauDesPeriodicitesController extends AbstractController
      */
     private $ighClasseRepository;
 
-    /** @var \Symfony\Component\Routing\Generator\UrlGeneratorInterface */
+    /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
     public function __construct(
