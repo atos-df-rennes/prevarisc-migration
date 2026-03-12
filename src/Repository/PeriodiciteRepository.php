@@ -28,12 +28,12 @@ class PeriodiciteRepository extends ServiceEntityRepository
      * Récupère une entité Periodicite en fonction de la catégorie, du type et du local de sommeil.
      *
      * @param int    $categorie    la catégorie spécifique de la periodicité
-     * @param int    $type         le type spécifique de la periodicité
-     * @param string $localSommeil le local de sommeil associé à la periodicité
+     * @param string $type         le type spécifique de la periodicité
+     * @param bool   $localSommeil le local de sommeil associé à la periodicité
      *
      * @return Periodicite|null renvoie l'entité Periodicite correspondante ou null si aucune correspondance trouvée
      */
-    public function gn4(int $categorie, int $type, string $localSommeil): ?Periodicite
+    public function gn4(int $categorie, string $type, bool $localSommeil): ?Periodicite
     {
         // On prépare la requête SQL
         $queryBuilder = $this->createQueryBuilder('periodicite');
