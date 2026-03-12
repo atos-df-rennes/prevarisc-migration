@@ -6,6 +6,7 @@ use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Periodicite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Exception;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -46,6 +47,50 @@ class PeriodiciteRepository extends ServiceEntityRepository
         ;
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Applique les périodicités du tableau à tous les établissements actifs.
+     *
+     * Met à jour la périodicité de la dernière fiche d'informations de chaque établissement
+     * en se basant sur les valeurs configurées dans le tableau des périodicités.
+     *
+     * Note : utilise du SQL natif car l'UPDATE...INNER JOIN multi-table n'est pas supporté en DQL.
+     *
+     * @throws Exception
+     */
+    public function applyPeriodicites(): void
+    {
+        $sql = 'UPDATE etablissementinformations
+                INNER JOIN periodicite
+                    ON periodicite.ID_CATEGORIE = etablissementinformations.ID_CATEGORIE
+                    AND periodicite.ID_TYPE = etablissementinformations.ID_TYPE
+                    AND periodicite.LOCALSOMMEIL_PERIODICITE = etablissementinformations.LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS
+                SET PERIODICITE_ETABLISSEMENTINFORMATIONS = periodicite.PERIODICITE_PERIODICITE
+                WHERE etablissementinformations.ID_ETABLISSEMENTINFORMATIONS IN (
+                    SELECT * FROM (
+                        SELECT ID_ETABLISSEMENTINFORMATIONS
+                        FROM etablissementinformations
+                        INNER JOIN etablissement
+                            ON etablissementinformations.ID_ETABLISSEMENT = etablissement.ID_ETABLISSEMENT
+                        WHERE etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                            SELECT MAX(DATE_ETABLISSEMENTINFORMATIONS)
+                            FROM etablissementinformations
+                            WHERE ID_ETABLISSEMENT = etablissement.ID_ETABLISSEMENT
+                        )
+                    ) AS latest_infos
+                )';
+
+        $connection = $this->getEntityManager()->getConnection();
+        $connection->beginTransaction();
+
+        try {
+            $connection->executeStatement($sql);
+            $connection->commit();
+        } catch (\Throwable $throwable) {
+            $connection->rollBack();
+            throw $throwable;
+        }
     }
 
     /**
