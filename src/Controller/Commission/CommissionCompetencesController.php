@@ -76,8 +76,16 @@ class CommissionCompetencesController extends AbstractController
      *
      * @Route("/admin/commissions/{id}/competences/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
      */
-    public function applyRegles(Commission $commission): Response
+    public function applyRegles(Request $request, Commission $commission): Response
     {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('apply_regles_competence', $csrfToken)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
+        }
+
         $etablissements = $this->etablissementInformationsRepository->findForCompetenceApplication();
         $matchingIds = $this->competenceService->findMatchingEtablissementIds($commission, $etablissements);
 
@@ -87,10 +95,16 @@ class CommissionCompetencesController extends AbstractController
             return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
         }
 
-        $this->etablissementInformationsRepository->updateCommissionForEtablissements(
+        $numberOfUpdatedEtablissements = $this->etablissementInformationsRepository->updateCommissionForEtablissements(
             (int) $commission->getId(),
             $matchingIds
         );
+
+        if (0 === $numberOfUpdatedEtablissements) {
+            $this->addFlash('info', 'Les règles de compétence ont déjà été appliquées à tous les établissements concernés.');
+        } else {
+            $this->addFlash('success', \sprintf('Les règles de compétence ont été appliquées à %d établissement(s).', $numberOfUpdatedEtablissements));
+        }
 
         $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
 
