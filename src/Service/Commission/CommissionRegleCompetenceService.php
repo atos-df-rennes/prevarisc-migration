@@ -60,8 +60,8 @@ class CommissionRegleCompetenceService
      * Vérifie si un établissement ERP correspond à une règle de compétence.
      * Critères : commune, local sommeil, type d'activité, catégorie.
      *
-     * La sémantique reproduit le comportement legacy :
-     * si une collection est vide, la valeur attendue est NULL (correspondance stricte).
+     * Si une collection est vide, la règle est écartée car cela n'a fonctionnellement pas de sens.
+     * Si l'on veut faire une comparaison sur l'entiereté du critère, on coche dans ce cas toutes les valeurs disponibles.
      *
      * @param array{ID_ETABLISSEMENTINFORMATIONS: string, ID_GENRE: string, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: bool|null, ID_TYPE: string|null, ID_CATEGORIE: string|null, ID_CLASSE: string|null} $ets
      */
