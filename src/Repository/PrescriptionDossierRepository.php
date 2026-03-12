@@ -2,10 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,26 +23,52 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Retourne les prescriptions d'un dossier pour un type donné, avec toutes les associations chargées.
+     *
+     * Reproduit le comportement legacy :
+     * - Prescriptions typées   : INNER JOIN sur les associations du type (exclusion si aucune)
+     * - Prescriptions libres   : INNER JOIN sur les associations propres (exclusion si aucune)
+     *
+     * @return PrescriptionDossier[]
      */
-    public function add(PrescriptionDossier $entity, bool $flush = true): void
+    public function findByDossierAndType(Dossier $dossier, int $type): array
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
+        $typePrescriptions = $this->createQueryBuilder('pd')
+            ->leftJoin('pd.prescriptionType', 'pt')->addSelect('pt')
+            ->innerJoin('pt.associations', 'pta')->addSelect('pta')
+            ->leftJoin('pta.texte', 'ptt')->addSelect('ptt')
+            ->leftJoin('pta.article', 'ptar')->addSelect('ptar')
+            ->where('pd.dossier = :dossier')
+            ->andWhere('pd.type = :type')
+            ->andWhere('pd.prescriptionType IS NOT NULL')
+            ->setParameter('dossier', $dossier)
+            ->setParameter('type', $type)
+            ->orderBy('pd.numero', 'ASC')
+            ->addOrderBy('pta.numero', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(PrescriptionDossier $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        $librePrescriptions = $this->createQueryBuilder('pd')
+            ->innerJoin('pd.associations', 'a')->addSelect('a')
+            ->leftJoin('a.texte', 't')->addSelect('t')
+            ->leftJoin('a.article', 'ar')->addSelect('ar')
+            ->where('pd.dossier = :dossier')
+            ->andWhere('pd.type = :type')
+            ->andWhere('pd.prescriptionType IS NULL')
+            ->setParameter('dossier', $dossier)
+            ->setParameter('type', $type)
+            ->orderBy('pd.numero', 'ASC')
+            ->addOrderBy('a.numero', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        $prescriptions = array_merge($typePrescriptions, $librePrescriptions);
+        usort($prescriptions, function (PrescriptionDossier $a, PrescriptionDossier $b): int {
+            return $a->getNumero() <=> $b->getNumero();
+        });
+
+        return $prescriptions;
     }
 }
