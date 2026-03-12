@@ -9,58 +9,58 @@
     <h3>Gestion des prescriptions</h3>
 
     {% if not dossier.verrou %}
-        <div style="margin-bottom: 15px;">
+        <div class="mb-3">
             {# Placeholder — Phase 5 : ajout prescription type #}
             <button class="btn btn-default disabled" disabled>Ajouter une prescription type</button>
-            &nbsp;
             {# Placeholder — Phase 6 : ajout prescription libre #}
-            <a class="btn btn-default disabled">Ajouter une prescription</a>
-            &nbsp;&nbsp;&nbsp;
+            <a class="btn btn-default ml-2 disabled">Ajouter une prescription</a>
             {# Placeholder — Phase 4 : reprise prescriptions dossier précédent #}
-            <button class="btn btn-default disabled" disabled>Reprendre les prescriptions d'un dossier précédent</button>
+            <button class="btn btn-default ml-3 disabled" disabled>Reprendre les prescriptions d'un dossier précédent</button>
         </div>
     {% endif %}
 
-    <h3 id="prescRappelRegTitle">Rappels réglementaires</h3>
-    <div class="row">
-        <ul id="prescRappelReg" class="listePrescriptions list-unstyled">
-            {% if prescriptionsRegl is empty %}
-                <div class="col-sm-12" style="font-style: italic;">Actuellement aucune prescription dans cette catégorie</div>
-            {% else %}
-                {% for prescription in prescriptionsRegl %}
-                    {{ include('dossier/prescriptions/_prescription_item.html.twig', {prescription: prescription, dossier: dossier}) }}
-                {% endfor %}
-            {% endif %}
-        </ul>
-    </div>
+    <section>
+        <h3 id="prescRappelRegTitle">Rappels réglementaires</h3>
+        <div class="row">
+            <ul id="prescRappelReg" class="listePrescriptions list-unstyled">
+                {% if prescriptionsRegl is empty %}
+                    <div class="col-sm-12"><em>Actuellement aucune prescription dans cette catégorie</em></div>
+                {% else %}
+                    {% for prescription in prescriptionsRegl %}
+                        {{ include('dossier/prescriptions/_prescription_item.html.twig', {prescription: prescription, dossier: dossier}) }}
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </section>
 
-    <br>
+    <section>
+        <h3>Prescriptions liées à l'exploitation</h3>
+        <div class="row">
+            <ul id="prescExploitation" class="listePrescriptions list-unstyled">
+                {% if prescriptionsExploitation is empty %}
+                    <div class="col-sm-12"><em>Actuellement aucune prescription dans cette catégorie</em></div>
+                {% else %}
+                    {% for prescription in prescriptionsExploitation %}
+                        {{ include('dossier/prescriptions/_prescription_item.html.twig', {prescription: prescription, dossier: dossier}) }}
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </section>
 
-    <h3>Prescriptions liées à l'exploitation</h3>
-    <div class="row">
-        <ul id="prescExploitation" class="listePrescriptions list-unstyled">
-            {% if prescriptionsExploitation is empty %}
-                <div class="col-sm-12" style="font-style: italic;">Actuellement aucune prescription dans cette catégorie</div>
-            {% else %}
-                {% for prescription in prescriptionsExploitation %}
-                    {{ include('dossier/prescriptions/_prescription_item.html.twig', {prescription: prescription, dossier: dossier}) }}
-                {% endfor %}
-            {% endif %}
-        </ul>
-    </div>
-
-    <br>
-
-    <h3>Recommandations liées à l'amélioration du niveau de sécurité</h3>
-    <div class="row">
-        <ul id="prescAmelioration" class="listePrescriptions list-unstyled">
-            {% if prescriptionsAmelioration is empty %}
-                <div class="col-sm-12" style="font-style: italic;">Actuellement aucune prescription dans cette catégorie</div>
-            {% else %}
-                {% for prescription in prescriptionsAmelioration %}
-                    {{ include('dossier/prescriptions/_prescription_item.html.twig', {prescription: prescription, dossier: dossier}) }}
-                {% endfor %}
-            {% endif %}
-        </ul>
-    </div>
+    <section>
+        <h3>Recommandations liées à l'amélioration du niveau de sécurité</h3>
+        <div class="row">
+            <ul id="prescAmelioration" class="listePrescriptions list-unstyled">
+                {% if prescriptionsAmelioration is empty %}
+                    <div class="col-sm-12"><em>Actuellement aucune prescription dans cette catégorie</em></div>
+                {% else %}
+                    {% for prescription in prescriptionsAmelioration %}
+                        {{ include('dossier/prescriptions/_prescription_item.html.twig', {prescription: prescription, dossier: dossier}) }}
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </section>
 {% endblock %}

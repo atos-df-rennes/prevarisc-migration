@@ -28,6 +28,7 @@ class DossierPrescriptionController extends AbstractController
      */
     public function index(Dossier $dossier): Response
     {
+        // @todo: Mettre des constantes plutôt que les int en dur
         return $this->render('dossier/prescriptions/index.html.twig', [
             'dossier' => $dossier,
             'prescriptionsRegl' => $this->service->getPrescriptionsParType($dossier, 0),

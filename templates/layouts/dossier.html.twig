@@ -97,6 +97,7 @@
             Extérieur SDIS, Ouverture, Fermeture, Mise en demeure,
             Utilisation exceptionnelle de locaux
         #}
+        {# @todo: Il faudra plutôt faire un starts_with pour prendre en compte les prochaines routes #}
         {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_PRESCRIPTIONS') %}
             <li {% if app.request.get('_route') is same as('dossier_prescriptions') %}class="active"{% endif %}>
                 <a href="{{ path('dossier_prescriptions', {id: dossier.id}) }}">
