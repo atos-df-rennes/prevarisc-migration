@@ -157,8 +157,8 @@ class AlerteController extends AbstractController
         }
 
         // Extraction destinataires
-        $destinataires = array_filter(array_map('trim', explode(';', $emailsRaw)), function (string $email) {
-            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        $destinataires = array_filter(array_map('trim', explode(';', $emailsRaw)), function (string $email): bool {
+            return false !== filter_var($email, FILTER_VALIDATE_EMAIL);
         });
         if ([] === $destinataires) {
             return $this->json([

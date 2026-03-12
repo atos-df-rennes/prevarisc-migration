@@ -190,12 +190,12 @@ class DossierDonnantAvisService
 
         // Priorité 2 : dateVisite
         if (null !== $dossier->getDateVisite()) {
-            return (clone $dossier->getDateVisite())->setTime(0, 0, 0);
+            return (new \DateTime($dossier->getDateVisite()->format('Y-m-d')))->setTime(0, 0, 0);
         }
 
         // Priorité 3 : dateInsert (toujours définie à la création)
         if (null !== $dossier->getDateInsert()) {
-            return (clone $dossier->getDateInsert())->setTime(0, 0, 0);
+            return (new \DateTime($dossier->getDateInsert()->format('Y-m-d')))->setTime(0, 0, 0);
         }
 
         // Ne devrait jamais arriver (dateInsert est requis)
