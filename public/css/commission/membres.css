@@ -1,0 +1,82 @@
+.no-membres-message {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+}
+
+.membre-rule .panel-heading:hover {
+    background-color: #e8e8e8;
+}
+
+.membre-rule .panel-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.membre-rule .panel-title a {
+    color: inherit;
+}
+
+.checkbox-scrollable-area {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px 10px;
+}
+
+/* Groupes activités ERP et blocs types/natures de dossier — styles partagés */
+.activite-group-block,
+.dossier-type-block {
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+}
+
+.activite-group-header,
+.dossier-type-header {
+    margin-bottom: 4px;
+}
+
+.activite-group-label,
+.dossier-type-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+/* Le libellé du type de dossier est en gras (parent des natures) */
+.dossier-type-label {
+    font-weight: bold;
+}
+
+.activite-group-label input[type="checkbox"],
+.dossier-type-label input[type="checkbox"] {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+.activites-list,
+.dossier-natures-list {
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 4px;
+    margin-left: 16px;
+    padding-left: 4px;
+}
+
+.activites-list li {
+    list-style: none;
+}
+
+/* Supprime les marges Bootstrap 3 sur .checkbox imbriqués dans les listes */
+.activites-list .checkbox,
+.dossier-natures-list .checkbox {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}

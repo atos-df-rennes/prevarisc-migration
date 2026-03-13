@@ -197,9 +197,14 @@ class GroupementController extends AbstractController
      */
     public function contacts(Groupement $groupement): Response
     {
-        return $this->render('groupement/_contacts.html.twig', [
-            'groupement' => $groupement,
-            'contacts' => $groupement->getContacts(),
+        return $this->render('components/_contacts_panel.html.twig', [
+            'entity_id' => $groupement->getId(),
+            'contacts' => $groupement->getSortedContacts(),
+            'no_contacts_msg' => 'Aucun contact lié à ce groupement',
+            'url_add_existing' => $this->generateUrl('admin_groupement_contacts_add_existing', ['id' => $groupement->getId()]),
+            'url_add' => $this->generateUrl('admin_groupement_contacts_add', ['id' => $groupement->getId()]),
+            'route_delete' => 'admin_groupement_contacts_delete',
+            'element_lie' => 'groupement',
         ]);
     }
 
@@ -258,9 +263,8 @@ class GroupementController extends AbstractController
             return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
-        return $this->render('groupement/_form_existing_contacts.html.twig', [
+        return $this->render('components/_form_contact_existant.html.twig', [
             'form' => $form->createView(),
-            'groupement' => $groupement,
         ]);
     }
 
@@ -286,6 +290,12 @@ class GroupementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$groupement->getContacts()->contains($contact)) {
+                $this->addFlash('warning', "Le contact n'appartient pas au groupement.");
+
+                return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
+            }
+
             $groupement->removeContact($contact);
 
             if (!$this->contactService->isUsed($contact, Contact::GROUPEMENT)) {
@@ -299,10 +309,11 @@ class GroupementController extends AbstractController
             return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
-        return $this->render('groupement/_form_delete_contact.html.twig', [
+        return $this->render('components/_form_delete_contact.html.twig', [
             'form' => $form->createView(),
-            'groupement' => $groupement,
             'contact' => $contact,
+            'entity_article' => 'du groupement',
+            'entity_libelle' => $groupement->getLibelle(),
         ]);
     }
 }

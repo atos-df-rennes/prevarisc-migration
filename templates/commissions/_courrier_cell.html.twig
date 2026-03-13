@@ -1,0 +1,31 @@
+{# Cellule d'un courrier type pour un membre de commission #}
+<td class="text-center">
+    {% if file_accessible %}
+        <p>
+            <span class="glyphicon glyphicon-file commission-doc-icon" aria-hidden="true"></span>
+            <a href="{{ courriersMembresDataPath ~ membre.id ~ type ~ '_' ~ filename }}" class="commission-doc-link">
+                {{ filename }}
+            </a>
+        </p>
+        <form method="post"
+              action="{{ path('admin_commissions_courriers_delete', {id: membre.commission.id, membreId: membre.id, type: type}) }}"
+              class="commission-doc-delete-form">
+            <input type="hidden" name="_method" value="DELETE" />
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_courrier_' ~ membre.id ~ '_' ~ type) }}" />
+            <button type="submit"
+                    class="btn btn-link btn-xs commission-doc-delete-btn"
+                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce courrier ?');">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
+            </button>
+        </form>
+    {% else %}
+        <p class="text-muted"><small>Aucun document défini.</small></p>
+    {% endif %}
+
+    <div class="mt-5">
+        {{ form_start(uploadForm, {attr: {class: 'form-courrier-upload', enctype: 'multipart/form-data', 'data-membre-id': membre.id, 'data-type': type}}) }}
+            {{ form_widget(uploadForm.courrier, {attr: {accept: '.odt', class: 'courrier-file-input'}}) }}
+            {{ form_errors(uploadForm.courrier) }}
+        {{ form_end(uploadForm) }}
+    </div>
+</td>

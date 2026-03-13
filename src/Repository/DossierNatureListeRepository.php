@@ -37,4 +37,38 @@ class DossierNatureListeRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Retourne toutes les natures de dossier groupées par ID (string) de type de dossier.
+     *
+     * @return array<string, DossierNatureListe[]>
+     */
+    public function findNaturesGroupedByType(): array
+    {
+        /** @var DossierNatureListe[] $natures */
+        $natures = $this->createQueryBuilder('n')
+            ->leftJoin('n.type', 'dt')
+            ->addSelect('dt')
+            ->orderBy('dt.id', 'ASC')
+            ->addOrderBy('n.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $grouped = [];
+        foreach ($natures as $nature) {
+            $dossierType = $nature->getType();
+            if (null === $dossierType) {
+                continue;
+            }
+
+            $key = (string) $dossierType->getId();
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [];
+            }
+
+            $grouped[$key][] = $nature;
+        }
+
+        return $grouped;
+    }
 }

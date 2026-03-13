@@ -326,26 +326,22 @@ class EtablissementController extends AbstractController
      */
     public function contacts(Etablissement $etablissement): Response
     {
-        $contacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
+        $etablissementWithContacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
 
-        if (null !== $contacts) {
-            $contacts = $contacts->getContacts();
-        }
+        $contacts = null !== $etablissementWithContacts
+            ? $etablissementWithContacts->getSortedContacts()
+            : null;
 
         $contactsParents = new ArrayCollection();
 
-        $etablissementsParents = $etablissement->getParents();
+        foreach ($etablissement->getParents() as $parent) {
+            $parentWithContacts = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
 
-        foreach ($etablissementsParents as $parent) {
-            $contactsParent = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
-
-            if (null === $contactsParent) {
+            if (null === $parentWithContacts) {
                 continue;
             }
 
-            $contactsParent = $contactsParent->getContacts();
-
-            foreach ($contactsParent as $contactParent) {
+            foreach ($parentWithContacts->getSortedContacts() as $contactParent) {
                 $contactsParents->add($contactParent);
             }
         }
@@ -448,6 +444,12 @@ class EtablissementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$etablissement->getContacts()->contains($contact)) {
+                $this->addFlash('warning', "Le contact n'appartient pas à l'établissement.");
+
+                return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+            }
+
             // Suppression de l'association.
             $etablissement->removeContact($contact);
 
