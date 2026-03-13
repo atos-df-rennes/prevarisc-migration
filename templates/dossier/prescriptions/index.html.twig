@@ -106,7 +106,13 @@
                     $.ajax({
                         type: 'POST',
                         url: reorderUrl,
-                        data: { idsRegl: idsRegl.join(','), idsAutres: idsAutres.join(',') }
+                        data: { idsRegl: idsRegl.join(','), idsAutres: idsAutres.join(',') },
+                        success: function() {
+                            $.toast.success("L'ordre des prescriptions a bien été mis à jour.");
+                        },
+                        error: function() {
+                            $.toast.error("Erreur lors de la sauvegarde de l'ordre des prescriptions. Veuillez recharger la page.");
+                        }
                     });
                 }
             });
