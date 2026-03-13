@@ -46,7 +46,7 @@ class DossierPrescriptionController extends AbstractController
     public function reordonner(Request $request, Dossier $dossier): Response
     {
         if ($dossier->hasVerrou()) {
-            return new Response('', Response::HTTP_FORBIDDEN);
+            $this->createAccessDeniedException();
         }
 
         $rawIdsRegl = $request->request->get('idsRegl');

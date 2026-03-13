@@ -79,17 +79,17 @@
             $('[data-toggle="popover"]').popover();
 
             {% if not dossier.verrou %}
-            var reorderUrl = '{{ path('dossier_prescriptions_reordonner', {id: dossier.id}) }}';
+            const reorderUrl = '{{ path('dossier_prescriptions_reordonner', {id: dossier.id}) }}';
 
             $('.listePrescriptions').sortable({
                 update: function() {
-                    var idsRegl   = [];
-                    var idsAutres = [];
-                    var num;
+                    const idsRegl = [];
+                    const idsAutres = [];
+                    let num;
 
                     num = 1;
                     $('#prescRappelReg > li').each(function() {
-                        var id = $(this).attr('id').split('_')[1];
+                        const id = $(this).attr('id').split('_')[1];
                         $(this).find('.numPresc').html(num);
                         idsRegl.push(id);
                         num++;
@@ -97,7 +97,7 @@
 
                     num = 1;
                     $('#prescExploitation > li, #prescAmelioration > li').each(function() {
-                        var id = $(this).attr('id').split('_')[1];
+                        const id = $(this).attr('id').split('_')[1];
                         $(this).find('.numPresc').html(num);
                         idsAutres.push(id);
                         num++;
