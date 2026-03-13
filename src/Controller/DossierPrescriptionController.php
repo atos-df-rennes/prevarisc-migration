@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Constant\TypePrescription;
+use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Service\DossierPrescriptionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DossierPrescriptionController extends AbstractController
+class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface
 {
     /**
      * @var DossierPrescriptionService
@@ -39,7 +40,7 @@ class DossierPrescriptionController extends AbstractController
     }
 
     /**
-     * @Route("/dossier/{id}/prescriptions/reordonner", name="dossier_prescriptions_reordonner", requirements={"id"="\d+"}, methods={"POST"}, options={"expose"=true})
+     * @Route("/dossier/{id}/prescriptions/reordonner", name="dossier_prescriptions_reordonner", requirements={"id"="\d+"}, methods={"POST"}, options={"expose"=true}, defaults={"_dossier_lateral_nav": false})
      *
      * @IsGranted("edit_doss", subject="dossier")
      */
