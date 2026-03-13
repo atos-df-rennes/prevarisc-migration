@@ -132,6 +132,12 @@ class CommissionDocumentsController extends AbstractController
             }
         }
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('danger', $error->getMessage());
+            }
+        }
+
         return $this->redirectToRoute('admin_commissions_courriers', ['id' => $commission->getId()]);
     }
 
@@ -199,6 +205,12 @@ class CommissionDocumentsController extends AbstractController
             }
 
             return $this->redirectToRoute('admin_commissions_documents', ['id' => $commission->getId()]);
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('danger', $error->getMessage());
+            }
         }
 
         return $this->render('commissions/edit.html.twig', [
