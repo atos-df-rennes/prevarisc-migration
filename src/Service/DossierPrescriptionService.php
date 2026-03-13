@@ -29,4 +29,20 @@ class DossierPrescriptionService
     {
         return $this->repository->findByDossierAndType($dossier, $type);
     }
+
+    /**
+     * Réordonne les prescriptions selon les tableaux d'IDs reçus du drag & drop.
+     *
+     * - $idsRegl       : IDs des rappels réglementaires (type 0) dans leur nouvel ordre
+     * - $idsAutres     : IDs des exploitations + améliorations (types 1+2) dans leur nouvel ordre,
+     *                    numérotés en séquence continue (reproduit le comportement legacy)
+     *
+     * @param int[] $idsRegl
+     * @param int[] $idsAutres
+     */
+    public function reordonner(Dossier $dossier, array $idsRegl, array $idsAutres): void
+    {
+        $this->repository->renumeroterParIds($dossier, $idsRegl);
+        $this->repository->renumeroterParIds($dossier, $idsAutres);
+    }
 }
