@@ -71,4 +71,32 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
 
         return $prescriptions;
     }
+
+    /**
+     * Renumérote les prescriptions dans l'ordre du tableau d'IDs fourni, en commençant à $startAt.
+     *
+     * @param int[] $orderedIds
+     */
+    public function renumeroterParIds(array $orderedIds, int $startAt = 1): void
+    {
+        $numero = $startAt;
+        foreach ($orderedIds as $id) {
+            $id = (int) $id;
+            if ($id <= 0) {
+                continue;
+            }
+
+            $this->createQueryBuilder('pd')
+                ->update()
+                ->set('pd.numero', ':numero')
+                ->where('pd.id = :id')
+                ->setParameter('numero', $numero)
+                ->setParameter('id', $id)
+                ->getQuery()
+                ->execute()
+            ;
+
+            ++$numero;
+        }
+    }
 }

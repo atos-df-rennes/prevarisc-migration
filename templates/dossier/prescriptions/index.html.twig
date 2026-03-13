@@ -76,7 +76,41 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.icon-label-right').popover()
-        })
+            $('[data-toggle="popover"]').popover();
+
+            {% if not dossier.verrou %}
+            var reorderUrl = '{{ path('dossier_prescriptions_reordonner', {id: dossier.id}) }}';
+
+            $('.listePrescriptions').sortable({
+                update: function() {
+                    var idsRegl   = [];
+                    var idsAutres = [];
+                    var num;
+
+                    num = 1;
+                    $('#prescRappelReg > li').each(function() {
+                        var id = $(this).attr('id').split('_')[1];
+                        $(this).find('.numPresc').html(num);
+                        idsRegl.push(id);
+                        num++;
+                    });
+
+                    num = 1;
+                    $('#prescExploitation > li, #prescAmelioration > li').each(function() {
+                        var id = $(this).attr('id').split('_')[1];
+                        $(this).find('.numPresc').html(num);
+                        idsAutres.push(id);
+                        num++;
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: reorderUrl,
+                        data: { idsRegl: idsRegl.join(','), idsAutres: idsAutres.join(',') }
+                    });
+                }
+            });
+            {% endif %}
+        });
     </script>
 {% endblock %}
