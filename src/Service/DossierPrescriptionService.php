@@ -40,9 +40,9 @@ class DossierPrescriptionService
      * @param int[] $idsRegl
      * @param int[] $idsAutres
      */
-    public function reordonner(array $idsRegl, array $idsAutres): void
+    public function reordonner(Dossier $dossier, array $idsRegl, array $idsAutres): void
     {
-        $this->repository->renumeroterParIds($idsRegl);
-        $this->repository->renumeroterParIds($idsAutres);
+        $this->repository->renumeroterParIds($dossier, $idsRegl);
+        $this->repository->renumeroterParIds($dossier, $idsAutres);
     }
 }

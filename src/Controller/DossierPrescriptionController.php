@@ -55,7 +55,7 @@ class DossierPrescriptionController extends AbstractController
         $idsRegl = array_filter(array_map('intval', explode(',', is_string($rawIdsRegl) ? $rawIdsRegl : '')));
         $idsAutres = array_filter(array_map('intval', explode(',', is_string($rawIdsAutres) ? $rawIdsAutres : '')));
 
-        $this->service->reordonner(array_values($idsRegl), array_values($idsAutres));
+        $this->service->reordonner($dossier, array_values($idsRegl), array_values($idsAutres));
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

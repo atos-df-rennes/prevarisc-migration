@@ -77,7 +77,7 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
      *
      * @param int[] $orderedIds
      */
-    public function renumeroterParIds(array $orderedIds, int $startAt = 1): void
+    public function renumeroterParIds(Dossier $dossier, array $orderedIds, int $startAt = 1): void
     {
         $numero = $startAt;
         foreach ($orderedIds as $id) {
@@ -90,8 +90,10 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
                 ->update()
                 ->set('pd.numero', ':numero')
                 ->where('pd.id = :id')
+                ->andWhere('pd.dossier = :dossier')
                 ->setParameter('numero', $numero)
                 ->setParameter('id', $id)
+                ->setParameter('dossier', $dossier)
                 ->getQuery()
                 ->execute()
             ;
