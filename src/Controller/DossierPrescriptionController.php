@@ -46,7 +46,11 @@ class DossierPrescriptionController extends AbstractController
     public function reordonner(Request $request, Dossier $dossier): Response
     {
         if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException();
+            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
+        }
+
+        if (!$this->isCsrfTokenValid('reorder_prescriptions', $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
         }
 
         $rawIdsRegl = $request->request->get('idsRegl');

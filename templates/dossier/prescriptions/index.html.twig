@@ -80,6 +80,7 @@
 
             {% if not dossier.verrou %}
             const reorderUrl = '{{ path('dossier_prescriptions_reordonner', {id: dossier.id}) }}';
+            const reorderCsrfToken = '{{ csrf_token('reorder_prescriptions') }}';
 
             $('.listePrescriptions').sortable({
                 update: function() {
@@ -106,7 +107,7 @@
                     $.ajax({
                         type: 'POST',
                         url: reorderUrl,
-                        data: { idsRegl: idsRegl.join(','), idsAutres: idsAutres.join(',') },
+                        data: { idsRegl: idsRegl.join(','), idsAutres: idsAutres.join(','), _token: reorderCsrfToken },
                         success: function() {
                             $.toast.success("L'ordre des prescriptions a bien été mis à jour.");
                         },
