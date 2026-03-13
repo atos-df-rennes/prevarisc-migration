@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\TypeChangement;
+use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
@@ -38,7 +39,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class DossierController extends AbstractController
+class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
     /** @var EntityManagerInterface */
     private $entityManager;
@@ -495,7 +496,7 @@ class DossierController extends AbstractController
     }
 
     /**
-     * @Route("/dossier/{id}/verrouiller", name="dossier_verrouiller")
+     * @Route("/dossier/{id}/verrouiller", name="dossier_verrouiller", defaults={"_dossier_lateral_nav": false})
      *
      * @IsGranted("verrouillage_dossier", subject="dossier")
      */
@@ -518,7 +519,7 @@ class DossierController extends AbstractController
     }
 
     /**
-     * @Route("/dossier/{id}/deverrouiller", name="dossier_deverrouiller")
+     * @Route("/dossier/{id}/deverrouiller", name="dossier_deverrouiller", defaults={"_dossier_lateral_nav": false})
      *
      * @IsGranted("verrouillage_dossier", subject="dossier")
      */

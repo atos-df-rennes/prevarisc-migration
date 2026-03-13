@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
@@ -32,7 +33,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class EtablissementController extends AbstractController
+class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
     /** @var EtablissementPieceJointeRepository */
     private $etablissementPieceJointeRepository;
@@ -201,7 +202,7 @@ class EtablissementController extends AbstractController
      *
      * Équivalent legacy : fin de EtablissementController::editAction() (flash + redirect)
      *
-     * @Route("/symfony/etablissement/{id}/apres-modification", name="etablissement_apres_modification", methods={"GET"})
+     * @Route("/symfony/etablissement/{id}/apres-modification", name="etablissement_apres_modification", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("view_ets", subject="etablissement")
      *
@@ -354,7 +355,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add")
+     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add", defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -383,7 +384,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing")
+     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -421,7 +422,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
+     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      *
