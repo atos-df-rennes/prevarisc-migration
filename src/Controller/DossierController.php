@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
+use App\Constant\TypeChangement;
 use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
@@ -372,7 +373,7 @@ class DossierController extends AbstractController
                             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
 
                             $lienAlerter = $this->alerteService->getLink(
-                                AlerteService::TYPE_CHANGEMENT_AVIS,
+                                TypeChangement::AVIS,
                                 $etablissementId
                             );
 

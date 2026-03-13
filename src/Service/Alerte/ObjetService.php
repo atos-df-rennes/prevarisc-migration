@@ -2,6 +2,7 @@
 
 namespace App\Service\Alerte;
 
+use App\Constant\TypeChangement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementAdresse;
@@ -99,13 +100,13 @@ class ObjetService
     private function getPartieChangement(int $typeChangement, Etablissement $etablissement): string
     {
         switch ($typeChangement) {
-            case AlerteService::TYPE_CHANGEMENT_STATUT:
+            case TypeChangement::STATUT:
                 return $this->getObjetStatut($etablissement);
 
-            case AlerteService::TYPE_CHANGEMENT_AVIS:
+            case TypeChangement::AVIS:
                 return $this->getObjetAvis($etablissement);
 
-            case AlerteService::TYPE_CHANGEMENT_CLASSEMENT:
+            case TypeChangement::CLASSEMENT:
                 return $this->getObjetClassement($etablissement);
 
             default:

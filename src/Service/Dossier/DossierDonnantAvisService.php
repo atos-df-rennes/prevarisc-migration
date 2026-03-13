@@ -3,6 +3,7 @@
 namespace App\Service\Dossier;
 
 use App\Constant\DossierNature;
+use App\Constant\StatutEtablissement;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\Etablissement;
@@ -23,9 +24,6 @@ class DossierDonnantAvisService
 
     /** @var DossierRepository */
     private $dossierRepository;
-
-    /** ID statut établissement "ouvert" (pour répercussion aux enfants) */
-    private const STATUT_OUVERT = 2;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -148,7 +146,7 @@ class DossierDonnantAvisService
                 continue;
             }
 
-            if (self::STATUT_OUVERT !== $statut->getId()) {
+            if (StatutEtablissement::OUVERT !== $statut->getId()) {
                 continue;
             }
 

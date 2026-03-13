@@ -2,6 +2,7 @@
 
 namespace App\Service\Commission;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Commission;
 use App\Entity\CommissionRegle;
 use App\Entity\CommissionRegleLocalSommeil;
@@ -19,11 +20,6 @@ use App\Entity\IghClasse;
  */
 class CommissionRegleCompetenceService
 {
-    // @todo: A remplacer par l'utilisation des constantes une fois la release/2.9 dispo.
-    private const ID_GENRE_ETABLISSEMENT = 2;
-
-    private const ID_GENRE_IGH = 5;
-
     /**
      * Retourne les IDs des établissements correspondant à au moins une règle de compétence.
      *
@@ -44,8 +40,8 @@ class CommissionRegleCompetenceService
         foreach ($etablissements as $ets) {
             foreach ($regles as $regle) {
                 if (
-                    (self::ID_GENRE_ETABLISSEMENT === (int) $ets['ID_GENRE'] && $this->matchesErp($ets, $regle))
-                    || (self::ID_GENRE_IGH === (int) $ets['ID_GENRE'] && $this->matchesIgh($ets, $regle))
+                    (GenreEtablissement::ERP === (int) $ets['ID_GENRE'] && $this->matchesErp($ets, $regle))
+                    || (GenreEtablissement::IGH === (int) $ets['ID_GENRE'] && $this->matchesIgh($ets, $regle))
                 ) {
                     $ids[] = (int) $ets['ID_ETABLISSEMENTINFORMATIONS'];
                     break;
