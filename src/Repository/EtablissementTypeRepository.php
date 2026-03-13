@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -75,4 +76,32 @@ class EtablissementTypeRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * Retourne toutes les activités ERP groupées par libellé de type, triées alphabétiquement.
+     *
+     * @return array<string, EtablissementActivite[]>
+     */
+    public function findActivitesGroupedByType(): array
+    {
+        /** @var EtablissementType[] $types */
+        $types = $this->createQueryBuilder('t')
+            ->leftJoin('t.activites', 'a')
+            ->addSelect('a')
+            ->orderBy('t.libelle', 'ASC')
+            ->addOrderBy('a.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $grouped = [];
+        foreach ($types as $type) {
+            /** @var EtablissementActivite[] $activites */
+            $activites = $type->getActivites()->toArray();
+            if ([] !== $activites) {
+                $grouped[(string) $type->getLibelle()] = $activites;
+            }
+        }
+
+        return $grouped;
+    }
 }

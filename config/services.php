@@ -20,6 +20,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
         ->bind('$mailEnabled', '%app.mail_enabled%')
+        ->bind('$documentsCommissionDataPath', '%app.data_path%/uploads/documents_commission/')
+        ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
+        ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
+        ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
     ;
 
 
@@ -27,6 +31,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->exclude([
         __DIR__ . '/../src/DependencyInjection/',
         __DIR__ . '/../src/Entity/',
+        __DIR__ . '/../src/Enum/',
         __DIR__ . '/../src/Kernel.php',
     ]);
 
@@ -39,6 +44,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
+    $services->set('App\Form\CommissionRegleType')
+        ->arg('$commissionCommunaleType', '%app.commission_communale_type%');
 
     $services->set('App\Validator\PasswordValidator')
         ->arg('$enforceSecurity', '%app.enforce_security%');

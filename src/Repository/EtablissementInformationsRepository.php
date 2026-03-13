@@ -17,6 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EtablissementInformationsRepository extends ServiceEntityRepository
 {
+    // @todo: A remplacer par l'utilisation des constantes une fois la release/2.9 dispo.
+    // @todo: Penser aussi à remplacer les usages en direct (2, 5) en plus des constantes privées déclarées ici.
     private const GENRE_SITE = 1;
 
     private const GENRE_ETABLISSEMENT = 2;
@@ -208,5 +210,54 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
         return $conn->executeStatement($sql, ['genre' => self::GENRE_SITE, 'groupement' => $groupement]);
+    }
+
+    /**
+     * Retourne uniquement les colonnes nécessaires à l'application des règles de compétence,
+     * pour les établissements ERP (genre=2) et IGH (genre=5) ayant une commune renseignée.
+     * Seule la fiche d'informations la plus récente par établissement est retournée.
+     *
+     * @return array<int, array{ID_ETABLISSEMENTINFORMATIONS: string, ID_GENRE: string, NUMINSEE_COMMUNE: string, LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS: bool|null, ID_TYPE: string|null, ID_CATEGORIE: string|null, ID_CLASSE: string|null}>
+     */
+    public function findForCompetenceApplication(): array
+    {
+        return $this->createQueryBuilder('ei')
+            ->select([
+                'ei.id as ID_ETABLISSEMENTINFORMATIONS',
+                'IDENTITY(ei.genre) as ID_GENRE',
+                'IDENTITY(ea.commune) as NUMINSEE_COMMUNE',
+                'ei.localSommeil as LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS',
+                'IDENTITY(ei.type) as ID_TYPE',
+                'IDENTITY(ei.categorie) as ID_CATEGORIE',
+                'IDENTITY(ei.classe) as ID_CLASSE',
+            ])
+            ->innerJoin('ei.etablissement', 'e')
+            ->innerJoin('e.adresses', 'ea')
+            ->where('IDENTITY(ei.genre) IN (:genres)')
+            ->andWhere('ei.date = (SELECT MAX(ei2.date) FROM App\Entity\EtablissementInformations ei2 WHERE ei2.etablissement = ei.etablissement)')
+            // @todo: Remplacer pour l'utilisation des constantes
+            ->setParameter('genres', [2, 5])
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    /**
+     * Met à jour en masse la commission par défaut des établissements dont les IDs sont fournis.
+     *
+     * @param int[] $ids
+     */
+    public function updateCommissionForEtablissements(int $commissionId, array $ids): int
+    {
+        if ([] === $ids) {
+            return 0;
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        return $conn->executeStatement(
+            'UPDATE etablissementinformations SET ID_COMMISSION = :commissionId WHERE ID_ETABLISSEMENTINFORMATIONS IN (:ids)',
+            ['commissionId' => $commissionId, 'ids' => $ids],
+            ['ids' => Connection::PARAM_INT_ARRAY]
+        );
     }
 }

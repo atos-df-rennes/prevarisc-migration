@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Controller\DossierController;
+use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
@@ -52,7 +52,11 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
             $controller = $controller[0];
         }
 
-        if (!$controller instanceof DossierController) {
+        if (!$controller instanceof DossierLateralNavigationInterface) {
+            return;
+        }
+
+        if (false === $event->getRequest()->attributes->get('_dossier_lateral_nav', true)) {
             return;
         }
 

@@ -102,6 +102,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             ->join('c.fonction', 'f')
             ->where('e.id = :id')
             ->orderBy('c.nom', 'ASC')
+            ->addOrderBy('c.prenom', 'ASC')
             ->setParameter('id', $id)
             ->getQuery()
         ;

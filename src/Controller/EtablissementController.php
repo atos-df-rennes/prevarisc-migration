@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
@@ -32,7 +33,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class EtablissementController extends AbstractController
+class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
     /** @var EtablissementPieceJointeRepository */
     private $etablissementPieceJointeRepository;
@@ -201,7 +202,7 @@ class EtablissementController extends AbstractController
      *
      * Équivalent legacy : fin de EtablissementController::editAction() (flash + redirect)
      *
-     * @Route("/symfony/etablissement/{id}/apres-modification", name="etablissement_apres_modification", methods={"GET"})
+     * @Route("/symfony/etablissement/{id}/apres-modification", name="etablissement_apres_modification", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("view_ets", subject="etablissement")
      *
@@ -326,26 +327,22 @@ class EtablissementController extends AbstractController
      */
     public function contacts(Etablissement $etablissement): Response
     {
-        $contacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
+        $etablissementWithContacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
 
-        if (null !== $contacts) {
-            $contacts = $contacts->getContacts();
-        }
+        $contacts = null !== $etablissementWithContacts
+            ? $etablissementWithContacts->getSortedContacts()
+            : null;
 
         $contactsParents = new ArrayCollection();
 
-        $etablissementsParents = $etablissement->getParents();
+        foreach ($etablissement->getParents() as $parent) {
+            $parentWithContacts = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
 
-        foreach ($etablissementsParents as $parent) {
-            $contactsParent = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
-
-            if (null === $contactsParent) {
+            if (null === $parentWithContacts) {
                 continue;
             }
 
-            $contactsParent = $contactsParent->getContacts();
-
-            foreach ($contactsParent as $contactParent) {
+            foreach ($parentWithContacts->getSortedContacts() as $contactParent) {
                 $contactsParents->add($contactParent);
             }
         }
@@ -358,7 +355,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add")
+     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add", defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -387,7 +384,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing")
+     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -425,7 +422,7 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
+     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      *
@@ -448,6 +445,12 @@ class EtablissementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$etablissement->getContacts()->contains($contact)) {
+                $this->addFlash('warning', "Le contact n'appartient pas à l'établissement.");
+
+                return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+            }
+
             // Suppression de l'association.
             $etablissement->removeContact($contact);
 

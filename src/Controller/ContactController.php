@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Commission;
+use App\Entity\Etablissement;
+use App\Entity\Groupement;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Repository\UtilisateurInformationsRepository;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,25 +42,45 @@ class ContactController extends AbstractController
     public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
     {
         $elementLie = $request->query->get('elementLie');
-        $elementId = $request->query->get('elementId');
+        $elementId = $request->query->getInt('elementId');
 
         switch ($elementLie) {
             case Contact::ETABLISSEMENT:
+                $entity = $entityManager->find(Etablissement::class, $elementId);
+                if (null === $entity) {
+                    throw $this->createNotFoundException('Établissement non trouvé.');
+                }
+
+                $this->denyAccessUnlessGranted(EtablissementVoter::MODIFICATION, $entity);
                 $redirectRoute = $this->router->generate('etablissement_contacts', ['id' => $elementId]);
 
                 break;
             case Contact::GROUPEMENT:
+                $entity = $entityManager->find(Groupement::class, $elementId);
+                if (null === $entity) {
+                    throw $this->createNotFoundException('Groupement non trouvé.');
+                }
+
+                $this->denyAccessUnlessGranted('groupement_communes');
                 $redirectRoute = $this->router->generate('admin_groupement', ['id' => $elementId]);
 
                 break;
-            default:
-                $redirectRoute = null;
+            case Contact::COMMISSION:
+                $entity = $entityManager->find(Commission::class, $elementId);
+                if (null === $entity) {
+                    throw $this->createNotFoundException('Commission non trouvée.');
+                }
+
+                $this->denyAccessUnlessGranted('gestion_commissions');
+                $redirectRoute = $this->router->generate('admin_commissions_contacts', ['id' => $elementId]);
 
                 break;
+            default:
+                throw $this->createNotFoundException("L'entité liée n'est pas reconnue.");
         }
 
-        if (null === $redirectRoute) {
-            throw new \InvalidArgumentException("La route de redirection n'est pas définie.");
+        if (!$entity->getContacts()->contains($contact)) {
+            throw $this->createNotFoundException("Ce contact n'appartient pas à cette entité.");
         }
 
         $form = $this->createForm(ContactType::class, $contact, [

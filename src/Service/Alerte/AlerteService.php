@@ -2,6 +2,7 @@
 
 namespace App\Service\Alerte;
 
+use App\Constant\TypeChangement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
 use App\Repository\UtilisateurRepository;
@@ -23,27 +24,12 @@ use App\Repository\UtilisateurRepository;
 class AlerteService
 {
     /**
-     * Type de changement pour statut.
-     */
-    public const TYPE_CHANGEMENT_STATUT = 1;
-
-    /**
-     * Type de changement pour avis de commission.
-     */
-    public const TYPE_CHANGEMENT_AVIS = 2;
-
-    /**
-     * Type de changement pour classement.
-     */
-    public const TYPE_CHANGEMENT_CLASSEMENT = 3;
-
-    /**
      * Mapping type changement → nom privilege.
      */
     public const PRIVILEGES_CHANGEMENT = [
-        self::TYPE_CHANGEMENT_STATUT => 'alerte_statut',
-        self::TYPE_CHANGEMENT_AVIS => 'alerte_avis',
-        self::TYPE_CHANGEMENT_CLASSEMENT => 'alerte_classement',
+        TypeChangement::STATUT => 'alerte_statut',
+        TypeChangement::AVIS => 'alerte_avis',
+        TypeChangement::CLASSEMENT => 'alerte_classement',
     ];
 
     /** @var UtilisateurRepository */
@@ -107,7 +93,7 @@ class AlerteService
     public function getDestinataires(int $typeChangement, Etablissement $etablissement): array
     {
         // 1. Récupérer nom du privilege
-        $privilegeName = self::PRIVILEGES_CHANGEMENT[$typeChangement] ?? self::PRIVILEGES_CHANGEMENT[self::TYPE_CHANGEMENT_STATUT];
+        $privilegeName = self::PRIVILEGES_CHANGEMENT[$typeChangement] ?? self::PRIVILEGES_CHANGEMENT[TypeChangement::STATUT];
 
         // 2. Récupérer NUMINSEE depuis première adresse établissement
         $numInsee = $this->getNumInseeFromEtablissement($etablissement);

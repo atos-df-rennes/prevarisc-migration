@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use App\Controller\EtablissementController;
+use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use App\Security\Voter\PrivilegeVoter;
@@ -49,7 +49,11 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
             $controller = $controller[0];
         }
 
-        if (!$controller instanceof EtablissementController) {
+        if (!$controller instanceof EtablissementLateralNavigationInterface) {
+            return;
+        }
+
+        if (false === $event->getRequest()->attributes->get('_etablissement_lateral_nav', true)) {
             return;
         }
 

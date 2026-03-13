@@ -6,6 +6,7 @@ use App\Repository\CommissionTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CommissionTypeRepository::class)
@@ -27,6 +28,10 @@ class CommissionType
 
     /**
      * @var string
+     *
+     * @Assert\NotBlank(message="Le type de commission est obligatoire.")
+     *
+     * @Assert\Length(max=50, maxMessage="Le libellé du type de commission ne peut pas dépasser {{ limit }} caractères.")
      *
      * @ORM\Column(name="LIBELLE_COMMISSIONTYPE", type="string", length=50, nullable=false)
      */

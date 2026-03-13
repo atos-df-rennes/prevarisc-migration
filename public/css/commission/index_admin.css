@@ -1,0 +1,16 @@
+.panel--type-commission {
+  margin-bottom: 20px;
+}
+
+.panel--type-commission .panel-body {
+  padding: 0;
+}
+
+.panel-body__aucune-commission {
+  padding: 15px;
+  margin: 0;
+}
+
+.panel-body__table-commission {
+  margin-bottom: 0;
+}

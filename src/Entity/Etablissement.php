@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Constant\DossierNature;
+use App\Doctrine\ContactCriteria;
 use App\Repository\EtablissementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -601,6 +602,17 @@ class Etablissement
     public function getContacts(): Collection
     {
         return $this->contacts;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getSortedContacts(): Collection
+    {
+        assert($this->contacts instanceof Selectable);
+
+        /* @phpstan-ignore-next-line */
+        return $this->contacts->matching(ContactCriteria::sortedByName());
     }
 
     public function addContact(UtilisateurInformations $contact): self
