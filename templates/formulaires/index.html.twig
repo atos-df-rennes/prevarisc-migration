@@ -37,16 +37,18 @@
 
                                     $('#newName_{{ formulaire.id }}').val('')
                                     $('#editModal_{{ formulaire.id }}').modal('hide')
+
+                                    $.toast.success('Le nom du formulaire a bien été mis à jour.')
                                 } else {
-                                    alert('Une erreur est survenue lors de la mise à jour : ' + response.message)
+                                    $.toast.error('Une erreur est survenue lors de la mise à jour : ' + response.message)
                                 }
                             },
                             error: function () {
-                                alert('Une erreur est survenue lors de la requête.');
+                                $.toast.error('Une erreur est survenue lors de la requête.');
                             },
                         })
                     } else {
-                        alert('Le nom ne peut pas être vide.');
+                        $.toast.error('Le nom ne peut pas être vide.');
                     }
                 })
             {% endfor %}

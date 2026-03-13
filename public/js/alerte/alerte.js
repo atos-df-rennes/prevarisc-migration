@@ -1,5 +1,5 @@
 /**
- * Gestion des alertes email (BLOC 17 Part 3B)
+ * Gestion des alertes email
  * 
  * Intercepte le clic sur les liens .alerte-link et charge le contenu
  * du formulaire dans la modale. Gestion des états via show/hide.
