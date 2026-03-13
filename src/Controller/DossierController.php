@@ -16,6 +16,7 @@ use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierAffectationRepository;
+use App\Repository\DossierRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
@@ -130,10 +131,18 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     private $urlGenerator;
 
+    /** @var DossierRepository */
+    private $dossierRepository;
+
+    /** @var \App\Service\Dossier */
+    private $dossierService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
         DateCommission $dateCommissionService,
+        DossierRepository $dossierRepository,
+        \App\Service\Dossier $dossierService,
         DossierTypeRepository $dossierTypeRepository,
         AvisRepository $avisRepository,
         CommissionTypeRepository $commissionTypeRepository,
@@ -154,6 +163,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
         $this->dateCommissionService = $dateCommissionService;
+        $this->dossierRepository = $dossierRepository;
+        $this->dossierService = $dossierService;
         $this->dossierTypeRepository = $dossierTypeRepository;
         $this->avisRepository = $avisRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
@@ -537,5 +548,20 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->entityManager->flush();
 
         return $this->redirect($referer);
+    }
+
+    /**
+     * @Route("/dossier/liste-enfants", name="dossier_liste_enfants")
+     * @return Response
+     */
+    public function getDossiersEnfants(Request $request): Response
+    {
+        $parentId = $request->query->get('parent');
+        $dossiersEnfants = $this->dossierRepository->getDossiersEnfants($parentId);
+        $dossiers = $this->dossierService->extraireDonneesUtiles($dossiersEnfants);
+
+        return $this->render('dossier/_liste_enfants.html.twig', [
+            'dossiers' => $dossiers
+        ]);
     }
 }

@@ -337,4 +337,28 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $query->getQuery()->getSingleScalarResult() > 0;
     }
+
+    /**
+     * @param int $parentId
+     * @return array<Dossier>
+     */
+    public function getDossiersEnfants(int $parentId): array
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->leftjoin('d.etablissements', 'e')
+            ->leftJoin('d.piecesJointes', 'dpj')
+            ->leftJoin('d.documentsUrbanisme', 'du')
+            ->join('d.nature', 'dn')
+            ->join('d.type', 'dt')
+            ->leftjoin('e.informations', 'ei')
+            ->leftJoin('d.dossiersLies', 'dl')
+            ->leftJoin('d.consultationPlatau', 'dcp')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('dl.id = :id');
+
+        $query->setParameter('id', $parentId);
+        $query->orderBy('d.dateInsert', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

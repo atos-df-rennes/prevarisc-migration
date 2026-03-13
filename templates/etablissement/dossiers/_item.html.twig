@@ -16,7 +16,7 @@
             <a href='/dossier/piece-jointe/id/{{ dossier.id }}'>
             </a>
         {% endif %}
-        <a href='/dossier/index/id/{{ dossier.id }}' title='{{ dossier.objet|e('html_attr') }}'>
+        <a href='{{ path('dossier_index', {id: dossier.id}) }}' title='{{ dossier.objet|e('html_attr') }}'>
             {% if dossier.etablissement is not null %}
                 {{ '[' ~ dossier.etablissement ~ '] ' }}
             {% endif %}

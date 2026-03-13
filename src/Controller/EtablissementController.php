@@ -484,7 +484,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function dossiers(
+    public function getDossiers(
         Etablissement $etablissement,
         Request $request
     ): Response {
