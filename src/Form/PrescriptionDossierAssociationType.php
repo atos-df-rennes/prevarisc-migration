@@ -37,8 +37,6 @@ class PrescriptionDossierAssociationType extends AbstractType
                 'choices' => $this->prescriptionTexteListeRepository->findAllTextes(true),
                 'choice_label' => 'libelle',
                 'choice_value' => 'id',
-                'placeholder' => '',
-                'required' => false,
                 'row_attr' => [
                     'class' => 'col-sm-5',
                 ],
@@ -49,8 +47,6 @@ class PrescriptionDossierAssociationType extends AbstractType
                 'choices' => $this->prescriptionArticleListeRepository->findAllArticles(true),
                 'choice_label' => 'libelle',
                 'choice_value' => 'id',
-                'placeholder' => '',
-                'required' => false,
                 'row_attr' => [
                     'class' => 'col-sm-5',
                 ],

@@ -46,6 +46,7 @@ class PrescriptionDossierType extends AbstractType
                         'minMessage' => 'Vous devez ajouter au moins une association (texte/article).',
                     ]),
                 ],
+                'error_bubbling' => false,
             ])
             ->add('dateLevee', DateType::class, [
                 'label' => 'Date de levée',
