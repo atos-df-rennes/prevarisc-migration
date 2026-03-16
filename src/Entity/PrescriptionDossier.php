@@ -90,7 +90,7 @@ class PrescriptionDossier
     /**
      * @var Collection<int, PrescriptionDossierAssociation>
      *
-     * @ORM\OneToMany(targetEntity=PrescriptionDossierAssociation::class, mappedBy="prescriptionDossier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=PrescriptionDossierAssociation::class, mappedBy="prescriptionDossier", orphanRemoval=true, cascade={"persist"})
      */
     private $associations;
 
@@ -211,8 +211,13 @@ class PrescriptionDossier
     public function addAssociation(PrescriptionDossierAssociation $association): self
     {
         if (!$this->associations->contains($association)) {
-            $this->associations[] = $association;
+            $lastAssoc = $this->associations->last();
+            $lastNumero = $lastAssoc instanceof PrescriptionDossierAssociation ? $lastAssoc->getNumero() : 0;
+
+            $association->setNumero(($lastNumero ?? 0) + 1);
             $association->setPrescriptionDossier($this);
+
+            $this->associations->add($association);
         }
 
         return $this;

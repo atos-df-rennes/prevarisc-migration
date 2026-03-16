@@ -70,8 +70,10 @@
 
                     {% if not dossier.verrou %}
                         <td rowspan="{{ nb_assoc }}" class="col-xs-1">
-                            {# Placeholder — Phase 3 : modification #}
-                            <a class="btn btn-default btn-sm disabled">Modifier</a>
+                            <a class="btn btn-default btn-sm"
+                               href="{{ path('dossier_prescriptions_modifier', {id: dossier.id, idPrescription: prescription.id}) }}">
+                                Modifier
+                            </a>
                         </td>
                     {% endif %}
                 {% endif %}
