@@ -196,6 +196,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         return $this->render('dossier/prescriptions/_modal_ajout_type.html.twig', [
             'dossier' => $dossier,
             'categories' => $this->categorieRepo->findBy([], ['numero' => 'ASC']),
+            'prescriptionsTypesInitiales' => $this->prescriptionTypeRepo->findByClassement(0, 0, 0),
         ]);
     }
 
@@ -254,6 +255,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
                 'dossier' => $dossier,
                 'niveau' => 'categories',
                 'categories' => $this->categorieRepo->findBy([], ['numero' => 'ASC']),
+                'prescriptionsTypes' => $this->prescriptionTypeRepo->findByClassement(0, 0, 0),
             ]);
         }
 
@@ -265,6 +267,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
                 'niveau' => 'textes',
                 'categorie' => $categorie,
                 'textes' => null !== $categorie ? $this->texteRepo->findByCategorie($categorie) : [],
+                'prescriptionsTypes' => $this->prescriptionTypeRepo->findByClassement($categorieId, 0, 0),
             ]);
         }
 
@@ -277,11 +280,11 @@ class DossierPrescriptionController extends AbstractController implements Dossie
                 'categorie' => $categorie,
                 'texte' => $texte,
                 'articles' => null !== $texte ? $this->articleRepo->findByTexte($texte) : [],
+                'prescriptionsTypes' => $this->prescriptionTypeRepo->findByClassement($categorieId, $texteId, 0),
             ]);
         }
 
         $article = $this->articleRepo->find($articleId);
-        $prescriptionsTypes = $this->prescriptionTypeRepo->findByClassement($categorieId, $texteId, $articleId);
 
         return $this->render('dossier/prescriptions/_emplacement_navigation.html.twig', [
             'dossier' => $dossier,
@@ -289,7 +292,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
             'categorie' => $categorie,
             'texte' => $texte,
             'article' => $article,
-            'prescriptionsTypes' => $prescriptionsTypes,
+            'prescriptionsTypes' => $this->prescriptionTypeRepo->findByClassement($categorieId, $texteId, $articleId),
         ]);
     }
 

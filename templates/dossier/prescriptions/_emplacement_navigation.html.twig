@@ -133,14 +133,16 @@
             <li><em>Aucun article pour ce texte</em></li>
         {% endfor %}
     </ul>
+{% endif %}
 
-{% elseif niveau == 'prescriptions' %}
-    {% if prescriptionsTypes is defined %}
-        <ul class="list-unstyled mt-2">
+{# Prescriptions types pour le niveau courant (présentes à tous les niveaux) #}
+{% if prescriptionsTypes is defined and prescriptionsTypes is not empty %}
+    <div class="mt-3">
+        <ul class="list-unstyled">
             {{ include('dossier/prescriptions/_prescription_type_list.html.twig', {
                 dossier: dossier,
                 prescriptionsTypes: prescriptionsTypes,
             }) }}
         </ul>
-    {% endif %}
+    </div>
 {% endif %}
