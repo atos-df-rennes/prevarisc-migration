@@ -38,7 +38,7 @@ class PrescriptionDossierAssociationType extends AbstractType
                 'choice_label' => 'libelle',
                 'choice_value' => 'id',
                 'row_attr' => [
-                    'class' => 'col-sm-5',
+                    'class' => 'col-xs-5',
                 ],
             ])
             ->add('article', EntityType::class, [
@@ -48,7 +48,7 @@ class PrescriptionDossierAssociationType extends AbstractType
                 'choice_label' => 'libelle',
                 'choice_value' => 'id',
                 'row_attr' => [
-                    'class' => 'col-sm-5',
+                    'class' => 'col-xs-5',
                 ],
             ])
         ;
