@@ -13,20 +13,20 @@
         </div>
     </div>
 
-    {% do form.associations.setRendered %}
+    {% do form.effectiveAssociations.setRendered %}
     <div class="row">
         <div class="col-sm-12">
             <fieldset>
                 <legend>Associations texte / article</legend>
 
-                {{ form_errors(form.associations) }}
+                {{ form_errors(form.effectiveAssociations) }}
 
                 <ul id="prescription_dossier_associations"
                     class="list-unstyled remove-collection-widget"
-                    data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
+                    data-prototype="{{ form_widget(form.effectiveAssociations.vars.prototype)|e }}"
                     data-widget-tags="{{ '<li></li>'|e }}"
-                    data-widget-counter="{{ form.associations|length }}">
-                    {% for association_field in form.associations %}
+                    data-widget-counter="{{ form.effectiveAssociations|length }}">
+                    {% for association_field in form.effectiveAssociations %}
                         <li>
                             {{ form_errors(association_field) }}
                             {{ form_widget(association_field, {attr: {class: 'collection-item-wrapper'}}) }}
@@ -47,7 +47,7 @@
 
     <div class="row">
         <div class="col-sm-12">
-            {{ form_row(form.libelle) }}
+            {{ form_row(form.effectiveLibelle) }}
         </div>
     </div>
 
@@ -100,15 +100,5 @@
     <script type="module">
         import { initTodayButtonsModule } from '{{ asset('js/dossier/modules/today-buttons.js') }}';
         initTodayButtonsModule();
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const collection = document.querySelector('.remove-collection-widget');
-            if (collection && collection.children.length > 0 && 'function' === typeof addTagFormDeleteLink) {
-                for (let item of collection.children) {
-                    addTagFormDeleteLink(item);
-                }
-            }
-        });
     </script>
 {% endblock %}

@@ -232,4 +232,17 @@ class PrescriptionDossier
 
         return $this;
     }
+
+    public function getEffectiveLibelle(): string
+    {
+        return $this->prescriptionType ? $this->prescriptionType->getLibelle() : $this->libelle;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, PrescriptionDossierAssociation|\App\Entity\PrescriptionTypeAssociation>
+     */
+    public function getEffectiveAssociations(): Collection
+    {
+        return $this->prescriptionType ? $this->prescriptionType->getAssociations() : $this->associations;
+    }
 }
