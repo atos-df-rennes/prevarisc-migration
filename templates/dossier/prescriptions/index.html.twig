@@ -210,7 +210,6 @@
                     data: { categorieId: categorieId, texteId: texteId, articleId: articleId },
                     success: function(html) {
                         $('#selectEmplacement').html(html);
-                        $('#listePrescriptionType').empty();
                     },
                     error: function() {
                         $.toast.error('Erreur lors du chargement. Veuillez réessayer.');
