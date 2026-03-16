@@ -1,0 +1,134 @@
+{#
+    Navigation hiérarchique par classement (catégorie → texte → article → prescriptions).
+    Variables attendues selon le niveau :
+    - dossier    : Dossier
+    - niveau     : 'categories' | 'textes' | 'articles' | 'prescriptions'
+    - categories : PrescriptionCategorie[]  (niveau = categories)
+    - categorie  : PrescriptionCategorie    (niveau >= textes)
+    - textes     : PrescriptionTexte[]      (niveau = textes)
+    - texte      : PrescriptionTexte        (niveau >= articles)
+    - articles   : PrescriptionArticle[]    (niveau = articles)
+    - article    : PrescriptionArticle      (niveau = prescriptions)
+    - prescriptionsTypes : PrescriptionType[] (niveau = prescriptions — injecté dans _prescription_type_list)
+#}
+
+{# Fil d'ariane #}
+<nav aria-label="Classement" class="mb-2">
+    <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 8px;">
+        <li>
+            <button
+                type="button"
+                class="btn btn-link btn-nav-classement p-0"
+                style="vertical-align: baseline;"
+                data-categorie-id="0"
+                data-texte-id="0"
+                data-article-id="0"
+            >
+                Catégories
+            </button>
+        </li>
+
+        {% if niveau in ['textes', 'articles', 'prescriptions'] and categorie is defined and categorie %}
+            <li>
+                <button
+                    type="button"
+                    class="btn btn-link btn-nav-classement p-0"
+                    style="vertical-align: baseline;"
+                    data-categorie-id="{{ categorie.id }}"
+                    data-texte-id="0"
+                    data-article-id="0"
+                >
+                    {{ categorie.libelle }}
+                </button>
+            </li>
+        {% endif %}
+
+        {% if niveau in ['articles', 'prescriptions'] and texte is defined and texte %}
+            <li>
+                <button
+                    type="button"
+                    class="btn btn-link btn-nav-classement p-0"
+                    style="vertical-align: baseline;"
+                    data-categorie-id="{{ categorie is defined and categorie ? categorie.id : 0 }}"
+                    data-texte-id="{{ texte.id }}"
+                    data-article-id="0"
+                >
+                    {{ texte.libelle }}
+                </button>
+            </li>
+        {% endif %}
+
+        {% if niveau == 'prescriptions' and article is defined and article %}
+            <li class="active">{{ article.libelle }}</li>
+        {% endif %}
+    </ol>
+</nav>
+
+{# Contenu selon le niveau #}
+{% if niveau == 'categories' %}
+    <ul class="list-unstyled">
+        {% for cat in categories %}
+            <li>
+                <button
+                    type="button"
+                    class="btn btn-default btn-sm btn-nav-classement mb-1"
+                    data-categorie-id="{{ cat.id }}"
+                    data-texte-id="0"
+                    data-article-id="0"
+                >
+                    {{ cat.libelle }}
+                </button>
+            </li>
+        {% else %}
+            <li><em>Aucune catégorie disponible</em></li>
+        {% endfor %}
+    </ul>
+
+{% elseif niveau == 'textes' %}
+    <ul class="list-unstyled">
+        {% for txt in textes %}
+            <li>
+                <button
+                    type="button"
+                    class="btn btn-default btn-sm btn-nav-classement mb-1"
+                    data-categorie-id="{{ categorie is defined and categorie ? categorie.id : 0 }}"
+                    data-texte-id="{{ txt.id }}"
+                    data-article-id="0"
+                >
+                    {{ txt.libelle }}
+                </button>
+            </li>
+        {% else %}
+            <li><em>Aucun texte dans cette catégorie</em></li>
+        {% endfor %}
+    </ul>
+
+{% elseif niveau == 'articles' %}
+    <ul class="list-unstyled">
+        {% for art in articles %}
+            <li>
+                <button
+                    type="button"
+                    class="btn btn-default btn-sm btn-nav-classement mb-1"
+                    data-categorie-id="{{ categorie is defined and categorie ? categorie.id : 0 }}"
+                    data-texte-id="{{ texte is defined and texte ? texte.id : 0 }}"
+                    data-article-id="{{ art.id }}"
+                >
+                    {{ art.libelle }}
+                </button>
+            </li>
+        {% else %}
+            <li><em>Aucun article pour ce texte</em></li>
+        {% endfor %}
+    </ul>
+
+{% elseif niveau == 'prescriptions' %}
+    {% if prescriptionsTypes is defined %}
+        <ul class="list-unstyled mt-2" id="listePrescriptionType">
+            {{ include('dossier/prescriptions/_prescription_type_list.html.twig', {
+                dossier: dossier,
+                prescriptionsTypes: prescriptionsTypes,
+            }) }}
+        </ul>
+    {% endif %}
+{% endif %}

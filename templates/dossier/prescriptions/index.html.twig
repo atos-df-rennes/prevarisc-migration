@@ -10,8 +10,10 @@
 
     {% if not dossier.verrou %}
         <div class="mb-3">
-            {# Placeholder — Phase 5 : ajout prescription type #}
-            <button class="btn btn-default disabled" disabled>Ajouter une prescription type</button>
+            <button id="btn-ouvrir-modal-presc-type" class="btn btn-default"
+                    data-url="{{ path('dossier_prescriptions_modal_type', {id: dossier.id}) }}">
+                Ajouter une prescription type
+            </button>
             <a class="btn btn-default ml-2"
                href="{{ path('dossier_prescriptions_ajouter', {id: dossier.id}) }}">
                 Ajouter une prescription
@@ -20,6 +22,11 @@
             <button class="btn btn-default ml-3 disabled" disabled>Reprendre les prescriptions d'un dossier précédent</button>
         </div>
     {% endif %}
+
+    {# Conteneur de la modale prescription type (contenu chargé par AJAX) #}
+    <div id="modal-ajout-prescription-type" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalPrescTypeLabel">
+        <div id="modal-ajout-prescription-type-content"></div>
+    </div>
 
     <section>
         <h3 id="prescRappelRegTitle">Rappels réglementaires</h3>
@@ -84,6 +91,10 @@
             const reorderUrl = '{{ path('dossier_prescriptions_reordonner', {id: dossier.id}) }}';
             const reorderCsrfToken = '{{ csrf_token('reorder_prescriptions') }}';
 
+            function refreshSortable() {
+                $('.listePrescriptions').sortable('refresh');
+            }
+
             $('.listePrescriptions').sortable({
                 update: function() {
                     const idsRegl = [];
@@ -118,6 +129,129 @@
                         }
                     });
                 }
+            });
+            {% endif %}
+
+            {% if not dossier.verrou %}
+            // ── Modale "Ajouter une prescription type" ──────────────────────────────
+
+            const urlModalType = '{{ path('dossier_prescriptions_modal_type', {id: dossier.id}) }}';
+            const urlRechercheClassement = '{{ path('dossier_prescriptions_recherche_classement', {id: dossier.id}) }}';
+            const urlRechercheMotsCles = '{{ path('dossier_prescriptions_recherche_mots_cles', {id: dossier.id}) }}';
+
+            // Ouverture de la modale : charge le HTML par AJAX puis affiche
+            $('#btn-ouvrir-modal-presc-type').on('click', function() {
+                $.ajax({
+                    type: 'GET',
+                    url: urlModalType,
+                    success: function(html) {
+                        $('#modal-ajout-prescription-type-content').html(html);
+                        $('#modal-ajout-prescription-type').modal('show');
+                    },
+                    error: function() {
+                        $.toast.error('Impossible de charger la modale. Veuillez réessayer.');
+                    }
+                });
+            });
+
+            // Toggle classement / mots-clés
+            $(document).on('click', '#btn-mode-classement', function() {
+                $(this).addClass('active');
+                $('#btn-mode-motscles').removeClass('active');
+                $('#zone-motscles').hide();
+                $('#zone-classement').show();
+                $('#listePrescriptionTypeSearch').hide().empty();
+            });
+
+            $(document).on('click', '#btn-mode-motscles', function() {
+                $(this).addClass('active');
+                $('#btn-mode-classement').removeClass('active');
+                $('#zone-classement').hide();
+                $('#zone-motscles').show();
+                $('#listePrescriptionType').empty();
+            });
+
+            // Recherche par mots-clés
+            $(document).on('click', '#btn-recherche-motscles', function() {
+                lancerRechercheMotsCles();
+            });
+
+            $(document).on('keypress', '#inputMotsCles', function(e) {
+                if (13 === e.keyCode) {
+                    e.preventDefault();
+                    lancerRechercheMotsCles();
+                }
+            });
+
+            function lancerRechercheMotsCles() {
+                const motsCles = $('#inputMotsCles').val();
+                $.ajax({
+                    type: 'POST',
+                    url: urlRechercheMotsCles,
+                    data: { motsCles: motsCles },
+                    success: function(html) {
+                        $('#listePrescriptionTypeSearch').html(html).show();
+                    },
+                    error: function() {
+                        $.toast.error('Erreur lors de la recherche. Veuillez réessayer.');
+                    }
+                });
+            }
+
+            // Navigation par classement
+            $(document).on('click', '.btn-nav-classement', function() {
+                const categorieId = $(this).data('categorie-id') || 0;
+                const texteId = $(this).data('texte-id') || 0;
+                const articleId = $(this).data('article-id') || 0;
+
+                $.ajax({
+                    type: 'POST',
+                    url: urlRechercheClassement,
+                    data: { categorieId: categorieId, texteId: texteId, articleId: articleId },
+                    success: function(html) {
+                        $('#selectEmplacement').html(html);
+                        $('#listePrescriptionType').empty();
+                    },
+                    error: function() {
+                        $.toast.error('Erreur lors du chargement. Veuillez réessayer.');
+                    }
+                });
+            });
+
+            // Ajout d'une prescription type depuis la modale
+            $(document).on('click', '.btn-ajouter-presc-type', function() {
+                const $btn = $(this);
+                const url = $btn.data('url');
+                const csrfToken = $btn.data('csrf-token');
+                const typePrescription = $('#typePrescriptionDossier').val();
+
+                $btn.prop('disabled', true);
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: { typePrescriptionDossier: typePrescription, _token: csrfToken },
+                    success: function(html) {
+                        const $html = $(html);
+
+                        if (0 === parseInt(typePrescription)) {
+                            $('#prescRappelReg').append($html);
+                        } else if (1 === parseInt(typePrescription)) {
+                            $('#prescExploitation').append($html);
+                        } else {
+                            $('#prescAmelioration').append($html);
+                        }
+
+                        refreshSortable();
+                        $('[data-toggle="popover"]').popover();
+                        $.toast.success('La prescription type a bien été ajoutée.');
+                        $btn.prop('disabled', false);
+                    },
+                    error: function() {
+                        $.toast.error("Erreur lors de l'ajout. Veuillez réessayer.");
+                        $btn.prop('disabled', false);
+                    }
+                });
             });
             {% endif %}
         });

@@ -2,7 +2,10 @@
 
 namespace App\Tests\Service;
 
+use App\Constant\TypePrescription;
 use App\Entity\Dossier;
+use App\Entity\PrescriptionDossier;
+use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionDossierRepository;
 use App\Service\DossierPrescriptionService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -81,5 +84,57 @@ final class DossierPrescriptionServiceTest extends TestCase
 
         $this->assertSame($idsRegl, $callArgs[0]);
         $this->assertSame($idsAutres, $callArgs[1]);
+    }
+
+    public function testAjouterDepuisTypeCreePrescriptionAvecBonType(): void
+    {
+        $dossier = $this->createMock(Dossier::class);
+        $prescriptionType = $this->createMock(PrescriptionType::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $service = new DossierPrescriptionService($this->repository, $em);
+
+        $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
+        $this->repository->method('findByDossierAndType')->willReturn([]);
+
+        $em->expects($this->once())->method('persist')
+            ->with($this->isInstanceOf(PrescriptionDossier::class));
+        $em->expects($this->once())->method('flush');
+
+        $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::EXPLOITATION);
+
+        self::assertSame(TypePrescription::EXPLOITATION, $prescription->getType());
+        self::assertSame($dossier, $prescription->getDossier());
+        self::assertSame($prescriptionType, $prescription->getPrescriptionType());
+    }
+
+    public function testAjouterDepuisTypeAssigneProchainNumero(): void
+    {
+        $dossier = $this->createMock(Dossier::class);
+        $prescriptionType = $this->createMock(PrescriptionType::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $service = new DossierPrescriptionService($this->repository, $em);
+
+        $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(3);
+        $this->repository->method('findByDossierAndType')->willReturn([]);
+
+        $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::REGLEMENTAIRE);
+
+        self::assertSame(4, $prescription->getNumero());
+    }
+
+    public function testAjouterDepuisTypeGardeLienTypeEtNeCopiesPasLibelle(): void
+    {
+        $dossier = $this->createMock(Dossier::class);
+        $prescriptionType = $this->createMock(PrescriptionType::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $service = new DossierPrescriptionService($this->repository, $em);
+
+        $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
+        $this->repository->method('findByDossierAndType')->willReturn([]);
+
+        $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::AMELIORATION);
+
+        self::assertSame($prescriptionType, $prescription->getPrescriptionType());
+        self::assertNull($prescription->getLibelle());
     }
 }
