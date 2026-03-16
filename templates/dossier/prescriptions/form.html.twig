@@ -87,6 +87,7 @@
               action="{{ path('dossier_prescriptions_supprimer', {id: dossier.id, idPrescription: prescription.id}) }}"
               class="mt-2"
               onsubmit="return confirm('Confirmer la suppression de cette prescription ?');">
+            <input type="hidden" name="_method" value="DELETE" />
             <input type="hidden" name="_token" value="{{ csrf_token('delete_prescription_' ~ prescription.id) }}">
             <button type="submit" class="btn btn-danger">Supprimer</button>
         </form>

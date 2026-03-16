@@ -125,7 +125,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
     }
 
     /**
-     * @Route("/dossier/{id}/prescriptions/{idPrescription}/supprimer", name="dossier_prescriptions_supprimer", requirements={"id"="\d+", "idPrescription"="\d+"}, methods={"POST"})
+     * @Route("/dossier/{id}/prescriptions/{idPrescription}/supprimer", name="dossier_prescriptions_supprimer", requirements={"id"="\d+", "idPrescription"="\d+"}, methods={"DELETE"})
      *
      * @ParamConverter("prescription", options={"id" = "idPrescription"})
      *
