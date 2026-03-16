@@ -88,6 +88,8 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         if ($isNew) {
             $prescription = new PrescriptionDossier();
             $prescription->setType(TypePrescription::REGLEMENTAIRE);
+        } else {
+            $this->service->preparerPourEdition($prescription);
         }
 
         $form = $this->createForm(PrescriptionDossierType::class, $prescription, [

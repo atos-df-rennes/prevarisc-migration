@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
+use App\Entity\PrescriptionDossierAssociation;
 use App\Repository\PrescriptionDossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -107,6 +108,36 @@ class DossierPrescriptionService
         if (null !== $dossier && null !== $type) {
             $this->renumeroterSequence($dossier, $type);
         }
+    }
+
+    /**
+     * Prépare une prescription pour l'édition en la convertissant au format "libre".
+     *
+     * Si la prescription est liée à un type (prescriptionType non null), cette méthode
+     * copie le libellé et les associations du type dans les champs propres à la prescription,
+     * puis détache le lien vers le type. Ainsi le formulaire travaille toujours sur
+     * les propriétés écrivables libelle/associations, quelle que soit l'origine.
+     *
+     * Cette opération est en mémoire uniquement : aucune persistance n'est effectuée.
+     */
+    public function preparerPourEdition(PrescriptionDossier $prescription): void
+    {
+        $prescriptionType = $prescription->getPrescriptionType();
+
+        if (null === $prescriptionType) {
+            return;
+        }
+
+        $prescription->setLibelle($prescriptionType->getLibelle());
+
+        foreach ($prescriptionType->getAssociations() as $typeAssoc) {
+            $assoc = new PrescriptionDossierAssociation();
+            $assoc->setTexte($typeAssoc->getTexte());
+            $assoc->setArticle($typeAssoc->getArticle());
+            $prescription->addAssociation($assoc);
+        }
+
+        $prescription->setPrescriptionType(null);
     }
 
     /**

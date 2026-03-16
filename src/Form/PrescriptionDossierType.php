@@ -18,9 +18,6 @@ class PrescriptionDossierType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var PrescriptionDossier $prescription */
-        $prescription = $options['data'];
-
         $builder
             ->add('type', ChoiceType::class, [
                 'label' => 'Catégorie',
@@ -30,15 +27,15 @@ class PrescriptionDossierType extends AbstractType
                     "Recommandations liées à l'amélioration" => TypePrescription::AMELIORATION,
                 ],
             ])
-            ->add('effectiveLibelle', TextareaType::class, [
+            ->add('libelle', TextareaType::class, [
                 'label' => 'Contenu',
                 'attr' => ['rows' => 10],
                 'constraints' => [
                     new NotBlank(['message' => 'Le contenu de la prescription est obligatoire.']),
                 ],
             ])
-            ->add('effectiveAssociations', CollectionType::class, [
-                'entry_type' => $prescription->getPrescriptionType() ? PrescriptionTypePrescriptionAssociationType::class : PrescriptionDossierAssociationType::class,
+            ->add('associations', CollectionType::class, [
+                'entry_type' => PrescriptionDossierAssociationType::class,
                 'by_reference' => false,
                 'allow_add' => true,
                 'allow_delete' => true,
