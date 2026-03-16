@@ -8,6 +8,8 @@ use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -167,9 +169,10 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * Retourne les dossiers d'un établissement en fonction de leur type.
      *
-     * @param int $id Identifiant de l'établissement
-     * @param array<int> $types Types de dossiers à récupérer
-     * @param bool $reverse Si true, récupère les dossiers dont le type n'est pas dans $types
+     * @param int        $id      Identifiant de l'établissement
+     * @param array<int> $types   Types de dossiers à récupérer
+     * @param bool       $reverse Si true, récupère les dossiers dont le type n'est pas dans $types
+     *
      * @return array<Dossier> Tableau de dossiers (chaque élément est un tableau associatif)
      */
     public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false): array
@@ -202,10 +205,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
     /**
      * Retourne le nombre de pièces jointes nouvelles pour un dossier.
-     *
-     * @param Dossier $dossier
-     * @param \DateTimeInterface $dateDerniereVisitePage
-     * @return int
      */
     public function findNombreNouvellesPieces(Dossier $dossier, \DateTimeInterface $dateDerniereVisitePage): int
     {
@@ -299,30 +298,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    /**
-     * @param Dossier $dossier
-     * @return bool
-     */
     public function hasAlerteReceptionTravaux(Dossier $dossier): bool
     {
         return $this->hasTravaux($dossier, [2, 1, 13, 12]);
     }
 
-    /**
-     * @param Dossier $dossier
-     * @return bool
-     */
     public function hasEcheancierTravaux(Dossier $dossier): bool
     {
         return $this->hasTravaux($dossier, [46]);
     }
 
     /**
-     * @param Dossier $dossier
-     * @param array $natures
-     * @return bool
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     private function hasTravaux(Dossier $dossier, array $natures): bool
     {
@@ -339,26 +327,26 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
-     * @param int $parentId
      * @return array<Dossier>
      */
     public function getDossiersEnfants(int $parentId): array
     {
+        $parent = $this->find($parentId);
+        $dossiersLies = $parent->getDossiersLies();
         $qb = $this->createQueryBuilder('d');
-        $query = $qb->leftjoin('d.etablissements', 'e')
-            ->leftJoin('d.piecesJointes', 'dpj')
-            ->leftJoin('d.documentsUrbanisme', 'du')
-            ->join('d.nature', 'dn')
-            ->join('d.type', 'dt')
-            ->leftjoin('e.informations', 'ei')
-            ->leftJoin('d.dossiersLies', 'dl')
-            ->leftJoin('d.consultationPlatau', 'dcp')
-            ->where('d.dateSuppression IS NULL')
-            ->andWhere('dl.id = :id');
+        foreach ($dossiersLies as $dossierLie) {
+            $query = $qb->leftJoin('d.etablissements', 'e')
+                ->leftJoin('d.piecesJointes', 'dpj')
+                ->leftJoin('d.documentsUrbanisme', 'du')
+                ->join('d.nature', 'dn')
+                ->join('d.type', 'dt')
+                ->leftjoin('e.informations', 'ei')
+                ->leftJoin('d.consultationPlatau', 'dcp')
+                ->where('d.id = :idDossierLie')
+                ->setParameter('idDossierLie', $dossierLie->getId());
+            $enfants[] = $query->getQuery()->getSingleResult();
+        }
 
-        $query->setParameter('id', $parentId);
-        $query->orderBy('d.dateInsert', 'DESC');
-
-        return $query->getQuery()->getResult();
+        return $enfants;
     }
 }

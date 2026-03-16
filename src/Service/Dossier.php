@@ -66,6 +66,7 @@ final class Dossier
      * Extrait les données utiles pour l'affichage des dossiers.
      *
      * @param array<DossierEntity> $dossiers Tableau de dossiers (chaque élément est un tableau associatif)
+     *
      * @return array<int, array<string, mixed>> Tableau des données utiles pour chaque dossier
      */
     public function extraireDonneesUtiles(array $dossiers): array
@@ -113,9 +114,9 @@ final class Dossier
                 if (!is_null($type->getLibelle())) {
                     $libelle .= $type->getLibelle();
                 }
+
                 $donneeUtile['typeId'] = $type->getId();
-            }
-            else {
+            } else {
                 $donneeUtile['typeId'] = null;
             }
 
@@ -124,6 +125,7 @@ final class Dossier
                 if (!empty($libelle)) {
                     $libelle .= ' - ';
                 }
+
                 $libelle .= $nature;
             }
 
@@ -138,8 +140,7 @@ final class Dossier
             $donneeUtile['objet'] = $libelle;
             if ($dossierEntity->getEtablissements()->first() && $dossierEntity->getEtablissements()->first()->getInformations()->first()) {
                 $donneeUtile['etablissement'] = $dossierEntity->getEtablissements()->first()->getInformations()->first()->getLibelle();
-            }
-            else {
+            } else {
                 $donneeUtile['etablissement'] = null;
             }
 
@@ -176,9 +177,6 @@ final class Dossier
 
     /**
      * Indique si un dossier est considéré comme nouveau pour l'utilisateur courant.
-     *
-     * @param DossierEntity $dossier
-     * @return bool
      */
     public function isNew(DossierEntity $dossier): bool
     {
