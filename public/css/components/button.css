@@ -13,3 +13,8 @@
     position: relative;
     top: -39px;
 }
+
+.btn-nav-classement {
+    white-space: wrap;
+    text-align: left;
+}
