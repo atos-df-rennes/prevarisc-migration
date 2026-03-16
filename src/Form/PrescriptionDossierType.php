@@ -51,8 +51,6 @@ class PrescriptionDossierType extends AbstractType
                 'label' => 'Date de levée',
                 'widget' => 'single_text',
                 'required' => false,
-                'html5' => false,
-                'attr' => ['class' => 'date'],
             ])
             ->add('justificatif', TextareaType::class, [
                 'label' => 'Justification de levée',

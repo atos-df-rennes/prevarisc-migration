@@ -53,7 +53,18 @@
 
     <div class="row">
         <div class="col-sm-3">
-            {{ form_row(form.dateLevee) }}
+            <div class="form-group">
+                {{ form_label(form.dateLevee) }}
+                <div class="input-group">
+                    {{ form_widget(form.dateLevee) }}
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default btn-today" data-target="{{ form.dateLevee.vars.id }}">
+                            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Aujourd'hui
+                        </button>
+                    </div>
+                </div>
+                {{ form_errors(form.dateLevee) }}
+            </div>
         </div>
         <div class="col-sm-9">
             {{ form_row(form.justificatif) }}
@@ -86,7 +97,10 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
-    <script src="{{ asset('js/calendrier/today.js') }}"></script>
+    <script type="module">
+        import { initTodayButtonsModule } from '{{ asset('js/dossier/modules/today-buttons.js') }}';
+        initTodayButtonsModule();
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const collection = document.querySelector('.remove-collection-widget');
