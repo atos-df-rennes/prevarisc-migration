@@ -232,14 +232,18 @@
                     data: { typePrescriptionDossier: typePrescription, _token: csrfToken },
                     success: function(html) {
                         const $html = $(html);
+                        let $list;
 
                         if (0 === parseInt(typePrescription)) {
-                            $('#prescRappelReg').append($html);
+                            $list = $('#prescRappelReg');
                         } else if (1 === parseInt(typePrescription)) {
-                            $('#prescExploitation').append($html);
+                            $list = $('#prescExploitation');
                         } else {
-                            $('#prescAmelioration').append($html);
+                            $list = $('#prescAmelioration');
                         }
+
+                        $list.children('em').remove();
+                        $list.append($html);
 
                         refreshSortable();
                         $('[data-toggle="popover"]').popover();
