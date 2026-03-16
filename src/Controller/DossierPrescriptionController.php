@@ -84,11 +84,13 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         }
 
         $isNew = null === $prescription;
+        $ancienType = null;
 
         if ($isNew) {
             $prescription = new PrescriptionDossier();
             $prescription->setType(TypePrescription::REGLEMENTAIRE);
         } else {
+            $ancienType = $prescription->getType();
             $this->service->preparerPourEdition($prescription);
         }
 
@@ -104,7 +106,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->sauvegarder($dossier, $prescription);
+            $this->service->sauvegarder($dossier, $prescription, $ancienType);
 
             $this->addFlash(
                 'success',

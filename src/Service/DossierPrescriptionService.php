@@ -61,11 +61,14 @@ class DossierPrescriptionService
      * renumérote les séquences impactées.
      *
      * Types 1 (exploitation) et 2 (amélioration) partagent une numérotation continue.
+     *
+     * $ancienType doit être capturé avant handleRequest() dans le contrôleur afin de
+     * détecter un éventuel changement de type (la prescription porte déjà le nouveau type
+     * au moment de l'appel).
      */
-    public function sauvegarder(Dossier $dossier, PrescriptionDossier $prescription): void
+    public function sauvegarder(Dossier $dossier, PrescriptionDossier $prescription, ?int $ancienType = null): void
     {
         $isNew = null === $prescription->getId();
-        $ancienType = $isNew ? null : $prescription->getType();
         $nouveauType = $prescription->getType();
 
         if (null === $nouveauType) {
@@ -74,12 +77,9 @@ class DossierPrescriptionService
 
         if ($isNew) {
             $prescription->setDossier($dossier);
-            $prescription->setPrescriptionType(null);
             $prescription->setNumero($this->prochainNumero($dossier, $nouveauType));
         } elseif ($ancienType !== $nouveauType) {
             $prescription->setNumero($this->prochainNumero($dossier, $nouveauType));
-            // Lorsque la prescription change de type, on la détache de son type éventuel
-            $prescription->setPrescriptionType(null);
         }
 
         $this->renumeroterAssociations($prescription);
