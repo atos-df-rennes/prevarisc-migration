@@ -13,20 +13,20 @@
         </div>
     </div>
 
-    {% do form.effectiveAssociations.setRendered %}
+    {% do form.associations.setRendered %}
     <div class="row">
         <div class="col-sm-12">
             <fieldset>
                 <legend>Associations texte / article</legend>
 
-                {{ form_errors(form.effectiveAssociations) }}
+                {{ form_errors(form.associations) }}
 
                 <ul id="prescription_dossier_associations"
                     class="list-unstyled remove-collection-widget"
-                    data-prototype="{{ form_widget(form.effectiveAssociations.vars.prototype)|e }}"
+                    data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
                     data-widget-tags="{{ '<li></li>'|e }}"
-                    data-widget-counter="{{ form.effectiveAssociations|length }}">
-                    {% for association_field in form.effectiveAssociations %}
+                    data-widget-counter="{{ form.associations|length }}">
+                    {% for association_field in form.associations %}
                         <li>
                             {{ form_errors(association_field) }}
                             {{ form_widget(association_field, {attr: {class: 'collection-item-wrapper'}}) }}
@@ -47,7 +47,7 @@
 
     <div class="row">
         <div class="col-sm-12">
-            {{ form_row(form.effectiveLibelle) }}
+            {{ form_row(form.libelle) }}
         </div>
     </div>
 
@@ -73,17 +73,6 @@
 
     <div class="row mt-3">
         <div class="col-sm-12">
-            {% if not is_new %}
-                <form method="post"
-                      action="{{ path('dossier_prescriptions_supprimer', {id: dossier.id, idPrescription: prescription.id}) }}"
-                      class="pull-left"
-                      id="form-supprimer-prescription"
-                      onsubmit="return confirm('Confirmer la suppression de cette prescription ?');">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_prescription_' ~ prescription.id) }}">
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                </form>
-            {% endif %}
-
             <div class="pull-right">
                 <a href="{{ path('dossier_prescriptions', {id: dossier.id}) }}" class="btn btn-default">Annuler</a>
                 <button type="submit" class="btn btn-success">Sauvegarder</button>
@@ -92,6 +81,16 @@
     </div>
 
     {{ form_end(form) }}
+
+    {% if not is_new %}
+        <form method="post"
+              action="{{ path('dossier_prescriptions_supprimer', {id: dossier.id, idPrescription: prescription.id}) }}"
+              class="mt-2"
+              onsubmit="return confirm('Confirmer la suppression de cette prescription ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_prescription_' ~ prescription.id) }}">
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}
