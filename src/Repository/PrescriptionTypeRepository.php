@@ -48,32 +48,29 @@ class PrescriptionTypeRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retourne les prescriptions types filtrées par classement (catégorie, texte, article).
-     * Une valeur 0 sur un paramètre signifie "non filtré".
+     * Retourne les prescriptions types correspondant exactement au niveau de classement donné.
+     * La valeur 0 signifie "non rattaché à ce niveau" et est filtrée explicitement.
+     *
+     * Exemples :
+     * - findByClassement(0, 0, 0) → prescriptions rattachées à la racine
+     * - findByClassement(3, 0, 0) → prescriptions rattachées à la catégorie 3
+     * - findByClassement(3, 7, 0) → prescriptions rattachées au texte 7 de la catégorie 3
+     * - findByClassement(3, 7, 2) → prescriptions rattachées à l'article 2 du texte 7
      *
      * @return PrescriptionType[]
      */
     public function findByClassement(int $categorieId, int $texteId, int $articleId): array
     {
-        $qb = $this->createQueryBuilder('pt')
-            ->orderBy('pt.numero', 'ASC');
-
-        if (0 !== $categorieId) {
-            $qb->andWhere('pt.categorie = :categorie')
-                ->setParameter('categorie', $categorieId);
-        }
-
-        if (0 !== $texteId) {
-            $qb->andWhere('pt.texte = :texte')
-                ->setParameter('texte', $texteId);
-        }
-
-        if (0 !== $articleId) {
-            $qb->andWhere('pt.article = :article')
-                ->setParameter('article', $articleId);
-        }
-
-        return $qb->getQuery()->getResult();
+        return $this->createQueryBuilder('pt')
+            ->where('pt.categorie = :categorie')
+            ->andWhere('pt.texte = :texte')
+            ->andWhere('pt.article = :article')
+            ->setParameter('categorie', $categorieId)
+            ->setParameter('texte', $texteId)
+            ->setParameter('article', $articleId)
+            ->orderBy('pt.numero', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**
