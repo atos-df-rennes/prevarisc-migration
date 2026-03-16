@@ -1,0 +1,104 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Prescriptions / {{ is_new ? 'Ajouter' : 'Modifier' }}{% endblock %}
+
+{% block body %}
+    <h3>{{ is_new ? 'Ajouter une prescription' : 'Modifier la prescription' }}</h3>
+
+    {{ form_start(form) }}
+
+    <div class="row">
+        <div class="col-sm-6 col-lg-4">
+            {{ form_row(form.type) }}
+        </div>
+    </div>
+
+    {% do form.associations.setRendered %}
+    <div class="row">
+        <div class="col-sm-12">
+            <fieldset>
+                <legend>Associations texte / article</legend>
+
+                {{ form_errors(form.associations) }}
+
+                <ul id="prescription_dossier_associations"
+                    class="list-unstyled remove-collection-widget"
+                    data-prototype="{{ form_widget(form.associations.vars.prototype)|e }}"
+                    data-widget-tags="{{ '<li></li>'|e }}"
+                    data-widget-counter="{{ form.associations|length }}">
+                    {% for association_field in form.associations %}
+                        <li>
+                            {{ form_errors(association_field) }}
+                            {{ form_widget(association_field, {attr: {class: 'collection-item-wrapper'}}) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="text-center mt-2">
+                    <button type="button"
+                            class="btn btn-default add-collection-widget"
+                            data-list-selector="#prescription_dossier_associations">
+                        Ajouter une association
+                    </button>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {{ form_row(form.libelle) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="form-group">
+                {{ form_label(form.dateLevee) }}
+                <div class="input-group">
+                    {{ form_widget(form.dateLevee) }}
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default btn-today" data-target="{{ form.dateLevee.vars.id }}">
+                            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Aujourd'hui
+                        </button>
+                    </div>
+                </div>
+                {{ form_errors(form.dateLevee) }}
+            </div>
+        </div>
+        <div class="col-lg-9">
+            {{ form_row(form.justificatif) }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-xs-12">
+            <div class="pull-right">
+                <a href="{{ path('dossier_prescriptions', {id: dossier.id}) }}" class="btn btn-default">Annuler</a>
+                <button type="submit" class="btn btn-success">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+    {% if not is_new %}
+        <form method="post"
+              action="{{ path('dossier_prescriptions_supprimer', {id: dossier.id, idPrescription: prescription.id}) }}"
+              class="btn-delete--form mt-2"
+              onsubmit="return confirm('Confirmer la suppression de cette prescription ?');">
+            <input type="hidden" name="_method" value="DELETE" />
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_prescription_' ~ prescription.id) }}">
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script type="module">
+        import { initTodayButtonsModule } from '{{ asset('js/dossier/modules/today-buttons.js') }}';
+        initTodayButtonsModule();
+    </script>
+{% endblock %}

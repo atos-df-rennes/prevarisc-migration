@@ -5,8 +5,11 @@ namespace App\Controller;
 use App\Constant\TypePrescription;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
+use App\Entity\PrescriptionDossier;
+use App\Form\PrescriptionDossierType;
 use App\Service\DossierPrescriptionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /**
-     * @var DossierPrescriptionService
-     */
+    /** @var DossierPrescriptionService */
     private $service;
 
     public function __construct(DossierPrescriptionService $service)
@@ -50,7 +51,10 @@ class DossierPrescriptionController extends AbstractController implements Dossie
             throw $this->createAccessDeniedException('Le dossier est verrouillé.');
         }
 
-        if (!$this->isCsrfTokenValid('reorder_prescriptions', $request->request->get('_token'))) {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('reorder_prescriptions', $csrfToken)) {
             throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
         }
 
@@ -63,5 +67,87 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         $this->service->reordonner($dossier, array_values($idsRegl), array_values($idsAutres));
 
         return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/dossier/{id}/prescriptions/ajouter", name="dossier_prescriptions_ajouter", requirements={"id"="\d+"})
+     * @Route("/dossier/{id}/prescriptions/{idPrescription}/modifier", name="dossier_prescriptions_modifier", requirements={"id"="\d+", "idPrescription"="\d+"})
+     *
+     * @ParamConverter("prescription", options={"id" = "idPrescription"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function form(Request $request, Dossier $dossier, ?PrescriptionDossier $prescription = null): Response
+    {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
+        }
+
+        $isNew = null === $prescription;
+        $ancienType = null;
+
+        if ($isNew) {
+            $prescription = new PrescriptionDossier();
+            $prescription->setType(TypePrescription::REGLEMENTAIRE);
+        } else {
+            $ancienType = $prescription->getType();
+            $this->service->preparerPourEdition($prescription);
+        }
+
+        $form = $this->createForm(PrescriptionDossierType::class, $prescription, [
+            'action' => $this->generateUrl(
+                $isNew ? 'dossier_prescriptions_ajouter' : 'dossier_prescriptions_modifier',
+                $isNew
+                    ? ['id' => $dossier->getId()]
+                    : ['id' => $dossier->getId(), 'idPrescription' => $prescription->getId()]
+            ),
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->service->sauvegarder($dossier, $prescription, $ancienType);
+
+            $this->addFlash(
+                'success',
+                $isNew ? 'La prescription a bien été ajoutée.' : 'La prescription a bien été modifiée.'
+            );
+
+            return $this->redirectToRoute('dossier_prescriptions', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/prescriptions/form.html.twig', [
+            'dossier' => $dossier,
+            'prescription' => $prescription,
+            'form' => $form->createView(),
+            'is_new' => $isNew,
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/prescriptions/{idPrescription}/supprimer", name="dossier_prescriptions_supprimer", requirements={"id"="\d+", "idPrescription"="\d+"}, methods={"DELETE"})
+     *
+     * @ParamConverter("prescription", options={"id" = "idPrescription"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function supprimer(Request $request, Dossier $dossier, PrescriptionDossier $prescription): Response
+    {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
+        }
+
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('delete_prescription_'.$prescription->getId(), $csrfToken)) {
+            throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
+        }
+
+        $this->service->supprimer($prescription);
+
+        $this->addFlash('success', 'La prescription a bien été supprimée.');
+
+        return $this->redirectToRoute('dossier_prescriptions', ['id' => $dossier->getId()]);
     }
 }

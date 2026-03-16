@@ -3,15 +3,12 @@
     - prescription : PrescriptionDossier
     - dossier      : Dossier
 #}
-{% set associations = prescription.prescriptionType
-    ? prescription.prescriptionType.associations
-    : prescription.associations %}
-{% set nb_assoc = associations|length %}
+{% set nb_assoc = prescription.effectiveAssociations|length %}
 
 {% if nb_assoc > 0 %}
 <li class="list-unstyled mb-3" id="prescriptionDossier_{{ prescription.id }}">
     <table class="table table-bordered">
-        {% for assoc in associations %}
+        {% for assoc in prescription.effectiveAssociations %}
             <tr>
                 <td class="col-xs-3">{{ assoc.texte ? assoc.texte.libelle : '' }}</td>
                 <td class="col-xs-2">{{ assoc.article ? assoc.article.libelle : '' }}</td>
@@ -60,18 +57,16 @@
                         {% endif %}
 
                         <p>
-                            {% if prescription.prescriptionType %}
-                                {{ prescription.prescriptionType.libelle|nl2br }}
-                            {% else %}
-                                {{ prescription.libelle|nl2br }}
-                            {% endif %}
+                            {{ prescription.effectiveLibelle|nl2br }}
                         </p>
                     </td>
 
                     {% if not dossier.verrou %}
                         <td rowspan="{{ nb_assoc }}" class="col-xs-1">
-                            {# Placeholder — Phase 3 : modification #}
-                            <a class="btn btn-default btn-sm disabled">Modifier</a>
+                            <a class="btn btn-default btn-sm"
+                               href="{{ path('dossier_prescriptions_modifier', {id: dossier.id, idPrescription: prescription.id}) }}">
+                                Modifier
+                            </a>
                         </td>
                     {% endif %}
                 {% endif %}

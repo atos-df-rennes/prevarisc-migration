@@ -5,6 +5,7 @@ namespace App\Tests\Service;
 use App\Entity\Dossier;
 use App\Repository\PrescriptionDossierRepository;
 use App\Service\DossierPrescriptionService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 final class DossierPrescriptionServiceTest extends TestCase
@@ -18,7 +19,8 @@ final class DossierPrescriptionServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->createMock(PrescriptionDossierRepository::class);
-        $this->service = new DossierPrescriptionService($this->repository);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $this->service = new DossierPrescriptionService($this->repository, $em);
     }
 
     public function testReordonnerAppelleRenumerotationDeuxFois(): void

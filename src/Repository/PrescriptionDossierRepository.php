@@ -101,4 +101,25 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
             ++$numero;
         }
     }
+
+    /**
+     * Retourne le numéro maximum de prescription pour un dossier et une liste de types.
+     * Utilisé pour attribuer le prochain numéro lors d'une création.
+     *
+     * @param int[] $types
+     */
+    public function findMaxNumeroByDossierAndTypes(Dossier $dossier, array $types): int
+    {
+        $result = $this->createQueryBuilder('pd')
+            ->select('MAX(pd.numero)')
+            ->where('pd.dossier = :dossier')
+            ->andWhere('pd.type IN (:types)')
+            ->setParameter('dossier', $dossier)
+            ->setParameter('types', $types)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        return (int) $result;
+    }
 }

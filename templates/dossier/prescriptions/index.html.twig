@@ -12,8 +12,10 @@
         <div class="mb-3">
             {# Placeholder — Phase 5 : ajout prescription type #}
             <button class="btn btn-default disabled" disabled>Ajouter une prescription type</button>
-            {# Placeholder — Phase 6 : ajout prescription libre #}
-            <a class="btn btn-default ml-2 disabled">Ajouter une prescription</a>
+            <a class="btn btn-default ml-2"
+               href="{{ path('dossier_prescriptions_ajouter', {id: dossier.id}) }}">
+                Ajouter une prescription
+            </a>
             {# Placeholder — Phase 4 : reprise prescriptions dossier précédent #}
             <button class="btn btn-default ml-3 disabled" disabled>Reprendre les prescriptions d'un dossier précédent</button>
         </div>

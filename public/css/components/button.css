@@ -8,3 +8,8 @@
     font-size:12px;
     line-height: 25px; /* Permet d'afficher correctement les icon dans une balise a */
 }
+
+.btn-delete--form {
+    position: relative;
+    top: -39px;
+}
