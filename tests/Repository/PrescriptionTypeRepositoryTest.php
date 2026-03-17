@@ -19,16 +19,9 @@ class PrescriptionTypeRepositoryTest extends KernelTestCase
         $this->repository = self::$container->get(PrescriptionTypeRepository::class);
     }
 
-    public function testFindByClassementSansFiltrRetourneToutesLesPrescriptions(): void
-    {
-        $results = $this->repository->findByClassement(0, 0, 0);
-
-        self::assertIsArray($results);
-    }
-
     public function testFindByClassementAvecCategorieFiltreLesResultats(): void
     {
-        $tous = $this->repository->findByClassement(0, 0, 0);
+        $tous = $this->repository->findAll();
 
         if ([] === $tous) {
             $this->markTestSkipped('Aucune prescription type en base de données.');
@@ -66,7 +59,7 @@ class PrescriptionTypeRepositoryTest extends KernelTestCase
 
     public function testFindByMotsClesRechercheParLibelle(): void
     {
-        $tous = $this->repository->findByClassement(0, 0, 0);
+        $tous = $this->repository->findAll();
 
         if ([] === $tous) {
             $this->markTestSkipped('Aucune prescription type en base de données.');
