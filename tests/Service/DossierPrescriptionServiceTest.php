@@ -10,6 +10,8 @@ use App\Repository\PrescriptionDossierRepository;
 use App\Service\DossierPrescriptionService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Security;
 
 final class DossierPrescriptionServiceTest extends TestCase
 {
@@ -23,7 +25,9 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $this->repository = $this->createMock(PrescriptionDossierRepository::class);
         $em = $this->createMock(EntityManagerInterface::class);
-        $this->service = new DossierPrescriptionService($this->repository, $em);
+        $logger = $this->createMock(LoggerInterface::class);
+        $security = $this->createMock(Security::class);
+        $this->service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
     }
 
     public function testReordonnerAppelleRenumerotationDeuxFois(): void
@@ -91,7 +95,9 @@ final class DossierPrescriptionServiceTest extends TestCase
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
         $em = $this->createMock(EntityManagerInterface::class);
-        $service = new DossierPrescriptionService($this->repository, $em);
+        $logger = $this->createMock(LoggerInterface::class);
+        $security = $this->createMock(Security::class);
+        $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
         $this->repository->method('findByDossierAndType')->willReturn([]);
@@ -112,7 +118,9 @@ final class DossierPrescriptionServiceTest extends TestCase
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
         $em = $this->createMock(EntityManagerInterface::class);
-        $service = new DossierPrescriptionService($this->repository, $em);
+        $logger = $this->createMock(LoggerInterface::class);
+        $security = $this->createMock(Security::class);
+        $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(3);
         $this->repository->method('findByDossierAndType')->willReturn([]);
@@ -127,7 +135,9 @@ final class DossierPrescriptionServiceTest extends TestCase
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
         $em = $this->createMock(EntityManagerInterface::class);
-        $service = new DossierPrescriptionService($this->repository, $em);
+        $logger = $this->createMock(LoggerInterface::class);
+        $security = $this->createMock(Security::class);
+        $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
         $this->repository->method('findByDossierAndType')->willReturn([]);
