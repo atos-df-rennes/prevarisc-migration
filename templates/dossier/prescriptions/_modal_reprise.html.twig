@@ -18,7 +18,7 @@
     {% if items is not empty %}
         {% if not premier %}<hr>{% endif %}
         <h5><strong>{{ titre }}</strong></h5>
-        <ul class="list-unstyled ml-3">
+        <ul class="recherche_liste list-unstyled ml-3">
             {% for source in items %}
                 {# Libellé : type - nature - objet (tronqué à 70 car) #}
                 {% set objet_tronque = source.objet|length > 70 ? source.objet[:70] ~ ' (...)' : source.objet %}
@@ -31,7 +31,7 @@
                     {% set date_val = source.dateVisite|date('d/m/Y') %}
                 {% elseif source.dateCommission %}
                     {% set date_label = 'date de commission le' %}
-                    {% set date_val = source.dateCommission %}
+                    {% set date_val = source.dateCommission|date('d/m/Y') %}
                 {% else %}
                     {% set date_label = 'créé le' %}
                     {% set date_val = source.dateInsert|date('d/m/Y') %}
@@ -63,7 +63,7 @@
 
                             {% if source.consultationPlatau is not null %}
                                 <span class="label label-info">CONSULTATION PLATAU : {{ source.consultationPlatau.identifiant }}</span>
-                                {% if not source.incomplet %}
+                                {% if source.incomplet is null %}
                                     <span class="label label-info">EN ATTENTE DE PEC</span>
                                 {% endif %}
                             {% endif %}
