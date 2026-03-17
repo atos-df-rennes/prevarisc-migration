@@ -8,7 +8,10 @@ use App\Entity\PrescriptionDossier;
 use App\Entity\PrescriptionDossierAssociation;
 use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionDossierRepository;
+use App\Security\Voter\DossierVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Security;
 
 class DossierPrescriptionService
 {
@@ -18,10 +21,22 @@ class DossierPrescriptionService
     /** @var EntityManagerInterface */
     private $em;
 
-    public function __construct(PrescriptionDossierRepository $repository, EntityManagerInterface $em)
-    {
+    /** @var \Psr\Log\LoggerInterface */
+    private $logger;
+
+    /** @var \Symfony\Component\Security\Core\Security */
+    private $security;
+
+    public function __construct(
+        PrescriptionDossierRepository $repository,
+        EntityManagerInterface $em,
+        LoggerInterface $logger,
+        Security $security
+    ) {
         $this->repository = $repository;
         $this->em = $em;
+        $this->logger = $logger;
+        $this->security = $security;
     }
 
     /**
@@ -240,6 +255,23 @@ class DossierPrescriptionService
         $this->em->beginTransaction();
         try {
             foreach ($sources as $source) {
+                if ($source->getEtablissements()->first() !== $target->getEtablissements()->first()) {
+                    $this->logger->warning("Les prescriptions du dossier source n'ont pas été reprises car il n'appartient pas au même établissement que le dossier cible.", [
+                        'dossier_source' => $source->getId(),
+                        'dossier_cible' => $target->getId(),
+                    ]);
+
+                    continue;
+                }
+
+                if (!$this->security->isGranted(DossierVoter::LECTURE, $source)) {
+                    $this->logger->warning("Les prescriptions du dossier source n'ont pas été reprises car l'utilisateur n'a pas les droits nécessaires", [
+                        'dossier_source' => $source->getId(),
+                    ]);
+
+                    continue;
+                }
+
                 foreach (TypePrescription::ALL as $type) {
                     foreach ($this->getPrescriptionsParType($source, $type) as $prescriptionSource) {
                         if (null !== $prescriptionSource->getDateLevee()) {
