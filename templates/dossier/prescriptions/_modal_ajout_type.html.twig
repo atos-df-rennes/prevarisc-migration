@@ -17,7 +17,7 @@
             {# Sélection du type de prescription cible #}
             <div class="form-group">
                 <label for="typePrescriptionDossier">Cette prescription est :</label>
-                <select id="typePrescriptionDossier" name="typePrescriptionDossier" class="form-control" style="width: auto; display: inline-block; margin-left: 8px;">
+                <select id="typePrescriptionDossier" name="typePrescriptionDossier" class="form-control modal__select--type-prescription">
                     <option value="0">Rappels réglementaires</option>
                     <option value="1">Liée à l'exploitation</option>
                     <option value="2">Liée à l'amélioration</option>
@@ -37,7 +37,7 @@
             </div>
 
             {# Zone de recherche par mots-clés (masquée par défaut) #}
-            <div id="zone-motscles" style="display: none;" class="mb-3">
+            <div id="zone-motscles" class="hidden mb-3">
                 <div class="input-group" style="max-width: 600px;">
                     <input
                         type="text"
@@ -67,7 +67,7 @@
             </div>
 
             {# Liste des résultats mots-clés (masquée par défaut) #}
-            <ul id="listePrescriptionTypeSearch" class="list-unstyled mt-3" style="display: none;"></ul>
+            <ul id="listePrescriptionTypeSearch" class="list-unstyled hidden mt-3"></ul>
         </div>
 
         <div class="modal-footer">
