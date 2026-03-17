@@ -201,7 +201,6 @@ class DossierPrescriptionService
                 function (PrescriptionDossier $p): int { return (int) $p->getId(); },
                 $this->repository->findByDossierAndType($dossier, TypePrescription::REGLEMENTAIRE)
             );
-            $this->repository->renumeroterParIds($dossier, $ids);
         } else {
             $exploitation = $this->repository->findByDossierAndType($dossier, TypePrescription::EXPLOITATION);
             $amelioration = $this->repository->findByDossierAndType($dossier, TypePrescription::AMELIORATION);
@@ -210,8 +209,8 @@ class DossierPrescriptionService
                 function (PrescriptionDossier $p): int { return (int) $p->getId(); },
                 array_merge($exploitation, $amelioration)
             );
-            $this->repository->renumeroterParIds($dossier, $ids);
         }
+        $this->repository->renumeroterParIds($dossier, $ids);
     }
 
     /**
@@ -241,7 +240,7 @@ class DossierPrescriptionService
         $this->em->beginTransaction();
         try {
             foreach ($sources as $source) {
-                foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $type) {
+                foreach (TypePrescription::ALL as $type) {
                     foreach ($this->getPrescriptionsParType($source, $type) as $prescriptionSource) {
                         if (null !== $prescriptionSource->getDateLevee()) {
                             continue;
