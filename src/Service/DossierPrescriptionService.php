@@ -164,31 +164,28 @@ class DossierPrescriptionService
      * libellé — effectiveLibelle le lit dynamiquement depuis le type).
      * Attribue le prochain numéro selon les règles de séquence du type.
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function ajouterDepuisType(
         Dossier $dossier,
         PrescriptionType $prescriptionType,
         int $typePrescription
     ): PrescriptionDossier {
-        $this->em->beginTransaction();
-        try {
-            $prescription = new PrescriptionDossier();
-            $prescription->setDossier($dossier);
-            $prescription->setType($typePrescription);
-            $prescription->setPrescriptionType($prescriptionType);
-            $prescription->setNumero($this->prochainNumero($dossier, $typePrescription));
+        /** @var PrescriptionDossier $prescription */
+        $prescription = $this->em->wrapInTransaction(function () use ($dossier, $prescriptionType, $typePrescription): PrescriptionDossier {
+            $nouvelle = new PrescriptionDossier();
+            $nouvelle->setDossier($dossier);
+            $nouvelle->setType($typePrescription);
+            $nouvelle->setPrescriptionType($prescriptionType);
+            $nouvelle->setNumero($this->prochainNumero($dossier, $typePrescription));
 
-            $this->em->persist($prescription);
+            $this->em->persist($nouvelle);
             $this->em->flush();
 
             $this->renumeroterSequence($dossier, $typePrescription);
 
-            $this->em->commit();
-        } catch (\Exception $exception) {
-            $this->em->rollback();
-            throw $exception;
-        }
+            return $nouvelle;
+        });
 
         return $prescription;
     }
@@ -251,11 +248,13 @@ class DossierPrescriptionService
      * Les séquences de numérotation sont recalculées après l'import.
      *
      * @param Dossier[] $sources
+     *
+     * @throws \Throwable
      */
     public function reprendrePrescriptions(Dossier $target, array $sources): PrescriptionsReprises
     {
-        $this->em->beginTransaction();
-        try {
+        /** @var PrescriptionsReprises $result */
+        $result = $this->em->wrapInTransaction(function () use ($target, $sources): PrescriptionsReprises {
             $prescriptionsReprises = new PrescriptionsReprises();
 
             foreach ($sources as $source) {
@@ -318,12 +317,9 @@ class DossierPrescriptionService
                 $this->renumeroterSequence($target, $type);
             }
 
-            $this->em->commit();
-
             return $prescriptionsReprises;
-        } catch (\Exception $exception) {
-            $this->em->rollback();
-            throw $exception;
-        }
+        });
+
+        return $result;
     }
 }
