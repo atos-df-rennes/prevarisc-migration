@@ -300,10 +300,10 @@ class DossierPrescriptionService
 
                         $this->renumeroterAssociations($copy);
                         $this->em->persist($copy);
-                        $this->em->flush();
                     }
                 }
             }
+            $this->em->flush();
 
             foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION] as $type) {
                 $this->renumeroterSequence($target, $type);
