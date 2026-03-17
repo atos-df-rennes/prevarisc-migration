@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Constant\TypePrescription;
+use App\Dto\Prescriptions\PrescriptionsReprises;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
 use App\Entity\PrescriptionDossierAssociation;
@@ -250,10 +251,12 @@ class DossierPrescriptionService
      *
      * @param Dossier[] $sources
      */
-    public function reprendrePrescriptions(Dossier $target, array $sources): void
+    public function reprendrePrescriptions(Dossier $target, array $sources): PrescriptionsReprises
     {
         $this->em->beginTransaction();
         try {
+            $prescriptionsReprises = new PrescriptionsReprises();
+
             foreach ($sources as $source) {
                 if ($source->getEtablissements()->first() !== $target->getEtablissements()->first()) {
                     $this->logger->warning("Les prescriptions du dossier source n'ont pas été reprises car il n'appartient pas au même établissement que le dossier cible.", [
@@ -300,8 +303,12 @@ class DossierPrescriptionService
 
                         $this->renumeroterAssociations($copy);
                         $this->em->persist($copy);
+
+                        $prescriptionsReprises->incrementNombrePrescriptions();
                     }
                 }
+
+                $prescriptionsReprises->incrementNombreDossiers();
             }
             $this->em->flush();
 
@@ -310,6 +317,8 @@ class DossierPrescriptionService
             }
 
             $this->em->commit();
+
+            return $prescriptionsReprises;
         } catch (\Exception $exception) {
             $this->em->rollback();
             throw $exception;

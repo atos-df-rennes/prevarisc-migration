@@ -418,7 +418,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         );
 
         try {
-            $this->service->reprendrePrescriptions($dossier, array_values($sources));
+            $prescriptionsReprises = $this->service->reprendrePrescriptions($dossier, array_values($sources));
         } catch (\Exception $exception) {
             $this->logger->error('Erreur lors de la reprise des prescriptions.', [
                 'message' => $exception->getMessage(),
@@ -430,7 +430,10 @@ class DossierPrescriptionController extends AbstractController implements Dossie
             return $this->redirectToRoute('dossier_prescriptions', ['id' => $dossier->getId()]);
         }
 
-        $this->addFlash('success', 'Les prescriptions ont bien été reprises.');
+        $this->addFlash('success', \sprintf('%d prescriptions reprises depuis %d dossiers.',
+            $prescriptionsReprises->nombrePrescriptions(),
+            $prescriptionsReprises->nombreDossiers()
+        ));
 
         return $this->redirectToRoute('dossier_prescriptions', ['id' => $dossier->getId()]);
     }
