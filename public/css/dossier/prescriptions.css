@@ -17,3 +17,7 @@
   width: auto;
   display: inline-block;
 }
+
+#listePrescriptionTypeSearch .table {
+  margin-bottom: 0;
+}
