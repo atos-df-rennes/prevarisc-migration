@@ -194,8 +194,11 @@
                     type: 'POST',
                     url: urlRechercheMotsCles,
                     data: { motsCles: motsCles },
+                    beforeSend: function() {
+                        $('#listePrescriptionTypeSearch').html('<span class="glyphicon glyphicon-refresh spinning"></span> Recherche en cours...')
+                    },
                     success: function(html) {
-                        $('#listePrescriptionTypeSearch').html(html).toggleClass('hidden');
+                        $('#listePrescriptionTypeSearch').html(html).removeClass('hidden');
                     },
                     error: function() {
                         $.toast.error('Erreur lors de la recherche. Veuillez réessayer.');
