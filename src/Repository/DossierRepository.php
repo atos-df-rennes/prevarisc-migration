@@ -271,6 +271,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->addSelect('t')
             ->leftJoin('d.nature', 'n')
             ->addSelect('n')
+            ->leftJoin('d.avis', 'a')
+            ->addSelect('a')
             ->where('e.id = :etablissementId')
             ->andWhere('d.id != :excludeId')
             ->andWhere('d.dateSuppression IS NULL')

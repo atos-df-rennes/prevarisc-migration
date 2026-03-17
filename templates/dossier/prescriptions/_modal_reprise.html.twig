@@ -8,6 +8,59 @@
 #}
 {% set has_dossiers = etudes is not empty or visites is not empty or autres is not empty %}
 
+{#
+    Macro : affiche un groupe de dossiers avec titre et séparateur.
+    - titre   : string
+    - items   : Dossier[]
+    - premier : bool (pas de <hr> avant le premier groupe)
+#}
+{% macro groupe(titre, items, premier) %}
+    {% if items is not empty %}
+        {% if not premier %}<hr>{% endif %}
+        <h5><strong>{{ titre }}</strong></h5>
+        <ul class="list-unstyled ml-3">
+            {% for source in items %}
+                {# Libellé : type - nature - objet (tronqué à 70 car) #}
+                {% set objet_tronque = source.objet|length > 70 ? source.objet[:70] ~ ' (...)' : source.objet %}
+                {% set libelle_parts = [source.type.libelle, source.nature ? source.nature.libelle : null, objet_tronque ?: null]|filter(v => v is not empty) %}
+                {% set libelle = libelle_parts|join(' - ') %}
+
+                {# Date : dateVisite > dateCommission > dateInsert #}
+                {% if source.dateVisite %}
+                    {% set date_label = 'date de visite le' %}
+                    {% set date_val = source.dateVisite|date('d/m/Y') %}
+                {% elseif source.dateCommission %}
+                    {% set date_label = 'date de commission le' %}
+                    {% set date_val = source.dateCommission %}
+                {% else %}
+                    {% set date_label = 'créé le' %}
+                    {% set date_val = source.dateInsert|date('d/m/Y') %}
+                {% endif %}
+
+                <li>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
+                            {{ libelle }}
+                            <small class="text-muted">— {{ date_label }} {{ date_val }}</small>
+
+                            {% if source.incomplet %}
+                                <span class="avis" style="background-color: #f89406;">Dossier incomplet</span>
+                            {% elseif source.avisDiffere %}
+                                <span class="avis" style="background-color: #3a87ad;">Avis différé</span>
+                            {% elseif source.avis %}
+                                <span class="avis {{ source.avis.libelle[:1] }}">{{ source.avis.libelle }}</span>
+                            {% else %}
+                                <span class="avis">Avis indisponible</span>
+                            {% endif %}
+                        </label>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
+
 <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
         <div class="modal-header">
@@ -35,70 +88,9 @@
                       method="post">
                     <input type="hidden" name="_token" value="{{ csrf_token('reprendre_prescriptions_' ~ dossier.id) }}">
 
-                    {% if etudes is not empty %}
-                        <h5><strong>Études</strong></h5>
-                        <ul class="list-unstyled ml-3">
-                            {% for source in etudes %}
-                                <li>
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
-                                            {% if source.objet %}
-                                                {{ source.objet }}
-                                            {% else %}
-                                                {{ source.type.libelle }}{% if source.nature %} – {{ source.nature.libelle }}{% endif %}
-                                            {% endif %}
-                                            <small class="text-muted">— créé le {{ source.dateInsert|date('d/m/Y') }}</small>
-                                        </label>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-
-                    {% if visites is not empty %}
-                        {% if etudes is not empty %}<hr>{% endif %}
-                        <h5><strong>Visites</strong></h5>
-                        <ul class="list-unstyled ml-3">
-                            {% for source in visites %}
-                                <li>
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
-                                            {% if source.objet %}
-                                                {{ source.objet }}
-                                            {% else %}
-                                                {{ source.type.libelle }}{% if source.nature %} – {{ source.nature.libelle }}{% endif %}
-                                            {% endif %}
-                                            <small class="text-muted">— créé le {{ source.dateInsert|date('d/m/Y') }}</small>
-                                        </label>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-
-                    {% if autres is not empty %}
-                        {% if etudes is not empty or visites is not empty %}<hr>{% endif %}
-                        <h5><strong>Autres</strong></h5>
-                        <ul class="list-unstyled ml-3">
-                            {% for source in autres %}
-                                <li>
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
-                                            {% if source.objet %}
-                                                {{ source.objet }}
-                                            {% else %}
-                                                {{ source.type.libelle }}{% if source.nature %} – {{ source.nature.libelle }}{% endif %}
-                                            {% endif %}
-                                            <small class="text-muted">— créé le {{ source.dateInsert|date('d/m/Y') }}</small>
-                                        </label>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                    {{ _self.groupe('Visites', visites, true) }}
+                    {{ _self.groupe('Études', etudes, visites is empty) }}
+                    {{ _self.groupe('Autres', autres, visites is empty and etudes is empty) }}
                 </form>
             {% endif %}
         </div>
