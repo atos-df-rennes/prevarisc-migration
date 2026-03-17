@@ -3,12 +3,16 @@
 namespace App\Service;
 
 use App\Constant\TypePrescription;
+use App\Dto\Prescriptions\PrescriptionsReprises;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
 use App\Entity\PrescriptionDossierAssociation;
 use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionDossierRepository;
+use App\Security\Voter\DossierVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Security;
 
 class DossierPrescriptionService
 {
@@ -18,10 +22,22 @@ class DossierPrescriptionService
     /** @var EntityManagerInterface */
     private $em;
 
-    public function __construct(PrescriptionDossierRepository $repository, EntityManagerInterface $em)
-    {
+    /** @var LoggerInterface */
+    private $logger;
+
+    /** @var Security */
+    private $security;
+
+    public function __construct(
+        PrescriptionDossierRepository $repository,
+        EntityManagerInterface $em,
+        LoggerInterface $logger,
+        Security $security
+    ) {
         $this->repository = $repository;
         $this->em = $em;
+        $this->logger = $logger;
+        $this->security = $security;
     }
 
     /**
@@ -201,7 +217,6 @@ class DossierPrescriptionService
                 function (PrescriptionDossier $p): int { return (int) $p->getId(); },
                 $this->repository->findByDossierAndType($dossier, TypePrescription::REGLEMENTAIRE)
             );
-            $this->repository->renumeroterParIds($dossier, $ids);
         } else {
             $exploitation = $this->repository->findByDossierAndType($dossier, TypePrescription::EXPLOITATION);
             $amelioration = $this->repository->findByDossierAndType($dossier, TypePrescription::AMELIORATION);
@@ -210,8 +225,9 @@ class DossierPrescriptionService
                 function (PrescriptionDossier $p): int { return (int) $p->getId(); },
                 array_merge($exploitation, $amelioration)
             );
-            $this->repository->renumeroterParIds($dossier, $ids);
         }
+
+        $this->repository->renumeroterParIds($dossier, $ids);
     }
 
     /**
@@ -224,6 +240,90 @@ class DossierPrescriptionService
         foreach ($prescription->getAssociations() as $association) {
             $association->setNumero($numero);
             ++$numero;
+        }
+    }
+
+    /**
+     * Reprend les prescriptions de plusieurs dossiers sources vers le dossier cible.
+     *
+     * Seules les prescriptions non levées (dateLevee nulle) sont copiées.
+     * Chaque prescription copiée garde une référence vers son dossier d'origine (dossierReprise).
+     * Les séquences de numérotation sont recalculées après l'import.
+     *
+     * @param Dossier[] $sources
+     */
+    public function reprendrePrescriptions(Dossier $target, array $sources): PrescriptionsReprises
+    {
+        $this->em->beginTransaction();
+        try {
+            $prescriptionsReprises = new PrescriptionsReprises();
+
+            foreach ($sources as $source) {
+                if ($source->getEtablissements()->first() !== $target->getEtablissements()->first()) {
+                    $this->logger->warning("Les prescriptions du dossier source n'ont pas été reprises car il n'appartient pas au même établissement que le dossier cible.", [
+                        'dossier_source' => $source->getId(),
+                        'dossier_cible' => $target->getId(),
+                    ]);
+
+                    continue;
+                }
+
+                if (!$this->security->isGranted(DossierVoter::LECTURE, $source)) {
+                    $this->logger->warning("Les prescriptions du dossier source n'ont pas été reprises car l'utilisateur n'a pas les droits nécessaires", [
+                        'dossier_source' => $source->getId(),
+                    ]);
+
+                    continue;
+                }
+
+                foreach (TypePrescription::ALL as $type) {
+                    foreach ($this->getPrescriptionsParType($source, $type) as $prescriptionSource) {
+                        if (null !== $prescriptionSource->getDateLevee()) {
+                            continue;
+                        }
+
+                        $copy = new PrescriptionDossier();
+                        $copy->setDossier($target);
+                        $copy->setType($type);
+                        $copy->setDossierReprise($source);
+                        $copy->setNumero($this->prochainNumero($target, $type));
+
+                        $prescriptionType = $prescriptionSource->getPrescriptionType();
+                        if (null !== $prescriptionType) {
+                            $copy->setPrescriptionType($prescriptionType);
+                        } else {
+                            $copy->setLibelle($prescriptionSource->getLibelle());
+
+                            foreach ($prescriptionSource->getAssociations() as $assocSource) {
+                                $assoc = new PrescriptionDossierAssociation();
+                                $assoc->setTexte($assocSource->getTexte());
+                                $assoc->setArticle($assocSource->getArticle());
+                                $copy->addAssociation($assoc);
+                            }
+                        }
+
+                        $this->renumeroterAssociations($copy);
+                        $this->em->persist($copy);
+
+                        $prescriptionsReprises->incrementNombrePrescriptions();
+                    }
+                }
+
+                $prescriptionsReprises->incrementNombreDossiers();
+            }
+
+            $this->em->flush();
+
+            foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION] as $type) {
+                $this->renumeroterSequence($target, $type);
+            }
+
+            $this->em->commit();
+
+            return $prescriptionsReprises;
+        } catch (\Exception $exception) {
+            $this->em->rollback();
+            throw $exception;
         }
     }
 }
