@@ -22,10 +22,10 @@ class DossierPrescriptionService
     /** @var EntityManagerInterface */
     private $em;
 
-    /** @var \Psr\Log\LoggerInterface */
+    /** @var LoggerInterface */
     private $logger;
 
-    /** @var \Symfony\Component\Security\Core\Security */
+    /** @var Security */
     private $security;
 
     public function __construct(
@@ -226,6 +226,7 @@ class DossierPrescriptionService
                 array_merge($exploitation, $amelioration)
             );
         }
+
         $this->repository->renumeroterParIds($dossier, $ids);
     }
 
@@ -310,6 +311,7 @@ class DossierPrescriptionService
 
                 $prescriptionsReprises->incrementNombreDossiers();
             }
+
             $this->em->flush();
 
             foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION] as $type) {

@@ -12,12 +12,12 @@ final class PrescriptionsReprises
 
     public function incrementNombrePrescriptions(): void
     {
-        $this->nombrePrescriptions++;
+        ++$this->nombrePrescriptions;
     }
 
     public function incrementNombreDossiers(): void
     {
-        $this->nombreDossiers++;
+        ++$this->nombreDossiers;
     }
 
     public function nombrePrescriptions(): int
