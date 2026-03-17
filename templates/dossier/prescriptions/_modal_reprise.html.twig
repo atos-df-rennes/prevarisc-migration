@@ -1,0 +1,115 @@
+{#
+    Contenu de la modale "Reprendre les prescriptions d'autres dossiers".
+    Variables attendues :
+    - dossier  : Dossier
+    - etudes   : Dossier[]
+    - visites  : Dossier[]
+    - autres   : Dossier[]
+#}
+{% set has_dossiers = etudes is not empty or visites is not empty or autres is not empty %}
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="modalRepriseLabel">
+                Reprendre les prescriptions d'autres dossiers
+            </h4>
+        </div>
+
+        <div class="modal-body">
+            {% if not has_dossiers %}
+                <div class="well well-sm text-center">
+                    <p class="lead">Aucun autre dossier disponible pour cet établissement.</p>
+                </div>
+            {% else %}
+                <p>
+                    Sélectionnez les dossiers dont vous souhaitez reprendre les prescriptions.<br>
+                    <small class="text-muted">Plusieurs sélections sont possibles. Seules les prescriptions non levées seront copiées.</small>
+                </p>
+
+                <form id="form-reprise-prescriptions"
+                      action="{{ path('dossier_prescriptions_reprendre', {id: dossier.id}) }}"
+                      method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('reprendre_prescriptions_' ~ dossier.id) }}">
+
+                    {% if etudes is not empty %}
+                        <h5><strong>Études</strong></h5>
+                        <ul class="list-unstyled ml-3">
+                            {% for source in etudes %}
+                                <li>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
+                                            {% if source.objet %}
+                                                {{ source.objet }}
+                                            {% else %}
+                                                {{ source.type.libelle }}{% if source.nature %} – {{ source.nature.libelle }}{% endif %}
+                                            {% endif %}
+                                            <small class="text-muted">— créé le {{ source.dateInsert|date('d/m/Y') }}</small>
+                                        </label>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if visites is not empty %}
+                        {% if etudes is not empty %}<hr>{% endif %}
+                        <h5><strong>Visites</strong></h5>
+                        <ul class="list-unstyled ml-3">
+                            {% for source in visites %}
+                                <li>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
+                                            {% if source.objet %}
+                                                {{ source.objet }}
+                                            {% else %}
+                                                {{ source.type.libelle }}{% if source.nature %} – {{ source.nature.libelle }}{% endif %}
+                                            {% endif %}
+                                            <small class="text-muted">— créé le {{ source.dateInsert|date('d/m/Y') }}</small>
+                                        </label>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if autres is not empty %}
+                        {% if etudes is not empty or visites is not empty %}<hr>{% endif %}
+                        <h5><strong>Autres</strong></h5>
+                        <ul class="list-unstyled ml-3">
+                            {% for source in autres %}
+                                <li>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
+                                            {% if source.objet %}
+                                                {{ source.objet }}
+                                            {% else %}
+                                                {{ source.type.libelle }}{% if source.nature %} – {{ source.nature.libelle }}{% endif %}
+                                            {% endif %}
+                                            <small class="text-muted">— créé le {{ source.dateInsert|date('d/m/Y') }}</small>
+                                        </label>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            {% if has_dossiers %}
+                <button type="submit" form="form-reprise-prescriptions" class="btn btn-primary">
+                    Reprendre les prescriptions
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

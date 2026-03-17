@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Constant\DossierNature;
+use App\Constant\DossierType;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
@@ -254,5 +255,47 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Retourne les dossiers d'un établissement groupés par catégorie (études, visites, autres),
+     * en excluant le dossier courant et les dossiers supprimés.
+     *
+     * @return array{etudes: Dossier[], visites: Dossier[], autres: Dossier[]}
+     */
+    public function findByEtablissementGrouped(Etablissement $etablissement, Dossier $excludeDossier): array
+    {
+        $all = $this->createQueryBuilder('d')
+            ->join('d.etablissements', 'e')
+            ->join('d.type', 't')
+            ->addSelect('t')
+            ->leftJoin('d.nature', 'n')
+            ->addSelect('n')
+            ->where('e.id = :etablissementId')
+            ->andWhere('d.id != :excludeId')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->orderBy('d.dateInsert', 'DESC')
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('excludeId', $excludeDossier->getId())
+            ->getQuery()
+            ->getResult();
+
+        $etudes = [];
+        $visites = [];
+        $autres = [];
+
+        foreach ($all as $dossier) {
+            $typeId = null !== $dossier->getType() ? $dossier->getType()->getId() : null;
+
+            if (DossierType::ETUDE === $typeId) {
+                $etudes[] = $dossier;
+            } elseif (in_array($typeId, DossierType::TYPES_VISITE, true)) {
+                $visites[] = $dossier;
+            } else {
+                $autres[] = $dossier;
+            }
+        }
+
+        return ['etudes' => $etudes, 'visites' => $visites, 'autres' => $autres];
     }
 }

@@ -17,14 +17,22 @@
                href="{{ path('dossier_prescriptions_ajouter', {id: dossier.id}) }}">
                 Ajouter une prescription
             </a>
-            {# Placeholder — Phase 4 : reprise prescriptions dossier précédent #}
-            <button class="btn btn-default ml-3 disabled" disabled>Reprendre les prescriptions d'un dossier précédent</button>
+            {% if dossier.etablissements|length == 1 %}
+                <button id="btn-ouvrir-modal-reprise" class="btn btn-default ml-3">
+                    Reprendre les prescriptions d'autres dossiers
+                </button>
+            {% endif %}
         </div>
     {% endif %}
 
     {# Conteneur de la modale prescription type (contenu chargé par AJAX) #}
     <div id="modal-ajout-prescription-type" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalPrescTypeLabel">
         <div id="modal-ajout-prescription-type-content"></div>
+    </div>
+
+    {# Conteneur de la modale reprise prescriptions (contenu chargé par AJAX) #}
+    <div id="modal-reprise-prescriptions" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalRepriseLabel">
+        <div id="modal-reprise-prescriptions-content"></div>
     </div>
 
     <section>
@@ -264,6 +272,26 @@
                     }
                 });
             });
+            // ── Modale "Reprendre les prescriptions d'autres dossiers" ───────────────
+
+            {% if dossier.etablissements|length == 1 %}
+            const urlModalReprise = '{{ path('dossier_prescriptions_modal_reprise', {id: dossier.id}) }}';
+
+            $('#btn-ouvrir-modal-reprise').on('click', function() {
+                $.ajax({
+                    type: 'GET',
+                    url: urlModalReprise,
+                    success: function(html) {
+                        $('#modal-reprise-prescriptions-content').html(html);
+                        $('#modal-reprise-prescriptions').modal('show');
+                    },
+                    error: function() {
+                        $.toast.error('Impossible de charger la modale. Veuillez réessayer.');
+                    }
+                });
+            });
+            {% endif %}
+
             {% endif %}
         });
     </script>

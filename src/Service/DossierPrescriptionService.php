@@ -226,4 +226,62 @@ class DossierPrescriptionService
             ++$numero;
         }
     }
+
+    /**
+     * Reprend les prescriptions de plusieurs dossiers sources vers le dossier cible.
+     *
+     * Seules les prescriptions non levées (dateLevee nulle) sont copiées.
+     * Chaque prescription copiée garde une référence vers son dossier d'origine (dossierReprise).
+     * Les séquences de numérotation sont recalculées après l'import.
+     *
+     * @param Dossier[] $sources
+     */
+    public function reprendrePrescriptions(Dossier $target, array $sources): void
+    {
+        $this->em->beginTransaction();
+        try {
+            foreach ($sources as $source) {
+                foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $type) {
+                    foreach ($this->getPrescriptionsParType($source, $type) as $prescriptionSource) {
+                        if (null !== $prescriptionSource->getDateLevee()) {
+                            continue;
+                        }
+
+                        $copy = new PrescriptionDossier();
+                        $copy->setDossier($target);
+                        $copy->setType($type);
+                        $copy->setDossierReprise($source);
+                        $copy->setNumero($this->prochainNumero($target, $type));
+
+                        $prescriptionType = $prescriptionSource->getPrescriptionType();
+                        if (null !== $prescriptionType) {
+                            $copy->setPrescriptionType($prescriptionType);
+                        } else {
+                            $copy->setLibelle($prescriptionSource->getLibelle());
+
+                            foreach ($prescriptionSource->getAssociations() as $assocSource) {
+                                $assoc = new PrescriptionDossierAssociation();
+                                $assoc->setTexte($assocSource->getTexte());
+                                $assoc->setArticle($assocSource->getArticle());
+                                $copy->addAssociation($assoc);
+                            }
+                        }
+
+                        $this->renumeroterAssociations($copy);
+                        $this->em->persist($copy);
+                        $this->em->flush();
+                    }
+                }
+            }
+
+            foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION] as $type) {
+                $this->renumeroterSequence($target, $type);
+            }
+
+            $this->em->commit();
+        } catch (\Exception $exception) {
+            $this->em->rollback();
+            throw $exception;
+        }
+    }
 }
