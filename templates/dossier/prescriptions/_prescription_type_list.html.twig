@@ -23,8 +23,8 @@
                         {% if mots_cles is not empty %}
                             {% for mot in mots_cles %}
                                 {% set escaped_mot = mot|e('html') %}
-                                {% set texte_libelle = texte_libelle|replace({(mot): '<span class="highlight">' ~ escaped_mot ~ '</span>'}) %}
-                                {% set article_libelle = article_libelle|replace({(mot): '<span class="highlight">' ~ escaped_mot ~ '</span>'}) %}
+                                {% set texte_libelle = texte_libelle|replace_ci(mot, '<span class="highlight">' ~ escaped_mot ~ '</span>') %}
+                                {% set article_libelle = article_libelle|replace_ci(mot, '<span class="highlight">' ~ escaped_mot ~ '</span>') %}
                             {% endfor %}
                         {% endif %}
 
@@ -37,7 +37,7 @@
                                 {% if mots_cles is not empty %}
                                     {% for mot in mots_cles %}
                                         {% set escaped_mot = mot|e('html') %}
-                                        {% set libelle_texte = libelle_texte|replace({(mot): '<span class="highlight">' ~ escaped_mot ~ '</span>'}) %}
+                                        {% set libelle_texte = libelle_texte|replace_ci(mot, '<span class="highlight">' ~ escaped_mot ~ '</span>') %}
                                     {% endfor %}
                                 {% endif %}
 

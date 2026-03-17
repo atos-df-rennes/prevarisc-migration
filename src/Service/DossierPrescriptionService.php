@@ -144,25 +144,35 @@ class DossierPrescriptionService
     /**
      * Ajoute une prescription type à un dossier.
      *
-     * Crée une PrescriptionDossier liée au PrescriptionType (sans copier le libellé —
-     * effectiveLibelle le lit dynamiquement depuis le type). Attribue le prochain numéro
-     * selon les règles de séquence du type.
+     * Crée une PrescriptionDossier liée au PrescriptionType (sans copier le
+     * libellé — effectiveLibelle le lit dynamiquement depuis le type).
+     * Attribue le prochain numéro selon les règles de séquence du type.
+     *
+     * @throws \Exception
      */
     public function ajouterDepuisType(
         Dossier $dossier,
         PrescriptionType $prescriptionType,
         int $typePrescription
     ): PrescriptionDossier {
-        $prescription = new PrescriptionDossier();
-        $prescription->setDossier($dossier);
-        $prescription->setType($typePrescription);
-        $prescription->setPrescriptionType($prescriptionType);
-        $prescription->setNumero($this->prochainNumero($dossier, $typePrescription));
+        $this->em->beginTransaction();
+        try {
+            $prescription = new PrescriptionDossier();
+            $prescription->setDossier($dossier);
+            $prescription->setType($typePrescription);
+            $prescription->setPrescriptionType($prescriptionType);
+            $prescription->setNumero($this->prochainNumero($dossier, $typePrescription));
 
-        $this->em->persist($prescription);
-        $this->em->flush();
+            $this->em->persist($prescription);
+            $this->em->flush();
 
-        $this->renumeroterSequence($dossier, $typePrescription);
+            $this->renumeroterSequence($dossier, $typePrescription);
+
+            $this->em->commit();
+        } catch (\Exception $exception) {
+            $this->em->rollback();
+            throw $exception;
+        }
 
         return $prescription;
     }

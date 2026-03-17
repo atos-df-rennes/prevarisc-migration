@@ -13,6 +13,7 @@ use App\Repository\PrescriptionCategorieRepository;
 use App\Repository\PrescriptionTexteRepository;
 use App\Repository\PrescriptionTypeRepository;
 use App\Service\DossierPrescriptionService;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,13 +46,23 @@ class DossierPrescriptionController extends AbstractController implements Dossie
      */
     private $articleRepo;
 
-    public function __construct(DossierPrescriptionService $service, PrescriptionCategorieRepository $categorieRepo, PrescriptionTypeRepository $prescriptionTypeRepo, PrescriptionTexteRepository $texteRepo, PrescriptionArticleRepository $articleRepo)
-    {
+    /** @var \Psr\Log\LoggerInterface */
+    private $logger;
+
+    public function __construct(
+        DossierPrescriptionService $service,
+        PrescriptionCategorieRepository $categorieRepo,
+        PrescriptionTypeRepository $prescriptionTypeRepo,
+        PrescriptionTexteRepository $texteRepo, PrescriptionArticleRepository $articleRepo,
+        LoggerInterface $logger
+
+    ) {
         $this->service = $service;
         $this->categorieRepo = $categorieRepo;
         $this->prescriptionTypeRepo = $prescriptionTypeRepo;
         $this->texteRepo = $texteRepo;
         $this->articleRepo = $articleRepo;
+        $this->logger = $logger;
     }
 
     /**
@@ -321,7 +332,16 @@ class DossierPrescriptionController extends AbstractController implements Dossie
 
         $typePrescription = $request->request->getInt('typePrescriptionDossier', TypePrescription::REGLEMENTAIRE);
 
-        $prescription = $this->service->ajouterDepuisType($dossier, $prescriptionType, $typePrescription);
+        try {
+            $prescription = $this->service->ajouterDepuisType($dossier, $prescriptionType, $typePrescription);
+        } catch (\Exception $e) {
+            $this->logger->error("Erreur lors de l'ajout de la prescription type au dossier.", [
+                'message' => $e->getMessage(),
+                'dossier' => $dossier->getId(),
+            ]);
+
+            return new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return $this->render('dossier/prescriptions/_prescription_item.html.twig', [
             'prescription' => $prescription,
