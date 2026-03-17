@@ -94,6 +94,12 @@
     {% endif %}
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/dossier/prescriptions.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>

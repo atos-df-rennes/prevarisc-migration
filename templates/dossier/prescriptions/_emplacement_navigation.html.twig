@@ -14,7 +14,7 @@
 
 {# Fil d'ariane — le dernier élément est toujours non-cliquable #}
 <nav aria-label="Classement" class="mb-2">
-    <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 8px;">
+    <ol class="breadcrumb" class="modal__list--classement">
         <li {% if niveau == 'categories' %}class="active"{% endif %}>
             {% if niveau == 'categories' %}
                 Catégories
@@ -22,7 +22,6 @@
                 <button
                     type="button"
                     class="btn btn-link btn-nav-classement p-0"
-                    style="vertical-align: baseline;"
                     data-categorie-id="0"
                     data-texte-id="0"
                     data-article-id="0"
@@ -40,7 +39,6 @@
                     <button
                         type="button"
                         class="btn btn-link btn-nav-classement p-0"
-                        style="vertical-align: baseline;"
                         data-categorie-id="{{ categorie.id }}"
                         data-texte-id="0"
                         data-article-id="0"
@@ -59,7 +57,6 @@
                     <button
                         type="button"
                         class="btn btn-link btn-nav-classement p-0"
-                        style="vertical-align: baseline;"
                         data-categorie-id="{{ categorie is defined and categorie ? categorie.id : 0 }}"
                         data-texte-id="{{ texte.id }}"
                         data-article-id="0"

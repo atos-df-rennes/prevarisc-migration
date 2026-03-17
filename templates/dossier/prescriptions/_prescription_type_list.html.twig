@@ -14,8 +14,8 @@
         {% set nb_assoc = associations|length %}
 
         {% if nb_assoc > 0 %}
-            <li id="prescriptiontype_{{ prescription_type.id }}" style="list-style-type: none;">
-                <table class="table" style="width: 100%;">
+            <li id="prescriptiontype_{{ prescription_type.id }}">
+                <table class="table">
                     {% for association in associations %}
                         {% set texte_libelle = association.texte ? association.texte.libelle : '' %}
                         {% set article_libelle = association.article ? association.article.libelle : '' %}

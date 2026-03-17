@@ -80,6 +80,12 @@
     </section>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('css/dossier/prescriptions.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
 
