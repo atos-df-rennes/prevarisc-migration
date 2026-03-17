@@ -41,7 +41,7 @@
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" name="dossierIds[]" value="{{ source.id }}">
-                            {{ libelle }}
+                            <a href="{{ path('dossier_index', {id: source.id}) }}" target="_blank">{{ libelle }}</a>
                             <small class="text-muted">— {{ date_label }} {{ date_val }}</small>
 
                             {% if source.incomplet %}
@@ -49,9 +49,23 @@
                             {% elseif source.avisDiffere %}
                                 <span class="avis" style="background-color: #3a87ad;">Avis différé</span>
                             {% elseif source.avis %}
-                                <span class="avis {{ source.avis.libelle[:1] }}">{{ source.avis.libelle }}</span>
+                                <span class="avis {{ source.avis.libelle[:1] }}">
+                                    {{ source.avis.libelle }}
+                                    {{ include('dossier/_precision_libelle_avis.html.twig', {dossier: source}) }}
+                                </span>
                             {% else %}
                                 <span class="avis">Avis indisponible</span>
+                            {% endif %}
+
+                            {% if source.echeancierTravaux is not null %}
+                                <span class="avis" style="background-color: #3a87ad;">Fait l'objet d'un échéancier de travaux</span>
+                            {% endif %}
+
+                            {% if source.consultationPlatau is not null %}
+                                <span class="label label-info">CONSULTATION PLATAU : {{ source.consultationPlatau.identifiant }}</span>
+                                {% if not source.incomplet %}
+                                    <span class="label label-info">EN ATTENTE DE PEC</span>
+                                {% endif %}
                             {% endif %}
                         </label>
                     </div>

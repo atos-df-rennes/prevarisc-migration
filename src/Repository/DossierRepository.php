@@ -273,10 +273,11 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->addSelect('n')
             ->leftJoin('d.avis', 'a')
             ->addSelect('a')
+            ->leftJoin('d.consultationPlatau', 'cp')
+            ->addSelect('cp')
             ->where('e.id = :etablissementId')
             ->andWhere('d.id != :excludeId')
             ->andWhere('d.dateSuppression IS NULL')
-            ->orderBy('d.dateInsert', 'DESC')
             ->setParameter('etablissementId', $etablissement->getId())
             ->setParameter('excludeId', $excludeDossier->getId())
             ->getQuery()
@@ -298,6 +299,52 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             }
         }
 
+        // Legacy sort: visites → COALESCE(dateVisite, dateCommission, dateInsert) DESC
+        usort($visites, function (Dossier $a, Dossier $b): int {
+            return $this->sortDateVisite($b) <=> $this->sortDateVisite($a);
+        });
+
+        // Legacy sort: études → COALESCE(dateCommission, dateInsert) DESC
+        usort($etudes, function (Dossier $a, Dossier $b): int {
+            return $this->sortDateEtude($b) <=> $this->sortDateEtude($a);
+        });
+
+        // Legacy sort: autres → dateInsert DESC
+        usort($autres, function (Dossier $a, Dossier $b): int {
+            $dateA = null !== $a->getDateInsert() ? $a->getDateInsert()->format('Y-m-d') : '0000-00-00';
+            $dateB = null !== $b->getDateInsert() ? $b->getDateInsert()->format('Y-m-d') : '0000-00-00';
+
+            return $dateB <=> $dateA;
+        });
+
         return ['etudes' => $etudes, 'visites' => $visites, 'autres' => $autres];
+    }
+
+    /**
+     * Date de tri pour les visites : COALESCE(dateVisite, dateCommission, dateInsert).
+     */
+    private function sortDateVisite(Dossier $dossier): string
+    {
+        if (null !== $dossier->getDateVisite()) {
+            return $dossier->getDateVisite()->format('Y-m-d');
+        }
+
+        if (null !== $dossier->getDateCommission()) {
+            return substr($dossier->getDateCommission(), 0, 10);
+        }
+
+        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+    }
+
+    /**
+     * Date de tri pour les études : COALESCE(dateCommission, dateInsert).
+     */
+    private function sortDateEtude(Dossier $dossier): string
+    {
+        if (null !== $dossier->getDateCommission()) {
+            return substr($dossier->getDateCommission(), 0, 10);
+        }
+
+        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
     }
 }
