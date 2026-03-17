@@ -6,6 +6,7 @@ use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
 use App\Entity\PrescriptionDossierAssociation;
+use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionDossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -138,6 +139,32 @@ class DossierPrescriptionService
         }
 
         $prescription->setPrescriptionType(null);
+    }
+
+    /**
+     * Ajoute une prescription type à un dossier.
+     *
+     * Crée une PrescriptionDossier liée au PrescriptionType (sans copier le libellé —
+     * effectiveLibelle le lit dynamiquement depuis le type). Attribue le prochain numéro
+     * selon les règles de séquence du type.
+     */
+    public function ajouterDepuisType(
+        Dossier $dossier,
+        PrescriptionType $prescriptionType,
+        int $typePrescription
+    ): PrescriptionDossier {
+        $prescription = new PrescriptionDossier();
+        $prescription->setDossier($dossier);
+        $prescription->setType($typePrescription);
+        $prescription->setPrescriptionType($prescriptionType);
+        $prescription->setNumero($this->prochainNumero($dossier, $typePrescription));
+
+        $this->em->persist($prescription);
+        $this->em->flush();
+
+        $this->renumeroterSequence($dossier, $typePrescription);
+
+        return $prescription;
     }
 
     /**

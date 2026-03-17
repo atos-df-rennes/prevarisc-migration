@@ -1,0 +1,61 @@
+{#
+    Variables attendues :
+    - dossier           : Dossier
+    - prescriptionsTypes : PrescriptionType[]
+    - motsCles          : string[] (optionnel — pour le highlighting mots-clés)
+#}
+{% set mots_cles = motsCles ?? [] %}
+
+{% if prescriptionsTypes is empty %}
+    <li class="noresult"><em>Aucun résultat de recherche</em></li>
+{% else %}
+    {% for prescription_type in prescriptionsTypes %}
+        {% set associations = prescription_type.associations %}
+        {% set nb_assoc = associations|length %}
+
+        {% if nb_assoc > 0 %}
+            <li id="prescriptiontype_{{ prescription_type.id }}">
+                <table class="table">
+                    {% for association in associations %}
+                        {% set texte_libelle = association.texte ? association.texte.libelle : '' %}
+                        {% set article_libelle = association.article ? association.article.libelle : '' %}
+
+                        {% if mots_cles is not empty %}
+                            {% for mot in mots_cles %}
+                                {% set texte_libelle = texte_libelle|replace({(mot): '<span class="highlight">' ~ mot ~ '</span>'})|raw %}
+                                {% set article_libelle = article_libelle|replace({(mot): '<span class="highlight">' ~ mot ~ '</span>'})|raw %}
+                            {% endfor %}
+                        {% endif %}
+
+                        <tr>
+                            <td class="col-xs-2">{{ texte_libelle|raw }}</td>
+                            <td class="col-xs-2">{{ article_libelle|raw }}</td>
+
+                            {% if loop.first %}
+                                {% set libelle_texte = prescription_type.libelle|default('')|nl2br %}
+                                {% if mots_cles is not empty %}
+                                    {% for mot in mots_cles %}
+                                        {% set libelle_texte = libelle_texte|replace({(mot): '<span class="highlight">' ~ mot ~ '</span>'})|raw %}
+                                    {% endfor %}
+                                {% endif %}
+
+                                <td rowspan="{{ nb_assoc }}" class="col-xs-7">{{ libelle_texte|raw }}</td>
+                                <td rowspan="{{ nb_assoc }}" class="col-xs-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-default btn-sm btn-ajouter-presc-type"
+                                        data-id-presc-type="{{ prescription_type.id }}"
+                                        data-url="{{ path('dossier_prescriptions_ajouter_type', {id: dossier.id, idPrescType: prescription_type.id}) }}"
+                                        data-csrf-token="{{ csrf_token('add_prescription_type_' ~ dossier.id) }}"
+                                    >
+                                        Ajouter
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </li>
+        {% endif %}
+    {% endfor %}
+{% endif %}

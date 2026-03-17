@@ -1,0 +1,19 @@
+.btn-nav-classement {
+  white-space: wrap;
+  text-align: left;
+}
+
+.btn-nav-classement.btn-link {
+  vertical-align: baseline;
+}
+
+.modal__list--classement {
+  background: none;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.modal__select--type-prescription {
+  width: auto;
+  display: inline-block;
+}

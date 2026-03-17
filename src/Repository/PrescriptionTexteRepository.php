@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PrescriptionCategorie;
 use App\Entity\PrescriptionTexte;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -58,6 +59,16 @@ class PrescriptionTexteRepository extends ServiceEntityRepository
         $qb->select('max(texte.numero)');
 
         return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Retourne les textes d'une catégorie, ordonnés par numéro.
+     *
+     * @return PrescriptionTexte[]
+     */
+    public function findByCategorie(PrescriptionCategorie $categorie): array
+    {
+        return $this->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
     }
 
     /**
