@@ -9,18 +9,22 @@
     <h3>Gestion des prescriptions</h3>
 
     {% if not dossier.verrou %}
-        <div class="mb-3">
-            <button id="btn-ouvrir-modal-presc-type" class="btn btn-default">
-                Ajouter une prescription type
-            </button>
-            <a class="btn btn-default ml-2"
-               href="{{ path('dossier_prescriptions_ajouter', {id: dossier.id}) }}">
-                Ajouter une prescription
-            </a>
-            {% if dossier.etablissements|length == 1 %}
-                <button id="btn-ouvrir-modal-reprise" class="btn btn-default ml-3">
-                    Reprendre les prescriptions d'autres dossiers
+        <div class="prescription-actions mb-3">
+            <div class="prescription-actions__group">
+                <button id="btn-ouvrir-modal-presc-type" class="btn btn-primary">
+                    Ajouter une prescription type
                 </button>
+                <a class="btn btn-default ml-2"
+                   href="{{ path('dossier_prescriptions_ajouter', {id: dossier.id}) }}">
+                    Ajouter une prescription
+                </a>
+            </div>
+            {% if dossier.etablissements|length == 1 %}
+                <div class="prescription-actions__group prescription-actions__group--reprise">
+                    <button id="btn-ouvrir-modal-reprise" class="btn btn-default">
+                        Reprendre les prescriptions d'autres dossiers
+                    </button>
+                </div>
             {% endif %}
         </div>
     {% endif %}
