@@ -421,7 +421,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         $rows = $this->createQueryBuilder('d')
-            ->select('d.id, COUNT(dpj.id) as cnt')
+            ->select('d.id, COUNT(dpj.pieceJointe) as cnt')
             ->leftJoin('d.piecesJointes', 'dpj')
             ->where('d.id IN (:ids)')
             ->setParameter('ids', $dossierIds)
