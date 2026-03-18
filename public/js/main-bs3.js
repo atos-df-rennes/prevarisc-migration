@@ -57,11 +57,12 @@ function bindEtsMarquee($elem) {
 
 function bindEtsPopup($elem) {
     // Bulle ETS
-    $elem.find('a[href^="/etablissement/index/id/"]').hoverIntent({
+    $elem.find('a[href^="/etablissement/"][href$="/informations"]').hoverIntent({
         over: function () {
-            var id = $(this).attr('href').replace("/etablissement/index/id/", "");
+            var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
             e.popover({html: true, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
+            // @todo: migrer cette route vers Symfony
             $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
                 var ets_id = data.response.general.ID_ETABLISSEMENT;
                 var ets_libelle = data.response.informations.LIBELLE_ETABLISSEMENTINFORMATIONS;
@@ -128,7 +129,7 @@ function bindEtsPopup($elem) {
                 }
 
                 html += "<br><br>";
-                html += "<a href='/etablissement/index/id/" + ets_id + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
+                html += "<a href='" + Routing.generate('etablissement_informations', {id: ets_id}) + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
                 e.popover('destroy');
                 // @fixme: ça ne fonctionne pas
@@ -137,7 +138,7 @@ function bindEtsPopup($elem) {
         },
         out: function() {
             var e = $(this);
-            if($('.popover:hover').length === 0 && $('a[href^="etablissement/index/id/"]:hover').length === 0) {
+            if($('.popover:hover').length === 0 && $('a[href^="etablissement/"][href$="/informations"]:hover').length === 0) {
                 e.popover('destroy');
             }
             else {
