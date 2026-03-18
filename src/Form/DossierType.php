@@ -559,6 +559,7 @@ class DossierType extends AbstractType
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'dossier_form',
+            'validation_groups' => ['Default', 'edit_informations'],
         ]);
 
         $resolver->setAllowedTypes('is_edit', 'bool');

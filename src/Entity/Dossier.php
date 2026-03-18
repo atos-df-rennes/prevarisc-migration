@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
  *
- * @DossierObjet
+ * @DossierObjet(groups={"edit_informations"})
  */
 class Dossier
 {
