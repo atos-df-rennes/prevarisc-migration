@@ -547,7 +547,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function descriptif(Dossier $dossier): Response
     {
-        return $this->render('dossier/descriptif_travaux.html.twig', [
+        return $this->render('dossier/descriptif/descriptif.html.twig', [
             'dossier' => $dossier,
         ]);
     }
@@ -578,7 +578,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_descriptif', ['id' => $dossier->getId()]);
         }
 
-        return $this->render('dossier/edit_descriptif_travaux.html.twig', [
+        return $this->render('dossier/descriptif/edit_descriptif.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
         ]);
