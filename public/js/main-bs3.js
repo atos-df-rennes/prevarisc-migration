@@ -57,9 +57,9 @@ function bindEtsMarquee($elem) {
 
 function bindEtsPopup($elem) {
     // Bulle ETS
-    $elem.find('a[href^="/etablissement/index/id/"]').hoverIntent({
+    $elem.find('a[href^="/etablissement/"][href$="/informations"]').hoverIntent({
         over: function () {
-            var id = $(this).attr('href').replace("/etablissement/index/id/", "");
+            var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
             e.popover({html: true, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
             $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
@@ -128,7 +128,7 @@ function bindEtsPopup($elem) {
                 }
 
                 html += "<br><br>";
-                html += "<a href='/etablissement/index/id/" + ets_id + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
+                html += "<a href='/etablissement/" + ets_id + "/informations' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
                 e.popover('destroy');
                 // @fixme: ça ne fonctionne pas
@@ -137,7 +137,7 @@ function bindEtsPopup($elem) {
         },
         out: function() {
             var e = $(this);
-            if($('.popover:hover').length === 0 && $('a[href^="etablissement/index/id/"]:hover').length === 0) {
+            if($('.popover:hover').length === 0 && $('a[href^="etablissement/"][href$="/informations"]:hover').length === 0) {
                 e.popover('destroy');
             }
             else {
