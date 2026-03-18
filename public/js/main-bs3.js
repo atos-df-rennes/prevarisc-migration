@@ -62,6 +62,7 @@ function bindEtsPopup($elem) {
             var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
             e.popover({html: true, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
+            // @todo: migrer cette route vers Symfony
             $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
                 var ets_id = data.response.general.ID_ETABLISSEMENT;
                 var ets_libelle = data.response.informations.LIBELLE_ETABLISSEMENTINFORMATIONS;
@@ -128,7 +129,7 @@ function bindEtsPopup($elem) {
                 }
 
                 html += "<br><br>";
-                html += "<a href='/etablissement/" + ets_id + "/informations' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
+                html += "<a href='" + Routing.generate('etablissement_informations', {id: ets_id}) + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
                 e.popover('destroy');
                 // @fixme: ça ne fonctionne pas
