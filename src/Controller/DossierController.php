@@ -563,10 +563,17 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var Dossier $dossier */
-            $dossier = $form->getData();
-            $this->entityManager->persist($dossier);
             $this->entityManager->flush();
+
+            $message = 'Le descriptif';
+            if (
+                $dossier->getNature() instanceof DossierNatureListe
+                && in_array($dossier->getNature()->getId(), DossierNature::NATURES_DESCRIPTIF_TRAVAUX, true)
+            ) {
+                $message .= ' des travaux';
+            }
+            $message .= ' a bien été modfifié.';
+            $this->addFlash('success', $message);
 
             return $this->redirectToRoute('dossier_descriptif', ['id' => $dossier->getId()]);
         }
