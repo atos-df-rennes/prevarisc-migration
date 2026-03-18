@@ -37,16 +37,16 @@ class ChampValeurListeRepository extends ServiceEntityRepository
 
         // Construction du CASE WHEN pour UPDATE optimisé
         foreach ($changes as $i => $change) {
-            $idKey  = 'id'  . $i;
-            $idxKey = 'idx' . $i;
+            $idKey = 'id'.$i;
+            $idxKey = 'idx'.$i;
 
-            $cases[]          = "WHEN :{$idKey} THEN :{$idxKey}";
-            $idPlaceholders[] = ":{$idKey}";
+            $cases[] = sprintf('WHEN :%s THEN :%s', $idKey, $idxKey);
+            $idPlaceholders[] = ':'.$idKey;
 
-            $params[$idKey]  = (int) $change['ID'];
+            $params[$idKey] = (int) $change['ID'];
             $params[$idxKey] = (int) $change['idx'];
-            $types[$idKey]   = \PDO::PARAM_INT;
-            $types[$idxKey]  = \PDO::PARAM_INT;
+            $types[$idKey] = \PDO::PARAM_INT;
+            $types[$idxKey] = \PDO::PARAM_INT;
         }
 
         // Une seule requête UPDATE avec CASE

@@ -11,6 +11,7 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Form\DossierDescriptifType;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
@@ -537,5 +538,49 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->entityManager->flush();
 
         return $this->redirect($referer);
+    }
+
+    /**
+     * @Route("/dossier/{id}/descriptif", name="dossier_descriptif", methods={"GET"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function descriptif(Dossier $dossier): Response
+    {
+        return $this->render('dossier/descriptif/descriptif.html.twig', [
+            'dossier' => $dossier,
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/descriptif/modifier", name="dossier_descriptif_edit", methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function editDescriptif(Request $request, Dossier $dossier): Response
+    {
+        $form = $this->createForm(DossierDescriptifType::class, $dossier);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $message = 'Le descriptif';
+            if (
+                $dossier->getNature() instanceof DossierNatureListe
+                && in_array($dossier->getNature()->getId(), DossierNature::NATURES_DESCRIPTIF_TRAVAUX, true)
+            ) {
+                $message .= ' des travaux';
+            }
+            $message .= ' a bien été modifié.';
+            $this->addFlash('success', $message);
+
+            return $this->redirectToRoute('dossier_descriptif', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/descriptif/edit_descriptif.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+        ]);
     }
 }

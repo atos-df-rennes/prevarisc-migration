@@ -19,7 +19,7 @@
 
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
-        <li {% if app.request.get('_route') is same as('dossier_index') %}class="active"{% endif %}>
+        <li {% if app.request.get('_route') is same as('dossier_index') or app.request.get('_route') is same as('dossier_edit') %}class="active"{% endif %}>
             <a href="{{ path('dossier_index', {id: dossier.id}) }}">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 Informations générales
@@ -28,8 +28,8 @@
 
         {# Type Étude, Natures Dérogation et Changement de DUS #}
         {% if dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') and dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_DESCRIPTIF') %}
-            <li>
-                <a href="{{ '/dossier/descriptif/id/' ~ dossier.id }}">
+            <li {% if app.request.get('_route') is same as('dossier_descriptif') or app.request.get('_route') is same as('dossier_descriptif_edit') %}class="active"{% endif %}>
+                <a href="{{ path('dossier_descriptif', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     Descriptif
                     {# Permis de construire et Autorisation de travaux #}
