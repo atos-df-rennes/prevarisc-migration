@@ -26,16 +26,18 @@
                     </ul>
                 </noscript>
 
-                <ul class="list-unstyled">
-                    {% for label, messages in app.flashes %}
-                        {% for message in messages %}
-                            <li class="alert alert-{{ label }}">
-                                <button data-dismiss="alert" class="close">&times;</button>
-                                {{ message|raw }}
-                            </li>
+                {% if app.flashes|length > 0 %}
+                    <ul class="list-unstyled">
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <li class="alert alert-{{ label }}">
+                                    <button data-dismiss="alert" class="close">&times;</button>
+                                    {{ message|raw }}
+                                </li>
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
-                </ul>
+                    </ul>
+                {% endif %}
 
                 {% block body_structure %}{% endblock %}
             </div>
