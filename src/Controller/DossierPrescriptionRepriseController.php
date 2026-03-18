@@ -116,7 +116,7 @@ class DossierPrescriptionRepriseController extends AbstractController
             return $this->redirectToRoute('dossier_prescriptions', ['id' => $dossier->getId()]);
         }
 
-        $this->addFlash('success', \sprintf('%d prescriptions reprises depuis %d dossiers.',
+        $this->addFlash('success', \sprintf('%d prescription(s) reprises depuis %d dossier(s).',
             $prescriptionsReprises->nombrePrescriptions(),
             $prescriptionsReprises->nombreDossiers()
         ));
