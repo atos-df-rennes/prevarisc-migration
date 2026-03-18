@@ -71,20 +71,48 @@ final class Dossier
      */
     public function extraireDonneesUtiles(array $dossiers): array
     {
-        $dossiersAvecEnfants = array_filter($dossiers, function (DossierEntity $d): bool {
-            return count($d->getDossiersLies()) > 0;
-        });
+        if ([] === $dossiers) {
+            return [];
+        }
 
-        $idsAvecEnfants = [];
-        foreach ($dossiersAvecEnfants as $dossierAvecEnfants) {
-            $id = $dossierAvecEnfants->getId();
+        // Collecte de tous les IDs une seule fois
+        $allIds = [];
+        foreach ($dossiers as $dossier) {
+            $id = $dossier->getId();
             if (null !== $id) {
-                $idsAvecEnfants[] = $id;
+                $allIds[] = $id;
             }
         }
 
+        // Pré-calcul des IDs avec enfants (dl déjà chargé via addSelect dans le repository)
+        $idsAvecEnfants = [];
+        foreach ($dossiers as $dossier) {
+            if (count($dossier->getDossiersLies()) > 0) {
+                $id = $dossier->getId();
+                if (null !== $id) {
+                    $idsAvecEnfants[] = $id;
+                }
+            }
+        }
+
+        // Bulk : alertes, PJ count et nouvelles PJ — 4 requêtes max hors boucle
         $alertes = $this->dossierRepository->hasAlerteReceptionTravauxBulk($idsAvecEnfants);
         $echeanciers = $this->dossierRepository->hasEcheancierTravauxBulk($idsAvecEnfants);
+        $nbPJParDossier = $this->dossierRepository->countPiecesJointesBulk($allIds);
+
+        $user = $this->security->getUser();
+        $hasNewPJParDossier = [];
+        if ($user instanceof Utilisateur) {
+            $dateDerniereVisite = $user->getDerniereVisitePiecesDossier();
+            if (null !== $dateDerniereVisite) {
+                $hasNewPJParDossier = $this->dossierRepository->hasNouvellesPiecesBulk($allIds, $dateDerniereVisite);
+            }
+        }
+
+        // Pré-calcul isNew : dépend uniquement de champs scalaires déjà hydratés
+        $dateDerniereVisiteDossier = ($user instanceof Utilisateur)
+            ? $user->getDerniereVisitePiecesDossier()
+            : null;
 
         $donneesUtiles = [];
         foreach ($dossiers as $dossierEntity) {
@@ -100,8 +128,8 @@ final class Dossier
             }
 
             $donneeUtile['verrou'] = $dossierEntity->hasVerrou();
-            $donneeUtile['id'] = $dossierEntity->getId();
-            $donneeUtile['nbPJ'] = count($dossierEntity->getPiecesJointes());
+            $donneeUtile['id'] = $id;
+            $donneeUtile['nbPJ'] = $nbPJParDossier[$id] ?? 0;
             $donneeUtile['objet'] = $dossierEntity->getObjet();
             $donneeUtile['incomplet'] = $dossierEntity->isIncomplet();
             $donneeUtile['dateReception'] = $dossierEntity->getDateReception();
@@ -185,8 +213,8 @@ final class Dossier
                 $donneeUtile['couleur'] = null;
             }
 
-            $donneeUtile['isNew'] = $this->isNew($dossierEntity);
-            $donneeUtile['hasNewPJ'] = $this->nombreNouvellesPiecesJointes($dossierEntity) > 0;
+            $donneeUtile['isNew'] = $this->isNewFromCache($dossierEntity, $dateDerniereVisiteDossier);
+            $donneeUtile['hasNewPJ'] = $hasNewPJParDossier[$id] ?? false;
 
             $donneesUtiles[] = $donneeUtile;
         }
@@ -212,6 +240,22 @@ final class Dossier
         }
 
         return null != $dossier->getDateNotification() && $dossier->getDateNotification() >= $dateDerniereVisitePage;
+    }
+
+    /**
+     * Version optimisée de isNew() utilisant la date déjà récupérée hors boucle.
+     */
+    private function isNewFromCache(DossierEntity $dossier, ?\DateTimeInterface $dateDerniereVisite): bool
+    {
+        if (!$this->security->getUser() instanceof Utilisateur) {
+            return false;
+        }
+
+        if (null === $dateDerniereVisite) {
+            return true;
+        }
+
+        return null != $dossier->getDateNotification() && $dossier->getDateNotification() >= $dateDerniereVisite;
     }
 
     /**

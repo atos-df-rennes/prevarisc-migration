@@ -179,13 +179,21 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     {
         $qb = $this->createQueryBuilder('d');
         $query = $qb->join('d.etablissements', 'e')
-            ->leftJoin('d.piecesJointes', 'dpj')
+            ->addSelect('e')
             ->leftJoin('d.documentsUrbanisme', 'du')
+            ->addSelect('du')
             ->join('d.nature', 'dn')
+            ->addSelect('dn')
             ->join('d.type', 'dt')
+            ->addSelect('dt')
             ->join('e.informations', 'ei')
+            ->addSelect('ei')
             ->leftJoin('d.dossiersLies', 'dl')
+            ->addSelect('dl')
             ->leftJoin('d.consultationPlatau', 'dcp')
+            ->addSelect('dcp')
+            ->leftJoin('d.avisCommission', 'dac')
+            ->addSelect('dac')
             ->where('e.id = :id');
         if ([] !== $types) {
             if ($reverse) {
@@ -354,12 +362,21 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $this->createQueryBuilder('d')
             ->leftJoin('d.etablissements', 'e')
-            ->leftJoin('d.piecesJointes', 'dpj')
+            ->addSelect('e')
             ->leftJoin('d.documentsUrbanisme', 'du')
+            ->addSelect('du')
             ->join('d.nature', 'dn')
+            ->addSelect('dn')
             ->join('d.type', 'dt')
+            ->addSelect('dt')
             ->leftJoin('e.informations', 'ei')
+            ->addSelect('ei')
+            ->leftJoin('d.dossiersLies', 'dl')
+            ->addSelect('dl')
             ->leftJoin('d.consultationPlatau', 'dcp')
+            ->addSelect('dcp')
+            ->leftJoin('d.avisCommission', 'dac')
+            ->addSelect('dac')
             ->where('d.id IN (:ids)')
             ->setParameter('ids', $ids)
             ->getQuery()
@@ -388,6 +405,77 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     public function hasEcheancierTravauxBulk(array $dossierIds): array
     {
         return $this->hasTravauxBulk($dossierIds, [46]);
+    }
+
+    /**
+     * Compte en une seule requête le nombre de pièces jointes pour chaque dossier.
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, int> Map [dossierId => count]
+     */
+    public function countPiecesJointesBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('d')
+            ->select('d.id, COUNT(dpj.id) as cnt')
+            ->leftJoin('d.piecesJointes', 'dpj')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $dossierIds)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['id']] = (int) $row['cnt'];
+        }
+
+        foreach ($dossierIds as $id) {
+            if (!isset($map[$id])) {
+                $map[$id] = 0;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * Vérifie en une seule requête si chaque dossier possède de nouvelles pièces jointes.
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasNouvellesPiecesBulk(array $dossierIds, \DateTimeInterface $date): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('d')
+            ->select('d.id')
+            ->join('d.piecesJointes', 'dpj')
+            ->join('dpj.pieceJointe', 'p')
+            ->where('d.id IN (:ids)')
+            ->andWhere('p.dateNotification >= :date')
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('date', $date)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithNew = array_column($rows, 'id');
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithNew, true);
+        }
+
+        return $map;
     }
 
     /**
