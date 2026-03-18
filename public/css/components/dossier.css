@@ -6,9 +6,3 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.dossier-descriptif-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-}
