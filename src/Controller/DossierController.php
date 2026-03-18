@@ -572,7 +572,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             ) {
                 $message .= ' des travaux';
             }
-            $message .= ' a bien été modfifié.';
+            $message .= ' a bien été modifié.';
             $this->addFlash('success', $message);
 
             return $this->redirectToRoute('dossier_descriptif', ['id' => $dossier->getId()]);
