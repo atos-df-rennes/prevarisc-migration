@@ -82,7 +82,7 @@
                         $('#modal-suppression-contact').modal('show');
                     },
                     error: function() {
-                        alert("Erreur lors du chargement du formulaire de suppression.");
+                        $.toast.error("Erreur lors du chargement du formulaire de suppression.");
                     }
                 });
             })

@@ -26,8 +26,12 @@ function deleteRubrique(element) {
                 }
 
                 $("#modal-delete-rubrique").modal('hide')
+
+                $.toast.success('La rubrique ' + nom + ' a bien été supprimée.')
             },
             error: function() {
+                $.toast.error('Erreur lors de la suppression de la rubrique ' + nom + '.')
+
                 return false
             }
         })

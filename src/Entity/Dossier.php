@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
  *
- * @DossierObjet
+ * @DossierObjet(groups={"edit_informations"})
  */
 class Dossier
 {
@@ -599,6 +599,13 @@ class Dossier
      * @ORM\Column(name="DATESIGN_DOSSIER", type="date", nullable=true)
      */
     private $dateSignature;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCRIPTIF_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptif;
 
     /**
      * @var ?\DateTimeInterface
@@ -1755,6 +1762,16 @@ class Dossier
         }
 
         return in_array($nature->getId(), DossierNature::NATURES_DONNANT_AVIS, true);
+    }
+
+    public function getDescriptif(): ?string
+    {
+        return $this->descriptif;
+    }
+
+    public function setDescriptif(?string $descriptif): void
+    {
+        $this->descriptif = $descriptif;
     }
 
     public function getDateNotification(): ?\DateTimeInterface
