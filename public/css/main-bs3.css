@@ -327,6 +327,7 @@ span.avis + span.avis {
 ul.recherche_liste {
   list-style: none;
   margin-left: 0;
+  padding-left: 0;
 }
 
 ul.recherche_liste li {
@@ -1348,10 +1349,4 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 
 .label-inverse {
     background-color: #333;
-}
-.buttonOpenClose {
-    width: fit-content;
-    margin-bottom: 1rem;
-    margin-left: 50%;
-    margin-right: 50%;
 }

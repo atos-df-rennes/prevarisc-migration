@@ -7,6 +7,8 @@
         <a class="btn btn-default" href="/dossier/add/id_etablissement/{{ etablissement.id }}">Ajouter un dossier</a>
     </div>
 
+    <div class="clearfix"></div>
+
     <h3>Liste des dossiers</h3>
 
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
@@ -15,8 +17,8 @@
             <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-large">Ajouter un dossier</a></p>
         </div>
     {% else %}
-        <div class="flexCol" id="content_visites_ets">
-            {% if visites|length > 0 %}
+        {% if visites|length > 0 %}
+            <section id="content_visites_ets">
                 <h4>Visites</h4>
                 <ul class="recherche_liste">
                     {% for dossier in visites %}
@@ -25,14 +27,15 @@
                     <div class="voir-plus" id="divcompleteListeVisite"></div>
                 </ul>
                 {% if nbVisites > nbElemMax %}
-                    <button class="btn btn-default buttonOpenClose" id="completeListeVisite">Voir plus</button>
+                    <button class="btn btn-default center-block" id="completeListeVisite">Voir plus</button>
                 {% endif %}
-            {% endif %}
-        </div>
+            </section>
+        {% endif %}
 
-        <div class="flexCol" id="content_etudes_ets">
-            {% if etudes|length > 0 %}
-                {% if visites|length > 0 %}<hr />{% endif %}
+        {% if etudes|length > 0 %}
+            {% if visites|length > 0 %}<hr />{% endif %}
+
+            <section id="content_etudes_ets">
                 <h4>Études</h4>
                 <ul class="recherche_liste">
                     {% for dossier in etudes %}
@@ -41,14 +44,15 @@
                     <div class="voir-plus" id="divcompleteListeEtude"></div>
                 </ul>
                 {% if nbEtudes > nbElemMax %}
-                    <button class="btn btn-default buttonOpenClose" id="completeListeEtude">Voir plus</button>
+                    <button class="btn btn-default center-block" id="completeListeEtude">Voir plus</button>
                 {% endif %}
-            {% endif %}
-        </div>
+            </section>
+        {% endif %}
 
-        <div class="flexCol" id="content_autres_ets">
-            {% if autres|length > 0 %}
-                {% if visites|length > 0 or etudes|length > 0 %}<hr />{% endif %}
+        {% if autres|length > 0 %}
+            {% if visites|length > 0 or etudes|length > 0 %}<hr />{% endif %}
+
+            <section id="content_autres_ets">
                 <h4>Autres</h4>
                 <ul class="recherche_liste">
                     {% for dossier in autres %}
@@ -57,10 +61,10 @@
                     <div class="voir-plus" id="divcompleteListeAutres"></div>
                 </ul>
                 {% if nbAutres > nbElemMax %}
-                    <button class="btn btn-default buttonOpenClose" id="completeListeAutres">Voir plus</button>
+                    <button class="btn btn-default center-block" id="completeListeAutres">Voir plus</button>
                 {% endif %}
-            {% endif %}
-        </div>
+            </section>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
