@@ -71,13 +71,29 @@ final class Dossier
      */
     public function extraireDonneesUtiles(array $dossiers): array
     {
+        $dossiersAvecEnfants = array_filter($dossiers, function (DossierEntity $d): bool {
+            return count($d->getDossiersLies()) > 0;
+        });
+
+        $idsAvecEnfants = [];
+        foreach ($dossiersAvecEnfants as $dossierAvecEnfants) {
+            $id = $dossierAvecEnfants->getId();
+            if (null !== $id) {
+                $idsAvecEnfants[] = $id;
+            }
+        }
+
+        $alertes = $this->dossierRepository->hasAlerteReceptionTravauxBulk($idsAvecEnfants);
+        $echeanciers = $this->dossierRepository->hasEcheancierTravauxBulk($idsAvecEnfants);
+
         $donneesUtiles = [];
         foreach ($dossiers as $dossierEntity) {
             $donneeUtile = [];
             $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
+            $id = $dossierEntity->getId();
             if ($donneeUtile['nbDossiersLies'] > 0) {
-                $donneeUtile['alerteReceptionTravaux'] = $this->dossierRepository->hasAlerteReceptionTravaux($dossierEntity);
-                $donneeUtile['echeancierTravaux'] = $this->dossierRepository->hasEcheancierTravaux($dossierEntity);
+                $donneeUtile['alerteReceptionTravaux'] = $alertes[$id] ?? false;
+                $donneeUtile['echeancierTravaux'] = $echeanciers[$id] ?? false;
             } else {
                 $donneeUtile['alerteReceptionTravaux'] = false;
                 $donneeUtile['echeancierTravaux'] = false;
@@ -121,16 +137,16 @@ final class Dossier
             }
 
             $nature = !is_null($dossierEntity->getNature()) ? $dossierEntity->getNature()->getLibelle() : null;
-            if (!is_null($nature)) {
-                if (!empty($libelle)) {
+            if (null !== $nature) {
+                if ('' !== $libelle) {
                     $libelle .= ' - ';
                 }
 
                 $libelle .= $nature;
             }
 
-            if (!empty($donneeUtile['objet'])) {
-                if (!empty($libelle)) {
+            if ('' !== $donneeUtile['objet']) {
+                if ('' !== $libelle) {
                     $libelle .= ' - ';
                 }
 

@@ -187,7 +187,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->leftJoin('d.dossiersLies', 'dl')
             ->leftJoin('d.consultationPlatau', 'dcp')
             ->where('e.id = :id');
-        if (!empty($types)) {
+        if ([] !== $types) {
             if ($reverse) {
                 $query->andWhere($query->expr()->notIn('d.type', ':types'));
             } else {
@@ -198,7 +198,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         $query->setParameter('id', $id);
-        $query->orderBy('d.dateInsert', 'DESC');
+
+        if ($reverse) {
+            $query->orderBy('d.dateInsert', 'DESC');
+        } elseif ([1] === $types) {
+            $query->addSelect('COALESCE(d.dateCommission, d.dateInsert) as HIDDEN sortDate')
+                ->orderBy('sortDate', 'DESC');
+        } else {
+            $query->addSelect('COALESCE(d.dateVisite, d.dateCommission, d.dateInsert) as HIDDEN sortDate')
+                ->orderBy('sortDate', 'DESC');
+        }
 
         return $query->getQuery()->getResult();
     }
@@ -333,20 +342,86 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     {
         $parent = $this->find($parentId);
         $dossiersLies = $parent->getDossiersLies();
-        $qb = $this->createQueryBuilder('d');
-        foreach ($dossiersLies as $dossierLie) {
-            $query = $qb->leftJoin('d.etablissements', 'e')
-                ->leftJoin('d.piecesJointes', 'dpj')
-                ->leftJoin('d.documentsUrbanisme', 'du')
-                ->join('d.nature', 'dn')
-                ->join('d.type', 'dt')
-                ->leftjoin('e.informations', 'ei')
-                ->leftJoin('d.consultationPlatau', 'dcp')
-                ->where('d.id = :idDossierLie')
-                ->setParameter('idDossierLie', $dossierLie->getId());
-            $enfants[] = $query->getQuery()->getSingleResult();
+
+        if ($dossiersLies->isEmpty()) {
+            return [];
         }
 
-        return $enfants;
+        $ids = [];
+        foreach ($dossiersLies as $dossierLie) {
+            $ids[] = $dossierLie->getId();
+        }
+
+        return $this->createQueryBuilder('d')
+            ->leftJoin('d.etablissements', 'e')
+            ->leftJoin('d.piecesJointes', 'dpj')
+            ->leftJoin('d.documentsUrbanisme', 'du')
+            ->join('d.nature', 'dn')
+            ->join('d.type', 'dt')
+            ->leftJoin('e.informations', 'ei')
+            ->leftJoin('d.consultationPlatau', 'dcp')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Vérifie en une seule requête si chacun des dossiers fournis a une alerte réception travaux.
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasAlerteReceptionTravauxBulk(array $dossierIds): array
+    {
+        return $this->hasTravauxBulk($dossierIds, [2, 1, 13, 12]);
+    }
+
+    /**
+     * Vérifie en une seule requête si chacun des dossiers fournis a un échéancier travaux.
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasEcheancierTravauxBulk(array $dossierIds): array
+    {
+        return $this->hasTravauxBulk($dossierIds, [46]);
+    }
+
+    /**
+     * @param array<int> $dossierIds
+     * @param array<int> $natures
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    private function hasTravauxBulk(array $dossierIds, array $natures): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersLies', 'dl')
+            ->join('dl.nature', 'dln')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('dln.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', $natures)
+            ->groupBy('d.id')
+            ->having($qb->expr()->gt('COUNT(dl.id)', 0))
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithTravaux = array_column($rows, 'id');
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithTravaux, true);
+        }
+
+        return $map;
     }
 }

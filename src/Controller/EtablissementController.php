@@ -497,34 +497,19 @@ class EtablissementController extends AbstractController implements Etablissemen
         $autres = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
 
         // Traitement des études
-        if (null != $etudes) {
-            $nbEtudes = count($etudes);
-            $donneesUtilesEtudes = $this->dossierService->extraireDonneesUtiles($etudes);
-            $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $nbElemMax);
-        } else {
-            $nbEtudes = 0;
-            $etudesAffichees = [];
-        }
+        $nbEtudes = count($etudes);
+        $donneesUtilesEtudes = $this->dossierService->extraireDonneesUtiles($etudes);
+        $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $nbElemMax);
 
         // Traitement des visites
-        if (null != $visites) {
-            $nbVisites = count($visites);
-            $donneesUtilesVisites = $this->dossierService->extraireDonneesUtiles($visites);
-            $visitesAffichees = array_slice($donneesUtilesVisites, 0, $nbElemMax);
-        } else {
-            $nbVisites = 0;
-            $visitesAffichees = [];
-        }
+        $nbVisites = count($visites);
+        $donneesUtilesVisites = $this->dossierService->extraireDonneesUtiles($visites);
+        $visitesAffichees = array_slice($donneesUtilesVisites, 0, $nbElemMax);
 
         // Traitement des autres dossiers
-        if (null != $autres) {
-            $nbAutres = count($autres);
-            $donneesUtilesAutres = $this->dossierService->extraireDonneesUtiles($autres);
-            $autresAffichees = array_slice($donneesUtilesAutres, 0, $nbElemMax);
-        } else {
-            $nbAutres = 0;
-            $autresAffichees = [];
-        }
+        $nbAutres = count($autres);
+        $donneesUtilesAutres = $this->dossierService->extraireDonneesUtiles($autres);
+        $autresAffichees = array_slice($donneesUtilesAutres, 0, $nbElemMax);
 
         return $this->render('etablissement/dossiers.html.twig', [
             'etablissement' => $etablissement,
@@ -547,6 +532,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         if (!$id) {
             return new Response('');
         }
+
         $typeDossier = $request->request->get('typeDossier');
         $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
 
@@ -559,7 +545,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
         }
 
-        if (null == $dossiers) {
+        if ([] === $dossiers) {
             return new Response('');
         }
 

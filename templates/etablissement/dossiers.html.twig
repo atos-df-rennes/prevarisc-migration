@@ -5,8 +5,7 @@
 {% block body %}
     <input name="idEtablissement" type="hidden" value="{{ etablissement.id }}" />
     <div class="pull-right">
-{# <a class="btn" href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}">Ajouter un dossier</a> #}
-        <a class="btn btn-default" href="">Ajouter un dossier</a>
+        <a class="btn btn-default" href="/dossier/add/id_etablissement/{{ etablissement.id }}">Ajouter un dossier</a>
     </div>
 
     <h3>Liste des dossiers</h3>
@@ -14,8 +13,8 @@
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
         <div class="well well-large text-center">
             <p class="lead">Il n'y a pas de dossier.</p>
-{# <p><a href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}" class="btn btn-large">Ajouter un dossier</a></p> #}
-            <p><a href="" class="btn btn-large">Ajouter un dossier</a></p>
+{# <a class="btn btn-large" href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}">Ajouter un dossier</a> #}
+            <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-large">Ajouter un dossier</a></p>
         </div>
     {% else %}
         <div class="flexCol" id="content_visites_ets">
@@ -130,7 +129,7 @@
             });
 
             // Affichage des dossiers enfants (comportement legacy conservé)
-            $("ul.recherche_liste li.slide").live("click", function() {
+            $(document).on("click", "ul.recherche_liste li.slide", function() {
                 var container = this;
                 if ($(this).hasClass("active")) {
                     $(this).next().slideUp(400, function() {
