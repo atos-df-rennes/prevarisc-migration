@@ -541,11 +541,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
     }
 
     /**
-     * @Route("/dossier/{id}/descriptif-travaux", name="dossier_descriptif_travaux", methods={"GET"})
+     * @Route("/dossier/{id}/descriptif", name="dossier_descriptif", methods={"GET"})
      *
      * @IsGranted("view_doss", subject="dossier")
      */
-    public function descriptifTravaux(Dossier $dossier): Response
+    public function descriptif(Dossier $dossier): Response
     {
         return $this->render('dossier/descriptif_travaux.html.twig', [
             'dossier' => $dossier,
@@ -553,11 +553,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
     }
 
     /**
-     * @Route("/dossier/{id}/descriptif-travaux/edit", name="edit_dossier_descriptif_travaux", methods={"GET", "POST"})
+     * @Route("/dossier/{id}/descriptif/modifier", name="dossier_descriptif_edit", methods={"GET", "POST"})
      *
-     * @IsGranted("view_doss", subject="dossier")
+     * @IsGranted("edit_doss", subject="dossier")
      */
-    public function editDescriptifTravaux(Request $request, Dossier $dossier): Response
+    public function editDescriptif(Request $request, Dossier $dossier): Response
     {
         $form = $this->createForm(DossierDescriptifType::class, $dossier);
 
@@ -568,7 +568,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $this->entityManager->persist($dossier);
             $this->entityManager->flush();
 
-            return $this->redirectToRoute('dossier_descriptif_travaux', ['id' => $dossier->getId()]);
+            return $this->redirectToRoute('dossier_descriptif', ['id' => $dossier->getId()]);
         }
 
         return $this->render('dossier/edit_descriptif_travaux.html.twig', [
