@@ -54,6 +54,9 @@ final class Etablissement
     /** @var EntityManagerInterface */
     private $entityManager;
 
+    /** @var TexteApplicable */
+    private $texteApplicableService;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
@@ -63,7 +66,8 @@ final class Etablissement
         ParameterBagInterface $parameterBag,
         EntityManagerInterface $entityManager,
         LoggerInterface $datastoreLogger,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        TexteApplicable $texteApplicableService
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
@@ -74,6 +78,7 @@ final class Etablissement
         $this->entityManager = $entityManager;
         $this->datastoreLogger = $datastoreLogger;
         $this->logger = $logger;
+        $this->texteApplicableService = $texteApplicableService;
     }
 
     /**
@@ -356,34 +361,8 @@ final class Etablissement
         }
 
         $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
-        $textesApplicables = [];
-        $lastType = '';
 
-        foreach ($textesApplicablesValues as $texteApplicable) {
-            if (!$texteApplicable->getVisible()) {
-                continue;
-            }
-
-            if (null === $texteApplicable->getType()) {
-                continue;
-            }
-
-            if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
-                // @fixme: Créer un DTO pour corriger l'erreur PHPStan
-                /* @phpstan-ignore-next-line */
-                $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
-
-                continue;
-            }
-
-            $textesApplicables[$texteApplicable->getType()->getId()] = [
-                'titre' => $texteApplicable->getType()->getLibelle(),
-                'textes' => [$texteApplicable->getLibelle()],
-            ];
-            $lastType = $texteApplicable->getType();
-        }
-
-        return $textesApplicables;
+        return $this->texteApplicableService->trierParType($textesApplicablesValues);
     }
 
     /**

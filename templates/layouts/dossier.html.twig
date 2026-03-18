@@ -43,7 +43,7 @@
         {# Étude, Visite et Groupe de visite #}
         {% if dossier.type.id in constant('App\\Constant\\DossierType::TYPES_PRINCIPAUX') %}
             <li>
-                <a href="{{ '/dossier/textes-applicables/id/' ~ dossier.id }}">
+                <a href="{{ path('dossier_textes_applicables', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables
                 </a>

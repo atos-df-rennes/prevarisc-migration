@@ -22,6 +22,7 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
+use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierDonnantAvisService;
@@ -131,6 +132,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     private $urlGenerator;
 
+    /** @var DossierService */
+    private $dossierService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -150,7 +154,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierDonnantAvisService $dossierDonnantAvisService,
         AlerteService $alerteService,
         LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        DossierService $dossierService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -171,6 +176,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->alerteService = $alerteService;
         $this->logger = $logger;
         $this->urlGenerator = $urlGenerator;
+        $this->dossierService = $dossierService;
     }
 
     /**
@@ -579,6 +585,54 @@ class DossierController extends AbstractController implements DossierLateralNavi
         }
 
         return $this->render('dossier/descriptif/edit_descriptif.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/textes-applicables", name="dossier_textes_applicables")
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function textesApplicables(Request $request, Dossier $dossier): Response
+    {
+        if (null === $dossier->getId()) {
+            $textesApplicablesData = [];
+        }
+        else {
+            $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
+        }
+
+        return $this->render('dossier/textes_applicables.html.twig', [
+            'dossier' => $dossier,
+            'textesApplicables' => $textesApplicablesData,
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/textes-applicables/edit", name="edit_dossier_textes_applicables")
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function editTextesApplicables(Request $request, Dossier $dossier): Response
+    {
+        $form = $this->createForm(DossierType::class, $dossier, [
+            'is_edit' => true,
+            'edit_textes_applicables' => true,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les textes applicables ont été mis à jour avec succès.');
+
+            return $this->redirectToRoute('dossier_textes_applicables', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
         ]);

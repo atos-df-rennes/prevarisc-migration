@@ -255,4 +255,20 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return $qb->getQuery()->getOneOrNullResult();
     }
+
+    public function getTextesApplicablesByType(int $dossierId): ?Dossier
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $query = $queryBuilder
+            ->addSelect('dta')
+            ->addSelect('tta')
+            ->join('d.textesApplicables', 'dta')
+            ->join('dta.type', 'tta')
+            ->where('d.id = :id')
+            ->orderBy('dta.type', 'ASC')
+            ->setParameter('id', $dossierId)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
 }
