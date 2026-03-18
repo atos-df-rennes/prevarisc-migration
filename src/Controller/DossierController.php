@@ -11,6 +11,7 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Form\DossierDescriptifType;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
@@ -537,5 +538,42 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->entityManager->flush();
 
         return $this->redirect($referer);
+    }
+
+    /**
+     * @Route("/dossier/{id}/descriptif-travaux", name="dossier_descriptif_travaux", methods={"GET"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function descriptifTravaux(Dossier $dossier): Response
+    {
+        return $this->render('dossier/descriptif_travaux.html.twig', [
+            'dossier' => $dossier,
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/descriptif-travaux/edit", name="edit_dossier_descriptif_travaux", methods={"GET", "POST"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function editDescriptifTravaux(Request $request, Dossier $dossier): Response
+    {
+        $form = $this->createForm(DossierDescriptifType::class, $dossier);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Dossier $dossier */
+            $dossier = $form->getData();
+            $this->entityManager->persist($dossier);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('dossier_descriptif_travaux', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/edit_descriptif_travaux.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+        ]);
     }
 }
