@@ -3,7 +3,6 @@
 {% block title %}{{ parent() }} / Dossiers{% endblock %}
 
 {% block body %}
-    <input name="idEtablissement" type="hidden" value="{{ etablissement.id }}" />
     <div class="pull-right">
         <a class="btn btn-default" href="/dossier/add/id_etablissement/{{ etablissement.id }}">Ajouter un dossier</a>
     </div>
@@ -13,7 +12,6 @@
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
         <div class="well well-large text-center">
             <p class="lead">Il n'y a pas de dossier.</p>
-{# <a class="btn btn-large" href="{{ path('dossier_add', { id_etablissement: etablissement.id }) }}">Ajouter un dossier</a> #}
             <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-large">Ajouter un dossier</a></p>
         </div>
     {% else %}
@@ -89,7 +87,7 @@
                         url: "{{ path('etablissement_get_dossiers_after_n') }}",
                         type: 'POST',
                         data: {
-                            id: document.getElementsByName("idEtablissement")[0].value,
+                            id: "{{ etablissement.id }}",
                             typeDossier: tableDisplay.get(idelement).typeDossier
                         },
                         success: function (html) {
