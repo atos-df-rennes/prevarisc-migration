@@ -74,8 +74,8 @@
         <span class="avis F">Répondu</span>
     {% elseif dossier.typeId == 5 and dossier.dateReponse is null %}
         <span class="avis">Réponse à faire
-            {% if dossier.dateReception %}
-                {{ dossier.dateReception|date('d/m/Y') }}
+            {% if dossier.dateReceptionFormatee %}
+                ({{ dossier.dateReceptionFormatee }})
             {% endif %}
         </span>
     {% elseif dossier.avisId == 1 %}

@@ -107,8 +107,11 @@ final class Dossier
             $donneeUtile['dateReception'] = $dossierEntity->getDateReception();
             $donneeUtile['dateReponse'] = $dossierEntity->getDateReponse();
             $donneeUtile['avisDiffere'] = $dossierEntity->hasAvisDiffere();
-            $donneeUtile['avisId'] = $dossierEntity->getAvis() ? $dossierEntity->getAvis()->getId() : null;
+            $donneeUtile['avisId'] = $dossierEntity->getAvisCommission() ? $dossierEntity->getAvisCommission()->getId() : null;
             $donneeUtile['donneAvis'] = $dossierEntity->donneAvis();
+            $donneeUtile['dateReceptionFormatee'] = null !== $dossierEntity->getDateReception()
+                ? $this->formatDateDiff($dossierEntity->getDateReception())
+                : null;
 
             if (null !== $donneeUtile['objet']) {
                 if (strlen($donneeUtile['objet']) > 70) {
@@ -209,5 +212,57 @@ final class Dossier
         }
 
         return null != $dossier->getDateNotification() && $dossier->getDateNotification() >= $dateDerniereVisitePage;
+    }
+
+    /**
+     * Formate la différence entre une date et maintenant (ex: "2 jours", "1 heure").
+     *
+     * Reproduit le comportement du helper Zend View_Helper_Dates::formatDateDiff().
+     */
+    private function formatDateDiff(\DateTimeInterface $start): string
+    {
+        $end = new \DateTime();
+        $interval = $end->diff($start);
+
+        $doPlural = function (int $nb, string $str): string {
+            return $nb > 1 ? $str.'s' : $str;
+        };
+
+        $format = [];
+        if (0 !== $interval->y) {
+            $format[] = '%y '.$doPlural($interval->y, 'année');
+        }
+
+        if (0 !== $interval->m) {
+            $format[] = '%m mois';
+        }
+
+        if (0 !== $interval->d) {
+            $format[] = '%d '.$doPlural($interval->d, 'jour');
+        }
+
+        if (0 !== $interval->h) {
+            $format[] = '%h '.$doPlural($interval->h, 'heure');
+        }
+
+        if (0 !== $interval->i) {
+            $format[] = '%i '.$doPlural($interval->i, 'minute');
+        }
+
+        if (0 !== $interval->s) {
+            if ([] === $format) {
+                return '<= 1 min';
+            }
+
+            $format[] = '%s '.$doPlural($interval->s, 'seconde');
+        }
+
+        $pattern = array_shift($format);
+
+        if (null === $pattern) {
+            return '<= 1 min';
+        }
+
+        return $interval->format($pattern);
     }
 }
