@@ -230,26 +230,6 @@ final class Dossier
     }
 
     /**
-     * Indique si un dossier est considéré comme nouveau pour l'utilisateur courant.
-     */
-    public function isNew(DossierEntity $dossier): bool
-    {
-        $user = $this->security->getUser();
-
-        if (!$user instanceof Utilisateur) {
-            return false;
-        }
-
-        $dateDerniereVisitePage = $user->getDerniereVisitePiecesDossier();
-
-        if (null === $dateDerniereVisitePage) {
-            return true;
-        }
-
-        return null != $dossier->getDateNotification() && $dossier->getDateNotification() >= $dateDerniereVisitePage;
-    }
-
-    /**
      * Version optimisée de isNew() utilisant la date déjà récupérée hors boucle.
      */
     private function isNewFromCache(DossierEntity $dossier, ?\DateTimeInterface $dateDerniereVisite): bool
