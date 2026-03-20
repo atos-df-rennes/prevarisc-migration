@@ -6,7 +6,7 @@ use App\Entity\PrescriptionTexteListe;
 use App\Entity\TexteApplicable as TexteApplicableEntity;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class TexteApplicable
+class TexteApplicable
 {
     /** @var EntityManagerInterface */
     private $entityManager;
