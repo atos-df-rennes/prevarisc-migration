@@ -8,8 +8,6 @@ use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -361,24 +359,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         return $qb->getQuery()->getOneOrNullResult();
-    }
-
-    /**
-     * @throws NoResultException
-     * @throws NonUniqueResultException
-     */
-    private function hasTravaux(Dossier $dossier, array $natures): bool
-    {
-        $qb = $this->createQueryBuilder('d');
-        $query = $qb->select('COUNT(dl.id)')
-            ->leftjoin('d.dossiersLies', 'dl')
-            ->join('dl.nature', 'dln')
-            ->where('dln.id in (:natures)')
-            ->andWhere('d.id = :idDossier')
-            ->setParameter('natures', $natures)
-            ->setParameter('idDossier', $dossier->getId());
-
-        return $query->getQuery()->getSingleScalarResult() > 0;
     }
 
     /**
