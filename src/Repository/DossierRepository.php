@@ -10,6 +10,7 @@ use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -169,13 +170,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * Retourne les dossiers d'un établissement en fonction de leur type.
      *
+     * La pagination utilise le Paginator Doctrine pour gérer correctement les fetch-joins
+     * (relations one-to-many) qui multiplient les lignes SQL — un LIMIT brut serait inexact.
+     *
      * @param int        $id      Identifiant de l'établissement
      * @param array<int> $types   Types de dossiers à récupérer
      * @param bool       $reverse Si true, récupère les dossiers dont le type n'est pas dans $types
+     * @param int|null   $limit   Nombre maximum de résultats (null = pas de limite)
+     * @param int        $offset  Position de départ
      *
-     * @return array<Dossier> Tableau de dossiers (chaque élément est un tableau associatif)
+     * @return array<Dossier>
      */
-    public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false): array
+    public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false, ?int $limit = null, int $offset = 0): array
     {
         $qb = $this->createQueryBuilder('d');
         $query = $qb->join('d.etablissements', 'e')
@@ -217,7 +223,49 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 ->orderBy('sortDate', 'DESC');
         }
 
-        return $query->getQuery()->getResult();
+        if (null === $limit && 0 === $offset) {
+            return $query->getQuery()->getResult();
+        }
+
+        // Le Paginator Doctrine n'entre dans le chemin "fetch-join sécurisé" (subquery sur IDs)
+        // que si maxResults !== null. Sans maxResults, l'OFFSET est appliqué sur des lignes SQL
+        // brutes (les joins one-to-many multiplient les lignes), ce qui retourne des résultats
+        // incorrects. On utilise PHP_INT_MAX pour simuler "pas de limite" tout en forçant le bon chemin.
+        $paginator = new Paginator($query->getQuery());
+        $paginator->getQuery()
+            ->setFirstResult($offset)
+            ->setMaxResults($limit ?? PHP_INT_MAX);
+
+        return array_values(iterator_to_array($paginator->getIterator()));
+    }
+
+    /**
+     * Retourne le nombre de dossiers d'un établissement en fonction de leur type.
+     *
+     * @param int        $id      Identifiant de l'établissement
+     * @param array<int> $types   Types de dossiers à récupérer
+     * @param bool       $reverse Si true, compte les dossiers dont le type n'est pas dans $types
+     */
+    public function countDossiersEtablissement(int $id, array $types = [], bool $reverse = false): int
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->select('COUNT(d.id)')
+            ->join('d.etablissements', 'e')
+            ->where('e.id = :id');
+
+        if ([] !== $types) {
+            if ($reverse) {
+                $query->andWhere($query->expr()->notIn('d.type', ':types'));
+            } else {
+                $query->andWhere($query->expr()->in('d.type', ':types'));
+            }
+
+            $query->setParameter('types', $types);
+        }
+
+        $query->setParameter('id', $id);
+
+        return (int) $query->getQuery()->getSingleScalarResult();
     }
 
     /**

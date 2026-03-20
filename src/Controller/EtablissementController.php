@@ -495,31 +495,21 @@ class EtablissementController extends AbstractController implements Etablissemen
     ): Response {
         $id = $etablissement->getId();
 
-        // Récupération des dossiers par type
-        $etudes = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE]);
-        $visites = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE);
-        $autres = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
+        // Récupération des dossiers par type (limités à nbDossiersAAfficher en SQL)
+        $etudes = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE], false, $this->nbDossiersAAfficher);
+        $visites = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE, false, $this->nbDossiersAAfficher);
+        $autres = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true, $this->nbDossiersAAfficher);
 
-        // Traitement des études
-        $nbEtudes = count($etudes);
-        $donneesUtilesEtudes = $this->dossierService->extraireDonneesUtiles($etudes);
-        $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $this->nbDossiersAAfficher);
-
-        // Traitement des visites
-        $nbVisites = count($visites);
-        $donneesUtilesVisites = $this->dossierService->extraireDonneesUtiles($visites);
-        $visitesAffichees = array_slice($donneesUtilesVisites, 0, $this->nbDossiersAAfficher);
-
-        // Traitement des autres dossiers
-        $nbAutres = count($autres);
-        $donneesUtilesAutres = $this->dossierService->extraireDonneesUtiles($autres);
-        $autresAffichees = array_slice($donneesUtilesAutres, 0, $this->nbDossiersAAfficher);
+        // Comptage total par type
+        $nbEtudes = $this->dossierRepository->countDossiersEtablissement($id, [DossierType::ETUDE]);
+        $nbVisites = $this->dossierRepository->countDossiersEtablissement($id, DossierType::TYPES_VISITE);
+        $nbAutres = $this->dossierRepository->countDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
 
         return $this->render('etablissement/dossiers.html.twig', [
             'etablissement' => $etablissement,
-            'etudes' => $etudesAffichees,
-            'visites' => $visitesAffichees,
-            'autres' => $autresAffichees,
+            'etudes' => $this->dossierService->extraireDonneesUtiles($etudes),
+            'visites' => $this->dossierService->extraireDonneesUtiles($visites),
+            'autres' => $this->dossierService->extraireDonneesUtiles($autres),
             'nbEtudes' => $nbEtudes,
             'nbVisites' => $nbVisites,
             'nbAutres' => $nbAutres,
@@ -539,32 +529,28 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         $typeDossier = $request->request->get('typeDossier');
 
-        // Récupération des dossiers selon le type
+        // Récupération des dossiers selon le type, en démarrant après les N premiers (offset SQL)
         switch ($typeDossier) {
             case 'etudes':
-                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE]);
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE], false, null, $this->nbDossiersAAfficher);
                 break;
             case 'visites':
-                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE);
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE, false, null, $this->nbDossiersAAfficher);
                 break;
             case 'autres':
-                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true, null, $this->nbDossiersAAfficher);
                 break;
             default:
-                throw new \InvalidArgumentException("Type de dossier invalide.");
+                throw new \InvalidArgumentException('Type de dossier invalide.');
         }
 
         if ([] === $dossiers) {
             return new Response('');
         }
 
-        // Extraction des données utiles et slice pour récupérer uniquement les dossiers après N
-        $donneesUtiles = $this->dossierService->extraireDonneesUtiles($dossiers);
-        $dossiersRestants = array_slice($donneesUtiles, $this->nbDossiersAAfficher);
-
         // Génération du HTML
         $html = '';
-        foreach ($dossiersRestants as $dossier) {
+        foreach ($this->dossierService->extraireDonneesUtiles($dossiers) as $dossier) {
             $html .= $this->renderView('etablissement/dossiers/_item.html.twig', ['dossier' => $dossier]);
         }
 
