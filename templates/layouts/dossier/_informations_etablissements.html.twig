@@ -19,7 +19,7 @@
                     </a>
 
                     <a
-                        href="/etablissement/dossiers/id/{{ etablissement.id }}"
+                        href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}"
                         title='Se rendre à la liste des dossiers'
                         class="infosEtabs__button-link"
                     >

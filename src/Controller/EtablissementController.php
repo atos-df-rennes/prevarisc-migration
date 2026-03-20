@@ -486,7 +486,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     }
 
     /**
-     * @Route("/etablissement/{id}/dossiers", name="etablissement_dossiers")
+     * @Route("/etablissement/{id}/dossiers", name="etablissement_dossiers", methods={"GET"})
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
