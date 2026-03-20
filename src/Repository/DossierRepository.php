@@ -411,7 +411,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->getQuery()
             ->getArrayResult();
 
-        $idsWithAlerte = array_column($rows, 'id');
+        $idsWithAlerte = array_map('intval', array_column($rows, 'id'));
 
         $map = [];
         foreach ($dossierIds as $id) {
@@ -449,7 +449,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->getQuery()
             ->getArrayResult();
 
-        $idsWithEcheancier = array_column($rows, 'id');
+        $idsWithEcheancier = array_map('intval', array_column($rows, 'id'));
 
         $map = [];
         foreach ($dossierIds as $id) {
