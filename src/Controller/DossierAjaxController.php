@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * Pourrait aussi être rapatrié dans DossierController avec _dossier_lateral_nav: false.
+ */
 class DossierAjaxController extends AbstractController
 {
     /** @var DossierRepository */
@@ -28,7 +31,7 @@ class DossierAjaxController extends AbstractController
      */
     public function getDossiersEnfants(Request $request): Response
     {
-        $parentId = filter_var($request->request->get('parent'), FILTER_VALIDATE_INT);
+        $parentId = $request->request->getInt('parent');
         $dossiers = [];
         if ($parentId > 0) {
             $dossiersEnfants = $this->dossierRepository->getDossiersEnfants($parentId);
