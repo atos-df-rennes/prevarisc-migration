@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constant\DossierType;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
@@ -102,6 +103,9 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $alerteService;
 
+    /** @var int */
+    private $nbDossiersAAfficher;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -118,7 +122,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         UtilisateurInformationsRepository $utilisateurInformationsRepository,
         Contact $contactService,
         MailerConfiguration $mailerConfig,
-        AlerteService $alerteService
+        AlerteService $alerteService,
+        int $nbDossiersAAfficher
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -136,6 +141,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->contactService = $contactService;
         $this->mailerConfig = $mailerConfig;
         $this->alerteService = $alerteService;
+        $this->nbDossiersAAfficher = $nbDossiersAAfficher;
     }
 
     /**
@@ -485,31 +491,29 @@ class EtablissementController extends AbstractController implements Etablissemen
      * @IsGranted("view_ets", subject="etablissement")
      */
     public function getDossiers(
-        Etablissement $etablissement,
-        Request $request
+        Etablissement $etablissement
     ): Response {
         $id = $etablissement->getId();
-        $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
 
         // Récupération des dossiers par type
-        $etudes = $this->dossierRepository->getDossiersEtablissement($id, [1]);
-        $visites = $this->dossierRepository->getDossiersEtablissement($id, [2, 3]);
-        $autres = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
+        $etudes = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE]);
+        $visites = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE);
+        $autres = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
 
         // Traitement des études
         $nbEtudes = count($etudes);
         $donneesUtilesEtudes = $this->dossierService->extraireDonneesUtiles($etudes);
-        $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $nbElemMax);
+        $etudesAffichees = array_slice($donneesUtilesEtudes, 0, $this->nbDossiersAAfficher);
 
         // Traitement des visites
         $nbVisites = count($visites);
         $donneesUtilesVisites = $this->dossierService->extraireDonneesUtiles($visites);
-        $visitesAffichees = array_slice($donneesUtilesVisites, 0, $nbElemMax);
+        $visitesAffichees = array_slice($donneesUtilesVisites, 0, $this->nbDossiersAAfficher);
 
         // Traitement des autres dossiers
         $nbAutres = count($autres);
         $donneesUtilesAutres = $this->dossierService->extraireDonneesUtiles($autres);
-        $autresAffichees = array_slice($donneesUtilesAutres, 0, $nbElemMax);
+        $autresAffichees = array_slice($donneesUtilesAutres, 0, $this->nbDossiersAAfficher);
 
         return $this->render('etablissement/dossiers.html.twig', [
             'etablissement' => $etablissement,
@@ -519,30 +523,29 @@ class EtablissementController extends AbstractController implements Etablissemen
             'nbEtudes' => $nbEtudes,
             'nbVisites' => $nbVisites,
             'nbAutres' => $nbAutres,
-            'nbElemMax' => $nbElemMax,
+            'nbElemMax' => $this->nbDossiersAAfficher,
         ]);
     }
 
     /**
-     * @Route("/etablissement/get-dossiers-after-n", name="etablissement_get_dossiers_after_n", methods={"POST"})
+     * @Route("/etablissement/get-dossiers-after-n", name="etablissement_get_dossiers_after_n", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
      */
     public function getDossiersAfterN(Request $request): Response
     {
-        $id = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
-        if (!$id) {
+        $id = $request->request->getInt('id');
+        if (0 === $id) {
             return new Response('');
         }
 
         $typeDossier = $request->request->get('typeDossier');
-        $nbElemMax = (int) $this->getParameter('app.nb_dossiers_a_afficher');
 
         // Récupération des dossiers selon le type
         if ('etudes' === $typeDossier) {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1]);
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE]);
         } elseif ('visites' === $typeDossier) {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [2, 3]);
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE);
         } else {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [1, 2, 3], true);
+            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
         }
 
         if ([] === $dossiers) {
@@ -551,7 +554,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         // Extraction des données utiles et slice pour récupérer uniquement les dossiers après N
         $donneesUtiles = $this->dossierService->extraireDonneesUtiles($dossiers);
-        $dossiersRestants = array_slice($donneesUtiles, $nbElemMax);
+        $dossiersRestants = array_slice($donneesUtiles, $this->nbDossiersAAfficher);
 
         // Génération du HTML
         $html = '';
