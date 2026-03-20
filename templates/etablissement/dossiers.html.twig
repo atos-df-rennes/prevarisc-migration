@@ -27,7 +27,7 @@
                     <div class="voir-plus" id="divcompleteListeVisite"></div>
                 </ul>
                 {% if nbVisites > nbElemMax %}
-                    <button class="btn btn-default center-block" id="completeListeVisite">Voir plus</button>
+                    <button class="btn btn-default center-block buttonOpenClose" id="completeListeVisite">Voir plus</button>
                 {% endif %}
             </section>
         {% endif %}
@@ -44,7 +44,7 @@
                     <div class="voir-plus" id="divcompleteListeEtude"></div>
                 </ul>
                 {% if nbEtudes > nbElemMax %}
-                    <button class="btn btn-default center-block" id="completeListeEtude">Voir plus</button>
+                    <button class="btn btn-default center-block buttonOpenClose" id="completeListeEtude">Voir plus</button>
                 {% endif %}
             </section>
         {% endif %}
@@ -61,7 +61,7 @@
                     <div class="voir-plus" id="divcompleteListeAutres"></div>
                 </ul>
                 {% if nbAutres > nbElemMax %}
-                    <button class="btn btn-default center-block" id="completeListeAutres">Voir plus</button>
+                    <button class="btn btn-default center-block buttonOpenClose" id="completeListeAutres">Voir plus</button>
                 {% endif %}
             </section>
         {% endif %}
@@ -98,7 +98,7 @@
                             $('#' + idelement).append(html);
                         },
                         error: function() {
-                            console.error('Erreur lors du chargement des dossiers supplémentaires');
+                            $.toast.error('Erreur lors du chargement des dossiers supplémentaires');
                         }
                     });
                 }
