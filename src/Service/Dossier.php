@@ -62,6 +62,7 @@ final class Dossier
         return $this->dossierRepository->findNombreNouvellesPieces($dossier, $dateDerniereVisitePage);
     }
 
+    // @todo: A refactoriser
     /**
      * Extrait les données utiles pour l'affichage des dossiers.
      *
@@ -99,20 +100,6 @@ final class Dossier
         $alertes = $this->dossierRepository->hasAlerteReceptionTravauxBulk($idsAvecEnfants);
         $echeanciers = $this->dossierRepository->hasEcheancierTravauxBulk($allIds);
         $nbPJParDossier = $this->dossierRepository->countPiecesJointesBulk($allIds);
-
-        $user = $this->security->getUser();
-        $hasNewPJParDossier = [];
-        if ($user instanceof Utilisateur) {
-            $dateDerniereVisite = $user->getDerniereVisitePiecesDossier();
-            if (null !== $dateDerniereVisite) {
-                $hasNewPJParDossier = $this->dossierRepository->hasNouvellesPiecesBulk($allIds, $dateDerniereVisite);
-            }
-        }
-
-        // Pré-calcul isNew : dépend uniquement de champs scalaires déjà hydratés
-        $dateDerniereVisiteDossier = ($user instanceof Utilisateur)
-            ? $user->getDerniereVisitePiecesDossier()
-            : null;
 
         $donneesUtiles = [];
         foreach ($dossiers as $dossierEntity) {
@@ -215,29 +202,10 @@ final class Dossier
                 $donneeUtile['couleur'] = null;
             }
 
-            $donneeUtile['isNew'] = $this->isNewFromCache($dossierEntity, $dateDerniereVisiteDossier);
-            $donneeUtile['hasNewPJ'] = $hasNewPJParDossier[$id] ?? false;
-
             $donneesUtiles[] = $donneeUtile;
         }
 
         return $donneesUtiles;
-    }
-
-    /**
-     * Version optimisée de isNew() utilisant la date déjà récupérée hors boucle.
-     */
-    private function isNewFromCache(DossierEntity $dossier, ?\DateTimeInterface $dateDerniereVisite): bool
-    {
-        if (!$this->security->getUser() instanceof Utilisateur) {
-            return false;
-        }
-
-        if (null === $dateDerniereVisite) {
-            return true;
-        }
-
-        return null != $dossier->getDateNotification() && $dossier->getDateNotification() >= $dateDerniereVisite;
     }
 
     /**

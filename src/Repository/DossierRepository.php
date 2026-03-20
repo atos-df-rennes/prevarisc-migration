@@ -315,16 +315,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function hasAlerteReceptionTravaux(Dossier $dossier): bool
-    {
-        return $this->hasTravaux($dossier, [2, 1, 13, 12]);
-    }
-
-    public function hasEcheancierTravaux(Dossier $dossier): bool
-    {
-        return $this->hasTravaux($dossier, [46]);
-    }
-
     /**
      * @throws NoResultException
      * @throws NonUniqueResultException
@@ -490,41 +480,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             if (!isset($map[$id])) {
                 $map[$id] = 0;
             }
-        }
-
-        return $map;
-    }
-
-    /**
-     * Vérifie en une seule requête si chaque dossier possède de nouvelles pièces jointes.
-     *
-     * @param array<int> $dossierIds
-     *
-     * @return array<int, bool> Map [dossierId => bool]
-     */
-    public function hasNouvellesPiecesBulk(array $dossierIds, \DateTimeInterface $date): array
-    {
-        if ([] === $dossierIds) {
-            return [];
-        }
-
-        $rows = $this->createQueryBuilder('d')
-            ->select('d.id')
-            ->join('d.piecesJointes', 'dpj')
-            ->join('dpj.pieceJointe', 'p')
-            ->where('d.id IN (:ids)')
-            ->andWhere('p.dateNotification >= :date')
-            ->setParameter('ids', $dossierIds)
-            ->setParameter('date', $date)
-            ->groupBy('d.id')
-            ->getQuery()
-            ->getArrayResult();
-
-        $idsWithNew = array_column($rows, 'id');
-
-        $map = [];
-        foreach ($dossierIds as $id) {
-            $map[$id] = in_array($id, $idsWithNew, true);
         }
 
         return $map;

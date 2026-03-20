@@ -42,17 +42,6 @@
                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span> Temps restant : {{ dossier.tempsRestant }}
             </span>
         {% endif %}
-
-        {% if dossier.isNew %}
-            <span class="label label-important">
-                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> Nouveau dossier !
-            </span>
-        {% endif %}
-        {% if dossier.hasNewPJ %}
-            <span class="label label-warning">
-                <span class="glyphicon glyphicon-share" aria-hidden="true"></span> Nouvelles pièces !
-            </span>
-        {% endif %}
     </div>
 
     <div class="clearfix"></div>
