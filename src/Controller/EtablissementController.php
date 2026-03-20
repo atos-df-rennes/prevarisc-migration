@@ -540,12 +540,18 @@ class EtablissementController extends AbstractController implements Etablissemen
         $typeDossier = $request->request->get('typeDossier');
 
         // Récupération des dossiers selon le type
-        if ('etudes' === $typeDossier) {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE]);
-        } elseif ('visites' === $typeDossier) {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE);
-        } else {
-            $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
+        switch ($typeDossier) {
+            case 'etudes':
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE]);
+                break;
+            case 'visites':
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE);
+                break;
+            case 'autres':
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
+                break;
+            default:
+                throw new \InvalidArgumentException("Type de dossier invalide.");
         }
 
         if ([] === $dossiers) {
