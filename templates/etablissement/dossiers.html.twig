@@ -14,7 +14,7 @@
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
         <div class="well well-large text-center">
             <p class="lead">Il n'y a pas de dossier.</p>
-            <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-large">Ajouter un dossier</a></p>
+            <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-default btn-lg">Ajouter un dossier</a></p>
         </div>
     {% else %}
         {% if visites|length > 0 %}
