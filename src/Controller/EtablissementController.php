@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constant\DossierType;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
@@ -20,6 +21,7 @@ use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
+use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -88,6 +90,9 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $contactService;
 
+    /** @var Dossier */
+    private $dossierService;
+
     /**
      * @var MailerConfiguration
      */
@@ -98,6 +103,9 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $alerteService;
 
+    /** @var int */
+    private $nbDossiersAAfficher;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -105,6 +113,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         EtablissementService $etablissementService,
         EtablissementRepository $etablissementRepository,
         EntityManagerInterface $entityManager,
+        Dossier $dossierService,
         CoucheCartoRepository $coucheCartoRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
@@ -113,7 +122,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         UtilisateurInformationsRepository $utilisateurInformationsRepository,
         Contact $contactService,
         MailerConfiguration $mailerConfig,
-        AlerteService $alerteService
+        AlerteService $alerteService,
+        int $nbDossiersAAfficher
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -121,6 +131,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->etablissementService = $etablissementService;
         $this->etablissementRepository = $etablissementRepository;
         $this->entityManager = $entityManager;
+        $this->dossierService = $dossierService;
         $this->coucheCartoRepository = $coucheCartoRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->groupementRepository = $groupementRepository;
@@ -130,6 +141,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->contactService = $contactService;
         $this->mailerConfig = $mailerConfig;
         $this->alerteService = $alerteService;
+        $this->nbDossiersAAfficher = $nbDossiersAAfficher;
     }
 
     /**
@@ -471,5 +483,77 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'contact' => $contact,
         ]);
+    }
+
+    /**
+     * @Route("/etablissement/{id}/dossiers", name="etablissement_dossiers", methods={"GET"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function getDossiers(
+        Etablissement $etablissement
+    ): Response {
+        $id = $etablissement->getId();
+
+        // Récupération des dossiers par type (limités à nbDossiersAAfficher en SQL)
+        $etudes = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE], false, $this->nbDossiersAAfficher);
+        $visites = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE, false, $this->nbDossiersAAfficher);
+        $autres = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true, $this->nbDossiersAAfficher);
+
+        // Comptage total par type
+        $nbEtudes = $this->dossierRepository->countDossiersEtablissement($id, [DossierType::ETUDE]);
+        $nbVisites = $this->dossierRepository->countDossiersEtablissement($id, DossierType::TYPES_VISITE);
+        $nbAutres = $this->dossierRepository->countDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true);
+
+        return $this->render('etablissement/dossiers.html.twig', [
+            'etablissement' => $etablissement,
+            'etudes' => $this->dossierService->extraireDonneesUtiles($etudes),
+            'visites' => $this->dossierService->extraireDonneesUtiles($visites),
+            'autres' => $this->dossierService->extraireDonneesUtiles($autres),
+            'nbEtudes' => $nbEtudes,
+            'nbVisites' => $nbVisites,
+            'nbAutres' => $nbAutres,
+            'nbElemMax' => $this->nbDossiersAAfficher,
+        ]);
+    }
+
+    /**
+     * @Route("/etablissement/get-dossiers-after-n", name="etablissement_get_dossiers_after_n", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
+     */
+    public function getDossiersAfterN(Request $request): Response
+    {
+        $id = $request->request->getInt('id');
+        if (0 === $id) {
+            return new Response('');
+        }
+
+        $typeDossier = $request->request->get('typeDossier');
+
+        // Récupération des dossiers selon le type, en démarrant après les N premiers (offset SQL)
+        switch ($typeDossier) {
+            case 'etudes':
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE], false, null, $this->nbDossiersAAfficher);
+                break;
+            case 'visites':
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE, false, null, $this->nbDossiersAAfficher);
+                break;
+            case 'autres':
+                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true, null, $this->nbDossiersAAfficher);
+                break;
+            default:
+                throw new \InvalidArgumentException('Type de dossier invalide.');
+        }
+
+        if ([] === $dossiers) {
+            return new Response('');
+        }
+
+        // Génération du HTML
+        $html = '';
+        foreach ($this->dossierService->extraireDonneesUtiles($dossiers) as $dossier) {
+            $html .= $this->renderView('etablissement/dossiers/_item.html.twig', ['dossier' => $dossier]);
+        }
+
+        return new Response($html);
     }
 }

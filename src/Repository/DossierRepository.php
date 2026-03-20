@@ -8,6 +8,9 @@ use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -164,6 +167,110 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         return null === $result ? null : $result->getDateInsert();
     }
 
+    /**
+     * Retourne les dossiers d'un établissement en fonction de leur type.
+     *
+     * La pagination utilise le Paginator Doctrine pour gérer correctement les fetch-joins
+     * (relations one-to-many) qui multiplient les lignes SQL — un LIMIT brut serait inexact.
+     *
+     * @param int        $id      Identifiant de l'établissement
+     * @param array<int> $types   Types de dossiers à récupérer
+     * @param bool       $reverse Si true, récupère les dossiers dont le type n'est pas dans $types
+     * @param int|null   $limit   Nombre maximum de résultats (null = pas de limite)
+     * @param int        $offset  Position de départ
+     *
+     * @return array<Dossier>
+     */
+    public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false, ?int $limit = null, int $offset = 0): array
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->join('d.etablissements', 'e')
+            ->addSelect('e')
+            ->leftJoin('d.documentsUrbanisme', 'du')
+            ->addSelect('du')
+            ->join('d.nature', 'dn')
+            ->addSelect('dn')
+            ->join('d.type', 'dt')
+            ->addSelect('dt')
+            ->join('e.informations', 'ei')
+            ->addSelect('ei')
+            ->leftJoin('d.dossiersLies', 'dl')
+            ->addSelect('dl')
+            ->leftJoin('d.consultationPlatau', 'dcp')
+            ->addSelect('dcp')
+            ->leftJoin('d.avisCommission', 'dac')
+            ->addSelect('dac')
+            ->where('e.id = :id');
+        if ([] !== $types) {
+            if ($reverse) {
+                $query->andWhere($query->expr()->notIn('d.type', ':types'));
+            } else {
+                $query->andWhere($query->expr()->in('d.type', ':types'));
+            }
+
+            $query->setParameter('types', $types);
+        }
+
+        $query->setParameter('id', $id);
+
+        if ($reverse) {
+            $query->orderBy('d.dateInsert', 'DESC');
+        } elseif ([1] === $types) {
+            $query->addSelect('COALESCE(d.dateCommission, d.dateInsert) as HIDDEN sortDate')
+                ->orderBy('sortDate', 'DESC');
+        } else {
+            $query->addSelect('COALESCE(d.dateVisite, d.dateCommission, d.dateInsert) as HIDDEN sortDate')
+                ->orderBy('sortDate', 'DESC');
+        }
+
+        if (null === $limit && 0 === $offset) {
+            return $query->getQuery()->getResult();
+        }
+
+        // Le Paginator Doctrine n'entre dans le chemin "fetch-join sécurisé" (subquery sur IDs)
+        // que si maxResults !== null. Sans maxResults, l'OFFSET est appliqué sur des lignes SQL
+        // brutes (les joins one-to-many multiplient les lignes), ce qui retourne des résultats
+        // incorrects. On utilise PHP_INT_MAX pour simuler "pas de limite" tout en forçant le bon chemin.
+        $paginator = new Paginator($query->getQuery());
+        $paginator->getQuery()
+            ->setFirstResult($offset)
+            ->setMaxResults($limit ?? PHP_INT_MAX);
+
+        return array_values(iterator_to_array($paginator->getIterator()));
+    }
+
+    /**
+     * Retourne le nombre de dossiers d'un établissement en fonction de leur type.
+     *
+     * @param int        $id      Identifiant de l'établissement
+     * @param array<int> $types   Types de dossiers à récupérer
+     * @param bool       $reverse Si true, compte les dossiers dont le type n'est pas dans $types
+     */
+    public function countDossiersEtablissement(int $id, array $types = [], bool $reverse = false): int
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->select('COUNT(d.id)')
+            ->join('d.etablissements', 'e')
+            ->where('e.id = :id');
+
+        if ([] !== $types) {
+            if ($reverse) {
+                $query->andWhere($query->expr()->notIn('d.type', ':types'));
+            } else {
+                $query->andWhere($query->expr()->in('d.type', ':types'));
+            }
+
+            $query->setParameter('types', $types);
+        }
+
+        $query->setParameter('id', $id);
+
+        return (int) $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Retourne le nombre de pièces jointes nouvelles pour un dossier.
+     */
     public function findNombreNouvellesPieces(Dossier $dossier, \DateTimeInterface $dateDerniereVisitePage): int
     {
         $query = $this->createQueryBuilder('d')
@@ -254,6 +361,176 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    private function hasTravaux(Dossier $dossier, array $natures): bool
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->select('COUNT(dl.id)')
+            ->leftjoin('d.dossiersLies', 'dl')
+            ->join('dl.nature', 'dln')
+            ->where('dln.id in (:natures)')
+            ->andWhere('d.id = :idDossier')
+            ->setParameter('natures', $natures)
+            ->setParameter('idDossier', $dossier->getId());
+
+        return $query->getQuery()->getSingleScalarResult() > 0;
+    }
+
+    /**
+     * @return array<Dossier>
+     */
+    public function getDossiersEnfants(int $parentId): array
+    {
+        $parent = $this->find($parentId);
+        $dossiersLies = $parent->getDossiersLies();
+
+        if ($dossiersLies->isEmpty()) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($dossiersLies as $dossierLie) {
+            $ids[] = $dossierLie->getId();
+        }
+
+        return $this->createQueryBuilder('d')
+            ->leftJoin('d.etablissements', 'e')
+            ->addSelect('e')
+            ->leftJoin('d.documentsUrbanisme', 'du')
+            ->addSelect('du')
+            ->join('d.nature', 'dn')
+            ->addSelect('dn')
+            ->join('d.type', 'dt')
+            ->addSelect('dt')
+            ->leftJoin('e.informations', 'ei')
+            ->addSelect('ei')
+            ->leftJoin('d.dossiersLies', 'dl')
+            ->addSelect('dl')
+            ->leftJoin('d.consultationPlatau', 'dcp')
+            ->addSelect('dcp')
+            ->leftJoin('d.avisCommission', 'dac')
+            ->addSelect('dac')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Vérifie en une seule requête si chacun des dossiers fournis a une alerte réception travaux.
+     *
+     * Un dossier est éligible si lui-même a une nature d'étude (PC/AT, natures 1, 2, 12, 13)
+     * et possède au moins un dossier lié (il est ID_DOSSIER1 dans dossierlie).
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasAlerteReceptionTravauxBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersLies', 'dl')
+            ->join('d.nature', 'dn')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('dn.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', DossierNature::NATURES_ALERTE_RECEPTION_TRAVAUX)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithAlerte = array_map('intval', array_column($rows, 'id'));
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithAlerte, true);
+        }
+
+        return $map;
+    }
+
+    /**
+     * Vérifie en une seule requête si chacun des dossiers fournis fait l'objet d'un échéancier travaux.
+     *
+     * Un dossier est éligible s'il est ID_DOSSIER2 dans dossierlie et que le maître (ID_DOSSIER1)
+     * possède la nature 46 (Échéancier de travaux).
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasEcheancierTravauxBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersAyantLie', 'dal')
+            ->join('dal.nature', 'daln')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('daln.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', [DossierNature::ECHEANCIER_TRAVAUX])
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithEcheancier = array_map('intval', array_column($rows, 'id'));
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithEcheancier, true);
+        }
+
+        return $map;
+    }
+
+    /**
+     * Compte en une seule requête le nombre de pièces jointes pour chaque dossier.
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, int> Map [dossierId => count]
+     */
+    public function countPiecesJointesBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('d')
+            ->select('d.id, COUNT(dpj.pieceJointe) as cnt')
+            ->leftJoin('d.piecesJointes', 'dpj')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $dossierIds)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['id']] = (int) $row['cnt'];
+        }
+
+        foreach ($dossierIds as $id) {
+            if (!isset($map[$id])) {
+                $map[$id] = 0;
+            }
+        }
+
+        return $map;
     }
 
     public function getTextesApplicablesByType(int $dossierId): ?Dossier

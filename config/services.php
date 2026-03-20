@@ -42,6 +42,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\DependencyInjection\PrevariscMailerDsnProcessor')
         ->tag('container.env_var_processor');
 
+    $services->set('App\Controller\EtablissementController')
+        ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%');
+
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
     $services->set('App\Form\CommissionRegleType')

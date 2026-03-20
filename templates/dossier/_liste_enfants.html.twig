@@ -1,0 +1,5 @@
+<ul class="recherche_liste">
+    {% for dossier in dossiers %}
+        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+    {% endfor %}
+</ul>
