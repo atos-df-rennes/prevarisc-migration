@@ -386,17 +386,46 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * Vérifie en une seule requête si chacun des dossiers fournis a une alerte réception travaux.
      *
+     * Un dossier est éligible si lui-même a une nature d'étude (PC/AT, natures 1, 2, 12, 13)
+     * et possède au moins un dossier lié (il est ID_DOSSIER1 dans dossierlie).
+     *
      * @param array<int> $dossierIds
      *
      * @return array<int, bool> Map [dossierId => bool]
      */
     public function hasAlerteReceptionTravauxBulk(array $dossierIds): array
     {
-        return $this->hasTravauxBulk($dossierIds, [2, 1, 13, 12]);
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersLies', 'dl')
+            ->join('d.nature', 'dn')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('dn.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', [1, 2, 12, 13])
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithAlerte = array_column($rows, 'id');
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithAlerte, true);
+        }
+
+        return $map;
     }
 
     /**
-     * Vérifie en une seule requête si chacun des dossiers fournis a un échéancier travaux.
+     * Vérifie en une seule requête si chacun des dossiers fournis fait l'objet d'un échéancier travaux.
+     *
+     * Un dossier est éligible s'il est ID_DOSSIER2 dans dossierlie et que le maître (ID_DOSSIER1)
+     * possède la nature 46 (Échéancier de travaux).
      *
      * @param array<int> $dossierIds
      *
@@ -404,7 +433,30 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function hasEcheancierTravauxBulk(array $dossierIds): array
     {
-        return $this->hasTravauxBulk($dossierIds, [46]);
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersAyantLie', 'dal')
+            ->join('dal.nature', 'daln')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('daln.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', [46])
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithEcheancier = array_column($rows, 'id');
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithEcheancier, true);
+        }
+
+        return $map;
     }
 
     /**
@@ -473,41 +525,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $map = [];
         foreach ($dossierIds as $id) {
             $map[$id] = in_array($id, $idsWithNew, true);
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param array<int> $dossierIds
-     * @param array<int> $natures
-     *
-     * @return array<int, bool> Map [dossierId => bool]
-     */
-    private function hasTravauxBulk(array $dossierIds, array $natures): array
-    {
-        if ([] === $dossierIds) {
-            return [];
-        }
-
-        $qb = $this->createQueryBuilder('d');
-        $rows = $qb->select('d.id')
-            ->join('d.dossiersLies', 'dl')
-            ->join('dl.nature', 'dln')
-            ->where($qb->expr()->in('d.id', ':ids'))
-            ->andWhere($qb->expr()->in('dln.id', ':natures'))
-            ->setParameter('ids', $dossierIds)
-            ->setParameter('natures', $natures)
-            ->groupBy('d.id')
-            ->having($qb->expr()->gt('COUNT(dl.id)', 0))
-            ->getQuery()
-            ->getArrayResult();
-
-        $idsWithTravaux = array_column($rows, 'id');
-
-        $map = [];
-        foreach ($dossierIds as $id) {
-            $map[$id] = in_array($id, $idsWithTravaux, true);
         }
 
         return $map;

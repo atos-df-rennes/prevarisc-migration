@@ -97,7 +97,7 @@ final class Dossier
 
         // Bulk : alertes, PJ count et nouvelles PJ — 4 requêtes max hors boucle
         $alertes = $this->dossierRepository->hasAlerteReceptionTravauxBulk($idsAvecEnfants);
-        $echeanciers = $this->dossierRepository->hasEcheancierTravauxBulk($idsAvecEnfants);
+        $echeanciers = $this->dossierRepository->hasEcheancierTravauxBulk($allIds);
         $nbPJParDossier = $this->dossierRepository->countPiecesJointesBulk($allIds);
 
         $user = $this->security->getUser();
@@ -119,13 +119,8 @@ final class Dossier
             $donneeUtile = [];
             $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
             $id = $dossierEntity->getId();
-            if ($donneeUtile['nbDossiersLies'] > 0) {
-                $donneeUtile['alerteReceptionTravaux'] = $alertes[$id] ?? false;
-                $donneeUtile['echeancierTravaux'] = $echeanciers[$id] ?? false;
-            } else {
-                $donneeUtile['alerteReceptionTravaux'] = false;
-                $donneeUtile['echeancierTravaux'] = false;
-            }
+            $donneeUtile['alerteReceptionTravaux'] = $alertes[$id] ?? false;
+            $donneeUtile['echeancierTravaux'] = $echeanciers[$id] ?? false;
 
             $donneeUtile['verrou'] = $dossierEntity->hasVerrou();
             $donneeUtile['id'] = $id;
