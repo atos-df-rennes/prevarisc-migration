@@ -11,8 +11,9 @@
             {% endif %}
             {% if dossier.nbPJ > 0 %}
                 <!-- TODO : changement d'url lorsque la migration de la partie dossier sera terminée -->
-                <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                <a href='/dossier/piece-jointe/id/{{ dossier.id }}'>
+                {# @todo: à mettre en CSS ? #}
+                <a href='/dossier/piece-jointe/id/{{ dossier.id }}' style="color: black;">
+                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                 </a>
             {% endif %}
             <a href='{{ path('dossier_index', {id: dossier.id}) }}' title='{{ dossier.objet|e('html_attr') }}'>
