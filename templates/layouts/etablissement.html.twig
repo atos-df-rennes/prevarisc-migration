@@ -74,8 +74,8 @@
                 Contacts
             </a>
         </li>
-        <li>
-            <a href="{{ '/etablissement/dossiers/id/' ~ etablissement.id }}">
+        <li {% if app.request.get('_route') is same as('etablissement_dossiers') %}class="active"{% endif %}>
+            <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                 Dossiers
             </a>

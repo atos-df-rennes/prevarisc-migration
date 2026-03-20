@@ -48,6 +48,8 @@ final class DossierNature
 
     public const NATURES_SANS_CONTACTS = [40, 41, 42, 44];
 
+    public const NATURES_ALERTE_RECEPTION_TRAVAUX = [1, 2, 12, 13];
+
     /**
      * Empêche l'instanciation de la classe.
      */

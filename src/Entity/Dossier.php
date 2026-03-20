@@ -607,6 +607,13 @@ class Dossier
      */
     private $descriptif;
 
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATE_NOTIFICATION", type="datetime", nullable=true)
+     */
+    private $dateNotification;
+
     // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
     public function __construct()
     {
@@ -1045,6 +1052,15 @@ class Dossier
         }
 
         return $this;
+    }
+
+    public function getNumerosUrbanisme(): string
+    {
+        $numerosUrbanisme = $this->documentsUrbanisme->map(static function (DossierDocumentUrbanisme $documentUrbanisme): ?string {
+            return $documentUrbanisme->getNumero();
+        });
+
+        return implode(', ', $numerosUrbanisme->toArray());
     }
 
     /**
@@ -1765,5 +1781,17 @@ class Dossier
     public function setDescriptif(?string $descriptif): void
     {
         $this->descriptif = $descriptif;
+    }
+
+    public function getDateNotification(): ?\DateTimeInterface
+    {
+        return $this->dateNotification;
+    }
+
+    public function setDateNotification(?\DateTimeInterface $dateNotification): self
+    {
+        $this->dateNotification = $dateNotification;
+
+        return $this;
     }
 }

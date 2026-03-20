@@ -327,6 +327,7 @@ span.avis + span.avis {
 ul.recherche_liste {
   list-style: none;
   margin-left: 0;
+  padding-left: 0;
 }
 
 ul.recherche_liste li {
@@ -340,6 +341,7 @@ ul.recherche_liste li.slide {
 
 ul.recherche_liste li.slide + li.ui-helper-hidden {
   padding: 0;
+  margin-left: 50px;
   background-color: white;
 }
 
@@ -1344,4 +1346,8 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 .form-group .ts-wrapper.multi .ts-control>div {
     background-color: #337ab7;
     border: 1px solid #2e6da4;
+}
+
+.label-inverse {
+    background-color: #333;
 }
