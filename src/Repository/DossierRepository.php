@@ -406,7 +406,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->where($qb->expr()->in('d.id', ':ids'))
             ->andWhere($qb->expr()->in('dn.id', ':natures'))
             ->setParameter('ids', $dossierIds)
-            ->setParameter('natures', [1, 2, 12, 13])
+            ->setParameter('natures', DossierNature::NATURES_ALERTE_RECEPTION_TRAVAUX)
             ->groupBy('d.id')
             ->getQuery()
             ->getArrayResult();
@@ -444,7 +444,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->where($qb->expr()->in('d.id', ':ids'))
             ->andWhere($qb->expr()->in('daln.id', ':natures'))
             ->setParameter('ids', $dossierIds)
-            ->setParameter('natures', [46])
+            ->setParameter('natures', [DossierNature::ECHEANCIER_TRAVAUX])
             ->groupBy('d.id')
             ->getQuery()
             ->getArrayResult();

@@ -1056,7 +1056,7 @@ class Dossier
 
     public function getNumerosUrbanisme(): string
     {
-        $numerosUrbanisme = $this->documentsUrbanisme->map(static function (DossierDocumentUrbanisme $documentUrbanisme) {
+        $numerosUrbanisme = $this->documentsUrbanisme->map(static function (DossierDocumentUrbanisme $documentUrbanisme): ?string {
             return $documentUrbanisme->getNumero();
         });
 
