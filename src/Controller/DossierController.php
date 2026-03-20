@@ -591,16 +591,14 @@ class DossierController extends AbstractController implements DossierLateralNavi
     }
 
     /**
-     * @Route("/dossier/{id}/textes-applicables", name="dossier_textes_applicables")
+     * @Route("/dossier/{id}/textes-applicables", name="dossier_textes_applicables", methods={"GET"})
      *
      * @IsGranted("view_doss", subject="dossier")
      */
-    public function textesApplicables(Request $request, Dossier $dossier): Response
+    public function textesApplicables(Dossier $dossier): Response
     {
-        if (null === $dossier->getId()) {
-            $textesApplicablesData = [];
-        }
-        else {
+        $textesApplicablesData = [];
+        if (null !== $dossier->getId()) {
             $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
         }
 
@@ -611,12 +609,13 @@ class DossierController extends AbstractController implements DossierLateralNavi
     }
 
     /**
-     * @Route("/dossier/{id}/textes-applicables/edit", name="edit_dossier_textes_applicables")
+     * @Route("/dossier/{id}/textes-applicables/modifier", name="edit_dossier_textes_applicables", methods={"GET", "POST"})
      *
      * @IsGranted("edit_doss", subject="dossier")
      */
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
+        // @fixme: Créer un formulaire spécifique et retirer les options inutiles
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
             'edit_textes_applicables' => true,
@@ -632,6 +631,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_textes_applicables', ['id' => $dossier->getId()]);
         }
 
+        // @fixme: Le template n'existe pas ???
         return $this->render('dossier/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
