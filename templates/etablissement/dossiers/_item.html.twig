@@ -1,101 +1,100 @@
 <li class="dossier {% if dossier.nbDossiersLies > 0 %}slide{% endif %}" id="{{ dossier.id }}">
-
-<!-- Icone représentant le dropdown des fils -->
-{% if dossier.nbDossiersLies > 0 %}
-    <span class="icone_enfants" ><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;' ></i></span>
-{% endif %}
-
-<div class="pull-left">
-    <span class="doss-nom">
-        {% if dossier.verrou %}
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-        {% endif %}
-        {% if dossier.nbPJ > 0 %}
-            <!-- TODO : changement d'url lorsque la migration de la partie dossier sera terminée -->
-            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-            <a href='/dossier/piece-jointe/id/{{ dossier.id }}'>
-            </a>
-        {% endif %}
-        <a href='{{ path('dossier_index', {id: dossier.id}) }}' title='{{ dossier.objet|e('html_attr') }}'>
-            {% if dossier.etablissement is not null %}
-                {{ '[' ~ dossier.etablissement ~ '] ' }}
-            {% endif %}
-            {{ dossier.objet }}
-        </a>
-    </span>
-
-    <!-- Icone de chargement des enfants (si il y'en a, et si on est en mode niveau -->
+    <!-- Icone représentant le dropdown des fils -->
     {% if dossier.nbDossiersLies > 0 %}
-        <span class='load ui-helper-hidden' ><img src='/images/load.gif' alt='Chargement ...' /></span>
-    {% endif %}
-</div>
-
-<div style='clear: both'></div>
-
-<div class="pull-left mt-2">
-    <span class='label label-inverse'>
-        <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{ dossier.libelleDate }} {{ dossier.date|date('d/m/Y') }}
-    </span>
-
-    {% if dossier.tempsRestant is not null %}
-        <span class="label label-{{ dossier.couleur }}">
-            <span class="glyphicon glyphicon-time icon-white" aria-hidden="true"></span>&nbsp;Temps restant : {{ dossier.tempsRestant }}>
-        </span>
+        <span class="icone_enfants"><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;'></i></span>
     {% endif %}
 
-    {% if dossier.isNew %}
-        <span class="label label-important">
-            <span class="glyphicon glyphicon-folder-open icon-white" aria-hidden="true"></span>&nbsp;Nouveau dossier !
-        </span>
-    {% endif %}
-    {% if dossier.hasNewPJ %}
-        <span class="label label-warning">
-            <span class="glyphicon glyphicon-share icon-white" aria-hidden="true"></span>&nbsp;Nouvelles pièces !
-        </span>
-    {% endif %}
-</div>
-
-<div style='clear: both'></div>
-
-<div class="pull-left mt-3">
-    {% if dossier.consultationPlatauId is not null %}
-        <span class='label label-info'>CONSULTATION PLATAU : {{ dossier.consultationPlatauId }}</span>
-        {% if not dossier.incomplet %}
-            <span class='label label-info'>EN ATTENTE DE PEC</span>
-        {% endif %}
-    {% endif %}
-
-{# <!-- Avis du dossier --> #}
-    {% if dossier.incomplet %}
-        <span class='avis' style='background-color: #f89406;'>Dossier incomplet</span>
-    {% elseif dossier.avisDiffere %}
-        <span class='avis' style='background-color: #3a87ad;'>Avis différé</span>
-    {% elseif dossier.typeId == 5 and dossier.dateReponse is not null %}
-        <span class="avis F">Répondu</span>
-    {% elseif dossier.typeId == 5 and dossier.dateReponse is null %}
-        <span class="avis">Réponse à faire
-            {% if dossier.dateReceptionFormatee %}
-                ({{ dossier.dateReceptionFormatee }})
+    <div>
+        <span class="doss-nom">
+            {% if dossier.verrou %}
+                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% endif %}
+            {% if dossier.nbPJ > 0 %}
+                <!-- TODO : changement d'url lorsque la migration de la partie dossier sera terminée -->
+                <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                <a href='/dossier/piece-jointe/id/{{ dossier.id }}'>
+                </a>
+            {% endif %}
+            <a href='{{ path('dossier_index', {id: dossier.id}) }}' title='{{ dossier.objet|e('html_attr') }}'>
+                {% if dossier.etablissement is not null %}
+                    {{ '[' ~ dossier.etablissement ~ '] ' }}
+                {% endif %}
+                {{ dossier.objet }}
+            </a>
         </span>
-    {% elseif dossier.avisId == 1 %}
-        <span class="avis F">Favorable {% if dossier.donneAvis %}à l'exploitation{% endif %}</span>
-    {% elseif dossier.avisId == 2 %}
-        <span class="avis D">Défavorable {% if dossier.donneAvis %}à l'exploitation{% endif %}</span>
-    {% else %}
-        <span class="avis">Avis indisponible</span>
-    {% endif %}
 
-{# <!-- Alerte sur la reception de travaux --> #}
-    {% if dossier.alerteReceptionTravaux %}
-        <span class='avis' style='background-color: #3a87ad'>Présence d'un dossier de reception de travaux</span>
-    {% endif %}
+        <!-- Icone de chargement des enfants (si il y'en a, et si on est en mode niveau -->
+        {% if dossier.nbDossiersLies > 0 %}
+            <span class='load ui-helper-hidden'><img src='{{ asset('images/load.gif') }}' alt='Chargement ...' /></span>
+        {% endif %}
+    </div>
 
-{# <!-- Alerte sur le fait que la visite fait partie d'un échéancier de travaux --> #}
-    {% if dossier.echeancierTravaux %}
-        <span class='avis' style='background-color: #3a87ad'>Fait l'objet d'un échéancier de travaux</span>
-    {% endif %}
-</div>
+    <div class="clearfix"></div>
 
-<div style='clear: both'></div>
+    <div class="mt-2">
+        <span class='label label-inverse'>
+            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> {{ dossier.libelleDate }} {{ dossier.date|date('d/m/Y') }}
+        </span>
+
+        {% if dossier.tempsRestant is not null %}
+            <span class="label label-{{ dossier.couleur }} ml-2">
+                <span class="glyphicon glyphicon-time" aria-hidden="true"></span> Temps restant : {{ dossier.tempsRestant }}
+            </span>
+        {% endif %}
+
+        {% if dossier.isNew %}
+            <span class="label label-important">
+                <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> Nouveau dossier !
+            </span>
+        {% endif %}
+        {% if dossier.hasNewPJ %}
+            <span class="label label-warning">
+                <span class="glyphicon glyphicon-share" aria-hidden="true"></span> Nouvelles pièces !
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="mt-3">
+        {% if dossier.consultationPlatauId is not null %}
+            <span class='label label-info'>CONSULTATION PLATAU : {{ dossier.consultationPlatauId }}</span>
+            {% if dossier.incomplet is null %}
+                <span class='label label-info'>EN ATTENTE DE PEC</span>
+            {% endif %}
+        {% endif %}
+
+    {# <!-- Avis du dossier --> #}
+        {% if dossier.incomplet %}
+            <span class='avis' style='background-color: #f89406;'>Dossier incomplet</span>
+        {% elseif dossier.avisDiffere %}
+            <span class='avis' style='background-color: #3a87ad;'>Avis différé</span>
+        {% elseif dossier.typeId == 5 and dossier.dateReponse is not null %}
+            <span class="avis F">Répondu</span>
+        {% elseif dossier.typeId == 5 and dossier.dateReponse is null %}
+            <span class="avis">Réponse à faire
+                {% if dossier.dateReceptionFormatee %}
+                    ({{ dossier.dateReceptionFormatee }})
+                {% endif %}
+            </span>
+        {% elseif dossier.avisId == 1 %}
+            <span class="avis F">Favorable {% if dossier.donneAvis %}à l'exploitation{% endif %}</span>
+        {% elseif dossier.avisId == 2 %}
+            <span class="avis D">Défavorable {% if dossier.donneAvis %}à l'exploitation{% endif %}</span>
+        {% else %}
+            <span class="avis">Avis indisponible</span>
+        {% endif %}
+
+    {# <!-- Alerte sur la reception de travaux --> #}
+        {% if dossier.alerteReceptionTravaux %}
+            <span class='avis' style='background-color: #3a87ad'>Présence d'un dossier de reception de travaux</span>
+        {% endif %}
+
+    {# <!-- Alerte sur le fait que la visite fait partie d'un échéancier de travaux --> #}
+        {% if dossier.echeancierTravaux %}
+            <span class='avis' style='background-color: #3a87ad'>Fait l'objet d'un échéancier de travaux</span>
+        {% endif %}
+    </div>
+
+    <div class="clearfix"></div>
 </li>

@@ -146,19 +146,19 @@ final class Dossier
                     $donneeUtile['objet'] = substr($donneeUtile['objet'], 0, 70).'(...)';
                 }
 
-                if (count($dossierEntity->getDocumentsUrbanisme()) > 0) {
-                    $donneeUtile['objet'] .= ' - '.count($dossierEntity->getDocumentsUrbanisme());
+                if (!$dossierEntity->getDocumentsUrbanisme()->isEmpty()) {
+                    $donneeUtile['objet'] .= ' - '.$dossierEntity->getNumerosUrbanisme();
                 }
-            } elseif (count($dossierEntity->getDocumentsUrbanisme()) > 0) {
-                $donneeUtile['objet'] = count($dossierEntity->getDocumentsUrbanisme());
+            } elseif (!$dossierEntity->getDocumentsUrbanisme()->isEmpty()) {
+                $donneeUtile['objet'] = $dossierEntity->getNumerosUrbanisme();
             } else {
                 $donneeUtile['objet'] = '';
             }
 
             $libelle = '';
             $type = $dossierEntity->getType();
-            if (!is_null($type)) {
-                if (!is_null($type->getLibelle())) {
+            if (null !== $type) {
+                if (null !== $type->getLibelle()) {
                     $libelle .= $type->getLibelle();
                 }
 
@@ -167,7 +167,7 @@ final class Dossier
                 $donneeUtile['typeId'] = null;
             }
 
-            $nature = !is_null($dossierEntity->getNature()) ? $dossierEntity->getNature()->getLibelle() : null;
+            $nature = null !== $dossierEntity->getNature() ? $dossierEntity->getNature()->getLibelle() : null;
             if (null !== $nature) {
                 if ('' !== $libelle) {
                     $libelle .= ' - ';
@@ -185,16 +185,16 @@ final class Dossier
             }
 
             $donneeUtile['objet'] = $libelle;
-            if ($dossierEntity->getEtablissements()->first() && $dossierEntity->getEtablissements()->first()->getInformations()->first()) {
-                $donneeUtile['etablissement'] = $dossierEntity->getEtablissements()->first()->getInformations()->first()->getLibelle();
+            if ($dossierEntity->getEtablissements()->first()) {
+                $donneeUtile['etablissement'] = $dossierEntity->getEtablissements()->first()->getLatestInformations()->getLibelle();
             } else {
                 $donneeUtile['etablissement'] = null;
             }
 
-            if (null != $dossierEntity->getDateCommission()) {
+            if (null !== $dossierEntity->getDateCommission()) {
                 $donneeUtile['date'] = $dossierEntity->getDateCommission();
                 $donneeUtile['libelleDate'] = 'ayant pour date de passage en commission le';
-            } elseif (null != $dossierEntity->getDateVisite()) {
+            } elseif (null !== $dossierEntity->getDateVisite()) {
                 $donneeUtile['date'] = $dossierEntity->getDateVisite();
                 $donneeUtile['libelleDate'] = 'ayant pour date de visite le';
             } else {
@@ -203,10 +203,17 @@ final class Dossier
             }
 
             $consultationPlatau = $dossierEntity->getConsultationPlatau();
-            if (null != $consultationPlatau && null != $consultationPlatau->getDateReponseAttendue()) {
+
+            if (null !== $consultationPlatau) {
                 $donneeUtile['consultationPlatauId'] = $consultationPlatau->getIdentifiant();
-                $donneeUtile['tempsRestant'] = $this->servicePlatauTempsRestant->calculate($consultationPlatau->getDateReponseAttendue());
-                $donneeUtile['couleur'] = $this->servicePlatauTempsRestant->getCouleurTempsRestant($consultationPlatau->getDateReponseAttendue());
+
+                if (null !== $consultationPlatau->getDateReponseAttendue()) {
+                    $donneeUtile['tempsRestant'] = $this->servicePlatauTempsRestant->calculate($consultationPlatau->getDateReponseAttendue());
+                    $donneeUtile['couleur'] = $this->servicePlatauTempsRestant->getCouleurTempsRestant($consultationPlatau->getDateReponseAttendue());
+                } else {
+                    $donneeUtile['tempsRestant'] = null;
+                    $donneeUtile['couleur'] = null;
+                }
             } else {
                 $donneeUtile['consultationPlatauId'] = null;
                 $donneeUtile['tempsRestant'] = null;

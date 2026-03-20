@@ -1054,6 +1054,15 @@ class Dossier
         return $this;
     }
 
+    public function getNumerosUrbanisme(): string
+    {
+        $numerosUrbanisme = $this->documentsUrbanisme->map(static function (DossierDocumentUrbanisme $documentUrbanisme) {
+            return $documentUrbanisme->getNumero();
+        });
+
+        return implode(', ', $numerosUrbanisme->toArray());
+    }
+
     /**
      * @return Collection<int, Utilisateur>
      */
