@@ -30,6 +30,7 @@ final class TexteApplicable
 
     /**
      * @param array<TexteApplicableEntity> $textesApplicablesValues
+     *
      * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
      */
     public function trierParType(array $textesApplicablesValues): array

@@ -214,6 +214,23 @@ final class Dossier
     }
 
     /**
+     * Récupère les textes applicables d'un dossier et les trie par type.
+     *
+     * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
+     */
+    public function getTextesApplicables(int $idDossier): array
+    {
+        $textesApplicablesData = $this->dossierRepository->getTextesApplicablesByType($idDossier);
+        if (null === $textesApplicablesData) {
+            return [];
+        }
+
+        $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
+
+        return $this->texteApplicableService->trierParType($textesApplicablesValues);
+    }
+
+    /**
      * Formate la différence entre une date et maintenant (ex: "2 jours", "1 heure").
      *
      * Reproduit le comportement du helper Zend View_Helper_Dates::formatDateDiff().
@@ -263,22 +280,5 @@ final class Dossier
         }
 
         return $interval->format($pattern);
-    }
-
-    /**
-     * Récupère les textes applicables d'un dossier et les trie par type.
-     *
-     * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
-     */
-    public function getTextesApplicables(int $idDossier): array
-    {
-        $textesApplicablesData = $this->dossierRepository->getTextesApplicablesByType($idDossier);
-        if (null === $textesApplicablesData) {
-            return [];
-        }
-
-        $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
-
-        return $this->texteApplicableService->trierParType($textesApplicablesValues);
     }
 }
