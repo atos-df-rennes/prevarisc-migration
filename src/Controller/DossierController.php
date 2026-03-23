@@ -606,7 +606,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function textesApplicables(Dossier $dossier): Response
     {
-        $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
+        $textesApplicablesData = [];
+
+        if (null !== $dossier->getId()) {
+            $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
+        }
 
         return $this->render('dossier/textes_applicables/textes_applicables.html.twig', [
             'dossier' => $dossier,
@@ -622,7 +626,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
         // Pré-charge les relations
-        $this->dossierRepository->getTextesApplicablesByType($dossier->getId());
+        if (null !== $dossier->getId()) {
+            $this->dossierRepository->getTextesApplicablesByType($dossier->getId());
+        }
         $form = $this->createForm(DossierTextesApplicablesType::class, $dossier);
 
         $form->handleRequest($request);
