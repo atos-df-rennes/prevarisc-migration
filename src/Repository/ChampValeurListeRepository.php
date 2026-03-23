@@ -28,27 +28,34 @@ class ChampValeurListeRepository extends ServiceEntityRepository
      */
     public function updateIndexesBatch(array $changes): void
     {
-        $connnection = $this->getEntityManager()->getConnection();
+        $connection = $this->getEntityManager()->getConnection();
+
+        $params = [];
+        $types = [];
+        $cases = [];
+        $idPlaceholders = [];
 
         // Construction du CASE WHEN pour UPDATE optimisé
-        $ids = [];
-        $cases = [];
+        foreach ($changes as $i => $change) {
+            $idKey = 'id'.$i;
+            $idxKey = 'idx'.$i;
 
-        foreach ($changes as $change) {
-            $id = (int) $change['ID'];
-            $idx = (int) $change['idx'];
-            $ids[] = $id;
-            $cases[] = sprintf('WHEN %d THEN %d', $id, $idx);
+            $cases[] = sprintf('WHEN :%s THEN :%s', $idKey, $idxKey);
+            $idPlaceholders[] = ':'.$idKey;
+
+            $params[$idKey] = (int) $change['ID'];
+            $params[$idxKey] = (int) $change['idx'];
+            $types[$idKey] = \PDO::PARAM_INT;
+            $types[$idxKey] = \PDO::PARAM_INT;
         }
 
-        $idList = implode(',', $ids);
-        $caseStatement = implode(' ', $cases);
-
         // Une seule requête UPDATE avec CASE
-        $sql = "UPDATE champvaleurliste
-               SET idx = CASE ID_VALEURLISTE {$caseStatement} END
-               WHERE ID_VALEURLISTE IN ({$idList})";
+        $sql = sprintf(
+            'UPDATE champvaleurliste SET idx = CASE ID_VALEURLISTE %s END WHERE ID_VALEURLISTE IN (%s)',
+            implode(' ', $cases),
+            implode(', ', $idPlaceholders)
+        );
 
-        $connnection->executeStatement($sql);
+        $connection->executeStatement($sql, $params, $types);
     }
 }

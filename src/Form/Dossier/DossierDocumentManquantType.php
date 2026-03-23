@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Dossier;
 
 use App\Entity\DossierDocumentManquant;
 use Symfony\Component\Form\AbstractType;

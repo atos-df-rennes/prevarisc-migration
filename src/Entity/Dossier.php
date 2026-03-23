@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
  *
- * @DossierObjet
+ * @DossierObjet(groups={"edit_informations"})
  */
 class Dossier
 {
@@ -600,6 +600,20 @@ class Dossier
      */
     private $dateSignature;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCRIPTIF_DOSSIER", type="text", nullable=true)
+     */
+    private $descriptif;
+
+    /**
+     * @var ?\DateTimeInterface
+     *
+     * @ORM\Column(name="DATE_NOTIFICATION", type="datetime", nullable=true)
+     */
+    private $dateNotification;
+
     // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
     public function __construct()
     {
@@ -1038,6 +1052,15 @@ class Dossier
         }
 
         return $this;
+    }
+
+    public function getNumerosUrbanisme(): string
+    {
+        $numerosUrbanisme = $this->documentsUrbanisme->map(static function (DossierDocumentUrbanisme $documentUrbanisme): ?string {
+            return $documentUrbanisme->getNumero();
+        });
+
+        return implode(', ', $numerosUrbanisme->toArray());
     }
 
     /**
@@ -1748,5 +1771,27 @@ class Dossier
         }
 
         return in_array($nature->getId(), DossierNature::NATURES_DONNANT_AVIS, true);
+    }
+
+    public function getDescriptif(): ?string
+    {
+        return $this->descriptif;
+    }
+
+    public function setDescriptif(?string $descriptif): void
+    {
+        $this->descriptif = $descriptif;
+    }
+
+    public function getDateNotification(): ?\DateTimeInterface
+    {
+        return $this->dateNotification;
+    }
+
+    public function setDateNotification(?\DateTimeInterface $dateNotification): self
+    {
+        $this->dateNotification = $dateNotification;
+
+        return $this;
     }
 }

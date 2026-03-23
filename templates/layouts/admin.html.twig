@@ -60,7 +60,7 @@
         <li {% if app.request.get('_route') is same as('admin_groupement')
                 or app.request.get('_route') starts with 'admin_groupement_'
             %}class="active"{% endif %}>
-            <a href='/groupement'><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
+            <a href='{{ path('admin_groupement') }}'><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('admin_changement') %}class="active"{% endif %}>

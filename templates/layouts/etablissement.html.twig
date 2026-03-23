@@ -19,14 +19,14 @@
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
         <li {% if app.request.get('_route') is same as('etablissement_informations') %}class="active"{% endif %}>
-            <a href="{{ '/etablissement/index/id/' ~ etablissement.id }}">
+            <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 Général
             </a>
         </li>
 
         {% if etablissement.informations|last.genre.libelle != 'Site' %}
-            <li {% if app.request.get('_route') is same as('etablissement_textes_applicables') %}class="active"{% endif %}>
+            <li {% if app.request.get('_route') starts with 'etablissement_textes_applicables' %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_textes_applicables', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables
@@ -74,8 +74,8 @@
                 Contacts
             </a>
         </li>
-        <li>
-            <a href="{{ '/etablissement/dossiers/id/' ~ etablissement.id }}">
+        <li {% if app.request.get('_route') is same as('etablissement_dossiers') %}class="active"{% endif %}>
+            <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                 Dossiers
             </a>
@@ -110,7 +110,7 @@
         <h2 class='page-header'>
             {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
-                    <a href="{{ '/etablissement/index/id/' ~ parent.id }}">
+                    <a href="{{ path('etablissement_informations', {id: parent.id}) }}">
                         {{ parent.informations.last.libelle }}
                     </a> -
                 {% endfor %}

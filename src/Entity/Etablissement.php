@@ -216,6 +216,7 @@ class Etablissement
         $this->piecesJointes = new ArrayCollection();
     }
 
+    // @fixme: il faudra le passer nullable quand on migrera l'ajout d'un établissement
     public function getId(): int
     {
         return $this->id;

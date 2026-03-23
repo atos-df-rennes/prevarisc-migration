@@ -1,0 +1,151 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Dossiers{% endblock %}
+
+{% block body %}
+    <div class="pull-right">
+        <a class="btn btn-default" href="/dossier/add/id_etablissement/{{ etablissement.id }}">Ajouter un dossier</a>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <h3>Liste des dossiers</h3>
+
+    {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
+        <div class="well well-large text-center">
+            <p class="lead">Il n'y a pas de dossier.</p>
+            <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-default btn-lg">Ajouter un dossier</a></p>
+        </div>
+    {% else %}
+        {% if visites|length > 0 %}
+            <section id="content_visites_ets">
+                <h4>Visites</h4>
+                <ul class="recherche_liste">
+                    {% for dossier in visites %}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+                    {% endfor %}
+                    <div class="voir-plus" id="divcompleteListeVisite"></div>
+                </ul>
+                {% if nbVisites > nbElemMax %}
+                    <button class="btn btn-default center-block buttonOpenClose" id="completeListeVisite">Voir plus</button>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        {% if etudes|length > 0 %}
+            {% if visites|length > 0 %}<hr />{% endif %}
+
+            <section id="content_etudes_ets">
+                <h4>Études</h4>
+                <ul class="recherche_liste">
+                    {% for dossier in etudes %}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+                    {% endfor %}
+                    <div class="voir-plus" id="divcompleteListeEtude"></div>
+                </ul>
+                {% if nbEtudes > nbElemMax %}
+                    <button class="btn btn-default center-block buttonOpenClose" id="completeListeEtude">Voir plus</button>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        {% if autres|length > 0 %}
+            {% if visites|length > 0 or etudes|length > 0 %}<hr />{% endif %}
+
+            <section id="content_autres_ets">
+                <h4>Autres</h4>
+                <ul class="recherche_liste">
+                    {% for dossier in autres %}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+                    {% endfor %}
+                    <div class="voir-plus" id="divcompleteListeAutres"></div>
+                </ul>
+                {% if nbAutres > nbElemMax %}
+                    <button class="btn btn-default center-block buttonOpenClose" id="completeListeAutres">Voir plus</button>
+                {% endif %}
+            </section>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Map pour gérer l'état d'affichage de chaque liste de dossiers
+            let tableDisplay = new Map();
+            tableDisplay.set("divcompleteListeEtude", {isDeployed: false, isLoaded: false, typeDossier: "etudes"});
+            tableDisplay.set("divcompleteListeVisite", {isDeployed: false, isLoaded: false, typeDossier: "visites"});
+            tableDisplay.set("divcompleteListeAutres", {isDeployed: false, isLoaded: false, typeDossier: "autres"});
+
+            /**
+             * Charge les dossiers supplémentaires via AJAX
+             */
+            const loadData = (idelement) => {
+                if (!tableDisplay.get(idelement).isLoaded) {
+                    let newObjValue = tableDisplay.get(idelement);
+                    newObjValue.isLoaded = true;
+                    tableDisplay.set(idelement, newObjValue);
+
+                    $.ajax({
+                        url: "{{ path('etablissement_get_dossiers_after_n') }}",
+                        type: 'POST',
+                        data: {
+                            id: "{{ etablissement.id }}",
+                            typeDossier: tableDisplay.get(idelement).typeDossier
+                        },
+                        success: function (html) {
+                            $('#' + idelement).append(html);
+                        },
+                        error: function() {
+                            $.toast.error('Erreur lors du chargement des dossiers supplémentaires');
+                        }
+                    });
+                }
+            };
+
+            // Initialisation des boutons "Voir plus/Voir moins"
+            Array.from(document.getElementsByClassName('buttonOpenClose')).forEach(function(element) {
+                const divId = "div" + element.id;
+
+                // Masquer initialement les conteneurs de dossiers supplémentaires
+                $("#" + divId).hide();
+
+                // Gestionnaire de clic
+                element.addEventListener('click', () => {
+                    loadData(divId);
+
+                    let newObjValue = tableDisplay.get(divId);
+                    newObjValue.isDeployed = !newObjValue.isDeployed;
+                    tableDisplay.set(divId, newObjValue);
+
+                    // Toggle affichage
+                    if (tableDisplay.get(divId).isDeployed) {
+                        $("#" + divId).show();
+                        element.innerText = "Voir moins";
+                    } else {
+                        $("#" + divId).hide();
+                        element.innerText = "Voir plus";
+                    }
+                });
+            });
+
+            // Affichage des dossiers enfants (comportement legacy conservé)
+            $(document).on("click", "ul.recherche_liste li.slide", function() {
+                var container = this;
+                if ($(this).hasClass("active")) {
+                    $(this).next().slideUp(400, function() {
+                        $(container).next().remove();
+                    });
+                    $(this).toggleClass("active");
+                } else {
+                    $(container).find(".load").show();
+                    $.post("{{ path('dossier_liste_enfants') }}", {parent: $(this).attr("id")}, function(html) {
+                        $(container).toggleClass("active").find(".load").hide();
+                        $(container).after("<li class='ui-helper-hidden' style='overflow: auto; height: auto;'>" + html + "</li>").next().slideDown();
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}
