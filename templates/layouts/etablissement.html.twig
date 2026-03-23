@@ -26,7 +26,7 @@
         </li>
 
         {% if etablissement.informations|last.genre.libelle != 'Site' %}
-            <li {% if app.request.get('_route') is same as('etablissement_textes_applicables') %}class="active"{% endif %}>
+            <li {% if app.request.get('_route') starts with 'etablissement_textes_applicables' %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_textes_applicables', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables

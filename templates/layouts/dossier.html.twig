@@ -28,7 +28,7 @@
 
         {# Type Étude, Natures Dérogation et Changement de DUS #}
         {% if dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') and dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_DESCRIPTIF') %}
-            <li {% if app.request.get('_route') is same as('dossier_descriptif') or app.request.get('_route') is same as('dossier_descriptif_edit') %}class="active"{% endif %}>
+            <li {% if app.request.get('_route') starts with 'dossier_descriptif' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_descriptif', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     Descriptif
@@ -42,7 +42,7 @@
 
         {# Étude, Visite et Groupe de visite #}
         {% if dossier.type.id in constant('App\\Constant\\DossierType::TYPES_PRINCIPAUX') %}
-            <li>
+            <li {% if app.request.get('_route') starts with 'dossier_textes_applicables' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_textes_applicables', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables

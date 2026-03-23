@@ -522,7 +522,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->join('d.textesApplicables', 'dta')
             ->join('dta.type', 'tta')
             ->where('d.id = :id')
-            ->orderBy('dta.type', 'ASC')
+            ->orderBy('tta.id', 'ASC')
+            ->addOrderBy('dta.num', 'ASC')
             ->setParameter('id', $dossierId)
             ->getQuery();
 

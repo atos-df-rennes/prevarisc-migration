@@ -12,11 +12,13 @@ use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\Dossier\DossierDescriptifType;
+use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierAffectationRepository;
+use App\Repository\DossierRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
@@ -135,6 +137,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DossierService */
     private $dossierService;
 
+    /** @var \App\Repository\DossierRepository */
+    private $dossierRepository;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -155,7 +160,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         AlerteService $alerteService,
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator,
-        DossierService $dossierService
+        DossierService $dossierService,
+        DossierRepository $dossierRepository
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -177,6 +183,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->logger = $logger;
         $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
+        $this->dossierRepository = $dossierRepository;
     }
 
     /**
@@ -599,12 +606,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function textesApplicables(Dossier $dossier): Response
     {
-        $textesApplicablesData = [];
-        if (null !== $dossier->getId()) {
-            $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
-        }
+        $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
 
-        return $this->render('dossier/textes_applicables.html.twig', [
+        return $this->render('dossier/textes_applicables/textes_applicables.html.twig', [
             'dossier' => $dossier,
             'textesApplicables' => $textesApplicablesData,
         ]);
@@ -617,14 +621,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
-        // @fixme: Créer un formulaire spécifique et retirer les options inutiles
-        $form = $this->createForm(DossierType::class, $dossier, [
-            'is_edit' => true,
-            'edit_textes_applicables' => true,
-        ]);
+        // Pré-charge les relations
+        $this->dossierRepository->getTextesApplicablesByType($dossier->getId());
+        $form = $this->createForm(DossierTextesApplicablesType::class, $dossier);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
 
@@ -633,8 +634,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_textes_applicables', ['id' => $dossier->getId()]);
         }
 
-        // @fixme: Le template n'existe pas ???
-        return $this->render('dossier/edit_textes_applicables.html.twig', [
+        return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
         ]);

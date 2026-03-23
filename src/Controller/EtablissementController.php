@@ -280,8 +280,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function editTextesApplicables(Request $request, Etablissement $etablissement): Response
     {
-        $textesApplicablesEtablissementData = $this->etablissementRepository->getTextesApplicablesByType($etablissement->getId());
-        $form = $this->createForm(TextesApplicablesEtablissementType::class, $textesApplicablesEtablissementData);
+        $this->etablissementRepository->getTextesApplicablesByType($etablissement->getId());
+        $form = $this->createForm(TextesApplicablesEtablissementType::class, $etablissement);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
