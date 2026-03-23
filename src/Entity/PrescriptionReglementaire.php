@@ -121,8 +121,6 @@ class PrescriptionReglementaire
             $this->associations->add($association);
         }
 
-        $this->associations = $associations;
-
         return $this;
     }
 

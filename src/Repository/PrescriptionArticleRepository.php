@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\PrescriptionArticle;
+use App\Entity\PrescriptionTexte;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -58,6 +59,16 @@ class PrescriptionArticleRepository extends ServiceEntityRepository
         $qb->select('max(article.numero)');
 
         return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Retourne les articles d'un texte, ordonnés par numéro.
+     *
+     * @return PrescriptionArticle[]
+     */
+    public function findByTexte(PrescriptionTexte $texte): array
+    {
+        return $this->findBy(['texte' => $texte], ['numero' => 'ASC']);
     }
 
     /**

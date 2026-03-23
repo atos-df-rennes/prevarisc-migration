@@ -1,0 +1,77 @@
+{#
+    Contenu de la modale "Ajouter une prescription type".
+    Variables attendues :
+    - dossier    : Dossier
+    - categories : PrescriptionCategorie[]
+#}
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">Ajouter une prescription type</h4>
+        </div>
+
+        <div class="modal-body">
+            {# Sélection du type de prescription cible #}
+            <div class="form-group">
+                <label for="typePrescriptionDossier">Cette prescription est :</label>
+                <select id="typePrescriptionDossier" name="typePrescriptionDossier" class="form-control modal__select--type-prescription">
+                    <option value="0">Rappels réglementaires</option>
+                    <option value="1">Liée à l'exploitation</option>
+                    <option value="2">Liée à l'amélioration</option>
+                </select>
+            </div>
+
+            <hr>
+
+            {# Boutons de mode de recherche #}
+            <div class="btn-group mb-3" role="group">
+                <button id="btn-mode-classement" type="button" class="btn btn-default active">
+                    Rechercher par classement
+                </button>
+                <button id="btn-mode-motscles" type="button" class="btn btn-default">
+                    Rechercher par mots-clés
+                </button>
+            </div>
+
+            {# Zone de recherche par mots-clés (masquée par défaut) #}
+            <div id="zone-motscles" class="hidden mb-3">
+                <div class="input-group" style="max-width: 600px;">
+                    <input
+                        type="text"
+                        id="inputMotsCles"
+                        class="form-control"
+                        placeholder="Saisissez un ou plusieurs mots-clés séparés d'un espace"
+                    >
+                    <span class="input-group-btn">
+                        <button id="btn-recherche-motscles" type="button" class="btn btn-default">
+                            Rechercher
+                        </button>
+                    </span>
+                </div>
+            </div>
+
+            {# Zone de navigation par classement #}
+            <div id="zone-classement">
+                {# Navigation hiérarchique (chargée au démarrage) #}
+                <div id="selectEmplacement">
+                    {{ include('dossier/prescriptions/_emplacement_navigation.html.twig', {
+                        dossier: dossier,
+                        niveau: 'categories',
+                        categories: categories,
+                        prescriptionsTypes: prescriptionsTypesInitiales,
+                    }) }}
+                </div>
+            </div>
+
+            {# Liste des résultats mots-clés (masquée par défaut) #}
+            <ul id="listePrescriptionTypeSearch" class="list-unstyled hidden mt-3"></ul>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+        </div>
+    </div>
+</div>

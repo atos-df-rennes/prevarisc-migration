@@ -6,3 +6,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.label--prescription-reprise {
+  display: inline-block;
+  text-align: inherit;
+}

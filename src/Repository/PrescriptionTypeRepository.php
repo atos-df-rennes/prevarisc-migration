@@ -48,6 +48,72 @@ class PrescriptionTypeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne les prescriptions types correspondant exactement au niveau de classement donné.
+     * La valeur 0 signifie "non rattaché à ce niveau" et est filtrée explicitement.
+     *
+     * Exemples :
+     * - findByClassement(0, 0, 0) → prescriptions rattachées à la racine
+     * - findByClassement(3, 0, 0) → prescriptions rattachées à la catégorie 3
+     * - findByClassement(3, 7, 0) → prescriptions rattachées au texte 7 de la catégorie 3
+     * - findByClassement(3, 7, 2) → prescriptions rattachées à l'article 2 du texte 7
+     *
+     * @return PrescriptionType[]
+     */
+    public function findByClassement(int $categorieId, int $texteId, int $articleId): array
+    {
+        return $this->createQueryBuilder('pt')
+            ->where('pt.categorie = :categorie')
+            ->andWhere('pt.texte = :texte')
+            ->andWhere('pt.article = :article')
+            ->setParameter('categorie', $categorieId)
+            ->setParameter('texte', $texteId)
+            ->setParameter('article', $articleId)
+            ->orderBy('pt.numero', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Recherche des prescriptions types par mots-clés.
+     * La recherche porte sur le libellé de la prescription, les textes et les articles associés.
+     *
+     * @param string[] $motsCles
+     *
+     * @return PrescriptionType[]
+     */
+    public function findByMotsCles(array $motsCles): array
+    {
+        if ([] === $motsCles) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('pt')
+            ->leftJoin('pt.associations', 'pta')
+            ->leftJoin('pta.texte', 'ptl')
+            ->leftJoin('pta.article', 'pal')
+            ->distinct();
+
+        foreach ($motsCles as $index => $mot) {
+            $paramLibelle = 'libelle_'.$index;
+            $paramTexte = 'texte_'.$index;
+            $paramArticle = 'article_'.$index;
+
+            $qb->orWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->like('pt.libelle', ':'.$paramLibelle),
+                    $qb->expr()->like('ptl.libelle', ':'.$paramTexte),
+                    $qb->expr()->like('pal.libelle', ':'.$paramArticle)
+                )
+            )
+            ->setParameter($paramLibelle, '%'.$mot.'%')
+            ->setParameter($paramTexte, '%'.$mot.'%')
+            ->setParameter($paramArticle, '%'.$mot.'%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * @todo: il faudrait idéalement avoir l'id de la catégorie, du texte et de l'article
      * pour aligner les identifiants d'un même groupe.
      *
