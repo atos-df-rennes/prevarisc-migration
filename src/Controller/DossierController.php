@@ -137,7 +137,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DossierService */
     private $dossierService;
 
-    /** @var \App\Repository\DossierRepository */
+    /** @var DossierRepository */
     private $dossierRepository;
 
     public function __construct(
@@ -629,6 +629,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         if (null !== $dossier->getId()) {
             $this->dossierRepository->getTextesApplicablesByType($dossier->getId());
         }
+
         $form = $this->createForm(DossierTextesApplicablesType::class, $dossier);
 
         $form->handleRequest($request);
