@@ -7,7 +7,7 @@
 {% block body %}
     {# @todo: Mieux de mettre le titre avant le bouton je pense mais à généraliser à tous les écrans #}
     <div class='action-buttons pull-right'>
-        <a class='btn btn-default' href="{{ path('edit_dossier_textes_applicables', {id: dossier.id}) }}">Modifier les textes applicables</a>
+        <a class='btn btn-default' href="{{ path('dossier_textes_applicables_edit', {id: dossier.id}) }}">Modifier les textes applicables</a>
     </div>
 
     <div class="clearfix"></div>
@@ -17,7 +17,7 @@
     {% if dossier.textesApplicables|length == 0 %}
         <div class='well well-large text-center'>
             <p class='lead'>Il n'y a pas de texte applicable.</p>
-            <p><a href='{{ path('edit_dossier_textes_applicables', {id: dossier.id}) }}' class='btn btn-default btn-large'>Gérer les textes applicables</a></p>
+            <p><a href='{{ path('dossier_textes_applicables_edit', {id: dossier.id}) }}' class='btn btn-default btn-large'>Gérer les textes applicables</a></p>
         </div>
     {% else %}
         <div>

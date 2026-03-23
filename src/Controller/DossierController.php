@@ -619,7 +619,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     }
 
     /**
-     * @Route("/dossier/{id}/textes-applicables/modifier", name="edit_dossier_textes_applicables", methods={"GET", "POST"})
+     * @Route("/dossier/{id}/textes-applicables/modifier", name="dossier_textes_applicables_edit", methods={"GET", "POST"})
      *
      * @IsGranted("edit_doss", subject="dossier")
      */
