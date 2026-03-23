@@ -8,8 +8,6 @@ use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -364,24 +362,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
-     * @throws NoResultException
-     * @throws NonUniqueResultException
-     */
-    private function hasTravaux(Dossier $dossier, array $natures): bool
-    {
-        $qb = $this->createQueryBuilder('d');
-        $query = $qb->select('COUNT(dl.id)')
-            ->leftjoin('d.dossiersLies', 'dl')
-            ->join('dl.nature', 'dln')
-            ->where('dln.id in (:natures)')
-            ->andWhere('d.id = :idDossier')
-            ->setParameter('natures', $natures)
-            ->setParameter('idDossier', $dossier->getId());
-
-        return $query->getQuery()->getSingleScalarResult() > 0;
-    }
-
-    /**
      * @return array<Dossier>
      */
     public function getDossiersEnfants(int $parentId): array
@@ -531,5 +511,22 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         return $map;
+    }
+
+    public function getTextesApplicablesByType(int $dossierId): ?Dossier
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $query = $queryBuilder
+            ->addSelect('dta')
+            ->addSelect('tta')
+            ->join('d.textesApplicables', 'dta')
+            ->join('dta.type', 'tta')
+            ->where('d.id = :id')
+            ->orderBy('tta.id', 'ASC')
+            ->addOrderBy('dta.num', 'ASC')
+            ->setParameter('id', $dossierId)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
     }
 }

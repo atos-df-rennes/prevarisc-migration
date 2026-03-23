@@ -11,17 +11,20 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
-use App\Form\DossierDescriptifType;
-use App\Form\DossierType;
+use App\Form\Dossier\DossierDescriptifType;
+use App\Form\Dossier\DossierTextesApplicablesType;
+use App\Form\Dossier\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Repository\DossierAffectationRepository;
+use App\Repository\DossierRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
+use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierDonnantAvisService;
@@ -131,6 +134,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     private $urlGenerator;
 
+    /** @var DossierService */
+    private $dossierService;
+
+    /** @var DossierRepository */
+    private $dossierRepository;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -150,7 +159,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierDonnantAvisService $dossierDonnantAvisService,
         AlerteService $alerteService,
         LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        DossierService $dossierService,
+        DossierRepository $dossierRepository
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -171,6 +182,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->alerteService = $alerteService;
         $this->logger = $logger;
         $this->urlGenerator = $urlGenerator;
+        $this->dossierService = $dossierService;
+        $this->dossierRepository = $dossierRepository;
     }
 
     /**
@@ -581,6 +594,54 @@ class DossierController extends AbstractController implements DossierLateralNavi
         }
 
         return $this->render('dossier/descriptif/edit_descriptif.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/textes-applicables", name="dossier_textes_applicables", methods={"GET"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function textesApplicables(Dossier $dossier): Response
+    {
+        $textesApplicablesData = [];
+
+        if (null !== $dossier->getId()) {
+            $textesApplicablesData = $this->dossierService->getTextesApplicables($dossier->getId());
+        }
+
+        return $this->render('dossier/textes_applicables/textes_applicables.html.twig', [
+            'dossier' => $dossier,
+            'textesApplicables' => $textesApplicablesData,
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/textes-applicables/modifier", name="dossier_textes_applicables_edit", methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function editTextesApplicables(Request $request, Dossier $dossier): Response
+    {
+        // Pré-charge les relations
+        if (null !== $dossier->getId()) {
+            $this->dossierRepository->getTextesApplicablesByType($dossier->getId());
+        }
+
+        $form = $this->createForm(DossierTextesApplicablesType::class, $dossier);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Les textes applicables ont été mis à jour avec succès.');
+
+            return $this->redirectToRoute('dossier_textes_applicables', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
         ]);

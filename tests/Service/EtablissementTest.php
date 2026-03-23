@@ -10,6 +10,7 @@ use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Etablissement;
+use App\Service\TexteApplicable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -29,6 +30,7 @@ final class EtablissementTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $datastoreLogger = $this->createMock(LoggerInterface::class);
         $logger = $this->createMock(LoggerInterface::class);
+        $texteApplicableService = $this->createMock(TexteApplicable::class);
 
         // Construire les mocks de dossiers à partir des paramètres
         $dossiersData = [];
@@ -50,7 +52,8 @@ final class EtablissementTest extends TestCase
             $parameterBag,
             $entityManager,
             $datastoreLogger,
-            $logger
+            $logger,
+            $texteApplicableService
         );
 
         $result = $service->getLastAvisLibelle(1);
