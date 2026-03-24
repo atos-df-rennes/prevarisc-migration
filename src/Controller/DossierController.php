@@ -4,10 +4,7 @@ namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
-use App\Constant\StatutEtablissement;
-use App\Constant\TypeChangement;
 use App\Controller\Contract\DossierLateralNavigationInterface;
-use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
@@ -23,13 +20,12 @@ use App\Repository\DossierRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
-use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierCreationService;
-use App\Service\Dossier\DossierDonnantAvisService;
+use App\Service\Dossier\DossierSauvegardeService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -43,7 +39,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
@@ -117,34 +112,21 @@ class DossierController extends AbstractController implements DossierLateralNavi
     private $dossierAffectationRepository;
 
     /**
-     * @var DossierDonnantAvisService
-     */
-    private $dossierDonnantAvisService;
-
-    /**
-     * @var AlerteService
-     */
-    private $alerteService;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
 
     /** @var DossierService */
     private $dossierService;
 
     /** @var DossierRepository */
     private $dossierRepository;
-    /**
-     * @var DossierCreationService
-     */
+
+    /** @var DossierCreationService */
     private $dossierCreationService;
+
+    /** @var DossierSauvegardeService */
+    private $dossierSauvegardeService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -162,13 +144,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
         PieceJointeExportService $pieceJointeExportService,
         DossierAffectationService $dossierAffectationService,
         DossierAffectationRepository $dossierAffectationRepository,
-        DossierDonnantAvisService $dossierDonnantAvisService,
-        AlerteService $alerteService,
         LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
         DossierRepository $dossierRepository,
-        DossierCreationService $dossierCreationService
+        DossierCreationService $dossierCreationService,
+        DossierSauvegardeService $dossierSauvegardeService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -185,13 +165,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->pieceJointeExportService = $pieceJointeExportService;
         $this->dossierAffectationService = $dossierAffectationService;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
-        $this->alerteService = $alerteService;
         $this->logger = $logger;
-        $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
         $this->dossierCreationService = $dossierCreationService;
+        $this->dossierSauvegardeService = $dossierSauvegardeService;
     }
 
     /**
@@ -252,6 +230,15 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $user = $this->getUser();
         $dossier->setCreateur($user);
 
+        // Capturer l'avis actuel de l'établissement avant toute modification (détection de changement)
+        $anciensAvis = [];
+        if (null !== $etablissement) {
+            $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+            $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
+                ? $dossierDonnantAvis->getAvisCommission()
+                : null;
+        }
+
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => false,
         ]);
@@ -289,96 +276,19 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
                 $this->entityManager->flush();
 
-                // Dossier donnant avis : gestion affectation
-                /** @var int[] $etablissementsIds */
-                $etablissementsIds = [];
-
+                // Dossier donnant avis : pas de désaffectation possible en création
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
-
-                if ($dossier->donneAvis()) {
-                    $etablissementsIds = $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
-                }
+                $etablissementsIds = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis);
 
                 $this->entityManager->flush();
                 $this->entityManager->commit();
 
-                // Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
-                $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
-                $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
-
-                if (
-                    \App\Constant\Avis::FAVORABLE === $avisCommission
-                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true)
-                ) {
-                    foreach ($dossier->getEtablissements() as $etab) {
-                        $informations = $etab->getLatestInformations();
-                        $statut = $informations->getStatut();
-
-                        if ($statut && StatutEtablissement::PROJET === $statut->getId()) {
-                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etab->getId();
-
-                            $informationsEtablissement = $this->urlGenerator->generate(
-                                'etablissement_informations',
-                                ['id' => $etab->getId()],
-                                UrlGeneratorInterface::ABSOLUTE_URL
-                            );
-
-                            $this->addFlash('warning', sprintf(
-                                '<strong>Avertissement</strong><br>'.
-                                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
-                                '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
-                                $informationsEtablissement,
-                                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
-                            ));
-                        }
-                    }
-                }
-
-                // Alertes email si changement d'avis (flash messages)
-                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
-                    foreach ($dossier->getEtablissements() as $etab) {
-                        $etablissementId = $etab->getId();
-
-                        if (!in_array($etablissementId, $etablissementsIds, true)) {
-                            continue;
-                        }
-
-                        $dossierDonnantAvis = $etab->getDossierDonnantAvis();
-                        // @fixme: il faut récupérer le dernier avis de l'établissement passé en paramètre pour reproduire la logique du edit.
-                        $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
-
-                        $informations = $etab->getLatestInformations();
-                        $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
-
-                        $lienAlerter = $this->alerteService->getLink(
-                            TypeChangement::AVIS,
-                            $etablissementId
-                        );
-
-                        $this->addFlash('success', sprintf(
-                            '<p>L\'établissement %s a bien été mis à jour.</p>%s',
-                            $libelle,
-                            $lienAlerter
-                        ));
-                    }
-                }
+                $this->dossierSauvegardeService->genererAlertesVAO($dossier);
+                $this->dossierSauvegardeService->genererAlertesEmailAvis($dossier, $etablissementsIds, $anciensAvis, $mailEnabled);
 
                 $this->addFlash('success', 'Le dossier a été créé avec succès.');
 
-                if ([] !== $etablissementsIds) {
-                    $etablissementsJson = json_encode($etablissementsIds);
-                    if (false === $etablissementsJson) {
-                        throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
-                    }
-
-                    return $this->redirect(sprintf(
-                        '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
-                        $dossier->getId(),
-                        urlencode($etablissementsJson)
-                    ));
-                }
-
-                return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+                return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
             } catch (\Exception $e) {
                 $this->entityManager->rollback();
 
@@ -522,23 +432,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     $idAffectationVisite ? (int) $idAffectationVisite : null
                 );
 
-                // Dossier donnant avis : gestion affectation/désaffectation
-                // Récupérer la valeur de la checkbox repercuterAvis
+                // Dossier donnant avis : gestion affectation/désaffectation selon changement de nature
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
-
-                // Liste des IDs établissements modifiés (pour vidage cache legacy)
-                /** @var int[] $etablissementsIds */
-                $etablissementsIds = [];
-
-                // Cas 1 : Nouvelle nature donne avis → Affectation
-                if ($dossier->donneAvis()) {
-                    $etablissementsIds = $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
-                }
-                // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
-                // Note : Le elseif garantit qu'on ne passe ici QUE si nouvelle nature ne donne PAS avis
-                elseif (null !== $ancienneNature) {
-                    $etablissementsIds = $this->dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
-                }
+                $etablissementsIds = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis, $ancienneNature);
 
                 // Persist et flush toutes les modifications
                 $this->entityManager->persist($dossier);
@@ -547,89 +443,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 // Commit transaction
                 $this->entityManager->commit();
 
-                // Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
-                $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
-                $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
+                $this->dossierSauvegardeService->genererAlertesVAO($dossier);
+                $this->dossierSauvegardeService->genererAlertesEmailAvis($dossier, $etablissementsIds, $anciensAvis, $mailEnabled);
 
-                if (
-                    \App\Constant\Avis::FAVORABLE === $avisCommission
-                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true)
-                ) {
-                    foreach ($dossier->getEtablissements() as $etablissement) {
-                        $informations = $etablissement->getLatestInformations();
-                        $statut = $informations->getStatut();
-
-                        if ($statut && StatutEtablissement::PROJET === $statut->getId()) {
-                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
-
-                            $informationsEtablissement = $this->urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-                            $this->addFlash('warning', sprintf(
-                                '<strong>Avertissement</strong><br>'.
-                                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
-                                '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
-                                $informationsEtablissement,
-                                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
-                            ));
-                        }
-                    }
-                }
-
-                // Alertes email si changement d'avis (flash messages)
-                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
-                    // Vérifier pour chaque établissement modifié si l'avis a changé
-                    foreach ($dossier->getEtablissements() as $etablissement) {
-                        $etablissementId = $etablissement->getId();
-
-                        // Uniquement établissements qui ont été modifiés par affectation
-                        if (!in_array($etablissementId, $etablissementsIds, true)) {
-                            continue;
-                        }
-
-                        // Récupérer nouvel avis
-                        $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
-                        $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
-
-                        // Comparer avec ancien avis
-                        $ancienAvis = $anciensAvis[$etablissementId] ?? null;
-
-                        // Si avis a changé, ajouter flash avec lien "Alerter"
-                        if ($ancienAvis !== $nouvelAvis) {
-                            $informations = $etablissement->getLatestInformations();
-                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
-
-                            $lienAlerter = $this->alerteService->getLink(
-                                TypeChangement::AVIS,
-                                $etablissementId
-                            );
-
-                            $this->addFlash('success', sprintf(
-                                '<p>L\'établissement %s a bien été mis à jour.</p>%s',
-                                $libelle,
-                                $lienAlerter
-                            ));
-                        }
-                    }
-                }
-
-                // Redirect vers legacy pour vidage cache établissements (si modifications)
                 $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
 
-                if ([] !== $etablissementsIds) {
-                    // Rediriger vers route legacy pour vidage cache + redirect Symfony
-                    $etablissementsJson = json_encode($etablissementsIds);
-                    if (false === $etablissementsJson) {
-                        throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
-                    }
-
-                    return $this->redirect(sprintf(
-                        '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
-                        $dossier->getId(),
-                        urlencode($etablissementsJson)
-                    ));
-                }
-
-                // Cas sans modification établissements : redirect direct vers page dossier
-                return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+                return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
             } catch (\Exception $e) {
                 // Rollback en cas d'erreur
                 $this->entityManager->rollback();

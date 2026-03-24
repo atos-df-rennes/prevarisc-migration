@@ -51,7 +51,7 @@ class DossierCreationService
      * Copie uniquement les contacts avec des fonctions spécifiques.
      * Non exécuté pour les natures sans contacts (NATURES_SANS_CONTACTS).
      */
-    public function copierContactsEtablissement(Dossier $dossier, Etablissement $etablissement): void
+    private function copierContactsEtablissement(Dossier $dossier, Etablissement $etablissement): void
     {
         $nature = $dossier->getNature();
 
@@ -77,7 +77,7 @@ class DossierCreationService
     /**
      * Copie les textes applicables de l'établissement vers le dossier.
      */
-    public function copierTextesApplicables(Dossier $dossier, Etablissement $etablissement): void
+    private function copierTextesApplicables(Dossier $dossier, Etablissement $etablissement): void
     {
         $nature = $dossier->getNature();
 
@@ -118,7 +118,7 @@ class DossierCreationService
      *
      * Copie les DossierDocumentConsulte et les ListeDocumentAjoute.
      */
-    public function copierDocumentsDerniereVP(Dossier $dossier, Etablissement $etablissement): void
+    private function copierDocumentsDerniereVP(Dossier $dossier, Etablissement $etablissement): void
     {
         $nature = $dossier->getNature();
 
@@ -139,9 +139,11 @@ class DossierCreationService
             if (null === $reference) {
                 continue;
             }
+
             if (null === $date) {
                 continue;
             }
+
             if (null === $consulte) {
                 continue;
             }
