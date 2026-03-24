@@ -2,8 +2,8 @@
 
 {% block content %}
     <div class='container-fluid'>
-        <div class='row'>
-            <div class='col-xs-2 sidebar mainsidebar' style="padding-top: 70px;">
+        <div class='row container-fluid--content-wraper'>
+            <div class='col-xs-2 sidebar'>
                 {{ avatar(app.user.id, constant('App\\Service\\Avatar::MEDIUM_DIRECTORY'), 'float: left; width: 50px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px;') }}
 
                 <p style="line-height:15px">
@@ -47,10 +47,4 @@
             <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
         </button>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            $(".sidebar").css('height', $(document).height() + 'px');
-        });
-    </script>
 {% endblock %}
