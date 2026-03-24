@@ -621,4 +621,26 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
     }
+
+    /**
+     * Trouve la dernière visite périodique (nature 21 ou 26) d'un établissement.
+     *
+     * Utilisée lors de la création d'un nouveau dossier VP pour copier les documents
+     * consultés et ajoutés de la visite précédente.
+     */
+    public function findDerniereVP(Etablissement $etablissement): ?Dossier
+    {
+        return $this->createQueryBuilder('d')
+            ->join('d.etablissements', 'e')
+            ->join('d.nature', 'n')
+            ->where('e.id = :idEtablissement')
+            ->andWhere('n.id IN (:natures)')
+            ->setParameter('idEtablissement', $etablissement->getId())
+            ->setParameter('natures', [21, 26])
+            ->orderBy('d.dateVisite', 'DESC')
+            ->addOrderBy('d.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

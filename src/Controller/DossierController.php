@@ -27,6 +27,7 @@ use App\Service\Commission\DateCommission;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
+use App\Service\Dossier\DossierCreationService;
 use App\Service\Dossier\DossierDonnantAvisService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
@@ -139,6 +140,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     /** @var DossierRepository */
     private $dossierRepository;
+    /**
+     * @var DossierCreationService
+     */
+    private $dossierCreationService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -161,7 +166,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
-        DossierRepository $dossierRepository
+        DossierRepository $dossierRepository,
+        DossierCreationService $dossierCreationService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -184,6 +190,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
+        $this->dossierCreationService = $dossierCreationService;
     }
 
     /**
@@ -211,6 +218,208 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'afficher_avis' => $afficherAvis,
             'platau' => $platauData,
             'datesCommissionLiees' => $datesCommissionLiees,
+        ]);
+    }
+
+    /**
+     * Création d'un nouveau dossier.
+     *
+     * L'établissement est optionnel : /dossier/ajouter?etablissement=42
+     *
+     * @Route("/dossier/ajouter", name="dossier_new", methods={"GET", "POST"})
+     *
+     * @IsGranted("add_dossier")
+     */
+    public function new(
+        Request $request,
+        bool $mailEnabled
+    ): Response {
+        $dossier = new Dossier();
+
+        // Récupération de l'établissement si passé en query param
+        $idEtablissement = $request->query->getInt('etablissement', 0);
+        $etablissement = $idEtablissement > 0
+            ? $this->etablissementRepository->find($idEtablissement)
+            : null;
+
+        if (null !== $etablissement) {
+            $dossier->addEtablissement($etablissement);
+        }
+
+        // Définir le créateur (utilisateur connecté)
+        /** @var Utilisateur $user */
+        $user = $this->getUser();
+        $dossier->setCreateur($user);
+
+        $form = $this->createForm(DossierType::class, $dossier, [
+            'is_edit' => false,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->beginTransaction();
+
+            try {
+                // Affectations commissions/visites + dénormalisation dates
+                /** @var string|null $idAffectationCommission */
+                $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
+                /** @var string|null $idAffectationVisite */
+                $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+
+                // Persist du dossier avant les opérations dépendantes de l'ID
+                $this->entityManager->persist($dossier);
+                $this->entityManager->flush();
+
+                // Gestion des affectations commission/visite
+                $this->dossierAffectationService->gererAffectations(
+                    $dossier,
+                    $idAffectationCommission ? (int) $idAffectationCommission : null,
+                    $idAffectationVisite ? (int) $idAffectationVisite : null
+                );
+
+                // Opérations d'initialisation spécifiques à la création
+                if (null !== $etablissement) {
+                    $this->dossierCreationService->initialiserDepuisEtablissement($dossier, $etablissement);
+                }
+
+                $this->dossierCreationService->creerDocumentsAttestationLevee($dossier);
+                $this->dossierCreationService->initialiserPrescriptionsReglementaires($dossier);
+
+                $this->entityManager->flush();
+
+                // Dossier donnant avis : gestion affectation
+                /** @var int[] $etablissementsIds */
+                $etablissementsIds = [];
+
+                $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
+
+                if ($dossier->donneAvis()) {
+                    $etablissementsIds = $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
+                }
+
+                $this->entityManager->flush();
+                $this->entityManager->commit();
+
+                // Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
+                $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
+                $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
+
+                if (
+                    1 === $avisCommission
+                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true)
+                ) {
+                    foreach ($dossier->getEtablissements() as $etab) {
+                        $informations = $etab->getLatestInformations();
+                        $statut = $informations->getStatut();
+
+                        if ($statut && 1 === $statut->getId()) {
+                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etab->getId();
+
+                            $informationsEtablissement = $this->urlGenerator->generate(
+                                'etablissement_informations',
+                                ['id' => $etab->getId()],
+                                UrlGeneratorInterface::ABSOLUTE_URL
+                            );
+
+                            $this->addFlash('warning', sprintf(
+                                '<strong>Avertissement</strong><br>'.
+                                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
+                                '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
+                                $informationsEtablissement,
+                                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
+                            ));
+                        }
+                    }
+                }
+
+                // Alertes email si changement d'avis (flash messages)
+                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
+                    foreach ($dossier->getEtablissements() as $etab) {
+                        $etablissementId = $etab->getId();
+
+                        if (!in_array($etablissementId, $etablissementsIds, true)) {
+                            continue;
+                        }
+
+                        $dossierDonnantAvis = $etab->getDossierDonnantAvis();
+                        $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
+
+                        $informations = $etab->getLatestInformations();
+                        $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
+
+                        $lienAlerter = $this->alerteService->getLink(
+                            TypeChangement::AVIS,
+                            $etablissementId
+                        );
+
+                        $this->addFlash('success', sprintf(
+                            '<p>L\'établissement %s a bien été mis à jour.</p>%s',
+                            $libelle,
+                            $lienAlerter
+                        ));
+                    }
+                }
+
+                $this->addFlash('success', 'Le dossier a été créé avec succès.');
+
+                if ([] !== $etablissementsIds) {
+                    $etablissementsJson = json_encode($etablissementsIds);
+                    if (false === $etablissementsJson) {
+                        throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
+                    }
+
+                    return $this->redirect(sprintf(
+                        '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
+                        $dossier->getId(),
+                        urlencode($etablissementsJson)
+                    ));
+                }
+
+                return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+            } catch (\Exception $e) {
+                $this->entityManager->rollback();
+
+                $this->logger->error('Erreur lors de la création du dossier', [
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                $this->addFlash('danger', 'Une erreur est survenue lors de la création du dossier. Veuillez réessayer ou contacter le service informatique.');
+            }
+        }
+
+        // Données nécessaires à l'affichage du formulaire
+        $dossierTypes = $this->dossierTypeRepository->findAll();
+        $avis = $this->avisRepository->findAll();
+
+        $commissionsParType = [];
+        foreach ($this->commissionTypeRepository->findAll() as $type) {
+            $commissionsParType[$type->getId()] = [
+                'libelle' => $type->getLibelle(),
+                'commissions' => $this->commissionRepository->findBy(['type' => $type]),
+            ];
+        }
+
+        $fieldsConfig = json_encode($this->dossierFieldsService->getAllFieldsByNature());
+
+        $enteteEtab = $etablissement;
+        $lastAvisEtab = '';
+
+        if (null !== $etablissement) {
+            $lastAvisEtab = $this->etablissementService->getLastAvisLibelle($etablissement->getId());
+        }
+
+        return $this->render('dossier/new.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+            'dossierTypes' => $dossierTypes,
+            'avis' => $avis,
+            'commissionsParType' => $commissionsParType,
+            'etablissement' => $etablissement,
+            'enteteEtab' => $enteteEtab,
+            'lastAvisEtab' => $lastAvisEtab,
+            'fieldsConfig' => $fieldsConfig,
         ]);
     }
 

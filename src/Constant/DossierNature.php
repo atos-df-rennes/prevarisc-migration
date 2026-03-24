@@ -51,6 +51,27 @@ final class DossierNature
     public const NATURES_ALERTE_RECEPTION_TRAVAUX = [1, 2, 12, 13];
 
     /**
+     * Natures déclenchant la copie des textes applicables de l'établissement vers le dossier.
+     *
+     * @var int[]
+     */
+    public const NATURES_COPIE_TEXTES_APPLICABLES = [21, 22, 24, 26, 27, 29];
+
+    /**
+     * Natures "visite périodique" — déclenchent la copie des documents de la dernière VP.
+     *
+     * @var int[]
+     */
+    public const VISITE_PERIODIQUE = [21, 26];
+
+    /**
+     * Natures "levée" (prescriptions ou avis définitif) — déclenchent la création de 5 docs "Attestation de".
+     *
+     * @var int[]
+     */
+    public const LEVEE = [7, 19];
+
+    /**
      * Empêche l'instanciation de la classe.
      */
     private function __construct()
