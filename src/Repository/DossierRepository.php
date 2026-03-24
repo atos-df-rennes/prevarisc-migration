@@ -636,7 +636,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->where('e.id = :idEtablissement')
             ->andWhere('n.id IN (:natures)')
             ->setParameter('idEtablissement', $etablissement->getId())
-            ->setParameter('natures', [21, 26])
+            ->setParameter('natures', DossierNature::VISITE_PERIODIQUE)
             ->orderBy('d.dateVisite', 'DESC')
             ->addOrderBy('d.id', 'DESC')
             ->setMaxResults(1)

@@ -3,6 +3,8 @@
 namespace App\Service\Dossier;
 
 use App\Constant\DossierNature;
+use App\Constant\DossierType;
+use App\Constant\Fonction;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
 use App\Entity\Etablissement;
@@ -46,8 +48,7 @@ class DossierCreationService
     /**
      * Copie les contacts pertinents de l'établissement vers le dossier.
      *
-     * Copie uniquement les contacts avec les fonctions : 7 (Resp. unique de sécu),
-     * 8 (Propriétaire), 9 (Exploitant), 17 (DUS).
+     * Copie uniquement les contacts avec des fonctions spécifiques.
      * Non exécuté pour les natures sans contacts (NATURES_SANS_CONTACTS).
      */
     public function copierContactsEtablissement(Dossier $dossier, Etablissement $etablissement): void
@@ -58,8 +59,6 @@ class DossierCreationService
             return;
         }
 
-        $fonctionsAcopier = [7, 8, 9, 17];
-
         foreach ($etablissement->getContacts() as $contact) {
             $fonction = $contact->getFonction();
 
@@ -67,7 +66,7 @@ class DossierCreationService
                 continue;
             }
 
-            if (!in_array($fonction->getId(), $fonctionsAcopier, true)) {
+            if (!in_array($fonction->getId(), Fonction::FONCTIONS_COPIE_CONTACTS, true)) {
                 continue;
             }
 
@@ -77,8 +76,6 @@ class DossierCreationService
 
     /**
      * Copie les textes applicables de l'établissement vers le dossier.
-     *
-     * Uniquement pour les natures de visite : 21, 22, 24, 26, 27, 29.
      */
     public function copierTextesApplicables(Dossier $dossier, Etablissement $etablissement): void
     {
@@ -120,7 +117,6 @@ class DossierCreationService
      * Copie les documents de la dernière visite périodique de l'établissement vers le nouveau dossier.
      *
      * Copie les DossierDocumentConsulte et les ListeDocumentAjoute.
-     * Uniquement pour les natures 21 (VP) et 26 (VP groupe).
      */
     public function copierDocumentsDerniereVP(Dossier $dossier, Etablissement $etablissement): void
     {
@@ -196,9 +192,9 @@ class DossierCreationService
 
         $typeId = $type->getId();
 
-        if (1 === $typeId) {
+        if (DossierType::ETUDE === $typeId) {
             $listePrescriptions = $this->prescriptions->getPrescriptions('etude', true);
-        } elseif (in_array($typeId, [2, 3], true)) {
+        } elseif (in_array($typeId, DossierType::TYPES_VISITE, true)) {
             $listePrescriptions = $this->prescriptions->getPrescriptions('visite', true);
         } else {
             return;

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
+use App\Constant\StatutEtablissement;
 use App\Constant\TypeChangement;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Avis;
@@ -306,14 +307,14 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
 
                 if (
-                    1 === $avisCommission
+                    \App\Constant\Avis::FAVORABLE === $avisCommission
                     && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true)
                 ) {
                     foreach ($dossier->getEtablissements() as $etab) {
                         $informations = $etab->getLatestInformations();
                         $statut = $informations->getStatut();
 
-                        if ($statut && 1 === $statut->getId()) {
+                        if ($statut && StatutEtablissement::PROJET === $statut->getId()) {
                             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etab->getId();
 
                             $informationsEtablissement = $this->urlGenerator->generate(
@@ -343,6 +344,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                         }
 
                         $dossierDonnantAvis = $etab->getDossierDonnantAvis();
+                        // @fixme: il faut récupérer le dernier avis de l'établissement passé en paramètre pour reproduire la logique du edit.
                         $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
 
                         $informations = $etab->getLatestInformations();
@@ -550,15 +552,14 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
 
                 if (
-                    1 === $avisCommission // Avis favorable
-                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true) // Nature 47 ou 48
+                    \App\Constant\Avis::FAVORABLE === $avisCommission
+                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true)
                 ) {
                     foreach ($dossier->getEtablissements() as $etablissement) {
                         $informations = $etablissement->getLatestInformations();
                         $statut = $informations->getStatut();
 
-                        // Si établissement en statut "Projet" (ID=1)
-                        if ($statut && 1 === $statut->getId()) {
+                        if ($statut && StatutEtablissement::PROJET === $statut->getId()) {
                             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
 
                             $informationsEtablissement = $this->urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);

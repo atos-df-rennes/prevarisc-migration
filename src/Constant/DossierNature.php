@@ -6,6 +6,8 @@ namespace App\Constant;
  * Constantes pour les natures de dossiers.
  *
  * Correspond à la table `dossiernatureliste` en base de données.
+ *
+ * @todo: Lister les natures utilisées (à ajouter en constantes) pour les référencer dans les tableaux.
  */
 final class DossierNature
 {
