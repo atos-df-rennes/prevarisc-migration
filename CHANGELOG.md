@@ -4,6 +4,39 @@
 
 <!--- END HEADER -->
 
+## [2.8.17](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.16...v2.8.17) (24-03-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+
+##### Rapports
+
+* Ajoute les avis et dérogations d'une cellule dans les données de l'établissement parent (#121) ([b94e74](https://github.com/atos-df-rennes/prevarisc-migration/commit/b94e74e0d3e1c69f35ccb0a320012b7573c7b562))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Dossier
+
+* Vérification du droit de verrouillage pour effectuer l'action (#125) ([63a5e7](https://github.com/atos-df-rennes/prevarisc-migration/commit/63a5e7274f5b288ba26a4835f786e7f4d09e24e3))
+
+##### Etablissement
+
+* Correction d'orthographe des libellés "Lycee" (#102) ([e1d0ee](https://github.com/atos-df-rennes/prevarisc-migration/commit/e1d0ee327d7edcc15e6b42be3f6c31f00eafc746))
+* Affiche correctement les pièces jointes avec le SimpleFileDataStore (#124) ([8453b9](https://github.com/atos-df-rennes/prevarisc-migration/commit/8453b95a6d4e9cb511aaef7c3820627562923448))
+
+##### Pieces-jointes
+
+* Chemin de stockage par défaut incorrect (#119) ([50bc5e](https://github.com/atos-df-rennes/prevarisc-migration/commit/50bc5e01b2be09bc346cdd9bd18f604d9d10bd63))
+
+##### Prescriptions
+
+* L'ajout d'une prescription type sur un texte se faisait sur la catégorie (#142) ([da39e7](https://github.com/atos-df-rennes/prevarisc-migration/commit/da39e7a429c923425e4802db2b1b664410f2ea32))
+* Permet l'ajout d'une prescription type à n'importe quel niveau de la hiérarchie (#120) ([a308e0](https://github.com/atos-df-rennes/prevarisc-migration/commit/a308e0bb0f590f33a7b36852c94764ee418f907f))
+
+
+---
+
 ## [2.8.15](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.14...v2.8.15) (20-02-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
