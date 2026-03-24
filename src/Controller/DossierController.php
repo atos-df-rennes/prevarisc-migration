@@ -226,7 +226,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * L'établissement est optionnel : /dossier/ajouter?etablissement=42
      *
-     * @Route("/dossier/ajouter", name="dossier_new", methods={"GET", "POST"})
+     * @Route("/dossier/ajouter", name="dossier_new", methods={"GET", "POST"}, defaults={"_dossier_lateral_nav": false})
      *
      * @IsGranted("add_dossier")
      */

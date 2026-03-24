@@ -86,9 +86,6 @@ class DossierType extends AbstractType
                     'rows' => 3,
                 ],
             ])
-            // Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés
-            // (gérés dans sections séparées ou obsolètes - voir docs/tech/découvertes)
-
             // Champs spécifiques études (natures 1, 2, etc.)
             ->add('documentsUrbanisme', CollectionType::class, [
                 'entry_type' => DossierDocumentUrbanismeType::class,
@@ -102,8 +99,6 @@ class DossierType extends AbstractType
                     'class' => 'documents-urbanisme-collection',
                 ],
             ])
-            // Champ numeroChronologique retiré (non présent dans l'entité)
-
             // Champs spécifiques dérogations (nature 3)
             ->add('justificationDerogation', TextareaType::class, [
                 'label' => 'Justification de la dérogation',
@@ -133,7 +128,6 @@ class DossierType extends AbstractType
                     'rows' => 3,
                 ],
             ])
-
             ->add('dateSecretariat', DateType::class, [
                 'label' => 'Date de réception secrétariat commission',
                 'widget' => 'single_text',
@@ -282,7 +276,6 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-
             // Champs spécifiques réunions (natures 31, 32, 43)
             ->add('demandeur', TextType::class, [
                 'label' => 'Demandeur',
@@ -320,7 +313,6 @@ class DossierType extends AbstractType
                 'label' => 'Chargé de sécurité (T)',
                 'required' => false,
             ])
-
             // Champs spécifiques interventions (natures 37, 38, 39)
             ->add('operationSdis', CheckboxType::class, [
                 'label' => 'Opération (intervention) SDIS',
@@ -354,7 +346,6 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-
             ->add('analyseDeRisque', TextareaType::class, [
                 'label' => 'Analyse de risque',
                 'required' => false,
@@ -362,7 +353,6 @@ class DossierType extends AbstractType
                     'rows' => 3,
                 ],
             ])
-
             // Champs spécifiques courriers (natures 49, 51, 52, 53, 54, 55)
             ->add('dateMairie', DateType::class, [
                 'label' => 'Date de réception mairie',
@@ -389,9 +379,7 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-
             // Champs spécifiques visites (natures 20-29)
-            // Note: coordonneesSsi retiré volontairement (jamais affiché dans le legacy)
             ->add('nePeutSePrononcer', CheckboxType::class, [
                 'label' => 'Ne peut se prononcer',
                 'required' => false,
@@ -404,7 +392,6 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-
             // Préventionnistes (multiselect avec AJAX)
             // Utilise 'choices' au lieu de 'query_builder' pour ne charger que les entités nécessaires
             // En création : tableau vide (AJAX uniquement)
@@ -420,31 +407,39 @@ class DossierType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'tomselect-ajax'],
             ])
-            // Pièces jointes exportables vers Plat'AU (multiselect avec checkboxes)
-            ->add('piecesJointesPlatau', EntityType::class, [
-                'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
-                'class' => PieceJointe::class,
-                'choices' => $this->getPiecesJointesExportables($options),
-                'choice_label' => function (PieceJointe $pieceJointe): string {
-                    return $pieceJointe->getNom().$pieceJointe->getExtension();
-                },
-                'multiple' => true,
-                'expanded' => true, // Affiche des checkboxes au lieu d'un select multiple
-                'required' => false,
-                'mapped' => false, // Non mappé sur l'entité Dossier
-            ])
-            // Champs hidden pour gérer les demandes de renvoi Plat'AU
-            // (UI uniquement, sauvegarde traitée dans un bloc ultérieur)
-            ->add('platauRetryPec', HiddenType::class, [
-                'mapped' => false,
-                'required' => false,
-                'data' => '0',
-            ])
-            ->add('platauRetryAvis', HiddenType::class, [
-                'mapped' => false,
-                'required' => false,
-                'data' => '0',
-            ]);
+        ;
+
+        if ($options['is_edit']) {
+            $builder
+                // Pièces jointes exportables vers Plat'AU (multiselect avec checkboxes)
+                ->add('piecesJointesPlatau', EntityType::class, [
+                    'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
+                    'class' => PieceJointe::class,
+                    'choices' => $this->getPiecesJointesExportables($options),
+                    'choice_label' => function(PieceJointe $pieceJointe): string {
+                        return $pieceJointe->getNom() . $pieceJointe->getExtension();
+                    },
+                    'multiple' => true,
+                    'expanded' => true,
+                    // Affiche des checkboxes au lieu d'un select multiple
+                    'required' => false,
+                    'mapped' => false,
+                    // Non mappé sur l'entité Dossier
+                ])
+                // Champs hidden pour gérer les demandes de renvoi Plat'AU
+                // (UI uniquement, sauvegarde traitée dans un bloc ultérieur)
+                ->add('platauRetryPec', HiddenType::class, [
+                    'mapped' => false,
+                    'required' => false,
+                    'data' => '0',
+                ])
+                ->add('platauRetryAvis', HiddenType::class, [
+                    'mapped' => false,
+                    'required' => false,
+                    'data' => '0',
+                ])
+            ;
+        }
 
         // Ajout du transformer pour dateCommission (stockée en string dd/mm/yyyy)
         $builder->get('dateCommission')->addModelTransformer(new DateCommissionTransformer());
