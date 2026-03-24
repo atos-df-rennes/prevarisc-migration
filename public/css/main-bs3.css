@@ -812,9 +812,10 @@ ul#gestionCommissionMenu li.active {
 .sidebar {
   background-color: #f4f4f4;
   display: inline-block;
-  min-height: 100%;
+  min-height: 100vh;
   box-shadow: inset -3px 0px 8px -4px rgba(0, 0, 0, 0.07);
   font-size: .85em;
+  padding-top: 70px;
 }
 
 .menu_dashboard a {
@@ -1350,4 +1351,9 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 
 .label-inverse {
     background-color: #333;
+}
+
+.container-fluid--content-wraper {
+    display: flex;
+    align-items: stretch;
 }
