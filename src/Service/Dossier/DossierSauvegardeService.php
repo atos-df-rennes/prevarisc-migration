@@ -92,6 +92,7 @@ class DossierSauvegardeService
             if (!$statut) {
                 continue;
             }
+
             if (StatutEtablissement::PROJET !== $statut->getId()) {
                 continue;
             }
@@ -162,15 +163,22 @@ class DossierSauvegardeService
     /**
      * Construit l'URL de redirection après sauvegarde d'un dossier.
      *
-     * Si des établissements ont été modifiés, renvoie vers le legacy pour vider leur cache.
-     * Sinon, renvoie directement vers la page du dossier.
+     * Passe toujours par le legacy pour vider le cache de recherche (cacheSearch).
+     * Si des établissements ont été modifiés, passe par la route de vidage de cache dossier
+     * qui gère en plus le cache de chaque établissement concerné.
+     * Sinon, passe par la route de vidage du cache de recherche seul.
      *
      * @param int[] $etablissementsIds IDs des établissements modifiés
      */
     public function construireUrlRedirection(Dossier $dossier, array $etablissementsIds): string
     {
         if ([] === $etablissementsIds) {
-            return $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
+            $target = $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
+
+            return sprintf(
+                '/legacy/admin/clear-search-cache-and-redirect?target=%s',
+                urlencode($target)
+            );
         }
 
         $etablissementsJson = json_encode($etablissementsIds);
