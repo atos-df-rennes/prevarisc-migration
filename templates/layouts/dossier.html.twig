@@ -98,7 +98,7 @@
             Utilisation exceptionnelle de locaux
         #}
         {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_PRESCRIPTIONS') %}
-            <li {% if app.request.get('_route')  starts with 'dossier_prescriptions' %}class="active"{% endif %}>
+            <li {% if app.request.get('_route') starts with 'dossier_prescriptions' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_prescriptions', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
                     Prescriptions
@@ -194,29 +194,31 @@
 {% endblock %}
 
 {% block body_structure %}
-    {% if dossier.id is not null %}
+    {% if dossier.id is not null or (etablissement is defined and etablissement is not null) %}
         <div id="ligne_informations">
             <h2 class='page-header'>
-                <p>
-                    <span>{{ dossier.type.libelle }}</span>
-
-                    {% if dossier.dateSuppression is not null %}
-                        <span class='label label-danger'>
-                            DOSSIER SUPPRIME
-                        </span>
-                    {% endif %}
-                </p>
-
-                {% if dossier.objet or dossier.consultationPlatau is not null %}
+                {% if dossier.id is not null %}
                     <p>
-                        {% if dossier.objet %}
-                            <small>{{ dossier.objet|nl2br }}</small>
-                        {% endif %}
+                        <span>{{ dossier.type.libelle }}</span>
 
-                        {% if dossier.consultationPlatau is not null %}
-                            <strong class="dossier__identifiant-platau label label-info">CONSULTATION PLATAU : {{ dossier.consultationPlatau.identifiant }}</strong>
+                        {% if dossier.dateSuppression is not null %}
+                            <span class='label label-danger'>
+                                DOSSIER SUPPRIME
+                            </span>
                         {% endif %}
                     </p>
+
+                    {% if dossier.objet or dossier.consultationPlatau is not null %}
+                        <p>
+                            {% if dossier.objet %}
+                                <small>{{ dossier.objet|nl2br }}</small>
+                            {% endif %}
+
+                            {% if dossier.consultationPlatau is not null %}
+                                <strong class="dossier__identifiant-platau label label-info">CONSULTATION PLATAU : {{ dossier.consultationPlatau.identifiant }}</strong>
+                            {% endif %}
+                        </p>
+                    {% endif %}
                 {% endif %}
 
                 {% if dossier.etablissements is not empty %}
