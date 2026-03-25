@@ -453,9 +453,11 @@
             } else if ($("#infosEtablissement .etab").length > 0) {
                 nomEtabSelector = "#infosEtablissement .etab";
             }
-            nomEtab = document.querySelector(nomEtabSelector).innerText.trim();
-            nomEtab = nomEtab.replace('&nbsp;', ' ');
-            nomEtab = nomEtab.replace("'", " ");
+            if (nomEtabSelector) {
+                nomEtab = document.querySelector(nomEtabSelector).innerText.trim();
+                nomEtab = nomEtab.replace('&nbsp;', ' ');
+                nomEtab = nomEtab.replace("'", " ");
+            }
 
             const commissionNom = $('#dossier_nature option:selected').text().trim() + ' - ' + nomEtab;
             const $dateField = $(this).prev();
