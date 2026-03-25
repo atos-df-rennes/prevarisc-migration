@@ -254,6 +254,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
 
                 // Persist du dossier avant les opérations dépendantes de l'ID
+                $this->dossierCreationService->nullifierChampsNonApplicables($dossier);
                 $this->entityManager->persist($dossier);
                 $this->entityManager->flush();
 
