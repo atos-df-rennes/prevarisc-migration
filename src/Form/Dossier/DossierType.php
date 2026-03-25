@@ -416,8 +416,8 @@ class DossierType extends AbstractType
                     'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
                     'class' => PieceJointe::class,
                     'choices' => $this->getPiecesJointesExportables($options),
-                    'choice_label' => function(PieceJointe $pieceJointe): string {
-                        return $pieceJointe->getNom() . $pieceJointe->getExtension();
+                    'choice_label' => function (PieceJointe $pieceJointe): string {
+                        return $pieceJointe->getNom().$pieceJointe->getExtension();
                     },
                     'multiple' => true,
                     'expanded' => true,

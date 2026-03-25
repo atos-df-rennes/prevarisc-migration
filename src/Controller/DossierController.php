@@ -221,23 +221,21 @@ class DossierController extends AbstractController implements DossierLateralNavi
             ? $this->etablissementRepository->find($idEtablissement)
             : null;
 
+        $anciensAvis = [];
+        // Actions déclenchées si le dossier est ajouté sur un établissement
         if (null !== $etablissement) {
             $dossier->addEtablissement($etablissement);
+
+            $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+            $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
+                ? $dossierDonnantAvis->getAvisCommission()
+                : null;
         }
 
         // Définir le créateur (utilisateur connecté)
         /** @var Utilisateur $user */
         $user = $this->getUser();
         $dossier->setCreateur($user);
-
-        // Capturer l'avis actuel de l'établissement avant toute modification (détection de changement)
-        $anciensAvis = [];
-        if (null !== $etablissement) {
-            $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
-            $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
-                ? $dossierDonnantAvis->getAvisCommission()
-                : null;
-        }
 
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => false,
@@ -496,6 +494,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             }
         }
 
+        // @todo: Peut être utilisé directement en Twig ?
         // Récupération des informations de l'utilisateur connecté
         /** @var Utilisateur $user */
         $user = $this->getUser();
