@@ -49,8 +49,6 @@
 
 {% block body %}
     <div id='dossierInfos'>
-        <h2 class="page-header">Création d'un nouveau dossier</h2>
-
         <div class='action-buttons pull-right'>
             {% if etablissement is not null %}
                 <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}" class='btn btn-default'>

@@ -194,6 +194,10 @@
 {% endblock %}
 
 {% block body_structure %}
+    {% if dossier.id is null %}
+        <h2 class="page-header">Création d'un nouveau dossier</h2>
+    {% endif %}
+
     {% if dossier.id is not null or (etablissement is defined and etablissement is not null) %}
         <div id="ligne_informations">
             <h2 class='page-header'>
