@@ -10,7 +10,6 @@ use App\Entity\DossierDocumentConsulte;
 use App\Entity\Etablissement;
 use App\Entity\ListeDocumentAjoute;
 use App\Repository\DossierRepository;
-use App\Service\DossierFields;
 use App\Service\DossierPrescriptionService;
 use App\Service\Prescriptions;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,9 +27,6 @@ class DossierCreationService
     /** @var DossierRepository */
     private $dossierRepository;
 
-    /** @var DossierFields */
-    private $dossierFields;
-
     /** @var DossierPrescriptionService */
     private $prescriptionService;
 
@@ -40,13 +36,11 @@ class DossierCreationService
     public function __construct(
         EntityManagerInterface $entityManager,
         DossierRepository $dossierRepository,
-        DossierFields $dossierFields,
         DossierPrescriptionService $prescriptionService,
         Prescriptions $prescriptions
     ) {
         $this->entityManager = $entityManager;
         $this->dossierRepository = $dossierRepository;
-        $this->dossierFields = $dossierFields;
         $this->prescriptionService = $prescriptionService;
         $this->prescriptions = $prescriptions;
     }
@@ -226,19 +220,5 @@ class DossierCreationService
         $this->copierContactsEtablissement($dossier, $etablissement);
         $this->copierTextesApplicables($dossier, $etablissement);
         $this->copierDocumentsDerniereVP($dossier, $etablissement);
-    }
-
-    /**
-     * Nullifie les champs non applicables à la nature du dossier.
-     *
-     * Reproduit le comportement legacy : si le champ 'objet' n'est pas dans la liste
-     * des champs affichables pour la nature, OBJET_DOSSIER est forcé à null.
-     * Doit être appelé avant le premier persist, après le handleRequest du formulaire.
-     */
-    public function nullifierChampsNonApplicables(Dossier $dossier): void
-    {
-        if (!$this->dossierFields->shouldDisplayField($dossier, 'objet')) {
-            $dossier->setObjet(null);
-        }
     }
 }

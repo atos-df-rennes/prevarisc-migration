@@ -12,6 +12,7 @@ use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Service\Alerte\AlerteService;
+use App\Service\DossierFields;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -33,18 +34,23 @@ class DossierSauvegardeService
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
+    /** @var DossierFields */
+    private $dossierFields;
+
     public function __construct(
         DossierDonnantAvisService $dossierDonnantAvisService,
         AlerteService $alerteService,
         AuthorizationCheckerInterface $authorizationChecker,
         FlashBagInterface $flashBag,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        DossierFields $dossierFields
     ) {
         $this->dossierDonnantAvisService = $dossierDonnantAvisService;
         $this->alerteService = $alerteService;
         $this->authorizationChecker = $authorizationChecker;
         $this->flashBag = $flashBag;
         $this->urlGenerator = $urlGenerator;
+        $this->dossierFields = $dossierFields;
     }
 
     /**
@@ -194,5 +200,20 @@ class DossierSauvegardeService
             $dossier->getId(),
             urlencode($etablissementsJson)
         );
+    }
+
+    /**
+     * Nullifie les champs non applicables à la nature du dossier.
+     *
+     * Reproduit le comportement legacy (saveAction, lignes 915-917) applicable en
+     * création ET en édition : si le champ 'objet' n'est pas dans la liste des
+     * champs affichables pour la nature, OBJET_DOSSIER est forcé à null.
+     * Doit être appelé avant le persist, après le handleRequest du formulaire.
+     */
+    public function nullifierChampsNonApplicables(Dossier $dossier): void
+    {
+        if (!$this->dossierFields->shouldDisplayField($dossier, 'objet')) {
+            $dossier->setObjet(null);
+        }
     }
 }
