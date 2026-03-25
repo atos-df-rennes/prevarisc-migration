@@ -60,7 +60,10 @@ class DossierSauvegardeService
         bool $repercuterAvis,
         ?DossierNatureListe $ancienneNature = null
     ): array {
-        if ($dossier->donneAvis()) {
+        $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
+        $avisRenseigne = in_array($avisCommission, [AvisConstant::FAVORABLE, AvisConstant::DEFAVORABLE], true);
+
+        if ($dossier->donneAvis() && $avisRenseigne) {
             return $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
         }
 
