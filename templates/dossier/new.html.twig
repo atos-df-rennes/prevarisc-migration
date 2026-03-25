@@ -53,7 +53,7 @@
 
         <div class='action-buttons pull-right'>
             {% if etablissement is not null %}
-                <a href="{{ path('etablissement_index', {id: etablissement.id}) }}" class='btn btn-default'>
+                <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}" class='btn btn-default'>
                     <span class='glyphicon glyphicon-remove' aria-hidden="true"></span> Annuler
                 </a>
             {% endif %}
