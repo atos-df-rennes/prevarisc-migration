@@ -376,15 +376,19 @@
         $container.show();
         $containerLi.show();
 
-        // Boutons
-        $('[data-calendar-type="' + type + '"].showCalendar').toggleClass('hidden');
-        $('[data-calendar-type="' + type + '"].hideCalendar').toggleClass('hidden');
+        $('[data-calendar-type="' + type + '"].showCalendar').addClass('hidden');
+        $('[data-calendar-type="' + type + '"].hideCalendar').removeClass('hidden');
     }
 
     /**
      * Cache un calendrier
+     *
+     * @param {string}  type           - 'commission' ou 'visite'
+     * @param {boolean} [showShowButton=true] - false lors d'un reset (changement de commission)
+     *                                          pour ne pas afficher le bouton "Afficher"
+     *                                          si aucune commission n'est encore sélectionnée
      */
-    function hideCalendar(type) {
+    function hideCalendar(type, showShowButton) {
         const containerId = (type === 'visite') ? 'calendarVisite' : 'calendar';
         const $container = $('#' + containerId);
         const $containerLi = $container.closest('li');
@@ -393,9 +397,10 @@
         $container.hide();
         $containerLi.hide();
 
-        // Boutons
-        $('[data-calendar-type="' + type + '"].showCalendar').toggleClass('hidden');
-        $('[data-calendar-type="' + type + '"].hideCalendar').toggleClass('hidden');
+        $('[data-calendar-type="' + type + '"].hideCalendar').addClass('hidden');
+        if (showShowButton !== false) {
+            $('[data-calendar-type="' + type + '"].showCalendar').removeClass('hidden');
+        }
     }
 
     // ===================================================================
@@ -421,8 +426,8 @@
      * Utilisé lors du changement de commission
      */
     document.addEventListener('calendar:hideAll', function() {
-        hideCalendar('commission');
-        hideCalendar('visite');
+        hideCalendar('commission', false);
+        hideCalendar('visite', false);
     });
 
     // Initialisation au chargement
