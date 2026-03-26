@@ -80,6 +80,8 @@ class Champ
      * @MaxDepth(1)
      *
      * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="parent", cascade={"persist", "remove"})
+     *
+     * @ORM\OrderBy({"idx" = "ASC"})
      */
     private $enfants;
 
