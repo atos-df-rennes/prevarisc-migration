@@ -21,10 +21,12 @@
             <fieldset id="{{ enfant is defined ? 'fieldset_valeurs_liste_enfant' : 'fieldset_valeurs_liste' }}">
                 <legend>Valeurs de la liste</legend>
 
-                <p class="help-block">
-                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-                    Les modifications d'ordre sont enregistrées à la sauvegarde du formulaire.
-                </p>
+                {% if enfant is not defined %}
+                    <p class="help-block">
+                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        Les modifications d'ordre sont enregistrées à la sauvegarde du formulaire.
+                    </p>
+                {% endif %}
 
                 <ul id="{{ enfant is defined ? 'champ_valeurs_liste_enfant' : 'champ_valeurs_liste' }}"
                     class="list-unstyled mt-4 grp remove-collection-widget order-collection-widget"
