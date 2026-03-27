@@ -138,6 +138,7 @@
                                 {% if type_id == 5 %}
                                     <input type="checkbox" disabled{% if valeur and valeur.checkbox %} checked{% endif %}>
                                 {% elseif valeur is null %}
+                                    <span class="text-muted">Aucune donnée</span>
                                 {% elseif type_id == 1 or type_id == 3 or type_id == 4 %}
                                     {{ valeur.str ?? valeur.number }}
                                 {% elseif type_id == 2 %}
