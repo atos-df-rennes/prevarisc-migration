@@ -43,7 +43,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('container.env_var_processor');
 
     $services->set('App\Controller\EtablissementController')
-        ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%');
+        ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
+        ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');

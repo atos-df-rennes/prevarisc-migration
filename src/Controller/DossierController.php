@@ -24,6 +24,7 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
+use App\Service\Descriptif as DescriptifService;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
@@ -140,6 +141,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DossierRepository */
     private $dossierRepository;
 
+    /** @var DescriptifService */
+    private $descriptifService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -161,7 +165,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
-        DossierRepository $dossierRepository
+        DossierRepository $dossierRepository,
+        DescriptifService $descriptifService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -184,6 +189,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
+        $this->descriptifService = $descriptifService;
     }
 
     /**
@@ -644,6 +650,38 @@ class DossierController extends AbstractController implements DossierLateralNavi
         return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Vérifications techniques du dossier.
+     *
+     * @Route("/dossier/{id}/verifications-techniques", name="dossier_verifications_techniques", methods={"GET"})
+     */
+    public function verificationsTechniques(Dossier $dossier): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, 'descriptifVerificationsTechniques');
+
+        return $this->render('dossier/_verifications_techniques.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Effectifs et Dégagements du dossier.
+     *
+     * @Route("/dossier/{id}/effectifs-degagements", name="dossier_effectifs_degagements", methods={"GET"})
+     */
+    public function effectifsDegagements(Dossier $dossier): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, 'effectifsDegagementsDossier');
+
+        return $this->render('dossier/_effectifs_degagements.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
         ]);
     }
 }

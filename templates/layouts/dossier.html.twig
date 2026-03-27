@@ -62,8 +62,8 @@
 
         {# Visite et Groupe de visite #}
         {% if is_granted('verifications_techniques') and dossier.type.id in constant('App\\Constant\\DossierType::TYPES_VISITE') %}
-            <li>
-                <a href="{{ '/dossier/verifications-techniques/id/' ~ dossier.id }}">
+            <li {% if app.request.get('_route') is same as('dossier_verifications_techniques') %}class="active"{% endif %}>
+                <a href="{{ path('dossier_verifications_techniques', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                     {{ libelle_verifications_techniques }}
                 </a>
@@ -71,8 +71,8 @@
         {% endif %}
 
         {% if is_granted('effectifs_degagements_doss') and dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') %}
-            <li>
-                <a href="{{ '/dossier/effectifs-degagements-dossier/id/' ~ dossier.id }}">
+            <li {% if app.request.get('_route') is same as('dossier_effectifs_degagements') %}class="active"{% endif %}>
+                <a href="{{ path('dossier_effectifs_degagements', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                     {{ libelle_effectifs_degagements }}
                 </a>

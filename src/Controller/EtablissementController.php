@@ -21,6 +21,7 @@ use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
+use App\Service\Descriptif as DescriptifService;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
@@ -106,6 +107,12 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var int */
     private $nbDossiersAAfficher;
 
+    /** @var DescriptifService */
+    private $descriptifService;
+
+    /** @var bool */
+    private $descriptifPersonnalise;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -123,7 +130,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         Contact $contactService,
         MailerConfiguration $mailerConfig,
         AlerteService $alerteService,
-        int $nbDossiersAAfficher
+        int $nbDossiersAAfficher,
+        DescriptifService $descriptifService,
+        bool $descriptifPersonnalise
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -142,6 +151,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->mailerConfig = $mailerConfig;
         $this->alerteService = $alerteService;
         $this->nbDossiersAAfficher = $nbDossiersAAfficher;
+        $this->descriptifService = $descriptifService;
+        $this->descriptifPersonnalise = $descriptifPersonnalise;
     }
 
     /**
@@ -555,5 +566,43 @@ class EtablissementController extends AbstractController implements Etablissemen
         }
 
         return new Response($html);
+    }
+
+    /**
+     * Affiche l'onglet Descriptif de l'établissement.
+     * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, affiche les formulaires personnalisés.
+     * Sinon, laisse le fallback Zend gérer la page (cette route ne sera pas enregistrée).
+     *
+     * @Route("/etablissement/{id}/descriptif", name="etablissement_descriptif", methods={"GET"})
+     */
+    public function descriptif(Etablissement $etablissement): Response
+    {
+        if (!$this->descriptifPersonnalise) {
+            return $this->redirect('/etablissement/descriptif/id/'.$etablissement->getId());
+        }
+
+        $data = $this->descriptifService->getForEtablissement($etablissement, 'descriptifEtablissement');
+
+        return $this->render('etablissement/_informations/descriptif_personnalise.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Effectifs et Dégagements de l'établissement.
+     *
+     * @Route("/etablissement/{id}/effectifs-degagements", name="etablissement_effectifs_degagements", methods={"GET"})
+     */
+    public function effectifsDegagements(Etablissement $etablissement): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, 'effectifsDegagementsEtablissement');
+
+        return $this->render('etablissement/_informations/effectifs_degagements.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
     }
 }

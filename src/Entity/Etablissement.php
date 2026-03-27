@@ -165,6 +165,19 @@ class Etablissement
     private $displayRubriques;
 
     /**
+     * @var Collection<int, Valeur>
+     *
+     * @ORM\ManyToMany(targetEntity=Valeur::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinTable(
+     *     name="etablissementvaleur",
+     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_VALEUR", referencedColumnName="ID_VALEUR")}
+     * )
+     */
+    private $valeurs;
+
+    /**
      * @var Collection<int, UtilisateurInformations>
      *
      * @ORM\JoinTable(
@@ -211,6 +224,7 @@ class Etablissement
         $this->fils = new ArrayCollection();
         $this->parents = new ArrayCollection();
         $this->displayRubriques = new ArrayCollection();
+        $this->valeurs = new ArrayCollection();
         $this->contacts = new ArrayCollection();
         $this->textesApplicables = new ArrayCollection();
         $this->piecesJointes = new ArrayCollection();
@@ -694,5 +708,13 @@ class Etablissement
         $this->descriptifDerogation = $descriptifDerogation;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Valeur>
+     */
+    public function getValeurs(): Collection
+    {
+        return $this->valeurs;
     }
 }

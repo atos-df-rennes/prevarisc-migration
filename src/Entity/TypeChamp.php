@@ -12,6 +12,20 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TypeChamp
 {
+    public const TEXT = 1;
+
+    public const TEXTAREA = 2;
+
+    public const SELECT = 3;
+
+    public const NUMBER = 4;
+
+    public const CHECKBOX = 5;
+
+    public const PARENT = 6;
+
+    public const DATE = 7;
+
     /**
      * @var int
      *
