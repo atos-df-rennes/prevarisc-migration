@@ -43,6 +43,8 @@ class CapsuleRubrique
      * @var Collection<int, Rubrique>
      *
      * @ORM\OneToMany(targetEntity=Rubrique::class, mappedBy="capsuleRubrique", orphanRemoval=true)
+     *
+     * @ORM\OrderBy({"idx" = "ASC"})
      */
     private $rubriques;
 

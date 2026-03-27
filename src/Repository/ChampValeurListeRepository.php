@@ -20,35 +20,4 @@ class ChampValeurListeRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ChampValeurListe::class);
     }
-
-    /**
-     * Met à jour les indices de plusieurs valeurs en une seule requête DQL.
-     *
-     * @param non-empty-array<int, array{ID: int, idx: int}> $changes
-     */
-    public function updateIndexesBatch(array $changes): void
-    {
-        $connnection = $this->getEntityManager()->getConnection();
-
-        // Construction du CASE WHEN pour UPDATE optimisé
-        $ids = [];
-        $cases = [];
-
-        foreach ($changes as $change) {
-            $id = (int) $change['ID'];
-            $idx = (int) $change['idx'];
-            $ids[] = $id;
-            $cases[] = sprintf('WHEN %d THEN %d', $id, $idx);
-        }
-
-        $idList = implode(',', $ids);
-        $caseStatement = implode(' ', $cases);
-
-        // Une seule requête UPDATE avec CASE
-        $sql = "UPDATE champvaleurliste
-               SET idx = CASE ID_VALEURLISTE {$caseStatement} END
-               WHERE ID_VALEURLISTE IN ({$idList})";
-
-        $connnection->executeStatement($sql);
-    }
 }
