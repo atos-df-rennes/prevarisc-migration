@@ -26,10 +26,17 @@
             id="afficher_rubrique-{{ rubrique.id }}"
             class="panel panel-default panel-formulaire-perso{% if not item.display %} hidden{% endif %}"
         >
-            <div class="panel-heading" role="button" data-toggle="collapse" data-target="#rubrique-body-{{ rubrique.id }}">
+            <div class="panel-heading" role="tab">
                 <h4 id="{{ rubrique.nom|lower|replace({' ': '-', "'": '-'}) }}" class="panel-title">
-                    {{ rubrique.nom }}
-                    <span class="pull-right glyphicon {% if rubrique.ouverte %}glyphicon-chevron-up{% else %}glyphicon-chevron-down{% endif %}"></span>
+                    <a role="button"
+                       class="panel-title__link{% if not rubrique.ouverte %} collapsed{% endif %}"
+                       data-toggle="collapse"
+                       data-target="#rubrique-body-{{ rubrique.id }}"
+                       aria-expanded="{{ rubrique.ouverte ? 'true' : 'false' }}"
+                       aria-controls="rubrique-body-{{ rubrique.id }}">
+                        {{ rubrique.nom }}
+                        <span class="pull-right caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                    </a>
                 </h4>
             </div>
 
