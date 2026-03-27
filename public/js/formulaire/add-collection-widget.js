@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function addTagFormDeleteLink(element) {
     const buttonWrapper = document.createElement('div');
-    buttonWrapper.classList.add('col-sm-2');
+    buttonWrapper.classList.add('col-xs-2');
     buttonWrapper.classList.add('text-center');
 
     buttonWrapper.innerHTML = '<button class="btn btn-danger btn-icon" title="Supprimer l\'élément"><span class="glyphicon glyphicon-trash"></span></button>';
@@ -77,7 +77,7 @@ function addTagFormOrderButton(element) {
     const buttonWrapper = document.createElement('span');
     buttonWrapper.classList.add('tdMove');
 
-    buttonWrapper.innerHTML = '<span class="glyphicon glyphicon-move"></span>';
+    buttonWrapper.innerHTML = '<span class="glyphicon glyphicon-move" aria-hidden="true"></span>';
 
     element.firstElementChild.prepend(buttonWrapper);
 }

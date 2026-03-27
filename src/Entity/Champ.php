@@ -80,6 +80,8 @@ class Champ
      * @MaxDepth(1)
      *
      * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="parent", cascade={"persist", "remove"})
+     *
+     * @ORM\OrderBy({"idx" = "ASC"})
      */
     private $enfants;
 
@@ -87,6 +89,8 @@ class Champ
      * @var Collection<int, ChampValeurListe>
      *
      * @ORM\OneToMany(targetEntity=ChampValeurListe::class, mappedBy="champ", orphanRemoval=true, cascade={"persist", "remove"})
+     *
+     * @ORM\OrderBy({"idx" = "ASC"})
      */
     private $valeursListe;
 
