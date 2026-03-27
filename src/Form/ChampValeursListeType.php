@@ -16,7 +16,7 @@ class ChampValeursListeType extends AbstractType
         $builder
             ->add('valeur', TextType::class, [
                 'label' => false,
-                'row_attr' => ['class' => 'col-sm-10'],
+                'row_attr' => ['class' => 'col-xs-10'],
                 'attr' => ['list' => 'champ-valeurs-liste', 'autocomplete' => 'off']
             ])
             ->add('idx', HiddenType::class, [
