@@ -177,7 +177,7 @@ class Descriptif
         return [
             'champ' => $champ,
             'valeur' => null,
-            'sousChamps' => $sousChamps,
+            'sous_champs' => $sousChamps,
         ];
     }
 

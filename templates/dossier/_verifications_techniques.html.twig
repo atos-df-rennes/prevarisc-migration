@@ -2,6 +2,11 @@
 
 {% import 'components/_formulaire_personnalise.html.twig' as forms %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block title %}{{ parent() }} / Vérifications techniques{% endblock %}
 
 {% block body %}

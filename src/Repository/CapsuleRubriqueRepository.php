@@ -65,7 +65,7 @@ class CapsuleRubriqueRepository extends ServiceEntityRepository
     public function findByNomInterneWithFullData(string $nomInterne): ?CapsuleRubrique
     {
         return $this->createQueryBuilder('cr')
-            ->addSelect('r', 'c', 'ct', 'cvl', 'ce')
+            ->addSelect('r', 'c', 'ct', 'cvl', 'ce', 'cet', 'cevl')
             ->leftJoin('cr.rubriques', 'r')
             ->leftJoin('r.champs', 'c')
             ->leftJoin('c.type', 'ct')
