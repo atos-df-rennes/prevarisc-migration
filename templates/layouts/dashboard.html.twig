@@ -26,9 +26,10 @@
                     </ul>
                 </noscript>
 
-                {% if app.flashes|length > 0 %}
+                {% set flashes = app.flashes %}
+                {% if flashes is not empty %}
                     <ul class="list-unstyled">
-                        {% for label, messages in app.flashes %}
+                        {% for label, messages in flashes %}
                             {% for message in messages %}
                                 <li class="alert alert-{{ label }}">
                                     <button data-dismiss="alert" class="close">&times;</button>
