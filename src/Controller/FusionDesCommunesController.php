@@ -20,7 +20,7 @@ class FusionDesCommunesController extends AbstractController
     /**
      * @Route("/admin/fusion-des-communes", name="admin_fusion_des_communes")
      */
-    public function index(Request $request, ValidatorInterface $validator, FusionDesCommunes $fusionDesCommunes): Response
+    public function index(Request $request, FusionDesCommunes $fusionDesCommunes): Response
     {
         $form = $this->createForm(FusionDesCommunesType::class);
 
