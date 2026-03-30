@@ -57,6 +57,7 @@ class CapsuleRubriqueRepository extends ServiceEntityRepository
             ->leftJoin('cr.rubriques', 'r')
             ->orderBy('cr.id', 'ASC')
             ->addOrderBy('r.idx', 'ASC')
+            ->addOrderBy('r.id', 'ASC')
             ->getQuery()
             ->getResult()
         ;
