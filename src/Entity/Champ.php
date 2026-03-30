@@ -41,7 +41,7 @@ class Champ
     /**
      * @var ?int
      *
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $idx;
 
@@ -142,7 +142,7 @@ class Champ
         return $this->idx;
     }
 
-    public function setIdx(?int $idx): self
+    public function setIdx(int $idx): self
     {
         $this->idx = $idx;
 
@@ -199,7 +199,7 @@ class Champ
             $this->enfants[] = $enfant;
             $enfant->setParent($this);
             $enfant->setRubrique($this->rubrique);
-            $enfant->setIdx($this->enfants->count());
+            $enfant->setIdx($this->enfants->count() - 1);
         }
 
         return $this;

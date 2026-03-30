@@ -40,7 +40,7 @@ class Rubrique
     /**
      * @var ?int
      *
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $idx;
 
@@ -108,7 +108,7 @@ class Rubrique
         return $this->idx;
     }
 
-    public function setIdx(?int $idx): self
+    public function setIdx(int $idx): self
     {
         $this->idx = $idx;
 
@@ -142,7 +142,7 @@ class Rubrique
             $champ->setRubrique($this);
             $champ->setIdx($this->champs->filter(function (Champ $champ): bool {
                 return null === $champ->getParent();
-            })->count());
+            })->count() - 1);
         }
 
         return $this;
