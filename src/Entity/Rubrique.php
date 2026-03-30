@@ -58,7 +58,7 @@ class Rubrique
      *
      * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true, cascade={"persist"})
      *
-     * @ORM\OrderBy({"idx" = "ASC"})
+     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
     private $champs;
 
