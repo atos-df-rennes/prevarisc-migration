@@ -97,7 +97,7 @@ class ChampType extends AbstractType
 
             $form->add('valeursListe', CollectionType::class, [
                 'entry_type' => ChampValeursListeType::class,
-                'required' => false,
+                'required' => true,
                 'data' => $valeursListe,
                 'by_reference' => false,
                 'allow_add' => true,

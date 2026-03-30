@@ -44,7 +44,7 @@ class CapsuleRubrique
      *
      * @ORM\OneToMany(targetEntity=Rubrique::class, mappedBy="capsuleRubrique", orphanRemoval=true)
      *
-     * @ORM\OrderBy({"idx" = "ASC"})
+     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
     private $rubriques;
 
