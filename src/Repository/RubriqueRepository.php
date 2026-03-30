@@ -33,7 +33,9 @@ class RubriqueRepository extends ServiceEntityRepository
             ->andWhere('r = :rubrique')
             ->setParameter('rubrique', $rubrique)
             ->orderBy('c.idx', 'ASC')
+            ->addOrderBy('c.id', 'ASC')
             ->addOrderBy('cvl.idx', 'ASC')
+            ->addOrderBy('cvl.id', 'ASC')
             ->getQuery()
             ->getSingleResult()
         ;

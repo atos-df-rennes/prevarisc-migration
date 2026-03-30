@@ -41,7 +41,7 @@ class Champ
     /**
      * @var ?int
      *
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $idx;
 
@@ -81,7 +81,7 @@ class Champ
      *
      * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="parent", cascade={"persist", "remove"})
      *
-     * @ORM\OrderBy({"idx" = "ASC"})
+     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
     private $enfants;
 
@@ -90,7 +90,7 @@ class Champ
      *
      * @ORM\OneToMany(targetEntity=ChampValeurListe::class, mappedBy="champ", orphanRemoval=true, cascade={"persist", "remove"})
      *
-     * @ORM\OrderBy({"idx" = "ASC"})
+     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
     private $valeursListe;
 
@@ -142,7 +142,7 @@ class Champ
         return $this->idx;
     }
 
-    public function setIdx(?int $idx): self
+    public function setIdx(int $idx): self
     {
         $this->idx = $idx;
 
@@ -199,7 +199,7 @@ class Champ
             $this->enfants[] = $enfant;
             $enfant->setParent($this);
             $enfant->setRubrique($this->rubrique);
-            $enfant->setIdx($this->enfants->count());
+            $enfant->setIdx($this->enfants->count() - 1);
         }
 
         return $this;

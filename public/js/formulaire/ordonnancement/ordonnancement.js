@@ -1,6 +1,27 @@
 window.onload = function() {
     const listGrp = document.getElementsByClassName('grp')
-    let originList = []
+    let pendingRequests = 0
+    const debounceTimers = {}
+
+    const indicator = document.createElement('div')
+    indicator.style.cssText = 'display:none; position:fixed; bottom:20px; right:20px; z-index:9999;'
+    indicator.innerHTML =
+        '<div class="alert alert-info" style="margin:0; padding:8px 15px;">' +
+            '<span class="glyphicon glyphicon-refresh ordo-spin"></span>' +
+            ' Sauvegarde en cours\u2026' +
+        '</div>'
+    document.body.appendChild(indicator)
+
+    const style = document.createElement('style')
+    style.textContent = '@keyframes ordo-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } } .ordo-spin { display:inline-block; animation:ordo-spin 1s linear infinite; }'
+    document.head.appendChild(style)
+
+    window.addEventListener('beforeunload', function(e) {
+        if (pendingRequests > 0) {
+            e.preventDefault()
+            e.returnValue = ''
+        }
+    })
 
     const getListOrderInput = (idInputElem = null) => {
         let toReturn = []
@@ -8,7 +29,6 @@ window.onload = function() {
         const tableRows = document.querySelectorAll('#' + idInputElem + ' tr')
         Array.from(tableRows).forEach(el => {
             toReturn.push({
-                // Nouvelle position
                 idx: Array.from(tableRows).indexOf(el),
                 ID: el.id
             })
@@ -16,10 +36,9 @@ window.onload = function() {
 
         return toReturn
     }
-    
-    //Retourne la liste des entity qui ont changé d'index
-    const compareAndRequest = (newList = []) => {
-        newList.filter(elem => elem.ID !== originList[elem.idx].ID ).forEach(champ =>{
+
+    const updateAllRequest = (newList = []) => {
+        newList.forEach(champ => {
             setNewIdxRequest(champ)
         })
     }
@@ -30,10 +49,19 @@ window.onload = function() {
         :
             "/admin/formulaires/rubriques/" + objData.ID + "/index/" + objData.idx
 
+        pendingRequests++
+        indicator.style.display = 'block'
+
         $.ajax({
             type: "post",
             url: url,
-            datatype:'json'
+            dataType: 'json',
+            complete: function() {
+                pendingRequests--
+                if (pendingRequests === 0) {
+                    indicator.style.display = 'none'
+                }
+            }
         })
     }
 
@@ -47,15 +75,12 @@ window.onload = function() {
         document.getElementById(listGrp[i].id).addEventListener(
             'dragend',
             function() {
-                compareAndRequest(getListOrderInput(listGrp[i].id))
-            },
-            false
-        )
-
-        document.getElementById(listGrp[i].id).addEventListener(
-            'dragstart',
-            function() {
-                originList = getListOrderInput(listGrp[i].id)
+                const listId = listGrp[i].id
+                const snapshot = getListOrderInput(listId)
+                clearTimeout(debounceTimers[listId])
+                debounceTimers[listId] = setTimeout(function() {
+                    updateAllRequest(snapshot)
+                }, 400)
             },
             false
         )
