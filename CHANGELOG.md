@@ -4,6 +4,19 @@
 
 <!--- END HEADER -->
 
+## [2.8.18](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.17...v2.8.18) (31-03-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Formulaires
+
+* Corrige l'ordre d'affichage des éléments et la modification des positions des éléments (#151) ([fd0db9](https://github.com/atos-df-rennes/prevarisc-migration/commit/fd0db977b83a18dc329818eba2f03cfeb87aa145))
+* La modification d'ordre des valeurs d'un champ Liste n'affectait pas les bonnes positions (#149) ([502493](https://github.com/atos-df-rennes/prevarisc-migration/commit/502493bc8970856698f9220c345b543f7b4a5fac))
+
+
+---
+
 ## [2.8.17](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.16...v2.8.17) (24-03-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
