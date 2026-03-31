@@ -11,6 +11,31 @@
 
 {% block body %}
     <div class="pull-right">
+        <div class="btn-group">
+            <button id="btnRepriseDropdown" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Reprise de données <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                {% if not hasData %}
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#modal-reprise-etude">
+                            Reprendre les données d'une étude précédente
+                        </a>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                {% endif %}
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#modal-copier-etablissement">
+                        Copier les données sur l'établissement
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#modal-reprendre-etablissement">
+                        Reprendre les données de l'établissement
+                    </a>
+                </li>
+            </ul>
+        </div>
         <a class="btn btn-default" href="/dossier/effectifs-degagements-dossier-edit/id/{{ dossier.id }}">Modifier les effectifs et dégagements</a>
     </div>
 
@@ -23,4 +48,162 @@
     {% else %}
         {{ forms.rubriques(rubriques) }}
     {% endif %}
+
+    {# Modal : Reprendre les données d'une étude précédente #}
+    {% if not hasData %}
+        <div id="modal-reprise-etude" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reprise-etude-label">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="modal-reprise-etude-label">Reprise des données d'un dossier précédent</h4>
+                    </div>
+                    <div class="modal-body" id="modal-reprise-etude-body">
+                        <p class="text-muted text-center">
+                            <em>Chargement… <span class="glyphicon glyphicon-refresh spinning"></span></em>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-success" id="btn-reprise-etude-confirm">
+                            Reprendre les effectifs et dégagements
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Modal : Copier les données sur l'établissement #}
+    <div id="modal-copier-etablissement" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-copier-etablissement-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-copier-etablissement-label">Copier les données sur l'établissement</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir copier les effectifs et dégagements de ce dossier sur l'établissement ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-success" id="btn-copier-etablissement-confirm">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal : Reprendre les données de l'établissement #}
+    <div id="modal-reprendre-etablissement" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reprendre-etablissement-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-reprendre-etablissement-label">Reprendre les données de l'établissement</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir reprendre les effectifs et dégagements depuis l'établissement ? Les données actuelles du dossier seront écrasées.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-success" id="btn-reprendre-etablissement-confirm">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const idDossier = {{ dossier.id }};
+            const urlRetour = '/dossier/' + idDossier + '/effectifs-degagements';
+            const iconSpin = '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> ';
+
+            function redirectAvecDelai() {
+                setTimeout(function () { window.location = urlRetour; }, 1500);
+            }
+
+            {% if not hasData %}
+                let repriseEtudeLoaded = false;
+
+                $('#modal-reprise-etude').on('show.bs.modal', function () {
+                    if (repriseEtudeLoaded) {
+                        return;
+                    }
+                    $.ajax({
+                        url: '/dossier/formrecupeffectifsdegagements',
+                        type: 'POST',
+                        data: { idDossier: idDossier },
+                        success: function (html) {
+                            document.getElementById('modal-reprise-etude-body').innerHTML = html;
+                            repriseEtudeLoaded = true;
+                        },
+                        error: function () {
+                            document.getElementById('modal-reprise-etude-body').innerHTML =
+                                '<p class="text-danger">Une erreur est survenue lors du chargement.</p>';
+                        }
+                    });
+                });
+
+                $('#btn-reprise-etude-confirm').on('click', function () {
+                    if ($('input[type=radio][name=dossierSelect]:checked').length !== 1) {
+                        return;
+                    }
+                    const $btn = $(this);
+                    $btn.prop('disabled', true).html(iconSpin + 'Reprise en cours…');
+                    $.ajax({
+                        type: 'POST',
+                        url: '/dossier/recupeffectifsdegagements',
+                        data: $('#selectionDossier').serialize(),
+                        success: function () {
+                            $('#modal-reprise-etude').modal('hide');
+                            $.toast.success('Les effectifs et dégagements ont bien été repris.');
+                            redirectAvecDelai();
+                        },
+                        error: function () {
+                            $btn.prop('disabled', false).text('Reprendre les effectifs et dégagements');
+                            $.toast.error('Erreur lors de la reprise des données. Veuillez réessayer.');
+                        }
+                    });
+                });
+            {% endif %}
+
+            $('#btn-copier-etablissement-confirm').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html(iconSpin + 'Copie en cours…');
+                $.ajax({
+                    type: 'POST',
+                    url: '/dossier/copier-effectifs-degagements-etablissement',
+                    data: { idDossier: idDossier },
+                    success: function () {
+                        $('#modal-copier-etablissement').modal('hide');
+                        $.toast.success('Les effectifs et dégagements ont bien été copiés sur l\'établissement.');
+                        redirectAvecDelai();
+                    },
+                    error: function () {
+                        $btn.prop('disabled', false).text('Confirmer');
+                        $.toast.error('Erreur lors de la copie des données. Veuillez réessayer.');
+                    }
+                });
+            });
+
+            $('#btn-reprendre-etablissement-confirm').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html(iconSpin + 'Reprise en cours…');
+                $.ajax({
+                    type: 'POST',
+                    url: '/dossier/recuperer-effectifs-degagements-etablissement',
+                    data: { idDossier: idDossier },
+                    success: function () {
+                        $('#modal-reprendre-etablissement').modal('hide');
+                        $.toast.success('Les effectifs et dégagements ont bien été repris depuis l\'établissement.');
+                        redirectAvecDelai();
+                    },
+                    error: function () {
+                        $btn.prop('disabled', false).text('Confirmer');
+                        $.toast.error('Erreur lors de la reprise des données. Veuillez réessayer.');
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

@@ -678,10 +678,21 @@ class DossierController extends AbstractController implements DossierLateralNavi
     {
         $data = $this->descriptifService->getForDossier($dossier, 'effectifsDegagementsDossier');
 
+        $hasData = false;
+        foreach ($data['rubriques'] as $rubrique) {
+            foreach ($rubrique['champs'] as $champData) {
+                if (null !== $champData['valeur'] || [] !== $champData['lignes']) {
+                    $hasData = true;
+                    break 2;
+                }
+            }
+        }
+
         return $this->render('dossier/_effectifs_degagements.html.twig', [
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
+            'hasData' => $hasData,
         ]);
     }
 }
