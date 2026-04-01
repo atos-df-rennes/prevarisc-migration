@@ -5,19 +5,19 @@
 {% block body %}
     {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
 
-    <div class="pull-right">
+    <div class="pull-right action-buttons">
         <div class="btn-group">
             <a class="btn btn-default" href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
                 Annuler la modification
             </a>
             <button type="submit" class="btn btn-success">
-                <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Sauvegarder
             </button>
         </div>
     </div>
+    <div class="clearfix"></div>
 
     <h3>Modification des descriptifs</h3>
-    <div class="clearfix"></div>
 
     {# --- Champs textuels généraux --- #}
     <div class="panel panel-default">
@@ -25,15 +25,15 @@
         <div class="panel-body">
             <div class="form-group">
                 {{ form_label(form.historiqueDescriptif) }}
-                {{ form_widget(form.historiqueDescriptif, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.historiqueDescriptif) }}
             </div>
             <div class="form-group">
                 {{ form_label(form.descriptif) }}
-                {{ form_widget(form.descriptif, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.descriptif) }}
             </div>
             <div class="form-group">
                 {{ form_label(form.descriptifDerogation) }}
-                {{ form_widget(form.descriptifDerogation, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.descriptifDerogation) }}
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -66,7 +66,7 @@
                     <div class="col-sm-3">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -83,7 +83,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -100,7 +100,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -113,11 +113,9 @@
         <div class="panel-heading"><h4 class="panel-title">Distribution intérieure</h4></div>
         <div class="panel-body">
             {% for field_name in ['desctechDistributionCloisonnementTrad', 'desctechDistributionSecteurs', 'desctechDistributionCompartiments'] %}
-                <div class="checkbox">
-                    <label>
-                        {{ form_widget(attribute(form, field_name)) }}
-                        {{ form_label(attribute(form, field_name)) }}
-                    </label>
+                <div class="form-group">
+                    {{ form_widget(attribute(form, field_name)) }}
+                    {{ form_label(attribute(form, field_name)) }}
                 </div>
             {% endfor %}
         </div>
@@ -132,7 +130,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -149,7 +147,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -162,16 +160,14 @@
         <div class="panel-heading"><h4 class="panel-title">Désenfumage</h4></div>
         <div class="panel-body">
             {% for field_name in ['desctechDesenfumageNaturel', 'desctechDesenfumageMecanique'] %}
-                <div class="checkbox">
-                    <label>
-                        {{ form_widget(attribute(form, field_name)) }}
-                        {{ form_label(attribute(form, field_name)) }}
-                    </label>
+                <div class="form-group">
+                    {{ form_widget(attribute(form, field_name)) }}
+                    {{ form_label(attribute(form, field_name)) }}
                 </div>
             {% endfor %}
             <div class="form-group">
                 {{ form_label(form.desctechDesenfumageCommentaire) }}
-                {{ form_widget(form.desctechDesenfumageCommentaire, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.desctechDesenfumageCommentaire) }}
             </div>
         </div>
     </div>
@@ -186,7 +182,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -204,7 +200,7 @@
                     <div class="col-sm-6">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -221,7 +217,7 @@
                     <div class="col-sm-4">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -235,15 +231,13 @@
         <div class="panel-body">
             <div class="form-group">
                 {{ form_label(form.desctechMoyensSecoursColonnesSeches) }}
-                {{ form_widget(form.desctechMoyensSecoursColonnesSeches, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.desctechMoyensSecoursColonnesSeches) }}
             </div>
             {% for field_name in ['desctechMoyensSecoursColonnesHumides', 'desctechMoyensSecoursRia',
                 'desctechMoyensSecoursSprinkleur', 'desctechMoyensSecoursBrouillardEau'] %}
-                <div class="checkbox">
-                    <label>
-                        {{ form_widget(attribute(form, field_name)) }}
-                        {{ form_label(attribute(form, field_name)) }}
-                    </label>
+                <div class="form-group">
+                    {{ form_widget(attribute(form, field_name)) }}
+                    {{ form_label(attribute(form, field_name)) }}
                 </div>
             {% endfor %}
         </div>
@@ -253,15 +247,13 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">PC Sécurité</h4></div>
         <div class="panel-body">
-            <div class="checkbox">
-                <label>
-                    {{ form_widget(form.desctechPcSecuPresence) }}
-                    {{ form_label(form.desctechPcSecuPresence) }}
-                </label>
+            <div class="form-group">
+                {{ form_widget(form.desctechPcSecuPresence) }}
+                {{ form_label(form.desctechPcSecuPresence) }}
             </div>
             <div class="form-group">
                 {{ form_label(form.desctechPcSecuLocalisation) }}
-                {{ form_widget(form.desctechPcSecuLocalisation, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.desctechPcSecuLocalisation) }}
             </div>
         </div>
     </div>
@@ -270,23 +262,21 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">SSI</h4></div>
         <div class="panel-body">
-            <div class="checkbox">
-                <label>
-                    {{ form_widget(form.desctechSsiPresence) }}
-                    {{ form_label(form.desctechSsiPresence) }}
-                </label>
+            <div class="form-group">
+                {{ form_widget(form.desctechSsiPresence) }}
+                {{ form_label(form.desctechSsiPresence) }}
             </div>
             <div class="row">
                 <div class="col-sm-3">
                     <div class="form-group">
                         {{ form_label(form.desctechSsiCategorie) }}
-                        {{ form_widget(form.desctechSsiCategorie, {attr: {class: 'form-control'}}) }}
+                        {{ form_widget(form.desctechSsiCategorie) }}
                     </div>
                 </div>
                 <div class="col-sm-3">
                     <div class="form-group">
                         {{ form_label(form.desctechSsiAlarmeType) }}
-                        {{ form_widget(form.desctechSsiAlarmeType, {attr: {class: 'form-control'}}) }}
+                        {{ form_widget(form.desctechSsiAlarmeType) }}
                     </div>
                 </div>
             </div>
@@ -298,11 +288,9 @@
         <div class="panel-heading"><h4 class="panel-title">Service de sécurité</h4></div>
         <div class="panel-body">
             {% for field_name in ['desctechServiceSecuEl18', 'desctechServiceSecuPersonnelsDesignes'] %}
-                <div class="checkbox">
-                    <label>
-                        {{ form_widget(attribute(form, field_name)) }}
-                        {{ form_label(attribute(form, field_name)) }}
-                    </label>
+                <div class="form-group">
+                    {{ form_widget(attribute(form, field_name)) }}
+                    {{ form_label(attribute(form, field_name)) }}
                 </div>
             {% endfor %}
             <div class="row">
@@ -311,14 +299,14 @@
                     <div class="col-sm-3">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
             </div>
             <div class="form-group">
                 {{ form_label(form.desctechServiceSecuCommentaireSp) }}
-                {{ form_widget(form.desctechServiceSecuCommentaireSp, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.desctechServiceSecuCommentaireSp) }}
             </div>
         </div>
     </div>
@@ -333,14 +321,14 @@
                     <div class="col-sm-3">
                         <div class="form-group">
                             {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name), {attr: {class: 'form-control'}}) }}
+                            {{ form_widget(attribute(form, field_name)) }}
                         </div>
                     </div>
                 {% endfor %}
             </div>
             <div class="form-group">
                 {{ form_label(form.desctechDefensePtEauCommentaire) }}
-                {{ form_widget(form.desctechDefensePtEauCommentaire, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.desctechDefensePtEauCommentaire) }}
             </div>
         </div>
     </div>
@@ -351,26 +339,14 @@
         <div class="panel-body">
             <div class="form-group">
                 {{ form_label(form.risquesNaturels) }}
-                {{ form_widget(form.risquesNaturels, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.risquesNaturels) }}
             </div>
             <div class="form-group">
                 {{ form_label(form.risquesTechnologiques) }}
-                {{ form_widget(form.risquesTechnologiques, {attr: {class: 'form-control'}}) }}
+                {{ form_widget(form.risquesTechnologiques) }}
             </div>
         </div>
     </div>
-
-    <div class="pull-right">
-        <div class="btn-group">
-            <a class="btn btn-default" href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
-                Annuler la modification
-            </a>
-            <button type="submit" class="btn btn-success">
-                <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder
-            </button>
-        </div>
-    </div>
-    <div class="clearfix"></div>
 
     {{ form_end(form) }}
 {% endblock %}

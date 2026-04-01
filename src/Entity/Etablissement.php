@@ -491,9 +491,9 @@ class Etablissement
     private $desctechAscenseursNbAs4;
 
     /**
-     * @var ?int
+     * @var ?bool
      *
-     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT", type="integer", nullable=true)
+     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT", type="boolean", nullable=true)
      */
     private $desctechMoyensSecoursColonnesSeches;
 
@@ -1612,12 +1612,12 @@ class Etablissement
         return $this;
     }
 
-    public function getDesctechMoyensSecoursColonnesSeches(): ?int
+    public function getDesctechMoyensSecoursColonnesSeches(): ?bool
     {
         return $this->desctechMoyensSecoursColonnesSeches;
     }
 
-    public function setDesctechMoyensSecoursColonnesSeches(?int $v): self
+    public function setDesctechMoyensSecoursColonnesSeches(?bool $v): self
     {
         $this->desctechMoyensSecoursColonnesSeches = $v;
 

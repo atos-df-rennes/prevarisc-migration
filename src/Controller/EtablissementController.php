@@ -604,28 +604,9 @@ class EtablissementController extends AbstractController implements Etablissemen
     }
 
     /**
-     * Retourne le contenu du descriptif original pour la modale (sans layout).
-     *
-     * @Route("/etablissement/{id}/descriptif-original", name="etablissement_descriptif_original", methods={"GET"})
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
-    public function descriptifOriginal(Etablissement $etablissement): Response
-    {
-        $data = $this->etablissementService->getDescriptifOriginal($etablissement);
-
-        return $this->render('etablissement/_descriptif_original_content.html.twig', [
-            'descriptif' => $data['descriptif'],
-            'historique' => $data['historique'],
-            'derogation' => $data['derogation'],
-            'techniquesGroupes' => $data['techniquesGroupes'],
-        ]);
-    }
-
-    /**
      * Affiche et traite le formulaire d'édition du descriptif original.
      *
-     * @Route("/etablissement/{id}/descriptif-original/modifier", name="etablissement_descriptif_original_modifier", methods={"GET", "POST"})
+     * @Route("/etablissement/{id}/descriptif/modifier", name="etablissement_descriptif_modifier", methods={"GET", "POST"})
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
