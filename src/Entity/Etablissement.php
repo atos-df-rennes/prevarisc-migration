@@ -495,7 +495,7 @@ class Etablissement
      *
      * @ORM\Column(name="DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT", type="integer", nullable=true)
      */
-    private $desctechMoyensSecoursColonnesSèches;
+    private $desctechMoyensSecoursColonnesSeches;
 
     /**
      * @var ?bool
@@ -1612,14 +1612,14 @@ class Etablissement
         return $this;
     }
 
-    public function getDesctechMoyensSecoursColonnesSèches(): ?int
+    public function getDesctechMoyensSecoursColonnesSeches(): ?int
     {
-        return $this->desctechMoyensSecoursColonnesSèches;
+        return $this->desctechMoyensSecoursColonnesSeches;
     }
 
-    public function setDesctechMoyensSecoursColonnesSèches(?int $v): self
+    public function setDesctechMoyensSecoursColonnesSeches(?int $v): self
     {
-        $this->desctechMoyensSecoursColonnesSèches = $v;
+        $this->desctechMoyensSecoursColonnesSeches = $v;
 
         return $this;
     }

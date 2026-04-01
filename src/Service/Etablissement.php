@@ -739,7 +739,7 @@ final class Etablissement
                 'Nombre ascenseurs de type AS4' => ['value' => $etablissement->getDesctechAscenseursNbAs4(), 'type' => 'int'],
             ],
             'Moyens de secours' => [
-                'Colonnes sèches' => ['value' => $etablissement->getDesctechMoyensSecoursColonnesSèches(), 'type' => 'int'],
+                'Colonnes sèches' => ['value' => $etablissement->getDesctechMoyensSecoursColonnesSeches(), 'type' => 'int'],
                 'Colonnes humides' => ['value' => $etablissement->getDesctechMoyensSecoursColonnesHumides(), 'type' => 'tinyint'],
                 'RIA' => ['value' => $etablissement->getDesctechMoyensSecoursRia(), 'type' => 'tinyint'],
                 'Sprinkleur' => ['value' => $etablissement->getDesctechMoyensSecoursSprinkleur(), 'type' => 'tinyint'],

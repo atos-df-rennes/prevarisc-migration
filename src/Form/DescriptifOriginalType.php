@@ -208,7 +208,7 @@ class DescriptifOriginalType extends AbstractType
             ])
 
             // --- Moyens de secours ---
-            ->add('desctechMoyensSecoursColonnesSèches', IntegerType::class, [
+            ->add('desctechMoyensSecoursColonnesSeches', IntegerType::class, [
                 'label' => 'Colonnes sèches',
                 'required' => false,
             ])
