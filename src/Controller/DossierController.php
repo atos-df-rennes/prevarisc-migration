@@ -657,6 +657,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche l'onglet Vérifications techniques du dossier.
      *
      * @Route("/dossier/{id}/verifications-techniques", name="dossier_verifications_techniques", methods={"GET"})
+     *
+     * @IsGranted("verifications_techniques")
      */
     public function verificationsTechniques(Dossier $dossier): Response
     {
@@ -673,6 +675,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche l'onglet Effectifs et Dégagements du dossier.
      *
      * @Route("/dossier/{id}/effectifs-degagements", name="dossier_effectifs_degagements", methods={"GET"})
+     *
+     * @IsGranted("effectifs_degagements_doss")
      */
     public function effectifsDegagements(Dossier $dossier): Response
     {

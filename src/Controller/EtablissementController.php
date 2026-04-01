@@ -574,6 +574,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Sinon, laisse le fallback Zend gérer la page (cette route ne sera pas enregistrée).
      *
      * @Route("/etablissement/{id}/descriptif", name="etablissement_descriptif", methods={"GET"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
      */
     public function descriptif(Etablissement $etablissement): Response
     {
@@ -594,6 +596,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Affiche l'onglet Effectifs et Dégagements de l'établissement.
      *
      * @Route("/etablissement/{id}/effectifs-degagements", name="etablissement_effectifs_degagements", methods={"GET"})
+     *
+     * @IsGranted("effectifs_degagements_ets")
      */
     public function effectifsDegagements(Etablissement $etablissement): Response
     {
