@@ -10,6 +10,7 @@ use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
+use App\Form\DescriptifOriginalType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
@@ -573,7 +574,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche l'onglet Descriptif de l'établissement.
      * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, affiche les formulaires personnalisés.
-     * Sinon, laisse le fallback Zend gérer la page (cette route ne sera pas enregistrée).
+     * Sinon, affiche le descriptif original (champs fixes).
      *
      * @Route("/etablissement/{id}/descriptif", name="etablissement_descriptif", methods={"GET"})
      *
@@ -582,7 +583,15 @@ class EtablissementController extends AbstractController implements Etablissemen
     public function descriptif(Etablissement $etablissement): Response
     {
         if (!$this->descriptifPersonnalise) {
-            return $this->redirect('/etablissement/descriptif/id/'.$etablissement->getId());
+            $data = $this->etablissementService->getDescriptifOriginal($etablissement);
+
+            return $this->render('etablissement/descriptif_original.html.twig', [
+                'etablissement' => $etablissement,
+                'descriptif' => $data['descriptif'],
+                'historique' => $data['historique'],
+                'derogation' => $data['derogation'],
+                'techniquesGroupes' => $data['techniquesGroupes'],
+            ]);
         }
 
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
@@ -591,6 +600,54 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Retourne le contenu du descriptif original pour la modale (sans layout).
+     *
+     * @Route("/etablissement/{id}/descriptif-original", name="etablissement_descriptif_original", methods={"GET"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function descriptifOriginal(Etablissement $etablissement): Response
+    {
+        $data = $this->etablissementService->getDescriptifOriginal($etablissement);
+
+        return $this->render('etablissement/_descriptif_original_content.html.twig', [
+            'descriptif' => $data['descriptif'],
+            'historique' => $data['historique'],
+            'derogation' => $data['derogation'],
+            'techniquesGroupes' => $data['techniquesGroupes'],
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition du descriptif original.
+     *
+     * @Route("/etablissement/{id}/descriptif-original/modifier", name="etablissement_descriptif_original_modifier", methods={"GET", "POST"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
+    {
+        $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->etablissementService->saveDescriptifOriginal();
+                $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez rééssayez. ('.$e->getMessage().')');
+            }
+
+            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/edit_descriptif_original.html.twig', [
+            'etablissement' => $etablissement,
+            'form' => $form->createView(),
         ]);
     }
 

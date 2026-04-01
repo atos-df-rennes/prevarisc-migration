@@ -1,0 +1,15 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Descriptif{% endblock %}
+
+{% block body %}
+    <div class="pull-right">
+        <a class="btn btn-primary" href="{{ path('etablissement_descriptif_original_modifier', {id: etablissement.id}) }}">
+            <span class="glyphicon glyphicon-pencil"></span> Modifier les descriptifs
+        </a>
+    </div>
+
+    <h3>Descriptifs</h3>
+
+    {{ include('etablissement/_descriptif_original_content.html.twig') }}
+{% endblock %}

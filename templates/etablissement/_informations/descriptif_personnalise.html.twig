@@ -14,7 +14,7 @@
         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-descriptif-original">
             <span class="glyphicon glyphicon-eye-open"></span> Descriptif original
         </button>
-        <a class="btn btn-primary" href="/etablissement/edit-descriptif/id/{{ etablissement.id }}">
+        <a class="btn btn-primary" href="{{ path('etablissement_descriptif_original_modifier', {id: etablissement.id}) }}">
             <span class="glyphicon glyphicon-pencil"></span> Modifier le descriptif
         </a>
     </div>
@@ -58,14 +58,9 @@
                 }
 
                 $.ajax({
-                    url: '/etablissement/descriptif/id/{{ etablissement.id }}?original=true',
+                    url: '{{ path('etablissement_descriptif_original', {id: etablissement.id}) }}',
                     success: function (html) {
-                        const doc = (new DOMParser()).parseFromString(html, 'text/html');
-                        const actionButtons = doc.body.querySelector('.action-buttons');
-                        if (actionButtons) {
-                            actionButtons.remove();
-                        }
-                        document.getElementById('modal-descriptif-original-body').innerHTML = doc.body.innerHTML;
+                        document.getElementById('modal-descriptif-original-body').innerHTML = html;
                         loaded = true;
                     },
                     error: function () {

@@ -1,0 +1,62 @@
+{# Contenu du descriptif original - utilisé dans la modale et en standalone.
+   Pas d'extension de layout : ce template est pensé pour être chargé en AJAX. #}
+
+{% if historique is not empty %}
+    <h4 class="h4_subtitle">Historique de l'établissement</h4>
+    <p>{{ historique|nl2br }}</p>
+{% endif %}
+
+{% if descriptif is not empty %}
+    <h4 class="h4_subtitle">Descriptif général</h4>
+    <p>{{ descriptif|nl2br }}</p>
+{% endif %}
+
+{% if derogation is not empty %}
+    <h4 class="h4_subtitle">Dérogations accordées</h4>
+    <p>{{ derogation|nl2br }}</p>
+{% endif %}
+
+{% if historique is empty and descriptif is empty and derogation is empty %}
+    <p class="text-muted"><em>Aucun descriptif renseigné.</em></p>
+{% endif %}
+
+<h4 class="h4_subtitle">Descriptif technique</h4>
+
+<div class="row">
+    {% set col_count = 0 %}
+    {% for section_title, champs in techniquesGroupes %}
+        {% set has_data = false %}
+        {% for label, champ in champs %}
+            {% if champ.value is not null and champ.value is not same as(0) and champ.value is not same as('') %}
+                {% set has_data = true %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="col-sm-4">
+            <h5 class="lead">{{ section_title }}</h5>
+            {% if has_data %}
+                <dl>
+                    {% for label, champ in champs %}
+                        {% if champ.value is not null and champ.value is not same as(0) and champ.value is not same as('') %}
+                            <dt>{{ label }}</dt>
+                            <dd>
+                                {% if champ.type == 'tinyint' %}
+                                    {{ champ.value ? 'Oui' : 'Non' }}
+                                {% else %}
+                                    {{ champ.value }}
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    {% endfor %}
+                </dl>
+            {% else %}
+                <p class="text-muted">Aucune donnée disponible</p>
+            {% endif %}
+        </div>
+
+        {% set col_count = col_count + 1 %}
+        {% if col_count % 3 == 0 %}
+            </div><div class="row">
+        {% endif %}
+    {% endfor %}
+</div>
