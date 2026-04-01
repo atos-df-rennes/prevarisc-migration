@@ -13,6 +13,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DescriptifOriginalType extends AbstractType
 {
+    /** @var string */
+    private $risquesNaturelsExemples;
+
+    /** @var string */
+    private $risquesTechnologiquesExemples;
+
+    public function __construct(string $risquesNaturelsExemples, string $risquesTechnologiquesExemples)
+    {
+        $this->risquesNaturelsExemples = $risquesNaturelsExemples;
+        $this->risquesTechnologiquesExemples = $risquesTechnologiquesExemples;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -318,18 +330,18 @@ class DescriptifOriginalType extends AbstractType
             ->add('risquesNaturels', TextareaType::class, [
                 'label' => 'Risques naturels',
                 'required' => false,
-                'attr' => [
-                    'rows' => 2,
-                    'placeholder' => 'Avalanche, Cyclonique, Feux de Forêt, Inondation, Mouvement de terrain, Sismique, Submersion marine, Tempête, Volcanique',
-                ],
+                'attr' => ['rows' => 2],
+                'help' => '' !== $this->risquesNaturelsExemples
+                    ? 'Exemples de risques naturels : '.$this->risquesNaturelsExemples
+                    : null,
             ])
             ->add('risquesTechnologiques', TextareaType::class, [
                 'label' => 'Risques technologiques',
                 'required' => false,
-                'attr' => [
-                    'rows' => 2,
-                    'placeholder' => 'Industriel, Nucléaire, Rupture de barrage, Transport de matières dangereuses',
-                ],
+                'attr' => ['rows' => 2],
+                'help' => '' !== $this->risquesTechnologiquesExemples
+                    ? 'Exemples de risques technologiques : '.$this->risquesTechnologiquesExemples
+                    : null,
             ])
         ;
     }

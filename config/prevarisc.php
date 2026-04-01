@@ -266,4 +266,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_DESCRIPTIF_PERSONNALISE)', 0);
 
     $parameters->set('app.descriptif_personnalise', '%env(bool:PREVARISC_DESCRIPTIF_PERSONNALISE)%');
+
+    $parameters->set('env(PREVARISC_RISQUES_NATURELS_EXEMPLES)', '');
+
+    $parameters->set('app.risques_naturels_exemples', '%env(string:PREVARISC_RISQUES_NATURELS_EXEMPLES)%');
+
+    $parameters->set('env(PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)', '');
+
+    $parameters->set('app.risques_technologiques_exemples', '%env(string:PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)%');
 };
