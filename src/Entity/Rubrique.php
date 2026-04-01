@@ -135,6 +135,21 @@ class Rubrique
         return $this->champs;
     }
 
+    /**
+     * Retourne uniquement les champs racine (sans parent) de la rubrique, dans l'ordre idx.
+     *
+     * En base de données, les champs enfants partagent la même FK rubrique que leur parent.
+     * Cette méthode filtre la collection en mémoire pour n'exposer que les champs de premier niveau.
+     *
+     * @return Collection<int, Champ>
+     */
+    public function getRootChamps(): Collection
+    {
+        return $this->champs->filter(function (Champ $champ): bool {
+            return null === $champ->getParent();
+        });
+    }
+
     public function addChamp(Champ $champ): self
     {
         if (!$this->champs->contains($champ)) {

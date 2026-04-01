@@ -49,22 +49,11 @@ class Descriptif
      */
     public function getForDossier(Dossier $dossier, string $capsuleNomInterne): array
     {
-        $capsule = $this->capsuleRubriqueRepository->findByNomInterneWithFullData($capsuleNomInterne);
-
-        if (null === $capsule) {
-            return ['capsule' => null, 'rubriques' => []];
-        }
-
-        $valeurs = $this->valeurRepository->findByDossier($dossier);
-
-        $displayPrefs = $this->indexDisplayPrefsByRubriqueId(
-            $this->dossierDisplayRubriqueRepository->findBy(['dossier' => $dossier])
+        return $this->buildData(
+            $capsuleNomInterne,
+            $this->valeurRepository->findByDossier($dossier),
+            $this->buildDisplayPrefs($this->dossierDisplayRubriqueRepository->findBy(['dossier' => $dossier]))
         );
-
-        return [
-            'capsule' => $capsule,
-            'rubriques' => $this->buildRubriques($capsule, $valeurs, $displayPrefs),
-        ];
     }
 
     /**
@@ -74,17 +63,31 @@ class Descriptif
      */
     public function getForEtablissement(Etablissement $etablissement, string $capsuleNomInterne): array
     {
+        return $this->buildData(
+            $capsuleNomInterne,
+            $this->valeurRepository->findByEtablissement($etablissement),
+            $this->buildDisplayPrefs($this->etablissementDisplayRubriqueRepository->findBy(['etablissement' => $etablissement]))
+        );
+    }
+
+    /**
+     * Logique commune : charge la capsule et assemble la structure finale.
+     *
+     * Les valeurs sont pré-chargées en une seule requête et indexées par champId
+     * pour éviter les requêtes N+1 lors de l'assemblage.
+     *
+     * @param array<int, Valeur[]> $valeurs      valeurs indexées par champId
+     * @param array<int, bool>     $displayPrefs prefs indexées par rubriqueId
+     *
+     * @return array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}
+     */
+    private function buildData(string $capsuleNomInterne, array $valeurs, array $displayPrefs): array
+    {
         $capsule = $this->capsuleRubriqueRepository->findByNomInterneWithFullData($capsuleNomInterne);
 
         if (null === $capsule) {
             return ['capsule' => null, 'rubriques' => []];
         }
-
-        $valeurs = $this->valeurRepository->findByEtablissement($etablissement);
-
-        $displayPrefs = $this->indexDisplayPrefsByRubriqueId(
-            $this->etablissementDisplayRubriqueRepository->findBy(['etablissement' => $etablissement])
-        );
 
         return [
             'capsule' => $capsule,
@@ -108,11 +111,7 @@ class Descriptif
             $display = $displayPrefs[$rubrique->getId()] ?? $rubrique->getDefaultDisplay() ?? true;
 
             $champs = [];
-            foreach ($rubrique->getChamps() as $champ) {
-                if (null !== $champ->getParent()) {
-                    continue;
-                }
-
+            foreach ($rubrique->getRootChamps() as $champ) {
                 $champs[] = $this->buildChamp($champ, $valeurs);
             }
 
@@ -224,23 +223,23 @@ class Descriptif
     }
 
     /**
-     * Indexe les préférences d'affichage par ID de rubrique.
+     * Construit un index [rubriqueId => bool] depuis les préférences d'affichage.
      *
      * @param DossierDisplayRubrique[]|EtablissementDisplayRubrique[] $displayRubriques
      *
      * @return array<int, bool>
      */
-    private function indexDisplayPrefsByRubriqueId(array $displayRubriques): array
+    private function buildDisplayPrefs(array $displayRubriques): array
     {
-        $indexed = [];
+        $prefs = [];
         foreach ($displayRubriques as $displayRubrique) {
             $rubrique = $displayRubrique->getRubrique();
             $rubriqueId = null !== $rubrique ? $rubrique->getId() : null;
             if (null !== $rubriqueId) {
-                $indexed[$rubriqueId] = (bool) $displayRubrique->getUserDisplay();
+                $prefs[$rubriqueId] = (bool) $displayRubrique->getUserDisplay();
             }
         }
 
-        return $indexed;
+        return $prefs;
     }
 }
