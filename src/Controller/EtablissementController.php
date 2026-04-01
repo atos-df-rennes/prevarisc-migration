@@ -636,7 +636,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
         if ($this->descriptifPersonnalise) {
-            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+            return $this->redirect('/etablissement/edit-descriptif/id/' . $etablissement->getId());
         }
 
         $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
