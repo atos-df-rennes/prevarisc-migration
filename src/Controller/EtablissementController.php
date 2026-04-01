@@ -627,7 +627,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @Route("/etablissement/{id}/descriptif/modifier", name="etablissement_descriptif_modifier", methods={"GET", "POST"})
      *
-     * @IsGranted("view_ets", subject="etablissement")
+     * @IsGranted("edit_ets", subject="etablissement")
      */
     public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
