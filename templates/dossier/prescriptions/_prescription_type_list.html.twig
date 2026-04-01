@@ -17,31 +17,17 @@
             <li id="prescriptiontype_{{ prescription_type.id }}">
                 <table class="table">
                     {% for association in associations %}
-                        {% set texte_libelle = (association.texte ? association.texte.libelle : '')|e('html') %}
-                        {% set article_libelle = (association.article ? association.article.libelle : '')|e('html') %}
-
-                        {% if mots_cles is not empty %}
-                            {% for mot in mots_cles %}
-                                {% set escaped_mot = mot|e('html') %}
-                                {% set texte_libelle = texte_libelle|replace_ci(mot, '<span class="highlight">' ~ escaped_mot ~ '</span>') %}
-                                {% set article_libelle = article_libelle|replace_ci(mot, '<span class="highlight">' ~ escaped_mot ~ '</span>') %}
-                            {% endfor %}
-                        {% endif %}
+                        {% set texte_libelle = (association.texte ? association.texte.libelle : '')|e('html')|highlight(mots_cles) %}
+                        {% set article_libelle = (association.article ? association.article.libelle : '')|e('html')|highlight(mots_cles) %}
 
                         <tr>
-                            <td class="col-xs-2">{{ texte_libelle|raw }}</td>
-                            <td class="col-xs-2">{{ article_libelle|raw }}</td>
+                            <td class="col-xs-2">{{ texte_libelle }}</td>
+                            <td class="col-xs-2">{{ article_libelle }}</td>
 
                             {% if loop.first %}
-                                {% set libelle_texte = prescription_type.libelle|default('')|e('html')|nl2br %}
-                                {% if mots_cles is not empty %}
-                                    {% for mot in mots_cles %}
-                                        {% set escaped_mot = mot|e('html') %}
-                                        {% set libelle_texte = libelle_texte|replace_ci(mot, '<span class="highlight">' ~ escaped_mot ~ '</span>') %}
-                                    {% endfor %}
-                                {% endif %}
+                                {% set libelle_texte = prescription_type.libelle|default('')|e('html')|nl2br|highlight(mots_cles) %}
 
-                                <td rowspan="{{ nb_assoc }}" class="col-xs-7">{{ libelle_texte|raw }}</td>
+                                <td rowspan="{{ nb_assoc }}" class="col-xs-7">{{ libelle_texte }}</td>
                                 <td rowspan="{{ nb_assoc }}" class="col-xs-1">
                                     <button
                                         type="button"
