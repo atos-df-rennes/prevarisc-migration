@@ -39,6 +39,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -659,7 +660,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/verifications-techniques", name="dossier_verifications_techniques", methods={"GET"})
      *
-     * @IsGranted("verifications_techniques")
+     * @Security("is_granted('verifications_techniques') and is_granted('view_doss', dossier)")
      */
     public function verificationsTechniques(Dossier $dossier): Response
     {
@@ -677,7 +678,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/effectifs-degagements", name="dossier_effectifs_degagements", methods={"GET"})
      *
-     * @IsGranted("effectifs_degagements_doss")
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('view_doss', dossier)")
      */
     public function effectifsDegagements(Dossier $dossier): Response
     {

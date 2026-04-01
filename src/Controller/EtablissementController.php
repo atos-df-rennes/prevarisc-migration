@@ -30,6 +30,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -598,7 +599,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @Route("/etablissement/{id}/effectifs-degagements", name="etablissement_effectifs_degagements", methods={"GET"})
      *
-     * @IsGranted("effectifs_degagements_ets")
+     * @Security("is_granted('effectifs_degagements_ets') and is_granted('view_ets', etablissement)")
      */
     public function effectifsDegagements(Etablissement $etablissement): Response
     {
