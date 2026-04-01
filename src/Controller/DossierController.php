@@ -685,7 +685,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $hasData = false;
         foreach ($data['rubriques'] as $rubrique) {
             foreach ($rubrique['champs'] as $champData) {
-                if (null !== $champData['valeur'] || [] !== $champData['lignes']) {
+                if (null !== $champData['valeur'] || (array_key_exists('lignes', $champData) && [] !== $champData['lignes'])) {
                     $hasData = true;
                     break 2;
                 }
