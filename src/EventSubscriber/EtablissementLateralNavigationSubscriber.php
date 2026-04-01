@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber;
 
+use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
@@ -99,8 +100,8 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         $parents = array_reverse($parents);
         $event->getRequest()->attributes->set('parents_etablissement', $parents);
 
-        $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifEtablissement']);
-        $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsEtablissement']);
+        $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT]);
+        $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT]);
         $event->getRequest()->attributes->set('libelle_descriptif', null !== $capsuleDescriptifEtablissement ? $capsuleDescriptifEtablissement->getNom() : 'Descriptif');
         $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
 

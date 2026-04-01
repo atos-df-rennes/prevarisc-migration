@@ -11,7 +11,7 @@
             {% for etablissement in dossier.etablissements %}
                 <li>
                     <a
-                        href="/etablissement/descriptif/id/{{ etablissement.id }}"
+                        href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}"
                         title='Afficher le descriptif'
                         class="infosEtabs__button-link"
                     >

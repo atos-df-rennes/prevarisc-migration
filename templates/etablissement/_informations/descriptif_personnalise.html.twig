@@ -1,0 +1,79 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% import 'components/_formulaire_personnalise.html.twig' as forms %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}{{ parent() }} / Descriptif{% endblock %}
+
+{% block body %}
+    <div class="pull-right">
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-descriptif-original">
+            <span class="glyphicon glyphicon-eye-open"></span> Descriptif original
+        </button>
+        <a class="btn btn-primary" href="/etablissement/edit-descriptif/id/{{ etablissement.id }}">
+            <span class="glyphicon glyphicon-pencil"></span> Modifier le descriptif
+        </a>
+    </div>
+
+    <h3>{{ capsule ? capsule.nom : 'Descriptif' }}</h3>
+
+    {% if rubriques is empty %}
+        <p class="text-muted">
+            <em>Aucune rubrique configurée. Contactez un administrateur Prevarisc.</em>
+        </p>
+    {% else %}
+        {{ forms.rubriques(rubriques) }}
+    {% endif %}
+
+    <div id="modal-descriptif-original" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-descriptif-original-label">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-descriptif-original-label">Descriptif original</h4>
+                </div>
+                <div class="modal-body" id="modal-descriptif-original-body">
+                    <p class="text-muted text-center">
+                        <em>Chargement… <span class="glyphicon glyphicon-refresh spinning"></span></em>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var loaded = false;
+
+            $('#modal-descriptif-original').on('show.bs.modal', function () {
+                if (loaded) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '/etablissement/descriptif/id/{{ etablissement.id }}?original=true',
+                    success: function (html) {
+                        const doc = (new DOMParser()).parseFromString(html, 'text/html');
+                        const actionButtons = doc.body.querySelector('.action-buttons');
+                        if (actionButtons) {
+                            actionButtons.remove();
+                        }
+                        document.getElementById('modal-descriptif-original-body').innerHTML = doc.body.innerHTML;
+                        loaded = true;
+                    },
+                    error: function () {
+                        document.getElementById('modal-descriptif-original-body').innerHTML =
+                            '<p class="text-danger">Une erreur est survenue lors du chargement.</p>';
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

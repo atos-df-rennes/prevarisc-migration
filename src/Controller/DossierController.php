@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
+use App\Constant\NomInterneCapsule;
 use App\Constant\TypeChangement;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Avis;
@@ -24,6 +25,7 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
+use App\Service\Descriptif as DescriptifService;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
@@ -37,6 +39,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -140,6 +143,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DossierRepository */
     private $dossierRepository;
 
+    /** @var DescriptifService */
+    private $descriptifService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -161,7 +167,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
-        DossierRepository $dossierRepository
+        DossierRepository $dossierRepository,
+        DescriptifService $descriptifService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -184,6 +191,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
+        $this->descriptifService = $descriptifService;
     }
 
     /**
@@ -644,6 +652,53 @@ class DossierController extends AbstractController implements DossierLateralNavi
         return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Vérifications techniques du dossier.
+     *
+     * @Route("/dossier/{id}/verifications-techniques", name="dossier_verifications_techniques", methods={"GET"})
+     *
+     * @Security("is_granted('verifications_techniques') and is_granted('view_doss', dossier)")
+     */
+    public function verificationsTechniques(Dossier $dossier): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
+
+        return $this->render('dossier/_verifications_techniques.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Effectifs et Dégagements du dossier.
+     *
+     * @Route("/dossier/{id}/effectifs-degagements", name="dossier_effectifs_degagements", methods={"GET"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('view_doss', dossier)")
+     */
+    public function effectifsDegagements(Dossier $dossier): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+        $hasData = false;
+        foreach ($data['rubriques'] as $rubrique) {
+            foreach ($rubrique['champs'] as $champData) {
+                if (null !== $champData['valeur'] || (array_key_exists('lignes', $champData) && [] !== $champData['lignes'])) {
+                    $hasData = true;
+                    break 2;
+                }
+            }
+        }
+
+        return $this->render('dossier/_effectifs_degagements.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+            'hasData' => $hasData,
         ]);
     }
 }

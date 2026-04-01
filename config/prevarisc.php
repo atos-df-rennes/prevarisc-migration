@@ -262,4 +262,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_COMMISSION_COMMUNALE_TYPE)', 2);
 
     $parameters->set('app.commission_communale_type', '%env(int:PREVARISC_COMMISSION_COMMUNALE_TYPE)%');
+
+    $parameters->set('env(PREVARISC_DESCRIPTIF_PERSONNALISE)', 0);
+
+    $parameters->set('app.descriptif_personnalise', '%env(bool:PREVARISC_DESCRIPTIF_PERSONNALISE)%');
 };

@@ -1296,6 +1296,7 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
 .table-wrapper .table-responsive .table td,
 .table-wrapper .table-responsive .table th {
   white-space: nowrap;
+  border-bottom: 0;
 }
 
 .table-wrapper .table-responsive:not(.table-tableau) .table,
