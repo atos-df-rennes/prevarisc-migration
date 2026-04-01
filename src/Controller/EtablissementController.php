@@ -610,8 +610,12 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @IsGranted("view_ets", subject="etablissement")
      */
-    public function descriptifOriginal(Etablissement $etablissement): Response
+    public function descriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
+        if (!$request->isXmlHttpRequest()) {
+            throw $this->createNotFoundException();
+        }
+
         $data = $this->etablissementService->getDescriptifOriginal($etablissement);
 
         return $this->render('etablissement/_descriptif_original_content.html.twig', [
@@ -631,6 +635,10 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
+        if ($this->descriptifPersonnalise) {
+            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+        }
+
         $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
         $form->handleRequest($request);
 
