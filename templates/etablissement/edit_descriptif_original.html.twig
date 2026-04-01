@@ -23,18 +23,9 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">Descriptifs généraux</h4></div>
         <div class="panel-body">
-            <div class="form-group">
-                {{ form_label(form.historiqueDescriptif) }}
-                {{ form_widget(form.historiqueDescriptif) }}
-            </div>
-            <div class="form-group">
-                {{ form_label(form.descriptif) }}
-                {{ form_widget(form.descriptif) }}
-            </div>
-            <div class="form-group">
-                {{ form_label(form.descriptifDerogation) }}
-                {{ form_widget(form.descriptifDerogation) }}
-            </div>
+            {{ form_row(form.historiqueDescriptif) }}
+            {{ form_row(form.descriptif) }}
+            {{ form_row(form.descriptifDerogation) }}
         </div>
     </div>
 
@@ -45,12 +36,7 @@
             <div class="row">
                 {% for field_name in ['desctechImplantationSurface', 'desctechImplantationSurfaceTotale', 'desctechImplantationSurfaceAccPublic',
                     'desctechImplantationShon', 'desctechImplantationNbNiveaux', 'desctechImplantationPbdn'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -63,12 +49,7 @@
             <div class="row">
                 {% for field_name in ['desctechDesserteNbFacadeLibre', 'desctechDesserteVoieEngin',
                     'desctechDesserteVoieEchelle', 'desctechDesserteEspaceLibre'] %}
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-3">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -80,12 +61,7 @@
         <div class="panel-body">
             <div class="row">
                 {% for field_name in ['desctechIsolementLateralCf', 'desctechIsolementSuperposeCf', 'desctechIsolementVisAVis'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -97,12 +73,7 @@
         <div class="panel-body">
             <div class="row">
                 {% for field_name in ['desctechStabiliteStructureSf', 'desctechStabilitePlancher'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -113,10 +84,7 @@
         <div class="panel-heading"><h4 class="panel-title">Distribution intérieure</h4></div>
         <div class="panel-body">
             {% for field_name in ['desctechDistributionCloisonnementTrad', 'desctechDistributionSecteurs', 'desctechDistributionCompartiments'] %}
-                <div class="form-group">
-                    {{ form_widget(attribute(form, field_name)) }}
-                    {{ form_label(attribute(form, field_name)) }}
-                </div>
+                {{ form_row(attribute(form, field_name)) }}
             {% endfor %}
         </div>
     </div>
@@ -127,12 +95,7 @@
         <div class="panel-body">
             <div class="row">
                 {% for field_name in ['desctechLocauxRisqueNbMoyens', 'desctechLocauxRisqueNbImportants'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -144,12 +107,7 @@
         <div class="panel-body">
             <div class="row">
                 {% for field_name in ['desctechEspacesNombre', 'desctechEspacesNiveauConcerne'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -160,15 +118,9 @@
         <div class="panel-heading"><h4 class="panel-title">Désenfumage</h4></div>
         <div class="panel-body">
             {% for field_name in ['desctechDesenfumageNaturel', 'desctechDesenfumageMecanique'] %}
-                <div class="form-group">
-                    {{ form_widget(attribute(form, field_name)) }}
-                    {{ form_label(attribute(form, field_name)) }}
-                </div>
+                {{ form_row(attribute(form, field_name)) }}
             {% endfor %}
-            <div class="form-group">
-                {{ form_label(form.desctechDesenfumageCommentaire) }}
-                {{ form_widget(form.desctechDesenfumageCommentaire) }}
-            </div>
+            {{ form_row(form.desctechDesenfumageCommentaire) }}
         </div>
     </div>
 
@@ -179,12 +131,7 @@
             <div class="row">
                 {% for field_name in ['desctechChaufferiesNb', 'desctechChaufferiesPuissMax', 'desctechChaufferiesPuissanceTotale',
                     'desctechChaufferiesNb30Kw', 'desctechChaufferiesNb70Kw', 'desctechChaufferiesNb2Mw'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -197,12 +144,7 @@
             <div class="row">
                 {% for field_name in ['desctechCoupureNrjGaz', 'desctechCoupureNrjElec',
                     'desctechCoupureNrjPhotovoltaique', 'desctechCoupureNrjAutre'] %}
-                    <div class="col-sm-6">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-6">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -214,12 +156,7 @@
         <div class="panel-body">
             <div class="row">
                 {% for field_name in ['desctechAscenseursNbTotal', 'desctechAscenseursNbAs4'] %}
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
         </div>
@@ -229,16 +166,10 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">Moyens de secours</h4></div>
         <div class="panel-body">
-            <div class="form-group">
-                {{ form_label(form.desctechMoyensSecoursColonnesSeches) }}
-                {{ form_widget(form.desctechMoyensSecoursColonnesSeches) }}
-            </div>
+            {{ form_row(form.desctechMoyensSecoursColonnesSeches) }}
             {% for field_name in ['desctechMoyensSecoursColonnesHumides', 'desctechMoyensSecoursRia',
                 'desctechMoyensSecoursSprinkleur', 'desctechMoyensSecoursBrouillardEau'] %}
-                <div class="form-group">
-                    {{ form_widget(attribute(form, field_name)) }}
-                    {{ form_label(attribute(form, field_name)) }}
-                </div>
+                {{ form_row(attribute(form, field_name)) }}
             {% endfor %}
         </div>
     </div>
@@ -247,14 +178,8 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">PC Sécurité</h4></div>
         <div class="panel-body">
-            <div class="form-group">
-                {{ form_widget(form.desctechPcSecuPresence) }}
-                {{ form_label(form.desctechPcSecuPresence) }}
-            </div>
-            <div class="form-group">
-                {{ form_label(form.desctechPcSecuLocalisation) }}
-                {{ form_widget(form.desctechPcSecuLocalisation) }}
-            </div>
+            {{ form_row(form.desctechPcSecuPresence) }}
+            {{ form_row(form.desctechPcSecuLocalisation) }}
         </div>
     </div>
 
@@ -262,23 +187,10 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">SSI</h4></div>
         <div class="panel-body">
-            <div class="form-group">
-                {{ form_widget(form.desctechSsiPresence) }}
-                {{ form_label(form.desctechSsiPresence) }}
-            </div>
+            {{ form_row(form.desctechSsiPresence) }}
             <div class="row">
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        {{ form_label(form.desctechSsiCategorie) }}
-                        {{ form_widget(form.desctechSsiCategorie) }}
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        {{ form_label(form.desctechSsiAlarmeType) }}
-                        {{ form_widget(form.desctechSsiAlarmeType) }}
-                    </div>
-                </div>
+                <div class="col-sm-3">{{ form_row(form.desctechSsiCategorie) }}</div>
+                <div class="col-sm-3">{{ form_row(form.desctechSsiAlarmeType) }}</div>
             </div>
         </div>
     </div>
@@ -288,26 +200,15 @@
         <div class="panel-heading"><h4 class="panel-title">Service de sécurité</h4></div>
         <div class="panel-body">
             {% for field_name in ['desctechServiceSecuEl18', 'desctechServiceSecuPersonnelsDesignes'] %}
-                <div class="form-group">
-                    {{ form_widget(attribute(form, field_name)) }}
-                    {{ form_label(attribute(form, field_name)) }}
-                </div>
+                {{ form_row(attribute(form, field_name)) }}
             {% endfor %}
             <div class="row">
                 {% for field_name in ['desctechServiceSecuAgentSecu', 'desctechServiceSecuChefEquipe',
                     'desctechServiceSecuChefDeService', 'desctechServiceSecuSp'] %}
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-3">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
-                {{ form_label(form.desctechServiceSecuCommentaireSp) }}
-                {{ form_widget(form.desctechServiceSecuCommentaireSp) }}
-            </div>
+            {{ form_row(form.desctechServiceSecuCommentaireSp) }}
         </div>
     </div>
 
@@ -318,18 +219,10 @@
             <div class="row">
                 {% for field_name in ['desctechDefensePtEau', 'desctechDefenseVolumePtEau',
                     'desctechDefensePi', 'desctechDefenseBi', 'desctechDefenseDebitSimultane'] %}
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            {{ form_label(attribute(form, field_name)) }}
-                            {{ form_widget(attribute(form, field_name)) }}
-                        </div>
-                    </div>
+                    <div class="col-sm-3">{{ form_row(attribute(form, field_name)) }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
-                {{ form_label(form.desctechDefensePtEauCommentaire) }}
-                {{ form_widget(form.desctechDefensePtEauCommentaire) }}
-            </div>
+            {{ form_row(form.desctechDefensePtEauCommentaire) }}
         </div>
     </div>
 
@@ -337,14 +230,8 @@
     <div class="panel panel-default">
         <div class="panel-heading"><h4 class="panel-title">Risques</h4></div>
         <div class="panel-body">
-            <div class="form-group">
-                {{ form_label(form.risquesNaturels) }}
-                {{ form_widget(form.risquesNaturels) }}
-            </div>
-            <div class="form-group">
-                {{ form_label(form.risquesTechnologiques) }}
-                {{ form_widget(form.risquesTechnologiques) }}
-            </div>
+            {{ form_row(form.risquesNaturels) }}
+            {{ form_row(form.risquesTechnologiques) }}
         </div>
     </div>
 
