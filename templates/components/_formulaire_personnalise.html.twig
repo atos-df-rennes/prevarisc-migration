@@ -66,7 +66,7 @@
         <label class="control-label">
             <strong>{{ champ.nom }}</strong>
         </label>
-        <div class="controls{% if champ_data.champ.type and champ_data.champ.type.id == 6 %} table-wrapper{% endif %}">
+        <div class="controls{% if champ_data.champ.type and champ_data.champ.type.id == constant('App\\Constant\\TypeChamp::PARENT') %} table-wrapper{% endif %}">
             {{ forms.champValeur(champ_data) }}
         </div>
     </div>
@@ -82,7 +82,7 @@
     {% set type_id = champ.type.id %}
 
     {# Type Parent (6) : tableau ou groupe de sous-champs #}
-    {% if type_id == 6 %}
+    {% if type_id == constant('App\\Constant\\TypeChamp::PARENT') %}
         {% if champ.tableau %}
             {{ forms.tableau(champ, champ_data.lignes ?? []) }}
         {% else %}
@@ -90,20 +90,24 @@
         {% endif %}
 
     {# Checkbox (5) : toujours affichée même sans valeur #}
-    {% elseif type_id == 5 %}
+    {% elseif type_id == constant('App\\Constant\\TypeChamp::CHECKBOX') %}
         <input type="checkbox" disabled{% if champ_data.valeur and champ_data.valeur.checkbox %} checked{% endif %}>
 
     {# Champs textuels/numériques : vide si pas de valeur #}
     {% elseif champ_data.valeur is null %}
         <span class="text-muted">Aucune donnée</span>
 
-    {% elseif type_id == 1 or type_id == 3 or type_id == 4 %}
+    {% elseif
+        type_id == constant('App\\Constant\\TypeChamp::TEXT')
+        or type_id == constant('App\\Constant\\TypeChamp::SELECT')
+        or type_id == constant('App\\Constant\\TypeChamp::NUMBER')
+    %}
         <span>{{ champ_data.valeur.str ?? champ_data.valeur.number }}</span>
 
-    {% elseif type_id == 2 %}
+    {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
         <span>{{ (champ_data.valeur.longStr ?? '')|nl2br }}</span>
 
-    {% elseif type_id == 7 %}
+    {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
         <span>{{ champ_data.valeur.date ? champ_data.valeur.date|date('d/m/Y') : '' }}</span>
 
     {% else %}
@@ -135,15 +139,19 @@
                             <td>
                                 {% set valeur = ligne[enfant.id] ?? null %}
                                 {% set type_id = enfant.type ? enfant.type.id : null %}
-                                {% if type_id == 5 %}
+                                {% if type_id == constant('App\\Constant\\TypeChamp::CHECKBOX') %}
                                     <input type="checkbox" disabled{% if valeur and valeur.checkbox %} checked{% endif %}>
                                 {% elseif valeur is null %}
                                     <span class="text-muted">Aucune donnée</span>
-                                {% elseif type_id == 1 or type_id == 3 or type_id == 4 %}
+                                {% elseif
+                                    type_id == constant('App\\Constant\\TypeChamp::TEXT')
+                                    or type_id == constant('App\\Constant\\TypeChamp::SELECT')
+                                    or type_id == constant('App\\Constant\\TypeChamp::NUMBER')
+                                %}
                                     {{ valeur.str ?? valeur.number }}
-                                {% elseif type_id == 2 %}
+                                {% elseif type_id == type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
                                     {{ (valeur.longStr ?? '')|nl2br }}
-                                {% elseif type_id == 7 %}
+                                {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
                                     {{ valeur.date ? valeur.date|date('d/m/Y') : '' }}
                                 {% endif %}
                             </td>
