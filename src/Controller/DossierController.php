@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
+use App\Constant\NomInterneCapsule;
 use App\Constant\TypeChangement;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Avis;
@@ -662,7 +663,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function verificationsTechniques(Dossier $dossier): Response
     {
-        $data = $this->descriptifService->getForDossier($dossier, 'descriptifVerificationsTechniques');
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
 
         return $this->render('dossier/_verifications_techniques.html.twig', [
             'dossier' => $dossier,
@@ -680,7 +681,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function effectifsDegagements(Dossier $dossier): Response
     {
-        $data = $this->descriptifService->getForDossier($dossier, 'effectifsDegagementsDossier');
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
 
         $hasData = false;
         foreach ($data['rubriques'] as $rubrique) {

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Constant\TypeChamp;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Dossier;
@@ -9,7 +10,6 @@ use App\Entity\DossierDisplayRubrique;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementDisplayRubrique;
 use App\Entity\Rubrique;
-use App\Entity\TypeChamp;
 use App\Entity\Valeur;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\DossierDisplayRubriqueRepository;

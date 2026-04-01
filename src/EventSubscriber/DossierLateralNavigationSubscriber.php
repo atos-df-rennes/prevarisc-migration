@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber;
 
+use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\DossierAffectationRepository;
@@ -75,8 +76,8 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
 
         $event->getRequest()->attributes->set('nombre_nouvelles_pieces_jointes', $this->serviceDossier->nombreNouvellesPiecesJointes($dossier));
 
-        $capsuleVerificationsTechniques = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'descriptifVerificationsTechniques']);
-        $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => 'effectifsDegagementsDossier']);
+        $capsuleVerificationsTechniques = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES]);
+        $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER]);
         $event->getRequest()->attributes->set('libelle_verifications_techniques', null !== $capsuleVerificationsTechniques ? $capsuleVerificationsTechniques->getNom() : 'Vérifications techniques');
         $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
     }

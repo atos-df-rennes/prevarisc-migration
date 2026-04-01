@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Constant\DossierType;
+use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
@@ -583,7 +584,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             return $this->redirect('/etablissement/descriptif/id/'.$etablissement->getId());
         }
 
-        $data = $this->descriptifService->getForEtablissement($etablissement, 'descriptifEtablissement');
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
 
         return $this->render('etablissement/_informations/descriptif_personnalise.html.twig', [
             'etablissement' => $etablissement,
@@ -601,7 +602,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function effectifsDegagements(Etablissement $etablissement): Response
     {
-        $data = $this->descriptifService->getForEtablissement($etablissement, 'effectifsDegagementsEtablissement');
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
 
         return $this->render('etablissement/_informations/effectifs_degagements.html.twig', [
             'etablissement' => $etablissement,
