@@ -32,6 +32,7 @@ use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierDonnantAvisService;
+use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -154,6 +155,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DescriptifInspector */
     private $descriptifInspector;
 
+    /** @var EffectifsDegagementsRepriseValidator */
+    private $repriseValidator;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -178,7 +182,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierRepository $dossierRepository,
         DescriptifService $descriptifService,
         DescriptifCopier $descriptifCopier,
-        DescriptifInspector $descriptifInspector
+        DescriptifInspector $descriptifInspector,
+        EffectifsDegagementsRepriseValidator $repriseValidator
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -204,6 +209,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->descriptifService = $descriptifService;
         $this->descriptifCopier = $descriptifCopier;
         $this->descriptifInspector = $descriptifInspector;
+        $this->repriseValidator = $repriseValidator;
     }
 
     /**
@@ -780,6 +786,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
+        if ($dossier->hasVerrou()) {
+            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
+        }
+
         $etablissements = $dossier->getEtablissements()->toArray();
         $nbEtablissements = count($etablissements);
 
@@ -832,6 +842,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function effectifsDegagementsModalReprise(Dossier $dossier): Response
     {
+        if ($dossier->hasVerrou()) {
+            return new Response('', Response::HTTP_FORBIDDEN);
+        }
+
         $etablissements = $dossier->getEtablissements();
 
         if (1 !== $etablissements->count()) {
@@ -871,6 +885,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
+        if ($dossier->hasVerrou()) {
+            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
+        }
+
         $rawDossierSelect = $request->request->get('dossierSelect', 0);
         $idDossierSource = is_scalar($rawDossierSelect) ? (int) $rawDossierSelect : 0;
         if (0 === $idDossierSource) {
@@ -884,6 +902,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         if (!$this->isGranted('view_doss', $dossierSource)) {
             return $this->json(['error' => "Vous n'avez pas le droit de consulter le dossier source."], 403);
+        }
+
+        $erreurValidation = $this->repriseValidator->validerSource($dossier, $dossierSource);
+        if (null !== $erreurValidation) {
+            return $this->json(['error' => $erreurValidation], 400);
         }
 
         try {

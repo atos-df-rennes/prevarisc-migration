@@ -35,7 +35,7 @@
                     <div class="{{ input_type }}">
                         <label>
                             <input type="{{ input_type }}" name="{{ input_name }}" value="{{ source.id }}">
-                            <a href="{{ path('dossier_index', {id: source.id}) }}" target="_blank">{{ libelle }}</a>
+                            <a href="{{ path('dossier_index', {id: source.id}) }}" target="_blank" rel="noopener noreferrer">{{ libelle }}</a>
                             <small class="text-muted">— {{ date_label }} {{ date_val }}</small>
 
                             {% if source.incomplet %}
