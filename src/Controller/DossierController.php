@@ -825,4 +825,94 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->json(['success' => true]);
     }
+
+    /**
+     * Retourne le contenu de la modale "Reprendre les effectifs et dégagements d'un dossier précédent".
+     *
+     * @Route("/dossier/{id}/effectifs-degagements/modal-reprise",
+     *        name="dossier_effectifs_degagements_modal_reprise",
+     *        requirements={"id"="\d+"},
+     *        methods={"GET"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function effectifsDegagementsModalReprise(Dossier $dossier): Response
+    {
+        $etablissements = $dossier->getEtablissements();
+
+        if (1 !== $etablissements->count()) {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        }
+
+        $etablissement = $etablissements->first();
+        if (false === $etablissement) {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        }
+
+        $groupes = $this->dossierRepository->findByEtablissementGrouped($etablissement, $dossier);
+
+        return $this->render('dossier/_modal_reprise_effectifs_degagements.html.twig', [
+            'dossier' => $dossier,
+            'etudes' => $groupes['etudes'],
+            'visites' => $groupes['visites'],
+            'autres' => $groupes['autres'],
+        ]);
+    }
+
+    /**
+     * Reprend les effectifs et dégagements d'un dossier source vers le dossier courant.
+     *
+     * @Route("/dossier/{id}/effectifs-degagements/reprendre-depuis-etude",
+     *        name="dossier_effectifs_degagements_reprendre_depuis_etude",
+     *        requirements={"id"="\d+"},
+     *        methods={"POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function reprendreEffectifsDegagementsDepuisEtude(
+        Dossier $dossier,
+        Request $request
+    ): Response {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('reprendre_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
+            return $this->json(['error' => 'Token CSRF invalide.'], 403);
+        }
+
+        $rawDossierSelect = $request->request->get('dossierSelect', 0);
+        $idDossierSource = is_scalar($rawDossierSelect) ? (int) $rawDossierSelect : 0;
+        if (0 === $idDossierSource) {
+            return $this->json(['error' => 'Aucun dossier source sélectionné.'], 400);
+        }
+
+        $dossierSource = $this->dossierRepository->find($idDossierSource);
+        if (null === $dossierSource) {
+            return $this->json(['error' => 'Dossier source introuvable.'], 404);
+        }
+
+        if (!$this->isGranted('view_doss', $dossierSource)) {
+            return $this->json(['error' => "Vous n'avez pas le droit de consulter le dossier source."], 403);
+        }
+
+        try {
+            $sourceData = $this->descriptifService->getForDossier($dossierSource, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+            $targetData = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+            $this->descriptifCopier->copyFromDossierToDossier(
+                $sourceData['rubriques'],
+                $targetData['rubriques'],
+                $dossier
+            );
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la reprise des effectifs et dégagements depuis un autre dossier.', [
+                'dossier_cible_id' => $dossier->getId(),
+                'dossier_source_id' => $idDossierSource,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->json(['error' => 'Erreur technique lors de la reprise. Veuillez réessayer.'], 500);
+        }
+
+        return $this->json(['success' => true]);
+    }
 }
