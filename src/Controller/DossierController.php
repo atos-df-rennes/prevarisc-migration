@@ -854,8 +854,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
         return $this->render('dossier/_modal_reprise_effectifs_degagements.html.twig', [
             'dossier' => $dossier,
             'etudes' => $groupes['etudes'],
-            'visites' => $groupes['visites'],
-            'autres' => $groupes['autres'],
         ]);
     }
 

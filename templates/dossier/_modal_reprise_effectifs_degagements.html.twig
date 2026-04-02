@@ -4,10 +4,10 @@
     Variables attendues :
     - dossier  : Dossier  (dossier cible)
     - etudes   : Dossier[]
-    - visites  : Dossier[]
-    - autres   : Dossier[]
+    Seules les études sont proposées car l'onglet Effectifs et dégagements
+    n'est disponible que pour ce type de dossier.
 #}
-{% set has_dossiers = etudes is not empty or visites is not empty or autres is not empty %}
+{% set has_dossiers = etudes is not empty %}
 
 {#
     Macro : affiche un groupe de dossiers avec titre et séparateur.
@@ -82,8 +82,6 @@
     <form id="selectionDossier">
         <input type="hidden" name="_token" value="{{ csrf_token('reprendre_effectifs_degagements_' ~ dossier.id) }}">
 
-        {{ _self.groupe('Visites', visites, true) }}
-        {{ _self.groupe('Études', etudes, visites is empty) }}
-        {{ _self.groupe('Autres', autres, visites is empty and etudes is empty) }}
+        {{ _self.groupe('Études', etudes, true) }}
     </form>
 {% endif %}
