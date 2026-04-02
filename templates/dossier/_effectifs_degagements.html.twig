@@ -127,6 +127,8 @@
         $(document).ready(function () {
             const idDossier = {{ dossier.id }};
             const urlRetour = '/dossier/' + idDossier + '/effectifs-degagements';
+            const csrfTokenCopier = '{{ csrf_token('copier_effectifs_degagements_' ~ dossier.id) }}';
+            const csrfTokenRecuperer = '{{ csrf_token('recuperer_effectifs_degagements_' ~ dossier.id) }}';
             const iconSpin = '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> ';
 
             function redirectAvecDelai() {
@@ -184,6 +186,7 @@
                 $.ajax({
                     type: 'POST',
                     url: '{{ path('dossier_copier_effectifs_degagements_etablissement', {id: dossier.id}) }}',
+                    data: { _token: csrfTokenCopier },
                     success: function () {
                         $('#modal-copier-etablissement').modal('hide');
                         $.toast.success('Les effectifs et dégagements ont bien été copiés sur l\'établissement.');
@@ -204,6 +207,7 @@
                 $.ajax({
                     type: 'POST',
                     url: '{{ path('dossier_recuperer_effectifs_degagements_etablissement', {id: dossier.id}) }}',
+                    data: { _token: csrfTokenRecuperer },
                     success: function () {
                         $('#modal-reprendre-etablissement').modal('hide');
                         $.toast.success('Les effectifs et dégagements ont bien été repris depuis l\'établissement.');

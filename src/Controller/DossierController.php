@@ -719,26 +719,51 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */
     public function copierEffectifsDegagementsEtablissement(
-        Dossier $dossier
+        Dossier $dossier,
+        Request $request
     ): Response {
-        $etablissements = $dossier->getEtablissements()->toArray();
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('copier_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
+            return $this->json(['error' => 'Token CSRF invalide.'], 403);
+        }
 
-        if (1 !== count($etablissements)) {
+        $etablissements = $dossier->getEtablissements()->toArray();
+        $nbEtablissements = count($etablissements);
+
+        if (1 !== $nbEtablissements) {
             return $this->json([
-                'error' => 'Aucun ou plusieurs établissement(s) lié(s) au dossier. Les effectifs et dégagements n\'ont pas été copiés.',
+                'error' => sprintf(
+                    'Impossible de copier : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n\'ont pas été copiés.',
+                    $nbEtablissements
+                ),
             ], 400);
         }
 
         $etablissement = $etablissements[0];
 
-        $sourceDossier = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
-        $targetEtablissement = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+        if (!$this->isGranted('edit_ets', $etablissement)) {
+            return $this->json(['error' => 'Vous n\'avez pas le droit de modifier cet établissement.'], 403);
+        }
 
-        $this->descriptifCopier->copyFromDossierToEtablissement(
-            $sourceDossier['rubriques'],
-            $targetEtablissement['rubriques'],
-            $etablissement
-        );
+        try {
+            $sourceDossier = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+            $targetEtablissement = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+
+            $this->descriptifCopier->copyFromDossierToEtablissement(
+                $sourceDossier['rubriques'],
+                $targetEtablissement['rubriques'],
+                $etablissement
+            );
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la copie des effectifs et dégagements dossier→établissement.', [
+                'dossier_id' => $dossier->getId(),
+                'etablissement_id' => $etablissement->getId(),
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->json(['error' => 'Erreur technique lors de la copie. Veuillez réessayer.'], 500);
+        }
 
         return $this->json(['success' => true]);
     }
@@ -752,26 +777,51 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */
     public function recupererEffectifsDegagementsEtablissement(
-        Dossier $dossier
+        Dossier $dossier,
+        Request $request
     ): Response {
-        $etablissements = $dossier->getEtablissements()->toArray();
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('recuperer_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
+            return $this->json(['error' => 'Token CSRF invalide.'], 403);
+        }
 
-        if (1 !== count($etablissements)) {
+        $etablissements = $dossier->getEtablissements()->toArray();
+        $nbEtablissements = count($etablissements);
+
+        if (1 !== $nbEtablissements) {
             return $this->json([
-                'error' => 'Aucun ou plusieurs établissement(s) lié(s) au dossier. Les effectifs et dégagements n\'ont pas été récupérés.',
+                'error' => sprintf(
+                    'Impossible de récupérer : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n\'ont pas été récupérés.',
+                    $nbEtablissements
+                ),
             ], 400);
         }
 
         $etablissement = $etablissements[0];
 
-        $sourceEtablissement = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
-        $targetDossier = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+        if (!$this->isGranted('view_ets', $etablissement)) {
+            return $this->json(['error' => 'Vous n\'avez pas le droit de consulter cet établissement.'], 403);
+        }
 
-        $this->descriptifCopier->copyFromEtablissementToDossier(
-            $sourceEtablissement['rubriques'],
-            $targetDossier['rubriques'],
-            $dossier
-        );
+        try {
+            $sourceEtablissement = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+            $targetDossier = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+            $this->descriptifCopier->copyFromEtablissementToDossier(
+                $sourceEtablissement['rubriques'],
+                $targetDossier['rubriques'],
+                $dossier
+            );
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la récupération des effectifs et dégagements établissement→dossier.', [
+                'dossier_id' => $dossier->getId(),
+                'etablissement_id' => $etablissement->getId(),
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->json(['error' => 'Erreur technique lors de la récupération. Veuillez réessayer.'], 500);
+        }
 
         return $this->json(['success' => true]);
     }
