@@ -50,7 +50,7 @@
                 {% if contact.siteWeb %}
                     <dt><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Site web</dt>
                     {% if contact.siteWeb starts with 'http://' or contact.siteWeb starts with 'https://' %}
-                        <dd><a href="{{ contact.siteWeb }}" target="_blank">{{ contact.siteWeb }}</a></dd>
+                        <dd><a href="{{ contact.siteWeb }}" target="_blank" rel="noopener noreferrer">{{ contact.siteWeb }}</a></dd>
                     {% else %}
                         {# URL avec schéma non autorisé : affichage en texte brut sans lien #}
                         <dd>{{ contact.siteWeb }}</dd>

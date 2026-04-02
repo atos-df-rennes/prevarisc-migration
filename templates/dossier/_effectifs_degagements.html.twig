@@ -125,8 +125,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            const idDossier = {{ dossier.id }};
-            const urlRetour = '/dossier/' + idDossier + '/effectifs-degagements';
+            const urlRetour = "{{ path('dossier_effectifs_degagements', {id: dossier.id}) }}";
             const csrfTokenCopier = '{{ csrf_token('copier_effectifs_degagements_' ~ dossier.id) }}';
             const csrfTokenRecuperer = '{{ csrf_token('recuperer_effectifs_degagements_' ~ dossier.id) }}';
             const iconSpin = '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> ';
@@ -143,9 +142,8 @@
                         return;
                     }
                     $.ajax({
-                        url: '/dossier/formrecupeffectifsdegagements',
-                        type: 'POST',
-                        data: { idDossier: idDossier },
+                        url: '{{ path('dossier_effectifs_degagements_modal_reprise', {id: dossier.id}) }}',
+                        type: 'GET',
                         success: function (html) {
                             document.getElementById('modal-reprise-etude-body').innerHTML = html;
                             repriseEtudeLoaded = true;
@@ -165,16 +163,19 @@
                     $btn.prop('disabled', true).html(iconSpin + 'Reprise en cours…');
                     $.ajax({
                         type: 'POST',
-                        url: '/dossier/recupeffectifsdegagements',
+                        url: '{{ path('dossier_effectifs_degagements_reprendre_depuis_etude', {id: dossier.id}) }}',
                         data: $('#selectionDossier').serialize(),
                         success: function () {
                             $('#modal-reprise-etude').modal('hide');
                             $.toast.success('Les effectifs et dégagements ont bien été repris.');
                             redirectAvecDelai();
                         },
-                        error: function () {
+                        error: function (xhr) {
                             $btn.prop('disabled', false).text('Reprendre les effectifs et dégagements');
-                            $.toast.error('Erreur lors de la reprise des données. Veuillez réessayer.');
+                            const msg = xhr.responseJSON && xhr.responseJSON.error
+                                ? xhr.responseJSON.error
+                                : 'Erreur lors de la reprise des données. Veuillez réessayer.';
+                            $.toast.error(msg);
                         }
                     });
                 });

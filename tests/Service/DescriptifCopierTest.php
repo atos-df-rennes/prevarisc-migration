@@ -529,6 +529,61 @@ final class DescriptifCopierTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // copyFromDossierToDossier
+    // -------------------------------------------------------------------------
+
+    public function testCopieDossierVersDossier(): void
+    {
+        $this->entityManager->expects(self::once())->method('persist');
+
+        $sourceValeur = (new Valeur())->setStr('valeur dossier source');
+        $targetChamp = $this->buildSimpleChamp(30, 'Champ A');
+
+        $sourceRubriques = [
+            $this->buildRubriqueItem('Rubrique', [
+                ['champ' => $this->buildSimpleChamp(10, 'Champ A'), 'valeur' => $sourceValeur],
+            ]),
+        ];
+        $targetRubriques = [
+            $this->buildRubriqueItem('Rubrique', [
+                ['champ' => $targetChamp, 'valeur' => null],
+            ]),
+        ];
+
+        $dossierCible = $this->buildDossierAvecValeurs([]);
+        $this->service->copyFromDossierToDossier($sourceRubriques, $targetRubriques, $dossierCible);
+
+        self::assertCount(1, $dossierCible->getValeurs());
+        self::assertSame('valeur dossier source', $dossierCible->getValeurs()->first()->getStr());
+    }
+
+    public function testCopieDossierVersDossierNeModifiePasDossierSource(): void
+    {
+        $this->entityManager->expects(self::once())->method('persist');
+
+        $sourceValeur = (new Valeur())->setStr('valeur originale');
+        $targetChamp = $this->buildSimpleChamp(31, 'Champ A');
+
+        $sourceRubriques = [
+            $this->buildRubriqueItem('Rubrique', [
+                ['champ' => $this->buildSimpleChamp(11, 'Champ A'), 'valeur' => $sourceValeur],
+            ]),
+        ];
+        $targetRubriques = [
+            $this->buildRubriqueItem('Rubrique', [
+                ['champ' => $targetChamp, 'valeur' => null],
+            ]),
+        ];
+
+        $dossierSource = $this->buildDossierAvecValeurs([$sourceValeur]);
+        $dossierCible = $this->buildDossierAvecValeurs([]);
+        $this->service->copyFromDossierToDossier($sourceRubriques, $targetRubriques, $dossierCible);
+
+        self::assertCount(1, $dossierSource->getValeurs(), 'Le dossier source ne doit pas être modifié.');
+        self::assertSame('valeur originale', $sourceValeur->getStr(), 'La valeur source ne doit pas être modifiée.');
+    }
+
+    // -------------------------------------------------------------------------
     // Flush appelé à la fin
     // -------------------------------------------------------------------------
 

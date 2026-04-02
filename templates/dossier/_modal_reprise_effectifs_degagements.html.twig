@@ -1,0 +1,28 @@
+{#
+    Contenu de la modale "Reprendre les effectifs et dégagements d'un dossier précédent".
+    Injecté dynamiquement via AJAX dans #modal-reprise-etude-body.
+    Variables attendues :
+    - dossier  : Dossier  (dossier cible)
+    - etudes   : Dossier[]
+    Seules les études sont proposées car l'onglet Effectifs et dégagements
+    n'est disponible que pour ce type de dossier.
+#}
+{% import 'dossier/_macros_reprise_dossier.html.twig' as reprise %}
+{% set has_dossiers = etudes is not empty %}
+
+{% if not has_dossiers %}
+    <div class="well well-sm text-center">
+        <p class="lead">Aucun autre dossier disponible pour cet établissement.</p>
+    </div>
+{% else %}
+    <p>
+        Sélectionnez le dossier dont vous souhaitez reprendre les effectifs et dégagements.<br>
+        <small class="text-muted">Les données existantes seront écrasées.</small>
+    </p>
+
+    <form id="selectionDossier">
+        <input type="hidden" name="_token" value="{{ csrf_token('reprendre_effectifs_degagements_' ~ dossier.id) }}">
+
+        {{ reprise.groupe('Études', etudes, true, 'radio', 'dossierSelect') }}
+    </form>
+{% endif %}

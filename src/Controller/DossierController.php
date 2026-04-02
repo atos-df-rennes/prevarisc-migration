@@ -27,10 +27,12 @@ use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
 use App\Service\Descriptif as DescriptifService;
 use App\Service\DescriptifCopier;
+use App\Service\DescriptifInspector;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierDonnantAvisService;
+use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -147,10 +149,14 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DescriptifService */
     private $descriptifService;
 
-    /**
-     * @var DescriptifCopier
-     */
+    /** @var DescriptifCopier */
     private $descriptifCopier;
+
+    /** @var DescriptifInspector */
+    private $descriptifInspector;
+
+    /** @var EffectifsDegagementsRepriseValidator */
+    private $repriseValidator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -175,7 +181,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierService $dossierService,
         DossierRepository $dossierRepository,
         DescriptifService $descriptifService,
-        DescriptifCopier $descriptifCopier
+        DescriptifCopier $descriptifCopier,
+        DescriptifInspector $descriptifInspector,
+        EffectifsDegagementsRepriseValidator $repriseValidator
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -200,6 +208,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierRepository = $dossierRepository;
         $this->descriptifService = $descriptifService;
         $this->descriptifCopier = $descriptifCopier;
+        $this->descriptifInspector = $descriptifInspector;
+        $this->repriseValidator = $repriseValidator;
     }
 
     /**
@@ -692,21 +702,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
 
-        $hasData = false;
-        foreach ($data['rubriques'] as $rubrique) {
-            foreach ($rubrique['champs'] as $champData) {
-                if (null !== $champData['valeur'] || (array_key_exists('lignes', $champData) && [] !== $champData['lignes'])) {
-                    $hasData = true;
-                    break 2;
-                }
-            }
-        }
-
         return $this->render('dossier/_effectifs_degagements.html.twig', [
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'hasData' => $hasData,
+            'hasData' => $this->descriptifInspector->rubriquesHaveData($data['rubriques']),
         ]);
     }
 
@@ -786,6 +786,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
+        if ($dossier->hasVerrou()) {
+            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
+        }
+
         $etablissements = $dossier->getEtablissements()->toArray();
         $nbEtablissements = count($etablissements);
 
@@ -821,6 +825,107 @@ class DossierController extends AbstractController implements DossierLateralNavi
             ]);
 
             return $this->json(['error' => 'Erreur technique lors de la récupération. Veuillez réessayer.'], 500);
+        }
+
+        return $this->json(['success' => true]);
+    }
+
+    /**
+     * Retourne le contenu de la modale "Reprendre les effectifs et dégagements d'un dossier précédent".
+     *
+     * @Route("/dossier/{id}/effectifs-degagements/modal-reprise",
+     *        name="dossier_effectifs_degagements_modal_reprise",
+     *        requirements={"id"="\d+"},
+     *        methods={"GET"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function effectifsDegagementsModalReprise(Dossier $dossier): Response
+    {
+        if ($dossier->hasVerrou()) {
+            return new Response('', Response::HTTP_FORBIDDEN);
+        }
+
+        $etablissements = $dossier->getEtablissements();
+
+        if (1 !== $etablissements->count()) {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        }
+
+        $etablissement = $etablissements->first();
+        if (false === $etablissement) {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        }
+
+        $groupes = $this->dossierRepository->findByEtablissementGrouped($etablissement, $dossier);
+
+        return $this->render('dossier/_modal_reprise_effectifs_degagements.html.twig', [
+            'dossier' => $dossier,
+            'etudes' => $groupes['etudes'],
+        ]);
+    }
+
+    /**
+     * Reprend les effectifs et dégagements d'un dossier source vers le dossier courant.
+     *
+     * @Route("/dossier/{id}/effectifs-degagements/reprendre-depuis-etude",
+     *        name="dossier_effectifs_degagements_reprendre_depuis_etude",
+     *        requirements={"id"="\d+"},
+     *        methods={"POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function reprendreEffectifsDegagementsDepuisEtude(
+        Dossier $dossier,
+        Request $request
+    ): Response {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('reprendre_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
+            return $this->json(['error' => 'Token CSRF invalide.'], 403);
+        }
+
+        if ($dossier->hasVerrou()) {
+            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
+        }
+
+        $rawDossierSelect = $request->request->get('dossierSelect', 0);
+        $idDossierSource = is_scalar($rawDossierSelect) ? (int) $rawDossierSelect : 0;
+        if (0 === $idDossierSource) {
+            return $this->json(['error' => 'Aucun dossier source sélectionné.'], 400);
+        }
+
+        $dossierSource = $this->dossierRepository->find($idDossierSource);
+        if (null === $dossierSource || null !== $dossierSource->getDateSuppression()) {
+            return $this->json(['error' => 'Dossier source introuvable.'], 404);
+        }
+
+        if (!$this->isGranted('view_doss', $dossierSource)) {
+            return $this->json(['error' => "Vous n'avez pas le droit de consulter le dossier source."], 403);
+        }
+
+        $erreurValidation = $this->repriseValidator->validerSource($dossier, $dossierSource);
+        if (null !== $erreurValidation) {
+            return $this->json(['error' => $erreurValidation], 400);
+        }
+
+        try {
+            $sourceData = $this->descriptifService->getForDossier($dossierSource, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+            $targetData = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+            $this->descriptifCopier->copyFromDossierToDossier(
+                $sourceData['rubriques'],
+                $targetData['rubriques'],
+                $dossier
+            );
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la reprise des effectifs et dégagements depuis un autre dossier.', [
+                'dossier_cible_id' => $dossier->getId(),
+                'dossier_source_id' => $idDossierSource,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->json(['error' => 'Erreur technique lors de la reprise. Veuillez réessayer.'], 500);
         }
 
         return $this->json(['success' => true]);

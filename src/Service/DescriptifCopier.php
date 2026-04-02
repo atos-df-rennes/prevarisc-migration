@@ -61,6 +61,20 @@ class DescriptifCopier
     }
 
     /**
+     * Copie les valeurs d'un dossier source vers un dossier cible.
+     *
+     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $sourceRubriques
+     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $targetRubriques
+     */
+    public function copyFromDossierToDossier(
+        array $sourceRubriques,
+        array $targetRubriques,
+        Dossier $dossier
+    ): void {
+        $this->doCopy($sourceRubriques, $targetRubriques, $dossier);
+    }
+
+    /**
      * Logique de copie commune.
      *
      * Pour chaque rubrique source, cherche une rubrique cible de même nom.
