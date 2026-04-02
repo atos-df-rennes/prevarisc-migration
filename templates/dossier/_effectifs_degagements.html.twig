@@ -130,7 +130,7 @@
             const iconSpin = '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> ';
 
             function redirectAvecDelai() {
-                setTimeout(function () { window.location = urlRetour; }, 1500);
+                setTimeout(function () { window.location = urlRetour; }, 1000);
             }
 
             {% if not hasData %}
@@ -187,7 +187,6 @@
                     success: function () {
                         $('#modal-copier-etablissement').modal('hide');
                         $.toast.success('Les effectifs et dégagements ont bien été copiés sur l\'établissement.');
-                        redirectAvecDelai();
                     },
                     error: function (xhr) {
                         $btn.prop('disabled', false).text('Confirmer');
