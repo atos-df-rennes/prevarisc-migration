@@ -1,0 +1,46 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Ajouter un dossier lié{% endblock %}
+
+{% block body %}
+    <h3>Ajouter un dossier lié</h3>
+
+    <a href="{{ path('dossier_liees', {id: dossier.id}) }}" class="btn btn-default mb-3">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        Retour aux liaisons
+    </a>
+
+    {% if not hasDisponibles %}
+        <div class="alert alert-info">
+            <p>Aucun dossier disponible à lier.</p>
+            <p class="mb-0">
+                Tous les dossiers des établissements associés sont déjà liés, ou ce dossier
+                n'est associé à aucun établissement.
+            </p>
+        </div>
+    {% else %}
+        {{ form_start(form) }}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Sélectionnez les dossiers à lier</h4>
+            </div>
+            <div class="panel-body">
+                {{ form_errors(form) }}
+                {{ form_widget(form.dossiersToAdd) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                Enregistrer les liaisons
+            </button>
+            <a href="{{ path('dossier_liees', {id: dossier.id}) }}" class="btn btn-default ml-2">
+                Annuler
+            </a>
+        </div>
+
+        {{ form_end(form) }}
+    {% endif %}
+{% endblock %}

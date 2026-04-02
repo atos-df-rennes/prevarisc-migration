@@ -13,6 +13,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\Dossier\DossierDescriptifType;
+use App\Form\Dossier\DossierLiaisonsType;
 use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
 use App\Repository\AvisRepository;
@@ -30,6 +31,7 @@ use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierDonnantAvisService;
+use App\Service\Dossier\DossierLiaisonsService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -146,6 +148,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DescriptifService */
     private $descriptifService;
 
+    /** @var DossierLiaisonsService */
+    private $dossierLiaisonsService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -168,7 +173,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
         DossierRepository $dossierRepository,
-        DescriptifService $descriptifService
+        DescriptifService $descriptifService,
+        DossierLiaisonsService $dossierLiaisonsService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -192,6 +198,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
         $this->descriptifService = $descriptifService;
+        $this->dossierLiaisonsService = $dossierLiaisonsService;
     }
 
     /**
@@ -699,6 +706,115 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
             'hasData' => $hasData,
+        ]);
+    }
+
+    /**
+     * Affichage des établissements et dossiers liés.
+     *
+     * @Route("/dossier/{id}/liees", name="dossier_liees", requirements={"id"="\d+"}, methods={"GET"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function liees(Dossier $dossier): Response
+    {
+        return $this->render('dossier/liees.html.twig', [
+            'dossier' => $dossier,
+            'liaisons' => $this->dossierLiaisonsService->getLiaisons($dossier),
+        ]);
+    }
+
+    /**
+     * Sélection des dossiers à lier (GET : formulaire, POST : enregistrement).
+     *
+     * @Route("/dossier/{id}/liees/dossiers", name="dossier_liees_doss", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function lieesDoss(Request $request, Dossier $dossier): Response
+    {
+        $disponibles = $this->dossierLiaisonsService->getDossiersDisponibles($dossier);
+
+        $form = $this->createForm(DossierLiaisonsType::class, null, [
+            'available_dossiers' => $disponibles,
+            'action' => $this->generateUrl('dossier_liees_doss', ['id' => $dossier->getId()]),
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Collection<int, Dossier> $dossiersToAdd */
+            $dossiersToAdd = $form->get('dossiersToAdd')->getData();
+            $this->dossierLiaisonsService->addLiaisons($dossier, $dossiersToAdd->toArray());
+
+            $this->addFlash('success', 'Les liaisons ont bien été enregistrées.');
+
+            return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/liees_doss.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+            'hasDisponibles' => [] !== $disponibles,
+        ]);
+    }
+
+    /**
+     * Suppression d'une liaison entre deux dossiers.
+     *
+     * @Route("/dossier/{id}/liees/{idLie}/supprimer", name="dossier_liees_supprimer",
+     *     requirements={"id"="\d+", "idLie"="\d+"},
+     *     methods={"GET", "DELETE"},
+     *     options={"expose"=true},
+     *     defaults={"_dossier_lateral_nav": false}
+     * )
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function supprimerLiaison(Request $request, Dossier $dossier, int $idLie): Response
+    {
+        $dossierLie = $this->dossierRepository->find($idLie);
+
+        if (null === $dossierLie) {
+            throw $this->createNotFoundException('Dossier lié introuvable.');
+        }
+
+        $liaisons = $this->dossierLiaisonsService->getLiaisons($dossier);
+        $isLinked = false;
+        foreach ($liaisons as $liaison) {
+            if ($liaison->getId() === $dossierLie->getId()) {
+                $isLinked = true;
+                break;
+            }
+        }
+
+        if (!$isLinked) {
+            $this->addFlash('warning', 'Ce dossier n\'est pas lié au dossier courant.');
+
+            return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
+        }
+
+        $form = $this->createFormBuilder()
+            ->setMethod(Request::METHOD_DELETE)
+            ->setAction($this->generateUrl('dossier_liees_supprimer', [
+                'id' => $dossier->getId(),
+                'idLie' => $dossierLie->getId(),
+            ]))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->dossierLiaisonsService->removeLiaison($dossier, $dossierLie);
+            $this->addFlash('success', 'Le lien avec le dossier a bien été supprimé.');
+
+            return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/liees_supprimer.html.twig', [
+            'dossier' => $dossier,
+            'dossierLie' => $dossierLie,
+            'form' => $form->createView(),
         ]);
     }
 }

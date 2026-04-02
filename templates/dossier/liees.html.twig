@@ -1,0 +1,92 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Établissements et dossiers liés{% endblock %}
+
+{% block body %}
+    <h3>Établissements et dossiers liés</h3>
+
+    <div class="clearfix mb-3">
+        {% if not dossier.verrou %}
+            <a href="{{ path('dossier_liees_doss', {id: dossier.id}) }}" class="btn btn-primary pull-right">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Ajouter un dossier lié
+            </a>
+        {% endif %}
+    </div>
+
+    {% if liaisons|length == 0 %}
+        <p class="text-muted">Aucun dossier lié.</p>
+    {% else %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Nature</th>
+                    <th>Établissements</th>
+                    <th>Date de création</th>
+                    {% if not dossier.verrou %}
+                        <th></th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lie in liaisons %}
+                    <tr>
+                        <td>{{ lie.type ? lie.type.libelle : '-' }}</td>
+                        <td>{{ lie.nature ? lie.nature.libelle : '-' }}</td>
+                        <td>
+                            {% for etab in lie.etablissements %}
+                                <div>{{ etab.informations ? etab.informations.libelleEtablissementInformations : '' }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>{{ lie.dateInsert ? lie.dateInsert|date('d/m/Y') : '-' }}</td>
+                        {% if not dossier.verrou %}
+                            <td class="text-right">
+                                <a href="{{ path('dossier_index', {id: lie.id}) }}"
+                                   class="btn btn-xs btn-default"
+                                   title="Voir le dossier">
+                                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                                </a>
+                                <button type="button"
+                                        class="btn btn-xs btn-danger js-supprimer-liaison"
+                                        data-url="{{ path('dossier_liees_supprimer', {id: dossier.id, idLie: lie.id}) }}"
+                                        title="Supprimer la liaison">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {# Modale de confirmation de suppression #}
+    <div class="modal fade" id="modal-suppression-liaison" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" id="modal-suppression-liaison-content"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            $('.js-supprimer-liaison').on('click', function () {
+                var url = $(this).data('url');
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    success: function (html) {
+                        $('#modal-suppression-liaison-content').html(html);
+                        $('#modal-suppression-liaison').modal('show');
+                    },
+                    error: function () {
+                        $.toast.error('Erreur lors du chargement du formulaire de suppression.');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

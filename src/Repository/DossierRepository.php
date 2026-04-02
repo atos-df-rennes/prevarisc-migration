@@ -611,6 +611,41 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
+     * Retourne les dossiers appartenant aux mêmes établissements que le dossier donné,
+     * en excluant le dossier lui-même et les dossiers déjà liés (les deux côtés).
+     *
+     * @param int[] $excludedIds IDs à exclure (dossier courant + déjà liés)
+     *
+     * @return Dossier[]
+     */
+    public function findByEtablissementsExcluding(Dossier $dossier, array $excludedIds): array
+    {
+        $etablissements = $dossier->getEtablissements();
+
+        if ($etablissements->isEmpty()) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d')
+            ->join('d.etablissements', 'e')
+            ->join('d.type', 'dt')
+            ->addSelect('dt')
+            ->join('d.nature', 'dn')
+            ->addSelect('dn')
+            ->where('e IN (:etablissements)')
+            ->setParameter('etablissements', $etablissements)
+            ->orderBy('dt.libelle', 'ASC')
+            ->addOrderBy('d.dateInsert', 'DESC');
+
+        if ([] !== $excludedIds) {
+            $qb->andWhere('d.id NOT IN (:excludedIds)')
+                ->setParameter('excludedIds', $excludedIds);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * Date de tri pour les études : COALESCE(dateCommission, dateInsert).
      */
     private function sortDateEtude(Dossier $dossier): string
