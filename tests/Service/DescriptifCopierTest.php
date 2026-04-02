@@ -179,7 +179,7 @@ final class DescriptifCopierTest extends TestCase
     // applySourceToTarget : copie tous les champs de valeur
     // -------------------------------------------------------------------------
 
-    public function testApplySourceCopieToursLesChamps(): void
+    public function testApplySourceCopieTousLesChamps(): void
     {
         $date = new \DateTimeImmutable('2025-01-15');
         $sourceValeur = (new Valeur())

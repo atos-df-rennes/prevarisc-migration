@@ -180,6 +180,10 @@
                 });
             {% endif %}
 
+            $('#modal-copier-etablissement').on('hidden.bs.modal', function () {
+                $('#btn-copier-etablissement-confirm').prop('disabled', false).text('Confirmer');
+            });
+
             $('#btn-copier-etablissement-confirm').on('click', function () {
                 const $btn = $(this);
                 $btn.prop('disabled', true).html(iconSpin + 'Copie en cours…');

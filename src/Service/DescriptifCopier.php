@@ -204,6 +204,10 @@ class DescriptifCopier
         foreach ($targetLignes as $ligne) {
             foreach ($ligne as $valeur) {
                 $targetEntity->getValeurs()->removeElement($valeur);
+                // orphanRemoval n'est pas supporté par Doctrine sur les relations ManyToMany,
+                // il faut donc supprimer explicitement l'entité Valeur. Chaque Valeur appartient
+                // à un seul parent (Dossier ou Etablissement) ; le partage n'est pas possible
+                // en pratique du fait de la logique de copie.
                 $this->entityManager->remove($valeur);
             }
         }
