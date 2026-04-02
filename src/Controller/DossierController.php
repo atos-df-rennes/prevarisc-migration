@@ -146,6 +146,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     /** @var DescriptifService */
     private $descriptifService;
+
     /**
      * @var DescriptifCopier
      */
