@@ -27,6 +27,7 @@ use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
 use App\Service\Descriptif as DescriptifService;
 use App\Service\DescriptifCopier;
+use App\Service\DescriptifInspector;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
@@ -147,10 +148,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DescriptifService */
     private $descriptifService;
 
-    /**
-     * @var DescriptifCopier
-     */
+    /** @var DescriptifCopier */
     private $descriptifCopier;
+
+    /** @var DescriptifInspector */
+    private $descriptifInspector;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -175,7 +177,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierService $dossierService,
         DossierRepository $dossierRepository,
         DescriptifService $descriptifService,
-        DescriptifCopier $descriptifCopier
+        DescriptifCopier $descriptifCopier,
+        DescriptifInspector $descriptifInspector
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -200,6 +203,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierRepository = $dossierRepository;
         $this->descriptifService = $descriptifService;
         $this->descriptifCopier = $descriptifCopier;
+        $this->descriptifInspector = $descriptifInspector;
     }
 
     /**
@@ -692,21 +696,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
 
-        $hasData = false;
-        foreach ($data['rubriques'] as $rubrique) {
-            foreach ($rubrique['champs'] as $champData) {
-                if (null !== $champData['valeur'] || (array_key_exists('lignes', $champData) && [] !== $champData['lignes'])) {
-                    $hasData = true;
-                    break 2;
-                }
-            }
-        }
-
         return $this->render('dossier/_effectifs_degagements.html.twig', [
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'hasData' => $hasData,
+            'hasData' => $this->descriptifInspector->rubriquesHaveData($data['rubriques']),
         ]);
     }
 
@@ -884,7 +878,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         }
 
         $dossierSource = $this->dossierRepository->find($idDossierSource);
-        if (null === $dossierSource) {
+        if (null === $dossierSource || null !== $dossierSource->getDateSuppression()) {
             return $this->json(['error' => 'Dossier source introuvable.'], 404);
         }
 

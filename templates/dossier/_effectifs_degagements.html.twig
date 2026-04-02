@@ -125,7 +125,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            const urlRetour = {{ path('dossier_effectifs_degagements', {id: dossier.id}) }};
+            const urlRetour = "{{ path('dossier_effectifs_degagements', {id: dossier.id}) }}";
             const csrfTokenCopier = '{{ csrf_token('copier_effectifs_degagements_' ~ dossier.id) }}';
             const csrfTokenRecuperer = '{{ csrf_token('recuperer_effectifs_degagements_' ~ dossier.id) }}';
             const iconSpin = '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> ';
