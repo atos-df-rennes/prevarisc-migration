@@ -26,6 +26,7 @@ use App\Repository\UtilisateurRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
 use App\Service\Descriptif as DescriptifService;
+use App\Service\DescriptifCopier;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
@@ -145,6 +146,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     /** @var DescriptifService */
     private $descriptifService;
+    /**
+     * @var DescriptifCopier
+     */
+    private $descriptifCopier;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -168,7 +173,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
         DossierRepository $dossierRepository,
-        DescriptifService $descriptifService
+        DescriptifService $descriptifService,
+        DescriptifCopier $descriptifCopier
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -192,6 +198,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
         $this->descriptifService = $descriptifService;
+        $this->descriptifCopier = $descriptifCopier;
     }
 
     /**
@@ -700,5 +707,71 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'rubriques' => $data['rubriques'],
             'hasData' => $hasData,
         ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/copier-effectifs-degagements-etablissement",
+     *        name="dossier_copier_effectifs_degagements_etablissement",
+     *        requirements={"id"="\d+"},
+     *        methods={"POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function copierEffectifsDegagementsEtablissement(
+        Dossier $dossier
+    ): Response {
+        $etablissements = $dossier->getEtablissements()->toArray();
+
+        if (1 !== count($etablissements)) {
+            return $this->json([
+                'error' => 'Aucun ou plusieurs établissement(s) lié(s) au dossier. Les effectifs et dégagements n\'ont pas été copiés.',
+            ], 400);
+        }
+
+        $etablissement = $etablissements[0];
+
+        $sourceDossier = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+        $targetEtablissement = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+
+        $this->descriptifCopier->copyFromDossierToEtablissement(
+            $sourceDossier['rubriques'],
+            $targetEtablissement['rubriques'],
+            $etablissement
+        );
+
+        return $this->json(['success' => true]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/recuperer-effectifs-degagements-etablissement",
+     *        name="dossier_recuperer_effectifs_degagements_etablissement",
+     *        requirements={"id"="\d+"},
+     *        methods={"POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function recupererEffectifsDegagementsEtablissement(
+        Dossier $dossier
+    ): Response {
+        $etablissements = $dossier->getEtablissements()->toArray();
+
+        if (1 !== count($etablissements)) {
+            return $this->json([
+                'error' => 'Aucun ou plusieurs établissement(s) lié(s) au dossier. Les effectifs et dégagements n\'ont pas été récupérés.',
+            ], 400);
+        }
+
+        $etablissement = $etablissements[0];
+
+        $sourceEtablissement = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+        $targetDossier = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+        $this->descriptifCopier->copyFromEtablissementToDossier(
+            $sourceEtablissement['rubriques'],
+            $targetDossier['rubriques'],
+            $dossier
+        );
+
+        return $this->json(['success' => true]);
     }
 }

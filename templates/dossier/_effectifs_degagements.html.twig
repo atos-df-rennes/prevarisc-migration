@@ -183,16 +183,18 @@
                 $btn.prop('disabled', true).html(iconSpin + 'Copie en cours…');
                 $.ajax({
                     type: 'POST',
-                    url: '/dossier/copier-effectifs-degagements-etablissement',
-                    data: { idDossier: idDossier },
+                    url: '{{ path('dossier_copier_effectifs_degagements_etablissement', {id: dossier.id}) }}',
                     success: function () {
                         $('#modal-copier-etablissement').modal('hide');
                         $.toast.success('Les effectifs et dégagements ont bien été copiés sur l\'établissement.');
                         redirectAvecDelai();
                     },
-                    error: function () {
+                    error: function (xhr) {
                         $btn.prop('disabled', false).text('Confirmer');
-                        $.toast.error('Erreur lors de la copie des données. Veuillez réessayer.');
+                        const msg = xhr.responseJSON && xhr.responseJSON.error
+                            ? xhr.responseJSON.error
+                            : 'Erreur lors de la copie des données. Veuillez réessayer.';
+                        $.toast.error(msg);
                     }
                 });
             });
@@ -202,16 +204,18 @@
                 $btn.prop('disabled', true).html(iconSpin + 'Reprise en cours…');
                 $.ajax({
                     type: 'POST',
-                    url: '/dossier/recuperer-effectifs-degagements-etablissement',
-                    data: { idDossier: idDossier },
+                    url: '{{ path('dossier_recuperer_effectifs_degagements_etablissement', {id: dossier.id}) }}',
                     success: function () {
                         $('#modal-reprendre-etablissement').modal('hide');
                         $.toast.success('Les effectifs et dégagements ont bien été repris depuis l\'établissement.');
                         redirectAvecDelai();
                     },
-                    error: function () {
+                    error: function (xhr) {
                         $btn.prop('disabled', false).text('Confirmer');
-                        $.toast.error('Erreur lors de la reprise des données. Veuillez réessayer.');
+                        const msg = xhr.responseJSON && xhr.responseJSON.error
+                            ? xhr.responseJSON.error
+                            : 'Erreur lors de la reprise des données. Veuillez réessayer.';
+                        $.toast.error(msg);
                     }
                 });
             });
