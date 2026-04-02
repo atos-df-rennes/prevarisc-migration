@@ -1,0 +1,67 @@
+{#
+    Macro partagée pour afficher un groupe de dossiers dans une modale de reprise.
+
+    Paramètres :
+    - titre      : string
+    - items      : Dossier[]
+    - premier    : bool    (omet le <hr> de séparation avant le premier groupe)
+    - input_type : string  ('checkbox' pour sélection multiple, 'radio' pour sélection unique)
+    - input_name : string  (nom du champ HTML, ex: 'dossierIds[]' ou 'dossierSelect')
+#}
+{% macro groupe(titre, items, premier, input_type, input_name) %}
+    {% if items is not empty %}
+        {% if not premier %}<hr>{% endif %}
+        <h5><strong>{{ titre }}</strong></h5>
+        <ul class="recherche_liste list-unstyled ml-3">
+            {% for source in items %}
+                {# Libellé : type - nature - objet (tronqué à 70 car) #}
+                {% set objet_tronque = source.objet|length > 70 ? source.objet[:70] ~ ' (...)' : source.objet %}
+                {% set libelle_parts = [source.type.libelle, source.nature ? source.nature.libelle : null, objet_tronque ?: null]|filter(v => v is not empty) %}
+                {% set libelle = libelle_parts|join(' - ') %}
+
+                {# Date : dateVisite > dateCommission > dateInsert #}
+                {% if source.dateVisite %}
+                    {% set date_label = 'date de visite le' %}
+                    {% set date_val = source.dateVisite|date('d/m/Y') %}
+                {% elseif source.dateCommission %}
+                    {% set date_label = 'date de commission le' %}
+                    {% set date_val = source.dateCommission|date('d/m/Y') %}
+                {% else %}
+                    {% set date_label = 'créé le' %}
+                    {% set date_val = source.dateInsert|date('d/m/Y') %}
+                {% endif %}
+
+                <li>
+                    <div class="{{ input_type }}">
+                        <label>
+                            <input type="{{ input_type }}" name="{{ input_name }}" value="{{ source.id }}">
+                            <a href="{{ path('dossier_index', {id: source.id}) }}" target="_blank">{{ libelle }}</a>
+                            <small class="text-muted">— {{ date_label }} {{ date_val }}</small>
+
+                            {% if source.incomplet %}
+                                <span class="avis" style="background-color: #f89406;">Dossier incomplet</span>
+                            {% elseif source.avisDiffere %}
+                                <span class="avis" style="background-color: #3a87ad;">Avis différé</span>
+                            {% elseif source.avis %}
+                                <span class="avis {{ source.avis.libelle[:1] }}">
+                                    {{ source.avis.libelle }}
+                                    {{ include('dossier/_precision_libelle_avis.html.twig', {dossier: source}) }}
+                                </span>
+                            {% else %}
+                                <span class="avis">Avis indisponible</span>
+                            {% endif %}
+
+                            {% if source.echeancierTravaux is not null %}
+                                <span class="avis" style="background-color: #3a87ad;">Fait l'objet d'un échéancier de travaux</span>
+                            {% endif %}
+
+                            {% if source.consultationPlatau is not null %}
+                                <span class="label label-info">CONSULTATION PLATAU : {{ source.consultationPlatau.identifiant }}</span>
+                            {% endif %}
+                        </label>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
