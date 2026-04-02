@@ -9,22 +9,27 @@ use App\Entity\Etablissement;
 use App\Entity\Rubrique;
 use App\Entity\Valeur;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Gère la copie bidirectionnelle des valeurs de formulaires personnalisés
  * entre un dossier et son établissement lié.
  *
  * Le matching se fait strictement par nom de rubrique et de champ.
- * Si un nom ne correspond pas entre source et cible, le champ est ignoré.
+ * Si un nom ne correspond pas entre source et cible, le champ est ignoré et loggué.
  */
 class DescriptifCopier
 {
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
+        $this->logger = $logger;
     }
 
     /**
@@ -77,6 +82,7 @@ class DescriptifCopier
 
             $targetItem = $this->matchRubriqueByNom($targetRubriques, $rubriqueNom);
             if (null === $targetItem) {
+                $this->logger->warning('DescriptifCopier : rubrique "{nom}" absente dans la cible, ignorée.', ['nom' => $rubriqueNom]);
                 continue;
             }
 
@@ -95,6 +101,7 @@ class DescriptifCopier
 
                 $targetChampData = $this->matchChampByNom($targetChamps, $champNom);
                 if (null === $targetChampData) {
+                    $this->logger->warning('DescriptifCopier : champ "{nom}" absent dans la rubrique cible "{rubrique}", ignoré.', ['nom' => $champNom, 'rubrique' => $rubriqueNom]);
                     continue;
                 }
 
@@ -134,14 +141,7 @@ class DescriptifCopier
         /** @var Valeur|null $targetValeur */
         $targetValeur = $targetChampData['valeur'] ?? null;
 
-        if (null !== $targetValeur) {
-            $this->applySourceToTarget($sourceValeur, $targetValeur);
-        } else {
-            $newValeur = $this->createValeur($targetChamp, null);
-            $this->applySourceToTarget($sourceValeur, $newValeur);
-            $targetEntity->getValeurs()->add($newValeur);
-            $this->entityManager->persist($newValeur);
-        }
+        $this->writeValeur($sourceValeur, $targetChamp, $targetValeur, $targetEntity, null);
     }
 
     /**
@@ -175,6 +175,7 @@ class DescriptifCopier
 
             $targetSousChamp = $this->matchChampByNom($targetSousChamps, $nom);
             if (null === $targetSousChamp) {
+                $this->logger->warning('DescriptifCopier : sous-champ "{nom}" absent dans le champ parent cible, ignoré.', ['nom' => $nom]);
                 continue;
             }
 
@@ -182,14 +183,7 @@ class DescriptifCopier
             $targetEnfantChamp = $targetSousChamp['champ'];
             /** @var Valeur|null $targetValeur */
             $targetValeur = $targetSousChamp['valeur'] ?? null;
-            if (null !== $targetValeur) {
-                $this->applySourceToTarget($sourceValeur, $targetValeur);
-            } else {
-                $newValeur = $this->createValeur($targetEnfantChamp, null);
-                $this->applySourceToTarget($sourceValeur, $newValeur);
-                $targetEntity->getValeurs()->add($newValeur);
-                $this->entityManager->persist($newValeur);
-            }
+            $this->writeValeur($sourceValeur, $targetEnfantChamp, $targetValeur, $targetEntity, null);
         }
     }
 
@@ -221,11 +215,14 @@ class DescriptifCopier
         $sourceLignes = $sourceChampData['lignes'] ?? [];
         /** @var Champ $sourceChamp */
         $sourceChamp = $sourceChampData['champ'];
+        // On séquence les lignes cibles à partir de 1 (indépendamment de l'idx source).
+        // L'idx source n'a aucune signification dans la cible. On part de 1 (et non 0)
+        // pour éviter toute collision avec idx=null qui est traité comme 0 à la lecture.
         $newIdx = 1;
 
         foreach ($sourceLignes as $sourceLigne) {
             foreach ($sourceLigne as $sourceChampId => $sourceValeur) {
-                $sourceEnfant = $this->findEnfantById($sourceChamp, (int) $sourceChampId);
+                $sourceEnfant = $this->findEnfantById($sourceChamp, $sourceChampId);
                 if (null === $sourceEnfant) {
                     continue;
                 }
@@ -237,6 +234,7 @@ class DescriptifCopier
 
                 $targetEnfant = $this->matchChampByNomInArray($targetEnfants, $nom);
                 if (null === $targetEnfant) {
+                    $this->logger->warning('DescriptifCopier : colonne tableau "{nom}" absente dans le champ cible, ignorée.', ['nom' => $nom]);
                     continue;
                 }
 
@@ -261,6 +259,23 @@ class DescriptifCopier
         $target->setNumber($source->getNumber());
         $target->setCheckbox($source->getCheckbox());
         $target->setDate($source->getDate());
+    }
+
+    /**
+     * Met à jour une Valeur existante ou en crée une nouvelle pour écrire la valeur source.
+     *
+     * @param Dossier|Etablissement $targetEntity
+     */
+    private function writeValeur(Valeur $source, Champ $targetChamp, ?Valeur $existing, $targetEntity, ?int $idx): void
+    {
+        if (null !== $existing) {
+            $this->applySourceToTarget($source, $existing);
+        } else {
+            $newValeur = $this->createValeur($targetChamp, $idx);
+            $this->applySourceToTarget($source, $newValeur);
+            $targetEntity->getValeurs()->add($newValeur);
+            $this->entityManager->persist($newValeur);
+        }
     }
 
     /**

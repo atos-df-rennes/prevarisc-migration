@@ -13,6 +13,7 @@ use App\Service\DescriptifCopier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Teste la logique de copie bidirectionnelle du service DescriptifCopier.
@@ -24,11 +25,15 @@ use PHPUnit\Framework\TestCase;
  * - Copie champ parent tableau : suppression existants + création nouveaux avec idx
  * - Copie de tous les champs de valeur (str, longStr, number, checkbox, date)
  * - Gestion des cas limites (rubrique absente, champ absent)
+ * - Logs warning pour les éléments non trouvés dans la cible
  */
 final class DescriptifCopierTest extends TestCase
 {
     /** @var EntityManagerInterface|MockObject */
     private $entityManager;
+
+    /** @var LoggerInterface|MockObject */
+    private $logger;
 
     /** @var DescriptifCopier */
     private $service;
@@ -36,7 +41,8 @@ final class DescriptifCopierTest extends TestCase
     protected function setUp(): void
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->service = new DescriptifCopier($this->entityManager);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->service = new DescriptifCopier($this->entityManager, $this->logger);
     }
 
     // -------------------------------------------------------------------------
@@ -89,7 +95,6 @@ final class DescriptifCopierTest extends TestCase
     {
         $this->entityManager->expects(self::never())->method('persist');
 
-        $dossier = new Dossier();
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $targetChamp = $this->buildSimpleChamp(20, 'Largeur');
 
@@ -208,7 +213,7 @@ final class DescriptifCopierTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Rubrique absente dans la cible → ignorée
+    // Rubrique absente dans la cible → ignorée + log
     // -------------------------------------------------------------------------
 
     public function testRubriqueAbsenteDansCibleEstIgnoree(): void
@@ -232,8 +237,22 @@ final class DescriptifCopierTest extends TestCase
         self::assertCount(0, $etablissement->getValeurs());
     }
 
+    public function testRubriqueAbsenteDansCibleLoggue(): void
+    {
+        $this->logger->expects(self::once())->method('warning')
+            ->with(self::stringContains('rubrique'));
+
+        $sourceRubriques = [
+            $this->buildRubriqueItem('Rubrique Absente', [
+                ['champ' => $this->buildSimpleChamp(10, 'Champ'), 'valeur' => (new Valeur())->setStr('v')],
+            ]),
+        ];
+
+        $this->service->copyFromDossierToEtablissement($sourceRubriques, [], new Etablissement());
+    }
+
     // -------------------------------------------------------------------------
-    // Champ absent dans la cible → ignoré
+    // Champ absent dans la cible → ignoré + log
     // -------------------------------------------------------------------------
 
     public function testChampAbsentDansCibleEstIgnore(): void
@@ -255,6 +274,25 @@ final class DescriptifCopierTest extends TestCase
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
         self::assertCount(0, $etablissement->getValeurs());
+    }
+
+    public function testChampAbsentDansCibleLoggue(): void
+    {
+        $this->logger->expects(self::once())->method('warning')
+            ->with(self::stringContains('champ'));
+
+        $sourceRubriques = [
+            $this->buildRubriqueItem('Accès', [
+                ['champ' => $this->buildSimpleChamp(10, 'Champ Absent'), 'valeur' => (new Valeur())->setStr('v')],
+            ]),
+        ];
+        $targetRubriques = [
+            $this->buildRubriqueItem('Accès', [
+                ['champ' => $this->buildSimpleChamp(20, 'Autre Champ'), 'valeur' => null],
+            ]),
+        ];
+
+        $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, new Etablissement());
     }
 
     // -------------------------------------------------------------------------
