@@ -1,16 +1,4 @@
 /**
- * Échappe les caractères HTML spéciaux pour prévenir les injections XSS.
- *
- * @param {string} str
- * @returns {string}
- */
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-/**
  * Initialise un TomSelect pour la recherche d'établissement via l'API.
  *
  * @param {string}   selectId   Sélecteur CSS de l'élément <select>
@@ -33,16 +21,17 @@ export function initTomSelectEtablissement(selectId, searchUrl, onSelect, onDese
                 .catch(() => callback());
         },
         render: {
-            option: (item) => {
+            // Fonctions classiques pour accéder à this.escape_html() de l'instance TomSelect
+            option: function (item) {
                 const label = item.genre
-                    ? '[' + escapeHtml(item.genre) + '] ' + escapeHtml(item.libelle)
-                    : escapeHtml(item.libelle);
+                    ? '[' + this.escape_html(item.genre) + '] ' + this.escape_html(item.libelle)
+                    : this.escape_html(item.libelle);
                 return '<div>' + label + '</div>';
             },
-            item: (item) => {
+            item: function (item) {
                 const label = item.genre
-                    ? '[' + escapeHtml(item.genre) + '] ' + escapeHtml(item.libelle)
-                    : escapeHtml(item.libelle);
+                    ? '[' + this.escape_html(item.genre) + '] ' + this.escape_html(item.libelle)
+                    : this.escape_html(item.libelle);
                 return '<div>' + label + '</div>';
             },
         },
