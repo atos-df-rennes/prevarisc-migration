@@ -209,6 +209,8 @@ class DossierPrescriptionService
             return;
         }
 
+        $prochainNumero = $this->prochainNumero($dossier, TypePrescription::REGLEMENTAIRE);
+
         foreach ($prescriptionsRegl as $item) {
             /** @var PrescriptionReglementaire $source */
             $source = $item['prescription'];
@@ -217,7 +219,8 @@ class DossierPrescriptionService
             $nouvelle->setDossier($dossier);
             $nouvelle->setType(TypePrescription::REGLEMENTAIRE);
             $nouvelle->setLibelle($source->getLibelle() ?? '');
-            $nouvelle->setNumero($this->prochainNumero($dossier, TypePrescription::REGLEMENTAIRE));
+            $nouvelle->setNumero($prochainNumero);
+            ++$prochainNumero;
 
             foreach ($item['associations'] as $assocData) {
                 $texte = $assocData['texte'] instanceof PrescriptionTexteListe ? $assocData['texte'] : null;

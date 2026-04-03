@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
-use App\Constant\TypeChangement;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
@@ -271,43 +270,45 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->beginTransaction();
-
             try {
-                // Affectations commissions/visites + dénormalisation dates
-                /** @var string|null $idAffectationCommission */
-                $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
-                /** @var string|null $idAffectationVisite */
-                $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+                /** @var int[] $etablissementsIds */
+                $etablissementsIds = $this->entityManager->wrapInTransaction(function () use ($dossier, $etablissement, $form): array {
+                    // Affectations commissions/visites + dénormalisation dates
+                    /** @var string|null $idAffectationCommission */
+                    $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
+                    /** @var string|null $idAffectationVisite */
+                    $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
 
-                // Persist du dossier avant les opérations dépendantes de l'ID
-                $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
-                $this->entityManager->persist($dossier);
-                $this->entityManager->flush();
+                    // Persist du dossier avant les opérations dépendantes de l'ID
+                    $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
+                    $this->entityManager->persist($dossier);
+                    $this->entityManager->flush();
 
-                // Gestion des affectations commission/visite
-                $this->dossierAffectationService->gererAffectations(
-                    $dossier,
-                    $idAffectationCommission ? (int) $idAffectationCommission : null,
-                    $idAffectationVisite ? (int) $idAffectationVisite : null
-                );
+                    // Gestion des affectations commission/visite
+                    $this->dossierAffectationService->gererAffectations(
+                        $dossier,
+                        $idAffectationCommission ? (int) $idAffectationCommission : null,
+                        $idAffectationVisite ? (int) $idAffectationVisite : null
+                    );
 
-                // Opérations d'initialisation spécifiques à la création
-                if (null !== $etablissement) {
-                    $this->dossierCreationService->initialiserDepuisEtablissement($dossier, $etablissement);
-                }
+                    // Opérations d'initialisation spécifiques à la création
+                    if (null !== $etablissement) {
+                        $this->dossierCreationService->initialiserDepuisEtablissement($dossier, $etablissement);
+                    }
 
-                $this->dossierCreationService->creerDocumentsAttestationLevee($dossier);
-                $this->dossierCreationService->initialiserPrescriptionsReglementaires($dossier);
+                    $this->dossierCreationService->creerDocumentsAttestationLevee($dossier);
+                    $this->dossierCreationService->initialiserPrescriptionsReglementaires($dossier);
 
-                $this->entityManager->flush();
+                    $this->entityManager->flush();
 
-                // Dossier donnant avis : pas de désaffectation possible en création
-                $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
-                $etablissementsIds = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis);
+                    // Dossier donnant avis : pas de désaffectation possible en création
+                    $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
+                    $ids = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis);
 
-                $this->entityManager->flush();
-                $this->entityManager->commit();
+                    $this->entityManager->flush();
+
+                    return $ids;
+                });
 
                 $this->dossierSauvegardeService->genererAlertesVAO($dossier);
                 $this->dossierSauvegardeService->genererAlertesEmailAvis($dossier, $etablissementsIds, $anciensAvis, $mailEnabled);
@@ -315,8 +316,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $this->addFlash('success', 'Le dossier a été créé avec succès.');
 
                 return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
-            } catch (\Exception $e) {
-                $this->entityManager->rollback();
+            } catch (\Throwable $e) {
+                // Purge le cache de l'EM pour éviter de conserver des entités
+                // en mémoire avec des IDs invalides après le rollback.
+                $this->entityManager->clear();
 
                 $this->logger->error('Erreur lors de la création du dossier', [
                     'exception' => $e->getMessage(),

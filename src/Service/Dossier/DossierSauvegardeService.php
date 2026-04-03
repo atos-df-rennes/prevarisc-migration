@@ -163,7 +163,7 @@ class DossierSauvegardeService
 
             $this->flashBag->add('success', sprintf(
                 '<p>L\'établissement %s a bien été mis à jour.</p>%s',
-                $libelle,
+                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8'),
                 $lienAlerter
             ));
         }
