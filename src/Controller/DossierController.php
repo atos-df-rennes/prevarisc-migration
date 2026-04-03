@@ -999,7 +999,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $etablissementsIds = $this->dossierLiaisonsService->addEtablissement($dossier, $etablissement);
         $this->addFlash('success', 'L\'établissement a bien été lié au dossier.');
 
-        return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
+        return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection(
+            $dossier,
+            $etablissementsIds,
+            $this->generateUrl('dossier_liees', ['id' => $dossier->getId()])
+        ));
     }
 
     /**
@@ -1035,7 +1039,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $etablissementsIds = $this->dossierLiaisonsService->removeEtablissement($dossier, $etablissement);
             $this->addFlash('success', 'Le lien avec l\'établissement a bien été supprimé.');
 
-            return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
+            return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection(
+                $dossier,
+                $etablissementsIds,
+                $this->generateUrl('dossier_liees', ['id' => $dossier->getId()])
+            ));
         }
 
         return $this->render('dossier/liaisons/etab_supprimer.html.twig', [
