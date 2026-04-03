@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="pull-right">
-        <a class="btn btn-default" href="/dossier/add/id_etablissement/{{ etablissement.id }}">Ajouter un dossier</a>
+        <a class="btn btn-default" href="{{ path('dossier_new', {etablissement: etablissement.id}) }}">Ajouter un dossier</a>
     </div>
 
     <div class="clearfix"></div>
@@ -14,7 +14,7 @@
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
         <div class="well well-large text-center">
             <p class="lead">Il n'y a pas de dossier.</p>
-            <p><a href="/dossier/add/id_etablissement/{{ etablissement.id }}" class="btn btn-default btn-lg">Ajouter un dossier</a></p>
+            <p><a href="{{ path('dossier_new', {etablissement: etablissement.id}) }}" class="btn btn-default btn-lg">Ajouter un dossier</a></p>
         </div>
     {% else %}
         {% if visites|length > 0 %}

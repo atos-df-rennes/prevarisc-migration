@@ -5,8 +5,11 @@ namespace App\Service;
 use App\Constant\TypePrescription;
 use App\Dto\Prescriptions\PrescriptionsReprises;
 use App\Entity\Dossier;
+use App\Entity\PrescriptionArticleListe;
 use App\Entity\PrescriptionDossier;
 use App\Entity\PrescriptionDossierAssociation;
+use App\Entity\PrescriptionReglementaire;
+use App\Entity\PrescriptionTexteListe;
 use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionDossierRepository;
 use App\Security\Voter\DossierVoter;
@@ -188,6 +191,53 @@ class DossierPrescriptionService
         });
 
         return $prescription;
+    }
+
+    /**
+     * Initialise les prescriptions de rappel réglementaire lors de la création d'un dossier.
+     *
+     * Reçoit le tableau retourné par Prescriptions::getPrescriptions() et crée une
+     * PrescriptionDossier en texte libre (libellé copié) pour chaque PrescriptionReglementaire,
+     * en type REGLEMENTAIRE avec ses associations (texte/article).
+     * La numérotation est recalculée une seule fois après toutes les insertions.
+     *
+     * @param array<int, array{prescription: PrescriptionReglementaire, associations: array<int, array{association: mixed, texte: mixed, article: mixed}>}> $prescriptionsRegl
+     */
+    public function ajouterPrescriptionsReglementaires(Dossier $dossier, array $prescriptionsRegl): void
+    {
+        if ([] === $prescriptionsRegl) {
+            return;
+        }
+
+        $prochainNumero = $this->prochainNumero($dossier, TypePrescription::REGLEMENTAIRE);
+
+        foreach ($prescriptionsRegl as $item) {
+            /** @var PrescriptionReglementaire $source */
+            $source = $item['prescription'];
+
+            $nouvelle = new PrescriptionDossier();
+            $nouvelle->setDossier($dossier);
+            $nouvelle->setType(TypePrescription::REGLEMENTAIRE);
+            $nouvelle->setLibelle($source->getLibelle() ?? '');
+            $nouvelle->setNumero($prochainNumero);
+            ++$prochainNumero;
+
+            foreach ($item['associations'] as $assocData) {
+                $texte = $assocData['texte'] instanceof PrescriptionTexteListe ? $assocData['texte'] : null;
+                $article = $assocData['article'] instanceof PrescriptionArticleListe ? $assocData['article'] : null;
+
+                $assoc = new PrescriptionDossierAssociation();
+                $assoc->setTexte($texte);
+                $assoc->setArticle($article);
+                $nouvelle->addAssociation($assoc);
+            }
+
+            $this->renumeroterAssociations($nouvelle);
+            $this->em->persist($nouvelle);
+        }
+
+        $this->em->flush();
+        $this->renumeroterSequence($dossier, TypePrescription::REGLEMENTAIRE);
     }
 
     /**

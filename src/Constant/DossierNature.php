@@ -6,6 +6,8 @@ namespace App\Constant;
  * Constantes pour les natures de dossiers.
  *
  * Correspond à la table `dossiernatureliste` en base de données.
+ *
+ * @todo: Lister les natures utilisées (à ajouter en constantes) pour les référencer dans les tableaux.
  */
 final class DossierNature
 {
@@ -49,6 +51,27 @@ final class DossierNature
     public const NATURES_SANS_CONTACTS = [40, 41, 42, 44];
 
     public const NATURES_ALERTE_RECEPTION_TRAVAUX = [1, 2, 12, 13];
+
+    /**
+     * Natures déclenchant la copie des textes applicables de l'établissement vers le dossier.
+     *
+     * @var int[]
+     */
+    public const NATURES_COPIE_TEXTES_APPLICABLES = [21, 22, 24, 26, 27, 29];
+
+    /**
+     * Natures "visite périodique" — déclenchent la copie des documents de la dernière VP.
+     *
+     * @var int[]
+     */
+    public const VISITE_PERIODIQUE = [21, 26];
+
+    /**
+     * Natures "levée" (prescriptions ou avis définitif) — déclenchent la création de 5 docs "Attestation de".
+     *
+     * @var int[]
+     */
+    public const LEVEE = [7, 19];
 
     /**
      * Empêche l'instanciation de la classe.

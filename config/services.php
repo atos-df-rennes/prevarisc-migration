@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -24,6 +25,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
+        ->bind(FlashBagInterface::class, ref('session.flash_bag'))
     ;
 
 
