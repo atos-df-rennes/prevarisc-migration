@@ -177,13 +177,14 @@ class DossierSauvegardeService
      * qui gère en plus le cache de chaque établissement concerné.
      * Sinon, passe par la route de vidage du cache de recherche seul.
      *
-     * @param int[] $etablissementsIds IDs des établissements modifiés
+     * @param int[]       $etablissementsIds IDs des établissements modifiés
+     * @param string|null $target            URL cible après vidage de cache (null = dossier_index par défaut)
      */
-    public function construireUrlRedirection(Dossier $dossier, array $etablissementsIds): string
+    public function construireUrlRedirection(Dossier $dossier, array $etablissementsIds, ?string $target = null): string
     {
-        if ([] === $etablissementsIds) {
-            $target = $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
+        $target = $target ?? $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
 
+        if ([] === $etablissementsIds) {
             return sprintf(
                 '/legacy/admin/clear-search-cache-and-redirect?target=%s',
                 urlencode($target)
@@ -196,9 +197,10 @@ class DossierSauvegardeService
         }
 
         return sprintf(
-            '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
+            '/legacy/dossier/vider-cache?id=%d&etablissements=%s&target=%s',
             $dossier->getId(),
-            urlencode($etablissementsJson)
+            urlencode($etablissementsJson),
+            urlencode($target)
         );
     }
 

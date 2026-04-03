@@ -899,6 +899,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         ]);
     }
 
+
     /**
      * Reprend les effectifs et dégagements d'un dossier source vers le dossier courant.
      *

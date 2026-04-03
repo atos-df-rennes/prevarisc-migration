@@ -42,9 +42,9 @@
                                 <span class="avis" style="background-color: #f89406;">Dossier incomplet</span>
                             {% elseif source.avisDiffere %}
                                 <span class="avis" style="background-color: #3a87ad;">Avis différé</span>
-                            {% elseif source.avis %}
-                                <span class="avis {{ source.avis.libelle[:1] }}">
-                                    {{ source.avis.libelle }}
+                            {% elseif source.avisCommission %}
+                                <span class="avis {{ source.avisCommission.libelle[:1] }}">
+                                    {{ source.avisCommission.libelle }}
                                     {{ include('dossier/_precision_libelle_avis.html.twig', {dossier: source}) }}
                                 </span>
                             {% else %}
