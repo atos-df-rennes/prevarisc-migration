@@ -43,16 +43,32 @@
                     {% for etab in etablissements %}
                         {% set info = etab.latestInformations %}
                         <li class="clearfix" style="padding: 4px 0; border-bottom: 1px solid #f4f4f4;">
-                            <a href="{{ path('etablissement_informations', {id: etab.id}) }}" class="pull-left">
-                                {{ info ? info.libelle : '(sans nom)' }}
-                            </a>
+                            {% if info %}
+                                {% if info.genre %}
+                                    [{{ info.genre.libelle }}]
+                                {% endif %}
+
+                                {{ info.libelle }}
+                            {% else %}
+                                (sans nom)
+                            {% endif %}
                             {% if not dossier.verrou %}
-                                <button type="button"
-                                        class="btn btn-xs btn-danger pull-right js-supprimer-etab"
-                                        data-url="{{ path('dossier_liees_etab_supprimer', {id: dossier.id, idEtab: etab.id}) }}"
-                                        title="Supprimer la liaison">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </button>
+                                <div class="pull-right">
+                                    <a href="{{ path('etablissement_informations', {id: etab.id}) }}"
+                                       class="btn btn-xs btn-default"
+                                       title="Voir l'établissement (nouvel onglet)"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                    >
+                                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-xs btn-danger js-supprimer-etab"
+                                            data-url="{{ path('dossier_liees_etab_supprimer', {id: dossier.id, idEtab: etab.id}) }}"
+                                            title="Supprimer la liaison">
+                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                    </button>
+                                </div>
                             {% endif %}
                         </li>
                     {% endfor %}
@@ -69,7 +85,7 @@
                 <div class="pull-right">
                     <a href="{{ path('dossier_liees_doss', {id: dossier.id}) }}" class="btn btn-primary btn-sm">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        Ajouter un dossier lié
+                        Lier un dossier
                     </a>
                 </div>
             {% endif %}
@@ -120,10 +136,13 @@
                                     {% endif %}
                                 </td>
                                 {% if not dossier.verrou %}
-                                    <td class="text-right" style="white-space:nowrap;">
+                                    <td class="text-right whitespace-nowrap">
                                         <a href="{{ path('dossier_index', {id: lie.id}) }}"
                                            class="btn btn-xs btn-default"
-                                           title="Voir le dossier">
+                                           title="Voir le dossier (nouvel onglet)"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                        >
                                             <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                                         </a>
                                         <button type="button"

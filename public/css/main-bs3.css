@@ -1184,7 +1184,6 @@ dl.champ_effectif_camping dd input {
 }
 
 .action-buttons {
-  background-color: white;
   height: fit-content;
   z-index: 10;
 }
