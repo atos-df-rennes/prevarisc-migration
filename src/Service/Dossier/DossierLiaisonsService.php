@@ -147,19 +147,25 @@ final class DossierLiaisonsService
 
     /**
      * Ajoute un établissement lié au dossier et répercute l'avis si le dossier donne avis.
+     *
+     * @return int[] IDs des établissements dont le dossier donnant avis a été mis à jour (pour vidage cache)
      */
-    public function addEtablissement(Dossier $dossier, Etablissement $etablissement): void
+    public function addEtablissement(Dossier $dossier, Etablissement $etablissement): array
     {
         $dossier->addEtablissement($etablissement);
-        $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier);
+        $etablissementsIds = $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier);
         $this->entityManager->flush();
+
+        return $etablissementsIds;
     }
 
     /**
      * Supprime le lien entre un dossier et un établissement.
      * Si ce dossier était le "donnant avis" de l'établissement, recalcule le nouveau dossier donnant avis.
+     *
+     * @return int[] IDs des établissements dont le dossier donnant avis a été mis à jour (pour vidage cache)
      */
-    public function removeEtablissement(Dossier $dossier, Etablissement $etablissement): void
+    public function removeEtablissement(Dossier $dossier, Etablissement $etablissement): array
     {
         $isDonnantAvis = null !== $etablissement->getDossierDonnantAvis()
             && $etablissement->getDossierDonnantAvis()->getId() === $dossier->getId();
@@ -173,8 +179,13 @@ final class DossierLiaisonsService
             );
             $etablissement->setDossierDonnantAvis($newDossierDonnantAvis);
             $this->entityManager->persist($etablissement);
+            $this->entityManager->flush();
+
+            return [$etablissement->getId()];
         }
 
         $this->entityManager->flush();
+
+        return [];
     }
 }
