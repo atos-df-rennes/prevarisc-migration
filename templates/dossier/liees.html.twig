@@ -218,6 +218,16 @@
                         .then(callback)
                         .catch(function () { callback(); });
                 },
+                render: {
+                    option: function (item) {
+                        var label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
+                        return '<div>' + label + '</div>';
+                    },
+                    item: function (item) {
+                        var label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
+                        return '<div>' + label + '</div>';
+                    }
+                },
                 onItemAdd: function () {
                     document.getElementById('js-btn-valider-etab').disabled = false;
                 },

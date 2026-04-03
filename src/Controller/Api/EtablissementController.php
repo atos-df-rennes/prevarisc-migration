@@ -45,9 +45,11 @@ class EtablissementController extends AbstractController
         $results = [];
         foreach ($etablissements as $etab) {
             $info = $etab->getLatestInformations();
+            $genre = null !== $info && null !== $info->getGenre() ? $info->getGenre()->getLibelle() : null;
             $results[] = [
                 'id' => $etab->getId(),
                 'libelle' => null !== $info ? $info->getLibelle() : '',
+                'genre' => $genre,
             ];
         }
 
