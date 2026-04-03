@@ -39,6 +39,7 @@ class EtablissementController extends AbstractController
         if (false === $limit) {
             $limit = 20;
         }
+
         $limit = max(1, min(50, $limit));
 
         $etablissements = $this->etablissementRepository->searchByLibelle($query, $limit);

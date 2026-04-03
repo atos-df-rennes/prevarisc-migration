@@ -109,7 +109,6 @@ class TextesApplicablesController extends AbstractController
         }
 
         $taIds = explode(',', $tableUpdate);
-        $entityManager = $this->entityManager;
 
         foreach ($taIds as $key => $id) {
             $texteApplicable = $this->texteApplicableRepository->find($id);
@@ -119,10 +118,10 @@ class TextesApplicablesController extends AbstractController
             }
 
             $texteApplicable->setNum($key);
-            $entityManager->persist($texteApplicable);
+            $this->entityManager->persist($texteApplicable);
         }
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->redirectToRoute('admin_textes_applicables');
     }

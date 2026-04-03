@@ -81,7 +81,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      * @Route("/dossier/{id}/copier-effectifs-degagements-etablissement",
      *        name="dossier_copier_effectifs_degagements_etablissement",
      *        requirements={"id"="\d+"},
-     *        methods={"POST"})
+     *        methods={"POST"},
+     *        defaults={"_dossier_lateral_nav": false})
      *
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */
@@ -139,7 +140,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      * @Route("/dossier/{id}/recuperer-effectifs-degagements-etablissement",
      *        name="dossier_recuperer_effectifs_degagements_etablissement",
      *        requirements={"id"="\d+"},
-     *        methods={"POST"})
+     *        methods={"POST"},
+     *        defaults={"_dossier_lateral_nav": false})
      *
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */
@@ -203,7 +205,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      * @Route("/dossier/{id}/effectifs-degagements/modal-reprise",
      *        name="dossier_effectifs_degagements_modal_reprise",
      *        requirements={"id"="\d+"},
-     *        methods={"GET"})
+     *        methods={"GET"},
+     *        defaults={"_dossier_lateral_nav": false})
      *
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */
@@ -238,7 +241,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      * @Route("/dossier/{id}/effectifs-degagements/reprendre-depuis-etude",
      *        name="dossier_effectifs_degagements_reprendre_depuis_etude",
      *        requirements={"id"="\d+"},
-     *        methods={"POST"})
+     *        methods={"POST"},
+     *        defaults={"_dossier_lateral_nav": false})
      *
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */

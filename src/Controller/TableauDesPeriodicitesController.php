@@ -85,8 +85,6 @@ class TableauDesPeriodicitesController extends AbstractController
      */
     public function save(Request $request): Response
     {
-        $entityManager = $this->entityManager;
-
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
             $clesTableauDesPeriodicites = ClesTableauDesPeriodicites::fromRequest($periodiciteKey);
 
@@ -115,10 +113,10 @@ class TableauDesPeriodicitesController extends AbstractController
 
             $periodiciteEntity->setPeriodicite($periodicite);
 
-            $entityManager->persist($periodiciteEntity);
+            $this->entityManager->persist($periodiciteEntity);
         }
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'Le tableau des périodicités a bien été sauvegardé.');
 
