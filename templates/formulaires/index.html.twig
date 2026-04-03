@@ -61,7 +61,7 @@
     {% set formulaires_dossier = formulaires|filter(formulaire => formulaire.nomInterne not in ['descriptifEtablissement', 'effectifsDegagementsEtablissement']) %}
 
     <div class="pull-right mb-4">
-        <a href="{{ path('admin_formulaires_export') }}" target="_blank" class="btn btn-primary">
+        <a href="{{ path('admin_formulaires_export') }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
             Exporter la configuration
         </a>
         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#import-configuration">

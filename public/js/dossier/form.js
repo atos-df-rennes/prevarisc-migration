@@ -33,7 +33,7 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
      * Initialise le formulaire et ses modules
      */
     function initForm() {
-        const form = document.querySelector('#editDossier');
+        const form = document.querySelector('#editDossier, #newDossier');
         if (!form) {
             console.warn('Formulaire dossier non trouvé');
             return;

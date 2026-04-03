@@ -32,7 +32,7 @@
                     Textes applicables
                 </a>
             </li>
-            <li {% if app.request.get('_route') is same as('etablissement_descriptif') %}class="active"{% endif %}>
+            <li {% if app.request.get('_route') starts with 'etablissement_descriptif' %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     {{ libelle_descriptif }}
@@ -88,7 +88,7 @@
         </li>
         <li class="nav-header">Actions</li>
         <li>
-            <a href="{{ '/dossier/add/id_etablissement/' ~ etablissement.id }}">
+            <a href="{{ path('dossier_new', {etablissement: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 Ajouter un dossier
             </a>

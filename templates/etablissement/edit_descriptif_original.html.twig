@@ -1,0 +1,239 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Modification des descriptifs{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+
+    <div class="pull-right action-buttons">
+        <div class="btn-group">
+            <a class="btn btn-default" href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
+                Annuler la modification
+            </a>
+            <button type="submit" class="btn btn-success">
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Sauvegarder
+            </button>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+
+    <h3>Modification des descriptifs</h3>
+
+    {# --- Champs textuels généraux --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Descriptifs généraux</h4></div>
+        <div class="panel-body">
+            {{ form_row(form.historiqueDescriptif) }}
+            {{ form_row(form.descriptif) }}
+            {{ form_row(form.descriptifDerogation) }}
+        </div>
+    </div>
+
+    {# --- Implantation --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Implantation</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechImplantationSurface', 'desctechImplantationSurfaceTotale', 'desctechImplantationSurfaceAccPublic',
+                    'desctechImplantationShon', 'desctechImplantationNbNiveaux', 'desctechImplantationPbdn'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Desserte --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Desserte</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechDesserteNbFacadeLibre', 'desctechDesserteVoieEngin',
+                    'desctechDesserteVoieEchelle', 'desctechDesserteEspaceLibre'] %}
+                    <div class="col-sm-3">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Isolement par rapport aux tiers --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Isolement par rapport aux tiers</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechIsolementLateralCf', 'desctechIsolementSuperposeCf', 'desctechIsolementVisAVis'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Stabilité au feu --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Stabilité au feu</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechStabiliteStructureSf', 'desctechStabilitePlancher'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Distribution intérieure --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Distribution intérieure</h4></div>
+        <div class="panel-body">
+            {% for field_name in ['desctechDistributionCloisonnementTrad', 'desctechDistributionSecteurs', 'desctechDistributionCompartiments'] %}
+                {{ form_row(attribute(form, field_name)) }}
+            {% endfor %}
+        </div>
+    </div>
+
+    {# --- Locaux à risques --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Locaux à risques</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechLocauxRisqueNbMoyens', 'desctechLocauxRisqueNbImportants'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Espaces d'attentes sécurisés --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Espaces d'attentes sécurisés</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechEspacesNombre', 'desctechEspacesNiveauConcerne'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Désenfumage --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Désenfumage</h4></div>
+        <div class="panel-body">
+            {% for field_name in ['desctechDesenfumageNaturel', 'desctechDesenfumageMecanique'] %}
+                {{ form_row(attribute(form, field_name)) }}
+            {% endfor %}
+            {{ form_row(form.desctechDesenfumageCommentaire) }}
+        </div>
+    </div>
+
+    {# --- Chaufferies --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Chaufferies</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechChaufferiesNb', 'desctechChaufferiesPuissMax', 'desctechChaufferiesPuissanceTotale',
+                    'desctechChaufferiesNb30Kw', 'desctechChaufferiesNb70Kw', 'desctechChaufferiesNb2Mw'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Localisation des coupures d'énergies --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Localisation des coupures d'énergies</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechCoupureNrjGaz', 'desctechCoupureNrjElec',
+                    'desctechCoupureNrjPhotovoltaique', 'desctechCoupureNrjAutre'] %}
+                    <div class="col-sm-6">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Ascenseurs --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Ascenseurs</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechAscenseursNbTotal', 'desctechAscenseursNbAs4'] %}
+                    <div class="col-sm-4">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# --- Moyens de secours --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Moyens de secours</h4></div>
+        <div class="panel-body">
+            {{ form_row(form.desctechMoyensSecoursColonnesSeches) }}
+            {% for field_name in ['desctechMoyensSecoursColonnesHumides', 'desctechMoyensSecoursRia',
+                'desctechMoyensSecoursSprinkleur', 'desctechMoyensSecoursBrouillardEau'] %}
+                {{ form_row(attribute(form, field_name)) }}
+            {% endfor %}
+        </div>
+    </div>
+
+    {# --- PC Sécurité --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">PC Sécurité</h4></div>
+        <div class="panel-body">
+            {{ form_row(form.desctechPcSecuPresence) }}
+            {{ form_row(form.desctechPcSecuLocalisation) }}
+        </div>
+    </div>
+
+    {# --- SSI --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">SSI</h4></div>
+        <div class="panel-body">
+            {{ form_row(form.desctechSsiPresence) }}
+            <div class="row">
+                <div class="col-sm-3">{{ form_row(form.desctechSsiCategorie) }}</div>
+                <div class="col-sm-3">{{ form_row(form.desctechSsiAlarmeType) }}</div>
+            </div>
+        </div>
+    </div>
+
+    {# --- Service de sécurité --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Service de sécurité</h4></div>
+        <div class="panel-body">
+            {% for field_name in ['desctechServiceSecuEl18', 'desctechServiceSecuPersonnelsDesignes'] %}
+                {{ form_row(attribute(form, field_name)) }}
+            {% endfor %}
+            <div class="row">
+                {% for field_name in ['desctechServiceSecuAgentSecu', 'desctechServiceSecuChefEquipe',
+                    'desctechServiceSecuChefDeService', 'desctechServiceSecuSp'] %}
+                    <div class="col-sm-3">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+            {{ form_row(form.desctechServiceSecuCommentaireSp) }}
+        </div>
+    </div>
+
+    {# --- Défense incendie --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Défense incendie</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                {% for field_name in ['desctechDefensePtEau', 'desctechDefenseVolumePtEau',
+                    'desctechDefensePi', 'desctechDefenseBi', 'desctechDefenseDebitSimultane'] %}
+                    <div class="col-sm-3">{{ form_row(attribute(form, field_name)) }}</div>
+                {% endfor %}
+            </div>
+            {{ form_row(form.desctechDefensePtEauCommentaire) }}
+        </div>
+    </div>
+
+    {# --- Risques --- #}
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Risques</h4></div>
+        <div class="panel-body">
+            {{ form_row(form.risquesNaturels) }}
+            {{ form_row(form.risquesTechnologiques) }}
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+{% endblock %}

@@ -46,7 +46,14 @@
 
         // Déclencher masquage des calendriers via événement custom
         // calendar-init.js écoute cet événement et gère le masquage proprement
+        // Les boutons "Afficher" ne sont pas encore visibles à ce stade (showShowButton=false)
         document.dispatchEvent(new CustomEvent('calendar:hideAll'));
+
+        // Afficher le bouton "Afficher" uniquement si une commission est sélectionnée
+        const hasCommission = !!e.target.value;
+        document.querySelectorAll('[data-calendar-type].showCalendar').forEach(function(btn) {
+            btn.classList.toggle('hidden', !hasCommission);
+        });
     }
 
     // Initialiser au chargement du DOM
