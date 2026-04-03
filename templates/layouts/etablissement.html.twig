@@ -88,7 +88,7 @@
         </li>
         <li class="nav-header">Actions</li>
         <li>
-            <a href="{{ '/dossier/add/id_etablissement/' ~ etablissement.id }}">
+            <a href="{{ path('dossier_new', {etablissement: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 Ajouter un dossier
             </a>
