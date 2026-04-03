@@ -31,7 +31,6 @@ use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierCreationService;
-use App\Service\Dossier\DossierDonnantAvisService;
 use App\Service\Dossier\DossierLiaisonsService;
 use App\Service\Dossier\DossierSauvegardeService;
 use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
@@ -943,7 +942,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var \Doctrine\Common\Collections\Collection $dossiersToAdd */
+            /** @var Collection $dossiersToAdd */
             $dossiersToAdd = $form->get('dossiersToAdd')->getData();
             $this->dossierLiaisonsService->addLiaisons($dossier, $dossiersToAdd->toArray());
 
