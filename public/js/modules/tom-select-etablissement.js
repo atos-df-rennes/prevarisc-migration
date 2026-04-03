@@ -1,9 +1,21 @@
 /**
+ * Échappe les caractères HTML spéciaux pour prévenir les injections XSS.
+ *
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+/**
  * Initialise un TomSelect pour la recherche d'établissement via l'API.
  *
- * @param {string}   selectId  Sélecteur CSS de l'élément <select>
- * @param {string}   searchUrl URL de l'API de recherche
- * @param {Function} onSelect  Callback appelé quand un item est sélectionné (reçoit la valeur)
+ * @param {string}   selectId   Sélecteur CSS de l'élément <select>
+ * @param {string}   searchUrl  URL de l'API de recherche
+ * @param {Function} onSelect   Callback appelé quand un item est sélectionné (reçoit la valeur)
  * @param {Function} onDeselect Callback appelé quand un item est désélectionné
  *
  * @returns {TomSelect}
@@ -22,11 +34,15 @@ export function initTomSelectEtablissement(selectId, searchUrl, onSelect, onDese
         },
         render: {
             option: (item) => {
-                const label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
+                const label = item.genre
+                    ? '[' + escapeHtml(item.genre) + '] ' + escapeHtml(item.libelle)
+                    : escapeHtml(item.libelle);
                 return '<div>' + label + '</div>';
             },
             item: (item) => {
-                const label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
+                const label = item.genre
+                    ? '[' + escapeHtml(item.genre) + '] ' + escapeHtml(item.libelle)
+                    : escapeHtml(item.libelle);
                 return '<div>' + label + '</div>';
             },
         },
