@@ -187,6 +187,19 @@ class Dossier
     private $displayRubriques;
 
     /**
+     * @var Collection<int, Valeur>
+     *
+     * @ORM\ManyToMany(targetEntity=Valeur::class, cascade={"persist", "remove"})
+     *
+     * @ORM\JoinTable(
+     *     name="dossiervaleur",
+     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_VALEUR", referencedColumnName="ID_VALEUR")}
+     * )
+     */
+    private $valeurs;
+
+    /**
      * @var Collection<int, UtilisateurInformations>
      *
      * @ORM\JoinTable(
@@ -621,6 +634,7 @@ class Dossier
         $this->etablissements = new ArrayCollection();
         $this->avisDerogations = new ArrayCollection();
         $this->displayRubriques = new ArrayCollection();
+        $this->valeurs = new ArrayCollection();
         $this->contacts = new ArrayCollection();
         $this->dossiersLies = new ArrayCollection();
         $this->dossiersAyantLie = new ArrayCollection();
@@ -1793,5 +1807,13 @@ class Dossier
         $this->dateNotification = $dateNotification;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Valeur>
+     */
+    public function getValeurs(): Collection
+    {
+        return $this->valeurs;
     }
 }

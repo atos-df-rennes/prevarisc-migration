@@ -20,9 +20,9 @@ final class Version20250220145400 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP TABLE IF EXISTS `effectifdegagement`');
-        $this->addSql('DROP TABLE IF EXISTS `dossiereffectifdegagement`');
         $this->addSql('DROP TABLE IF EXISTS `etablissementeffectifdegagement`');
+        $this->addSql('DROP TABLE IF EXISTS `dossiereffectifdegagement`');
+        $this->addSql('DROP TABLE IF EXISTS `effectifdegagement`');
     }
 
     public function down(Schema $schema): void

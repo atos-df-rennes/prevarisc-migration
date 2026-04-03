@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Constant\DossierType;
+use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
+use App\Form\DescriptifOriginalType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
@@ -21,13 +23,16 @@ use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Contact;
 use App\Service\DataStore\DataStore;
+use App\Service\Descriptif as DescriptifService;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -106,6 +111,15 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var int */
     private $nbDossiersAAfficher;
 
+    /** @var DescriptifService */
+    private $descriptifService;
+
+    /** @var bool */
+    private $descriptifPersonnalise;
+
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -123,7 +137,10 @@ class EtablissementController extends AbstractController implements Etablissemen
         Contact $contactService,
         MailerConfiguration $mailerConfig,
         AlerteService $alerteService,
-        int $nbDossiersAAfficher
+        int $nbDossiersAAfficher,
+        DescriptifService $descriptifService,
+        bool $descriptifPersonnalise,
+        LoggerInterface $logger
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -142,6 +159,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->mailerConfig = $mailerConfig;
         $this->alerteService = $alerteService;
         $this->nbDossiersAAfficher = $nbDossiersAAfficher;
+        $this->descriptifService = $descriptifService;
+        $this->descriptifPersonnalise = $descriptifPersonnalise;
+        $this->logger = $logger;
     }
 
     /**
@@ -555,5 +575,115 @@ class EtablissementController extends AbstractController implements Etablissemen
         }
 
         return new Response($html);
+    }
+
+    /**
+     * Affiche l'onglet Descriptif de l'établissement.
+     * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, affiche les formulaires personnalisés.
+     * Sinon, affiche le descriptif original (champs fixes).
+     *
+     * @Route("/etablissement/{id}/descriptif", name="etablissement_descriptif", methods={"GET"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function descriptif(Etablissement $etablissement): Response
+    {
+        if (!$this->descriptifPersonnalise) {
+            $data = $this->etablissementService->getDescriptifOriginal($etablissement);
+
+            return $this->render('etablissement/descriptif_original.html.twig', [
+                'etablissement' => $etablissement,
+                'descriptif' => $data['descriptif'],
+                'historique' => $data['historique'],
+                'derogation' => $data['derogation'],
+                'techniquesGroupes' => $data['techniquesGroupes'],
+            ]);
+        }
+
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
+
+        return $this->render('etablissement/_informations/descriptif_personnalise.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Retourne le contenu du descriptif original pour la modale (sans layout).
+     *
+     * @Route("/etablissement/{id}/descriptif-original", name="etablissement_descriptif_original", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function descriptifOriginal(Etablissement $etablissement, Request $request): Response
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw $this->createNotFoundException();
+        }
+
+        $data = $this->etablissementService->getDescriptifOriginal($etablissement);
+
+        return $this->render('etablissement/_descriptif_original_content.html.twig', [
+            'descriptif' => $data['descriptif'],
+            'historique' => $data['historique'],
+            'derogation' => $data['derogation'],
+            'techniquesGroupes' => $data['techniquesGroupes'],
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition du descriptif original.
+     *
+     * @Route("/etablissement/{id}/descriptif/modifier", name="etablissement_descriptif_modifier", methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
+     */
+    public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
+    {
+        if ($this->descriptifPersonnalise) {
+            return $this->redirect('/etablissement/edit-descriptif/id/'.$etablissement->getId());
+        }
+
+        $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->etablissementService->saveDescriptifOriginal();
+                $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde du descriptif original', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/edit_descriptif_original.html.twig', [
+            'etablissement' => $etablissement,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Effectifs et Dégagements de l'établissement.
+     *
+     * @Route("/etablissement/{id}/effectifs-degagements", name="etablissement_effectifs_degagements", methods={"GET"})
+     *
+     * @Security("is_granted('effectifs_degagements_ets') and is_granted('view_ets', etablissement)")
+     */
+    public function effectifsDegagements(Etablissement $etablissement): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+
+        return $this->render('etablissement/_informations/effectifs_degagements.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
     }
 }

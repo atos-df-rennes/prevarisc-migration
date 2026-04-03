@@ -25,7 +25,7 @@
                             <div>
                                 <span class="label label-warning label--prescription-reprise">
                                     Reprise du dossier
-                                    <a href="{{ path('dossier_index', {id: prescription.dossierReprise.id}) }}" target="_blank">
+                                    <a href="{{ path('dossier_index', {id: prescription.dossierReprise.id}) }}" target="_blank" rel="noopener noreferrer">
                                         {% if prescription.dossierReprise.objet %}
                                             {{ prescription.dossierReprise.objet }}
                                         {% else %}

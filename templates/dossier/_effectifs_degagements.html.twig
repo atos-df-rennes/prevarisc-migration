@@ -1,0 +1,232 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% import 'components/_formulaire_personnalise.html.twig' as forms %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% set nom_capsule = capsule ? capsule.nom : 'Effectifs et Dégagements' %}
+
+{% block title %}{{ parent() }} / {{ nom_capsule }}{% endblock %}
+
+{% block body %}
+    <div class="pull-right">
+        <div class="btn-group">
+            <button id="btnRepriseDropdown" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Reprise de données <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                {% if not hasData %}
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#modal-reprise-etude">
+                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                            Reprendre les données d'une étude précédente
+                        </a>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                {% endif %}
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#modal-copier-etablissement">
+                        <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>
+                        Copier les données sur l'établissement
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#modal-reprendre-etablissement">
+                        <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
+                        Reprendre les données de l'établissement
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <a class="btn btn-default" href="/dossier/effectifs-degagements-dossier-edit/id/{{ dossier.id }}">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Modifier les {{ nom_capsule|lower }}
+        </a>
+    </div>
+
+    <h3>{{ nom_capsule }}</h3>
+
+    {% if rubriques is empty %}
+        <p class="text-muted">
+            <em>Aucune rubrique configurée. Contactez un administrateur Prevarisc.</em>
+        </p>
+    {% else %}
+        {{ forms.rubriques(rubriques) }}
+    {% endif %}
+
+    {# Modal : Reprendre les données d'une étude précédente #}
+    {% if not hasData %}
+        <div id="modal-reprise-etude" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reprise-etude-label">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="modal-reprise-etude-label">Reprise des données d'un dossier précédent</h4>
+                    </div>
+                    <div class="modal-body" id="modal-reprise-etude-body">
+                        <p class="text-muted text-center">
+                            <em>Chargement… <span class="glyphicon glyphicon-refresh spinning"></span></em>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-success" id="btn-reprise-etude-confirm">
+                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Reprendre les effectifs et dégagements
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Modal : Copier les données sur l'établissement #}
+    <div id="modal-copier-etablissement" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-copier-etablissement-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-copier-etablissement-label">Copier les données sur l'établissement</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir copier les effectifs et dégagements de ce dossier sur l'établissement ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-success" id="btn-copier-etablissement-confirm">
+                        <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal : Reprendre les données de l'établissement #}
+    <div id="modal-reprendre-etablissement" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reprendre-etablissement-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-reprendre-etablissement-label">Reprendre les données de l'établissement</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir reprendre les effectifs et dégagements depuis l'établissement ? Les données actuelles du dossier seront écrasées.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-warning" id="btn-reprendre-etablissement-confirm">
+                        <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const urlRetour = "{{ path('dossier_effectifs_degagements', {id: dossier.id}) }}";
+            const csrfTokenCopier = '{{ csrf_token('copier_effectifs_degagements_' ~ dossier.id) }}';
+            const csrfTokenRecuperer = '{{ csrf_token('recuperer_effectifs_degagements_' ~ dossier.id) }}';
+            const iconSpin = '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> ';
+
+            function redirectAvecDelai() {
+                setTimeout(function () { window.location = urlRetour; }, 1000);
+            }
+
+            {% if not hasData %}
+                let repriseEtudeLoaded = false;
+
+                $('#modal-reprise-etude').on('show.bs.modal', function () {
+                    if (repriseEtudeLoaded) {
+                        return;
+                    }
+                    $.ajax({
+                        url: '{{ path('dossier_effectifs_degagements_modal_reprise', {id: dossier.id}) }}',
+                        type: 'GET',
+                        success: function (html) {
+                            document.getElementById('modal-reprise-etude-body').innerHTML = html;
+                            repriseEtudeLoaded = true;
+                        },
+                        error: function () {
+                            document.getElementById('modal-reprise-etude-body').innerHTML =
+                                '<p class="text-danger">Une erreur est survenue lors du chargement.</p>';
+                        }
+                    });
+                });
+
+                $('#btn-reprise-etude-confirm').on('click', function () {
+                    if ($('input[type=radio][name=dossierSelect]:checked').length !== 1) {
+                        return;
+                    }
+                    const $btn = $(this);
+                    $btn.prop('disabled', true).html(iconSpin + 'Reprise en cours…');
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ path('dossier_effectifs_degagements_reprendre_depuis_etude', {id: dossier.id}) }}',
+                        data: $('#selectionDossier').serialize(),
+                        success: function () {
+                            $('#modal-reprise-etude').modal('hide');
+                            $.toast.success('Les effectifs et dégagements ont bien été repris.');
+                            redirectAvecDelai();
+                        },
+                        error: function (xhr) {
+                            $btn.prop('disabled', false).text('Reprendre les effectifs et dégagements');
+                            const msg = xhr.responseJSON && xhr.responseJSON.error
+                                ? xhr.responseJSON.error
+                                : 'Erreur lors de la reprise des données. Veuillez réessayer.';
+                            $.toast.error(msg);
+                        }
+                    });
+                });
+            {% endif %}
+
+            $('#modal-copier-etablissement').on('hidden.bs.modal', function () {
+                $('#btn-copier-etablissement-confirm').prop('disabled', false).text('Confirmer');
+            });
+
+            $('#btn-copier-etablissement-confirm').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html(iconSpin + 'Copie en cours…');
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ path('dossier_copier_effectifs_degagements_etablissement', {id: dossier.id}) }}',
+                    data: { _token: csrfTokenCopier },
+                    success: function () {
+                        $('#modal-copier-etablissement').modal('hide');
+                        $.toast.success('Les effectifs et dégagements ont bien été copiés sur l\'établissement.');
+                    },
+                    error: function (xhr) {
+                        $btn.prop('disabled', false).text('Confirmer');
+                        const msg = xhr.responseJSON && xhr.responseJSON.error
+                            ? xhr.responseJSON.error
+                            : 'Erreur lors de la copie des données. Veuillez réessayer.';
+                        $.toast.error(msg);
+                    }
+                });
+            });
+
+            $('#btn-reprendre-etablissement-confirm').on('click', function () {
+                const $btn = $(this);
+                $btn.prop('disabled', true).html(iconSpin + 'Reprise en cours…');
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ path('dossier_recuperer_effectifs_degagements_etablissement', {id: dossier.id}) }}',
+                    data: { _token: csrfTokenRecuperer },
+                    success: function () {
+                        $('#modal-reprendre-etablissement').modal('hide');
+                        $.toast.success('Les effectifs et dégagements ont bien été repris depuis l\'établissement.');
+                        redirectAvecDelai();
+                    },
+                    error: function (xhr) {
+                        $btn.prop('disabled', false).text('Confirmer');
+                        const msg = xhr.responseJSON && xhr.responseJSON.error
+                            ? xhr.responseJSON.error
+                            : 'Erreur lors de la reprise des données. Veuillez réessayer.';
+                        $.toast.error(msg);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -33,8 +33,11 @@ class ChampRepository extends ServiceEntityRepository
             ->andWhere('c = :champ')
             ->setParameter('champ', $champ)
             ->orderBy('e.idx', 'ASC')
+            ->addOrderBy('e.id', 'ASC')
             ->addOrderBy('cvl.idx', 'ASC')
+            ->addOrderBy('cvl.id', 'ASC')
             ->addOrderBy('e_cvl.idx', 'ASC')
+            ->addOrderBy('e_cvl.id', 'ASC')
             ->getQuery()
             ->getSingleResult()
         ;

@@ -32,8 +32,8 @@
                     Textes applicables
                 </a>
             </li>
-            <li>
-                <a href="{{ '/etablissement/descriptif/id/' ~ etablissement.id }}">
+            <li {% if app.request.get('_route') starts with 'etablissement_descriptif' %}class="active"{% endif %}>
+                <a href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     {{ libelle_descriptif }}
                 </a>
@@ -41,8 +41,8 @@
         {% endif %}
 
         {% if is_granted('effectifs_degagements_ets') %}
-            <li>
-                <a class='sep' href="{{ '/etablissement/effectifs-degagements-etablissement/id/' ~ etablissement.id }}">
+            <li {% if app.request.get('_route') is same as('etablissement_effectifs_degagements') %}class="active"{% endif %}>
+                <a class='sep' href="{{ path('etablissement_effectifs_degagements', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                     {{ libelle_effectifs_degagements }}
                 </a>

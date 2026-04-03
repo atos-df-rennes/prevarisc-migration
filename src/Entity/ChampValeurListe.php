@@ -42,7 +42,7 @@ class ChampValeurListe
     /**
      * @var ?int
      *
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $idx;
 
@@ -80,7 +80,7 @@ class ChampValeurListe
         return $this->idx;
     }
 
-    public function setIdx(?int $idx): self
+    public function setIdx(int $idx): self
     {
         $this->idx = $idx;
 
