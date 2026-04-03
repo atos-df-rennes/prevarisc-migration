@@ -21,17 +21,16 @@ export function initTomSelectEtablissement(selectId, searchUrl, onSelect, onDese
                 .catch(() => callback());
         },
         render: {
-            // Fonctions classiques pour accéder à this.escape_html() de l'instance TomSelect
-            option: function (item) {
+            option: (item, escape) => {
                 const label = item.genre
-                    ? '[' + this.escape_html(item.genre) + '] ' + this.escape_html(item.libelle)
-                    : this.escape_html(item.libelle);
+                    ? '[' + escape(item.genre) + '] ' + escape(item.libelle)
+                    : escape(item.libelle);
                 return '<div>' + label + '</div>';
             },
-            item: function (item) {
+            item: (item, escape) => {
                 const label = item.genre
-                    ? '[' + this.escape_html(item.genre) + '] ' + this.escape_html(item.libelle)
-                    : this.escape_html(item.libelle);
+                    ? '[' + escape(item.genre) + '] ' + escape(item.libelle)
+                    : escape(item.libelle);
                 return '<div>' + label + '</div>';
             },
         },
