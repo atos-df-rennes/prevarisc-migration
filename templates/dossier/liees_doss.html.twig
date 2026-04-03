@@ -19,28 +19,122 @@
             </p>
         </div>
     {% else %}
-        {{ form_start(form) }}
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Sélectionnez les dossiers à lier</h4>
+        <form method="post" action="{{ path('dossier_liees_doss', {id: dossier.id}) }}">
+            <div class="form-group clearfix">
+                <button type="submit" class="btn btn-success pull-right">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    Enregistrer les liaisons
+                </button>
+                <a href="{{ path('dossier_liees', {id: dossier.id}) }}" class="btn btn-default pull-right mr-2">
+                    Annuler
+                </a>
             </div>
-            <div class="panel-body">
-                {{ form_errors(form) }}
-                {{ form_widget(form.dossiersToAdd) }}
+
+            {% for etabId, group in grouped %}
+                {% set etab = group.etablissement %}
+                {% set info = etab.latestInformations %}
+                <h4>{{ info ? info.libelle : '(établissement sans nom)' }}</h4>
+
+                {% if group.visites is not empty %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="cursor:pointer;" data-toggle-group="visites-{{ etabId }}">
+                            <span class="glyphicon glyphicon-plus-sign js-toggle-icon" aria-hidden="true"></span>
+                            <strong>Visite(s)</strong>
+                        </div>
+                        <ul class="list-group" id="visites-{{ etabId }}" style="display:none;">
+                            {% for d in group.visites %}
+                                <li class="list-group-item">
+                                    <label>
+                                        <input type="checkbox" name="dossiersToAdd[]" value="{{ d.id }}">
+                                        {{ _self.dossier_item(d) }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if group.etudes is not empty %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="cursor:pointer;" data-toggle-group="etudes-{{ etabId }}">
+                            <span class="glyphicon glyphicon-plus-sign js-toggle-icon" aria-hidden="true"></span>
+                            <strong>Étude(s)</strong>
+                        </div>
+                        <ul class="list-group" id="etudes-{{ etabId }}" style="display:none;">
+                            {% for d in group.etudes %}
+                                <li class="list-group-item">
+                                    <label>
+                                        <input type="checkbox" name="dossiersToAdd[]" value="{{ d.id }}">
+                                        {{ _self.dossier_item(d) }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if group.autres is not empty %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="cursor:pointer;" data-toggle-group="autres-{{ etabId }}">
+                            <span class="glyphicon glyphicon-plus-sign js-toggle-icon" aria-hidden="true"></span>
+                            <strong>Autre(s)</strong>
+                        </div>
+                        <ul class="list-group" id="autres-{{ etabId }}" style="display:none;">
+                            {% for d in group.autres %}
+                                <li class="list-group-item">
+                                    <label>
+                                        <input type="checkbox" name="dossiersToAdd[]" value="{{ d.id }}">
+                                        {{ _self.dossier_item(d) }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="form-group clearfix">
+                <button type="submit" class="btn btn-success pull-right">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    Enregistrer les liaisons
+                </button>
+                <a href="{{ path('dossier_liees', {id: dossier.id}) }}" class="btn btn-default pull-right mr-2">
+                    Annuler
+                </a>
             </div>
-        </div>
-
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                Enregistrer les liaisons
-            </button>
-            <a href="{{ path('dossier_liees', {id: dossier.id}) }}" class="btn btn-default ml-2">
-                Annuler
-            </a>
-        </div>
-
-        {{ form_end(form) }}
+        </form>
     {% endif %}
+{% endblock %}
+
+{% macro dossier_item(d) %}
+    {% set parts = [] %}
+    {% if d.type %}{% set parts = parts|merge([d.type.libelle]) %}{% endif %}
+    {% if d.nature %}{% set parts = parts|merge([d.nature.libelle]) %}{% endif %}
+    {% if d.objet %}{% set parts = parts|merge([d.objet]) %}{% endif %}
+    <span class="doss-nom">
+        {% if d.verrou %}<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>{% endif %}
+        {{ parts|join(' - ') ?: '(sans titre)' }}
+    </span>
+    {% if d.dateCommission %}
+        <small class="text-muted"> — date de passage en commission le {{ d.dateCommission|date('d/m/Y') }}</small>
+    {% elseif d.dateVisite %}
+        <small class="text-muted"> — date de visite le {{ d.dateVisite|date('d/m/Y') }}</small>
+    {% elseif d.dateInsert %}
+        <small class="text-muted"> — créé le {{ d.dateInsert|date('d/m/Y') }}</small>
+    {% endif %}
+{% endmacro %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle-group]').on('click', function () {
+                var groupId = $(this).data('toggle-group');
+                var $list = $('#' + groupId);
+                var $icon = $(this).find('.js-toggle-icon');
+                $list.toggle();
+                $icon.toggleClass('glyphicon-plus-sign glyphicon-minus-sign');
+            });
+        });
+    </script>
 {% endblock %}

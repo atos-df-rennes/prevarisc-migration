@@ -5,66 +5,158 @@
 {% block body %}
     <h3>Établissements et dossiers liés</h3>
 
-    <div class="clearfix mb-3">
-        {% if not dossier.verrou %}
-            <a href="{{ path('dossier_liees_doss', {id: dossier.id}) }}" class="btn btn-primary pull-right">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                Ajouter un dossier lié
-            </a>
-        {% endif %}
-    </div>
+    {# ─── Section établissements liés ─── #}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <h4 class="panel-title pull-left" style="padding-top:5px;">Établissements liés</h4>
+            {% if not dossier.verrou %}
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary btn-sm" id="js-btn-ajouter-etab">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Lier un établissement
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel-body">
+            {% if not dossier.verrou %}
+                <div id="js-form-ajouter-etab" style="display:none; margin-bottom:15px;">
+                    <form method="post" action="{{ path('dossier_liees_etab_ajouter', {id: dossier.id}) }}" id="form-ajouter-etab">
+                        <div class="input-group">
+                            <input type="text"
+                                   id="js-etab-autocomplete"
+                                   class="form-control"
+                                   placeholder="Saisir le libellé de l'établissement..."
+                                   autocomplete="off">
+                            <input type="hidden" name="idEtablissement" id="js-etab-id" value="">
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-success" id="js-btn-valider-etab" disabled>
+                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                    Lier
+                                </button>
+                                <button type="button" class="btn btn-default" id="js-btn-annuler-etab">Annuler</button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
 
-    {% if liaisons|length == 0 %}
-        <p class="text-muted">Aucun dossier lié.</p>
-    {% else %}
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Nature</th>
-                    <th>Établissements</th>
-                    <th>Date de création</th>
-                    {% if not dossier.verrou %}
-                        <th></th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for lie in liaisons %}
-                    <tr>
-                        <td>{{ lie.type ? lie.type.libelle : '-' }}</td>
-                        <td>{{ lie.nature ? lie.nature.libelle : '-' }}</td>
-                        <td>
-                            {% for etab in lie.etablissements %}
-                                <div>{{ etab.informations ? etab.informations.libelleEtablissementInformations : '' }}</div>
-                            {% endfor %}
-                        </td>
-                        <td>{{ lie.dateInsert ? lie.dateInsert|date('d/m/Y') : '-' }}</td>
-                        {% if not dossier.verrou %}
-                            <td class="text-right">
-                                <a href="{{ path('dossier_index', {id: lie.id}) }}"
-                                   class="btn btn-xs btn-default"
-                                   title="Voir le dossier">
-                                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                                </a>
+            {% if etablissements is empty %}
+                <p class="text-muted">Aucun établissement lié.</p>
+            {% else %}
+                <ul class="list-unstyled">
+                    {% for etab in etablissements %}
+                        {% set info = etab.latestInformations %}
+                        <li class="clearfix" style="padding: 4px 0; border-bottom: 1px solid #f4f4f4;">
+                            <a href="{{ path('etablissement_informations', {id: etab.id}) }}" class="pull-left">
+                                {{ info ? info.libelle : '(sans nom)' }}
+                            </a>
+                            {% if not dossier.verrou %}
                                 <button type="button"
-                                        class="btn btn-xs btn-danger js-supprimer-liaison"
-                                        data-url="{{ path('dossier_liees_supprimer', {id: dossier.id, idLie: lie.id}) }}"
+                                        class="btn btn-xs btn-danger pull-right js-supprimer-etab"
+                                        data-url="{{ path('dossier_liees_etab_supprimer', {id: dossier.id, idEtab: etab.id}) }}"
                                         title="Supprimer la liaison">
                                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                 </button>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
 
-    {# Modale de confirmation de suppression #}
+    {# ─── Section dossiers liés ─── #}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <h4 class="panel-title pull-left" style="padding-top:5px;">Dossiers liés</h4>
+            {% if not dossier.verrou %}
+                <div class="pull-right">
+                    <a href="{{ path('dossier_liees_doss', {id: dossier.id}) }}" class="btn btn-primary btn-sm">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        Ajouter un dossier lié
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="panel-body">
+            {% if liaisons is empty %}
+                <p class="text-muted">Aucun dossier lié.</p>
+            {% else %}
+                <table class="table table-striped table-hover table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Nature</th>
+                            <th>Établissements</th>
+                            <th>Objet</th>
+                            <th>Date de référence</th>
+                            {% if not dossier.verrou %}
+                                <th></th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lie in liaisons %}
+                            <tr>
+                                <td>{{ lie.type ? lie.type.libelle : '-' }}</td>
+                                <td>{{ lie.nature ? lie.nature.libelle : '-' }}</td>
+                                <td>
+                                    {% for etab in lie.etablissements %}
+                                        <div>
+                                            {% set info = etab.latestInformations %}
+                                            {{ info ? info.libelle : '' }}
+                                        </div>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ lie.objet ?: '-' }}</td>
+                                <td>
+                                    {% if lie.dateCommission %}
+                                        <small class="text-muted">Commission :</small>
+                                        {{ lie.dateCommission|date('d/m/Y') }}
+                                    {% elseif lie.dateVisite %}
+                                        <small class="text-muted">Visite :</small>
+                                        {{ lie.dateVisite|date('d/m/Y') }}
+                                    {% elseif lie.dateInsert %}
+                                        <small class="text-muted">Créé le :</small>
+                                        {{ lie.dateInsert|date('d/m/Y') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                {% if not dossier.verrou %}
+                                    <td class="text-right" style="white-space:nowrap;">
+                                        <a href="{{ path('dossier_index', {id: lie.id}) }}"
+                                           class="btn btn-xs btn-default"
+                                           title="Voir le dossier">
+                                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-xs btn-danger js-supprimer-liaison"
+                                                data-url="{{ path('dossier_liees_supprimer', {id: dossier.id, idLie: lie.id}) }}"
+                                                title="Supprimer la liaison">
+                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Modales #}
     <div class="modal fade" id="modal-suppression-liaison" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content" id="modal-suppression-liaison-content"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-suppression-etab" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" id="modal-suppression-etab-content"></div>
         </div>
     </div>
 {% endblock %}
@@ -73,6 +165,7 @@
     {{ parent() }}
     <script>
         $(document).ready(function () {
+            // Suppression liaison dossier (modale AJAX)
             $('.js-supprimer-liaison').on('click', function () {
                 var url = $(this).data('url');
                 $.ajax({
@@ -86,6 +179,70 @@
                         $.toast.error('Erreur lors du chargement du formulaire de suppression.');
                     }
                 });
+            });
+
+            // Suppression liaison établissement (modale AJAX)
+            $('.js-supprimer-etab').on('click', function () {
+                var url = $(this).data('url');
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    success: function (html) {
+                        $('#modal-suppression-etab-content').html(html);
+                        $('#modal-suppression-etab').modal('show');
+                    },
+                    error: function () {
+                        $.toast.error('Erreur lors du chargement du formulaire de suppression.');
+                    }
+                });
+            });
+
+            // Affichage/masquage du formulaire d'ajout établissement
+            $('#js-btn-ajouter-etab').on('click', function () {
+                $('#js-form-ajouter-etab').show();
+                $(this).hide();
+            });
+
+            $('#js-btn-annuler-etab').on('click', function () {
+                $('#js-form-ajouter-etab').hide();
+                $('#js-btn-ajouter-etab').show();
+                $('#js-etab-autocomplete').val('');
+                $('#js-etab-id').val('');
+                $('#js-btn-valider-etab').prop('disabled', true);
+            });
+
+            // Autocomplete établissement
+            $('#js-etab-autocomplete').on('input', function () {
+                var query = $(this).val();
+                if (query.length < 2) {
+                    return;
+                }
+                $.getJSON('{{ path('api_etablissements_search') }}', {q: query}, function (data) {
+                    var datalist = $('#js-etab-suggestions');
+                    if (datalist.length === 0) {
+                        datalist = $('<datalist id="js-etab-suggestions"></datalist>').appendTo('body');
+                        $('#js-etab-autocomplete').attr('list', 'js-etab-suggestions');
+                    }
+                    datalist.empty();
+                    $.each(data, function (i, item) {
+                        datalist.append('<option data-id="' + item.id + '" value="' + $('<div>').text(item.libelle).html() + '">');
+                    });
+                });
+            });
+
+            $('#js-etab-autocomplete').on('change', function () {
+                var val = $(this).val();
+                var $opt = $('#js-etab-suggestions option').filter(function () {
+                    return $(this).val() === val;
+                });
+                var id = $opt.data('id');
+                if (id) {
+                    $('#js-etab-id').val(id);
+                    $('#js-btn-valider-etab').prop('disabled', false);
+                } else {
+                    $('#js-etab-id').val('');
+                    $('#js-btn-valider-etab').prop('disabled', true);
+                }
             });
         });
     </script>

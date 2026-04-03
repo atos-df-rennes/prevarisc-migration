@@ -8,6 +8,7 @@ use App\Entity\PrescriptionDossier;
 use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionDossierRepository;
 use App\Service\DossierPrescriptionService;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -94,7 +95,9 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $logger = $this->createMock(LoggerInterface::class);
         $security = $this->createMock(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
@@ -102,6 +105,9 @@ final class DossierPrescriptionServiceTest extends TestCase
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
         $this->repository->method('findByDossierAndType')->willReturn([]);
 
+        $em->method('wrapInTransaction')->willReturnCallback(function (callable $callback) {
+            return $callback();
+        });
         $em->expects($this->once())->method('persist')
             ->with($this->isInstanceOf(PrescriptionDossier::class));
         $em->expects($this->once())->method('flush');
@@ -117,13 +123,19 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $logger = $this->createMock(LoggerInterface::class);
         $security = $this->createMock(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(3);
         $this->repository->method('findByDossierAndType')->willReturn([]);
+
+        $em->method('wrapInTransaction')->willReturnCallback(function (callable $callback) {
+            return $callback();
+        });
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::REGLEMENTAIRE);
 
@@ -134,13 +146,19 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $logger = $this->createMock(LoggerInterface::class);
         $security = $this->createMock(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
         $this->repository->method('findByDossierAndType')->willReturn([]);
+
+        $em->method('wrapInTransaction')->willReturnCallback(function (callable $callback) {
+            return $callback();
+        });
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::AMELIORATION);
 
