@@ -2,7 +2,6 @@
 
 namespace App\Service\Dossier;
 
-use App\Constant\DossierType as DossierTypeConstant;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
@@ -43,28 +42,8 @@ final class DossierLiaisonsService
     }
 
     /**
-     * Retourne les dossiers des mêmes établissements qui ne sont pas encore liés.
-     *
-     * @return Dossier[]
-     */
-    public function getDossiersDisponibles(Dossier $dossier): array
-    {
-        $excludedIds = [];
-        if (null !== $dossier->getId()) {
-            $excludedIds[] = $dossier->getId();
-        }
-        foreach ($this->getLiaisons($dossier) as $lie) {
-            if (null !== $lie->getId()) {
-                $excludedIds[] = $lie->getId();
-            }
-        }
-
-        return $this->dossierRepository->findByEtablissementsExcluding($dossier, $excludedIds);
-    }
-
-    /**
-     * Retourne les dossiers disponibles à lier, groupés par établissement puis par type
-     * (visites, etudes, autres).
+     * Retourne les dossiers disponibles à lier, groupés par établissement puis par type,
+     * en réutilisant findByEtablissementGrouped (même logique que pour les prescriptions).
      *
      * Structure retournée :
      * [
@@ -79,68 +58,56 @@ final class DossierLiaisonsService
      *
      * @return array<int, array{etablissement: Etablissement, visites: Dossier[], etudes: Dossier[], autres: Dossier[]}>
      */
-    public function getDossiersDisponiblesParEtablissement(Dossier $dossier): array
+    public function getDossiersDisponiblesGroupesParEtablissement(Dossier $dossier): array
     {
-        $disponibles = $this->getDossiersDisponibles($dossier);
+        $liaisonIds = array_map(function (Dossier $lie) {
+            return $lie->getId();
+        }, $this->getLiaisons($dossier));
 
-        /** @var array<int, array{etablissement: Etablissement, visites: Dossier[], etudes: Dossier[], autres: Dossier[]}> $grouped */
-        $grouped = [];
+        $result = [];
 
-        foreach ($disponibles as $d) {
-            foreach ($d->getEtablissements() as $etab) {
-                $etabId = $etab->getId();
-                if (!isset($grouped[$etabId])) {
-                    $grouped[$etabId] = [
-                        'etablissement' => $etab,
-                        'visites' => [],
-                        'etudes' => [],
-                        'autres' => [],
-                    ];
-                }
+        foreach ($dossier->getEtablissements() as $etab) {
+            $groupes = $this->dossierRepository->findByEtablissementGrouped($etab, $dossier);
 
-                $typeId = null !== $d->getType() ? $d->getType()->getId() : null;
+            foreach (['visites', 'etudes', 'autres'] as $key) {
+                $groupes[$key] = array_values(array_filter(
+                    $groupes[$key],
+                    function (Dossier $d) use ($liaisonIds) {
+                        return !in_array($d->getId(), $liaisonIds, true);
+                    }
+                ));
+            }
 
-                if (null !== $typeId && in_array($typeId, DossierTypeConstant::TYPES_VISITE, true)) {
-                    $grouped[$etabId]['visites'][] = $d;
-                } elseif (DossierTypeConstant::ETUDE === $typeId) {
-                    $grouped[$etabId]['etudes'][] = $d;
-                } else {
-                    $grouped[$etabId]['autres'][] = $d;
+            if ([] !== $groupes['visites'] || [] !== $groupes['etudes'] || [] !== $groupes['autres']) {
+                $result[$etab->getId()] = [
+                    'etablissement' => $etab,
+                    'visites' => $groupes['visites'],
+                    'etudes' => $groupes['etudes'],
+                    'autres' => $groupes['autres'],
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Retourne la liste plate des dossiers disponibles à lier (pour la validation du formulaire).
+     *
+     * @return Dossier[]
+     */
+    public function getDossiersDisponibles(Dossier $dossier): array
+    {
+        $disponibles = [];
+        foreach ($this->getDossiersDisponiblesGroupesParEtablissement($dossier) as $group) {
+            foreach (['visites', 'etudes', 'autres'] as $key) {
+                foreach ($group[$key] as $d) {
+                    $disponibles[$d->getId()] = $d;
                 }
             }
         }
 
-        return $grouped;
-    }
-
-    /**
-     * Retourne la date de référence d'un dossier et son texte descriptif.
-     * Priorité : date commission > date visite > date de création.
-     *
-     * @return array{texte: string, date: string}
-     */
-    public function getDossierDateReference(Dossier $dossier): array
-    {
-        if (null !== $dossier->getDateCommission()) {
-            $dateStr = substr($dossier->getDateCommission(), 0, 10);
-            $date = '0000-00-00' !== $dateStr
-                ? (new \DateTime($dateStr))->format('d/m/Y')
-                : '00/00/0000';
-
-            return ['texte' => 'date de passage en commission', 'date' => $date];
-        }
-
-        if (null !== $dossier->getDateVisite()) {
-            return [
-                'texte' => 'date de visite',
-                'date' => $dossier->getDateVisite()->format('d/m/Y'),
-            ];
-        }
-
-        $dateInsert = $dossier->getDateInsert();
-        $date = null !== $dateInsert ? $dateInsert->format('d/m/Y') : '00/00/0000';
-
-        return ['texte' => 'créé le', 'date' => $date];
+        return array_values($disponibles);
     }
 
     /**

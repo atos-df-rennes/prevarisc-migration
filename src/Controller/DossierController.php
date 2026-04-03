@@ -11,6 +11,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\Dossier\DossierDescriptifType;
+use App\Form\Dossier\DossierLiaisonsType;
 use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
 use App\Repository\AvisRepository;
@@ -931,26 +932,26 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function lieesDoss(Request $request, Dossier $dossier): Response
     {
-        if ($request->isMethod('POST')) {
-            /** @var string[] $rawIds */
-            $rawIds = (array) $request->request->get('dossiersToAdd', []);
-            $ids = array_filter(array_map('intval', $rawIds));
-            $dossiersToAdd = array_filter(
-                array_map(function (int $id) { return $this->dossierRepository->find($id); }, $ids)
-            );
-            $this->dossierLiaisonsService->addLiaisons($dossier, array_values($dossiersToAdd));
+        $disponibles = $this->dossierLiaisonsService->getDossiersDisponibles($dossier);
+        $form = $this->createForm(DossierLiaisonsType::class, null, ['available_dossiers' => $disponibles]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var \Doctrine\Common\Collections\Collection $dossiersToAdd */
+            $dossiersToAdd = $form->get('dossiersToAdd')->getData();
+            $this->dossierLiaisonsService->addLiaisons($dossier, $dossiersToAdd->toArray());
 
             $this->addFlash('success', 'Les liaisons ont bien été enregistrées.');
 
             return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
         }
 
-        $grouped = $this->dossierLiaisonsService->getDossiersDisponiblesParEtablissement($dossier);
+        $grouped = $this->dossierLiaisonsService->getDossiersDisponiblesGroupesParEtablissement($dossier);
 
         return $this->render('dossier/liees_doss.html.twig', [
             'dossier' => $dossier,
+            'form' => $form->createView(),
             'grouped' => $grouped,
-            'hasDisponibles' => [] !== $grouped,
         ]);
     }
 

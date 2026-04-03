@@ -21,14 +21,9 @@
         <div class="panel-body">
             {% if not dossier.verrou %}
                 <div id="js-form-ajouter-etab" style="display:none; margin-bottom:15px;">
-                    <form method="post" action="{{ path('dossier_liees_etab_ajouter', {id: dossier.id}) }}" id="form-ajouter-etab">
+                    <form method="post" action="{{ path('dossier_liees_etab_ajouter', {id: dossier.id}) }}">
                         <div class="input-group">
-                            <input type="text"
-                                   id="js-etab-autocomplete"
-                                   class="form-control"
-                                   placeholder="Saisir le libellé de l'établissement..."
-                                   autocomplete="off">
-                            <input type="hidden" name="idEtablissement" id="js-etab-id" value="">
+                            <select id="js-etab-search" name="idEtablissement" class="form-control"></select>
                             <span class="input-group-btn">
                                 <button type="submit" class="btn btn-success" id="js-btn-valider-etab" disabled>
                                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
@@ -206,44 +201,31 @@
             $('#js-btn-annuler-etab').on('click', function () {
                 $('#js-form-ajouter-etab').hide();
                 $('#js-btn-ajouter-etab').show();
-                $('#js-etab-autocomplete').val('');
-                $('#js-etab-id').val('');
-                $('#js-btn-valider-etab').prop('disabled', true);
+                etabSelect.clear();
             });
 
-            // Autocomplete établissement
-            $('#js-etab-autocomplete').on('input', function () {
-                var query = $(this).val();
-                if (query.length < 2) {
-                    return;
-                }
-                $.getJSON('{{ path('api_etablissements_search') }}', {q: query}, function (data) {
-                    var datalist = $('#js-etab-suggestions');
-                    if (datalist.length === 0) {
-                        datalist = $('<datalist id="js-etab-suggestions"></datalist>').appendTo('body');
-                        $('#js-etab-autocomplete').attr('list', 'js-etab-suggestions');
-                    }
-                    datalist.empty();
-                    $.each(data, function (i, item) {
-                        datalist.append('<option data-id="' + item.id + '" value="' + $('<div>').text(item.libelle).html() + '">');
-                    });
-                });
-            });
-
-            $('#js-etab-autocomplete').on('change', function () {
-                var val = $(this).val();
-                var $opt = $('#js-etab-suggestions option').filter(function () {
-                    return $(this).val() === val;
-                });
-                var id = $opt.data('id');
-                if (id) {
-                    $('#js-etab-id').val(id);
-                    $('#js-btn-valider-etab').prop('disabled', false);
-                } else {
-                    $('#js-etab-id').val('');
-                    $('#js-btn-valider-etab').prop('disabled', true);
+            // TomSelect AJAX pour la recherche d'établissement
+            var etabSelect = new TomSelect('#js-etab-search', {
+                valueField: 'id',
+                labelField: 'libelle',
+                searchField: 'libelle',
+                shouldLoad: function (query) {
+                    return query.length > 1;
+                },
+                load: function (query, callback) {
+                    fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
+                        .then(function (r) { return r.json(); })
+                        .then(callback)
+                        .catch(function () { callback(); });
+                },
+                onItemAdd: function () {
+                    document.getElementById('js-btn-valider-etab').disabled = false;
+                },
+                onItemRemove: function () {
+                    document.getElementById('js-btn-valider-etab').disabled = true;
                 }
             });
         });
     </script>
 {% endblock %}
+

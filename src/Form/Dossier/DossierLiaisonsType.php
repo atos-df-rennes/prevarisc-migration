@@ -16,16 +16,9 @@ class DossierLiaisonsType extends AbstractType
             'label' => false,
             'class' => Dossier::class,
             'choices' => $options['available_dossiers'],
-            'choice_label' => function (Dossier $dossier): string {
-                $nature = $dossier->getNature() ? (string) $dossier->getNature()->getLibelle() : 'Sans nature';
-                $date = $dossier->getDateInsert() ? $dossier->getDateInsert()->format('d/m/Y') : '';
-
-                return sprintf('%s - %s', $nature, $date);
-            },
-            'group_by' => function (Dossier $dossier): string {
-                return $dossier->getType() ? (string) $dossier->getType()->getLibelle() : 'Autres';
-            },            'multiple' => true,
-            'expanded' => true,
+            'choice_label' => 'id',
+            'multiple' => true,
+            'expanded' => false,
             'mapped' => false,
             'required' => false,
         ]);
