@@ -7,6 +7,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Count;
 
 class DossierLiaisonsType extends AbstractType
 {
@@ -20,7 +21,10 @@ class DossierLiaisonsType extends AbstractType
             'multiple' => true,
             'expanded' => false,
             'mapped' => false,
-            'required' => false,
+            'required' => true,
+            'constraints' => [
+                new Count(['min' => 1, 'minMessage' => 'Veuillez sélectionner au moins un dossier à lier.']),
+            ],
         ]);
     }
 

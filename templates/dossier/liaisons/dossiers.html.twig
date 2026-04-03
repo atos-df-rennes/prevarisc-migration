@@ -22,7 +22,7 @@
             </p>
         </div>
     {% else %}
-        {{ form_start(form, {attr: {method: 'post', action: path('dossier_liees_doss', {id: dossier.id})}}) }}
+        {{ form_start(form) }}
             {{ form_errors(form) }}
 
             <div class="form-group pull-right action-buttons">
