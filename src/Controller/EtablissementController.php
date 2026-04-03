@@ -29,6 +29,7 @@ use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -116,6 +117,9 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var bool */
     private $descriptifPersonnalise;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -135,7 +139,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         AlerteService $alerteService,
         int $nbDossiersAAfficher,
         DescriptifService $descriptifService,
-        bool $descriptifPersonnalise
+        bool $descriptifPersonnalise,
+        LoggerInterface $logger
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -156,6 +161,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->nbDossiersAAfficher = $nbDossiersAAfficher;
         $this->descriptifService = $descriptifService;
         $this->descriptifPersonnalise = $descriptifPersonnalise;
+        $this->logger = $logger;
     }
 
     /**
@@ -636,7 +642,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
         if ($this->descriptifPersonnalise) {
-            return $this->redirect('/etablissement/edit-descriptif/id/' . $etablissement->getId());
+            return $this->redirect('/etablissement/edit-descriptif/id/'.$etablissement->getId());
         }
 
         $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
@@ -647,7 +653,11 @@ class EtablissementController extends AbstractController implements Etablissemen
                 $this->etablissementService->saveDescriptifOriginal();
                 $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez rééssayez. ('.$e->getMessage().')');
+                $this->logger->error('Erreur lors de la sauvegarde du descriptif original', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);

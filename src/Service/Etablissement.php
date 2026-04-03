@@ -690,7 +690,7 @@ final class Etablissement
             'Desserte' => [
                 'Nombre de façades accessibles' => ['value' => $etablissement->getDesctechDesserteNbFacadeLibre(), 'type' => 'int'],
                 'Voie engin' => ['value' => $etablissement->getDesctechDesserteVoieEngin(), 'type' => 'int'],
-                'Voie echelle' => ['value' => $etablissement->getDesctechDesserteVoieEchelle(), 'type' => 'int'],
+                'Voie échelle' => ['value' => $etablissement->getDesctechDesserteVoieEchelle(), 'type' => 'int'],
                 'Espace libre' => ['value' => $etablissement->getDesctechDesserteEspaceLibre(), 'type' => 'int'],
             ],
             'Isolement par rapport aux tiers' => [
@@ -717,7 +717,7 @@ final class Etablissement
             ],
             'Désenfumage' => [
                 'Naturel' => ['value' => $etablissement->getDesctechDesenfumageNaturel(), 'type' => 'tinyint'],
-                'Mecanique' => ['value' => $etablissement->getDesctechDesenfumageMecanique(), 'type' => 'tinyint'],
+                'Mécanique' => ['value' => $etablissement->getDesctechDesenfumageMecanique(), 'type' => 'tinyint'],
                 'Commentaire' => ['value' => $etablissement->getDesctechDesenfumageCommentaire(), 'type' => 'text'],
             ],
             'Chaufferies' => [

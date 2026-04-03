@@ -80,7 +80,7 @@ class DescriptifOriginalType extends AbstractType
                 'required' => false,
             ])
             ->add('desctechDesserteVoieEchelle', IntegerType::class, [
-                'label' => 'Voie echelle',
+                'label' => 'Voie échelle',
                 'required' => false,
             ])
             ->add('desctechDesserteEspaceLibre', IntegerType::class, [
