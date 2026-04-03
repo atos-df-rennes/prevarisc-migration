@@ -181,7 +181,7 @@
         $(document).ready(function () {
             // Suppression liaison dossier (modale AJAX)
             $('.js-supprimer-liaison').on('click', function () {
-                var url = $(this).data('url');
+                const url = $(this).data('url');
                 $.ajax({
                     type: 'GET',
                     url: url,
@@ -197,7 +197,7 @@
 
             // Suppression liaison établissement (modale AJAX)
             $('.js-supprimer-etab').on('click', function () {
-                var url = $(this).data('url');
+                const url = $(this).data('url');
                 $.ajax({
                     type: 'GET',
                     url: url,
@@ -224,7 +224,7 @@
             });
 
             // TomSelect AJAX pour la recherche d'établissement
-            var etabSelect = new TomSelect('#js-etab-search', {
+            const etabSelect = new TomSelect('#js-etab-search', {
                 valueField: 'id',
                 labelField: 'libelle',
                 searchField: 'libelle',
@@ -239,11 +239,11 @@
                 },
                 render: {
                     option: function (item) {
-                        var label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
+                        const label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
                         return '<div>' + label + '</div>';
                     },
                     item: function (item) {
-                        var label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
+                        const label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
                         return '<div>' + label + '</div>';
                     }
                 },
