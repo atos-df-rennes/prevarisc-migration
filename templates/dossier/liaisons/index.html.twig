@@ -256,5 +256,9 @@
             });
         });
     </script>
+    <script type="module">
+        import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+        initLoadingButton('#js-btn-valider-etab', 'Liaison en cours...');
+    </script>
 {% endblock %}
 

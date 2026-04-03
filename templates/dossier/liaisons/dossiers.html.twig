@@ -29,7 +29,7 @@
                 <a href="{{ path('dossier_liees', {id: dossier.id}) }}" class="btn btn-default mr-2">
                     Annuler
                 </a>
-                <button type="submit" class="btn btn-success">
+                <button type="submit" id="js-btn-enregistrer" class="btn btn-success">
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                     Enregistrer les liaisons
                 </button>
@@ -50,3 +50,10 @@
     {% endif %}
 {% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script type="module">
+        import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+        initLoadingButton('#js-btn-enregistrer', 'Enregistrement en cours...');
+    </script>
+{% endblock %}

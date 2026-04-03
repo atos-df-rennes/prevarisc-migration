@@ -916,7 +916,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function liees(Dossier $dossier): Response
     {
-        return $this->render('dossier/liees.html.twig', [
+        return $this->render('dossier/liaisons/index.html.twig', [
             'dossier' => $dossier,
             'liaisons' => $this->dossierLiaisonsService->getLiaisons($dossier),
             'etablissements' => $dossier->getEtablissements()->toArray(),
@@ -948,7 +948,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $grouped = $this->dossierLiaisonsService->getDossiersDisponiblesGroupesParEtablissement($dossier);
 
-        return $this->render('dossier/liees_doss.html.twig', [
+        return $this->render('dossier/liaisons/dossiers.html.twig', [
             'dossier' => $dossier,
             'form' => $form->createView(),
             'grouped' => $grouped,
@@ -1024,7 +1024,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
         }
 
-        return $this->render('dossier/liees_etab_supprimer.html.twig', [
+        return $this->render('dossier/liaisons/etab_supprimer.html.twig', [
             'dossier' => $dossier,
             'etablissement' => $etablissement,
             'form' => $form->createView(),
@@ -1083,7 +1083,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
         }
 
-        return $this->render('dossier/liees_supprimer.html.twig', [
+        return $this->render('dossier/liaisons/supprimer.html.twig', [
             'dossier' => $dossier,
             'dossierLie' => $dossierLie,
             'form' => $form->createView(),
