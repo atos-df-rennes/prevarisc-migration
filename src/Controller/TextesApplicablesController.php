@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\TexteApplicable;
 use App\Form\TexteApplicableType;
 use App\Repository\TexteApplicableRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,18 +17,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TextesApplicablesController extends AbstractController
 {
-    /**
-     * @var TexteApplicableRepository
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var TexteApplicableRepository */
     private $texteApplicableRepository;
 
-    /**
-     * @var \App\Service\TexteApplicable
-     */
+    /** @var \App\Service\TexteApplicable */
     private $serviceTexteApplicable;
 
-    public function __construct(TexteApplicableRepository $texteApplicableRepository, \App\Service\TexteApplicable $serviceTexteApplicable)
+    public function __construct(EntityManagerInterface $entityManager, TexteApplicableRepository $texteApplicableRepository, \App\Service\TexteApplicable $serviceTexteApplicable)
     {
+        $this->entityManager = $entityManager;
         $this->texteApplicableRepository = $texteApplicableRepository;
         $this->serviceTexteApplicable = $serviceTexteApplicable;
     }
@@ -108,7 +109,7 @@ class TextesApplicablesController extends AbstractController
         }
 
         $taIds = explode(',', $tableUpdate);
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $this->entityManager;
 
         foreach ($taIds as $key => $id) {
             $texteApplicable = $this->texteApplicableRepository->find($id);

@@ -9,6 +9,7 @@ use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Avatar;
 use App\Service\Image;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,28 +24,24 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateursController extends AbstractController
 {
-    /**
-     * @var UtilisateurRepository
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var UtilisateurRepository */
     private $utilisateurRepository;
 
-    /**
-     * @var GroupeRepository
-     */
+    /** @var GroupeRepository */
     private $groupeRepository;
 
-    /**
-     * @var Avatar
-     */
+    /** @var Avatar */
     private $avatar;
 
-    /**
-     * @var Image
-     */
+    /** @var Image */
     private $image;
 
-    public function __construct(UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image)
+    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image)
     {
+        $this->entityManager = $entityManager;
         $this->utilisateurRepository = $utilisateurRepository;
         $this->groupeRepository = $groupeRepository;
         $this->avatar = $avatar;
@@ -75,8 +72,6 @@ class UtilisateursController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
             $preferences = new UtilisateurPreferences();
             $preferences->setUtilisateur($utilisateur);
             $utilisateur->setPreferences($preferences);
@@ -87,9 +82,9 @@ class UtilisateursController extends AbstractController
             $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
             $utilisateur->setDerniereVisiteDashboard($dateDerniereVisite);
 
-            $entityManager->persist($preferences);
-            $entityManager->persist($utilisateur);
-            $entityManager->flush();
+            $this->entityManager->persist($preferences);
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
 
             $userId = $utilisateur->getId();
 
@@ -128,8 +123,6 @@ class UtilisateursController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
             // On ne re-set pas le password s'il n'a pas été modifié
             // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
             if (null !== $utilisateur->getPlainPassword()) {
@@ -139,8 +132,8 @@ class UtilisateursController extends AbstractController
                 $utilisateur->setPassword(null);
             }
 
-            $entityManager->persist($utilisateur);
-            $entityManager->flush();
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
 
             $userId = $utilisateur->getId();
 
