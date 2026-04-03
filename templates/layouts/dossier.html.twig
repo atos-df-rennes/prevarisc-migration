@@ -53,7 +53,7 @@
         {# Courrier / Courriel #}
         {% if dossier.type.id != constant('App\\Constant\\DossierType::COURRIER') %}
             <li>
-                <a href="{{ '/dossier/docconsulte/id/' ~ dossier.id }}">
+                <a href="{{ path('dossier_documents_consultes', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                     Documents consultés
                 </a>

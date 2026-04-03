@@ -46,4 +46,52 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocVisiteRT(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.typereceptionTravaux = 1')
+            ->orderBy('ldc.ordre', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocVisite(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.visite = 1')
+            ->orderBy('ldc.ordre', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocEtude(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.etude = 1')
+            ->orderBy('ldc.ordre', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocVisiteVAO(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.avantOuverture = 1')
+            ->orderBy('ldc.ordre', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
 }

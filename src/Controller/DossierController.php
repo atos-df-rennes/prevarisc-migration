@@ -8,12 +8,17 @@ use App\Constant\TypeChangement;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Avis;
 use App\Entity\Dossier;
+use App\Entity\DossierDocumentConsulte;
 use App\Entity\DossierNatureListe;
+use App\Entity\ListeDocumentAjoute;
+use App\Entity\ListeDocumentConsulte;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\Dossier\DossierDescriptifType;
+use App\Form\Dossier\DossierDocumentConsulteType;
 use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
+use App\Form\Dossier\ListeDocumentAjouteType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
@@ -27,6 +32,7 @@ use App\Service\Commission\DateCommission;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
+use App\Service\Dossier\DossierDocumentsConsultesService;
 use App\Service\Dossier\DossierDonnantAvisService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
@@ -37,6 +43,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -140,6 +147,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DossierRepository */
     private $dossierRepository;
 
+    /** @var DossierDocumentsConsultesService */
+    private $dossierDocumentsConsultesService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -161,7 +171,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
-        DossierRepository $dossierRepository
+        DossierRepository $dossierRepository,
+        DossierDocumentsConsultesService $dossierDocumentsConsultesService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -184,6 +195,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
+        $this->dossierDocumentsConsultesService = $dossierDocumentsConsultesService;
     }
 
     /**
@@ -643,6 +655,173 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/documents-consultes", name="dossier_documents_consultes", methods={"GET"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
+     */
+    public function documentsConsultes(Dossier $dossier): Response
+    {
+        $documentsConsultables = $this->dossierDocumentsConsultesService->getDocumentsConsultables($dossier);
+        $dossier->getDocumentsAjoutes()->toArray();
+        $documentsConsultes = [];
+        foreach ($dossier->getDocumentsConsultes()->toArray() as $documentConsulte) {
+            $documentsConsultes[$documentConsulte->getDocument()] = $documentConsulte;
+        }
+
+        return $this->render('dossier/documents_consultes/documents_consultes.html.twig', [
+            'dossier' => $dossier,
+            'documentsConsultables' => $documentsConsultables,
+            'documentsConsultes' => $documentsConsultes,
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/documents-consultes/{idDocumentConsultable}/ajouter",
+     *     name="dossier_documents_consultes_add",
+     *     methods={"GET", "POST"})
+     *
+     * @ParamConverter("documentConsultable", options={"id" = "idDocumentConsultable"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function documentsConsultesAdd(Request $request, Dossier $dossier, ListeDocumentConsulte $documentConsultable): Response
+    {
+        $documentConsulte = new DossierDocumentConsulte();
+        $documentConsulte->setDossier($dossier);
+        $documentConsulte->setDocument((string) $documentConsultable->getId());
+        $documentConsulte->setConsulte(true);
+        if (null !== $dossier->getNature()) {
+            $documentConsulte->setNature($dossier->getNature());
+        }
+
+
+        $form = $this->createForm(DossierDocumentConsulteType::class, $documentConsulte);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($documentConsulte);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/documents_consultes/edit_documents_consultes.html.twig', [
+            'dossier' => $dossier,
+            'documentConsulte' => $documentConsulte,
+            'libelle' => $documentConsultable->getLibelle(),
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer",
+     *     name="dossier_documents_consultes_delete",
+     *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
+     *     methods={"GET", "POST"})
+     *
+     * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function documentsConsultesRemove(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
+    {
+        $dossier->removeDocumentsConsulte($documentConsulte);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/modifier",
+     *     name="dossier_documents_consultes_edit",
+     *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
+     *     methods={"GET", "POST"})
+     *
+     * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function documentsConsultesEdit(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
+    {
+        $libelle = '';
+        if (null != $documentConsulte->getDocument() and 0 !== intval($documentConsulte->getDocument())) {
+            $libelle = $this->dossierDocumentsConsultesService->getLibelleDocumentConsulte($documentConsulte->getDocument());
+        }
+
+        $form = $this->createForm(DossierDocumentConsulteType::class, $documentConsulte);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/documents_consultes/edit_documents_consultes.html.twig', [
+            'dossier' => $dossier,
+            'documentConsulte' => $documentConsulte,
+            'libelle' => $libelle,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer",
+     *     name="dossier_documents_ajoutes_delete",
+     *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
+     *     methods={"GET", "POST"})
+     *
+     * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function documentsAjoutesRemove(Request $request, Dossier $dossier, ListeDocumentAjoute $documentAjoute): Response
+    {
+        $dossier->removeDocumentsAjoute($documentAjoute);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/documents-ajoutes/ajouter",
+     *     name="dossier_documents_ajoutes_add",
+     *     requirements={"id"="\d+"},
+     *     methods={"GET", "POST"})
+     * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/modifier",
+     *     name="dossier_documents_ajoutes_edit",
+     *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
+     *     methods={"GET", "POST"})
+     *
+     * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"}, isOptional="true")
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function documentsAjoutesEdit(Request $request, Dossier $dossier, ?ListeDocumentAjoute $documentAjoute = null): Response
+    {
+        if (null === $documentAjoute) {
+            $documentAjoute = new ListeDocumentAjoute();
+            $documentAjoute->setDossier($dossier);
+            if (null !== $dossier->getNature()) {
+                $documentAjoute->setNature($dossier->getNature());
+            }
+
+        }
+
+        $form = $this->createForm(ListeDocumentAjouteType::class, $documentAjoute);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/documents_consultes/edit_documents_ajoutes.html.twig', [
+            'dossier' => $dossier,
+            'documentAjoute' => $documentAjoute,
             'form' => $form->createView(),
         ]);
     }
