@@ -213,9 +213,443 @@ class Etablissement
     /**
      * @var ?string
      *
+     * @ORM\Column(name="DESCRIPTIF_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $descriptif;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCRIPTIF_HISTORIQUE_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $historiqueDescriptif;
+
+    /**
+     * @var ?string
+     *
      * @ORM\Column(name="DESCRIPTIF_DEROGATIONS_ETABLISSEMENT", type="text", nullable=true)
      */
     private $descriptifDerogation;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_IMPLANTATION_SURFACE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechImplantationSurface;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_IMPLANTATION_SURFACETOTALE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechImplantationSurfaceTotale;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_IMPLANTATION_SURFACEACCPUBLIC_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechImplantationSurfaceAccPublic;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_IMPLANTATION_SHON_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechImplantationShon;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_IMPLANTATION_NBNIVEAUX_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechImplantationNbNiveaux;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_IMPLANTATION_PBDN_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechImplantationPbdn;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DESSERTE_NBFACADELIBRE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDesserteNbFacadeLibre;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DESSERTE_VOIEENGIN_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDesserteVoieEngin;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DESSERTE_VOIEECHELLE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDesserteVoieEchelle;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DESSERTE_ESPACELIBRE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDesserteEspaceLibre;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ISOLEMENT_LATERALCF_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechIsolementLateralCf;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ISOLEMENT_SUPERPOSECF_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechIsolementSuperposeCf;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ISOLEMENT_VISAVIS_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechIsolementVisAVis;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_STABILITE_STRUCTURESF_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechStabiliteStructureSf;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_STABILITE_PLANCHERSF_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechStabilitePlancher;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_DISTRIBUTION_CLOISONNEMENTTRAD_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechDistributionCloisonnementTrad;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_DISTRIBUTION_SECTEURS_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechDistributionSecteurs;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_DISTRIBUTION_COMPARTIMENTS_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechDistributionCompartiments;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_LOCAUXARISQUE_NBRISQUESMOYENS_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechLocauxRisqueNbMoyens;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechLocauxRisqueNbImportants;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechEspacesNombre;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechEspacesNiveauConcerne;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechDesenfumageNaturel;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechDesenfumageMecanique;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechDesenfumageCommentaire;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechChaufferiesNb;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechChaufferiesPuissMax;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_CHAUFFERIES_PUISSANCETOTALE", type="integer", nullable=true)
+     */
+    private $desctechChaufferiesPuissanceTotale;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_CHAUFFERIES_NB30KW", type="integer", nullable=true)
+     */
+    private $desctechChaufferiesNb30Kw;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_CHAUFFERIES_NB70KW", type="integer", nullable=true)
+     */
+    private $desctechChaufferiesNb70Kw;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_CHAUFFERIES_NB2MW", type="integer", nullable=true)
+     */
+    private $desctechChaufferiesNb2Mw;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_COUPURENRJ_GAZ_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechCoupureNrjGaz;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_COUPURENRJ_ELEC_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechCoupureNrjElec;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_COUPURENRJ_PHOTOVOLTAIQUE_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechCoupureNrjPhotovoltaique;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechCoupureNrjAutre;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechAscenseursNbTotal;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechAscenseursNbAs4;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechMoyensSecoursColonnesSeches;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechMoyensSecoursColonnesHumides;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechMoyensSecoursRia;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechMoyensSecoursSprinkleur;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechMoyensSecoursBrouillardEau;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechPcSecuPresence;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechPcSecuLocalisation;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_SSI_PRESENCE_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechSsiPresence;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_SSI_CATEGORIE_ETABLISSEMENT", type="string", length=1, nullable=true)
+     */
+    private $desctechSsiCategorie;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT", type="string", length=2, nullable=true)
+     */
+    private $desctechSsiAlarmeType;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_EL18_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechServiceSecuEl18;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT", type="boolean", nullable=true)
+     */
+    private $desctechServiceSecuPersonnelsDesignes;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechServiceSecuAgentSecu;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechServiceSecuChefEquipe;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechServiceSecuChefDeService;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_SP_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechServiceSecuSp;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_SERVICESECU_COMMENTAIRESP_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechServiceSecuCommentaireSp;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DEFENSE_PTEAU_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDefensePtEau;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DEFENSE_VOLUMEPTEAU_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDefenseVolumePtEau;
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DESCTECH_DEFENSE_PTEAUCOMMENTAIRE_ETABLISSEMENT", type="text", nullable=true)
+     */
+    private $desctechDefensePtEauCommentaire;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DEFENSE_PI_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDefensePi;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DEFENSE_BI_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDefenseBi;
+
+    /**
+     * @var ?int
+     *
+     * @ORM\Column(name="DESCTECH_DEFENSE_DEBITSIMULTANE_ETABLISSEMENT", type="integer", nullable=true)
+     */
+    private $desctechDefenseDebitSimultane;
 
     public function __construct()
     {
@@ -698,6 +1132,30 @@ class Etablissement
         return $this;
     }
 
+    public function getDescriptif(): ?string
+    {
+        return $this->descriptif;
+    }
+
+    public function setDescriptif(?string $descriptif): self
+    {
+        $this->descriptif = $descriptif;
+
+        return $this;
+    }
+
+    public function getHistoriqueDescriptif(): ?string
+    {
+        return $this->historiqueDescriptif;
+    }
+
+    public function setHistoriqueDescriptif(?string $historiqueDescriptif): self
+    {
+        $this->historiqueDescriptif = $historiqueDescriptif;
+
+        return $this;
+    }
+
     public function getDescriptifDerogation(): ?string
     {
         return $this->descriptifDerogation;
@@ -706,6 +1164,726 @@ class Etablissement
     public function setDescriptifDerogation(?string $descriptifDerogation): self
     {
         $this->descriptifDerogation = $descriptifDerogation;
+
+        return $this;
+    }
+
+    public function getDesctechImplantationSurface(): ?int
+    {
+        return $this->desctechImplantationSurface;
+    }
+
+    public function setDesctechImplantationSurface(?int $v): self
+    {
+        $this->desctechImplantationSurface = $v;
+
+        return $this;
+    }
+
+    public function getDesctechImplantationSurfaceTotale(): ?int
+    {
+        return $this->desctechImplantationSurfaceTotale;
+    }
+
+    public function setDesctechImplantationSurfaceTotale(?int $v): self
+    {
+        $this->desctechImplantationSurfaceTotale = $v;
+
+        return $this;
+    }
+
+    public function getDesctechImplantationSurfaceAccPublic(): ?int
+    {
+        return $this->desctechImplantationSurfaceAccPublic;
+    }
+
+    public function setDesctechImplantationSurfaceAccPublic(?int $v): self
+    {
+        $this->desctechImplantationSurfaceAccPublic = $v;
+
+        return $this;
+    }
+
+    public function getDesctechImplantationShon(): ?int
+    {
+        return $this->desctechImplantationShon;
+    }
+
+    public function setDesctechImplantationShon(?int $v): self
+    {
+        $this->desctechImplantationShon = $v;
+
+        return $this;
+    }
+
+    public function getDesctechImplantationNbNiveaux(): ?int
+    {
+        return $this->desctechImplantationNbNiveaux;
+    }
+
+    public function setDesctechImplantationNbNiveaux(?int $v): self
+    {
+        $this->desctechImplantationNbNiveaux = $v;
+
+        return $this;
+    }
+
+    public function getDesctechImplantationPbdn(): ?int
+    {
+        return $this->desctechImplantationPbdn;
+    }
+
+    public function setDesctechImplantationPbdn(?int $v): self
+    {
+        $this->desctechImplantationPbdn = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesserteNbFacadeLibre(): ?int
+    {
+        return $this->desctechDesserteNbFacadeLibre;
+    }
+
+    public function setDesctechDesserteNbFacadeLibre(?int $v): self
+    {
+        $this->desctechDesserteNbFacadeLibre = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesserteVoieEngin(): ?int
+    {
+        return $this->desctechDesserteVoieEngin;
+    }
+
+    public function setDesctechDesserteVoieEngin(?int $v): self
+    {
+        $this->desctechDesserteVoieEngin = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesserteVoieEchelle(): ?int
+    {
+        return $this->desctechDesserteVoieEchelle;
+    }
+
+    public function setDesctechDesserteVoieEchelle(?int $v): self
+    {
+        $this->desctechDesserteVoieEchelle = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesserteEspaceLibre(): ?int
+    {
+        return $this->desctechDesserteEspaceLibre;
+    }
+
+    public function setDesctechDesserteEspaceLibre(?int $v): self
+    {
+        $this->desctechDesserteEspaceLibre = $v;
+
+        return $this;
+    }
+
+    public function getDesctechIsolementLateralCf(): ?int
+    {
+        return $this->desctechIsolementLateralCf;
+    }
+
+    public function setDesctechIsolementLateralCf(?int $v): self
+    {
+        $this->desctechIsolementLateralCf = $v;
+
+        return $this;
+    }
+
+    public function getDesctechIsolementSuperposeCf(): ?int
+    {
+        return $this->desctechIsolementSuperposeCf;
+    }
+
+    public function setDesctechIsolementSuperposeCf(?int $v): self
+    {
+        $this->desctechIsolementSuperposeCf = $v;
+
+        return $this;
+    }
+
+    public function getDesctechIsolementVisAVis(): ?int
+    {
+        return $this->desctechIsolementVisAVis;
+    }
+
+    public function setDesctechIsolementVisAVis(?int $v): self
+    {
+        $this->desctechIsolementVisAVis = $v;
+
+        return $this;
+    }
+
+    public function getDesctechStabiliteStructureSf(): ?int
+    {
+        return $this->desctechStabiliteStructureSf;
+    }
+
+    public function setDesctechStabiliteStructureSf(?int $v): self
+    {
+        $this->desctechStabiliteStructureSf = $v;
+
+        return $this;
+    }
+
+    public function getDesctechStabilitePlancher(): ?int
+    {
+        return $this->desctechStabilitePlancher;
+    }
+
+    public function setDesctechStabilitePlancher(?int $v): self
+    {
+        $this->desctechStabilitePlancher = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDistributionCloisonnementTrad(): ?bool
+    {
+        return $this->desctechDistributionCloisonnementTrad;
+    }
+
+    public function setDesctechDistributionCloisonnementTrad(?bool $v): self
+    {
+        $this->desctechDistributionCloisonnementTrad = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDistributionSecteurs(): ?bool
+    {
+        return $this->desctechDistributionSecteurs;
+    }
+
+    public function setDesctechDistributionSecteurs(?bool $v): self
+    {
+        $this->desctechDistributionSecteurs = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDistributionCompartiments(): ?bool
+    {
+        return $this->desctechDistributionCompartiments;
+    }
+
+    public function setDesctechDistributionCompartiments(?bool $v): self
+    {
+        $this->desctechDistributionCompartiments = $v;
+
+        return $this;
+    }
+
+    public function getDesctechLocauxRisqueNbMoyens(): ?int
+    {
+        return $this->desctechLocauxRisqueNbMoyens;
+    }
+
+    public function setDesctechLocauxRisqueNbMoyens(?int $v): self
+    {
+        $this->desctechLocauxRisqueNbMoyens = $v;
+
+        return $this;
+    }
+
+    public function getDesctechLocauxRisqueNbImportants(): ?int
+    {
+        return $this->desctechLocauxRisqueNbImportants;
+    }
+
+    public function setDesctechLocauxRisqueNbImportants(?int $v): self
+    {
+        $this->desctechLocauxRisqueNbImportants = $v;
+
+        return $this;
+    }
+
+    public function getDesctechEspacesNombre(): ?int
+    {
+        return $this->desctechEspacesNombre;
+    }
+
+    public function setDesctechEspacesNombre(?int $v): self
+    {
+        $this->desctechEspacesNombre = $v;
+
+        return $this;
+    }
+
+    public function getDesctechEspacesNiveauConcerne(): ?int
+    {
+        return $this->desctechEspacesNiveauConcerne;
+    }
+
+    public function setDesctechEspacesNiveauConcerne(?int $v): self
+    {
+        $this->desctechEspacesNiveauConcerne = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesenfumageNaturel(): ?bool
+    {
+        return $this->desctechDesenfumageNaturel;
+    }
+
+    public function setDesctechDesenfumageNaturel(?bool $v): self
+    {
+        $this->desctechDesenfumageNaturel = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesenfumageMecanique(): ?bool
+    {
+        return $this->desctechDesenfumageMecanique;
+    }
+
+    public function setDesctechDesenfumageMecanique(?bool $v): self
+    {
+        $this->desctechDesenfumageMecanique = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDesenfumageCommentaire(): ?string
+    {
+        return $this->desctechDesenfumageCommentaire;
+    }
+
+    public function setDesctechDesenfumageCommentaire(?string $v): self
+    {
+        $this->desctechDesenfumageCommentaire = $v;
+
+        return $this;
+    }
+
+    public function getDesctechChaufferiesNb(): ?int
+    {
+        return $this->desctechChaufferiesNb;
+    }
+
+    public function setDesctechChaufferiesNb(?int $v): self
+    {
+        $this->desctechChaufferiesNb = $v;
+
+        return $this;
+    }
+
+    public function getDesctechChaufferiesPuissMax(): ?int
+    {
+        return $this->desctechChaufferiesPuissMax;
+    }
+
+    public function setDesctechChaufferiesPuissMax(?int $v): self
+    {
+        $this->desctechChaufferiesPuissMax = $v;
+
+        return $this;
+    }
+
+    public function getDesctechChaufferiesPuissanceTotale(): ?int
+    {
+        return $this->desctechChaufferiesPuissanceTotale;
+    }
+
+    public function setDesctechChaufferiesPuissanceTotale(?int $v): self
+    {
+        $this->desctechChaufferiesPuissanceTotale = $v;
+
+        return $this;
+    }
+
+    public function getDesctechChaufferiesNb30Kw(): ?int
+    {
+        return $this->desctechChaufferiesNb30Kw;
+    }
+
+    public function setDesctechChaufferiesNb30Kw(?int $v): self
+    {
+        $this->desctechChaufferiesNb30Kw = $v;
+
+        return $this;
+    }
+
+    public function getDesctechChaufferiesNb70Kw(): ?int
+    {
+        return $this->desctechChaufferiesNb70Kw;
+    }
+
+    public function setDesctechChaufferiesNb70Kw(?int $v): self
+    {
+        $this->desctechChaufferiesNb70Kw = $v;
+
+        return $this;
+    }
+
+    public function getDesctechChaufferiesNb2Mw(): ?int
+    {
+        return $this->desctechChaufferiesNb2Mw;
+    }
+
+    public function setDesctechChaufferiesNb2Mw(?int $v): self
+    {
+        $this->desctechChaufferiesNb2Mw = $v;
+
+        return $this;
+    }
+
+    public function getDesctechCoupureNrjGaz(): ?string
+    {
+        return $this->desctechCoupureNrjGaz;
+    }
+
+    public function setDesctechCoupureNrjGaz(?string $v): self
+    {
+        $this->desctechCoupureNrjGaz = $v;
+
+        return $this;
+    }
+
+    public function getDesctechCoupureNrjElec(): ?string
+    {
+        return $this->desctechCoupureNrjElec;
+    }
+
+    public function setDesctechCoupureNrjElec(?string $v): self
+    {
+        $this->desctechCoupureNrjElec = $v;
+
+        return $this;
+    }
+
+    public function getDesctechCoupureNrjPhotovoltaique(): ?string
+    {
+        return $this->desctechCoupureNrjPhotovoltaique;
+    }
+
+    public function setDesctechCoupureNrjPhotovoltaique(?string $v): self
+    {
+        $this->desctechCoupureNrjPhotovoltaique = $v;
+
+        return $this;
+    }
+
+    public function getDesctechCoupureNrjAutre(): ?string
+    {
+        return $this->desctechCoupureNrjAutre;
+    }
+
+    public function setDesctechCoupureNrjAutre(?string $v): self
+    {
+        $this->desctechCoupureNrjAutre = $v;
+
+        return $this;
+    }
+
+    public function getDesctechAscenseursNbTotal(): ?int
+    {
+        return $this->desctechAscenseursNbTotal;
+    }
+
+    public function setDesctechAscenseursNbTotal(?int $v): self
+    {
+        $this->desctechAscenseursNbTotal = $v;
+
+        return $this;
+    }
+
+    public function getDesctechAscenseursNbAs4(): ?int
+    {
+        return $this->desctechAscenseursNbAs4;
+    }
+
+    public function setDesctechAscenseursNbAs4(?int $v): self
+    {
+        $this->desctechAscenseursNbAs4 = $v;
+
+        return $this;
+    }
+
+    public function getDesctechMoyensSecoursColonnesSeches(): ?bool
+    {
+        return $this->desctechMoyensSecoursColonnesSeches;
+    }
+
+    public function setDesctechMoyensSecoursColonnesSeches(?bool $v): self
+    {
+        $this->desctechMoyensSecoursColonnesSeches = $v;
+
+        return $this;
+    }
+
+    public function getDesctechMoyensSecoursColonnesHumides(): ?bool
+    {
+        return $this->desctechMoyensSecoursColonnesHumides;
+    }
+
+    public function setDesctechMoyensSecoursColonnesHumides(?bool $v): self
+    {
+        $this->desctechMoyensSecoursColonnesHumides = $v;
+
+        return $this;
+    }
+
+    public function getDesctechMoyensSecoursRia(): ?bool
+    {
+        return $this->desctechMoyensSecoursRia;
+    }
+
+    public function setDesctechMoyensSecoursRia(?bool $v): self
+    {
+        $this->desctechMoyensSecoursRia = $v;
+
+        return $this;
+    }
+
+    public function getDesctechMoyensSecoursSprinkleur(): ?bool
+    {
+        return $this->desctechMoyensSecoursSprinkleur;
+    }
+
+    public function setDesctechMoyensSecoursSprinkleur(?bool $v): self
+    {
+        $this->desctechMoyensSecoursSprinkleur = $v;
+
+        return $this;
+    }
+
+    public function getDesctechMoyensSecoursBrouillardEau(): ?bool
+    {
+        return $this->desctechMoyensSecoursBrouillardEau;
+    }
+
+    public function setDesctechMoyensSecoursBrouillardEau(?bool $v): self
+    {
+        $this->desctechMoyensSecoursBrouillardEau = $v;
+
+        return $this;
+    }
+
+    public function getDesctechPcSecuPresence(): ?bool
+    {
+        return $this->desctechPcSecuPresence;
+    }
+
+    public function setDesctechPcSecuPresence(?bool $v): self
+    {
+        $this->desctechPcSecuPresence = $v;
+
+        return $this;
+    }
+
+    public function getDesctechPcSecuLocalisation(): ?string
+    {
+        return $this->desctechPcSecuLocalisation;
+    }
+
+    public function setDesctechPcSecuLocalisation(?string $v): self
+    {
+        $this->desctechPcSecuLocalisation = $v;
+
+        return $this;
+    }
+
+    public function getDesctechSsiPresence(): ?bool
+    {
+        return $this->desctechSsiPresence;
+    }
+
+    public function setDesctechSsiPresence(?bool $v): self
+    {
+        $this->desctechSsiPresence = $v;
+
+        return $this;
+    }
+
+    public function getDesctechSsiCategorie(): ?string
+    {
+        return $this->desctechSsiCategorie;
+    }
+
+    public function setDesctechSsiCategorie(?string $v): self
+    {
+        $this->desctechSsiCategorie = $v;
+
+        return $this;
+    }
+
+    public function getDesctechSsiAlarmeType(): ?string
+    {
+        return $this->desctechSsiAlarmeType;
+    }
+
+    public function setDesctechSsiAlarmeType(?string $v): self
+    {
+        $this->desctechSsiAlarmeType = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuEl18(): ?bool
+    {
+        return $this->desctechServiceSecuEl18;
+    }
+
+    public function setDesctechServiceSecuEl18(?bool $v): self
+    {
+        $this->desctechServiceSecuEl18 = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuPersonnelsDesignes(): ?bool
+    {
+        return $this->desctechServiceSecuPersonnelsDesignes;
+    }
+
+    public function setDesctechServiceSecuPersonnelsDesignes(?bool $v): self
+    {
+        $this->desctechServiceSecuPersonnelsDesignes = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuAgentSecu(): ?int
+    {
+        return $this->desctechServiceSecuAgentSecu;
+    }
+
+    public function setDesctechServiceSecuAgentSecu(?int $v): self
+    {
+        $this->desctechServiceSecuAgentSecu = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuChefEquipe(): ?int
+    {
+        return $this->desctechServiceSecuChefEquipe;
+    }
+
+    public function setDesctechServiceSecuChefEquipe(?int $v): self
+    {
+        $this->desctechServiceSecuChefEquipe = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuChefDeService(): ?int
+    {
+        return $this->desctechServiceSecuChefDeService;
+    }
+
+    public function setDesctechServiceSecuChefDeService(?int $v): self
+    {
+        $this->desctechServiceSecuChefDeService = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuSp(): ?int
+    {
+        return $this->desctechServiceSecuSp;
+    }
+
+    public function setDesctechServiceSecuSp(?int $v): self
+    {
+        $this->desctechServiceSecuSp = $v;
+
+        return $this;
+    }
+
+    public function getDesctechServiceSecuCommentaireSp(): ?string
+    {
+        return $this->desctechServiceSecuCommentaireSp;
+    }
+
+    public function setDesctechServiceSecuCommentaireSp(?string $v): self
+    {
+        $this->desctechServiceSecuCommentaireSp = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDefensePtEau(): ?int
+    {
+        return $this->desctechDefensePtEau;
+    }
+
+    public function setDesctechDefensePtEau(?int $v): self
+    {
+        $this->desctechDefensePtEau = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDefenseVolumePtEau(): ?int
+    {
+        return $this->desctechDefenseVolumePtEau;
+    }
+
+    public function setDesctechDefenseVolumePtEau(?int $v): self
+    {
+        $this->desctechDefenseVolumePtEau = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDefensePtEauCommentaire(): ?string
+    {
+        return $this->desctechDefensePtEauCommentaire;
+    }
+
+    public function setDesctechDefensePtEauCommentaire(?string $v): self
+    {
+        $this->desctechDefensePtEauCommentaire = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDefensePi(): ?int
+    {
+        return $this->desctechDefensePi;
+    }
+
+    public function setDesctechDefensePi(?int $v): self
+    {
+        $this->desctechDefensePi = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDefenseBi(): ?int
+    {
+        return $this->desctechDefenseBi;
+    }
+
+    public function setDesctechDefenseBi(?int $v): self
+    {
+        $this->desctechDefenseBi = $v;
+
+        return $this;
+    }
+
+    public function getDesctechDefenseDebitSimultane(): ?int
+    {
+        return $this->desctechDefenseDebitSimultane;
+    }
+
+    public function setDesctechDefenseDebitSimultane(?int $v): self
+    {
+        $this->desctechDefenseDebitSimultane = $v;
 
         return $this;
     }

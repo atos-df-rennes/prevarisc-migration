@@ -14,7 +14,8 @@ final class Version20260330131444 extends AbstractMigration
         return 'Rend la colonne idx non-nullable sur rubrique, champ et champvaleurliste (valeurs NULL remplacées par -1)';
     }
 
-    public function preUp(Schema $schema): void {
+    public function preUp(Schema $schema): void
+    {
         $this->addSql('UPDATE rubrique SET idx = -1 WHERE idx IS NULL');
         $this->addSql('UPDATE champ SET idx = -1 WHERE idx IS NULL');
         $this->addSql('UPDATE champvaleurliste SET idx = -1 WHERE idx IS NULL');
@@ -34,10 +35,10 @@ final class Version20260330131444 extends AbstractMigration
         $this->addSql('ALTER TABLE champvaleurliste CHANGE idx idx INT DEFAULT NULL');
     }
 
-    public function postDown(Schema $schema): void {
+    public function postDown(Schema $schema): void
+    {
         $this->connection->executeStatement('UPDATE rubrique SET idx = NULL WHERE idx = -1');
         $this->connection->executeStatement('UPDATE champ SET idx = NULL WHERE idx = -1');
         $this->connection->executeStatement('UPDATE champvaleurliste SET idx = NULL WHERE idx = -1');
     }
-
 }
