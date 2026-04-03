@@ -10,6 +10,7 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Form\Dossier\DossierAjouterEtablissementType;
 use App\Form\Dossier\DossierDescriptifType;
 use App\Form\Dossier\DossierLiaisonsType;
 use App\Form\Dossier\DossierTextesApplicablesType;
@@ -916,10 +917,15 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function liees(Dossier $dossier): Response
     {
+        $formAjouterEtab = $this->createForm(DossierAjouterEtablissementType::class, null, [
+            'action' => $this->generateUrl('dossier_liees_etab_ajouter', ['id' => $dossier->getId()]),
+        ]);
+
         return $this->render('dossier/liaisons/index.html.twig', [
             'dossier' => $dossier,
             'liaisons' => $this->dossierLiaisonsService->getLiaisons($dossier),
             'etablissements' => $dossier->getEtablissements()->toArray(),
+            'formAjouterEtab' => $formAjouterEtab->createView(),
         ]);
     }
 
@@ -972,8 +978,16 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
         }
 
-        $rawId = $request->request->get('idEtablissement', 0);
-        $idEtablissement = is_scalar($rawId) ? (int) $rawId : 0;
+        $form = $this->createForm(DossierAjouterEtablissementType::class);
+        $form->handleRequest($request);
+
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', 'Requête invalide.');
+
+            return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
+        }
+
+        $idEtablissement = (int) $form->get('idEtablissement')->getData();
         $etablissement = $idEtablissement > 0 ? $this->etablissementRepository->find($idEtablissement) : null;
 
         if (null === $etablissement) {
@@ -1051,14 +1065,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
             throw $this->createNotFoundException('Dossier lié introuvable.');
         }
 
-        $liaisons = $this->dossierLiaisonsService->getLiaisons($dossier);
-        $isLinked = false;
-        foreach ($liaisons as $liaison) {
-            if ($liaison->getId() === $dossierLie->getId()) {
-                $isLinked = true;
-                break;
-            }
-        }
+        $isLinked = $dossier->getDossiersLies()->contains($dossierLie)
+            || $dossierLie->getDossiersLies()->contains($dossier);
 
         if (!$isLinked) {
             $this->addFlash('warning', 'Ce dossier n\'est pas lié au dossier courant.');

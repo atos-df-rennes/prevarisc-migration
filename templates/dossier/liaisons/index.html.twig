@@ -21,18 +21,19 @@
         <div class="panel-body">
             {% if not dossier.verrou %}
                 <div id="js-form-ajouter-etab" style="display:none; margin-bottom:15px;">
-                    <form method="post" action="{{ path('dossier_liees_etab_ajouter', {id: dossier.id}) }}">
-                        <div class="input-group">
-                            <select id="js-etab-search" name="idEtablissement" class="form-control"></select>
-                            <span class="input-group-btn">
-                                <button type="submit" class="btn btn-success" id="js-btn-valider-etab" disabled>
-                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                                    Lier
-                                </button>
-                                <button type="button" class="btn btn-default" id="js-btn-annuler-etab">Annuler</button>
-                            </span>
-                        </div>
-                    </form>
+                    {{ form_start(formAjouterEtab) }}
+                    <div class="input-group">
+                        <select id="js-etab-search" class="form-control"></select>
+                        {{ form_widget(formAjouterEtab.idEtablissement) }}
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-success" id="js-btn-valider-etab" disabled>
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                Lier
+                            </button>
+                            <button type="button" class="btn btn-default" id="js-btn-annuler-etab">Annuler</button>
+                        </span>
+                    </div>
+                    {{ form_end(formAjouterEtab) }}
                 </div>
             {% endif %}
 
@@ -179,36 +180,28 @@
     {{ parent() }}
     <script>
         $(document).ready(function () {
-            // Suppression liaison dossier (modale AJAX)
-            $('.js-supprimer-liaison').on('click', function () {
-                const url = $(this).data('url');
+            function loadModalSuppression(url, contentSelector, modalSelector) {
                 $.ajax({
                     type: 'GET',
                     url: url,
                     success: function (html) {
-                        $('#modal-suppression-liaison-content').html(html);
-                        $('#modal-suppression-liaison').modal('show');
+                        $(contentSelector).html(html);
+                        $(modalSelector).modal('show');
                     },
                     error: function () {
                         $.toast.error('Erreur lors du chargement du formulaire de suppression.');
                     }
                 });
+            }
+
+            // Suppression liaison dossier (modale AJAX)
+            $('.js-supprimer-liaison').on('click', function () {
+                loadModalSuppression($(this).data('url'), '#modal-suppression-liaison-content', '#modal-suppression-liaison');
             });
 
             // Suppression liaison établissement (modale AJAX)
             $('.js-supprimer-etab').on('click', function () {
-                const url = $(this).data('url');
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    success: function (html) {
-                        $('#modal-suppression-etab-content').html(html);
-                        $('#modal-suppression-etab').modal('show');
-                    },
-                    error: function () {
-                        $.toast.error('Erreur lors du chargement du formulaire de suppression.');
-                    }
-                });
+                loadModalSuppression($(this).data('url'), '#modal-suppression-etab-content', '#modal-suppression-etab');
             });
 
             // Affichage/masquage du formulaire d'ajout établissement
@@ -222,42 +215,22 @@
                 $('#js-btn-ajouter-etab').show();
                 etabSelect.clear();
             });
-
-            // TomSelect AJAX pour la recherche d'établissement
-            const etabSelect = new TomSelect('#js-etab-search', {
-                valueField: 'id',
-                labelField: 'libelle',
-                searchField: 'libelle',
-                shouldLoad: function (query) {
-                    return query.length > 1;
-                },
-                load: function (query, callback) {
-                    fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
-                        .then(function (r) { return r.json(); })
-                        .then(callback)
-                        .catch(function () { callback(); });
-                },
-                render: {
-                    option: function (item) {
-                        const label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
-                        return '<div>' + label + '</div>';
-                    },
-                    item: function (item) {
-                        const label = item.genre ? '[' + item.genre + '] ' + item.libelle : item.libelle;
-                        return '<div>' + label + '</div>';
-                    }
-                },
-                onItemAdd: function () {
-                    document.getElementById('js-btn-valider-etab').disabled = false;
-                },
-                onItemRemove: function () {
-                    document.getElementById('js-btn-valider-etab').disabled = true;
-                }
-            });
         });
     </script>
     <script type="module">
+        import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
         import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+
+        const hiddenField = document.getElementById('{{ formAjouterEtab.idEtablissement.vars.id }}');
+        const submitBtn = document.getElementById('js-btn-valider-etab');
+
+        const etabSelect = initTomSelectEtablissement(
+            '#js-etab-search',
+            '{{ path('api_etablissements_search') }}',
+            () => { hiddenField.value = etabSelect.getValue(); submitBtn.disabled = false; },
+            () => { hiddenField.value = ''; submitBtn.disabled = true; }
+        );
+
         initLoadingButton('#js-btn-valider-etab', 'Liaison en cours...');
     </script>
 {% endblock %}

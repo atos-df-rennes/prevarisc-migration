@@ -15,10 +15,17 @@ final class DossierLiaisonsService
     /** @var DossierRepository */
     private $dossierRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, DossierRepository $dossierRepository)
-    {
+    /** @var DossierDonnantAvisService */
+    private $dossierDonnantAvisService;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        DossierRepository $dossierRepository,
+        DossierDonnantAvisService $dossierDonnantAvisService
+    ) {
         $this->entityManager = $entityManager;
         $this->dossierRepository = $dossierRepository;
+        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
     }
 
     /**
@@ -139,20 +146,35 @@ final class DossierLiaisonsService
     }
 
     /**
-     * Ajoute un établissement lié au dossier.
+     * Ajoute un établissement lié au dossier et répercute l'avis si le dossier donne avis.
      */
     public function addEtablissement(Dossier $dossier, Etablissement $etablissement): void
     {
         $dossier->addEtablissement($etablissement);
+        $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier);
         $this->entityManager->flush();
     }
 
     /**
      * Supprime le lien entre un dossier et un établissement.
+     * Si ce dossier était le "donnant avis" de l'établissement, recalcule le nouveau dossier donnant avis.
      */
     public function removeEtablissement(Dossier $dossier, Etablissement $etablissement): void
     {
+        $isDonnantAvis = null !== $etablissement->getDossierDonnantAvis()
+            && $etablissement->getDossierDonnantAvis()->getId() === $dossier->getId();
+
         $dossier->removeEtablissement($etablissement);
+
+        if ($isDonnantAvis) {
+            $newDossierDonnantAvis = $this->dossierRepository->findLastDossierDonnantAvisForEtablissement(
+                $etablissement,
+                $dossier
+            );
+            $etablissement->setDossierDonnantAvis($newDossierDonnantAvis);
+            $this->entityManager->persist($etablissement);
+        }
+
         $this->entityManager->flush();
     }
 }
