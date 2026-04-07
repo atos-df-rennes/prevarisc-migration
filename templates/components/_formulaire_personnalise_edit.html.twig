@@ -19,18 +19,19 @@
         <input type="hidden" name="_token" value="{{ csrf_token(csrf_name) }}">
 
         <div class="action-buttons pull-right">
-            <button type="submit" class="btn btn-success" data-do-not-unload>
-                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                Enregistrer
-            </button>
             <a class="btn btn-default" href="javascript:history.back()" data-do-not-unload>
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 Annuler
             </a>
+            <button type="submit" class="btn btn-success" data-do-not-unload>
+                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                Enregistrer
+            </button>
         </div>
 
-        <h3>{{ capsule ? capsule.nom : 'Formulaire personnalisé' }}</h3>
         <div class="clearfix"></div>
+
+        <h3>{{ capsule ? capsule.nom : 'Formulaire personnalisé' }}</h3>
 
         {% if rubriques is empty %}
             <p class="text-muted"><em>Aucune rubrique configurée. Contactez un administrateur Prevarisc.</em></p>

@@ -9,7 +9,9 @@
     <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
 {% endblock %}
 
-{% block title %}{{ parent() }} / Modifier les effectifs et dégagements{% endblock %}
+{% set nom_capsule = capsule ? capsule.nom : 'Effectifs et Dégagements' %}
+
+{% block title %}{{ parent() }} / Modifier les {{ nom_capsule|lower }}{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
@@ -19,10 +21,6 @@
 {% endblock %}
 
 {% block body %}
-    {% set nom_capsule = capsule ? capsule.nom : 'Effectifs et Dégagements' %}
-
-    <h3>Modifier : {{ nom_capsule }}</h3>
-
     {{ editForms.form(
         rubriques,
         path('etablissement_effectifs_degagements_edit', {id: etablissement.id}),

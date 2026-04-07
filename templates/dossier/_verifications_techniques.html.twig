@@ -7,14 +7,16 @@
     <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
 {% endblock %}
 
-{% block title %}{{ parent() }} / Vérifications techniques{% endblock %}
+{% set nom_capsule = capsule ? capsule.nom : 'Vérifications techniques' %}
+
+{% block title %}{{ parent() }} / {{ nom_capsule }}{% endblock %}
 
 {% block body %}
     <div class="pull-right">
-        <a class="btn btn-default" href="{{ path('dossier_verifications_techniques_edit', {id: dossier.id}) }}">Modifier les vérifications techniques</a>
+        <a class="btn btn-default" href="{{ path('dossier_verifications_techniques_edit', {id: dossier.id}) }}">Modifier les {{ nom_capsule|lower }}</a>
     </div>
 
-    <h3>{{ capsule ? capsule.nom : 'Vérifications Techniques' }}</h3>
+    <h3>{{ nom_capsule }}</h3>
 
     {% if rubriques is empty %}
         <p class="text-muted">

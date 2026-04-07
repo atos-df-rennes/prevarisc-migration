@@ -1287,11 +1287,6 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
   box-shadow: -21px 3px 15px -3px rgba(0,0,0,0.2);
 }
 
-.table-wrapper .table-responsive {
-  overflow-x: scroll;
-  margin-bottom: 0;
-}
-
 .table-wrapper .table-responsive .table td,
 .table-wrapper .table-responsive .table th {
   white-space: nowrap;

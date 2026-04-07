@@ -19,8 +19,6 @@
 {% endblock %}
 
 {% block body %}
-    <h3>Modifier : {{ capsule ? capsule.nom : 'Descriptif' }}</h3>
-
     {{ editForms.form(
         rubriques,
         path('etablissement_descriptif_modifier', {id: etablissement.id}),
