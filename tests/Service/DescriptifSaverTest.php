@@ -168,7 +168,7 @@ final class DescriptifSaverTest extends TestCase
     public function checkboxProvider(): array
     {
         return [
-            'coché (1)'   => ['1', true],
+            'coché (1)' => ['1', true],
             'décoché (0)' => ['0', false],
         ];
     }
@@ -271,9 +271,9 @@ final class DescriptifSaverTest extends TestCase
         $this->entityManager->expects(self::once())->method('flush');
 
         $this->service->saveForDossier($dossier, [
-            'cle_inconnue'        => 'valeur',
-            'valeur-1-2-3'        => 'trop peu de parties',
-            'valeur-1-2-3-4-5-6'  => 'trop de parties',
+            'cle_inconnue' => 'valeur',
+            'valeur-1-2-3' => 'trop peu de parties',
+            'valeur-1-2-3-4-5-6' => 'trop de parties',
         ]);
     }
 

@@ -18,7 +18,7 @@
     <form method="post" action="{{ form_action }}">
         <input type="hidden" name="_token" value="{{ csrf_token(csrf_name) }}">
 
-        <div class="pull-right">
+        <div class="action-buttons pull-right">
             <button type="submit" class="btn btn-success" data-do-not-unload>
                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                 Enregistrer
@@ -30,39 +30,72 @@
         </div>
 
         <h3>{{ capsule ? capsule.nom : 'Formulaire personnalisé' }}</h3>
+        <div class="clearfix"></div>
 
         {% if rubriques is empty %}
             <p class="text-muted"><em>Aucune rubrique configurée. Contactez un administrateur Prevarisc.</em></p>
         {% else %}
-            {# Sommaire des rubriques #}
-            <div class="descriptif-personnalise_rubriques-infos mb-4">
-                {% for item in rubriques %}
-                    {% set rubrique = item.rubrique %}
-                    <div class="descriptif-personnalise_rubrique">
-                        <input type="hidden"
-                               name="afficher_rubrique-{{ rubrique.id }}"
-                               value="0">
-                        <input type="checkbox"
-                               id="check-afficher_rubrique-{{ rubrique.id }}"
-                               name="afficher_rubrique-{{ rubrique.id }}"
-                               value="1"
-                               {% if item.display %}checked{% endif %}>
-                        <label for="check-afficher_rubrique-{{ rubrique.id }}">
-                            {% if item.display %}
-                                <a href="#afficher_rubrique-{{ rubrique.id }}">{{ rubrique.nom }}</a>
-                            {% else %}
-                                {{ rubrique.nom }}
-                            {% endif %}
-                        </label>
-                    </div>
-                {% endfor %}
-            </div>
-
             {% for item in rubriques %}
                 {{ forms.editRubrique(item) }}
             {% endfor %}
+
+            {# Modale de sélection des rubriques à afficher — à l'intérieur du form pour la soumission #}
+            <div id="tocModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tocModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="tocModalLabel">Rubriques à afficher</h4>
+                        </div>
+                        <div class="modal-body">
+                            {% for item in rubriques %}
+                                {% set rubrique = item.rubrique %}
+                                <div class="descriptif-personnalise_rubrique">
+                                    <input type="hidden"
+                                           name="afficher_rubrique-{{ rubrique.id }}"
+                                           value="0">
+                                    <input type="checkbox"
+                                           id="check-afficher_rubrique-{{ rubrique.id }}"
+                                           name="afficher_rubrique-{{ rubrique.id }}"
+                                           value="1"
+                                           {% if item.display %}checked{% endif %}>
+                                    <label for="check-afficher_rubrique-{{ rubrique.id }}">
+                                        {{ rubrique.nom }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
     </form>
+
+    {# Bouton flottant pour ouvrir la modale de sélection des rubriques #}
+    {% if rubriques is not empty %}
+        <button id="show-toc"
+                type="button"
+                class="btn btn-default"
+                title="Sélectionner les rubriques à afficher"
+                data-toggle="modal"
+                data-target="#tocModal">
+            <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+        </button>
+    {% endif %}
+
+    <script>
+        $(function () {
+            $('input[name^="afficher_rubrique-"]').on('change', function () {
+                var id = $(this).attr('name').replace('afficher_rubrique-', '');
+                $('#afficher_rubrique-' + id).toggleClass('hide', !this.checked);
+            });
+        });
+    </script>
 {% endmacro %}
 
 {#
@@ -143,14 +176,15 @@
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXT') %}
         <input type="text"
+               class="form-control"
                name="{{ champ_name }}"
                value="{{ valeur ? valeur.str : '' }}">
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
-        <textarea name="{{ champ_name }}">{{ valeur ? valeur.longStr : '' }}</textarea>
+        <textarea class="form-control" name="{{ champ_name }}">{{ valeur ? valeur.longStr : '' }}</textarea>
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::SELECT') %}
-        <select name="{{ champ_name }}">
+        <select class="form-control" name="{{ champ_name }}">
             <option value="">Sélectionnez un élément</option>
             {% for valeur_liste in champ.valeursListe %}
                 <option value="{{ valeur_liste.valeur }}"
@@ -162,6 +196,7 @@
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::NUMBER') %}
         <input type="number"
+               class="form-control"
                name="{{ champ_name }}"
                min="0"
                value="{{ valeur ? valeur.number : '' }}">
@@ -176,11 +211,11 @@
     {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
         <div class="colDate">
             <input type="text"
-                   class="date"
+                   class="date form-control"
                    name="{{ champ_name }}"
                    value="{{ valeur and valeur.date ? valeur.date|date('d/m/Y') : '' }}">
-            <button type="button" class="today btn">
-                <i class="icon-calendar" aria-hidden="true"></i>
+            <button type="button" class="today btn btn-default">
+                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
                 Aujourd'hui
             </button>
         </div>
@@ -219,11 +254,11 @@
                         </td>
                     {% endfor %}
                     <td class="colonne-edition">
-                        <button type="button" class="deleteRow btn btn-danger">
-                            <i class="icon-trash icon-white" aria-hidden="true"></i>
-                        </button>
-                    </td>
-                </tr>
+                            <button type="button" class="deleteRow btn btn-danger">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
 
                 {# Lignes existantes #}
                 {% for ligne in lignes %}
@@ -236,7 +271,7 @@
                         {% endfor %}
                         <td class="colonne-edition">
                             <button type="button" class="deleteRow btn btn-danger">
-                                <i class="icon-trash icon-white" aria-hidden="true"></i>
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                             </button>
                         </td>
                     </tr>
@@ -282,14 +317,15 @@
 
     {% if type_id == constant('App\\Constant\\TypeChamp::TEXT') %}
         <input type="text"
+               class="form-control"
                name="{{ input_name }}"
                value="{{ is_template ? '' : (current_value ? current_value.str : '') }}">
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
-        <textarea name="{{ input_name }}">{{ is_template ? '' : (current_value ? current_value.longStr : '') }}</textarea>
+        <textarea class="form-control" name="{{ input_name }}">{{ is_template ? '' : (current_value ? current_value.longStr : '') }}</textarea>
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::SELECT') %}
-        <select name="{{ input_name }}">
+        <select class="form-control" name="{{ input_name }}">
             <option value="">Sélectionnez un élément</option>
             {% for valeur_liste in enfant.valeursListe %}
                 <option value="{{ valeur_liste.valeur }}"
@@ -301,6 +337,7 @@
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::NUMBER') %}
         <input type="number"
+               class="form-control"
                name="{{ input_name }}"
                min="0"
                value="{{ is_template ? '' : (current_value ? current_value.number : '') }}">
@@ -315,11 +352,11 @@
     {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
         <div class="colDate">
             <input type="text"
-                   class="date"
+                   class="date form-control"
                    name="{{ input_name }}"
                    value="{{ (not is_template and current_value and current_value.date) ? current_value.date|date('d/m/Y') : '' }}">
-            <button type="button" class="today btn">
-                <i class="icon-calendar" aria-hidden="true"></i>
+            <button type="button" class="today btn btn-default">
+                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
                 Aujourd'hui
             </button>
         </div>
