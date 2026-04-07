@@ -9,6 +9,7 @@ use App\Repository\DossierRepository;
 use App\Service\Descriptif as DescriptifService;
 use App\Service\DescriptifCopier;
 use App\Service\DescriptifInspector;
+use App\Service\DescriptifSaver;
 use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -39,6 +40,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
     /** @var EffectifsDegagementsRepriseValidator */
     private $repriseValidator;
 
+    /** @var DescriptifSaver */
+    private $descriptifSaver;
+
     /** @var LoggerInterface */
     private $logger;
 
@@ -48,7 +52,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         DescriptifCopier $descriptifCopier,
         DossierRepository $dossierRepository,
         EffectifsDegagementsRepriseValidator $repriseValidator,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        DescriptifSaver $descriptifSaver
     ) {
         $this->descriptifService = $descriptifService;
         $this->descriptifInspector = $descriptifInspector;
@@ -56,6 +61,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $this->dossierRepository = $dossierRepository;
         $this->repriseValidator = $repriseValidator;
         $this->logger = $logger;
+        $this->descriptifSaver = $descriptifSaver;
     }
 
     /**
@@ -300,5 +306,49 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         }
 
         return $this->json(['success' => true]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition des effectifs et dégagements du dossier.
+     *
+     * @Route("/dossier/{id}/effectifs-degagements/modifier", name="dossier_effectifs_degagements_edit", methods={"GET", "POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function editEffectifsDegagements(Dossier $dossier, Request $request): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+        if ($request->isMethod('POST')) {
+            $csrfName = 'edit_effectifs_degagements_doss_'.$dossier->getId();
+            /** @var string $csrfToken */
+            $csrfToken = $request->request->get('_token', '');
+            if (!$this->isCsrfTokenValid($csrfName, $csrfToken)) {
+                $this->addFlash('error', 'Token CSRF invalide. Veuillez réessayer.');
+
+                return $this->redirectToRoute('dossier_effectifs_degagements', ['id' => $dossier->getId()]);
+            }
+
+            try {
+                /** @var array<string, mixed> $postData */
+                $postData = $request->request->all();
+                $this->descriptifSaver->saveForDossier($dossier, $postData);
+                $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements du dossier', [
+                    'dossier_id' => $dossier->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('dossier_effectifs_degagements', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/edit_effectifs_degagements.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
     }
 }

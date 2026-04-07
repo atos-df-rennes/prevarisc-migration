@@ -11,7 +11,7 @@
 
 {% block body %}
     <div class="pull-right">
-        <a class="btn btn-default" href="/etablissement/effectifs-degagements-etablissement-edit/id/{{ etablissement.id }}">Modifier les effectifs et dégagements</a>
+        <a class="btn btn-default" href="{{ path('etablissement_effectifs_degagements_edit', {id: etablissement.id}) }}">Modifier les effectifs et dégagements</a>
     </div>
 
     <h3>{{ capsule ? capsule.nom : 'Effectifs et Dégagements' }}</h3>

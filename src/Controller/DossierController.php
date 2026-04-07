@@ -23,6 +23,7 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Commission\DateCommission;
 use App\Service\Descriptif as DescriptifService;
+use App\Service\DescriptifSaver;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
@@ -134,6 +135,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DescriptifService */
     private $descriptifService;
 
+    /** @var DescriptifSaver */
+    private $descriptifSaver;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PlatauConsultation $platauConsultationService,
@@ -155,7 +159,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierRepository $dossierRepository,
         DossierCreationService $dossierCreationService,
         DossierSauvegardeService $dossierSauvegardeService,
-        DescriptifService $descriptifService
+        DescriptifService $descriptifService,
+        DescriptifSaver $descriptifSaver
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -178,6 +183,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierCreationService = $dossierCreationService;
         $this->dossierSauvegardeService = $dossierSauvegardeService;
         $this->descriptifService = $descriptifService;
+        $this->descriptifSaver = $descriptifSaver;
     }
 
     /**
@@ -701,6 +707,50 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
 
         return $this->render('dossier/_verifications_techniques.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition des vérifications techniques du dossier.
+     *
+     * @Route("/dossier/{id}/verifications-techniques/modifier", name="dossier_verifications_techniques_edit", methods={"GET", "POST"})
+     *
+     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss', dossier)")
+     */
+    public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
+
+        if ($request->isMethod('POST')) {
+            $csrfName = 'edit_verifications_techniques_'.$dossier->getId();
+            /** @var string $csrfToken */
+            $csrfToken = $request->request->get('_token', '');
+            if (!$this->isCsrfTokenValid($csrfName, $csrfToken)) {
+                $this->addFlash('error', 'Token CSRF invalide. Veuillez réessayer.');
+
+                return $this->redirectToRoute('dossier_verifications_techniques', ['id' => $dossier->getId()]);
+            }
+
+            try {
+                /** @var array<string, mixed> $postData */
+                $postData = $request->request->all();
+                $this->descriptifSaver->saveForDossier($dossier, $postData);
+                $this->addFlash('success', 'Les vérifications techniques ont bien été mises à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde des vérifications techniques', [
+                    'dossier_id' => $dossier->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('dossier_verifications_techniques', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/edit_verifications_techniques.html.twig', [
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],

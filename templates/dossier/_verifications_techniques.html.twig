@@ -11,7 +11,7 @@
 
 {% block body %}
     <div class="pull-right">
-        <a class="btn btn-default" href="/dossier/edit-verifications-techniques/id/{{ dossier.id }}">Modifier les vérifications techniques</a>
+        <a class="btn btn-default" href="{{ path('dossier_verifications_techniques_edit', {id: dossier.id}) }}">Modifier les vérifications techniques</a>
     </div>
 
     <h3>{{ capsule ? capsule.nom : 'Vérifications Techniques' }}</h3>
