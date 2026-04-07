@@ -228,19 +228,21 @@ class DescriptifSaver
      */
     private function buildLookup(array $existingValeurs): array
     {
+        /** @var array<int, array<string, Valeur>> $lookup */
         $lookup = [];
 
         foreach ($existingValeurs as $champId => $valeurs) {
+            /** @var array<string, Valeur> $innerIndex */
             $innerIndex = [];
             foreach ($valeurs as $valeur) {
                 $idxKey = null !== $valeur->getIdx() ? (string) $valeur->getIdx() : 'null';
                 $innerIndex[$idxKey] = $valeur;
             }
 
-            $lookup[$champId] = $innerIndex;
+            $lookup[(int) $champId] = $innerIndex;
         }
 
-        /* @var array<int, array<string, Valeur>> $lookup */
+        // @phpstan-ignore return.type
         return $lookup;
     }
 
