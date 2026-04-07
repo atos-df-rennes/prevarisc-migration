@@ -67,4 +67,23 @@ class UtilisateurPreferences
 
         return $this;
     }
+
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DERNIERE_VERSION_VUE", type="string", length=50, nullable=true)
+     */
+    private $derniereVersionVue;
+
+    public function getDerniereVersionVue(): ?string
+    {
+        return $this->derniereVersionVue;
+    }
+
+    public function setDerniereVersionVue(?string $version): self
+    {
+        $this->derniereVersionVue = $version;
+
+        return $this;
+    }
 }

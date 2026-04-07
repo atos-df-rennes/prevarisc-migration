@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveautés{% endblock %}
+
+{% block body %}
+<div class="container" style="margin-top: 30px;">
+    <h1><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Nouveautés &amp; corrections</h1>
+
+    {% if sections is empty %}
+        <p class="text-muted">Aucun changelog disponible.</p>
+    {% else %}
+        {# Navigation par version mineure #}
+        <ul class="nav nav-pills" id="changelog-nav" style="margin-bottom: 20px;">
+            {% for minorVersion, entries in sections %}
+                <li{% if loop.first %} class="active"{% endif %}>
+                    <a href="#changelog-{{ minorVersion|replace({'.': '-'}) }}" data-toggle="tab">
+                        {{ minorVersion }}.x
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {# Contenu par version mineure #}
+        <div class="tab-content">
+            {% for minorVersion, entries in sections %}
+                <div class="tab-pane{% if loop.first %} active{% endif %}" id="changelog-{{ minorVersion|replace({'.': '-'}) }}">
+                    {% for entry in entries %}
+                        <div class="panel panel-default" style="margin-bottom: 15px;">
+                            <div class="panel-heading">
+                                <strong>{{ entry.version }}</strong>
+                                <span class="text-muted" style="margin-left: 10px;">{{ entry.date }}</span>
+                            </div>
+                            <div class="panel-body changelog-content">
+                                {{ entry.html|raw }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
