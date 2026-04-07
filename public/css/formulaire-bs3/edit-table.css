@@ -5,3 +5,10 @@
 .glyphicon-move {
     margin: auto;
 }
+/* Dans les tableaux, les form-control ne doivent pas forcer width:100%
+   (sinon chaque colonne s'étire et la table-responsive ne scrolle plus).
+   On laisse l'input prendre sa taille naturelle avec un minimum utilisable. */
+.table-tableau .form-control {
+    width: auto;
+    min-width: 80px;
+}
