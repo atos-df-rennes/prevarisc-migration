@@ -52,7 +52,7 @@
 
         {# Courrier / Courriel #}
         {% if dossier.type.id != constant('App\\Constant\\DossierType::COURRIER') %}
-            <li>
+            <li {% if app.request.get('_route') starts with 'dossier_documents_consultes' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_documents_consultes', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                     Documents consultés

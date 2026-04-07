@@ -53,8 +53,9 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
     public function getDocVisiteRT(): array
     {
         $qb = $this->createQueryBuilder('ldc');
-        $query = $qb->where('ldc.typereceptionTravaux = 1')
-            ->orderBy('ldc.ordre', 'ASC');
+        $query = $qb->where('ldc.receptionTravaux = :receptionTravaux')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('receptionTravaux', true);
 
         return $query->getQuery()->getResult();
     }
@@ -65,8 +66,9 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
     public function getDocVisite(): array
     {
         $qb = $this->createQueryBuilder('ldc');
-        $query = $qb->where('ldc.visite = 1')
-            ->orderBy('ldc.ordre', 'ASC');
+        $query = $qb->where('ldc.visite = :visite')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('visite', true);
 
         return $query->getQuery()->getResult();
     }
@@ -77,8 +79,9 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
     public function getDocEtude(): array
     {
         $qb = $this->createQueryBuilder('ldc');
-        $query = $qb->where('ldc.etude = 1')
-            ->orderBy('ldc.ordre', 'ASC');
+        $query = $qb->where('ldc.etude = :etude')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('etude', true);
 
         return $query->getQuery()->getResult();
     }
@@ -89,8 +92,9 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
     public function getDocVisiteVAO(): array
     {
         $qb = $this->createQueryBuilder('ldc');
-        $query = $qb->where('ldc.avantOuverture = 1')
-            ->orderBy('ldc.ordre', 'ASC');
+        $query = $qb->where('ldc.avantOuverture = :avantOuverture')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('avantOuverture', true);
 
         return $query->getQuery()->getResult();
     }

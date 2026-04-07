@@ -62,7 +62,6 @@ class DossierDocumentConsulte
      */
     private $dossier;
 
-    // TODO : est ce qu'une cle etrangere doit obligatoirement etre declare en BDD pour qu'un lien se fasse avec Doctrine ?
     /**
      * @var string
      *

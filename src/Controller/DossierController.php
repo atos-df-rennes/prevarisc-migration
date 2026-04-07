@@ -667,6 +667,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     public function documentsConsultes(Dossier $dossier): Response
     {
         $documentsConsultables = $this->dossierDocumentsConsultesService->getDocumentsConsultables($dossier);
+        /* Chargement des documents ajoutés dans l'entité */
         $dossier->getDocumentsAjoutes()->toArray();
         $documentsConsultes = [];
         foreach ($dossier->getDocumentsConsultes()->toArray() as $documentConsulte) {
@@ -699,7 +700,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $documentConsulte->setNature($dossier->getNature());
         }
 
-
         $form = $this->createForm(DossierDocumentConsulteType::class, $documentConsulte);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -721,7 +721,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer",
      *     name="dossier_documents_consultes_delete",
      *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
-     *     methods={"GET", "POST"})
+     *     methods={"POST"})
      *
      * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
      *
@@ -729,6 +729,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function documentsConsultesRemove(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
     {
+        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
+            throw $this->createAccessDeniedException('Token CSRF non valide.');
+        }
+
         $dossier->removeDocumentsConsulte($documentConsulte);
         $this->entityManager->flush();
 
@@ -748,7 +752,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     public function documentsConsultesEdit(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
     {
         $libelle = '';
-        if (null != $documentConsulte->getDocument() and 0 !== intval($documentConsulte->getDocument())) {
+        if (null != $documentConsulte->getDocument() && 0 !== intval($documentConsulte->getDocument())) {
             $libelle = $this->dossierDocumentsConsultesService->getLibelleDocumentConsulte($documentConsulte->getDocument());
         }
 
@@ -772,7 +776,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer",
      *     name="dossier_documents_ajoutes_delete",
      *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
-     *     methods={"GET", "POST"})
+     *     methods={"POST"})
      *
      * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"})
      *
@@ -780,6 +784,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function documentsAjoutesRemove(Request $request, Dossier $dossier, ListeDocumentAjoute $documentAjoute): Response
     {
+        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
+            throw $this->createAccessDeniedException('Token CSRF non valide.');
+        }
+
         $dossier->removeDocumentsAjoute($documentAjoute);
         $this->entityManager->flush();
 
@@ -809,6 +817,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $documentAjoute->setNature($dossier->getNature());
             }
 
+            $this->entityManager->persist($documentAjoute);
         }
 
         $form = $this->createForm(ListeDocumentAjouteType::class, $documentAjoute);
