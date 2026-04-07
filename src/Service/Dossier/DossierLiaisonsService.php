@@ -67,7 +67,7 @@ final class DossierLiaisonsService
      */
     public function getDossiersDisponiblesGroupesParEtablissement(Dossier $dossier): array
     {
-        $liaisonIds = array_map(function (Dossier $lie) {
+        $liaisonIds = array_map(function (Dossier $lie): ?int {
             return $lie->getId();
         }, $this->getLiaisons($dossier));
 
@@ -79,7 +79,7 @@ final class DossierLiaisonsService
             foreach (['visites', 'etudes', 'autres'] as $key) {
                 $groupes[$key] = array_values(array_filter(
                     $groupes[$key],
-                    function (Dossier $d) use ($liaisonIds) {
+                    function (Dossier $d) use ($liaisonIds): bool {
                         return !in_array($d->getId(), $liaisonIds, true);
                     }
                 ));

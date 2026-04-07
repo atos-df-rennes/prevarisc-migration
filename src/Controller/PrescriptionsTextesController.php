@@ -7,6 +7,7 @@ use App\Form\PrescriptionTexteListeType;
 use App\Form\ReplacePrescriptionTexteListeType;
 use App\Repository\PrescriptionTexteListeRepository;
 use App\Service\Prescriptions;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,18 +19,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsTextesController extends AbstractController
 {
-    /**
-     * @var Prescriptions
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var Prescriptions */
     private $servicePrescTextes;
 
-    /**
-     * @var PrescriptionTexteListeRepository
-     */
+    /** @var PrescriptionTexteListeRepository */
     private $prescriptionTexteListeRepository;
 
-    public function __construct(Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {
+        $this->entityManager = $entityManager;
         $this->servicePrescTextes = $servicePrescTextes;
         $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
     }
@@ -60,11 +61,9 @@ class PrescriptionsTextesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
             try {
-                $em->persist($texteListe);
-                $em->flush();
+                $this->entityManager->persist($texteListe);
+                $this->entityManager->flush();
 
                 $this->addFlash('success', 'Le texte a bien été enregistré');
             } catch (\Exception $e) {

@@ -15,6 +15,7 @@ use App\Repository\PrescriptionCategorieRepository;
 use App\Repository\PrescriptionTexteRepository;
 use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +29,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsTypesController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
     /** @var PrescriptionCategorieRepository */
     private $prescriptionCategorieRepository;
 
@@ -44,12 +48,14 @@ class PrescriptionsTypesController extends AbstractController
     private $prescriptionsService;
 
     public function __construct(
+        EntityManagerInterface $entityManager,
         PrescriptionCategorieRepository $prescriptionCategorieRepository,
         PrescriptionTexteRepository $prescriptionTexteRepository,
         PrescriptionArticleRepository $prescriptionArticleRepository,
         PrescriptionTypeRepository $prescriptionTypeRepository,
         Prescriptions $prescriptionsService
     ) {
+        $this->entityManager = $entityManager;
         $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
         $this->prescriptionTexteRepository = $prescriptionTexteRepository;
         $this->prescriptionArticleRepository = $prescriptionArticleRepository;
@@ -109,16 +115,14 @@ class PrescriptionsTypesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
             $maxNumCat = $this->prescriptionCategorieRepository->recupMaxNumCat();
 
             /** @var PrescriptionCategorie $categorie */
             $categorie = $form->getData();
             $categorie->setNumero($maxNumCat + 1);
 
-            $em->persist($categorie);
-            $em->flush();
+            $this->entityManager->persist($categorie);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('admin_prescriptions');
         }
@@ -168,10 +172,8 @@ class PrescriptionsTypesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($texte);
-            $em->flush();
+            $this->entityManager->persist($texte);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('admin_prescriptions');
         }
@@ -225,10 +227,8 @@ class PrescriptionsTypesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($article);
-            $em->flush();
+            $this->entityManager->persist($article);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('admin_prescriptions');
         }
@@ -308,10 +308,8 @@ class PrescriptionsTypesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($prescription);
-            $em->flush();
+            $this->entityManager->persist($prescription);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('admin_prescriptions');
         }
@@ -348,10 +346,8 @@ class PrescriptionsTypesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($prescription);
-
-            $em->flush();
+            $this->entityManager->remove($prescription);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('admin_prescriptions');
         }

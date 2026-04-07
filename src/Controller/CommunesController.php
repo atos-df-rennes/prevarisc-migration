@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Commune;
 use App\Form\CommuneType;
 use App\Repository\CommuneRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,13 +19,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommunesController extends AbstractController
 {
-    /**
-     * @var CommuneRepository
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var CommuneRepository */
     private $communeRepository;
 
-    public function __construct(CommuneRepository $communeRepository)
+    public function __construct(EntityManagerInterface $entityManager, CommuneRepository $communeRepository)
     {
+        $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
     }
 
@@ -49,10 +52,8 @@ class CommunesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $entityManager->persist($commune);
-            $entityManager->flush();
+            $this->entityManager->persist($commune);
+            $this->entityManager->flush();
 
             $this->addFlash('success', \sprintf('La commune %s a bien été enregistrée.', $commune->getLibelle()));
 

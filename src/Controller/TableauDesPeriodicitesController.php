@@ -8,6 +8,7 @@ use App\Repository\EtablissementTypeRepository;
 use App\Repository\IghClasseRepository;
 use App\Repository\PeriodiciteRepository;
 use App\ValueObject\ClesTableauDesPeriodicites;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,36 +21,33 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class TableauDesPeriodicitesController extends AbstractController
 {
-    /**
-     * @var PeriodiciteRepository
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var PeriodiciteRepository */
     private $periodiciteRepository;
 
-    /**
-     * @var EtablissementTypeRepository
-     */
+    /** @var EtablissementTypeRepository */
     private $etablissementTypeRepository;
 
-    /**
-     * @var EtablissementCategorieRepository
-     */
+    /** @var EtablissementCategorieRepository */
     private $etablissementCategorieRepository;
 
-    /**
-     * @var IghClasseRepository
-     */
+    /** @var IghClasseRepository */
     private $ighClasseRepository;
 
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
     public function __construct(
+        EntityManagerInterface $entityManager,
         PeriodiciteRepository $periodiciteRepository,
         EtablissementTypeRepository $etablissementTypeRepository,
         EtablissementCategorieRepository $etablissementCategorieRepository,
         IghClasseRepository $ighClasseRepository,
         UrlGeneratorInterface $urlGenerator
     ) {
+        $this->entityManager = $entityManager;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->etablissementTypeRepository = $etablissementTypeRepository;
         $this->etablissementCategorieRepository = $etablissementCategorieRepository;
@@ -87,8 +85,6 @@ class TableauDesPeriodicitesController extends AbstractController
      */
     public function save(Request $request): Response
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
             $clesTableauDesPeriodicites = ClesTableauDesPeriodicites::fromRequest($periodiciteKey);
 
@@ -117,10 +113,10 @@ class TableauDesPeriodicitesController extends AbstractController
 
             $periodiciteEntity->setPeriodicite($periodicite);
 
-            $entityManager->persist($periodiciteEntity);
+            $this->entityManager->persist($periodiciteEntity);
         }
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'Le tableau des périodicités a bien été sauvegardé.');
 
