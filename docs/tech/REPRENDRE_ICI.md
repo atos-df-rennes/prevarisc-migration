@@ -35,15 +35,44 @@
 **Suggestions maintenabilité (non implémentées) :**  
 → Voir `docs/tech/suggestions/SUGGESTIONS_MAINTENABILITE_FORMULAIRES.md`
 
+### Phase 3A — DTOs pour les formulaires personnalisés (Symfony Forms)
+**Commit :** `feat(descriptif): ajout des DTOs pour les formulaires personnalisés`  
+**Périmètre :** Création des 4 DTOs du pipeline DTO → FormType → Service :
+
+| Fichier | Rôle |
+|---------|------|
+| `src/Dto/Descriptif/DescriptifFormData.php` | DTO racine — rubriques indexées par rubriqueId |
+| `src/Dto/Descriptif/RubriqueFormData.php` | DTO rubrique — display + champs indexés par champId |
+| `src/Dto/Descriptif/ChampValueData.php` | DTO champ — valeur typée ou conteneur tableau/groupe |
+| `src/Dto/Descriptif/TableauRowData.php` | DTO ligne — cellules + valeurIds pour suivi update/create |
+
+**Plan complet :** `docs/tech/dossier/PLAN_MIGRATION_FORMULAIRES_SYMFONY_FORMS.md`
+
 ---
 
-## 🎯 Prochaine phase à planifier
+## 🎯 Prochaine phase : Phase B — FormTypes
 
-Les formulaires personnalisés en lecture et édition sont maintenant complètement migrés.
+**Branche :** `migration/edition-formulaire-perso` (en cours)  
+**Plan :** `docs/tech/dossier/PLAN_MIGRATION_FORMULAIRES_SYMFONY_FORMS.md`
 
-**Sujets restants à identifier :**
-- Vérifier s'il reste des URLs Zend legacy dans d'autres templates
-- Identifier la prochaine fonctionnalité à migrer (consulter le backlog)
+### Phase B1 — Types feuille + DataTransformer
+
+| Fichier à créer | Description |
+|-----------------|-------------|
+| `src/Form/DataTransformer/DateToStringTransformer.php` | Transformateur d/m/Y ↔ DateTime |
+| `src/Form/Type/Descriptif/ChampTextType.php` | Wrapper TextType + form-control |
+| `src/Form/Type/Descriptif/ChampTextareaType.php` | Wrapper TextareaType |
+| `src/Form/Type/Descriptif/ChampSelectType.php` | ChoiceType dynamique |
+| `src/Form/Type/Descriptif/ChampNumberType.php` | Wrapper IntegerType |
+| `src/Form/Type/Descriptif/ChampCheckboxType.php` | Wrapper CheckboxType |
+| `src/Form/Type/Descriptif/ChampDateType.php` | TextType + DateToStringTransformer |
+
+### Phase B2 — Types composites
+
+| Fichier à créer | Description |
+|-----------------|-------------|
+| `src/Form/Type/Descriptif/TableauRowType.php` | Type pour une ligne de tableau |
+| `src/Form/Type/Descriptif/ChampValueType.php` | Dispatcheur dynamique (PRE_SET_DATA) |
 
 ---
 
@@ -52,5 +81,5 @@ Les formulaires personnalisés en lecture et édition sont maintenant complètem
 ```bash
 castor symfony:analyse   # PHPStan niveau 10 — 6 erreurs pré-existantes attendues
 castor symfony:cs        # CS/Rector/Twig — 0 erreur attendue
-castor symfony:test      # PHPUnit — 407 tests attendus
+castor symfony:test      # PHPUnit — 420 tests attendus
 ```
