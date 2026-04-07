@@ -113,6 +113,9 @@ class EtablissementContactController extends AbstractController implements Etabl
         ]);
     }
 
+    // @todo: Ajouter une validation CSRF
+    // @todo: Restraindre la méthode de route à POST
+    // @fixme: Corriger les validations et renvoyer une BadRequest plutôt qu'une InvalidArgument
     /**
      * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", defaults={"_etablissement_lateral_nav": false})
      *
