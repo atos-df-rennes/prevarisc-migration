@@ -53,8 +53,7 @@
 
                 <div id="rubrique-edit-body-{{ rubriqueId }}" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        {# Le checkbox display est rendu ici (caché) — la valeur soumise vient du TOC modal via un champ miroir #}
-                        {{ form_widget(rubriqueForm.display, {'attr': {'data-display-checkbox': rubriqueId, 'class': 'sr-only'}}) }}
+                        {% do rubriqueForm.display.setRendered() %}
 
                         {% for champKey, champForm in rubriqueForm %}
                             {% if champKey starts with 'champ_' %}
@@ -62,7 +61,7 @@
                                     <label class="control-label">
                                         <strong>{{ champForm.vars.label }}</strong>
                                     </label>
-                                    <div class="controls{% if champForm.lignes is defined %} table-wrapper{% endif %}">
+                                    <div class="controls{% if champForm.lignes is defined or champForm.sousChamps is defined %} table-wrapper{% endif %}">
                                         {% if champForm.lignes is defined %}
                                             {# Champ PARENT+tableau : rendu avec prototype Symfony CollectionType #}
                                             {% set lignesForm = champForm.lignes %}

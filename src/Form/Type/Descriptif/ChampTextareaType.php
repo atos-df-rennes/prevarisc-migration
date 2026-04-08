@@ -15,6 +15,7 @@ class ChampTextareaType extends AbstractType
     {
         $resolver->setDefaults([
             'attr' => ['class' => 'form-control'],
+            'required' => false,
         ]);
     }
 
