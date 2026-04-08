@@ -247,6 +247,12 @@ class DescriptifFormPersister
             $valeurId = $row->getValeurId($champId);
 
             if (null !== $valeurId) {
+                if ($this->isEmptyValue($value)) {
+                    // Valeur existante vidée : ne pas ajouter aux touchedValeurIds
+                    // → sera supprimée par deleteUntouchedTableauValeurs
+                    continue;
+                }
+
                 // Ligne existante : mise à jour valeur ET idx (pour drag & drop)
                 $existing = $lookup[$champId]['i' . $idx] ?? null;
                 if (null === $existing) {
@@ -265,7 +271,12 @@ class DescriptifFormPersister
                 }
             }
 
-            // Nouvelle cellule
+            // Cellule vide sans Valeur existante : rien à faire
+            if ($this->isEmptyValue($value)) {
+                continue;
+            }
+
+            // Nouvelle cellule non vide
             $champ = $this->champRepository->find($champId);
             if (null === $champ) {
                 continue;
