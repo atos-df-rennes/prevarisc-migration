@@ -5,15 +5,15 @@ namespace App\Form\DataTransformer;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
- * Transforme une date stockée en \DateTimeInterface en string (format d/m/Y) et vice-versa.
+ * Transforme une date stockée en \DateTimeInterface en string (format Y-m-d) et vice-versa.
  *
  * Utilisé par ChampDateType pour les champs de type DATE dans les formulaires personnalisés.
- * Le format d/m/Y est celui attendu par le datepicker Bootstrap de l'application.
+ * Le format Y-m-d est celui attendu par input[type="date"] (HTML5).
  */
 class DateToStringTransformer implements DataTransformerInterface
 {
     /**
-     * Transforme un DateTime en string (d/m/Y) pour l'affichage dans le formulaire.
+     * Transforme un DateTime en string (Y-m-d) pour l'affichage dans le formulaire.
      *
      * @param \DateTimeInterface|null $value
      *
@@ -25,11 +25,11 @@ class DateToStringTransformer implements DataTransformerInterface
             return '';
         }
 
-        return $value->format('d/m/Y');
+        return $value->format('Y-m-d');
     }
 
     /**
-     * Transforme une string (d/m/Y) en DateTime pour la persistance.
+     * Transforme une string (Y-m-d) en DateTime pour la persistance.
      *
      * @param string|null $value
      *
@@ -41,7 +41,7 @@ class DateToStringTransformer implements DataTransformerInterface
             return null;
         }
 
-        $date = \DateTime::createFromFormat('d/m/Y', $value);
+        $date = \DateTime::createFromFormat('Y-m-d', $value);
 
         return $date instanceof \DateTime ? $date : null;
     }

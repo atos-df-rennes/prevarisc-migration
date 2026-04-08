@@ -24,7 +24,7 @@ class ChampDateType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'attr' => ['class' => 'date'],
+            'attr' => ['type' => 'date'],
             'required' => false,
         ]);
     }

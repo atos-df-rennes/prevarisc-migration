@@ -5,14 +5,16 @@
     Utilisé par _formulaire_personnalise_edit.html.twig.
 #}
 
-{# Champ date : input texte + bouton "Aujourd'hui" #}
+{# Champ date : input[type="date"] + bouton "Aujourd'hui" (même mécanisme que date_field_with_today.html.twig) #}
 {% block champ_date_widget %}
-    <div class="colDate">
+    <div class="input-group">
         {{ block('form_widget_simple') }}
-        <button type="button" class="today btn btn-default">
-            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
-            Aujourd'hui
-        </button>
+        <div class="input-group-btn">
+            <button type="button" class="btn btn-default btn-today" data-target="{{ id }}">
+                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                Aujourd'hui
+            </button>
+        </div>
     </div>
 {% endblock %}
 
