@@ -20,3 +20,7 @@
     width: auto;
     max-width: none;
 }
+
+.panel-formulaire-perso .input-group .input-group-btn {
+    width: auto;
+}

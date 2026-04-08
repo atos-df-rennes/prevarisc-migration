@@ -10,10 +10,3 @@ td .colDate {
 td .colDate input {
     width: auto;
 }
-
-/* Bootstrap 3 force width: 1% sur .form-control dans un .input-group (display: table).
-   Imbriqué dans un <td>, le calcul ne se distribue pas correctement.
-   width: auto restaure le sizing naturel dans ce contexte table-in-table. */
-td .input-group .form-control {
-    width: auto;
-}

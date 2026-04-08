@@ -1281,6 +1281,7 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
   right: 0;
   border-left: 1px solid black;
   border-right: 0;
+  z-index: 3;
 }
 
 .table-wrapper .table .colonne-edition.with-shadow {

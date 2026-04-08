@@ -2,10 +2,8 @@
 
 namespace App\Form\Type\Descriptif;
 
-use App\Form\DataTransformer\DateToStringTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -16,21 +14,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ChampDateType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
-        $builder->addModelTransformer(new DateToStringTransformer());
-    }
-
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'attr' => ['type' => 'date'],
+            'widget' => 'single_text',
             'required' => false,
         ]);
     }
 
     public function getParent(): string
     {
-        return TextType::class;
+        return DateType::class;
     }
 }
