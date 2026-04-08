@@ -53,7 +53,8 @@
 
                 <div id="rubrique-edit-body-{{ rubriqueId }}" class="panel-collapse collapse in">
                     <div class="panel-body">
-                        {% do rubriqueForm.display.setRendered() %}
+                        {# Rendu caché — valeur soumise avec le formulaire ; le TOC modal (mirror checkbox) le synchronise via JS #}
+                        {{ form_widget(rubriqueForm.display, {'attr': {'data-display-checkbox': rubriqueId, 'class': 'sr-only'}}) }}
 
                         {% for champKey, champForm in rubriqueForm %}
                             {% if champKey starts with 'champ_' %}
