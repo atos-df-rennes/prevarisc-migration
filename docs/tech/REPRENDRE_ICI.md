@@ -42,6 +42,10 @@
 #### Compatibilité drag & drop
 Le `DescriptifFormPersister` normalise l'`idx` de toutes les lignes à chaque sauvegarde (position 1-based). `reindexTableauRows($tbody)` dans `descriptif-collection.js` est prêt pour le futur drag & drop JS.
 
+#### Fix runtime — ArrayAccess + property_path (commit `133c7bb`)
+`DescriptifFormData` et `RubriqueFormData` implémentent `\ArrayAccess` (clés `rubrique_{id}` / `champ_{id}`).  
+`DescriptifFormBuilder` utilise la notation bracket `property_path: '[rubrique_X]'` / `'[champ_Y]'` pour que Symfony Forms passe par `offsetGet`/`offsetSet` au lieu de chercher `getRubrique480()`.
+
 **Plan complet :** `docs/tech/dossier/PLAN_MIGRATION_FORMULAIRES_SYMFONY_FORMS.md`
 
 ---
