@@ -20,7 +20,9 @@ use App\Repository\PeriodiciteRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\DataStore\DataStore;
 use App\Service\Descriptif as DescriptifService;
-use App\Service\DescriptifSaver;
+use App\Service\Descriptif\DescriptifFormBuilder;
+use App\Service\Descriptif\DescriptifFormHydrator;
+use App\Service\Descriptif\DescriptifFormPersister;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
@@ -29,6 +31,7 @@ use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -98,8 +101,14 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var DescriptifService */
     private $descriptifService;
 
-    /** @var DescriptifSaver */
-    private $descriptifSaver;
+    /** @var DescriptifFormHydrator */
+    private $descriptifFormHydrator;
+
+    /** @var DescriptifFormBuilder */
+    private $descriptifFormBuilder;
+
+    /** @var DescriptifFormPersister */
+    private $descriptifFormPersister;
 
     /** @var bool */
     private $descriptifPersonnalise;
@@ -124,7 +133,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         AlerteService $alerteService,
         int $nbDossiersAAfficher,
         DescriptifService $descriptifService,
-        DescriptifSaver $descriptifSaver,
+        DescriptifFormHydrator $descriptifFormHydrator,
+        DescriptifFormBuilder $descriptifFormBuilder,
+        DescriptifFormPersister $descriptifFormPersister,
         bool $descriptifPersonnalise,
         LoggerInterface $logger
     ) {
@@ -144,7 +155,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->alerteService = $alerteService;
         $this->nbDossiersAAfficher = $nbDossiersAAfficher;
         $this->descriptifService = $descriptifService;
-        $this->descriptifSaver = $descriptifSaver;
+        $this->descriptifFormHydrator = $descriptifFormHydrator;
+        $this->descriptifFormBuilder = $descriptifFormBuilder;
+        $this->descriptifFormPersister = $descriptifFormPersister;
         $this->descriptifPersonnalise = $descriptifPersonnalise;
         $this->logger = $logger;
     }
@@ -473,10 +486,10 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
-    public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
+    public function editDescriptifOriginal(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
     {
         if ($this->descriptifPersonnalise) {
-            return $this->editDescriptifPersonnalise($etablissement, $request);
+            return $this->editDescriptifPersonnalise($etablissement, $request, $formFactory);
         }
 
         $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
@@ -507,24 +520,19 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Gère l'édition du descriptif personnalisé (formulaire personnalisé).
      * Appelée par editDescriptifOriginal lorsque PREVARISC_DESCRIPTIF_PERSONNALISE est activé.
      */
-    private function editDescriptifPersonnalise(Etablissement $etablissement, Request $request): Response
+    private function editDescriptifPersonnalise(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
 
-        if ($request->isMethod('POST')) {
-            $csrfName = 'edit_descriptif_'.$etablissement->getId();
-            /** @var string $csrfToken */
-            $csrfToken = $request->request->get('_token', '');
-            if (!$this->isCsrfTokenValid($csrfName, $csrfToken)) {
-                $this->addFlash('error', 'Token CSRF invalide. Veuillez réessayer.');
+        $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
 
-                return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
-            }
-
+        if ($form->isSubmitted() && $form->isValid()) {
             try {
-                /** @var array<string, mixed> $postData */
-                $postData = $request->request->all();
-                $this->descriptifSaver->saveForEtablissement($etablissement, $postData);
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
                 $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde du descriptif personnalisé', [
@@ -541,6 +549,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
+            'form' => $form->createView(),
         ]);
     }
 
@@ -551,24 +560,19 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")
      */
-    public function editEffectifsDegagements(Etablissement $etablissement, Request $request): Response
+    public function editEffectifsDegagements(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
 
-        if ($request->isMethod('POST')) {
-            $csrfName = 'edit_effectifs_degagements_ets_'.$etablissement->getId();
-            /** @var string $csrfToken */
-            $csrfToken = $request->request->get('_token', '');
-            if (!$this->isCsrfTokenValid($csrfName, $csrfToken)) {
-                $this->addFlash('error', 'Token CSRF invalide. Veuillez réessayer.');
+        $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
 
-                return $this->redirectToRoute('etablissement_effectifs_degagements', ['id' => $etablissement->getId()]);
-            }
-
+        if ($form->isSubmitted() && $form->isValid()) {
             try {
-                /** @var array<string, mixed> $postData */
-                $postData = $request->request->all();
-                $this->descriptifSaver->saveForEtablissement($etablissement, $postData);
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
                 $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements', [
@@ -585,6 +589,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
+            'form' => $form->createView(),
         ]);
     }
 

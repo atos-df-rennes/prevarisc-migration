@@ -1,7 +1,5 @@
 {% extends 'layouts/dossier.html.twig' %}
 
-{% import 'components/_formulaire_personnalise_edit.html.twig' as editForms %}
-
 {% block stylesheets %}
     {{ parent() }}
     <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
@@ -15,16 +13,14 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/formulaire/tableau/gestionTableau.js') }}"></script>
+    <script src="{{ asset('js/formulaire/descriptif/descriptif-collection.js') }}"></script>
     <script src="{{ asset('js/formulaire/descriptif/edit.js') }}"></script>
     <script src="{{ asset('js/calendrier/today.js') }}"></script>
 {% endblock %}
 
 {% block body %}
-    {{ editForms.form(
-        rubriques,
-        path('dossier_verifications_techniques_edit', {id: dossier.id}),
-        'edit_verifications_techniques_' ~ dossier.id,
-        capsule,
-    ) }}
+    {% include 'components/_formulaire_personnalise_edit.html.twig' with {
+        form: form,
+        capsule: capsule,
+    } %}
 {% endblock %}

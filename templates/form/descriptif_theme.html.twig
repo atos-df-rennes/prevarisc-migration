@@ -1,0 +1,35 @@
+{% use 'bootstrap_3_layout.html.twig' %}
+
+{#
+    Thème Bootstrap 3 pour les formulaires personnalisés (Descriptif).
+    Utilisé par _formulaire_personnalise_edit.html.twig.
+#}
+
+{# Champ date : input texte + bouton "Aujourd'hui" #}
+{% block champ_date_widget %}
+    <div class="colDate">
+        {{ block('form_widget_simple') }}
+        <button type="button" class="today btn btn-default">
+            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+            Aujourd'hui
+        </button>
+    </div>
+{% endblock %}
+
+{#
+    Ligne de tableau (TableauRowType).
+    Rendue comme un <tr> avec une <td> par cellule + colonne de suppression.
+    Doit être invoquée depuis un <tbody>.
+#}
+{% block tableau_row_widget %}
+    <tr>
+        {% for cell in form %}
+            <td>{{ form_widget(cell) }}</td>
+        {% endfor %}
+        <td class="colonne-edition">
+            <button type="button" class="deleteRow btn btn-danger">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            </button>
+        </td>
+    </tr>
+{% endblock %}

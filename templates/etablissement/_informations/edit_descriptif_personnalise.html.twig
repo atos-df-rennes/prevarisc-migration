@@ -1,7 +1,5 @@
 {% extends 'layouts/etablissement.html.twig' %}
 
-{% import 'components/_formulaire_personnalise_edit.html.twig' as editForms %}
-
 {% block stylesheets %}
     {{ parent() }}
     <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
@@ -13,16 +11,14 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/formulaire/tableau/gestionTableau.js') }}"></script>
+    <script src="{{ asset('js/formulaire/descriptif/descriptif-collection.js') }}"></script>
     <script src="{{ asset('js/formulaire/descriptif/edit.js') }}"></script>
     <script src="{{ asset('js/calendrier/today.js') }}"></script>
 {% endblock %}
 
 {% block body %}
-    {{ editForms.form(
-        rubriques,
-        path('etablissement_descriptif_modifier', {id: etablissement.id}),
-        'edit_descriptif_' ~ etablissement.id,
-        capsule,
-    ) }}
+    {% include 'components/_formulaire_personnalise_edit.html.twig' with {
+        form: form,
+        capsule: capsule,
+    } %}
 {% endblock %}
