@@ -14,7 +14,7 @@ class ChampNumberType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'attr' => ['class' => 'form-control', 'min' => 0],
+            'attr' => ['min' => 0],
             'required' => false,
         ]);
     }

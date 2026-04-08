@@ -16,7 +16,6 @@ class ChampSelectType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'attr' => ['class' => 'form-control'],
             'placeholder' => 'Sélectionnez un élément',
             'required' => false,
         ]);
