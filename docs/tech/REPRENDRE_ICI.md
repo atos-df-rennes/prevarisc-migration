@@ -10,76 +10,57 @@
 **Branche :** `migration/affichage-formulaires-persos` (mergée)  
 **Périmètre :** Affichage des 4 onglets de formulaires personnalisés en lecture seule.
 
-### Phase 2 — Édition des formulaires personnalisés
+### Phase 2 — Édition des formulaires personnalisés (POST brut, DescriptifSaver)
 **Commit :** `feat(formulaires): édition formulaires personnalisés - Phase 2`  
-**Périmètre :** Formulaires d'édition POST pour les 4 onglets :
+**Note :** Ce service a été remplacé en Phase 3B — voir ci-dessous.
 
-| Onglet | Entité | Route |
-|--------|--------|-------|
-| Descriptif de l'établissement | Etablissement | `etablissement_descriptif_modifier` |
-| Effectifs et dégagements établissement | Etablissement | `etablissement_effectifs_degagements_edit` |
-| Vérifications techniques du dossier | Dossier | `dossier_verifications_techniques_edit` |
-| Effectifs et dégagements du dossier | Dossier | `dossier_effectifs_degagements_edit` |
+### Phase 3 — Migration complète vers Symfony Forms + DTOs
+**Branche :** `migration/edition-formulaire-perso`  
+**Commit :** `feat(descriptif): migration formulaires personnalisés vers Symfony Forms`  
+**Périmètre :** Remplacement de `DescriptifSaver` (parsing POST brut) par un pipeline Symfony Forms complet.
 
-**Fichiers clés :**
-- `src/Service/DescriptifSaver.php` — service central de sauvegarde POST → Doctrine
-- `templates/components/_formulaire_personnalise_edit.html.twig` — macros Twig d'édition
-- `tests/Service/DescriptifSaverTest.php` — tests unitaires (407 tests, 0 erreur)
+#### Pipeline mis en place
 
-**Améliorations vs legacy :**
-- Tokens CSRF sur chaque formulaire
-- Contrôle d'accès `@Security` aligné sur les vues lecture
-- Doctrine EntityManager (pas de SQL direct)
-- Twig auto-escaping (pas de `htmlspecialchars()` manuel)
+| Étape | Fichiers clés |
+|-------|---------------|
+| **DTOs** | `src/Dto/Descriptif/DescriptifFormData.php`, `RubriqueFormData.php`, `ChampValueData.php`, `TableauRowData.php` |
+| **FormTypes feuille** | `src/Form/Type/Descriptif/ChampText/Textarea/Select/Number/Checkbox/DateType.php` |
+| **DataTransformer** | `src/Form/DataTransformer/DateToStringTransformer.php` |
+| **FormTypes composites** | `src/Form/Type/Descriptif/ChampValueType.php` (PRE_SET_DATA), `TableauRowType.php` |
+| **Hydrator** | `src/Service/Descriptif/DescriptifFormHydrator.php` — Valeur entities → DTOs |
+| **Builder** | `src/Service/Descriptif/DescriptifFormBuilder.php` — DTOs + rubriques → FormInterface |
+| **Persister** | `src/Service/Descriptif/DescriptifFormPersister.php` — DTOs → Valeur entities (idx normalisé) |
+| **Templates** | `templates/components/_formulaire_personnalise_edit.html.twig` (réécrit), `templates/form/descriptif_theme.html.twig` |
+| **JS** | `public/js/formulaire/descriptif/descriptif-collection.js` (add/delete + `reindexTableauRows` pour drag&drop futur), `edit.js` mis à jour |
+| **Tests** | `tests/Service/Descriptif/DescriptifFormHydratorTest.php` (13 tests), `DescriptifFormPersisterTest.php` (6 tests) |
 
-**Suggestions maintenabilité (non implémentées) :**  
-→ Voir `docs/tech/suggestions/SUGGESTIONS_MAINTENABILITE_FORMULAIRES.md`
+#### Fichiers supprimés (nettoyage)
+- `src/Service/DescriptifSaver.php` (remplacé par le pipeline ci-dessus)
+- `tests/Service/DescriptifSaverTest.php`
+- `public/js/formulaire/tableau/gestionTableau.js`
 
-### Phase 3A — DTOs pour les formulaires personnalisés (Symfony Forms)
-**Commit :** `feat(descriptif): ajout des DTOs pour les formulaires personnalisés`  
-**Périmètre :** Création des 4 DTOs du pipeline DTO → FormType → Service :
-
-| Fichier | Rôle |
-|---------|------|
-| `src/Dto/Descriptif/DescriptifFormData.php` | DTO racine — rubriques indexées par rubriqueId |
-| `src/Dto/Descriptif/RubriqueFormData.php` | DTO rubrique — display + champs indexés par champId |
-| `src/Dto/Descriptif/ChampValueData.php` | DTO champ — valeur typée ou conteneur tableau/groupe |
-| `src/Dto/Descriptif/TableauRowData.php` | DTO ligne — cellules + valeurIds pour suivi update/create |
+#### Compatibilité drag & drop
+Le `DescriptifFormPersister` normalise l'`idx` de toutes les lignes à chaque sauvegarde (position 1-based). `reindexTableauRows($tbody)` dans `descriptif-collection.js` est prêt pour le futur drag & drop JS.
 
 **Plan complet :** `docs/tech/dossier/PLAN_MIGRATION_FORMULAIRES_SYMFONY_FORMS.md`
 
 ---
 
-## 🎯 Prochaine phase : Phase B — FormTypes
+## 🎯 Prochaine phase : à définir
 
-**Branche :** `migration/edition-formulaire-perso` (en cours)  
-**Plan :** `docs/tech/dossier/PLAN_MIGRATION_FORMULAIRES_SYMFONY_FORMS.md`
+**Branche courante :** `migration/edition-formulaire-perso` (prête à merger)
 
-### Phase B1 — Types feuille + DataTransformer
-
-| Fichier à créer | Description |
-|-----------------|-------------|
-| `src/Form/DataTransformer/DateToStringTransformer.php` | Transformateur d/m/Y ↔ DateTime |
-| `src/Form/Type/Descriptif/ChampTextType.php` | Wrapper TextType + form-control |
-| `src/Form/Type/Descriptif/ChampTextareaType.php` | Wrapper TextareaType |
-| `src/Form/Type/Descriptif/ChampSelectType.php` | ChoiceType dynamique |
-| `src/Form/Type/Descriptif/ChampNumberType.php` | Wrapper IntegerType |
-| `src/Form/Type/Descriptif/ChampCheckboxType.php` | Wrapper CheckboxType |
-| `src/Form/Type/Descriptif/ChampDateType.php` | TextType + DateToStringTransformer |
-
-### Phase B2 — Types composites
-
-| Fichier à créer | Description |
-|-----------------|-------------|
-| `src/Form/Type/Descriptif/TableauRowType.php` | Type pour une ligne de tableau |
-| `src/Form/Type/Descriptif/ChampValueType.php` | Dispatcheur dynamique (PRE_SET_DATA) |
+Suggestions :
+- Tester manuellement les 4 onglets d'édition en environnement DEV
+- Implémenter le drag & drop JS (appel à `window.reindexTableauRows` déjà disponible)
+- Continuer la migration des autres fonctionnalités (voir backlog)
 
 ---
 
 ## 📌 Commandes de validation
 
 ```bash
-castor symfony:analyse   # PHPStan niveau 10 — 6 erreurs pré-existantes attendues
+castor symfony:analyse   # PHPStan niveau 10 — 9 erreurs pré-existantes attendues
 castor symfony:cs        # CS/Rector/Twig — 0 erreur attendue
-castor symfony:test      # PHPUnit — 420 tests attendus
+castor symfony:test      # PHPUnit — 438 tests attendus
 ```
