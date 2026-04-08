@@ -7,12 +7,16 @@ use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Repository\DossierRepository;
 use App\Service\Descriptif as DescriptifService;
+use App\Service\Descriptif\DescriptifFormBuilder;
+use App\Service\Descriptif\DescriptifFormHydrator;
+use App\Service\Descriptif\DescriptifFormPersister;
 use App\Service\DescriptifCopier;
 use App\Service\DescriptifInspector;
 use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,6 +43,15 @@ class DossierEffectifsController extends AbstractController implements DossierLa
     /** @var EffectifsDegagementsRepriseValidator */
     private $repriseValidator;
 
+    /** @var DescriptifFormHydrator */
+    private $descriptifFormHydrator;
+
+    /** @var DescriptifFormBuilder */
+    private $descriptifFormBuilder;
+
+    /** @var DescriptifFormPersister */
+    private $descriptifFormPersister;
+
     /** @var LoggerInterface */
     private $logger;
 
@@ -48,7 +61,10 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         DescriptifCopier $descriptifCopier,
         DossierRepository $dossierRepository,
         EffectifsDegagementsRepriseValidator $repriseValidator,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        DescriptifFormHydrator $descriptifFormHydrator,
+        DescriptifFormBuilder $descriptifFormBuilder,
+        DescriptifFormPersister $descriptifFormPersister
     ) {
         $this->descriptifService = $descriptifService;
         $this->descriptifInspector = $descriptifInspector;
@@ -56,6 +72,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $this->dossierRepository = $dossierRepository;
         $this->repriseValidator = $repriseValidator;
         $this->logger = $logger;
+        $this->descriptifFormHydrator = $descriptifFormHydrator;
+        $this->descriptifFormBuilder = $descriptifFormBuilder;
+        $this->descriptifFormPersister = $descriptifFormPersister;
     }
 
     /**
@@ -300,5 +319,45 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         }
 
         return $this->json(['success' => true]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition des effectifs et dégagements du dossier.
+     *
+     * @Route("/dossier/{id}/effectifs-degagements/modifier", name="dossier_effectifs_degagements_edit", methods={"GET", "POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     */
+    public function editEffectifsDegagements(Dossier $dossier, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
+
+        $formData = $this->descriptifFormHydrator->hydrateFromDossier($dossier, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForDossier($dossier, $submittedData, $data['rubriques']);
+                $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements du dossier', [
+                    'dossier_id' => $dossier->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('dossier_effectifs_degagements', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/edit_effectifs_degagements.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+            'form' => $form->createView(),
+        ]);
     }
 }

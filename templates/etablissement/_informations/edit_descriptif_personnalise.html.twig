@@ -1,0 +1,26 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% set nom_capsule = capsule ? capsule.nom : 'Descriptif' %}
+
+{% block title %}{{ parent() }} / Modifier le {{ nom_capsule|lower }}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/formulaire/ordonnancement/Sortable.min.js') }}"></script>
+    <script src="{{ asset('js/formulaire/descriptif/descriptif-collection.js') }}"></script>
+    <script src="{{ asset('js/formulaire/descriptif/edit.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    {% include 'components/_formulaire_personnalise_edit.html.twig' with {
+        form: form,
+        capsule: capsule,
+    } %}
+{% endblock %}

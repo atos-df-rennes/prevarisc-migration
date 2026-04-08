@@ -1,0 +1,49 @@
+{% use 'bootstrap_3_layout.html.twig' %}
+
+{#
+    Thème Bootstrap 3 pour les formulaires personnalisés (Descriptif).
+    Utilisé par _formulaire_personnalise_edit.html.twig.
+#}
+
+{# Champ date : input[type="date"] + bouton "Aujourd'hui" (même mécanisme que date_field_with_today.html.twig) #}
+{% block champ_date_widget %}
+    <div class="input-group">
+        {{ block('form_widget_simple') }}
+        <div class="input-group-btn">
+            <button type="button" class="btn btn-default btn-today" data-target="{{ id }}">
+                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+                Aujourd'hui
+            </button>
+        </div>
+    </div>
+{% endblock %}
+
+{#
+    ChampCheckboxType : input brut sans le wrapper Bootstrap 3 <div class="checkbox"><label>.
+    Le contexte (tableau ou groupe) fournit toujours un <th> ou un label séparé.
+    Reproduit le comportement de form_div_layout.html.twig (sans label wrapper).
+#}
+{%- block champ_checkbox_widget -%}
+    <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+{%- endblock champ_checkbox_widget -%}
+
+{#
+    Ligne de tableau (TableauRowType).
+    Rendue comme un <tr> avec une <td> par cellule + colonne de suppression.
+    Doit être invoquée depuis un <tbody>.
+#}
+{% block tableau_row_widget %}
+    <tr>
+        {% for cell in form %}
+            <td>{{ form_widget(cell) }}</td>
+        {% endfor %}
+        <td class="colonne-edition">
+            <button type="button" class="tdMove btn btn-info">
+                <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="deleteRow btn btn-danger">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            </button>
+        </td>
+    </tr>
+{% endblock %}

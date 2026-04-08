@@ -1,0 +1,211 @@
+{#
+    Template d'édition des formulaires personnalisés — version Symfony Forms.
+
+    Variables attendues :
+      - form      : FormView  (construit par DescriptifFormBuilder)
+      - capsule   : CapsuleRubrique|null
+
+    Le form contient des sub-forms nommés 'rubrique_X' (RubriqueFormData),
+    chacun contenant 'display' (CheckboxType) et 'champ_Y' (ChampValueType).
+#}
+{% form_theme form 'form/descriptif_theme.html.twig' %}
+
+{{ form_start(form) }}
+
+    <div class="action-buttons pull-right">
+        <a class="btn btn-default" href="javascript:history.back()" data-do-not-unload>
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            Annuler
+        </a>
+        <button type="submit" id="js-btn-enregistrer-descriptif" class="btn btn-success" data-do-not-unload>
+            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+            Enregistrer
+        </button>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <h3>{{ capsule ? capsule.nom : 'Formulaire personnalisé' }}</h3>
+
+    {% set hasRubriques = false %}
+    {% for rubriqueKey, rubriqueForm in form %}
+        {% if rubriqueKey starts with 'rubrique_' %}
+            {% set hasRubriques = true %}
+            {% set rubriqueId = rubriqueKey|replace({'rubrique_': ''}) %}
+            {% set isDisplayed = rubriqueForm.display.vars.data %}
+
+            <div id="afficher_rubrique-{{ rubriqueId }}"
+                 class="panel panel-default panel-formulaire-perso{% if not isDisplayed %} hide{% endif %}">
+
+                <div class="panel-heading" role="tab">
+                    <h4 class="panel-title">
+                        <a role="button"
+                           class="panel-title__link{% if not rubriqueForm.vars.attr['data-ouverte'] %} collapsed{% endif %}"
+                           data-toggle="collapse"
+                           data-target="#rubrique-edit-body-{{ rubriqueId }}"
+                           aria-expanded="{{ rubriqueForm.vars.attr['data-ouverte'] ? 'true' : 'false' }}"
+                           aria-controls="rubrique-edit-body-{{ rubriqueId }}">
+                            {{ rubriqueForm.vars.label }}
+                            <span class="pull-right caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="rubrique-edit-body-{{ rubriqueId }}" class="panel-collapse collapse{% if rubriqueForm.vars.attr['data-ouverte'] %} in{% endif %}">
+                    <div class="panel-body">
+                        {# Rendu caché — valeur soumise avec le formulaire ; le TOC modal (mirror checkbox) le synchronise via JS #}
+                        {{ form_row(rubriqueForm.display, {'row_attr': {'style': 'display:none'}, 'attr': {'data-display-checkbox': rubriqueId}}) }}
+
+                        {% for champKey, champForm in rubriqueForm %}
+                            {% if champKey starts with 'champ_' %}
+                                <div class="control-group">
+                                    <label class="control-label">
+                                        <strong>{{ champForm.vars.label }}</strong>
+                                    </label>
+                                    <div class="controls{% if champForm.lignes is defined or champForm.sousChamps is defined %} table-wrapper{% endif %}">
+                                        {% if champForm.lignes is defined %}
+                                            {# Champ PARENT+tableau : rendu avec prototype Symfony CollectionType #}
+                                            {% set lignesForm = champForm.lignes %}
+                                            <div class="table-responsive table-tableau table-writable">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            {% if lignesForm.vars.prototype is defined %}
+                                                                {% for cell in lignesForm.vars.prototype %}
+                                                                    <th>{{ cell.vars.label ?? '' }}</th>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                            <th class="colonne-edition">Édition</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody data-prototype="{{ form_widget(lignesForm.vars.prototype)|e('html_attr') }}"
+                                                           data-index="{{ lignesForm|length }}">
+                                                        {% for row in lignesForm %}
+                                                            {{ form_widget(row) }}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="add-row-button-wrapper">
+                                                <button type="button" class="btn btn-info btn-block addRow">
+                                                    Ajouter une ligne
+                                                </button>
+                                            </div>
+                                        {% elseif champForm.sousChamps is defined %}
+                                            {# Champ PARENT+groupe #}
+                                            <div class="table-responsive table-writable">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            {% for sousChampForm in champForm.sousChamps %}
+                                                                <th>{{ sousChampForm.vars.label ?? '' }}</th>
+                                                            {% endfor %}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            {% for sousChampForm in champForm.sousChamps %}
+                                                                <td>
+                                                                    {% if sousChampForm.value is defined %}
+                                                                        {{ form_widget(sousChampForm.value) }}
+                                                                    {% else %}
+                                                                        {{ form_widget(sousChampForm) }}
+                                                                    {% endif %}
+                                                                </td>
+                                                            {% endfor %}
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% elseif champForm.value is defined %}
+                                            {# Champ simple #}
+                                            {{ form_widget(champForm.value) }}
+                                            {{ form_errors(champForm.value) }}
+                                        {% else %}
+                                            {{ form_widget(champForm) }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {# Prévenir form_rest de re-rendre cette rubrique (évite doublons checkbox/form-group) #}
+            {%- do rubriqueForm.setRendered() -%}
+        {% endif %}
+    {% endfor %}
+
+    {% if not hasRubriques %}
+        <p class="text-muted"><em>Aucune rubrique configurée. Contactez un administrateur Prevarisc.</em></p>
+    {% endif %}
+
+    {# Modale de sélection des rubriques à afficher #}
+    {% if hasRubriques %}
+        <div id="tocModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tocModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="tocModalLabel">Rubriques à afficher</h4>
+                    </div>
+                    <div class="modal-body">
+                        {% for rubriqueKey, rubriqueForm in form %}
+                            {% if rubriqueKey starts with 'rubrique_' %}
+                                {% set rubriqueId = rubriqueKey|replace({'rubrique_': ''}) %}
+                                <div class="descriptif-personnalise_rubrique">
+                                    <label>
+                                        {# Checkbox miroir (non soumis) — contrôle la visibilité via JS #}
+                                        <input type="checkbox"
+                                               data-controls-rubrique="{{ rubriqueId }}"
+                                               {% if rubriqueForm.display.vars.data %}checked{% endif %}>
+                                        {{ rubriqueForm.vars.label }}
+                                    </label>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{{ form_end(form) }}
+
+{# Bouton flottant TOC #}
+{% if hasRubriques %}
+    <button id="show-toc"
+            type="button"
+            class="btn btn-default"
+            title="Sélectionner les rubriques à afficher"
+            data-toggle="modal"
+            data-target="#tocModal">
+        <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+    </button>
+{% endif %}
+
+<script type="module">
+    import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+    initLoadingButton('#js-btn-enregistrer-descriptif', 'Enregistrement...');
+
+    // Bouton "Aujourd'hui" : event delegation pour gérer les lignes ajoutées dynamiquement
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-today[data-target]');
+        if (!btn) return;
+        e.preventDefault();
+        const input = document.getElementById(btn.dataset.target);
+        if (!input) return;
+        const today = new Date();
+        input.value = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, '0'),
+            String(today.getDate()).padStart(2, '0'),
+        ].join('-');
+    });
+</script>
+

@@ -20,6 +20,9 @@ use App\Repository\PeriodiciteRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\DataStore\DataStore;
 use App\Service\Descriptif as DescriptifService;
+use App\Service\Descriptif\DescriptifFormBuilder;
+use App\Service\Descriptif\DescriptifFormHydrator;
+use App\Service\Descriptif\DescriptifFormPersister;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
@@ -28,6 +31,7 @@ use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -97,6 +101,15 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var DescriptifService */
     private $descriptifService;
 
+    /** @var DescriptifFormHydrator */
+    private $descriptifFormHydrator;
+
+    /** @var DescriptifFormBuilder */
+    private $descriptifFormBuilder;
+
+    /** @var DescriptifFormPersister */
+    private $descriptifFormPersister;
+
     /** @var bool */
     private $descriptifPersonnalise;
 
@@ -120,6 +133,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         AlerteService $alerteService,
         int $nbDossiersAAfficher,
         DescriptifService $descriptifService,
+        DescriptifFormHydrator $descriptifFormHydrator,
+        DescriptifFormBuilder $descriptifFormBuilder,
+        DescriptifFormPersister $descriptifFormPersister,
         bool $descriptifPersonnalise,
         LoggerInterface $logger
     ) {
@@ -139,6 +155,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->alerteService = $alerteService;
         $this->nbDossiersAAfficher = $nbDossiersAAfficher;
         $this->descriptifService = $descriptifService;
+        $this->descriptifFormHydrator = $descriptifFormHydrator;
+        $this->descriptifFormBuilder = $descriptifFormBuilder;
+        $this->descriptifFormPersister = $descriptifFormPersister;
         $this->descriptifPersonnalise = $descriptifPersonnalise;
         $this->logger = $logger;
     }
@@ -459,16 +478,18 @@ class EtablissementController extends AbstractController implements Etablissemen
     }
 
     /**
-     * Affiche et traite le formulaire d'édition du descriptif original.
+     * Affiche et traite le formulaire d'édition du descriptif.
+     * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, gère les formulaires personnalisés (POST).
+     * Sinon, gère le descriptif original (champs fixes).
      *
      * @Route("/etablissement/{id}/descriptif/modifier", name="etablissement_descriptif_modifier", methods={"GET", "POST"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
-    public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
+    public function editDescriptifOriginal(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
     {
         if ($this->descriptifPersonnalise) {
-            return $this->redirect('/etablissement/edit-descriptif/id/'.$etablissement->getId());
+            return $this->editDescriptifPersonnalise($etablissement, $request, $formFactory);
         }
 
         $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
@@ -491,6 +512,83 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         return $this->render('etablissement/edit_descriptif_original.html.twig', [
             'etablissement' => $etablissement,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Gère l'édition du descriptif personnalisé (formulaire personnalisé).
+     * Appelée par editDescriptifOriginal lorsque PREVARISC_DESCRIPTIF_PERSONNALISE est activé.
+     */
+    private function editDescriptifPersonnalise(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
+
+        $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
+                $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde du descriptif personnalisé', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/_informations/edit_descriptif_personnalise.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition des effectifs et dégagements de l'établissement.
+     *
+     * @Route("/etablissement/{id}/effectifs-degagements/modifier", name="etablissement_effectifs_degagements_edit", methods={"GET", "POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")
+     */
+    public function editEffectifsDegagements(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+
+        $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
+                $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('etablissement_effectifs_degagements', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/_informations/edit_effectifs_degagements.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
             'form' => $form->createView(),
         ]);
     }
