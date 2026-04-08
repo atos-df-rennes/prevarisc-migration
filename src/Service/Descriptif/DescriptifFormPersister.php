@@ -16,7 +16,6 @@ use App\Entity\Valeur;
 use App\Repository\ChampRepository;
 use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
-use App\Repository\RubriqueRepository;
 use App\Repository\ValeurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -39,9 +38,6 @@ class DescriptifFormPersister
     /** @var ChampRepository */
     private $champRepository;
 
-    /** @var RubriqueRepository */
-    private $rubriqueRepository;
-
     /** @var DossierDisplayRubriqueRepository */
     private $dossierDisplayRubriqueRepository;
 
@@ -54,14 +50,12 @@ class DescriptifFormPersister
     public function __construct(
         ValeurRepository $valeurRepository,
         ChampRepository $champRepository,
-        RubriqueRepository $rubriqueRepository,
         DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository,
         EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository,
         EntityManagerInterface $entityManager
     ) {
         $this->valeurRepository = $valeurRepository;
         $this->champRepository = $champRepository;
-        $this->rubriqueRepository = $rubriqueRepository;
         $this->dossierDisplayRubriqueRepository = $dossierDisplayRubriqueRepository;
         $this->etablissementDisplayRubriqueRepository = $etablissementDisplayRubriqueRepository;
         $this->entityManager = $entityManager;
@@ -118,7 +112,7 @@ class DescriptifFormPersister
                 continue;
             }
 
-            $this->upsertDisplayPref($entity, $rubriqueId, $rubriqueData->isDisplay());
+            $this->upsertDisplayPref($entity, $rubrique, $rubriqueData->isDisplay());
 
             foreach ($rubriqueData->getChamps() as $champValueData) {
                 $this->persistChampValue($entity, $champValueData, $lookup, $existingValeurs, $touchedValeurIds);
@@ -350,16 +344,12 @@ class DescriptifFormPersister
 
     /**
      * Crée ou met à jour la préférence d'affichage d'une rubrique.
+     * La Rubrique est passée directement depuis la boucle appelante (déjà chargée).
      *
      * @param Dossier|Etablissement $entity
      */
-    private function upsertDisplayPref($entity, int $rubriqueId, bool $display): void
+    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display): void
     {
-        $rubrique = $this->rubriqueRepository->find($rubriqueId);
-        if (null === $rubrique) {
-            return;
-        }
-
         if ($entity instanceof Dossier) {
             $this->upsertDossierDisplayPref($entity, $rubrique, $display);
         } elseif ($entity instanceof Etablissement) {
@@ -489,12 +479,18 @@ class DescriptifFormPersister
 
     /**
      * Détermine si une valeur est considérée comme vide pour la suppression.
+     * Les checkboxes décochées (false) sont traitées comme vides : aucune Valeur
+     * n'est créée/maintenue en base pour une checkbox non cochée.
      *
      * @param string|int|bool|\DateTimeInterface|null $value
      */
     private function isEmptyValue($value): bool
     {
         if (null === $value) {
+            return true;
+        }
+
+        if (false === $value) {
             return true;
         }
 

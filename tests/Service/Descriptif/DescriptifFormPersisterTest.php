@@ -15,7 +15,6 @@ use App\Entity\Valeur;
 use App\Repository\ChampRepository;
 use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
-use App\Repository\RubriqueRepository;
 use App\Repository\ValeurRepository;
 use App\Service\Descriptif\DescriptifFormPersister;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -34,9 +33,6 @@ class DescriptifFormPersisterTest extends TestCase
     /** @var ChampRepository|MockObject */
     private $champRepository;
 
-    /** @var RubriqueRepository|MockObject */
-    private $rubriqueRepository;
-
     /** @var DossierDisplayRubriqueRepository|MockObject */
     private $dossierDisplayRubriqueRepository;
 
@@ -53,7 +49,6 @@ class DescriptifFormPersisterTest extends TestCase
     {
         $this->valeurRepository = $this->createMock(ValeurRepository::class);
         $this->champRepository = $this->createMock(ChampRepository::class);
-        $this->rubriqueRepository = $this->createMock(RubriqueRepository::class);
         $this->dossierDisplayRubriqueRepository = $this->createMock(DossierDisplayRubriqueRepository::class);
         $this->etablissementDisplayRubriqueRepository = $this->createMock(EtablissementDisplayRubriqueRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
@@ -61,7 +56,6 @@ class DescriptifFormPersisterTest extends TestCase
         $this->persister = new DescriptifFormPersister(
             $this->valeurRepository,
             $this->champRepository,
-            $this->rubriqueRepository,
             $this->dossierDisplayRubriqueRepository,
             $this->etablissementDisplayRubriqueRepository,
             $this->entityManager
@@ -89,9 +83,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->rubriqueRepository
-            ->method('find')
-            ->willReturn($this->makeRubrique(10));
 
         $this->entityManager->expects(self::once())->method('flush');
 
@@ -123,9 +114,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->rubriqueRepository
-            ->method('find')
-            ->willReturn($this->makeRubrique(10));
 
         $persisted = null;
         $this->entityManager
@@ -173,9 +161,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->rubriqueRepository
-            ->method('find')
-            ->willReturn($this->makeRubrique(10));
 
         $removed = null;
         $this->entityManager
@@ -226,9 +211,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->rubriqueRepository
-            ->method('find')
-            ->willReturn($this->makeRubrique(10));
 
         $persisted = [];
         $this->entityManager
@@ -293,9 +275,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->rubriqueRepository
-            ->method('find')
-            ->willReturn($this->makeRubrique(10));
 
         $removed = [];
         $this->entityManager
@@ -327,10 +306,6 @@ class DescriptifFormPersisterTest extends TestCase
         $this->valeurRepository->method('findByDossier')->willReturn([]);
         $this->champRepository->method('find')->willReturn($champ);
 
-        $this->rubriqueRepository
-            ->method('find')
-            ->with(10)
-            ->willReturn($this->makeRubrique(10));
 
         // Pas de préférence existante → doit appeler persist avec un DisplayRubrique
         $this->dossierDisplayRubriqueRepository
