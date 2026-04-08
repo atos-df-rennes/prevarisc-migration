@@ -3,6 +3,7 @@
 namespace App\Service\Descriptif;
 
 use App\Dto\Descriptif\DescriptifFormData;
+use App\Dto\Descriptif\RubriqueFormData;
 use App\Entity\Rubrique;
 use App\Form\Type\Descriptif\ChampValueType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -38,13 +39,17 @@ class DescriptifFormBuilder
             /** @var Rubrique $rubrique */
             $rubrique = $item['rubrique'];
             $rubriqueId = (int) $rubrique->getId();
-            $rubriqueData = $formData->getRubrique($rubriqueId);
 
             $rubriqueBuilder = $formFactory->createNamedBuilder(
                 'rubrique_'.$rubriqueId,
                 FormType::class,
-                $rubriqueData,
-                ['auto_initialize' => false, 'label' => $rubrique->getNom()]
+                null,
+                [
+                    'auto_initialize' => false,
+                    'label' => $rubrique->getNom(),
+                    'property_path' => '[rubrique_'.$rubriqueId.']',
+                    'data_class' => RubriqueFormData::class,
+                ]
             );
 
             $rubriqueBuilder->add('display', CheckboxType::class, [
@@ -62,9 +67,7 @@ class DescriptifFormBuilder
                     ChampValueType::class,
                     [
                         'label' => $champ->getNom(),
-                        'data' => null !== $rubriqueData
-                            ? $rubriqueData->getChamp($champId)
-                            : null,
+                        'property_path' => '[champ_'.$champId.']',
                     ]
                 );
             }

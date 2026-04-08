@@ -7,8 +7,13 @@ namespace App\Dto\Descriptif;
  *
  * Contient la préférence d'affichage et les données des champs racines
  * (champs sans parent) de la rubrique.
+ *
+ * Implémente ArrayAccess pour permettre à Symfony Forms d'utiliser
+ * la notation bracket dans property_path (ex: '[champ_123]').
+ *
+ * @implements \ArrayAccess<string, ChampValueData|null>
  */
-class RubriqueFormData
+class RubriqueFormData implements \ArrayAccess
 {
     /**
      * Préférence d'affichage de la rubrique (true = visible, false = masquée).
@@ -73,5 +78,64 @@ class RubriqueFormData
         $this->champs[$champId] = $data;
 
         return $this;
+    }
+
+    // --- ArrayAccess (clés au format "champ_{id}") ---
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetExists($offset): bool
+    {
+        if (!is_string($offset)) {
+            return false;
+        }
+
+        return null !== $this->getChamp($this->parseChampId($offset));
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return ChampValueData|null
+     */
+    public function offsetGet($offset)
+    {
+        if (!is_string($offset)) {
+            return null;
+        }
+
+        return $this->getChamp($this->parseChampId($offset));
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value): void
+    {
+        if (is_string($offset) && $value instanceof ChampValueData) {
+            $this->setChamp($this->parseChampId($offset), $value);
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset): void
+    {
+        if (!is_string($offset)) {
+            return;
+        }
+
+        unset($this->champs[$this->parseChampId($offset)]);
+    }
+
+    /**
+     * Extrait l'ID entier depuis une clé de la forme "champ_{id}".
+     */
+    private function parseChampId(string $offset): int
+    {
+        return (int) substr($offset, 6); // strlen('champ_') = 6
     }
 }

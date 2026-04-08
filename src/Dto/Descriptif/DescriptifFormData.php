@@ -7,8 +7,13 @@ namespace App\Dto\Descriptif;
  *
  * Contient les données de toutes les rubriques d'une capsule,
  * indexées par rubriqueId.
+ *
+ * Implémente ArrayAccess pour permettre à Symfony Forms d'utiliser
+ * la notation bracket dans property_path (ex: '[rubrique_480]').
+ *
+ * @implements \ArrayAccess<string, RubriqueFormData|null>
  */
-class DescriptifFormData
+class DescriptifFormData implements \ArrayAccess
 {
     /**
      * Données des rubriques indexées par rubriqueId.
@@ -53,5 +58,64 @@ class DescriptifFormData
         $this->rubriques[$rubriqueId] = $data;
 
         return $this;
+    }
+
+    // --- ArrayAccess (clés au format "rubrique_{id}") ---
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetExists($offset): bool
+    {
+        if (!is_string($offset)) {
+            return false;
+        }
+
+        return null !== $this->getRubrique($this->parseRubriqueId($offset));
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return RubriqueFormData|null
+     */
+    public function offsetGet($offset)
+    {
+        if (!is_string($offset)) {
+            return null;
+        }
+
+        return $this->getRubrique($this->parseRubriqueId($offset));
+    }
+
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
+    public function offsetSet($offset, $value): void
+    {
+        if (is_string($offset) && $value instanceof RubriqueFormData) {
+            $this->setRubrique($this->parseRubriqueId($offset), $value);
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     */
+    public function offsetUnset($offset): void
+    {
+        if (!is_string($offset)) {
+            return;
+        }
+
+        unset($this->rubriques[$this->parseRubriqueId($offset)]);
+    }
+
+    /**
+     * Extrait l'ID entier depuis une clé de la forme "rubrique_{id}".
+     */
+    private function parseRubriqueId(string $offset): int
+    {
+        return (int) substr($offset, 9); // strlen('rubrique_') = 9
     }
 }
