@@ -9,6 +9,37 @@
     </div>
 </div>
 
+<style>
+    #changelog-toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        min-width: 280px;
+        max-width: 380px;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+        border-radius: 4px;
+    }
+    #changelog-toast .alert {
+        margin: 0;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    #changelog-toast .glyphicon {
+        flex-shrink: 0;
+    }
+</style>
+
+<div id="changelog-toast" role="alert" aria-live="polite">
+    <div class="alert alert-success">
+        <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+        <span>Préférence enregistrée. Vous ne verrez plus ce bandeau pour la version {{ currentVersion }}.</span>
+    </div>
+</div>
+
 <script>
     document.getElementById('changelog-dismiss').addEventListener('click', function () {
         const csrfToken = '{{ csrf_token('changelog_dismiss') }}';
@@ -19,8 +50,16 @@
                 'X-Requested-With': 'XMLHttpRequest',
             },
             body: '_token=' + encodeURIComponent(csrfToken),
-        }).then(function () {
+        }).then(function (response) {
             document.getElementById('changelog-banner').remove();
+
+            if (response.ok) {
+                const toast = document.getElementById('changelog-toast');
+                toast.style.display = 'block';
+                setTimeout(function () {
+                    toast.style.display = 'none';
+                }, 4000);
+            }
         });
     });
 </script>
