@@ -8,7 +8,7 @@
 /* Dans les tableaux, les form-control ne doivent pas forcer width:100%
    (sinon chaque colonne s'étire et la table-responsive ne scrolle plus).
    On laisse l'input prendre sa taille naturelle avec un minimum utilisable. */
-.panel-formulaire-perso .table-responsive .form-control {
+.panel-formulaire-perso :not(textarea).form-control {
     width: auto;
-    max-width: 220px;
+    max-width: 300px;
 }
