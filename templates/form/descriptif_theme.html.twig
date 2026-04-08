@@ -17,6 +17,15 @@
 {% endblock %}
 
 {#
+    ChampCheckboxType : input brut sans le wrapper Bootstrap 3 <div class="checkbox"><label>.
+    Le contexte (tableau ou groupe) fournit toujours un <th> ou un label séparé.
+    Reproduit le comportement de form_div_layout.html.twig (sans label wrapper).
+#}
+{%- block champ_checkbox_widget -%}
+    <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+{%- endblock champ_checkbox_widget -%}
+
+{#
     Ligne de tableau (TableauRowType).
     Rendue comme un <tr> avec une <td> par cellule + colonne de suppression.
     Doit être invoquée depuis un <tbody>.
