@@ -623,6 +623,24 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
+     * Retourne le dossier avec ses contacts triés par nom.
+     */
+    public function findContactsOrderedByNom(int $id): ?Dossier
+    {
+        return $this->createQueryBuilder('d')
+            ->addSelect('c')
+            ->addSelect('f')
+            ->join('d.contacts', 'c')
+            ->leftJoin('c.fonction', 'f')
+            ->where('d.id = :id')
+            ->orderBy('c.nom', 'ASC')
+            ->addOrderBy('c.prenom', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
      * Trouve la dernière visite périodique (nature 21 ou 26) d'un établissement.
      *
      * Utilisée lors de la création d'un nouveau dossier VP pour copier les documents

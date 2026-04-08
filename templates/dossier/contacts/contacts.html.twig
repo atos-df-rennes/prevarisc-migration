@@ -1,0 +1,142 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Contacts{% endblock %}
+
+{% block body %}
+    <h3>Liste des contacts</h3>
+
+    {% if not dossier.verrou %}
+        <div class="btn-group pull-right" role="group">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajout-contact-existant">Ajouter un contact existant</button>
+            <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
+        </div>
+    {% endif %}
+
+    <div class="clearfix mb-4"></div>
+
+    {% if contacts is empty or contacts|length == 0 %}
+        <p>Aucun contact</p>
+    {% else %}
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel-list">
+                    {% for contact in contacts %}
+                        {{ include('contact/_fiche.html.twig', {can_edit: not dossier.verrou, contact: contact}) }}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Modale ajout nouveau contact #}
+    {{ include('contact/_modal_ajout.html.twig') }}
+
+    {# Modale ajout contact existant (spécifique dossier) #}
+    <form class="modal fade contact" id="ajout-contact-existant" tabindex="-1" role="search" aria-labelledby="contactModalDossierLabel" aria-hidden="true" action="{{ path('dossier_contacts_add_existing', {id: dossier.id}) }}" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    <h4 class="modal-title" id="contactModalDossierLabel">Ajouter un contact existant</h4>
+                </div>
+                <div class="modal-body" style="min-height: 100px; overflow-y: visible">
+                    <div class="form-group col-xs-10">
+                        <label for="contact-select">Nom du contact à ajouter</label>
+                        <input type="text" id="contact-select" name="contacts" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <input type="submit" value="Ajouter" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {# Modale suppression contact #}
+    {{ include('contact/_modal_suppression.html.twig') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#ajout-contact-bouton').click(function () {
+                $.ajax({
+                    url: "{{ path('dossier_contacts_add', {id: dossier.id}) }}",
+                    success: function (result) {
+                        $('#ajout-contact .modal-body').html(result)
+                    }
+                })
+            })
+
+            const dossierId = "{{ dossier.id }}"
+            let contactId
+
+            $('.delete-contact-button').on('click', function () {
+                contactId = $(this).attr('data-contact-id')
+
+                $.ajax({
+                    type: "GET",
+                    url: Routing.generate('dossier_contacts_delete', {id: dossierId, contact: contactId}),
+                    success: function(html) {
+                        $('#modal-suppression-contact .modal-content').html(html);
+                        $('#modal-suppression-contact').modal('show');
+                    },
+                    error: function() {
+                        $.toast.error("Erreur lors du chargement du formulaire de suppression.");
+                    }
+                });
+            })
+
+            $('.edit-contact-button').on('click', function () {
+                contactId = $(this).attr('data-contact-id')
+
+                $.ajax({
+                    url: Routing.generate('contact_edit', {id: contactId, elementLie: 'dossier', elementId: dossierId}),
+                    success: function (result) {
+                        $('#ajout-contact #ajout-contact-label').html('Modifier un contact')
+                        $('#ajout-contact .modal-body').html(result)
+                    }
+                })
+            })
+
+            new TomSelect('#contact-select', {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                plugins: ['remove_button'],
+                shouldLoad: function(query) {
+                    return query.length > 2;
+                },
+                load: function(query, callback) {
+                    fetch(Routing.generate('contact_autocomplete', {search: encodeURIComponent(query)}))
+                    .then(response => response.json())
+                    .then(json => {
+                        callback(json.map(contact => {
+                            let nameParts = []
+
+                            if (contact.societe) {
+                                nameParts.push(contact.societe)
+                            }
+                            if (contact.nom) {
+                                nameParts.push(contact.nom)
+                            }
+                            if (contact.prenom) {
+                                nameParts.push(contact.prenom)
+                            }
+
+                            return {
+                                id: contact.id,
+                                name: nameParts.join(" ")
+                            }
+                        }))
+                    }).catch(() => {
+                        callback()
+                    })
+                },
+            })
+        })
+    </script>
+{% endblock %}

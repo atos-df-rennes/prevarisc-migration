@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Commission;
+use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\Groupement;
 use App\Entity\UtilisateurInformations;
@@ -63,6 +64,15 @@ class ContactController extends AbstractController
 
                 $this->denyAccessUnlessGranted('groupement_communes');
                 $redirectRoute = $this->router->generate('admin_groupement', ['id' => $elementId]);
+
+                break;
+            case Contact::DOSSIER:
+                $entity = $entityManager->find(Dossier::class, $elementId);
+                if (null === $entity) {
+                    throw $this->createNotFoundException('Dossier non trouvé.');
+                }
+
+                $redirectRoute = $this->router->generate('dossier_contacts', ['id' => $elementId]);
 
                 break;
             case Contact::COMMISSION:

@@ -115,8 +115,8 @@
 
         {# Ouverture, Fermeture, Mise en demeure, Utilisation exceptionnelle de locaux #}
         {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_CONTACTS') %}
-            <li>
-                <a href="{{ '/dossier/contact/id/' ~ dossier.id }}">
+            <li {% if app.request.get('_route') starts with 'dossier_contacts' %}class="active"{% endif %}>
+                <a href="{{ path('dossier_contacts', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                     Contacts
                 </a>
