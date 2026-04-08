@@ -42,6 +42,12 @@ class TableauRowType extends AbstractType
                 $formOptions['choices'] = $choices;
             }
 
+            // Pour les checkboxes, Bootstrap 3 checkbox_widget affiche le label inline
+            // à côté de l'input. Dans un tableau, le <th> fait office de label.
+            if (TypeChamp::CHECKBOX === $typeId) {
+                $formOptions['label'] = false;
+            }
+
             $builder->add((string) $champId, $formType, $formOptions);
         }
     }
