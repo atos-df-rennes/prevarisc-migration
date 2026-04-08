@@ -27,8 +27,28 @@ $(document).ready(function () {
         $(this).closest('tr').remove();
     });
 
-    /**
-     * Renomme les indices des champs d'une collection après un drag & drop.
+    // Drag & drop pour réordonner les lignes d'un tableau
+    $(document).on('mouseover', 'tbody[data-prototype]', function () {
+        const $tbody = $(this);
+        if ($tbody.data('sortable-init')) {
+            return;
+        }
+        $tbody.data('sortable-init', true);
+        $tbody.sortable({
+            handle: '.tdMove',
+            axis: 'y',
+            helper: function (e, tr) {
+                // Fige les largeurs des cellules pendant le drag
+                tr.children().each(function () {
+                    $(this).css('width', $(this).width());
+                });
+                return tr;
+            },
+            stop: function () {
+                window.reindexTableauRows($tbody);
+            },
+        });
+    });
      * À appeler après chaque déplacement de ligne.
      *
      * Exemple : si une ligne avec index 2 est déplacée en position 0,
