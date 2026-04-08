@@ -27,25 +27,13 @@ $(document).ready(function () {
         $(this).closest('tr').remove();
     });
 
-    // Drag & drop pour réordonner les lignes d'un tableau
-    $(document).on('mouseover', 'tbody[data-prototype]', function () {
-        const $tbody = $(this);
-        if ($tbody.data('sortable-init')) {
-            return;
-        }
-        $tbody.data('sortable-init', true);
-        $tbody.sortable({
+    // Drag & drop pour réordonner les lignes d'un tableau (SortableJS)
+    document.querySelectorAll('tbody[data-prototype]').forEach(function (tbody) {
+        Sortable.create(tbody, {
             handle: '.tdMove',
-            axis: 'y',
-            helper: function (e, tr) {
-                // Fige les largeurs des cellules pendant le drag
-                tr.children().each(function () {
-                    $(this).css('width', $(this).width());
-                });
-                return tr;
-            },
-            stop: function () {
-                window.reindexTableauRows($tbody);
+            animation: 100,
+            onEnd: function () {
+                window.reindexTableauRows($(tbody));
             },
         });
     });
