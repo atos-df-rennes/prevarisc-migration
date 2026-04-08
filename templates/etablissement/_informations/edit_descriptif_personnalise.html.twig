@@ -7,7 +7,9 @@
     <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
 {% endblock %}
 
-{% block title %}{{ parent() }} / Modifier le descriptif{% endblock %}
+{% set nom_capsule = capsule ? capsule.nom : 'Descriptif' %}
+
+{% block title %}{{ parent() }} / Modifier le {{ nom_capsule|lower }}{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}

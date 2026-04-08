@@ -13,10 +13,10 @@
 
 {% block body %}
     <div class="pull-right">
-        <a class="btn btn-default" href="{{ path('etablissement_effectifs_degagements_edit', {id: etablissement.id}) }}">Modifier les dossier</a>
+        <a class="btn btn-default" href="{{ path('etablissement_effectifs_degagements_edit', {id: etablissement.id}) }}">Modifier les {{ nom_capsule|lower }}</a>
     </div>
 
-    <h3>{{ capsule ? capsule.nom : 'Effectifs et Dégagements' }}</h3>
+    <h3>{{ nom_capsule }}</h3>
 
     {% if rubriques is empty %}
         <p class="text-muted">
