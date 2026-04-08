@@ -13,7 +13,7 @@ $(document).ready(function () {
 
     // Ajout d'une ligne via le prototype Symfony CollectionType
     $(document).on('click', '.addRow', function () {
-        const $tbody = $(this).closest('.table-tableau').find('tbody');
+        const $tbody = $(this).closest('.table-wrapper').find('tbody[data-prototype]');
         const prototype = $tbody.data('prototype');
         const index = parseInt($tbody.data('index'), 10) || 0;
 

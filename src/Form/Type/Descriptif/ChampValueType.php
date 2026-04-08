@@ -10,6 +10,8 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -108,6 +110,28 @@ class ChampValueType extends AbstractType
                 }
             }
         );
+    }
+
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+        // Définit le label depuis le nom du champ BDD uniquement quand il n'est pas
+        // explicitement fourni (cas des sous-champs de PARENT non-tableau dans une CollectionType).
+        if (null !== $options['label']) {
+            return;
+        }
+
+        $data = $form->getData();
+        if (!$data instanceof ChampValueData) {
+            return;
+        }
+
+        $champ = $this->champRepository->find($data->getChampId());
+        if (null !== $champ) {
+            /** @var array<string, mixed> $vars */
+            $vars = $view->vars;
+            $vars['label'] = $champ->getNom();
+            $view->vars = $vars;
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

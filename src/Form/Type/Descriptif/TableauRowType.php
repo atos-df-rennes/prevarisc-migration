@@ -29,7 +29,7 @@ class TableauRowType extends AbstractType
 
             $formType = $this->resolveLeafType($typeId);
             $formOptions = [
-                'label' => false,
+                'label' => $childChamp->getNom(),
                 'required' => false,
                 'property_path' => 'cells['.$champId.']',
             ];
