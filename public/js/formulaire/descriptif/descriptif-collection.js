@@ -49,6 +49,9 @@ $(document).ready(function () {
             },
         });
     });
+
+    /**
+     * Renomme les indices des champs d'une collection après un drag & drop.
      * À appeler après chaque déplacement de ligne.
      *
      * Exemple : si une ligne avec index 2 est déplacée en position 0,
