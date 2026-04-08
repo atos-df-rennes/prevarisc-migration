@@ -80,13 +80,13 @@ $capsule->getRubriques();  // Collection<Rubrique>, triées par idx ASC, id ASC
 
 Groupe logique de champs affiché comme un panneau Bootstrap accordéon.
 
-| Propriété | Type | Rôle |
-|---|---|---|
-| `id` | `int` | Clé primaire |
-| `nom` | `string` | Libellé du panneau |
-| `idx` | `int` | Ordre d'affichage |
-| `defaultDisplay` | `?bool` | Visibilité par défaut (si null → `true`) |
-| `ouverte` | `bool` | Non utilisé côté édition |
+| Propriété        | Type     | Rôle                                     |
+|------------------|----------|------------------------------------------|
+| `id`             | `int`    | Clé primaire                             |
+| `nom`            | `string` | Libellé du panneau                       |
+| `idx`            | `int`    | Ordre d'affichage                        |
+| `defaultDisplay` | `?bool`  | Visibilité par défaut (si null → `true`) |
+| `ouverte`        | `bool`   | Ouverture par défaut (si null → `false`) |
 
 ```php
 $rubrique->getRootChamps(); // Collection<Champ> filtrée : parent === null
