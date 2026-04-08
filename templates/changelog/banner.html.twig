@@ -11,10 +11,17 @@
 
 <script>
     document.getElementById('changelog-dismiss').addEventListener('click', function () {
-        fetch('{{ path('changelog_dismiss') }}', { method: 'POST' })
-            .then(function () {
-                document.getElementById('changelog-banner').remove();
-            });
+        const csrfToken = '{{ csrf_token('changelog_dismiss') }}';
+        fetch('{{ path('changelog_dismiss') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: '_token=' + encodeURIComponent(csrfToken),
+        }).then(function () {
+            document.getElementById('changelog-banner').remove();
+        });
     });
 </script>
 {% endif %}

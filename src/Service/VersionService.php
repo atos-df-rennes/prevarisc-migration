@@ -59,6 +59,8 @@ final class VersionService
 
             $block = substr($contents, $start, $end - $start);
             $block = (string) preg_replace('/\s*---\s*$/', '', trim($block));
+            // Supprimer la ligne d'en-tête ## [x.y.z]... pour éviter la duplication dans le rendu
+            $block = (string) preg_replace('/^##[^\n]*\n\n?/', '', $block);
 
             $minorVersion = $this->extractMinorVersion($version);
 
@@ -73,7 +75,9 @@ final class VersionService
             ];
         }
 
-        krsort($sections);
+        uksort($sections, function (string $a, string $b): int {
+            return version_compare($b, $a);
+        });
 
         return $sections;
     }
