@@ -40,10 +40,10 @@
                 <div class="panel-heading" role="tab">
                     <h4 class="panel-title">
                         <a role="button"
-                           class="panel-title__link"
+                           class="panel-title__link{% if not rubriqueForm.vars.attr['data-ouverte'] %} collapsed{% endif %}"
                            data-toggle="collapse"
                            data-target="#rubrique-edit-body-{{ rubriqueId }}"
-                           aria-expanded="true"
+                           aria-expanded="{{ rubriqueForm.vars.attr['data-ouverte'] ? 'true' : 'false' }}"
                            aria-controls="rubrique-edit-body-{{ rubriqueId }}">
                             {{ rubriqueForm.vars.label }}
                             <span class="pull-right caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
@@ -51,7 +51,7 @@
                     </h4>
                 </div>
 
-                <div id="rubrique-edit-body-{{ rubriqueId }}" class="panel-collapse collapse in">
+                <div id="rubrique-edit-body-{{ rubriqueId }}" class="panel-collapse collapse{% if rubriqueForm.vars.attr['data-ouverte'] %} in{% endif %}">
                     <div class="panel-body">
                         {# Rendu caché — valeur soumise avec le formulaire ; le TOC modal (mirror checkbox) le synchronise via JS #}
                         {{ form_row(rubriqueForm.display, {'row_attr': {'style': 'display:none'}, 'attr': {'data-display-checkbox': rubriqueId}}) }}
