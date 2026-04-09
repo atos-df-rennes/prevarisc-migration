@@ -1,0 +1,31 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}
+    {{ parent() }} / {% if documentConsulte.id is not null %}Modification du document{% else %}Ajout d'un document consulté{% endif %}
+{% endblock %}
+
+{% block body %}
+    {% if documentConsulte.id is not null %}
+        <h4 class="h4_subtitle">Modification du document "{{ libelle }}"</h4>
+    {% else %}
+        <h4 class="h4_subtitle">Ajout d'un document consulté "{{ libelle }}"</h4>
+    {% endif %}
+
+    {{ form_start(form) }}
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.reference) }}
+                {{ form_row(form.date) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <button type="submit" class="btn btn-success">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Sauvegarder
+                </button>
+                <a href="{{ path('dossier_documents_consultes', {id: dossier.id}) }}" class="btn btn-default">Annuler</a>
+            </div>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

@@ -5,3 +5,22 @@
 .glyphicon-move {
     margin: auto;
 }
+/* Dans les tableaux, les form-control ne doivent pas forcer width:100%
+   (sinon chaque colonne s'étire et la table-responsive ne scrolle plus).
+   On laisse l'input prendre sa taille naturelle avec un minimum utilisable.
+   Exception : textarea (largeur libre) et .input-group (Bootstrap gère la largeur). */
+.panel-formulaire-perso .form-control:not(textarea) {
+    width: auto;
+    max-width: 300px;
+}
+
+/* Réinitialise pour les .form-control dans un .input-group.
+   Ce sélecteur est plus spécifique (3 classes vs 2 classes + 1 élément) et l'emporte. */
+.panel-formulaire-perso .input-group .form-control {
+    width: auto;
+    max-width: none;
+}
+
+.panel-formulaire-perso .input-group .input-group-btn {
+    width: auto;
+}

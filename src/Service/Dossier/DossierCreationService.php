@@ -99,7 +99,7 @@ class DossierCreationService
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature || !in_array($nature->getId(), DossierNature::LEVEE, true)) {
+        if (null === $nature || !in_array($nature->getId(), DossierNature::LEVEES, true)) {
             return;
         }
 
