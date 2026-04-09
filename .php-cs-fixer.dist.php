@@ -18,6 +18,9 @@ $config->registerCustomFixers([
     ])
     ->setRules([
         '@Symfony' => true,
+        // PHP 7.1 : `mixed` n'est pas un type natif, le docblock @param/@return mixed
+        // est nécessaire pour PHPStan niveau 10 et ne doit pas être supprimé.
+        'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, 'allow_hidden_params' => true, 'remove_inheritdoc' => true],
         'trailing_comma_in_multiline' => ['elements' => []],
         'Tombenevides/dump_removal' => true,
     ])
