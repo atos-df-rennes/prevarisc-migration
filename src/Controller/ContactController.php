@@ -9,6 +9,7 @@ use App\Entity\Groupement;
 use App\Entity\UtilisateurInformations;
 use App\Form\ContactType;
 use App\Repository\UtilisateurInformationsRepository;
+use App\Security\Voter\DossierVoter;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,6 +73,7 @@ class ContactController extends AbstractController
                     throw $this->createNotFoundException('Dossier non trouvé.');
                 }
 
+                $this->denyAccessUnlessGranted(DossierVoter::MODIFICATION, $entity);
                 $redirectRoute = $this->router->generate('dossier_contacts', ['id' => $elementId]);
 
                 break;

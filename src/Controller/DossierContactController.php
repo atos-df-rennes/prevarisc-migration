@@ -58,12 +58,7 @@ class DossierContactController extends AbstractController implements DossierLate
     public function contacts(Dossier $dossier): Response
     {
         $idDossier = $dossier->getId();
-        if (null != $idDossier) {
-            $dossierWithContacts = $this->dossierRepository->findContactsOrderedByNom($idDossier);
-        }
-        else {
-            $dossierWithContacts = null;
-        }
+        $dossierWithContacts = null != $idDossier ? $this->dossierRepository->findContactsOrderedByNom($idDossier) : null;
 
         $contacts = null !== $dossierWithContacts
             ? $dossierWithContacts->getContacts()
@@ -82,6 +77,12 @@ class DossierContactController extends AbstractController implements DossierLate
      */
     public function addContact(Request $request, Dossier $dossier): Response
     {
+        if ($dossier->hasVerrou()) {
+            $this->addFlash('warning', 'Le dossier est verrouillé.');
+
+            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
+        }
+
         $contact = new UtilisateurInformations();
 
         $form = $this->createForm(ContactType::class, $contact, [
@@ -105,20 +106,33 @@ class DossierContactController extends AbstractController implements DossierLate
     }
 
     /**
-     * @Route("/dossier/{id}/contacts/ajouter/existant", name="dossier_contacts_add_existing", defaults={"_dossier_lateral_nav": false})
+     * @Route("/dossier/{id}/contacts/ajouter/existant",
+     *     name="dossier_contacts_add_existing",
+     *     methods={"POST"},
+     *     defaults={"_dossier_lateral_nav": false})
      *
      * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
      */
     public function addExistingContact(Request $request, Dossier $dossier): Response
     {
-        $contactIdsString = $request->request->get('contacts');
+        if ($dossier->hasVerrou()) {
+            $this->addFlash('warning', 'Le dossier est verrouillé.');
 
-        if (!\is_string($contactIdsString) || !preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
-            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
+            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
         }
 
-        if ('' === $contactIdsString) {
+        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
+            throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");
+        }
+
+        $contactIdsString = $request->request->get('contacts');
+
+        if (!is_string($contactIdsString) || '' === $contactIdsString) {
             return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
+        }
+
+        if (!preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
+            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
         }
 
         $contactIds = explode(',', $contactIdsString);
@@ -153,6 +167,18 @@ class DossierContactController extends AbstractController implements DossierLate
         Dossier $dossier,
         UtilisateurInformations $contact
     ): Response {
+        if ($dossier->hasVerrou()) {
+            $this->addFlash('warning', 'Le dossier est verrouillé.');
+
+            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
+        }
+
+        if (!$dossier->getContacts()->contains($contact)) {
+            $this->addFlash('warning', "Le contact n'appartient pas à ce dossier.");
+
+            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
+        }
+
         $form = $this->createFormBuilder()
             ->setMethod(Request::METHOD_DELETE)
             ->setAction($this->generateUrl('dossier_contacts_delete', [
@@ -164,12 +190,6 @@ class DossierContactController extends AbstractController implements DossierLate
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$dossier->getContacts()->contains($contact)) {
-                $this->addFlash('warning', "Le contact n'appartient pas à ce dossier.");
-
-                return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
-            }
-
             $dossier->removeContact($contact);
 
             if (!$this->contactService->isUsed($contact, Contact::DOSSIER)) {
