@@ -128,7 +128,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
 
-        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
+        $token = $request->request->get('token');
+        if (!is_string($token) || !$this->isCsrfTokenValid('delete_document', $token)) {
             throw $this->createAccessDeniedException('Token CSRF non valide.');
         }
 
@@ -196,7 +197,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
 
-        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
+        $token = $request->request->get('token');
+        if (!is_string($token) || !$this->isCsrfTokenValid('delete_document', $token)) {
             throw $this->createAccessDeniedException('Token CSRF non valide.');
         }
 
