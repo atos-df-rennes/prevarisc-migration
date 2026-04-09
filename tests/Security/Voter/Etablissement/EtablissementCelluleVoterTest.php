@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementInformations;
@@ -36,7 +37,7 @@ class EtablissementCelluleVoterTest extends TestCase
 
     private function createEtablissementMock(?EtablissementActivite $typeActivite = null): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementCelluleVoter::ID_CELLULE]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::CELLULE]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
         $latestInformations->method('getTypeActivite')->willReturn($typeActivite);
 
@@ -163,7 +164,7 @@ class EtablissementCelluleVoterTest extends TestCase
         // On simule le type d'activité de la cellule à 1
         $this->privilegesRepository
             ->method('findOneBy')
-            ->willReturnCallback(function ($criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
+            ->willReturnCallback(function (array $criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
                 // On accorde le privilège si la ressource est l'une des deux
                 if ($criteria['resource'] === $resourceSingle || $criteria['resource'] === $resourceMulti) {
                     return $privilege;

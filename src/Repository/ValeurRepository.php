@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\Entity\Dossier;
+use App\Entity\Etablissement;
 use App\Entity\Valeur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -45,5 +47,68 @@ class ValeurRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Retourne toutes les Valeur liées à un Dossier, indexées par ID de Champ.
+     * Pour les champs tableau, plusieurs valeurs par champ sont possibles (groupées par idx).
+     *
+     * @return array<int, Valeur[]>
+     */
+    public function findByDossier(Dossier $dossier): array
+    {
+        $valeurs = $this->getEntityManager()->createQuery(
+            'SELECT v, c FROM App\Entity\Valeur v
+             JOIN v.champ c
+             JOIN App\Entity\Dossier d
+             JOIN d.valeurs dv
+             WHERE d = :dossier AND dv = v
+             ORDER BY v.idx ASC'
+        )
+            ->setParameter('dossier', $dossier)
+            ->getResult()
+        ;
+
+        return $this->indexByChamp($valeurs);
+    }
+
+    /**
+     * Retourne toutes les Valeur liées à un Etablissement, indexées par ID de Champ.
+     *
+     * @return array<int, Valeur[]>
+     */
+    public function findByEtablissement(Etablissement $etablissement): array
+    {
+        $valeurs = $this->getEntityManager()->createQuery(
+            'SELECT v, c FROM App\Entity\Valeur v
+             JOIN v.champ c
+             JOIN App\Entity\Etablissement e
+             JOIN e.valeurs ev
+             WHERE e = :etablissement AND ev = v
+             ORDER BY v.idx ASC'
+        )
+            ->setParameter('etablissement', $etablissement)
+            ->getResult()
+        ;
+
+        return $this->indexByChamp($valeurs);
+    }
+
+    /**
+     * Groupe les valeurs par ID de Champ.
+     *
+     * @param Valeur[] $valeurs
+     *
+     * @return array<int, Valeur[]>
+     */
+    private function indexByChamp(array $valeurs): array
+    {
+        $indexed = [];
+        foreach ($valeurs as $valeur) {
+            $champId = $valeur->getChamp()->getId();
+            $indexed[$champId][] = $valeur;
+        }
+
+        return $indexed;
     }
 }

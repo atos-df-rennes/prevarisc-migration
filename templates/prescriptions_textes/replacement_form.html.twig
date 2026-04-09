@@ -9,6 +9,7 @@
 
     <div class="row">
         <div class="col-md-12">
+            {# @todo: utiliser le breadcrumb Bootstrap #}
             <a href="{{ path('admin_prescriptions') }}">Gestion des prescriptions types</a> <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes') }}">Gestion des textes</a>
             <i class="glyphicon glyphicon-chevron-right"></i> <a href="{{ path('admin_prescriptions_textes_edit', {texteListe: texte_liste.id}) }}">Modification d'un texte existant</a><i class="glyphicon glyphicon-chevron-right"></i> Remplacer et supprimer un texte existant
         </div>

@@ -89,6 +89,7 @@ function addWmsLayer(viewer, wmsLayer) {
     .attr('title', nom)
 }
 
+// @fixme: on a autant d'appels au getCapabilities que de couches => Il faut faire 1 appel / format
 function addWmtsLayer(viewer, wmtsLayer) {
     const format = 'wmts'
     const baseFormat = 'wmts'

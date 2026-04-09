@@ -7,6 +7,7 @@ use App\Form\PrescriptionTexteListeType;
 use App\Form\ReplacePrescriptionTexteListeType;
 use App\Repository\PrescriptionTexteListeRepository;
 use App\Service\Prescriptions;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,12 +19,28 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsTextesController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var Prescriptions */
+    private $servicePrescTextes;
+
+    /** @var PrescriptionTexteListeRepository */
+    private $prescriptionTexteListeRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    {
+        $this->entityManager = $entityManager;
+        $this->servicePrescTextes = $servicePrescTextes;
+        $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
+    }
+
     /**
      * @Route("/admin/prescriptions/textes/", name="admin_prescriptions_textes")
      */
-    public function gestionTextes(Prescriptions $servicePrescTextes): Response
+    public function gestionTextes(): Response
     {
-        $listeTextes = $servicePrescTextes->getTextesListe();
+        $listeTextes = $this->servicePrescTextes->getTextesListe();
 
         return $this->render('prescriptions_textes/textes.html.twig', [
             'liste_textes' => $listeTextes,
@@ -44,11 +61,9 @@ class PrescriptionsTextesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
             try {
-                $em->persist($texteListe);
-                $em->flush();
+                $this->entityManager->persist($texteListe);
+                $this->entityManager->flush();
 
                 $this->addFlash('success', 'Le texte a bien été enregistré');
             } catch (\Exception $e) {
@@ -68,8 +83,7 @@ class PrescriptionsTextesController extends AbstractController
      */
     public function suppressionTexte(
         Request $request,
-        PrescriptionTexteListe $texteListe,
-        PrescriptionTexteListeRepository $prescriptionTexteListeRepository
+        PrescriptionTexteListe $texteListe
     ): Response {
         $form = $this->createForm(ReplacePrescriptionTexteListeType::class);
         $form->handleRequest($request);
@@ -82,7 +96,7 @@ class PrescriptionsTextesController extends AbstractController
             }
 
             try {
-                $prescriptionTexteListeRepository->replaceAndRemove($texteListe, $newTexte);
+                $this->prescriptionTexteListeRepository->replaceAndRemove($texteListe, $newTexte);
                 $this->addFlash('success', 'Le texte a bien été supprimé');
             } catch (\Exception $e) {
                 $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du texte (".$e->getMessage().')');

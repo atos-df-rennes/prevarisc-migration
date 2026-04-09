@@ -2,10 +2,13 @@
 
 namespace App\Entity;
 
+use App\Doctrine\ContactCriteria;
 use App\Repository\CommissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CommissionRepository::class)
@@ -25,6 +28,10 @@ class Commission
 
     /**
      * @var string
+     *
+     * @Assert\NotBlank(message="Le libellé est obligatoire.")
+     *
+     * @Assert\Length(max=80, maxMessage="Le libellé de la commission ne peut pas dépasser {{ limit }} caractères.")
      *
      * @ORM\Column(name="LIBELLE_COMMISSION", type="string", length=80, nullable=false)
      */
@@ -46,6 +53,7 @@ class Commission
      */
     private $type;
 
+    // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, Utilisateur>
      *
@@ -56,7 +64,7 @@ class Commission
     /**
      * @var Collection<int, CommissionRegle>
      *
-     * @ORM\OneToMany(targetEntity=CommissionRegle::class, mappedBy="commission", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionRegle::class, mappedBy="commission", cascade={"persist"}, orphanRemoval=true)
      */
     private $regles;
 
@@ -76,10 +84,11 @@ class Commission
     /**
      * @var Collection<int, CommissionMembre>
      *
-     * @ORM\OneToMany(targetEntity=CommissionMembre::class, mappedBy="commission", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=CommissionMembre::class, mappedBy="commission", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $membres;
 
+    // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, DateCommission>
      *
@@ -198,6 +207,17 @@ class Commission
     public function getContacts(): Collection
     {
         return $this->contacts;
+    }
+
+    /**
+     * @return Collection<int, UtilisateurInformations>
+     */
+    public function getSortedContacts(): Collection
+    {
+        assert($this->contacts instanceof Selectable);
+
+        /* @phpstan-ignore-next-line */
+        return $this->contacts->matching(ContactCriteria::sortedByName());
     }
 
     public function addContact(UtilisateurInformations $contact): self

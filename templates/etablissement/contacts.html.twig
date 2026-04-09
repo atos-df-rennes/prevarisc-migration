@@ -10,7 +10,7 @@
         <button type="button" class="btn btn-default" id="ajout-contact-bouton" data-toggle="modal" data-target="#ajout-contact">Ajouter un nouveau contact</button>
     </div>
 
-    <div class="clearfix"></div>
+    <div class="clearfix mb-4"></div>
 
     {% if contacts_parents|length == 0 and contacts|length == 0 %}
         <p>Aucun contact</p>
@@ -20,9 +20,11 @@
                 <div class="col-xs-12">
                     <h4>Contacts des établissements parents</h4>
 
-                    {% for contact_parent in contacts_parents %}
-                        {{ include('contact/_fiche.html.twig', {can_edit: false, contact: contact_parent}) }}
-                    {% endfor %}
+                    <div class="panel-list">
+                        {% for contact_parent in contacts_parents %}
+                            {{ include('contact/_fiche.html.twig', {can_edit: false, contact: contact_parent}) }}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         {% endif %}
@@ -36,16 +38,21 @@
                         <h4>Contacts de l'établissement</h4>
                     {% endif %}
 
-                    {% for contact in contacts %}
-                        {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
-                    {% endfor %}
+                    <div class="panel-list">
+                        {% for contact in contacts %}
+                            {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         {% endif %}
     {% endif %}
 
     {{ include('contact/_modal_ajout.html.twig') }}
-    {{ include('contact/_modal_existant.html.twig') }}
+    {{ include('contact/_modal_existant.html.twig', {
+        action_url: path('etablissement_contacts_add_existing', {id: etablissement.id}),
+        csrf_token_id: 'etablissement_contacts_add_existing_' ~ etablissement.id,
+    }) }}
     {{ include('contact/_modal_suppression.html.twig') }}
 {% endblock %}
 
@@ -63,37 +70,34 @@
                 })
             })
 
-            let etablissementId
+            const etablissementId = "{{ etablissement.id }}"
             let contactId
 
             $('.delete-contact-button').on('click', function () {
-                etablissementId = $(this).attr('data-id')
                 contactId = $(this).attr('data-contact-id')
-            })
 
-            $('#delete-contact').on('click', function () {
+                // Charger le formulaire de suppression dans la modal
                 $.ajax({
-                    type: 'DELETE',
-                    url: '/etablissement/' + etablissementId + '/contacts/' + contactId + '/supprimer',
-                    success: function () {
-                        window.location.reload();
+                    type: "GET",
+                    url: Routing.generate('etablissement_contacts_delete', {id: etablissementId, contact: contactId}),
+                    success: function(html) {
+                        $('#modal-suppression-contact .modal-content').html(html);
+                        $('#modal-suppression-contact').modal('show');
                     },
-                    error: function () {
-                        window.location.reload();
-                    },
-                })
+                    error: function() {
+                        $.toast.error("Erreur lors du chargement du formulaire de suppression.");
+                    }
+                });
             })
 
             $('.edit-contact-button').on('click', function () {
-                etablissementId = $(this).attr('data-id')
                 contactId = $(this).attr('data-contact-id')
 
                 $.ajax({
-                    url: '/contact/' + contactId + '/modifier?elementLie=etablissement&elementId=' + etablissementId,
+                    url: Routing.generate('contact_edit', {id: contactId, elementLie: 'etablissement', elementId: etablissementId}),
                     success: function (result) {
                         $('#ajout-contact #ajout-contact-label').html('Modifier un contact')
                         $('#ajout-contact .modal-body').html(result)
-                        $('#ajout-contact button[type="submit"]').html('Modifier')
                     }
                 })
             })
@@ -107,7 +111,7 @@
                     return query.length > 2;
                 },
                 load: function(query, callback) {
-                    fetch('/contacts/' + encodeURIComponent(query))
+                    fetch(Routing.generate('contact_autocomplete', {search: encodeURIComponent(query)}))
                     .then(response => response.json())
                     .then(json => {
                         callback(json.map(contact => {

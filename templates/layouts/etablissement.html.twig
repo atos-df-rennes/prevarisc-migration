@@ -18,22 +18,22 @@
 
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
-        <li>
-            <a href="{{ '/etablissement/index/id/' ~ etablissement.id }}">
+        <li {% if app.request.get('_route') is same as('etablissement_informations') %}class="active"{% endif %}>
+            <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 Général
             </a>
         </li>
 
         {% if etablissement.informations|last.genre.libelle != 'Site' %}
-            <li {% if app.request.get('_route') is same as('etablissement_textes_applicables') %}class="active"{% endif %}>
+            <li {% if app.request.get('_route') starts with 'etablissement_textes_applicables' %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_textes_applicables', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables
                 </a>
             </li>
-            <li>
-                <a href="{{ '/etablissement/descriptif/id/' ~ etablissement.id }}">
+            <li {% if app.request.get('_route') starts with 'etablissement_descriptif' %}class="active"{% endif %}>
+                <a href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     {{ libelle_descriptif }}
                 </a>
@@ -41,8 +41,8 @@
         {% endif %}
 
         {% if is_granted('effectifs_degagements_ets') %}
-            <li>
-                <a class='sep' href="{{ '/etablissement/effectifs-degagements-etablissement/id/' ~ etablissement.id }}">
+            <li {% if app.request.get('_route') starts with 'etablissement_effectifs_degagements' %}class="active"{% endif %}>
+                <a class='sep' href="{{ path('etablissement_effectifs_degagements', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                     {{ libelle_effectifs_degagements }}
                 </a>
@@ -55,7 +55,7 @@
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                     Avis et dérogations
 
-                    {% if has_avis_derogations %}
+                    {% if etablissement.hasAvisDerogations %}
                          <div class="greenCircle pull-right"></div>
                     {% endif %}
                 </a>
@@ -74,8 +74,8 @@
                 Contacts
             </a>
         </li>
-        <li>
-            <a href="{{ '/etablissement/dossiers/id/' ~ etablissement.id }}">
+        <li {% if app.request.get('_route') is same as('etablissement_dossiers') %}class="active"{% endif %}>
+            <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                 Dossiers
             </a>
@@ -88,11 +88,20 @@
         </li>
         <li class="nav-header">Actions</li>
         <li>
-            <a href="{{ '/dossier/add/id_etablissement/' ~ etablissement.id }}">
+            <a href="{{ path('dossier_new', {etablissement: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 Ajouter un dossier
             </a>
         </li>
+
+        {% if is_granted('delete_etablissement') and app.request.get('_route') is same as('etablissement_informations') %}
+            <li>
+                <a id="suppressionEtablissement" href="#">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    Supprimer l'établissement
+                </a>
+            </li>
+        {% endif %}
     </ul>
 {% endblock %}
 
@@ -101,8 +110,7 @@
         <h2 class='page-header'>
             {% if parents_etablissement is not empty %}
                 {% for parent in parents_etablissement %}
-                    {# @todo: Faire la popup au survol du lien #}
-                    <a href="{{ '/etablissement/index/id/' ~ parent.id }}">
+                    <a href="{{ path('etablissement_informations', {id: parent.id}) }}">
                         {{ parent.informations.last.libelle }}
                     </a> -
                 {% endfor %}
@@ -134,24 +142,30 @@
                 Présence d'un dossier avec avis differé
             </p>
         {% else %}
-            {# @todo: Ce bloc ne devrait pas apparaître si on est pas sur un établissement #}
-            {% if etablissement.dossierDonnantAvis is not null and etablissement.dossierDonnantAvis.avisCommission %}
-                {% set label_color = 'default' %}
-                {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
-                    {% set label_color = 'success' %}
-                {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
-                    {% set label_color = 'danger' %}
-                {% endif %}
-
-                <span class="{{ 'label label-' ~ label_color }}">
-                    {{ etablissement.dossierDonnantAvis.avisCommission.libelle }}
-
-                    {% if etablissement.informations|last.genre.id is not same as(3) %}
-                        à l'exploitation
+            {% if etablissement.dossierDonnantAvis is not null %}
+                {% if etablissement.dossierDonnantAvis.avisCommission %}
+                    {% set label_color = 'default' %}
+                    {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(1) %}
+                        {% set label_color = 'success' %}
+                    {% elseif etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                        {% set label_color = 'danger' %}
                     {% endif %}
-                </span>
-            {% else %}
-                <span class="label label-default">Avis d'exploitation indisponible</span>
+
+                    <span class="{{ 'label label-' ~ label_color }}">
+                        {{ etablissement.dossierDonnantAvis.avisCommission.libelle }}
+
+                        {% if etablissement.informations|last.genre.id is not same as(3) %}
+                            à l'exploitation
+                        {% endif %}
+
+                        {# @todo: Il manque le plugin signalement au lieu de criticité #}
+                        {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(2) and etablissement.dossierDonnantAvis.facteurDangerosite > 0 %}
+                            - Facteur de criticité : {{ etablissement.dossierDonnantAvis.facteurDangerosite }}
+                        {% endif %}
+                    </span>
+                {% else %}
+                    <span class="label label-default">Avis d'exploitation indisponible</span>
+                {% endif %}
             {% endif %}
         {% endif %}
 

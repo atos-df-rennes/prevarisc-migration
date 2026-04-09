@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\EtablissementInformationsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -38,6 +39,97 @@ class EtablissementInformations
      * @ORM\Column(name="DATE_ETABLISSEMENTINFORMATIONS", type="date", nullable=false)
      */
     private $date;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
+     */
+    private $localSommeil;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="PERIODICITE_ETABLISSEMENTINFORMATIONS", type="smallint", nullable=true)
+     */
+    private $periodicite;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="ICPE_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
+     */
+    private $icpe;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="R14320_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
+     */
+    private $r14320;
+
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
+     */
+    private $droitPublic;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifHabitation;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifCaravane;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifEmplacementNu;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifDivers;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifPublic;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifPersonnel;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifHeberge;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS", type="integer")
+     */
+    private $effectifJustifiantClassement;
 
     /**
      * @var ?Etablissement
@@ -139,6 +231,13 @@ class EtablissementInformations
     private $typesActivitesSecondaires;
 
     /**
+     * @var Collection<int, EtablissementInformationsRubriques>
+     *
+     * @ORM\OneToMany(targetEntity=EtablissementInformationsRubriques::class, mappedBy="etablissementInformations", orphanRemoval=true)
+     */
+    private $rubriquesIcpe;
+
+    /**
      * @var ?EtablissementActivite
      *
      * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
@@ -170,6 +269,7 @@ class EtablissementInformations
         $this->preventionnistes = new ArrayCollection();
         $this->plans = new ArrayCollection();
         $this->typesActivitesSecondaires = new ArrayCollection();
+        $this->rubriquesIcpe = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -197,6 +297,162 @@ class EtablissementInformations
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getLocalSommeil(): bool
+    {
+        return $this->localSommeil ?? false;
+    }
+
+    public function setLocalSommeil(?bool $localSommeil): self
+    {
+        $this->localSommeil = $localSommeil;
+
+        return $this;
+    }
+
+    public function getPeriodicite(): ?int
+    {
+        return $this->periodicite;
+    }
+
+    public function setPeriodicite(int $periodicite): self
+    {
+        $this->periodicite = $periodicite;
+
+        return $this;
+    }
+
+    public function getIcpe(): bool
+    {
+        return $this->icpe ?? false;
+    }
+
+    public function setIcpe(bool $icpe): self
+    {
+        $this->icpe = $icpe;
+
+        return $this;
+    }
+
+    public function getR14320(): bool
+    {
+        return $this->r14320 ?? false;
+    }
+
+    public function setR14320(bool $r14320): self
+    {
+        $this->r14320 = $r14320;
+
+        return $this;
+    }
+
+    public function getDroitPublic(): bool
+    {
+        return $this->droitPublic ?? false;
+    }
+
+    public function setDroitPublic(bool $droitPublic): self
+    {
+        $this->droitPublic = $droitPublic;
+
+        return $this;
+    }
+
+    public function getEffectifHabitation(): ?int
+    {
+        return $this->effectifHabitation;
+    }
+
+    public function setEffectifHabitation(int $effectifHabitation): self
+    {
+        $this->effectifHabitation = $effectifHabitation;
+
+        return $this;
+    }
+
+    public function getEffectifCaravane(): ?int
+    {
+        return $this->effectifCaravane;
+    }
+
+    public function setEffectifCaravane(int $effectifCaravane): self
+    {
+        $this->effectifCaravane = $effectifCaravane;
+
+        return $this;
+    }
+
+    public function getEffectifEmplacementNu(): ?int
+    {
+        return $this->effectifEmplacementNu;
+    }
+
+    public function setEffectifEmplacementNu(int $effectifEmplacementNu): self
+    {
+        $this->effectifEmplacementNu = $effectifEmplacementNu;
+
+        return $this;
+    }
+
+    public function getEffectifDivers(): ?int
+    {
+        return $this->effectifDivers;
+    }
+
+    public function setEffectifDivers(int $effectifDivers): self
+    {
+        $this->effectifDivers = $effectifDivers;
+
+        return $this;
+    }
+
+    public function getEffectifPublic(): ?int
+    {
+        return $this->effectifPublic;
+    }
+
+    public function setEffectifPublic(int $effectifPublic): self
+    {
+        $this->effectifPublic = $effectifPublic;
+
+        return $this;
+    }
+
+    public function getEffectifPersonnel(): ?int
+    {
+        return $this->effectifPersonnel;
+    }
+
+    public function setEffectifPersonnel(int $effectifPersonnel): self
+    {
+        $this->effectifPersonnel = $effectifPersonnel;
+
+        return $this;
+    }
+
+    public function getEffectifHeberge(): ?int
+    {
+        return $this->effectifHeberge;
+    }
+
+    public function setEffectifHeberge(int $effectifHeberge): self
+    {
+        $this->effectifHeberge = $effectifHeberge;
+
+        return $this;
+    }
+
+    public function getEffectifJustifiantClassement(): ?int
+    {
+        return $this->effectifJustifiantClassement;
+    }
+
+    public function setEffectifJustifiantClassement(int $effectifJustifiantClassement): self
+    {
+        $this->effectifJustifiantClassement = $effectifJustifiantClassement;
 
         return $this;
     }
@@ -302,7 +558,11 @@ class EtablissementInformations
      */
     public function getPreventionnistes(): Collection
     {
-        return $this->preventionnistes;
+        $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('actif', true));
+
+        // PHPStan n'a pas l'extension Doctrine et n'est donc pas au courant que ça fonctionne bien.
+        /* @phpstan-ignore-next-line */
+        return $this->preventionnistes->matching($criteria);
     }
 
     public function addPreventionniste(Utilisateur $preventionniste): self
@@ -372,6 +632,33 @@ class EtablissementInformations
         // set the owning side to null (unless already changed)
         if ($this->typesActivitesSecondaires->removeElement($typesActivitesSecondaire) && $typesActivitesSecondaire->getEtablissementInformations() === $this) {
             $typesActivitesSecondaire->setEtablissementInformations(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EtablissementInformationsRubriques>
+     */
+    public function getRubriquesIcpe(): Collection
+    {
+        return $this->rubriquesIcpe;
+    }
+
+    public function addRubriqueIcpe(EtablissementInformationsRubriques $rubriqueIcpe): self
+    {
+        if (!$this->rubriquesIcpe->contains($rubriqueIcpe)) {
+            $this->rubriquesIcpe[] = $rubriqueIcpe;
+            $rubriqueIcpe->setEtablissementInformations($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRubriqueIcpe(EtablissementInformationsRubriques $rubriqueIcpe): self
+    {
+        if ($this->rubriquesIcpe->removeElement($rubriqueIcpe) && $rubriqueIcpe->getEtablissementInformations() === $this) {
+            $rubriqueIcpe->setEtablissementInformations(null);
         }
 
         return $this;

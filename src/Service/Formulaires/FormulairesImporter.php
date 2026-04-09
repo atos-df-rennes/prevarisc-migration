@@ -148,7 +148,7 @@ final class FormulairesImporter
         $rubrique = new Rubrique();
         $rubrique->setNom($exportedRubrique->getNom());
         $rubrique->setDefaultDisplay($exportedRubrique->getDefaultDisplay());
-        $rubrique->setIdx($exportedRubrique->getIdx());
+        $rubrique->setIdx((int) $exportedRubrique->getIdx());
         $rubrique->setCapsuleRubrique($capsuleRubrique);
 
         $entityManager->persist($rubrique);
@@ -192,7 +192,7 @@ final class FormulairesImporter
         $champ->setNom($exportedChamp->getNom());
         $champ->setType($managedType);
         $champ->setTableau($exportedChamp->getTableau());
-        $champ->setIdx($exportedChamp->getIdx());
+        $champ->setIdx((int) $exportedChamp->getIdx());
         $champ->setRubrique($rubrique);
 
         if ($parent instanceof Champ) {

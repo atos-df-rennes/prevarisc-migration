@@ -2,8 +2,8 @@
 
 {% block content %}
     <div class='container-fluid'>
-        <div class='row'>
-            <div class='col-xs-2 sidebar mainsidebar' style="padding-top: 70px;">
+        <div class='row container-fluid--content-wraper'>
+            <div class='col-xs-2 sidebar'>
                 {{ avatar(app.user.id, constant('App\\Service\\Avatar::MEDIUM_DIRECTORY'), 'float: left; width: 50px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px;') }}
 
                 <p style="line-height:15px">
@@ -26,28 +26,26 @@
                     </ul>
                 </noscript>
 
-                <ul class="list-unstyled">
-                    {% for label, messages in app.flashes %}
-                        {% for message in messages %}
-                            <li class="alert alert-{{ label }}">
-                                <button data-dismiss="alert" class="close">&times;</button>
-                                {{ message }}
-                            </li>
+                {% set flashes = app.flashes %}
+                {% if flashes is not empty %}
+                    <ul class="list-unstyled">
+                        {% for label, messages in flashes %}
+                            {% for message in messages %}
+                                <li class="alert alert-{{ label }}">
+                                    <button data-dismiss="alert" class="close">&times;</button>
+                                    {{ message|raw }}
+                                </li>
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
-                </ul>
+                    </ul>
+                {% endif %}
 
                 {% block body_structure %}{% endblock %}
             </div>
         </div>
-        <button id="go-top" type="button" class="btn btn-default" style="display: none;" onclick="scrollToTop()">
-            <i class="glyphicon glyphicon-arrow-up"></i>
+
+        <button id="go-top" type="button" class="btn btn-default" style="display: none;" onclick="scrollToTop()" aria-label="Retour en haut de page">
+            <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
         </button>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            $(".sidebar").css('height', $(document).height() + 'px');
-        });
-    </script>
 {% endblock %}

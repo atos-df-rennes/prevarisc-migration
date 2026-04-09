@@ -13,7 +13,6 @@ use Doctrine\Persistence\ManagerRegistry;
  *
  * @method Groupement|null find($id, $lockMode = null, $lockVersion = null)
  * @method Groupement|null findOneBy(array $criteria, array $orderBy = null)
- * @method Groupement[]    findAll()
  * @method Groupement[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class GroupementRepository extends ServiceEntityRepository implements HasContacts
@@ -21,6 +20,23 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Groupement::class);
+    }
+
+    /**
+     * Récupère tous les groupements, avec la possibilité de filtrer par numéro INSEE de la ville.
+     * Remplace la méthode findAll($num_insee) du legacy (@see ).
+     *
+     * @param string|null $num_insee numéro INSEE pour filtrer les groupements par ville
+     *
+     * @return Groupement[] liste des groupements triés par libellé en ordre croissant, ou filtrés par ville si le numéro INSEE est fourni
+     */
+    public function findByNumInsee(?string $num_insee = null): array
+    {
+        if (null !== $num_insee) {
+            return $this->getGroupementParVille($num_insee);
+        }
+
+        return $this->findBy([], ['libelle' => 'ASC']);
     }
 
     /**
@@ -38,5 +54,72 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
         ;
 
         return $query->getSingleScalarResult();
+    }
+
+    /**
+     * Retourne une liste de groupements associés à une ville identifiée par son code INSEE.
+     *
+     * @param string $codeInsee code INSEE de la commune
+     *
+     * @return Groupement[] liste des groupements correspondant, triés par type et libellé
+     */
+    public function getGroupementParVille(string $codeInsee): array
+    {
+        $qb = $this->createQueryBuilder('groupement')
+            ->leftJoin('groupement.communes', 'communes')
+            ->leftJoin('groupement.type', 'type')
+            ->addSelect('type.libelle')
+            ->where('communes.id = :codeInsee')
+            ->setParameter('codeInsee', $codeInsee)
+            ->orderBy('type.id', 'ASC')
+            ->addOrderBy('groupement.libelle', 'ASC')
+        ;
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Recherche des groupements par libellé (pour autocomplete).
+     *
+     * @param string   $query          Texte recherché
+     * @param int      $limit          Nombre maximum de résultats
+     * @param int|null $typeGroupement ID du type de groupement (null = tous)
+     *
+     * @return Groupement[]
+     */
+    public function searchByLibelle(string $query, int $limit = 50, ?int $typeGroupement = null): array
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->leftJoin('g.type', 't')
+            ->addSelect('t')
+            ->where('g.libelle LIKE :query')
+            ->setParameter('query', '%'.$query.'%');
+
+        // Filtrer par type de groupement si spécifié
+        if (null !== $typeGroupement) {
+            $qb->andWhere('g.type = :typeGroupement')
+               ->setParameter('typeGroupement', $typeGroupement);
+        }
+
+        return $qb
+            ->orderBy('g.libelle', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Retourne tous les groupements ordonnés par libellé.
+     *
+     * @return Groupement[]
+     */
+    public function findAllOrdered(): array
+    {
+        return $this->createQueryBuilder('g')
+            ->leftJoin('g.type', 't')
+            ->addSelect('t')
+            ->orderBy('g.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

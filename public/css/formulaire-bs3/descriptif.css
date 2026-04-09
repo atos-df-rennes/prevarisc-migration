@@ -35,8 +35,8 @@
     overflow-x: auto;
 }
 
-.addRow {
-    display: block;
-    margin: auto;
-    margin-bottom: 5px;
+#show-toc {
+    position: fixed;
+    bottom: 20px;
+    right: 70px;
 }

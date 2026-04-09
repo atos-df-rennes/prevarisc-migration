@@ -1,0 +1,6 @@
+<div class="thumbnail thumbnail-user text-center">
+    {{ avatar(user.id, 'medium') }}
+    <div class="caption">
+        <span class="text-muted">{{ user.informations.grade|upper }} {{ user.informations.nom|upper }} {{ user.informations.prenom|capitalize }}</span>
+    </div>
+</div>

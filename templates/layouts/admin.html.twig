@@ -33,8 +33,8 @@
             <a href="{{ path('couches_cartographiques') }}"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Gestion des couches cartographiques</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('gestion-des-commissions') %}class="active"{% endif %}>
-            <a href='/gestion-des-commissions'><span class="glyphicon glyphicon-certificate" aria-hidden="true"></span> Gestion des commissions</a>
+        <li {% if app.request.get('_route') starts with 'admin_commissions' %}class="active"{% endif %}>
+            <a href="{{ path('admin_commissions_index') }}"><span class="glyphicon glyphicon-certificate" aria-hidden="true"></span> Gestion des commissions</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('admin_documents') %}class="active"{% endif %}>
@@ -57,8 +57,10 @@
             <a href="{{ path('admin_tableau_des_periodicites') }}"><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Tableau des périodicités</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('groupement') %}class="active"{% endif %}>
-            <a href='/groupement'><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
+        <li {% if app.request.get('_route') is same as('admin_groupement')
+                or app.request.get('_route') starts with 'admin_groupement_'
+            %}class="active"{% endif %}>
+            <a href='{{ path('admin_groupement') }}'><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
         </li>
 
         <li {% if app.request.get('_route') is same as('admin_changement') %}class="active"{% endif %}>

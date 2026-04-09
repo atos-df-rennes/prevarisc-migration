@@ -26,8 +26,12 @@ function deleteChamp(element) {
                 }
 
                 $("#modal-delete-champ").modal('hide')
+
+                $.toast.success('Le champ ' + nom + ' a bien été supprimé.')
             },
             error: function() {
+                $.toast.error('Erreur lors de la suppression du champ ' + nom + '.')
+
                 return false
             }
         })

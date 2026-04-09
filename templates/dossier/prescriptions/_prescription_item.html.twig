@@ -1,0 +1,77 @@
+{#
+    Variables attendues :
+    - prescription : PrescriptionDossier
+    - dossier      : Dossier
+#}
+{% set nb_assoc = prescription.effectiveAssociations|length %}
+
+{% if nb_assoc > 0 %}
+<li class="list-unstyled mb-3" id="prescriptionDossier_{{ prescription.id }}">
+    <table class="table table-bordered">
+        {% for assoc in prescription.effectiveAssociations %}
+            <tr>
+                <td class="col-xs-3">{{ assoc.texte ? assoc.texte.libelle : '' }}</td>
+                <td class="col-xs-2">{{ assoc.article ? assoc.article.libelle : '' }}</td>
+
+                {% if loop.first %}
+                    {% if prescription.type != 0 %}
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1 numPresc">
+                            {{ prescription.numero }}
+                        </td>
+                    {% endif %}
+
+                    <td rowspan="{{ nb_assoc }}" class="col-xs-{{ prescription.type != 0 ? 5 : 6 }}">
+                        {% if prescription.dossierReprise is not null %}
+                            <div>
+                                <span class="label label-warning label--prescription-reprise">
+                                    Reprise du dossier
+                                    <a href="{{ path('dossier_index', {id: prescription.dossierReprise.id}) }}" target="_blank" rel="noopener noreferrer">
+                                        {% if prescription.dossierReprise.objet %}
+                                            {{ prescription.dossierReprise.objet }}
+                                        {% else %}
+                                            {{ prescription.dossierReprise.type.libelle }}{% if prescription.dossierReprise.nature %} - {{ prescription.dossierReprise.nature.libelle }}{% endif %}
+                                        {% endif %}
+                                    </a>
+                                    <br>
+                                    créé le {{ prescription.dossierReprise.dateInsert|date('d/m/Y') }}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if prescription.dateLevee is not null %}
+                            <span class="label label-info">
+                                Levée le {{ prescription.dateLevee|date('d/m/Y') }}
+                            </span>
+                        {% endif %}
+
+                        {% if prescription.justificatif %}
+                            <span
+                                class="glyphicon glyphicon-info-sign icon-label-right"
+                                data-toggle="popover"
+                                data-placement="top"
+                                data-content="{{ prescription.justificatif|nl2br|e('html_attr') }}"
+                                data-html="true"
+                                title="Justification"
+                                aria-hidden="true"
+                            ></span>
+                        {% endif %}
+
+                        <p>
+                            {{ prescription.effectiveLibelle|nl2br }}
+                        </p>
+                    </td>
+
+                    {% if not dossier.verrou %}
+                        <td rowspan="{{ nb_assoc }}" class="col-xs-1">
+                            <a class="btn btn-default btn-sm"
+                               href="{{ path('dossier_prescriptions_modifier', {id: dossier.id, idPrescription: prescription.id}) }}">
+                                Modifier
+                            </a>
+                        </td>
+                    {% endif %}
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+</li>
+{% endif %}

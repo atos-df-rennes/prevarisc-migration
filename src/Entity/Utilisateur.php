@@ -7,15 +7,15 @@ use App\Validator as PrevariscAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
  *
- * @UniqueEntity(fields="username", message="Nom d'utilisateur déjà enregistré. Veuillez en choisir un autre.")
+ * @PrevariscAssert\UniqueUtilisateur
  *
  * @PrevariscAssert\Password
  */
@@ -29,15 +29,17 @@ class Utilisateur implements UserInterface
      * @ORM\GeneratedValue
      *
      * @ORM\Column(name="ID_UTILISATEUR", type="bigint", options={"unsigned":true})
+     *
+     * @Groups({"api_response"})
      */
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, unique=true, nullable=false)
+     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, nullable=false)
      *
-     * @Assert\NotBlank(message="Le nom d'utilisateur ne doit pas être vide.")
+     * @Assert\NotNull(message="Le nom d'utilisateur ne doit pas être null.")
      */
     private $username;
 
@@ -172,6 +174,13 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $sso;
+
+    /**
+     * @var string
+     *
+     * @Groups({"api_response"})
+     */
+    private $displayLabel;
 
     public function __construct()
     {
@@ -478,5 +487,27 @@ class Utilisateur implements UserInterface
         $this->sso = $sso;
 
         return $this;
+    }
+
+    /**
+     * Retourne le label d'affichage pour les formulaires.
+     * Affiche le nom complet si disponible, sinon le username.
+     * Ajoute "(inactif)" si l'utilisateur est inactif.
+     */
+    public function getDisplayLabel(): string
+    {
+        $label = $this->username;
+
+        $info = $this->getInformations();
+        if (null !== $info) {
+            $fullName = $info->getFullName();
+            if ('' !== $fullName) {
+                $label = $fullName;
+            }
+        }
+
+        $this->displayLabel = $label.($this->actif ? '' : ' (inactif)');
+
+        return $this->displayLabel;
     }
 }

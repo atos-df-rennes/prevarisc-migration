@@ -9,6 +9,7 @@ use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\Avatar;
 use App\Service\Image;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,15 +24,39 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateursController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var UtilisateurRepository */
+    private $utilisateurRepository;
+
+    /** @var GroupeRepository */
+    private $groupeRepository;
+
+    /** @var Avatar */
+    private $avatar;
+
+    /** @var Image */
+    private $image;
+
+    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image)
+    {
+        $this->entityManager = $entityManager;
+        $this->utilisateurRepository = $utilisateurRepository;
+        $this->groupeRepository = $groupeRepository;
+        $this->avatar = $avatar;
+        $this->image = $image;
+    }
+
     /**
      * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
      */
-    public function utilisateurs(UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
+    public function utilisateurs(): Response
     {
         return $this->render('utilisateurs/index.html.twig', [
-            'utilisateurs_actifs' => $utilisateurRepository->findActives(),
-            'utilisateurs_inactifs' => $utilisateurRepository->findInactives(),
-            'groupes' => $groupeRepository->findAll(),
+            'utilisateurs_actifs' => $this->utilisateurRepository->findActives(),
+            'utilisateurs_inactifs' => $this->utilisateurRepository->findInactives(),
+            'groupes' => $this->groupeRepository->findAll(),
             'groupe_id' => null,
         ]);
     }
@@ -39,7 +64,7 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/admin/utilisateurs/ajouter", name="admin_utilisateurs_add")
      */
-    public function ajouter(Request $request, Avatar $avatar, Image $image): Response
+    public function ajouter(Request $request): Response
     {
         $utilisateur = new Utilisateur();
 
@@ -47,8 +72,6 @@ class UtilisateursController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
             $preferences = new UtilisateurPreferences();
             $preferences->setUtilisateur($utilisateur);
             $utilisateur->setPreferences($preferences);
@@ -59,9 +82,9 @@ class UtilisateursController extends AbstractController
             $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
             $utilisateur->setDerniereVisiteDashboard($dateDerniereVisite);
 
-            $entityManager->persist($preferences);
-            $entityManager->persist($utilisateur);
-            $entityManager->flush();
+            $this->entityManager->persist($preferences);
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
 
             $userId = $utilisateur->getId();
 
@@ -72,12 +95,12 @@ class UtilisateursController extends AbstractController
             $photo = $form->get('photo')->getData();
 
             if ($photo && $photo instanceof UploadedFile) {
-                $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
-                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
-                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
-                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::SMALL_WIDTH, $this->avatar::SMALL_WIDTH)
+                    ->save($this->avatar->path($this->avatar::SMALL_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::MEDIUM_WIDTH)
+                    ->save($this->avatar->path($this->avatar::MEDIUM_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::LARGE_WIDTH)
+                    ->save($this->avatar->path($this->avatar::LARGE_DIRECTORY, $userId));
             }
 
             $this->addFlash('success', "L'utilisateur a bien été ajouté.");
@@ -94,14 +117,12 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/admin/utilisateurs/{id}/modifier", name="admin_utilisateurs_edit")
      */
-    public function modifier(Request $request, Avatar $avatar, Image $image, Utilisateur $utilisateur): Response
+    public function modifier(Request $request, Utilisateur $utilisateur): Response
     {
         $form = $this->createForm(UtilisateurType::class, $utilisateur);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
             // On ne re-set pas le password s'il n'a pas été modifié
             // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
             if (null !== $utilisateur->getPlainPassword()) {
@@ -111,8 +132,8 @@ class UtilisateursController extends AbstractController
                 $utilisateur->setPassword(null);
             }
 
-            $entityManager->persist($utilisateur);
-            $entityManager->flush();
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
 
             $userId = $utilisateur->getId();
 
@@ -123,12 +144,12 @@ class UtilisateursController extends AbstractController
             $photo = $form->get('photo')->getData();
 
             if ($photo && $photo instanceof UploadedFile) {
-                $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
-                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
-                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
-                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::SMALL_WIDTH, $this->avatar::SMALL_WIDTH)
+                    ->save($this->avatar->path($this->avatar::SMALL_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::MEDIUM_WIDTH)
+                    ->save($this->avatar->path($this->avatar::MEDIUM_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::LARGE_WIDTH)
+                    ->save($this->avatar->path($this->avatar::LARGE_DIRECTORY, $userId));
             }
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");

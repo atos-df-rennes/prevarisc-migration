@@ -1,0 +1,33 @@
+{% import 'commissions/_membre_panel_macro.html.twig' as macros %}
+{% do form.membres.setRendered %}
+
+<div class="text-right mb-4">
+    <button type="button" class="btn btn-primary btn-sm add-membre-btn">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter un membre
+    </button>
+</div>
+
+{# Le container est toujours rendu pour que le prototype soit accessible même sans membres.
+   data-index est lu par membres.js pour initialiser l'index des nouveaux panels. #}
+<div class="panel-group membres-collection"
+     id="membres-accordion"
+     role="tablist"
+     aria-multiselectable="true"
+     data-index="{{ form.membres|length }}"
+     data-prototype="{{ macros.membre_panel(form.membres.vars.prototype, natures_by_type)|e('html_attr') }}">
+    {% if form.membres|length == 0 %}
+        <div class="no-membres-message">
+            <p class="text-muted"><em>Aucun membre défini pour cette commission.</em></p>
+        </div>
+    {% else %}
+        {% for membre_form in form.membres %}
+            {{ macros.membre_panel(membre_form, natures_by_type) }}
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="text-center mt-5">
+    <button type="submit" class="btn btn-success save-membres-btn">
+        <span class="glyphicon glyphicon-floppy-disk"></span> Sauvegarder les membres
+    </button>
+</div>

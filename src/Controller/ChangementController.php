@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Form\MessagesAlerteType;
 use App\Repository\ChangementRepository;
 use App\Service\Changement;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,24 +17,38 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChangementController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var ChangementRepository */
+    private $changementRepository;
+
+    /** @var Changement */
+    private $changement;
+
+    public function __construct(EntityManagerInterface $entityManager, ChangementRepository $changementRepository, Changement $changement)
+    {
+        $this->entityManager = $entityManager;
+        $this->changementRepository = $changementRepository;
+        $this->changement = $changement;
+    }
+
     /**
      * @Route("/admin/changement", name="admin_changement")
      */
-    public function index(Request $request, ChangementRepository $changementRepository): Response
+    public function index(Request $request): Response
     {
-        $messages = $changementRepository->findAll();
+        $messages = $this->changementRepository->findAll();
 
         $form = $this->createForm(MessagesAlerteType::class, ['messages' => $messages]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
             foreach ($messages as $message) {
-                $entityManager->persist($message);
+                $this->entityManager->persist($message);
             }
 
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', "Les messages d'alerte ont bien été mis à jour.");
 
@@ -46,12 +61,12 @@ class ChangementController extends AbstractController
     }
 
     /**
-     * @Route("/changement/balises", name="changement_balises")
+     * @Route("/changement/balises", name="changement_balises", options={"expose"=true})
      */
-    public function balises(Changement $changement): Response
+    public function balises(): Response
     {
         return $this->render('changement/balises.html.twig', [
-            'balises' => $changement->getBalises(),
+            'balises' => $this->changement->getBalises(),
         ]);
     }
 }

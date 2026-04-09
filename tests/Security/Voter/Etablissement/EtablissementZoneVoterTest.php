@@ -2,6 +2,7 @@
 
 namespace App\Tests\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Classement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementInformations;
@@ -36,7 +37,7 @@ class EtablissementZoneVoterTest extends TestCase
 
     private function createEtablissementMock(?Classement $classement = null): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => EtablissementZoneVoter::ID_ZONE]);
+        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::ZONE]);
         $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
         $latestInformations->method('getClassement')->willReturn($classement);
 
@@ -161,7 +162,7 @@ class EtablissementZoneVoterTest extends TestCase
         // On simule le classement de la zone à 4
         $this->privilegesRepository
             ->method('findOneBy')
-            ->willReturnCallback(function ($criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
+            ->willReturnCallback(function (array $criteria) use ($privilege, $resourceSingle, $resourceMulti): ?Privileges {
                 // On accorde le privilège si la ressource est l'une des deux
                 if ($criteria['resource'] === $resourceSingle || $criteria['resource'] === $resourceMulti) {
                     return $privilege;

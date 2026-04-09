@@ -1,0 +1,314 @@
+<!-- Classement de l'établissement -->
+<h4 class="h4_subtitle">Classement</h4>
+<dl class="dl-horizontal">
+    <dt>Genre</dt>
+    <dd>
+        <p>
+            <strong>{{ infos.genre.libelle }}</strong>
+            {% if infos.icpe %}
+                <span class="label label-primary">ICPE</span>
+            {% endif %}
+        </p>
+    </dd>
+
+    {% if
+        infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')]
+        and infos.categorie is not null
+    %}
+        <dt>Catégorie</dt>
+        <dd>
+            <p>{{ infos.categorie.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if
+        infos.genre.id == constant('App\\Constant\\GenreEtablissement::HABITATION')
+        and infos.famille is not null
+    %}
+        <dt>Famille</dt>
+        <dd>
+            <p>{{ infos.famille.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if
+        infos.genre.id == constant('App\\Constant\\GenreEtablissement::IGH')
+        and infos.classe is not null
+    %}
+        <dt>Classe</dt>
+        <dd>
+            <p>{{ infos.classe.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if
+        infos.genre.id == constant('App\\Constant\\GenreEtablissement::ZONE')
+        and infos.classement is not null
+    %}
+        <dt>Classement</dt>
+        <dd>
+            <p>{{ infos.classement.libelle }}</p>
+        </dd>
+    {% endif %}
+
+    {% if
+        infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_PERIODICITE')
+        and periodicity is not null
+    %}
+        <dt>Périodicité</dt>
+        <dd>
+            <p>
+                {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::SITE') %}
+                    <i class="glyphicon glyphicon-info-sign" title="Périodicité la plus contraignante des fils ERP"></i>
+                {% endif %}
+                {% if
+                    infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::IGH')]
+                    and default_periodicite is not null
+                    and infos.periodicite != default_periodicite.periodicite
+                %}
+                    <i class="glyphicon glyphicon-exclamation-sign" title="Périodicité non standard"></i>
+                {% endif %}
+                {{ periodicity }}
+            </p>
+        </dd>
+    {% endif %}
+</dl>
+
+<!-- Activités de l'établissement -->
+{% if infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')] %}
+    <h4 class="h4_subtitle">Activités
+        {% if infos.localSommeil and infos.genre.id == constant('App\\Constant\\GenreEtablissement::ERP') %}
+            <span class="label label-primary pull-right">Présence de locaux à sommeil</span>
+        {% endif %}
+    </h4>
+    <dl class="dl-horizontal">
+        <!-- Type et activités -->
+        <dt>Types & activités</dt>
+        <dd>
+            <ul class="list-unstyled">
+                {% if infos.type is not null or infos.typeActivite is not null %}
+                    <li>
+                        <strong>
+                            {% if infos.type is not null %}
+                                {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ infos.type.libelle ~ '.png') %}
+
+                                {% if asset_exist(etablissement_type_asset_path) %}
+                                    <img src="{{ etablissement_type_asset_path }}" title="{{ infos.type.libelle }}" />
+                                {% else %}
+                                    {{ infos.type.libelle }}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if infos.type is not null and infos.typeActivite is not null %}
+                                -
+                            {% endif %}
+
+                            {% if infos.typeActivite is not null %}
+                                {{ infos.typeActivite.libelle }}
+                            {% endif %}
+                        </strong>
+                    </li>
+                {% endif %}
+                {% for type_activite in infos.typesActivitesSecondaires %}
+                    {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ type_activite.type.libelle ~ '.png') %}
+                    <li>
+                        {% if asset_exist(etablissement_type_asset_path) %}
+                            <img src="{{ asset(etablissement_type_asset_path) }}" title="{{ type_activite.type.libelle }}" />&nbsp;-&nbsp;
+                        {% else %}
+                            {{ type_activite.type.libelle }}&nbsp;-&nbsp;
+                        {% endif %}
+                        {{ type_activite.activite.libelle }}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if infos.r14320 %}
+                <p>Le <strong>R143-20</strong> est appliqué sur cet établissement.</p>
+            {% endif %}
+            {% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::ERP') %}
+                {% if infos.droitPublic %}
+                    <p>Le <strong>R143-16</strong> est appliqué sur cet établissement (droit public).</p>
+                {% endif %}
+            {% endif %}
+        </dd>
+    </dl>
+{% endif %}
+
+<!-- Rubriques -->
+{% if infos.icpe %}
+    <h4 class="h4_subtitle">Rubriques ICPE</h4>
+    {% if infos.rubriquesIcpe|length == 0 %}
+        <p class="text-muted text-center">Pas de rubriques disponible</p>
+    {% else %}
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>Rubrique</th>
+                <th>Numéro</th>
+                <th>Nom</th>
+                <th>Valeur</th>
+                <th>Classement</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rubrique_icpe in infos.rubriquesIcpe %}
+                <tr>
+                    <td>{{ rubrique_icpe.rubrique == 1 ? 'Substance' : (rubrique_icpe.rubrique == 2 ? 'Activité' : (rubrique_icpe.rubrique == 3 ? 'IED' : 'Produits dangereux')) }}</td>
+                    <td>{{ rubrique_icpe.numero }}</td>
+                    <td>{{ rubrique_icpe.nom }}</td>
+                    <td>{{ rubrique_icpe.valeur }}</td>
+                    <td>{{ rubrique_icpe.classement }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
+{% if infos.genre.id == constant('App\\Constant\\GenreEtablissement::CAMPING') %}
+    <h4 class="h4_subtitle">Nombre d'emplacements</h4>
+    <dl class="dl-horizontal champ_effectif_camping index_camping">
+        <dt>Mobil-homes ou habitations</dt>
+        <dd>
+            <p>{{ infos.effectifHabitation }}</p>
+        </dd>
+
+        <dt>Autocaravanes</dt>
+        <dd>
+            <p>{{ infos.effectifCaravane }}</p>
+        </dd>
+
+        <dt>Emplacements nus</dt>
+        <dd>
+            <p>{{ infos.effectifEmplacementNu }}</p>
+        </dd>
+
+        <dt>Autres emplacements</dt>
+        <dd>
+            <p>{{ infos.effectifDivers }}</p>
+        </dd>
+
+        <dt>&nbsp;</dt><dd><hr></dd>
+
+        <dt>Total</dt>
+        <dd>
+            <p>{{ infos.effectifHabitation + infos.effectifCaravane + infos.effectifEmplacementNu + infos.effectifDivers }}</p>
+        </dd>
+    </dl>
+{% endif %}
+
+<!-- Les effectifs -->
+{% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF') %}
+    <h4 class="h4_subtitle">Les effectifs</h4>
+    <dl class="dl-horizontal">
+        <!-- Effectif public -->
+        {% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF_PUBLIC') %}
+            <dt>Public</dt>
+            <dd>
+                <p>{{ infos.effectifPublic }}</p>
+            </dd>
+        {% endif %}
+
+        <!-- Effectif personnel -->
+        <dt>Personnel</dt>
+        <dd>
+            <p>{{ infos.effectifPersonnel }}</p>
+        </dd>
+
+        <!-- Effectif hebergé -->
+        {% if
+            infos.localSommeil
+            and infos.genre.id == constant('App\\Constant\\GenreEtablissement::ERP')
+        %}
+            <dt>Dont hebergé</dt>
+            <dd>
+                <p>{{ infos.effectifHeberge }}</p>
+            </dd>
+        {% endif %}
+
+        <dt>&nbsp;</dt><dd><hr></dd>
+
+        <!-- Effectif total -->
+        <dt>Total</dt>
+        <dd>
+            <p>{{ infos.effectifPublic + infos.effectifPersonnel }}</p>
+        </dd>
+
+        <!-- Effectif justifant le classement (que pour les 5ème catégorie) -->
+        {% if
+            infos.categorie is not null
+            and infos.categorie.id == constant('App\\Constant\\CategorieEtablissement::CINQUIEME')
+        %}
+            <dt>Justifiant le classement</dt>
+            <dd>
+                <p>{{ infos.effectifJustifiantClassement }}</p>
+            </dd>
+        {% endif %}
+    </dl>
+{% endif %}
+
+<!-- Plan -->
+{% if infos.genre.id in constant('App\\Constant\\GenreEtablissement::GENRES_AVEC_EFFECTIF') %}
+    <h4 class="h4_subtitle">Plans d'intervention</h4>
+    {% if infos.plans|length == 0 %}
+        <p class="text-muted text-center">Pas de plans disponible</p>
+    {% else %}
+        <table class="table table-condensed">
+            <thead>
+            <tr>
+                <th>Type de plan</th>
+                <th>Numéro du plan</th>
+                <th>Date</th>
+                <th>A mettre à jour</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for plan in infos.plans %}
+                <tr>
+                    <td>{{ plan.type.libelle }}</td>
+                    <td>{{ plan.numero }}</td>
+                    <td>{{ plan.date|date('d/m/Y') }}</td>
+                    <td>{{ plan.aMettreAJour ? 'A jour' : 'Pas à jour' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
+<!-- Etablissement lié -->
+{% if fils_ordonnes|length > 0 %}
+    <h4 class="h4_subtitle">
+        <label for="filterLinkedEts">
+            Établissements liés <small>{{ fils_ordonnes|length > 0 ? '(' ~ fils_ordonnes|length ~ ')' }}</small>
+        </label>
+        <input type="text" class="form-control" id="filterLinkedEts" placeholder="Filtrer les établissements" />
+    </h4>
+    <ul class="recherche_liste list-unstyled no_slide" style="max-height: 500px; overflow-y: scroll;">
+        {% for etablissement_fils in fils_ordonnes %}
+            {{ include('etablissement/_informations/_etablissement_lies.html.twig', {etablissement: etablissement_fils}) }}
+        {% endfor %}
+    </ul>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterInput = document.getElementById('filterLinkedEts');
+
+            if (filterInput) {
+                filterInput.addEventListener('keyup', function() {
+                    const searchString = this.value.toLowerCase();
+                    const listContainer = this.parentElement.nextElementSibling;
+                    const listItems = listContainer.querySelectorAll('li');
+
+                    listItems.forEach(function(item) {
+                        const text = item.textContent.toLowerCase();
+                        if (text.indexOf(searchString) !== -1) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+{% endif %}

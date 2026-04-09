@@ -4,8 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -21,33 +20,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UtilisateurRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    private const FONCTION_PREVENTIONNISTE = 13;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Utilisateur::class);
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Utilisateur $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Utilisateur $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
     }
 
     /**
@@ -146,5 +123,137 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * Crée un QueryBuilder pour récupérer les préventionnistes.
+     * Utilisé dans les formulaires avec EntityType.
+     */
+    public function createPreventionnistesQueryBuilder(): QueryBuilder
+    {
+        // @todo: utiliser la mécanique d'affichage des actifs + sélectionnés mises en place sur l'édition de dossier
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.informations', 'i')
+            ->innerJoin('i.fonction', 'f')
+            ->where('f.id = :fonction')
+            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->orderBy('i.nom', 'ASC')
+            ->addOrderBy('i.prenom', 'ASC');
+    }
+
+    /**
+     * Recherche de préventionnistes par nom/prénom pour autocomplete.
+     *
+     * @param string $query      Terme de recherche (min 3 caractères)
+     * @param int    $limit      Nombre max de résultats (défaut: 100)
+     * @param bool   $activeOnly Si true, uniquement les utilisateurs actifs
+     *
+     * @return Utilisateur[]
+     */
+    public function searchPreventionnistes(string $query, int $limit = 100, bool $activeOnly = true): array
+    {
+        if (strlen($query) < 3) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('u')
+            ->innerJoin('u.informations', 'i')
+            ->innerJoin('i.fonction', 'f')
+            ->where('f.libelle = :preventionniste')
+            ->setParameter('preventionniste', 'Préventionniste');
+
+        if ($activeOnly) {
+            $qb->andWhere('u.actif = true');
+        }
+
+        // Recherche sur nom OU prénom
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->like('LOWER(i.nom)', ':query'),
+                $qb->expr()->like('LOWER(i.prenom)', ':query'),
+                $qb->expr()->like(
+                    "LOWER(CONCAT(i.nom, ' ', i.prenom))",
+                    ':query'
+                ),
+                $qb->expr()->like(
+                    "LOWER(CONCAT(i.prenom, ' ', i.nom))",
+                    ':query'
+                )
+            )
+        )
+        ->setParameter('query', '%'.strtolower($query).'%')
+        ->orderBy('i.nom', 'ASC')
+        ->addOrderBy('i.prenom', 'ASC')
+        ->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Trouve les utilisateurs destinataires pour une alerte.
+     *
+     * Équivalent legacy : Model_DbTable_Utilisateur::findUtilisateursForAlerte()
+     *
+     * Récupère les utilisateurs ayant :
+     * - Le privilege spécifié (ex: alerte_avis)
+     * - Une adresse email valide (non null, non vide)
+     * - Un lien avec la commune (directement OU via groupement)
+     *
+     * @param string $privilegeName Nom du privilege requis (ex: 'alerte_avis')
+     * @param string $numInsee      Numéro INSEE de la commune
+     *
+     * @return array<int, array{id: int, nom: string, prenom: string, mail: string}> Liste utilisateurs
+     */
+    public function findUtilisateursForAlerte(string $privilegeName, string $numInsee): array
+    {
+        $qb = $this->createQueryBuilder('u');
+
+        $qb->select('DISTINCT u.id as id', 'ui.nom as nom', 'ui.prenom as prenom', 'ui.mail as mail')
+            ->join('u.informations', 'ui')
+            ->join('u.groupe', 'g')
+            ->join('g.privileges', 'p')
+            ->leftJoin('u.groupements', 'ug')
+            ->leftJoin('ug.communes', 'gc')
+            ->where('ui.mail IS NOT NULL')
+            ->andWhere('ui.mail != :emptyMail')
+            ->andWhere('p.name = :privilegeName')
+            ->andWhere($qb->expr()->orX(
+                'u.commune = :numInsee',  // Commune directe
+                'gc.id = :numInsee'       // Commune via groupement
+            ))
+            ->setParameter('emptyMail', '')
+            ->setParameter('privilegeName', $privilegeName)
+            ->setParameter('numInsee', $numInsee)
+            ->groupBy('u.id')
+        ;
+
+        /** @var array<int, array{id: int, nom: string, prenom: string, mail: string}> $results */
+        $results = $qb->getQuery()->getResult();
+
+        return $results;
+    }
+
+    /**
+     * @return Utilisateur[]
+     */
+    public function findExistingByMail(string $mail, ?Utilisateur $utilisateur = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->join('u.informations', 'i')
+            ->where('i.mail = :mail')
+            ->setParameter('mail', $mail)
+        ;
+
+        // Ne prend pas en compte l'utilisateur en cours d'édition
+        if (null !== $utilisateur) {
+            $queryBuilder->andWhere('u.id != :utilisateurId')
+                ->setParameter('utilisateurId', $utilisateur->getId())
+            ;
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

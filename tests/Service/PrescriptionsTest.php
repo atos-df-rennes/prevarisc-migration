@@ -9,6 +9,8 @@ use App\Repository\PrescriptionArticleListeRepository;
 use App\Repository\PrescriptionReglementaireAssociationRepository;
 use App\Repository\PrescriptionReglementaireRepository;
 use App\Repository\PrescriptionTexteListeRepository;
+use App\Repository\PrescriptionTypeAssociationRepository;
+use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
 use PHPUnit\Framework\TestCase;
 
@@ -19,6 +21,8 @@ final class PrescriptionsTest extends TestCase
     protected function setUp(): void
     {
         $this->prescriptions = new Prescriptions(
+            $this->createMock(PrescriptionTypeRepository::class),
+            $this->createMock(PrescriptionTypeAssociationRepository::class),
             $this->createMock(PrescriptionTexteListeRepository::class),
             $this->createMock(PrescriptionArticleListeRepository::class),
             $this->createMock(PrescriptionReglementaireRepository::class),

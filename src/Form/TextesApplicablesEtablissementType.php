@@ -21,6 +21,8 @@ class TextesApplicablesEtablissementType extends AbstractType
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('t')
                         ->where('t.visible = 1')
+                        ->orderBy('t.type', 'ASC')
+                        ->addOrderBy('t.num', 'ASC')
                     ;
                 },
                 'choice_label' => function (TexteApplicable $texteApplicable): ?string {

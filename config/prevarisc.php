@@ -107,6 +107,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');
 
+    $parameters->set('env(PREVARISC_MAIL_TRANSPORT)', 'smtp');
+
+    $parameters->set('app.mail_transport', '%env(string:PREVARISC_MAIL_TRANSPORT)%');
+
+    $parameters->set('env(PREVARISC_MAIL_HOST)', 'localhost');
+
+    $parameters->set('app.mail_host', '%env(string:PREVARISC_MAIL_HOST)%');
+
+    $parameters->set('env(PREVARISC_MAIL_PORT)', '');
+
+    $parameters->set('app.mail_port', '%env(string:PREVARISC_MAIL_PORT)%');
+
+    $parameters->set('env(PREVARISC_MAIL_USERNAME)', '');
+
+    $parameters->set('app.mail_username', '%env(string:PREVARISC_MAIL_USERNAME)%');
+
+    $parameters->set('env(PREVARISC_MAIL_PASSWORD)', '');
+
+    $parameters->set('app.mail_password', '%env(string:PREVARISC_MAIL_PASSWORD)%');
+
+    $parameters->set('env(PREVARISC_MAIL_SENDER)', 'noreply@prevarisc.local');
+
+    $parameters->set('app.mail_sender', '%env(string:PREVARISC_MAIL_SENDER)%');
+
+    $parameters->set('env(PREVARISC_MAIL_SENDER_NAME)', '');
+
+    $parameters->set('app.mail_sender_name', '%env(string:PREVARISC_MAIL_SENDER_NAME)%');
+
     $parameters->set('env(PREVARISC_DATASTORE_ADAPTER)', 'Plugin_SimpleFileDataStore');
 
     $parameters->set('app.datastore_adapter', '%env(string:PREVARISC_DATASTORE_ADAPTER)%');
@@ -230,4 +258,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_DOSSIERS_MAX_A_AFFICHER)', 5);
 
     $parameters->set('app.nb_dossiers_a_afficher', '%env(int:PREVARISC_DOSSIERS_MAX_A_AFFICHER)%');
+
+    $parameters->set('env(PREVARISC_COMMISSION_COMMUNALE_TYPE)', 2);
+
+    $parameters->set('app.commission_communale_type', '%env(int:PREVARISC_COMMISSION_COMMUNALE_TYPE)%');
+
+    $parameters->set('env(PREVARISC_DESCRIPTIF_PERSONNALISE)', 0);
+
+    $parameters->set('app.descriptif_personnalise', '%env(bool:PREVARISC_DESCRIPTIF_PERSONNALISE)%');
+
+    $parameters->set('env(PREVARISC_RISQUES_NATURELS_EXEMPLES)', '');
+
+    $parameters->set('app.risques_naturels_exemples', '%env(string:PREVARISC_RISQUES_NATURELS_EXEMPLES)%');
+
+    $parameters->set('env(PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)', '');
+
+    $parameters->set('app.risques_technologiques_exemples', '%env(string:PREVARISC_RISQUES_TECHNOLOGIQUES_EXEMPLES)%');
 };

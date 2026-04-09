@@ -7,6 +7,7 @@ use App\Form\PrescriptionArticleListeType;
 use App\Form\ReplacePrescriptionArticleListeType;
 use App\Repository\PrescriptionArticleListeRepository;
 use App\Service\Prescriptions;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,12 +19,28 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsArticlesController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var Prescriptions */
+    private $servicePresc;
+
+    /** @var PrescriptionArticleListeRepository */
+    private $prescriptionArticleListeRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePresc, PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
+    {
+        $this->entityManager = $entityManager;
+        $this->servicePresc = $servicePresc;
+        $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
+    }
+
     /**
      * @Route("/admin/prescriptions/articles/", name="admin_prescriptions_articles")
      */
-    public function gestionArticles(Prescriptions $servicePresc): Response
+    public function gestionArticles(): Response
     {
-        $listeArticles = $servicePresc->getArticlesListe();
+        $listeArticles = $this->servicePresc->getArticlesListe();
 
         return $this->render('prescriptions_articles/articles.html.twig', [
             'liste_articles' => $listeArticles,
@@ -44,11 +61,9 @@ class PrescriptionsArticlesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
             try {
-                $em->persist($articleListe);
-                $em->flush();
+                $this->entityManager->persist($articleListe);
+                $this->entityManager->flush();
 
                 $this->addFlash('success', 'L\'article a bien été enregistré');
             } catch (\Exception $e) {
@@ -68,8 +83,7 @@ class PrescriptionsArticlesController extends AbstractController
      */
     public function suppressionArticle(
         Request $request,
-        PrescriptionArticleListe $articleListe,
-        PrescriptionArticleListeRepository $prescriptionArticleListeRepository
+        PrescriptionArticleListe $articleListe
     ): Response {
         $form = $this->createForm(ReplacePrescriptionArticleListeType::class);
         $form->handleRequest($request);
@@ -82,7 +96,7 @@ class PrescriptionsArticlesController extends AbstractController
             }
 
             try {
-                $prescriptionArticleListeRepository->replaceAndRemove($articleListe, $newArticle);
+                $this->prescriptionArticleListeRepository->replaceAndRemove($articleListe, $newArticle);
                 $this->addFlash('success', 'L\'article a bien été supprimé');
             } catch (\Exception $e) {
                 $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du article (".$e->getMessage().')');

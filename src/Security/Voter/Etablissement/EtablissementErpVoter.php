@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
@@ -11,8 +12,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementErpVoter extends EtablissementVoter
 {
-    public const ID_ERP = 2;
-
     /** @var ResourcesRepository */
     private $resourcesRepository;
 
@@ -31,7 +30,7 @@ class EtablissementErpVoter extends EtablissementVoter
 
     protected function supports($attribute, $subject): bool
     {
-        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, self::ID_ERP);
+        return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, GenreEtablissement::ERP);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

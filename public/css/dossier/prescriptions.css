@@ -1,0 +1,56 @@
+.btn-nav-classement {
+  white-space: wrap;
+  text-align: left;
+}
+
+.btn-nav-classement.btn-link {
+  vertical-align: baseline;
+}
+
+.modal__list--classement {
+  background: none;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.modal__select--type-prescription {
+  width: auto;
+  display: inline-block;
+}
+
+#listePrescriptionTypeSearch .table {
+  margin-bottom: 0;
+}
+
+.prescription-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.prescription-actions__group--reprise {
+  border-left: 2px solid #ddd;
+  padding-left: 12px;
+  margin-left: 12px;
+}
+
+/*
+ * Breakpoint "md" de Bootstrap 3 (< 992px).
+ * Si Bootstrap est mis à jour, ajuster cette valeur en conséquence.
+ */
+@media (max-width: 991px) {
+  .prescription-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .prescription-actions__group--reprise {
+    border-left: none;
+    border-top: 2px solid #ddd;
+    padding-left: 0;
+    margin-left: 0;
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+}

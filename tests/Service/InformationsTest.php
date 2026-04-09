@@ -14,7 +14,7 @@ final class InformationsTest extends TestCase
         $this->assertSame($expected, Informations::dbUrl($dbHost, $dbPort));
     }
 
-    public function dbProvider(): array
+    public static function dbProvider(): array
     {
         return [
             [
@@ -31,7 +31,7 @@ final class InformationsTest extends TestCase
         $this->assertSame($expected, Informations::cacheUrl($cacheHost, $cachePort));
     }
 
-    public function cacheProvider(): array
+    public static function cacheProvider(): array
     {
         return [
             'no cache' => [
@@ -63,7 +63,7 @@ final class InformationsTest extends TestCase
         $this->assertSame($expected, Informations::ignKeys($ignKeys));
     }
 
-    public function ignKeysProvider(): array
+    public static function ignKeysProvider(): array
     {
         return [
             'no ign key' => [
@@ -87,7 +87,7 @@ final class InformationsTest extends TestCase
         $this->assertSame($expected, Informations::thirdPartyPlugins($thirdPartyPlugins));
     }
 
-    public function thirdPartyPluginsProvider(): array
+    public static function thirdPartyPluginsProvider(): array
     {
         return [
             'no third party plugin' => [
@@ -111,7 +111,7 @@ final class InformationsTest extends TestCase
         $this->assertSame($expected, Informations::authentification($casEnabled, $ntlmEnabled, $ldapInformations));
     }
 
-    public function authentificationProvider(): array
+    public static function authentificationProvider(): array
     {
         return [
             'CAS enabled' => [

@@ -3,9 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,55 +23,52 @@ class DossierNatureListeRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Récupère les natures de dossier pour un type donné, triées par ordre.
+     *
+     * @return DossierNatureListe[]
      */
-    public function add(DossierNatureListe $entity, bool $flush = true): void
+    public function findByTypeOrderedByOrdre(DossierType $type): array
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $this->createQueryBuilder('dnl')
+            ->where('dnl.type = :type')
+            ->setParameter('type', $type)
+            ->orderBy('dnl.ordre', 'ASC')
+            ->addOrderBy('dnl.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * Retourne toutes les natures de dossier groupées par ID (string) de type de dossier.
+     *
+     * @return array<string, DossierNatureListe[]>
      */
-    public function remove(DossierNatureListe $entity, bool $flush = true): void
+    public function findNaturesGroupedByType(): array
     {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
+        /** @var DossierNatureListe[] $natures */
+        $natures = $this->createQueryBuilder('n')
+            ->leftJoin('n.type', 'dt')
+            ->addSelect('dt')
+            ->orderBy('dt.id', 'ASC')
+            ->addOrderBy('n.libelle', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $grouped = [];
+        foreach ($natures as $nature) {
+            $dossierType = $nature->getType();
+            if (null === $dossierType) {
+                continue;
+            }
+
+            $key = (string) $dossierType->getId();
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [];
+            }
+
+            $grouped[$key][] = $nature;
         }
-    }
 
-    // /**
-    //  * @return DossierNatureListe[] Returns an array of DossierNatureListe objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        return $grouped;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?DossierNatureListe
-    {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

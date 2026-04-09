@@ -1,0 +1,49 @@
+{#
+    Variables attendues :
+    - dossier           : Dossier
+    - prescriptionsTypes : PrescriptionType[]
+    - motsCles          : string[] (optionnel — pour le highlighting mots-clés)
+#}
+{% set mots_cles = motsCles ?? [] %}
+
+{% if prescriptionsTypes is empty %}
+    <li class="noresult"><em>Aucun résultat de recherche</em></li>
+{% else %}
+    {% for prescription_type in prescriptionsTypes %}
+        {% set associations = prescription_type.associations %}
+        {% set nb_assoc = associations|length %}
+
+        {% if nb_assoc > 0 %}
+            <li id="prescriptiontype_{{ prescription_type.id }}">
+                <table class="table">
+                    {% for association in associations %}
+                        {% set texte_libelle = (association.texte ? association.texte.libelle : '')|e('html')|highlight(mots_cles) %}
+                        {% set article_libelle = (association.article ? association.article.libelle : '')|e('html')|highlight(mots_cles) %}
+
+                        <tr>
+                            <td class="col-xs-2">{{ texte_libelle }}</td>
+                            <td class="col-xs-2">{{ article_libelle }}</td>
+
+                            {% if loop.first %}
+                                {% set libelle_texte = prescription_type.libelle|default('')|e('html')|nl2br|highlight(mots_cles) %}
+
+                                <td rowspan="{{ nb_assoc }}" class="col-xs-7">{{ libelle_texte }}</td>
+                                <td rowspan="{{ nb_assoc }}" class="col-xs-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-default btn-sm btn-ajouter-presc-type"
+                                        data-id-presc-type="{{ prescription_type.id }}"
+                                        data-url="{{ path('dossier_prescriptions_ajouter_type', {id: dossier.id, idPrescType: prescription_type.id}) }}"
+                                        data-csrf-token="{{ csrf_token('add_prescription_type_' ~ dossier.id) }}"
+                                    >
+                                        Ajouter
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </li>
+        {% endif %}
+    {% endfor %}
+{% endif %}

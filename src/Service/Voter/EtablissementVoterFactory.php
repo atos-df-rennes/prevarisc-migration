@@ -2,6 +2,7 @@
 
 namespace App\Service\Voter;
 
+use App\Constant\GenreEtablissement;
 use App\Security\Voter\Etablissement\EtablissementBupVoter;
 use App\Security\Voter\Etablissement\EtablissementCampingVoter;
 use App\Security\Voter\Etablissement\EtablissementCelluleVoter;
@@ -77,31 +78,31 @@ class EtablissementVoterFactory
     public function getVoterForGenre(int $genreId): ?VoterInterface
     {
         switch ($genreId) {
-            case EtablissementErpVoter::ID_ERP:
+            case GenreEtablissement::ERP:
                 return $this->erpVoter;
 
-            case EtablissementCelluleVoter::ID_CELLULE:
+            case GenreEtablissement::CELLULE:
                 return $this->celluleVoter;
 
-            case EtablissementHabitationVoter::ID_HABITATION:
+            case GenreEtablissement::HABITATION:
                 return $this->habitationVoter;
 
-            case EtablissementIghVoter::ID_IGH:
+            case GenreEtablissement::IGH:
                 return $this->ighVoter;
 
-            case EtablissementBupVoter::ID_BUP:
+            case GenreEtablissement::BUP:
                 return $this->bupVoter;
 
-            case EtablissementCampingVoter::ID_CAMPING:
+            case GenreEtablissement::CAMPING:
                 return $this->campingVoter;
 
-            case EtablissementManifestationTemporaireVoter::ID_MANIFESTATION_TEMPORAIRE:
+            case GenreEtablissement::MANIFESTATION_TEMPORAIRE:
                 return $this->manifestationTemporaireVoter;
 
-            case EtablissementIopVoter::ID_IOP:
+            case GenreEtablissement::IOP:
                 return $this->iopVoter;
 
-            case EtablissementZoneVoter::ID_ZONE:
+            case GenreEtablissement::ZONE:
                 return $this->zoneVoter;
 
             default:

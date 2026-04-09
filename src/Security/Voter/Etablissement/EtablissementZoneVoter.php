@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
@@ -9,8 +10,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementZoneVoter extends EtablissementVoter
 {
-    public const ID_ZONE = 10;
-
     /**
      * @var ResourcesRepository
      */
@@ -30,7 +29,7 @@ class EtablissementZoneVoter extends EtablissementVoter
     protected function supports($attribute, $subject): bool
     {
         return parent::supports($attribute, $subject)
-            && parent::isSubjectGenreAllowed($subject, self::ID_ZONE);
+            && parent::isSubjectGenreAllowed($subject, GenreEtablissement::ZONE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

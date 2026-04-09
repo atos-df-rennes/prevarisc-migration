@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\TexteApplicable;
 use App\Form\TexteApplicableType;
 use App\Repository\TexteApplicableRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,12 +17,28 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TextesApplicablesController extends AbstractController
 {
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var TexteApplicableRepository */
+    private $texteApplicableRepository;
+
+    /** @var \App\Service\TexteApplicable */
+    private $serviceTexteApplicable;
+
+    public function __construct(EntityManagerInterface $entityManager, TexteApplicableRepository $texteApplicableRepository, \App\Service\TexteApplicable $serviceTexteApplicable)
+    {
+        $this->entityManager = $entityManager;
+        $this->texteApplicableRepository = $texteApplicableRepository;
+        $this->serviceTexteApplicable = $serviceTexteApplicable;
+    }
+
     /**
      * @Route("/admin/textes-applicables", name="admin_textes_applicables")
      */
-    public function index(TexteApplicableRepository $texteApplicableRepository): Response
+    public function index(): Response
     {
-        $textesApplicables = $texteApplicableRepository->findAllSorted();
+        $textesApplicables = $this->texteApplicableRepository->findAllSorted();
 
         return $this->render('textes_applicables/index.html.twig', [
             'textesApplicables' => $textesApplicables,
@@ -29,9 +46,9 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add")
+     * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add", options={"expose"=true})
      */
-    public function ajouter(Request $request, \App\Service\TexteApplicable $serviceTexteApplicable): Response
+    public function ajouter(Request $request): Response
     {
         $texteApplicable = new TexteApplicable();
 
@@ -44,7 +61,7 @@ class TextesApplicablesController extends AbstractController
             // @todo: gestion de l'affichage prescription
             // la valeur oui/non n'est pas conservée, peut-être le gérer mais quid des conséquences d'affichage/masquaque
             $prescription = filter_var($form->get('prescription')->getData(), FILTER_VALIDATE_BOOLEAN);
-            $serviceTexteApplicable->save($texteApplicable, $prescription);
+            $this->serviceTexteApplicable->save($texteApplicable, $prescription);
 
             $this->addFlash('success', 'Texte applicable ajouté.');
 
@@ -57,9 +74,9 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit")
+     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit", options={"expose"=true})
      */
-    public function modifier(Request $request, TexteApplicable $texteApplicable, \App\Service\TexteApplicable $serviceTexteApplicable): Response
+    public function modifier(Request $request, TexteApplicable $texteApplicable): Response
     {
         $form = $this->createForm(TexteApplicableType::class, $texteApplicable, [
             'action' => $this->generateUrl('admin_textes_applicables_edit', ['id' => $texteApplicable->getId()]),
@@ -68,7 +85,7 @@ class TextesApplicablesController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $prescription = filter_var($form->get('prescription')->getData(), FILTER_VALIDATE_BOOLEAN);
-            $serviceTexteApplicable->save($texteApplicable, $prescription);
+            $this->serviceTexteApplicable->save($texteApplicable, $prescription);
 
             $this->addFlash('success', 'Texte applicable modifié.');
 
@@ -81,9 +98,9 @@ class TextesApplicablesController extends AbstractController
     }
 
     /**
-     * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder")
+     * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder", options={"expose"=true})
      */
-    public function ordonner(Request $request, TexteApplicableRepository $texteApplicableRepository): Response
+    public function ordonner(Request $request): Response
     {
         $tableUpdate = $request->request->get('tableUpdate');
 
@@ -92,20 +109,19 @@ class TextesApplicablesController extends AbstractController
         }
 
         $taIds = explode(',', $tableUpdate);
-        $entityManager = $this->getDoctrine()->getManager();
 
         foreach ($taIds as $key => $id) {
-            $texteApplicable = $texteApplicableRepository->find($id);
+            $texteApplicable = $this->texteApplicableRepository->find($id);
 
             if (null === $texteApplicable) {
                 continue;
             }
 
             $texteApplicable->setNum($key);
-            $entityManager->persist($texteApplicable);
+            $this->entityManager->persist($texteApplicable);
         }
 
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->redirectToRoute('admin_textes_applicables');
     }

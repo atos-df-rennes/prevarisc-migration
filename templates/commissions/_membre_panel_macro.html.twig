@@ -1,0 +1,216 @@
+{#
+    Macro : rendu d'un panel Bootstrap accordion pour un membre de commission.
+
+    Paramètres :
+      - membre_form     : FormView du membre (CommissionMembreType)
+      - natures_by_type : array<string, DossierNatureListe[]> — natures groupées par id de type de dossier
+
+    Usage :
+        {% import 'commissions/_membre_panel_macro.html.twig' as macros %}
+        {{ macros.membre_panel(membre_form, natures_by_type) }}
+#}
+{% macro membre_panel(membre_form, natures_by_type) %}
+    {% set name = membre_form.vars.name %}
+    {% set libelle = membre_form.libelle.vars.value ?: 'Nouveau membre' %}
+
+    <div class="panel panel-default membre-rule">
+        <div class="panel-heading" role="tab" id="heading-membre-{{ name }}">
+            <h4 class="panel-title">
+                <a role="button"
+                   class="panel-title__link"
+                   data-toggle="collapse"
+                   data-parent="#membres-accordion"
+                   href="#collapse-membre-{{ name }}"
+                   aria-expanded="true"
+                   aria-controls="collapse-membre-{{ name }}">
+                    <span class="caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                    <span class="membre-libelle-display">{{ libelle }}</span>
+                </a>
+                <button type="button" class="btn btn-danger btn-xs pull-right remove-membre-btn">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Supprimer
+                </button>
+            </h4>
+        </div>
+        <div id="collapse-membre-{{ name }}"
+             class="panel-collapse collapse in"
+             role="tabpanel"
+             aria-labelledby="heading-membre-{{ name }}">
+            <div class="panel-body">
+
+                {# Ligne 1 : libellé + présence #}
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            {{ form_label(membre_form.libelle) }}
+                            {{ form_widget(membre_form.libelle, {attr: {class: 'form-control membre-libelle-input'}}) }}
+                            {{ form_errors(membre_form.libelle) }}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            {{ form_label(membre_form.presence) }}
+                            {{ form_widget(membre_form.presence, {attr: {class: 'form-control'}}) }}
+                            {{ form_errors(membre_form.presence) }}
+                        </div>
+                    </div>
+                </div>
+
+                {# Ligne 2 : type de membre + widget conditionnel #}
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            {{ form_label(membre_form.typeMembre) }}
+                            {{ form_widget(membre_form.typeMembre, {attr: {class: 'form-control type-membre-select'}}) }}
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        {# Groupement — affiché si typeMembre = 1 #}
+                        <div class="form-group type-membre-widget type-membre-groupement" style="display:none;">
+                            {{ form_label(membre_form.groupement) }}
+                            {{ form_widget(membre_form.groupement) }}
+                            {{ form_errors(membre_form.groupement) }}
+                        </div>
+                        {# Contact — affiché si typeMembre = 2 #}
+                        <div class="form-group type-membre-widget type-membre-contact" style="display:none;">
+                            {{ form_label(membre_form.utilisateurInformations) }}
+                            {{ form_widget(membre_form.utilisateurInformations) }}
+                            {{ form_errors(membre_form.utilisateurInformations) }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                {# Catégories ERP #}
+                <div class="form-group">
+                    <label><strong>Catégories ERP</strong></label>
+                    <div class="mb-2">
+                        <button type="button"
+                                class="btn btn-xs btn-default select-all-checkbox-btn"
+                                data-target="{{ membre_form.categories.vars.id }}">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
+                        </button>
+                    </div>
+                    <div id="{{ membre_form.categories.vars.id }}" class="checkbox-scrollable-area">
+                        {{ form_widget(membre_form.categories) }}
+                    </div>
+                    {{ form_errors(membre_form.categories) }}
+                </div>
+
+                {#
+                    Activités ERP groupées par type ERP — grille 3 colonnes.
+                    membre_form.types.vars.choices expose des ChoiceGroupView[] produits par le group_by
+                    du FormType : chaque ChoiceGroupView a label (libellé du type ERP) et choices (ChoiceView[]).
+                    Le widget individuel est accessible via membre_form.types[choice.value].
+                #}
+                <div class="form-group">
+                    <label><strong>Types d'activité ERP</strong></label>
+                    {% do membre_form.types.setRendered %}
+                    <div class="row">
+                        {% for group in membre_form.types.vars.choices %}
+                            {% set group_key = name ~ '-act-' ~ loop.index %}
+                            <div class="col-lg-4 col-md-6 col-xs-12 mb-3">
+                                <div class="activite-group-block">
+                                    <div class="activite-group-header">
+                                        <label class="activite-group-label">
+                                            <input type="checkbox"
+                                                   class="activite-group-toggle"
+                                                   data-group="{{ group_key }}"
+                                                   aria-label="Tout sélectionner {{ group.label }}">
+                                            <strong>{{ group.label }}</strong>
+                                        </label>
+                                    </div>
+                                    <ul class="list-unstyled activites-list"
+                                        id="activite-group-{{ group_key }}">
+                                        {% for choice in group.choices %}
+                                            <li class="activite-item" data-group="{{ group_key }}">
+                                                {{ form_widget(membre_form.types[choice.value]) }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {% if loop.index % 2 == 0 %}
+                                <div class="clearfix visible-md-block"></div>
+                            {% endif %}
+
+                            {% if loop.index % 3 == 0 %}
+                                <div class="clearfix visible-lg-block"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {{ form_errors(membre_form.types) }}
+                </div>
+
+                <hr/>
+
+                {# Classes IGH #}
+                <div class="form-group">
+                    <label><strong>Classes IGH</strong></label>
+                    <div class="mb-2">
+                        <button type="button"
+                                class="btn btn-xs btn-default select-all-checkbox-btn"
+                                data-target="{{ membre_form.classes.vars.id }}">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
+                        </button>
+                    </div>
+                    <div id="{{ membre_form.classes.vars.id }}" class="checkbox-scrollable-area">
+                        {{ form_widget(membre_form.classes) }}
+                    </div>
+                    {{ form_errors(membre_form.classes) }}
+                </div>
+
+                <hr/>
+
+                {#
+                    Types et natures de dossier imbriqués.
+                    natures_by_type = array<string typeId, DossierNatureListe[]> (clés string).
+                    membre_form.naturesDossier[nature_id] accède directement au widget par valeur de choix.
+                #}
+                <div class="form-group">
+                    <label><strong>Types et natures de dossier</strong></label>
+                    {% do membre_form.typesDossier.setRendered %}
+                    {% do membre_form.naturesDossier.setRendered %}
+                    <div class="row">
+                        {% for type_widget in membre_form.typesDossier %}
+                            {% set type_id = type_widget.vars.value ~ '' %}
+                            <div class="col-lg-4 col-md-6 col-xs-12 mb-3">
+                                <div class="dossier-type-block">
+                                    <div class="dossier-type-header">
+                                        {{ form_widget(type_widget, {
+                                            label_attr: {class: 'checkbox-inline dossier-type-label'},
+                                            attr: {class: 'dossier-type-checkbox', 'data-type-id': type_id},
+                                        }) }}
+                                    </div>
+                                    {% if natures_by_type[type_id] is defined %}
+                                        <ul class="list-unstyled dossier-natures-list"
+                                            id="natures-list-{{ name }}-{{ type_id }}">
+                                            {% for nature in natures_by_type[type_id] %}
+                                                {% set nature_id = nature.id ~ '' %}
+                                                <li class="dossier-nature-item" data-type-id="{{ type_id }}">
+                                                    {{ form_widget(membre_form.naturesDossier[nature_id]) }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if loop.index % 2 == 0 %}
+                                <div class="clearfix visible-md-block"></div>
+                            {% endif %}
+
+                            {% if loop.index % 3 == 0 %}
+                                <div class="clearfix visible-lg-block"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {{ form_errors(membre_form.typesDossier) }}
+                    {{ form_errors(membre_form.naturesDossier) }}
+                </div>
+
+            </div>{# /panel-body #}
+        </div>{# /panel-collapse #}
+    </div>{# /panel #}
+{% endmacro %}

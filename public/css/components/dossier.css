@@ -1,0 +1,14 @@
+#dossierInfos .libelle {
+  font-weight: bold;
+}
+
+#field-piecesJointesPlatau label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label--prescription-reprise {
+  display: inline-block;
+  text-align: inherit;
+}
+

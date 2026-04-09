@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -11,8 +12,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 {
-    public const ID_MANIFESTATION_TEMPORAIRE = 8;
-
     /**
      * @var ResourcesRepository
      */
@@ -41,7 +40,7 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
             return false;
         }
 
-        return parent::isSubjectGenreAllowed($subject, self::ID_MANIFESTATION_TEMPORAIRE);
+        return parent::isSubjectGenreAllowed($subject, GenreEtablissement::MANIFESTATION_TEMPORAIRE);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

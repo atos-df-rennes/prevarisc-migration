@@ -1,0 +1,73 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Fiche établissement{% endblock %}
+
+{% set infos = etablissement.latestInformations %}
+{% block body %}
+    <div id="etablissement">
+        <div class="pull-right">
+            <a class="btn btn-default" href="/etablissement/edit/id/{{ etablissement.id }}">Modifier la fiche</a>
+        </div>
+
+        <h3>Fiche d'informations générales</h3>
+
+        <div class="row">
+            <!-- Informations générales de l'établissement -->
+            <div class="col-md-6">
+                {{ include('etablissement/_informations/_general.html.twig', {infos: infos}) }}
+            </div>
+
+            <!-- Carte de l'emplacement de l'établissement / informations  -->
+            <div class="col-md-6">
+                {{ include('etablissement/_informations/_carto.html.twig', {infos: infos}) }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Boite de confirmation de la suppression (cachée par défaut) -->
+    <div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h3>Confirmation de la suppression</h3>
+                </div>
+
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer l'établissement ? </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <a href="/etablissement/delete/id/{{ etablissement.id }}" class="btn btn-success">Confirmer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ include('alerte/modal.html.twig') }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Par défaut, on montre le premier onglet disponible (carte, diapo, ou plans) sinon rien
+            $('#menu_nav a:last').tab('show');
+
+            // fenetre de confirmation de la suppression
+            $("#suppressionEtablissement").click(function(){
+                $('#confirm-modal').modal({show:true});
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('/js/tinymce.min.js') }}"></script>
+    <script src="{{ asset('/js/geoportail/sdk-ol/GpSDK2D.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('/js/geoportail/manageMap.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/geoportail/sdk-ol/GpSDK2D.css') }}" media="all">
+{% endblock %}

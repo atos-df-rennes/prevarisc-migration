@@ -1,0 +1,194 @@
+<?php
+
+namespace App\Service\Descriptif;
+
+use App\Constant\TypeChamp;
+use App\Dto\Descriptif\ChampValueData;
+use App\Dto\Descriptif\DescriptifFormData;
+use App\Dto\Descriptif\RubriqueFormData;
+use App\Dto\Descriptif\TableauRowData;
+use App\Entity\Champ;
+use App\Entity\Dossier;
+use App\Entity\Etablissement;
+use App\Entity\Rubrique;
+use App\Entity\Valeur;
+
+/**
+ * Transforme la structure de données retournée par le service Descriptif en DTOs
+ * prêts à alimenter les FormTypes Symfony.
+ *
+ * @see \App\Service\Descriptif::getForDossier()
+ * @see \App\Service\Descriptif::getForEtablissement()
+ */
+class DescriptifFormHydrator
+{
+    /**
+     * Hydrate un DescriptifFormData depuis les données d'un Dossier.
+     *
+     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     */
+    public function hydrateFromDossier(Dossier $dossier, array $rubriques): DescriptifFormData
+    {
+        return $this->hydrate($rubriques);
+    }
+
+    /**
+     * Hydrate un DescriptifFormData depuis les données d'un Établissement.
+     *
+     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     */
+    public function hydrateFromEtablissement(Etablissement $etablissement, array $rubriques): DescriptifFormData
+    {
+        return $this->hydrate($rubriques);
+    }
+
+    /**
+     * Construit le DescriptifFormData depuis la structure de rubriques.
+     *
+     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     */
+    private function hydrate(array $rubriques): DescriptifFormData
+    {
+        $rubriqueFormDatas = [];
+
+        foreach ($rubriques as $item) {
+            /** @var Rubrique $rubrique */
+            $rubrique = $item['rubrique'];
+            $rubriqueId = $rubrique->getId();
+            if (null === $rubriqueId) {
+                continue;
+            }
+
+            $champs = [];
+            foreach ($item['champs'] as $champData) {
+                /** @var Champ $champ */
+                $champ = $champData['champ'];
+                $champId = $champ->getId();
+                if (null === $champId) {
+                    continue;
+                }
+
+                $champs[$champId] = $this->hydrateChamp($champData);
+            }
+
+            $rubriqueFormDatas[$rubriqueId] = new RubriqueFormData(
+                (bool) $item['display'],
+                $champs
+            );
+        }
+
+        return new DescriptifFormData($rubriqueFormDatas);
+    }
+
+    /**
+     * Hydrate un ChampValueData depuis les données brutes d'un champ.
+     *
+     * @param array<string, mixed> $champData
+     */
+    private function hydrateChamp(array $champData): ChampValueData
+    {
+        /** @var Champ $champ */
+        $champ = $champData['champ'];
+        /** @var Valeur|null $valeur */
+        $valeur = $champData['valeur'] ?? null;
+
+        $type = $champ->getType();
+        $typeId = null !== $type ? $type->getId() : null;
+
+        if (TypeChamp::PARENT === $typeId) {
+            if ($champ->getTableau()) {
+                /** @var list<array<int, Valeur>> $lignes */
+                $lignes = $champData['lignes'] ?? [];
+
+                return $this->hydrateTableau($champ, $lignes);
+            }
+
+            /** @var list<array{champ: Champ, valeur: Valeur|null}> $sousChamps */
+            $sousChamps = $champData['sous_champs'] ?? [];
+
+            return $this->hydrateGroupe($champ, $sousChamps);
+        }
+
+        $value = $this->extractValue($valeur, $typeId);
+        $valeurId = null !== $valeur ? $valeur->getId() : null;
+
+        return new ChampValueData((int) $champ->getId(), $value, [], [], $valeurId);
+    }
+
+    /**
+     * Extrait la valeur typée depuis une entité Valeur selon le TypeChamp.
+     *
+     * @return string|int|bool|\DateTimeInterface|null
+     */
+    private function extractValue(?Valeur $valeur, ?int $typeId)
+    {
+        if (null === $valeur) {
+            return null;
+        }
+
+        switch ($typeId) {
+            case TypeChamp::TEXT:
+            case TypeChamp::SELECT:
+            default:
+                return $valeur->getStr();
+            case TypeChamp::TEXTAREA:
+                return $valeur->getLongStr();
+            case TypeChamp::NUMBER:
+                return $valeur->getNumber();
+            case TypeChamp::CHECKBOX:
+                return $valeur->getCheckbox();
+            case TypeChamp::DATE:
+                return $valeur->getDate();
+        }
+    }
+
+    /**
+     * Hydrate un champ PARENT avec tableau=true.
+     *
+     * Chaque ligne est un array<champId, Valeur> (retourné par Descriptif::buildTableauLignes).
+     *
+     * @param list<array<int, Valeur>> $lignes
+     */
+    private function hydrateTableau(Champ $champ, array $lignes): ChampValueData
+    {
+        $rows = [];
+        foreach ($lignes as $ligne) {
+            $cells = [];
+            $valeurIds = [];
+            foreach ($ligne as $champId => $valeur) {
+                $enfantChamp = $valeur->getChamp();
+                $enfantTypeId = null;
+                if (null !== $enfantChamp) {
+                    $enfantType = $enfantChamp->getType();
+                    $enfantTypeId = null !== $enfantType ? $enfantType->getId() : null;
+                }
+
+                $cells[$champId] = $this->extractValue($valeur, $enfantTypeId);
+                $valeurIds[$champId] = $valeur->getId();
+            }
+
+            $rows[] = new TableauRowData($cells, $valeurIds);
+        }
+
+        return new ChampValueData((int) $champ->getId(), null, $rows);
+    }
+
+    /**
+     * Hydrate un champ PARENT avec tableau=false (groupe de sous-champs).
+     *
+     * @param list<array{champ: Champ, valeur: Valeur|null}> $sousChamps
+     */
+    private function hydrateGroupe(Champ $champ, array $sousChamps): ChampValueData
+    {
+        $sousChampDatas = [];
+        foreach ($sousChamps as $sc) {
+            $enfant = $sc['champ'];
+            $enfantId = $enfant->getId();
+            if (null !== $enfantId) {
+                $sousChampDatas[$enfantId] = $this->hydrateChamp($sc);
+            }
+        }
+
+        return new ChampValueData((int) $champ->getId(), null, [], $sousChampDatas);
+    }
+}

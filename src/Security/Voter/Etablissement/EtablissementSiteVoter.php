@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter\Etablissement;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
@@ -13,8 +14,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
-    public const ID_SITE = 1;
-
     /** @var EtablissementVoterFactory */
     private $voterFactory;
 
@@ -42,7 +41,7 @@ class EtablissementSiteVoter extends EtablissementVoter
     protected function supports($attribute, $subject): bool
     {
         return parent::supports($attribute, $subject)
-            && parent::isSubjectGenreAllowed($subject, self::ID_SITE);
+            && parent::isSubjectGenreAllowed($subject, GenreEtablissement::SITE);
     }
 
     /**

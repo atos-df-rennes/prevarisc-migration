@@ -1,0 +1,29 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}
+    {{ parent() }} / Modifier le descriptif {% if dossier.nature.id in constant('App\\Constant\\DossierNature::NATURES_DESCRIPTIF_TRAVAUX') %}des travaux{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div>
+        <h3>
+            Descriptif
+            {% if dossier.nature.id in constant('App\\Constant\\DossierNature::NATURES_DESCRIPTIF_TRAVAUX') %}
+                des travaux
+            {% endif %}
+        </h3>
+
+        {{ form_start(form) }}
+            <div class='pull-right mb-3'>
+                <a href="{{ path('dossier_descriptif', {id: dossier.id}) }}" class="btn btn-default">Annuler</a>
+                <button type="submit" class="btn btn-success ml-2">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Sauvegarder
+                </button>
+            </div>
+
+            <div class='clearfix'></div>
+
+            {{ form_row(form.descriptif) }}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

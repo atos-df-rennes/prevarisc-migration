@@ -2,11 +2,14 @@
 
 namespace App\Repository;
 
+use App\Constant\DossierNature;
+use App\Constant\DossierType;
 use App\Entity\Dossier;
-use App\Entity\DossierNatureListe;
+use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -39,7 +42,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->join('d.etablissements', 'e')
             ->join('e.informations', 'ei')
             ->where($queryBuilder->expr()->isNotNull('d.dateSuppression'))
-            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e.id)')
+            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e)')
             ->orderBy('d.dateSuppression', 'DESC')
             ->getQuery()
         ;
@@ -69,7 +72,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->andWhere('d.dateCommission is not null OR d.dateVisite is not null')
             ->orderBy('columnOrder', 'ASC')
             ->setParameter('id', $idEtablissement)
-            ->setParameter('nature', DossierNatureListe::NATURE_DOSSIERS_DONNANT_AVIS)
+            ->setParameter('nature', DossierNature::NATURES_DONNANT_AVIS)
             ->getQuery();
 
         return $query->getResult();
@@ -90,5 +93,572 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         return $query->getSingleScalarResult();
+    }
+
+    /**
+     * Récupère la dernière visite périodique d'un établissement.
+     */
+    public function getLastVisitePeriodique(int $idEtablissement, bool $useDateCommissionForPeriodicity = false): ?array
+    {
+        $filters = $this->getEntityManager()->getFilters();
+        $filters->enable('dossier_non_supprime');
+
+        try {
+            $queryBuilder = $this->createQueryBuilder('dossier');
+
+            if ($useDateCommissionForPeriodicity) {
+                $queryBuilder->addSelect(
+                    'CASE WHEN dossier.dateCommission >= dossier.dateVisite THEN dossier.dateCommission ELSE dossier.dateVisite END AS date_relance'
+                );
+                $queryBuilder->orderBy('date_relance', 'DESC');
+            } else {
+                $queryBuilder->addSelect('dossier.dateVisite AS date_relance');
+                $queryBuilder->orderBy('dossier.dateVisite', 'DESC');
+            }
+
+            $queryBuilder
+                ->join('dossier.etablissements', 'etablissement')
+                ->join('dossier.type', 'type')
+                ->join('dossier.nature', 'nature')
+                ->where('etablissement.id = :idEtablissement')
+                ->andWhere('type.id IN (:types)')
+                ->andWhere('dossier.avisCommission > 0')
+                ->andWhere('nature.id IN (:natures)')
+                ->setParameter('idEtablissement', $idEtablissement)
+                ->setParameter('types', [2, 3]) // Visite et Groupe de visite
+                ->setParameter('natures', [
+                    21,
+                    26,
+                    47,
+                    48
+                ]) // Natures périodiques
+            ;
+
+            $queryBuilder->setMaxResults(1);
+
+            return $queryBuilder->getQuery()->getOneOrNullResult();
+        } finally {
+            $filters->disable('dossier_non_supprime');
+        }
+    }
+
+    /**
+     * Récupère le PC initial d'un établissement.
+     */
+    public function getPCInitial(Etablissement $etablissement): ?\DateTime
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+
+        $queryBuilder
+            ->join('d.etablissements', 'e')
+            ->join('d.type', 'dt')
+            ->join('d.nature', 'dn')
+            ->where('e.id = :idEtablissement')
+            ->andWhere('dt.id = 1') // Type étude
+            ->andWhere('dn.id = 1') // Nature PC
+            ->setParameter('idEtablissement', $etablissement->getId())
+            ->orderBy('d.dateInsert', 'ASC')
+            ->setMaxResults(1)
+        ;
+
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
+
+        return null === $result ? null : $result->getDateInsert();
+    }
+
+    /**
+     * Retourne les dossiers d'un établissement en fonction de leur type.
+     *
+     * La pagination utilise le Paginator Doctrine pour gérer correctement les fetch-joins
+     * (relations one-to-many) qui multiplient les lignes SQL — un LIMIT brut serait inexact.
+     *
+     * @param int        $id      Identifiant de l'établissement
+     * @param array<int> $types   Types de dossiers à récupérer
+     * @param bool       $reverse Si true, récupère les dossiers dont le type n'est pas dans $types
+     * @param int|null   $limit   Nombre maximum de résultats (null = pas de limite)
+     * @param int        $offset  Position de départ
+     *
+     * @return array<Dossier>
+     */
+    public function getDossiersEtablissement(int $id, array $types = [], bool $reverse = false, ?int $limit = null, int $offset = 0): array
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->join('d.etablissements', 'e')
+            ->addSelect('e')
+            ->leftJoin('d.documentsUrbanisme', 'du')
+            ->addSelect('du')
+            ->join('d.nature', 'dn')
+            ->addSelect('dn')
+            ->join('d.type', 'dt')
+            ->addSelect('dt')
+            ->join('e.informations', 'ei')
+            ->addSelect('ei')
+            ->leftJoin('d.dossiersLies', 'dl')
+            ->addSelect('dl')
+            ->leftJoin('d.consultationPlatau', 'dcp')
+            ->addSelect('dcp')
+            ->leftJoin('d.avisCommission', 'dac')
+            ->addSelect('dac')
+            ->where('e.id = :id');
+        if ([] !== $types) {
+            if ($reverse) {
+                $query->andWhere($query->expr()->notIn('d.type', ':types'));
+            } else {
+                $query->andWhere($query->expr()->in('d.type', ':types'));
+            }
+
+            $query->setParameter('types', $types);
+        }
+
+        $query->setParameter('id', $id);
+
+        if ($reverse) {
+            $query->orderBy('d.dateInsert', 'DESC');
+        } elseif ([1] === $types) {
+            $query->addSelect('COALESCE(d.dateCommission, d.dateInsert) as HIDDEN sortDate')
+                ->orderBy('sortDate', 'DESC');
+        } else {
+            $query->addSelect('COALESCE(d.dateVisite, d.dateCommission, d.dateInsert) as HIDDEN sortDate')
+                ->orderBy('sortDate', 'DESC');
+        }
+
+        if (null === $limit && 0 === $offset) {
+            return $query->getQuery()->getResult();
+        }
+
+        // Le Paginator Doctrine n'entre dans le chemin "fetch-join sécurisé" (subquery sur IDs)
+        // que si maxResults !== null. Sans maxResults, l'OFFSET est appliqué sur des lignes SQL
+        // brutes (les joins one-to-many multiplient les lignes), ce qui retourne des résultats
+        // incorrects. On utilise PHP_INT_MAX pour simuler "pas de limite" tout en forçant le bon chemin.
+        $paginator = new Paginator($query->getQuery());
+        $paginator->getQuery()
+            ->setFirstResult($offset)
+            ->setMaxResults($limit ?? PHP_INT_MAX);
+
+        return array_values(iterator_to_array($paginator->getIterator()));
+    }
+
+    /**
+     * Retourne le nombre de dossiers d'un établissement en fonction de leur type.
+     *
+     * @param int        $id      Identifiant de l'établissement
+     * @param array<int> $types   Types de dossiers à récupérer
+     * @param bool       $reverse Si true, compte les dossiers dont le type n'est pas dans $types
+     */
+    public function countDossiersEtablissement(int $id, array $types = [], bool $reverse = false): int
+    {
+        $qb = $this->createQueryBuilder('d');
+        $query = $qb->select('COUNT(d.id)')
+            ->join('d.etablissements', 'e')
+            ->where('e.id = :id');
+
+        if ([] !== $types) {
+            if ($reverse) {
+                $query->andWhere($query->expr()->notIn('d.type', ':types'));
+            } else {
+                $query->andWhere($query->expr()->in('d.type', ':types'));
+            }
+
+            $query->setParameter('types', $types);
+        }
+
+        $query->setParameter('id', $id);
+
+        return (int) $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Retourne le nombre de pièces jointes nouvelles pour un dossier.
+     */
+    public function findNombreNouvellesPieces(Dossier $dossier, \DateTimeInterface $dateDerniereVisitePage): int
+    {
+        $query = $this->createQueryBuilder('d')
+            ->select('COUNT(p)')
+            ->join('d.piecesJointes', 'dpj')
+            ->join('dpj.pieceJointe', 'p')
+            ->where('d.id = :idDossier')
+            ->andWhere('p.dateNotification >= :dateDerniereVisitePage')
+            ->setParameter('idDossier', $dossier->getId())
+            ->setParameter('dateDerniereVisitePage', $dateDerniereVisitePage)
+        ;
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Trouve le dernier dossier donnant avis valide pour un établissement.
+     *
+     * Logique legacy (getDernierIdDossierDonnantAvis) :
+     * - Dossier lié à l'établissement
+     * - Nature dans NATURES_DONNANT_AVIS
+     * - Avis favorable (1) ou défavorable (2)
+     * - Non supprimé
+     * - Tri par date commission ou date visite (DESC)
+     *
+     * @param Etablissement $etablissement  Établissement pour lequel chercher le dernier dossier
+     * @param Dossier|null  $excludeDossier Dossier à exclure de la recherche (ex: dossier courant en désaffectation)
+     *
+     * @return Dossier|null Dernier dossier valide ou null si aucun
+     */
+    public function findLastDossierDonnantAvisForEtablissement(Etablissement $etablissement, ?Dossier $excludeDossier = null): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb
+            ->join('d.etablissements', 'e')
+            ->join('d.nature', 'n')
+            ->join('d.avisCommission', 'a') // AVIS_DOSSIER_COMMISSION (pas AVIS_DOSSIER)
+            ->where('e.id = :etablissementId')
+            ->andWhere('n.id IN (:naturesIds)')
+            ->andWhere('a.id IN (1, 2)') // 1 = favorable, 2 = défavorable
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'))
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('naturesIds', DossierNature::NATURES_DONNANT_AVIS)
+        ;
+
+        // Exclure le dossier spécifié (pour éviter de retrouver le dossier courant en désaffectation)
+        if (null !== $excludeDossier) {
+            $qb->andWhere('d.id != :excludeDossierId')
+                ->setParameter('excludeDossierId', $excludeDossier->getId());
+        }
+
+        // Tri par dateCommission puis dateVisite (DESC)
+        // COALESCE dans addSelect() est interprété comme SQL brut (pas parsé par DQL)
+        $qb->addSelect('COALESCE(d.dateCommission, d.dateVisite, d.dateInsert) as HIDDEN sortDate');
+        $qb->orderBy('sortDate', 'DESC');
+        $qb->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Trouve le dernier dossier avec avis différé pour un établissement.
+     *
+     * Équivalent legacy : Service_Etablissement::getAvisEtablissement()
+     *                      → Search avec DIFFEREAVIS_DOSSIER = 1
+     *
+     * Cherche parmi tous les dossiers de l'établissement celui avec :
+     * - differeAvis = true
+     * - Plus récente date d'insertion
+     *
+     * @param Etablissement $etablissement Établissement concerné
+     *
+     * @return Dossier|null Dernier dossier avec avis différé ou null
+     */
+    public function findLastDossierAvisDiffere(Etablissement $etablissement): ?Dossier
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->join('d.etablissements', 'e')
+            ->where('e.id = :etablissementId')
+            ->andWhere('d.avisDiffere = :avisDiffere')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('avisDiffere', true)
+            ->orderBy('d.dateInsert', 'DESC')
+            ->setMaxResults(1)
+        ;
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @return array<Dossier>
+     */
+    public function getDossiersEnfants(int $parentId): array
+    {
+        $parent = $this->find($parentId);
+        $dossiersLies = $parent->getDossiersLies();
+
+        if ($dossiersLies->isEmpty()) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($dossiersLies as $dossierLie) {
+            $ids[] = $dossierLie->getId();
+        }
+
+        return $this->createQueryBuilder('d')
+            ->leftJoin('d.etablissements', 'e')
+            ->addSelect('e')
+            ->leftJoin('d.documentsUrbanisme', 'du')
+            ->addSelect('du')
+            ->join('d.nature', 'dn')
+            ->addSelect('dn')
+            ->join('d.type', 'dt')
+            ->addSelect('dt')
+            ->leftJoin('e.informations', 'ei')
+            ->addSelect('ei')
+            ->leftJoin('d.dossiersLies', 'dl')
+            ->addSelect('dl')
+            ->leftJoin('d.consultationPlatau', 'dcp')
+            ->addSelect('dcp')
+            ->leftJoin('d.avisCommission', 'dac')
+            ->addSelect('dac')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Vérifie en une seule requête si chacun des dossiers fournis a une alerte réception travaux.
+     *
+     * Un dossier est éligible si lui-même a une nature d'étude (PC/AT, natures 1, 2, 12, 13)
+     * et possède au moins un dossier lié (il est ID_DOSSIER1 dans dossierlie).
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasAlerteReceptionTravauxBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersLies', 'dl')
+            ->join('d.nature', 'dn')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('dn.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', DossierNature::NATURES_ALERTE_RECEPTION_TRAVAUX)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithAlerte = array_map('intval', array_column($rows, 'id'));
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithAlerte, true);
+        }
+
+        return $map;
+    }
+
+    /**
+     * Vérifie en une seule requête si chacun des dossiers fournis fait l'objet d'un échéancier travaux.
+     *
+     * Un dossier est éligible s'il est ID_DOSSIER2 dans dossierlie et que le maître (ID_DOSSIER1)
+     * possède la nature 46 (Échéancier de travaux).
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, bool> Map [dossierId => bool]
+     */
+    public function hasEcheancierTravauxBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('d');
+        $rows = $qb->select('d.id')
+            ->join('d.dossiersAyantLie', 'dal')
+            ->join('dal.nature', 'daln')
+            ->where($qb->expr()->in('d.id', ':ids'))
+            ->andWhere($qb->expr()->in('daln.id', ':natures'))
+            ->setParameter('ids', $dossierIds)
+            ->setParameter('natures', [DossierNature::ECHEANCIER_TRAVAUX])
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $idsWithEcheancier = array_map('intval', array_column($rows, 'id'));
+
+        $map = [];
+        foreach ($dossierIds as $id) {
+            $map[$id] = in_array($id, $idsWithEcheancier, true);
+        }
+
+        return $map;
+    }
+
+    /**
+     * Compte en une seule requête le nombre de pièces jointes pour chaque dossier.
+     *
+     * @param array<int> $dossierIds
+     *
+     * @return array<int, int> Map [dossierId => count]
+     */
+    public function countPiecesJointesBulk(array $dossierIds): array
+    {
+        if ([] === $dossierIds) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('d')
+            ->select('d.id, COUNT(dpj.pieceJointe) as cnt')
+            ->leftJoin('d.piecesJointes', 'dpj')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $dossierIds)
+            ->groupBy('d.id')
+            ->getQuery()
+            ->getArrayResult();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['id']] = (int) $row['cnt'];
+        }
+
+        foreach ($dossierIds as $id) {
+            if (!isset($map[$id])) {
+                $map[$id] = 0;
+            }
+        }
+
+        return $map;
+    }
+
+    public function getTextesApplicablesByType(int $dossierId): ?Dossier
+    {
+        $queryBuilder = $this->createQueryBuilder('d');
+        $query = $queryBuilder
+            ->addSelect('dta')
+            ->addSelect('tta')
+            ->join('d.textesApplicables', 'dta')
+            ->join('dta.type', 'tta')
+            ->where('d.id = :id')
+            ->orderBy('tta.id', 'ASC')
+            ->addOrderBy('dta.num', 'ASC')
+            ->setParameter('id', $dossierId)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
+    /**
+     * Retourne les dossiers d'un établissement groupés par catégorie (études, visites, autres),
+     * en excluant le dossier courant et les dossiers supprimés.
+     *
+     * @return array{etudes: Dossier[], visites: Dossier[], autres: Dossier[]}
+     */
+    public function findByEtablissementGrouped(Etablissement $etablissement, Dossier $excludeDossier): array
+    {
+        $all = $this->createQueryBuilder('d')
+            ->join('d.etablissements', 'e')
+            ->join('d.type', 't')
+            ->addSelect('t')
+            ->leftJoin('d.nature', 'n')
+            ->addSelect('n')
+            ->leftJoin('d.avis', 'a')
+            ->addSelect('a')
+            ->leftJoin('d.consultationPlatau', 'cp')
+            ->addSelect('cp')
+            ->where('e.id = :etablissementId')
+            ->andWhere('d.id != :excludeId')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->setParameter('etablissementId', $etablissement->getId())
+            ->setParameter('excludeId', $excludeDossier->getId())
+            ->getQuery()
+            ->getResult();
+
+        $etudes = [];
+        $visites = [];
+        $autres = [];
+
+        foreach ($all as $dossier) {
+            $typeId = null !== $dossier->getType() ? $dossier->getType()->getId() : null;
+
+            if (DossierType::ETUDE === $typeId) {
+                $etudes[] = $dossier;
+            } elseif (in_array($typeId, DossierType::TYPES_VISITE, true)) {
+                $visites[] = $dossier;
+            } else {
+                $autres[] = $dossier;
+            }
+        }
+
+        // Legacy sort: visites → COALESCE(dateVisite, dateCommission, dateInsert) DESC
+        usort($visites, function (Dossier $a, Dossier $b): int {
+            return $this->sortDateVisite($b) <=> $this->sortDateVisite($a);
+        });
+
+        // Legacy sort: études → COALESCE(dateCommission, dateInsert) DESC
+        usort($etudes, function (Dossier $a, Dossier $b): int {
+            return $this->sortDateEtude($b) <=> $this->sortDateEtude($a);
+        });
+
+        // Legacy sort: autres → dateInsert DESC
+        usort($autres, function (Dossier $a, Dossier $b): int {
+            $dateA = null !== $a->getDateInsert() ? $a->getDateInsert()->format('Y-m-d') : '0000-00-00';
+            $dateB = null !== $b->getDateInsert() ? $b->getDateInsert()->format('Y-m-d') : '0000-00-00';
+
+            return $dateB <=> $dateA;
+        });
+
+        return ['etudes' => $etudes, 'visites' => $visites, 'autres' => $autres];
+    }
+
+    /**
+     * Date de tri pour les visites : COALESCE(dateVisite, dateCommission, dateInsert).
+     */
+    private function sortDateVisite(Dossier $dossier): string
+    {
+        if (null !== $dossier->getDateVisite()) {
+            return $dossier->getDateVisite()->format('Y-m-d');
+        }
+
+        if (null !== $dossier->getDateCommission()) {
+            return substr($dossier->getDateCommission(), 0, 10);
+        }
+
+        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+    }
+
+    /**
+     * Date de tri pour les études : COALESCE(dateCommission, dateInsert).
+     */
+    private function sortDateEtude(Dossier $dossier): string
+    {
+        if (null !== $dossier->getDateCommission()) {
+            return substr($dossier->getDateCommission(), 0, 10);
+        }
+
+        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+    }
+
+    /**
+     * Retourne le dossier avec ses contacts triés par nom.
+     */
+    public function findContactsOrderedByNom(int $id): Dossier
+    {
+        return $this->createQueryBuilder('d')
+            ->addSelect('c')
+            ->addSelect('f')
+            ->leftJoin('d.contacts', 'c')
+            ->leftJoin('c.fonction', 'f')
+            ->where('d.id = :id')
+            ->orderBy('c.nom', 'ASC')
+            ->addOrderBy('c.prenom', 'ASC')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    /**
+     * Trouve la dernière visite périodique (nature 21 ou 26) d'un établissement.
+     *
+     * Utilisée lors de la création d'un nouveau dossier VP pour copier les documents
+     * consultés et ajoutés de la visite précédente.
+     */
+    public function findDerniereVP(Etablissement $etablissement): ?Dossier
+    {
+        return $this->createQueryBuilder('d')
+            ->join('d.etablissements', 'e')
+            ->join('d.nature', 'n')
+            ->where('e.id = :idEtablissement')
+            ->andWhere('n.id IN (:natures)')
+            ->setParameter('idEtablissement', $etablissement->getId())
+            ->setParameter('natures', DossierNature::VISITE_PERIODIQUE)
+            ->orderBy('d.dateVisite', 'DESC')
+            ->addOrderBy('d.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

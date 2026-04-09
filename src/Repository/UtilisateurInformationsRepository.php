@@ -6,8 +6,7 @@ use App\Entity\Utilisateur;
 use App\Entity\UtilisateurInformations;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -29,28 +28,21 @@ class UtilisateurInformationsRepository extends ServiceEntityRepository
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(UtilisateurInformations $entity, bool $flush = true): void
+    public function createNotInUserQueryBuilder(): QueryBuilder
     {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
+        $queryBuilder = $this->createQueryBuilder('ui');
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(UtilisateurInformations $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+        return $queryBuilder
+            ->where(
+                $queryBuilder->expr()->notIn(
+                    'ui.id',
+                    $this->entityManager->createQueryBuilder()
+                        ->select('IDENTITY(u.informations)')
+                        ->from(Utilisateur::class, 'u')
+                        ->getDQL()
+                )
+            )
+        ;
     }
 
     public function findByNameNotInUser(string $name): array

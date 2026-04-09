@@ -36,7 +36,7 @@
                         <div class="deleted-element__name">
                             <div class="deleted-element__name_informations">
                                 <a
-                                        href="{{ '/dossier/index/id/' ~ dossier.id }}"
+                                        href="{{ path('dossier_index', {id: dossier.id}) }}"
                                         {% if dossier.objet|length > 70 %}
                                             title="{{ dossier.objet }}"
                                         {% endif %}
@@ -52,10 +52,9 @@
                                 {% endfor %}
                             </div>
 
-                            {# @todo: Faire le rétablissement #}
                             <a
                                 class="btn btn-sm btn-default deleted-element__restore-button"
-                                href="{{ '/dossier/retablir-dossier/idDossier/' ~ dossier.id }}"
+                                href="{{ path('admin_elements_supprimes_restore_dossier', {id: dossier.id}) }}"
                             >
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                 Rétablir le dossier

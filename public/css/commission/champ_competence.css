@@ -1,0 +1,18 @@
+.no-competences-message {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+}
+
+.competence-rule .panel-heading:hover {
+    background-color: #e8e8e8;
+}
+
+.competence-rule .panel-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.competence-rule .panel-title a {
+    color: inherit;
+}

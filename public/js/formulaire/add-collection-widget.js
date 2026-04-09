@@ -49,13 +49,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if(list.classList.contains('remove-collection-widget')) {
             addTagFormDeleteLink(newElem);
         }
+
+        // Dispatch custom event pour permettre aux modules spécifiques de réagir
+        const event = new CustomEvent('collection:item-added', {
+            detail: { list: list, element: newElem }
+        });
+        document.dispatchEvent(event);
     })
 });
 
 function addTagFormDeleteLink(element) {
     const buttonWrapper = document.createElement('div');
     buttonWrapper.classList.add('col-xs-2');
-    buttonWrapper.classList.add('text-right');
+    buttonWrapper.classList.add('text-center');
 
     buttonWrapper.innerHTML = '<button class="btn btn-danger btn-icon" title="Supprimer l\'élément"><span class="glyphicon glyphicon-trash"></span></button>';
 

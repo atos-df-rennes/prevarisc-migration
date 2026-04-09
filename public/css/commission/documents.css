@@ -1,0 +1,41 @@
+/* ============================================================
+   Styles partagés — onglets Courriers types et Document type
+   ============================================================ */
+
+/* Icône de fichier ODT (taille normale) */
+.commission-doc-icon {
+    color: #0174A7;
+}
+
+/* Icône de fichier ODT (taille agrandie — onglet Document type) */
+.commission-doc-icon-lg {
+    font-size: 2em;
+    color: #0174A7;
+}
+
+/* Lien de téléchargement du document */
+.commission-doc-link {
+    color: #0174A7;
+}
+
+/* Lien de téléchargement — taille agrandie (onglet Document type) */
+.commission-doc-link-lg {
+    font-size: 1.1em;
+}
+
+/* Formulaire de suppression affiché en ligne */
+.commission-doc-delete-form {
+    display: inline;
+}
+
+/* Formulaire de suppression en ligne avec marge gauche */
+.commission-doc-delete-form-spaced {
+    display: inline;
+    margin-left: 10px;
+}
+
+/* Bouton de suppression (réinitialise le padding Bootstrap) */
+.commission-doc-delete-btn {
+    color: #c9302c;
+    padding: 0;
+}

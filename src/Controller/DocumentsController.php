@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
+use App\Service\Commission\CommissionDocumentBuilder;
 use App\Service\Documents;
 use App\Utils\File;
 use Psr\Log\LoggerInterface;
@@ -12,7 +13,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -28,60 +28,48 @@ class DocumentsController extends AbstractController
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /**
+     * @var CommissionRepository
+     */
+    private $commissionRepository;
+
+    /**
+     * @var CommissionDocumentBuilder
+     */
+    private $commissionDocumentBuilder;
+
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    public function __construct(LoggerInterface $logger, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder, Filesystem $filesystem)
     {
         $this->logger = $logger;
+        $this->commissionRepository = $commissionRepository;
+        $this->commissionDocumentBuilder = $commissionDocumentBuilder;
+        $this->filesystem = $filesystem;
     }
 
     /**
      * @Route("/admin/documents", name="admin_documents")
      */
-    public function index(Documents $documents, CommissionRepository $commissionRepository): Response
+    public function index(Documents $documents): Response
     {
-        $commissions = $commissionRepository->findAll();
-        $commissionsAsArray = [];
-
-        // @todo: Faire ça dans un service
-        foreach ($commissions as $commission) {
-            if (
-                in_array(null, [$commission->getId(), $commission->getLibelle()], true)
-                || null === $commission->getType()
-                || null === $commission->getType()->getLibelle()
-            ) {
-                $this->logger->error("La commission n'a pas été trouvée.");
-
-                continue;
-            }
-
-            try {
-                $commissionsAsArray[$commission->getId()] = [
-                    'nom' => $commission->getLibelle(),
-                    'type' => $commission->getType()->getLibelle(),
-                    'documents' => $documents->findForCommission($commission->getId())
-                ];
-            } catch (DirectoryNotFoundException $directoryNotFoundException) {
-                $this->logger->error($directoryNotFoundException->getMessage());
-
-                $commissionsAsArray[$commission->getId()] = [
-                    'nom' => $commission->getLibelle(),
-                    'type' => $commission->getType()->getLibelle(),
-                    'documents' => null,
-                ];
-            }
-        }
+        $commissions = $this->commissionRepository->findAll();
 
         return $this->render('documents/index.html.twig', [
             'visibles_apres_verrouillage' => $documents->findForCommission(0),
-            'commissions' => $commissionsAsArray,
+            'commissions' => $this->commissionDocumentBuilder->buildWithCommissions($commissions),
         ]);
     }
 
     /**
-     * @Route("/admin/documents/ajouter", name="admin_documents_add")
+     * @Route("/admin/documents/ajouter", name="admin_documents_add", options={"expose"=true})
      */
-    public function ajouter(Request $request, CommissionRepository $commissionRepository, string $documentsRealDataPath): Response
+    public function ajouter(Request $request, string $documentsRealDataPath): Response
     {
-        $commissions = $commissionRepository->findAll();
+        $commissions = $this->commissionRepository->findAll();
         $commissionsAsArray = [
             new FormDocument(0, 'Disponibles après verrouillage'),
         ];
@@ -153,9 +141,9 @@ class DocumentsController extends AbstractController
     }
 
     /**
-     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"})
+     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"}, options={"expose"=true})
      */
-    public function supprimer(Request $request, Filesystem $filesystem, string $documentsRealDataPath): Response
+    public function supprimer(Request $request, string $documentsRealDataPath): Response
     {
         // @todo: Générer un nom de fichier plus sûr
         $nomFichier = $request->request->get('nomFichier');
@@ -182,7 +170,7 @@ class DocumentsController extends AbstractController
         $this->logger->debug('Suppression du document.', ['chemin' => $filepath]);
 
         try {
-            $filesystem->remove($filepath);
+            $this->filesystem->remove($filepath);
         } catch (IOException $ioException) {
             $this->logger->error($ioException->getMessage());
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
