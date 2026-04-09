@@ -58,11 +58,7 @@ class DossierContactController extends AbstractController implements DossierLate
     public function contacts(Dossier $dossier): Response
     {
         $idDossier = $dossier->getId();
-        $dossierWithContacts = null !== $idDossier ? $this->dossierRepository->findContactsOrderedByNom($idDossier) : null;
-
-        $contacts = null !== $dossierWithContacts
-            ? $dossierWithContacts->getContacts()
-            : null;
+        $contacts = $this->dossierRepository->findContactsOrderedByNom($idDossier)->getContacts();
 
         return $this->render('dossier/contacts/contacts.html.twig', [
             'dossier' => $dossier,

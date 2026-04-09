@@ -625,19 +625,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * Retourne le dossier avec ses contacts triés par nom.
      */
-    public function findContactsOrderedByNom(int $id): ?Dossier
+    public function findContactsOrderedByNom(int $id): Dossier
     {
         return $this->createQueryBuilder('d')
             ->addSelect('c')
             ->addSelect('f')
-            ->join('d.contacts', 'c')
+            ->leftJoin('d.contacts', 'c')
             ->leftJoin('c.fonction', 'f')
             ->where('d.id = :id')
             ->orderBy('c.nom', 'ASC')
             ->addOrderBy('c.prenom', 'ASC')
             ->setParameter('id', $id)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getSingleResult();
     }
 
     /**

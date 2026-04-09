@@ -92,14 +92,14 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
     /**
      * Retourne l'établissement demandé avec la liste des contacts ordonnée par nom.
      */
-    public function findContactsOrderedByNom(int $id): ?Etablissement
+    public function findContactsOrderedByNom(int $id): Etablissement
     {
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
             ->addSelect('c')
             ->addSelect('f')
-            ->join('e.contacts', 'c')
-            ->join('c.fonction', 'f')
+            ->leftJoin('e.contacts', 'c')
+            ->leftJoin('c.fonction', 'f')
             ->where('e.id = :id')
             ->orderBy('c.nom', 'ASC')
             ->addOrderBy('c.prenom', 'ASC')
@@ -107,7 +107,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             ->getQuery()
         ;
 
-        return $query->getOneOrNullResult();
+        return $query->getSingleResult();
     }
 
     /**

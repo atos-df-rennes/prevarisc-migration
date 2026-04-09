@@ -73,8 +73,15 @@ class ContactController extends AbstractController
                     throw $this->createNotFoundException('Dossier non trouvé.');
                 }
 
+                /** @var Dossier $entity */
                 $this->denyAccessUnlessGranted(DossierVoter::MODIFICATION, $entity);
                 $redirectRoute = $this->router->generate('dossier_contacts', ['id' => $elementId]);
+
+                if ($entity->hasVerrou()) {
+                    $this->addFlash('warning', 'Le dossier est verrouillé.');
+
+                    return $this->redirect($redirectRoute);
+                }
 
                 break;
             case Contact::COMMISSION:

@@ -57,20 +57,11 @@ class EtablissementContactController extends AbstractController implements Etabl
      */
     public function contacts(Etablissement $etablissement): Response
     {
-        $etablissementWithContacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
-
-        $contacts = null !== $etablissementWithContacts
-            ? $etablissementWithContacts->getSortedContacts()
-            : null;
-
+        $contacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId())->getSortedContacts();
         $contactsParents = new ArrayCollection();
 
         foreach ($etablissement->getParents() as $parent) {
             $parentWithContacts = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
-
-            if (null === $parentWithContacts) {
-                continue;
-            }
 
             foreach ($parentWithContacts->getSortedContacts() as $contactParent) {
                 $contactsParents->add($contactParent);
