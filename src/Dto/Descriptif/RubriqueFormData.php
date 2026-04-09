@@ -11,7 +11,7 @@ namespace App\Dto\Descriptif;
  * Implémente ArrayAccess pour permettre à Symfony Forms d'utiliser
  * la notation bracket dans property_path (ex: '[champ_123]').
  *
- * @implements \ArrayAccess<string, ChampValueData|null>
+ * @implements \ArrayAccess<array-key, ChampValueData|null>
  */
 class RubriqueFormData implements \ArrayAccess
 {

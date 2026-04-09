@@ -86,7 +86,9 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Collection $dossiersToAdd */
             $dossiersToAdd = $form->get('dossiersToAdd')->getData();
-            $this->dossierLiaisonsService->addLiaisons($dossier, $dossiersToAdd->toArray());
+            /** @var array<Dossier> $dossierArray */
+            $dossierArray = $dossiersToAdd->toArray();
+            $this->dossierLiaisonsService->addLiaisons($dossier, $dossierArray);
 
             $this->addFlash('success', 'Les liaisons ont bien été enregistrées.');
 
@@ -129,7 +131,8 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
             return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
         }
 
-        $idEtablissement = (int) $form->get('idEtablissement')->getData();
+        $rawId = $form->get('idEtablissement')->getData();
+        $idEtablissement = is_numeric($rawId) ? (int) $rawId : 0;
         $etablissement = $idEtablissement > 0 ? $this->etablissementRepository->find($idEtablissement) : null;
 
         if (null === $etablissement) {
