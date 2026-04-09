@@ -34,7 +34,7 @@
     {# Modale ajout contact existant #}
     {{ include('contact/_modal_existant.html.twig', {
         action_url: path('dossier_contacts_add_existing', {id: dossier.id}),
-        csrf_token_id: 'dossier_contacts_add_existing_' ~ dossier.id
+        csrf_token_id: 'dossier_contacts_add_existing_' ~ dossier.id,
     }) }}
 
     {# Modale suppression contact #}

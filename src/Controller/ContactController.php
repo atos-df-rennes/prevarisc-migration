@@ -73,7 +73,7 @@ class ContactController extends AbstractController
                     throw $this->createNotFoundException('Dossier non trouvé.');
                 }
 
-                /** @var Dossier $entity */
+                /* @var Dossier $entity */
                 $this->denyAccessUnlessGranted(DossierVoter::MODIFICATION, $entity);
                 $redirectRoute = $this->router->generate('dossier_contacts', ['id' => $elementId]);
 
