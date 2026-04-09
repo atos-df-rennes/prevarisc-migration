@@ -51,14 +51,14 @@ class DossierContactController extends AbstractController implements DossierLate
     }
 
     /**
-     * @Route("/dossier/{id}/contacts", name="dossier_contacts")
+     * @Route("/dossier/{id}/contacts", name="dossier_contacts", methods={"GET"})
      *
      * @IsGranted(DossierVoter::LECTURE, subject="dossier")
      */
     public function contacts(Dossier $dossier): Response
     {
         $idDossier = $dossier->getId();
-        $dossierWithContacts = null != $idDossier ? $this->dossierRepository->findContactsOrderedByNom($idDossier) : null;
+        $dossierWithContacts = null !== $idDossier ? $this->dossierRepository->findContactsOrderedByNom($idDossier) : null;
 
         $contacts = null !== $dossierWithContacts
             ? $dossierWithContacts->getContacts()
@@ -71,7 +71,7 @@ class DossierContactController extends AbstractController implements DossierLate
     }
 
     /**
-     * @Route("/dossier/{id}/contacts/ajouter", name="dossier_contacts_add", defaults={"_dossier_lateral_nav": false})
+     * @Route("/dossier/{id}/contacts/ajouter", name="dossier_contacts_add", methods={"GET", "POST"}, defaults={"_dossier_lateral_nav": false})
      *
      * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
      */
@@ -121,7 +121,7 @@ class DossierContactController extends AbstractController implements DossierLate
             return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
         }
 
-        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
+        if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
             throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");
         }
 
