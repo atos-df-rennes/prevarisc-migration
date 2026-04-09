@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Constant\DossierType;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
+use App\Dto\Descriptif\DescriptifFormData;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
@@ -116,6 +117,11 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var LoggerInterface */
     private $logger;
 
+    /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -137,7 +143,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         DescriptifFormBuilder $descriptifFormBuilder,
         DescriptifFormPersister $descriptifFormPersister,
         bool $descriptifPersonnalise,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        FormFactoryInterface $formFactory
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -160,6 +167,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->descriptifFormPersister = $descriptifFormPersister;
         $this->descriptifPersonnalise = $descriptifPersonnalise;
         $this->logger = $logger;
+        $this->formFactory = $formFactory;
     }
 
     /**
@@ -486,10 +494,10 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
-    public function editDescriptifOriginal(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
         if ($this->descriptifPersonnalise) {
-            return $this->editDescriptifPersonnalise($etablissement, $request, $formFactory);
+            return $this->editDescriptifPersonnalise($etablissement, $request, $this->formFactory);
         }
 
         $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
@@ -530,7 +538,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                /** @var DescriptifFormData $submittedData */
                 $submittedData = $form->getData();
                 $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
                 $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
@@ -560,17 +568,17 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * @Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")
      */
-    public function editEffectifsDegagements(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    public function editEffectifsDegagements(Etablissement $etablissement, Request $request): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
 
         $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
-        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($this->formFactory, $formData, $data['rubriques']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                /** @var DescriptifFormData $submittedData */
                 $submittedData = $form->getData();
                 $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
                 $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');

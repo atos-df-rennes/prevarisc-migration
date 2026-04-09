@@ -52,9 +52,6 @@ class TableauRowData
         return $this;
     }
 
-    /**
-     * @param mixed $value
-     */
     public function setCell(int $champId, $value): self
     {
         $this->cells[$champId] = $value;
@@ -62,9 +59,6 @@ class TableauRowData
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCell(int $champId)
     {
         return $this->cells[$champId] ?? null;

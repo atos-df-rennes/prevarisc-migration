@@ -39,6 +39,7 @@ class TableauRowType extends AbstractType
                 foreach ($childChamp->getValeursListe() as $vl) {
                     $choices[$vl->getValeur()] = $vl->getValeur();
                 }
+
                 $formOptions['choices'] = $choices;
             }
 
@@ -64,6 +65,7 @@ class TableauRowType extends AbstractType
     {
         switch ($typeId) {
             case TypeChamp::TEXT:
+            default:
                 return ChampTextType::class;
             case TypeChamp::TEXTAREA:
                 return ChampTextareaType::class;
@@ -75,8 +77,6 @@ class TableauRowType extends AbstractType
                 return ChampCheckboxType::class;
             case TypeChamp::DATE:
                 return ChampDateType::class;
-            default:
-                return ChampTextType::class;
         }
     }
 }

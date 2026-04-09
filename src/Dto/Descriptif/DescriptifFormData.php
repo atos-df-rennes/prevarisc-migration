@@ -62,9 +62,6 @@ class DescriptifFormData implements \ArrayAccess
 
     // --- ArrayAccess (clés au format "rubrique_{id}") ---
 
-    /**
-     * @param mixed $offset
-     */
     public function offsetExists($offset): bool
     {
         if (!is_string($offset)) {
@@ -75,8 +72,6 @@ class DescriptifFormData implements \ArrayAccess
     }
 
     /**
-     * @param mixed $offset
-     *
      * @return RubriqueFormData|null
      */
     public function offsetGet($offset)
@@ -88,10 +83,6 @@ class DescriptifFormData implements \ArrayAccess
         return $this->getRubrique($this->parseRubriqueId($offset));
     }
 
-    /**
-     * @param mixed $offset
-     * @param mixed $value
-     */
     public function offsetSet($offset, $value): void
     {
         if (is_string($offset) && $value instanceof RubriqueFormData) {
@@ -99,9 +90,6 @@ class DescriptifFormData implements \ArrayAccess
         }
     }
 
-    /**
-     * @param mixed $offset
-     */
     public function offsetUnset($offset): void
     {
         if (!is_string($offset)) {

@@ -92,9 +92,9 @@ class DescriptifFormPersister
     /**
      * Logique commune de persistance.
      *
-     * @param Dossier|Etablissement $entity
+     * @param Dossier|Etablissement                                               $entity
      * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
-     * @param array<int, Valeur[]>  $existingValeurs indexées par champId
+     * @param array<int, Valeur[]>                                                $existingValeurs indexées par champId
      */
     private function doPersist($entity, DescriptifFormData $formData, array $rubriques, array $existingValeurs): void
     {
@@ -248,7 +248,7 @@ class DescriptifFormPersister
                 }
 
                 // Ligne existante : mise à jour valeur ET idx (pour drag & drop)
-                $existing = $lookup[$champId]['i' . $idx] ?? null;
+                $existing = $lookup[$champId]['i'.$idx] ?? null;
                 if (null === $existing) {
                     // Cherche par valeurId dans tous les idx (cas du drag & drop)
                     $existing = $this->findValeurById($lookup[$champId] ?? [], $valeurId);
@@ -260,6 +260,7 @@ class DescriptifFormPersister
                         $this->applyValueToValeur($existing, $champ, $value);
                         $existing->setIdx($idx);
                     }
+
                     $touchedValeurIds[] = $valeurId;
                     continue;
                 }
@@ -329,7 +330,7 @@ class DescriptifFormPersister
                 break;
 
             case TypeChamp::CHECKBOX:
-                $valeur->setCheckbox(is_bool($value) ? $value : false);
+                $valeur->setCheckbox(is_bool($value) && $value);
                 break;
 
             case TypeChamp::DATE:
@@ -338,6 +339,7 @@ class DescriptifFormPersister
                 } else {
                     $valeur->setDate(null);
                 }
+
                 break;
         }
     }
@@ -428,7 +430,7 @@ class DescriptifFormPersister
      * Construit un index [champId][idxKey] = Valeur pour lookup O(1).
      * Les champs simples utilisent la clé 'null'. Les lignes de tableau utilisent (string) idx.
      *
-     * @param array<int, Valeur[]>              $existingValeurs
+     * @param array<int, Valeur[]> $existingValeurs
      *
      * @return array<int, array<string, Valeur>>
      */
@@ -439,7 +441,7 @@ class DescriptifFormPersister
 
         foreach ($existingValeurs as $champId => $valeurs) {
             foreach ($valeurs as $valeur) {
-                $idxKey = null !== $valeur->getIdx() ? 'i' . $valeur->getIdx() : 'null';
+                $idxKey = null !== $valeur->getIdx() ? 'i'.$valeur->getIdx() : 'null';
                 $lookup[(int) $champId][$idxKey] = $valeur;
             }
         }

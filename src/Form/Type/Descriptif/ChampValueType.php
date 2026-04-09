@@ -36,7 +36,7 @@ class ChampValueType extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) use ($champRepository) {
+            function (FormEvent $event) use ($champRepository): void {
                 $data = $event->getData();
                 $form = $event->getForm();
 
@@ -66,6 +66,7 @@ class ChampValueType extends AbstractType
                         foreach ($champ->getValeursListe() as $vl) {
                             $choices[$vl->getValeur()] = $vl->getValeur();
                         }
+
                         $form->add('value', ChampSelectType::class, [
                             'label' => false,
                             'choices' => $choices,
@@ -106,6 +107,7 @@ class ChampValueType extends AbstractType
                                 'label' => false,
                             ]);
                         }
+
                         break;
                 }
             }

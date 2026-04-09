@@ -46,4 +46,56 @@ class ListeDocumentConsulteRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocVisiteRT(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.receptionTravaux = :receptionTravaux')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('receptionTravaux', true);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocVisite(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.visite = :visite')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('visite', true);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocEtude(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.etude = :etude')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('etude', true);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<ListeDocumentConsulte>
+     */
+    public function getDocVisiteVAO(): array
+    {
+        $qb = $this->createQueryBuilder('ldc');
+        $query = $qb->where('ldc.avantOuverture = :avantOuverture')
+            ->orderBy('ldc.ordre', 'ASC')
+            ->setParameter('avantOuverture', true);
+
+        return $query->getQuery()->getResult();
+    }
 }

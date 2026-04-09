@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
+use App\Dto\Descriptif\DescriptifFormData;
 use App\Entity\Dossier;
 use App\Repository\DossierRepository;
 use App\Service\Descriptif as DescriptifService;
@@ -55,6 +56,11 @@ class DossierEffectifsController extends AbstractController implements DossierLa
     /** @var LoggerInterface */
     private $logger;
 
+    /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+
     public function __construct(
         DescriptifService $descriptifService,
         DescriptifInspector $descriptifInspector,
@@ -64,7 +70,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         LoggerInterface $logger,
         DescriptifFormHydrator $descriptifFormHydrator,
         DescriptifFormBuilder $descriptifFormBuilder,
-        DescriptifFormPersister $descriptifFormPersister
+        DescriptifFormPersister $descriptifFormPersister,
+        FormFactoryInterface $formFactory
     ) {
         $this->descriptifService = $descriptifService;
         $this->descriptifInspector = $descriptifInspector;
@@ -75,6 +82,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $this->descriptifFormHydrator = $descriptifFormHydrator;
         $this->descriptifFormBuilder = $descriptifFormBuilder;
         $this->descriptifFormPersister = $descriptifFormPersister;
+        $this->formFactory = $formFactory;
     }
 
     /**
@@ -328,17 +336,17 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      *
      * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
      */
-    public function editEffectifsDegagements(Dossier $dossier, Request $request, FormFactoryInterface $formFactory): Response
+    public function editEffectifsDegagements(Dossier $dossier, Request $request): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
 
         $formData = $this->descriptifFormHydrator->hydrateFromDossier($dossier, $data['rubriques']);
-        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($this->formFactory, $formData, $data['rubriques']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                /** @var DescriptifFormData $submittedData */
                 $submittedData = $form->getData();
                 $this->descriptifFormPersister->persistForDossier($dossier, $submittedData, $data['rubriques']);
                 $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');

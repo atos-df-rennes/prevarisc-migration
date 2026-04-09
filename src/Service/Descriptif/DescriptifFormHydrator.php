@@ -67,6 +67,7 @@ class DescriptifFormHydrator
                 if (null === $champId) {
                     continue;
                 }
+
                 $champs[$champId] = $this->hydrateChamp($champData);
             }
 
@@ -128,6 +129,7 @@ class DescriptifFormHydrator
         switch ($typeId) {
             case TypeChamp::TEXT:
             case TypeChamp::SELECT:
+            default:
                 return $valeur->getStr();
             case TypeChamp::TEXTAREA:
                 return $valeur->getLongStr();
@@ -137,8 +139,6 @@ class DescriptifFormHydrator
                 return $valeur->getCheckbox();
             case TypeChamp::DATE:
                 return $valeur->getDate();
-            default:
-                return $valeur->getStr();
         }
     }
 
@@ -162,9 +162,11 @@ class DescriptifFormHydrator
                     $enfantType = $enfantChamp->getType();
                     $enfantTypeId = null !== $enfantType ? $enfantType->getId() : null;
                 }
+
                 $cells[$champId] = $this->extractValue($valeur, $enfantTypeId);
                 $valeurIds[$champId] = $valeur->getId();
             }
+
             $rows[] = new TableauRowData($cells, $valeurIds);
         }
 
