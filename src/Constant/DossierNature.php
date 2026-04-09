@@ -67,13 +67,6 @@ final class DossierNature
     public const VISITE_PERIODIQUE = [21, 26];
 
     /**
-     * Natures "levée" (prescriptions ou avis définitif) — déclenchent la création de 5 docs "Attestation de".
-     *
-     * @var int[]
-     */
-    public const LEVEE = [7, 19];
-
-    /**
      * Natures Études avec documents de visite (levées de prescriptions, etc.).
      *
      * @var int[]
