@@ -6,18 +6,14 @@ use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
+use App\Dto\Descriptif\DescriptifFormData;
 use App\Entity\Dossier;
-use App\Entity\DossierDocumentConsulte;
 use App\Entity\DossierNatureListe;
-use App\Entity\ListeDocumentAjoute;
-use App\Entity\ListeDocumentConsulte;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\Dossier\DossierDescriptifType;
-use App\Form\Dossier\DossierDocumentConsulteType;
 use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
-use App\Form\Dossier\ListeDocumentAjouteType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
@@ -31,13 +27,11 @@ use App\Service\Descriptif as DescriptifService;
 use App\Service\Descriptif\DescriptifFormBuilder;
 use App\Service\Descriptif\DescriptifFormHydrator;
 use App\Service\Descriptif\DescriptifFormPersister;
-use Symfony\Component\Form\FormFactoryInterface;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierCreationService;
 use App\Service\Dossier\DossierSauvegardeService;
-use App\Service\Dossier\DossierDocumentsConsultesService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -48,8 +42,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -154,8 +148,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DescriptifFormPersister */
     private $descriptifFormPersister;
 
-    /** @var DossierDocumentsConsultesService */
-    private $dossierDocumentsConsultesService;
+    /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -182,7 +178,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DescriptifFormHydrator $descriptifFormHydrator,
         DescriptifFormBuilder $descriptifFormBuilder,
         DescriptifFormPersister $descriptifFormPersister,
-        DossierDocumentsConsultesService $dossierDocumentsConsultesService
+        FormFactoryInterface $formFactory
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -208,7 +204,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->descriptifFormHydrator = $descriptifFormHydrator;
         $this->descriptifFormBuilder = $descriptifFormBuilder;
         $this->descriptifFormPersister = $descriptifFormPersister;
-        $this->dossierDocumentsConsultesService = $dossierDocumentsConsultesService;
+        $this->formFactory = $formFactory;
     }
 
     /**
@@ -745,17 +741,17 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Security("is_granted('verifications_techniques') and is_granted('edit_doss', dossier)")
      */
-    public function editVerificationsTechniques(Dossier $dossier, Request $request, FormFactoryInterface $formFactory): Response
+    public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
 
         $formData = $this->descriptifFormHydrator->hydrateFromDossier($dossier, $data['rubriques']);
-        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($this->formFactory, $formData, $data['rubriques']);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                /** @var DescriptifFormData $submittedData */
                 $submittedData = $form->getData();
                 $this->descriptifFormPersister->persistForDossier($dossier, $submittedData, $data['rubriques']);
                 $this->addFlash('success', 'Les vérifications techniques ont bien été mises à jour.');
@@ -774,225 +770,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/dossier/{id}/documents-consultes", name="dossier_documents_consultes", methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
-     */
-    public function documentsConsultes(Dossier $dossier): Response
-    {
-        $documentsConsultables = $this->dossierDocumentsConsultesService->getDocumentsConsultables($dossier);
-
-        // La collection documentsAjoutes est LAZY par défaut. Sans cet appel, Doctrine
-        // émettra une requête par accès dans le template (N+1). On force le chargement ici.
-        $dossier->getDocumentsAjoutes()->toArray();
-
-        // Index des documents consultés par leur ID_DOC pour un lookup O(1) lors de la séparation.
-        $documentsConsultesMap = [];
-        foreach ($dossier->getDocumentsConsultes()->toArray() as $documentConsulte) {
-            $documentsConsultesMap[$documentConsulte->getDocument()] = $documentConsulte;
-        }
-
-        // Conformément au legacy, les documents déjà renseignés apparaissent en tête de liste,
-        // suivis des documents consultables non encore renseignés.
-        $documentsConsultes = [];
-        $documentsNonConsultes = [];
-        foreach ($documentsConsultables as $doc) {
-            $docId = (string) $doc->getId();
-            if (isset($documentsConsultesMap[$docId])) {
-                $documentsConsultes[] = ['doc' => $doc, 'documentConsulte' => $documentsConsultesMap[$docId]];
-            } else {
-                $documentsNonConsultes[] = $doc;
-            }
-        }
-
-        return $this->render('dossier/documents_consultes/documents_consultes.html.twig', [
-            'dossier' => $dossier,
-            'documentsConsultes' => $documentsConsultes,
-            'documentsNonConsultes' => $documentsNonConsultes,
-        ]);
-    }
-
-    /**
-     * @Route("/dossier/{id}/documents-consultes/{idDocumentConsultable}/ajouter",
-     *     name="dossier_documents_consultes_add",
-     *     methods={"GET", "POST"})
-     *
-     * @ParamConverter("documentConsultable", options={"id" = "idDocumentConsultable"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
-    public function documentsConsultesAdd(Request $request, Dossier $dossier, ListeDocumentConsulte $documentConsultable): Response
-    {
-        $documentConsulte = new DossierDocumentConsulte();
-        $documentConsulte->setDossier($dossier);
-        $documentConsulte->setDocument((string) $documentConsultable->getId());
-        $documentConsulte->setConsulte(true);
-        if (null !== $dossier->getNature()) {
-            $documentConsulte->setNature($dossier->getNature());
-        }
-
-        $form = $this->createForm(DossierDocumentConsulteType::class, $documentConsulte);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->persist($documentConsulte);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Le document consulté a été ajouté avec succès.');
-
-            return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
-        }
-
-        return $this->render('dossier/documents_consultes/edit_documents_consultes.html.twig', [
-            'dossier' => $dossier,
-            'documentConsulte' => $documentConsulte,
-            'libelle' => $documentConsultable->getLibelle(),
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer",
-     *     name="dossier_documents_consultes_delete",
-     *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
-     *     methods={"DELETE"})
-     *
-     * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
-    public function documentsConsultesRemove(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
-    {
-        if ($documentConsulte->getDossier() !== $dossier) {
-            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
-        }
-
-        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
-            throw $this->createAccessDeniedException('Token CSRF non valide.');
-        }
-
-        $dossier->removeDocumentsConsulte($documentConsulte);
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Le document consulté a été supprimé avec succès.');
-
-        return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
-    }
-
-    /**
-     * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/modifier",
-     *     name="dossier_documents_consultes_edit",
-     *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
-     *     methods={"GET", "POST"})
-     *
-     * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
-    public function documentsConsultesEdit(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
-    {
-        if ($documentConsulte->getDossier() !== $dossier) {
-            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
-        }
-
-        $libelle = '';
-        if (null !== $documentConsulte->getDocument() && 0 !== intval($documentConsulte->getDocument())) {
-            $libelle = $this->dossierDocumentsConsultesService->getLibelleDocumentConsulte($documentConsulte->getDocument());
-        }
-
-        $form = $this->createForm(DossierDocumentConsulteType::class, $documentConsulte);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Le document consulté a été modifié avec succès.');
-
-            return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
-        }
-
-        return $this->render('dossier/documents_consultes/edit_documents_consultes.html.twig', [
-            'dossier' => $dossier,
-            'documentConsulte' => $documentConsulte,
-            'libelle' => $libelle,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer",
-     *     name="dossier_documents_ajoutes_delete",
-     *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
-     *     methods={"DELETE"})
-     *
-     * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
-    public function documentsAjoutesRemove(Request $request, Dossier $dossier, ListeDocumentAjoute $documentAjoute): Response
-    {
-        if ($documentAjoute->getDossier() !== $dossier) {
-            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
-        }
-
-        if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
-            throw $this->createAccessDeniedException('Token CSRF non valide.');
-        }
-
-        $dossier->removeDocumentsAjoute($documentAjoute);
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Le document a été supprimé avec succès.');
-
-        return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
-    }
-
-    /**
-     * @Route("/dossier/{id}/documents-ajoutes/ajouter",
-     *     name="dossier_documents_ajoutes_add",
-     *     requirements={"id"="\d+"},
-     *     methods={"GET", "POST"})
-     * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/modifier",
-     *     name="dossier_documents_ajoutes_edit",
-     *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
-     *     methods={"GET", "POST"})
-     *
-     * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"}, isOptional="true")
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
-    public function documentsAjoutesEdit(Request $request, Dossier $dossier, ?ListeDocumentAjoute $documentAjoute = null): Response
-    {
-        $isNew = null === $documentAjoute;
-
-        if ($isNew) {
-            $documentAjoute = new ListeDocumentAjoute();
-            $documentAjoute->setDossier($dossier);
-            if (null !== $dossier->getNature()) {
-                $documentAjoute->setNature($dossier->getNature());
-            }
-
-            $this->entityManager->persist($documentAjoute);
-        } elseif ($documentAjoute->getDossier() !== $dossier) {
-            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
-        }
-
-        $form = $this->createForm(ListeDocumentAjouteType::class, $documentAjoute);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
-
-            $this->addFlash('success', $isNew ? 'Le document a été ajouté avec succès.' : 'Le document a été modifié avec succès.');
-
-            return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
-        }
-
-        return $this->render('dossier/documents_consultes/edit_documents_ajoutes.html.twig', [
-            'dossier' => $dossier,
-            'documentAjoute' => $documentAjoute,
             'form' => $form->createView(),
         ]);
     }
