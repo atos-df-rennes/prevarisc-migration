@@ -49,7 +49,10 @@
     {% endif %}
 
     {{ include('contact/_modal_ajout.html.twig') }}
-    {{ include('contact/_modal_existant.html.twig') }}
+    {{ include('contact/_modal_existant.html.twig', {
+        action_url: path('etablissement_contacts_add_existing', {id: etablissement.id}),
+        csrf_token_id: 'etablissement_contacts_add_existing_' ~ etablissement.id
+    }) }}
     {{ include('contact/_modal_suppression.html.twig') }}
 {% endblock %}
 

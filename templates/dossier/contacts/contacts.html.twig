@@ -31,27 +31,11 @@
     {# Modale ajout nouveau contact #}
     {{ include('contact/_modal_ajout.html.twig') }}
 
-    {# Modale ajout contact existant (spécifique dossier) #}
-    <form class="modal fade contact" id="ajout-contact-existant" tabindex="-1" role="search" aria-labelledby="contactModalDossierLabel" aria-hidden="true" action="{{ path('dossier_contacts_add_existing', {id: dossier.id}) }}" method="post">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
-                    <h4 class="modal-title" id="contactModalDossierLabel">Ajouter un contact existant</h4>
-                </div>
-                <div class="modal-body" style="min-height: 100px; overflow-y: visible">
-                    <div class="form-group col-xs-10">
-                        <label for="contact-select">Nom du contact à ajouter</label>
-                        <input type="text" id="contact-select" name="contacts" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                    <input type="submit" value="Ajouter" class="btn btn-success" />
-                </div>
-            </div>
-        </div>
-    </form>
+    {# Modale ajout contact existant #}
+    {{ include('contact/_modal_existant.html.twig', {
+        action_url: path('dossier_contacts_add_existing', {id: dossier.id}),
+        csrf_token_id: 'dossier_contacts_add_existing_' ~ dossier.id
+    }) }}
 
     {# Modale suppression contact #}
     {{ include('contact/_modal_suppression.html.twig') }}

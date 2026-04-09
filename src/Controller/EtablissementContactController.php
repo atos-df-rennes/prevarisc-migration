@@ -113,11 +113,8 @@ class EtablissementContactController extends AbstractController implements Etabl
         ]);
     }
 
-    // @todo: Ajouter une validation CSRF
-    // @todo: Restraindre la méthode de route à POST
-    // @fixme: Corriger les validations et renvoyer une BadRequest plutôt qu'une InvalidArgument
     /**
-     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", defaults={"_etablissement_lateral_nav": false})
+     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -125,14 +122,18 @@ class EtablissementContactController extends AbstractController implements Etabl
         Request $request,
         Etablissement $etablissement
     ): Response {
-        $contactIdsString = $request->request->get('contacts');
-
-        if (!\is_string($contactIdsString) || !preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
-            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
+        if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('etablissement_contacts_add_existing_'.$etablissement->getId(), $request->request->get('token'))) {
+            throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");
         }
 
-        if ('' === $contactIdsString) {
+        $contactIdsString = $request->request->get('contacts');
+
+        if (!is_string($contactIdsString) || '' === $contactIdsString) {
             return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
+        }
+
+        if (!preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
+            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
         }
 
         $contactIds = explode(',', $contactIdsString);
