@@ -667,17 +667,34 @@ class DossierController extends AbstractController implements DossierLateralNavi
     public function documentsConsultes(Dossier $dossier): Response
     {
         $documentsConsultables = $this->dossierDocumentsConsultesService->getDocumentsConsultables($dossier);
-        /* Chargement des documents ajoutés dans l'entité */
+
+        // La collection documentsAjoutes est LAZY par défaut. Sans cet appel, Doctrine
+        // émettra une requête par accès dans le template (N+1). On force le chargement ici.
         $dossier->getDocumentsAjoutes()->toArray();
-        $documentsConsultes = [];
+
+        // Index des documents consultés par leur ID_DOC pour un lookup O(1) lors de la séparation.
+        $documentsConsultesMap = [];
         foreach ($dossier->getDocumentsConsultes()->toArray() as $documentConsulte) {
-            $documentsConsultes[$documentConsulte->getDocument()] = $documentConsulte;
+            $documentsConsultesMap[$documentConsulte->getDocument()] = $documentConsulte;
+        }
+
+        // Conformément au legacy, les documents déjà renseignés apparaissent en tête de liste,
+        // suivis des documents consultables non encore renseignés.
+        $documentsConsultes = [];
+        $documentsNonConsultes = [];
+        foreach ($documentsConsultables as $doc) {
+            $docId = (string) $doc->getId();
+            if (isset($documentsConsultesMap[$docId])) {
+                $documentsConsultes[] = ['doc' => $doc, 'documentConsulte' => $documentsConsultesMap[$docId]];
+            } else {
+                $documentsNonConsultes[] = $doc;
+            }
         }
 
         return $this->render('dossier/documents_consultes/documents_consultes.html.twig', [
             'dossier' => $dossier,
-            'documentsConsultables' => $documentsConsultables,
             'documentsConsultes' => $documentsConsultes,
+            'documentsNonConsultes' => $documentsNonConsultes,
         ]);
     }
 
@@ -706,6 +723,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $this->entityManager->persist($documentConsulte);
             $this->entityManager->flush();
 
+            $this->addFlash('success', 'Le document consulté a été ajouté avec succès.');
+
             return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
         }
 
@@ -721,7 +740,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer",
      *     name="dossier_documents_consultes_delete",
      *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
-     *     methods={"POST"})
+     *     methods={"DELETE"})
      *
      * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
      *
@@ -729,12 +748,18 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function documentsConsultesRemove(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
     {
+        if ($documentConsulte->getDossier() !== $dossier) {
+            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
+        }
+
         if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
             throw $this->createAccessDeniedException('Token CSRF non valide.');
         }
 
         $dossier->removeDocumentsConsulte($documentConsulte);
         $this->entityManager->flush();
+
+        $this->addFlash('success', 'Le document consulté a été supprimé avec succès.');
 
         return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
     }
@@ -751,8 +776,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function documentsConsultesEdit(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
     {
+        if ($documentConsulte->getDossier() !== $dossier) {
+            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
+        }
+
         $libelle = '';
-        if (null != $documentConsulte->getDocument() && 0 !== intval($documentConsulte->getDocument())) {
+        if (null !== $documentConsulte->getDocument() && 0 !== intval($documentConsulte->getDocument())) {
             $libelle = $this->dossierDocumentsConsultesService->getLibelleDocumentConsulte($documentConsulte->getDocument());
         }
 
@@ -760,6 +789,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'Le document consulté a été modifié avec succès.');
 
             return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
         }
@@ -776,7 +807,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer",
      *     name="dossier_documents_ajoutes_delete",
      *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
-     *     methods={"POST"})
+     *     methods={"DELETE"})
      *
      * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"})
      *
@@ -784,12 +815,18 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function documentsAjoutesRemove(Request $request, Dossier $dossier, ListeDocumentAjoute $documentAjoute): Response
     {
+        if ($documentAjoute->getDossier() !== $dossier) {
+            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
+        }
+
         if (is_string($request->request->get('token')) && !$this->isCsrfTokenValid('delete_document', $request->request->get('token'))) {
             throw $this->createAccessDeniedException('Token CSRF non valide.');
         }
 
         $dossier->removeDocumentsAjoute($documentAjoute);
         $this->entityManager->flush();
+
+        $this->addFlash('success', 'Le document a été supprimé avec succès.');
 
         return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
     }
@@ -810,7 +847,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function documentsAjoutesEdit(Request $request, Dossier $dossier, ?ListeDocumentAjoute $documentAjoute = null): Response
     {
-        if (null === $documentAjoute) {
+        $isNew = null === $documentAjoute;
+
+        if ($isNew) {
             $documentAjoute = new ListeDocumentAjoute();
             $documentAjoute->setDossier($dossier);
             if (null !== $dossier->getNature()) {
@@ -818,12 +857,16 @@ class DossierController extends AbstractController implements DossierLateralNavi
             }
 
             $this->entityManager->persist($documentAjoute);
+        } elseif ($documentAjoute->getDossier() !== $dossier) {
+            throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
 
         $form = $this->createForm(ListeDocumentAjouteType::class, $documentAjoute);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
+
+            $this->addFlash('success', $isNew ? 'Le document a été ajouté avec succès.' : 'Le document a été modifié avec succès.');
 
             return $this->redirectToRoute('dossier_documents_consultes', ['id' => $dossier->getId()]);
         }

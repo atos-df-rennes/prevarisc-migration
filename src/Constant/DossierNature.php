@@ -50,7 +50,12 @@ final class DossierNature
 
     public const NATURES_ALERTE_RECEPTION_TRAVAUX = [1, 2, 12, 13];
 
-    public const VISITE_STD = [7, 19];
+    /**
+     * Natures Études avec documents de visite (levées de prescriptions, etc.).
+     *
+     * @var int[]
+     */
+    public const LEVEES = [7, 19];
 
     /**
      * Empêche l'instanciation de la classe.

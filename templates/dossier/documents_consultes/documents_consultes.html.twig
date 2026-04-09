@@ -5,27 +5,38 @@
 {% endblock %}
 
 {% block body %}
-    <div id='dossier_Pdroite' class='divDocConsulte'>
-        <div class='nature row-fluid'>
-            <h4 class='hideDocConsulte' >Liste des documents consultés concernant la nature {{ dossier.nature.libelle }}</h4>
-            <p class='span5 col-md-4' style='padding-left:20px;'><strong>Libellé</strong></p>
-            <div class='span6 col-md-8'>
-                <p class='span5 col-md-6'><strong>Référence</strong></p>
-                <p class='span2 col-md-6'><strong>Date</strong></p>
+    <div id="dossier_Pdroite">
+        <div class="nature">
+            <h4 class="h4_subtitle">Liste des documents consultés concernant la nature {{ dossier.nature.libelle }}</h4>
+
+            <div class="row">
+                <div class="col-md-4"><strong>Libellé</strong></div>
+                <div class="col-md-8">
+                    <div class="col-md-6"><strong>Référence</strong></div>
+                    <div class="col-md-6"><strong>Date</strong></div>
+                </div>
             </div>
-            <br class='clear' />
-            <ul class="list-unstyled">
-    {# //on boucle sur les documents ajoutés à afficher #}
+
+            <ul class="list-unstyled mt-2">
+
+                {# Documents ajoutés manuellement #}
                 {% for doc_ajoute in dossier.documentsAjoutes %}
-                    <li class="row">
+                    <li class="row mb-2">
                         <div class="col-md-4">{{ doc_ajoute.libelle }}</div>
                         <div class="col-md-8">
                             <div class="col-md-6">{{ doc_ajoute.reference }}</div>
-                            <div class="col-md-3">{{ doc_ajoute.date is empty or doc_ajoute.date.timestamp < 0 ? '' : doc_ajoute.date|date('d/m/Y') }}</div>
                             <div class="col-md-3">
-                                <a href="{{ path('dossier_documents_ajoutes_edit', {id: dossier.id, idDocumentAjoute: doc_ajoute.id}) }}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-    {# <a href="{{ path('dossier_documents_ajoutes_delete', {id: dossier.id, idDocumentAjoute: doc_ajoute.id}) }}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a> #}
-                                <button type="button" class="btn btn-default btn-sm js-confirme_delete" data-url="{{ path('dossier_documents_ajoutes_delete', {id: dossier.id, idDocumentAjoute: doc_ajoute.id}) }}" data-toggle="modal" data-target="#modalConfirmationSuppression">
+                                {% if doc_ajoute.date is not null and doc_ajoute.date.timestamp >= 0 %}
+                                    {{ doc_ajoute.date|date('d/m/Y') }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('dossier_documents_ajoutes_edit', {id: dossier.id, idDocumentAjoute: doc_ajoute.id}) }}" class="btn btn-default btn-sm">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </a>
+                                <button type="button" class="btn btn-default btn-sm js-confirme_delete"
+                                        data-url="{{ path('dossier_documents_ajoutes_delete', {id: dossier.id, idDocumentAjoute: doc_ajoute.id}) }}"
+                                        data-toggle="modal" data-target="#modalConfirmationSuppression">
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                 </button>
                             </div>
@@ -33,37 +44,68 @@
                     </li>
                 {% endfor %}
 
-    {# //on boucle sur les documents de base à afficher #}
-                {% for doc in documentsConsultables %}
-                    {% set document_consulte = documentsConsultes[doc.id] ?? null %}
-                        <li class="row">
-                            <div class="col-md-4">{{ doc.libelle }} </div>
+                {# Documents consultables déjà renseignés (affichés en tête de liste, cf. legacy) #}
+                {% if documentsConsultes is not empty %}
+                    <li class="row mt-2 mb-1">
+                        <div class="col-md-12"><strong>Documents consultés</strong></div>
+                    </li>
+                    {% for item in documentsConsultes %}
+                        <li class="row mb-2">
+                            <div class="col-md-4">{{ item.doc.libelle }}</div>
                             <div class="col-md-8">
-                                <div class="col-md-6">{% if document_consulte %}{{ document_consulte.reference }}{% endif %}</div>
-                                <div class="col-md-3">{% if document_consulte %}{{ document_consulte.date is empty or document_consulte.date.timestamp < 0 ? '' : document_consulte.date|date('d/m/Y') }}{% endif %}</div>
+                                <div class="col-md-6">{{ item.documentConsulte.reference }}</div>
                                 <div class="col-md-3">
-                                    {% if document_consulte %}
-                                        <a href="{{ path('dossier_documents_consultes_edit', {id: dossier.id, idDocumentConsulte: document_consulte.id}) }}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-    {# <a href="{{ path('dossier_documents_consultes_delete', {id: dossier.id, idDocumentConsulte: document_consulte.id}) }}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a> #}
-                                        <button type="button" class="btn btn-default btn-sm js-confirme_delete" data-url="{{ path('dossier_documents_consultes_delete', {id: dossier.id, idDocumentConsulte: document_consulte.id}) }}" data-toggle="modal" data-target="#modalConfirmationSuppression">
-                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </button>
-                                    {% else %}
-                                        <a href="{{ path('dossier_documents_consultes_add', {id: dossier.id, idDocumentConsultable: doc.id}) }}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></a>
+                                    {% if item.documentConsulte.date is not null and item.documentConsulte.date.timestamp >= 0 %}
+                                        {{ item.documentConsulte.date|date('d/m/Y') }}
                                     {% endif %}
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="{{ path('dossier_documents_consultes_edit', {id: dossier.id, idDocumentConsulte: item.documentConsulte.id}) }}" class="btn btn-default btn-sm">
+                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                    </a>
+                                    <button type="button" class="btn btn-default btn-sm js-confirme_delete"
+                                            data-url="{{ path('dossier_documents_consultes_delete', {id: dossier.id, idDocumentConsulte: item.documentConsulte.id}) }}"
+                                            data-toggle="modal" data-target="#modalConfirmationSuppression">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
                                 </div>
                             </div>
                         </li>
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
+                {# Documents consultables non encore renseignés #}
+                {% if documentsNonConsultes is not empty %}
+                    <li class="row mt-2 mb-1">
+                        <div class="col-md-12"><strong>Documents consultables</strong></div>
+                    </li>
+                    {% for doc in documentsNonConsultes %}
+                        <li class="row mb-2">
+                            <div class="col-md-4">{{ doc.libelle }}</div>
+                            <div class="col-md-8">
+                                <div class="col-md-6"></div>
+                                <div class="col-md-3"></div>
+                                <div class="col-md-3">
+                                    <a href="{{ path('dossier_documents_consultes_add', {id: dossier.id, idDocumentConsultable: doc.id}) }}" class="btn btn-default btn-sm">
+                                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+
             </ul>
-            <hr class='clear' />
+
+            <hr />
             <p>
-                <a href='{{ path('dossier_documents_ajoutes_add', {id: dossier.id}) }}' class='docAjout' >+ Ajouter un nouveau document</a>
+                <a href="{{ path('dossier_documents_ajoutes_add', {id: dossier.id}) }}" class="docAjout">+ Ajouter un nouveau document</a>
             </p>
         </div>
-        <hr class='clear' />
+        <hr />
     </div>
-    {# ── Modale de confirmation de suppression ── #}
+
+    {# Modale de confirmation de suppression #}
     <div class="modal fade" id="modalConfirmationSuppression" tabindex="-1" role="dialog" aria-labelledby="modalSuppressionLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -78,6 +120,7 @@
                 </div>
                 <div class="modal-footer">
                     <form id="formSuppressionDocument" method="post" action="">
+                        <input type="hidden" name="_method" value="DELETE">
                         <input type="hidden" name="token" value="{{ csrf_token('delete_document') }}">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
                         <button type="submit" class="btn btn-danger">
@@ -96,7 +139,7 @@
     <script>
         $(document).ready(function () {
             $('#modalConfirmationSuppression').on('show.bs.modal', function (e) {
-                let url = $(e.relatedTarget).data('url');
+                const url = $(e.relatedTarget).data('url');
                 $('#formSuppressionDocument').attr('action', url);
             });
         });

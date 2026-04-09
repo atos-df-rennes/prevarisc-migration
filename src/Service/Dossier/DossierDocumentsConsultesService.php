@@ -30,25 +30,31 @@ final class DossierDocumentsConsultesService
             return [];
         }
 
-        if (in_array($type->getId(), DossierType::TYPES_VISITE)) {
-            if (in_array($nature->getId(), DossierNature::RECEPTIONS_TRAVAUX)) {
-                $docConsultables = $this->listeDocumentConsulteRepository->getDocVisiteRT();
-            } elseif (in_array($nature->getId(), DossierNature::VISITE_AVANT_OUVERTURE)) {
-                $docConsultables = $this->listeDocumentConsulteRepository->getDocVisiteVAO();
-            } else {
-                $docConsultables = $this->listeDocumentConsulteRepository->getDocVisite();
-            }
-        } elseif (DossierType::ETUDE === $type->getId()) {
-            if (in_array($nature->getId(), DossierNature::VISITE_STD)) {
-                $docConsultables = $this->listeDocumentConsulteRepository->getDocVisite();
-            } else {
-                $docConsultables = $this->listeDocumentConsulteRepository->getDocEtude();
-            }
-        } else {
-            $docConsultables = [];
+        $isVisite = in_array($type->getId(), DossierType::TYPES_VISITE);
+        $isEtude = DossierType::ETUDE === $type->getId();
+
+        if (!$isVisite && !$isEtude) {
+            return [];
         }
 
-        return $docConsultables;
+        if ($isVisite) {
+            if (in_array($nature->getId(), DossierNature::RECEPTIONS_TRAVAUX)) {
+                return $this->listeDocumentConsulteRepository->getDocVisiteRT();
+            }
+
+            if (in_array($nature->getId(), DossierNature::VISITE_AVANT_OUVERTURE)) {
+                return $this->listeDocumentConsulteRepository->getDocVisiteVAO();
+            }
+
+            return $this->listeDocumentConsulteRepository->getDocVisite();
+        }
+
+        // Cas étude : certaines natures utilisent les docs de visite (levées)
+        if (in_array($nature->getId(), DossierNature::LEVEES)) {
+            return $this->listeDocumentConsulteRepository->getDocVisite();
+        }
+
+        return $this->listeDocumentConsulteRepository->getDocEtude();
     }
 
     public function getLibelleDocumentConsulte(string $idDocument): ?string

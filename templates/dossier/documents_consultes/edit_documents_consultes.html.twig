@@ -1,11 +1,15 @@
 {% extends 'layouts/dossier.html.twig' %}
 
 {% block title %}
-    {{ parent() }} / Documents consultés
+    {{ parent() }} / {% if documentConsulte.id is not null %}Modification du document{% else %}Ajout d'un document consulté{% endif %}
 {% endblock %}
 
 {% block body %}
-    <h4 class="editDocConsulteTitre">Modification du document "{{ libelle }}"</h4>
+    {% if documentConsulte.id is not null %}
+        <h4 class="h4_subtitle">Modification du document "{{ libelle }}"</h4>
+    {% else %}
+        <h4 class="h4_subtitle">Ajout d'un document consulté "{{ libelle }}"</h4>
+    {% endif %}
 
     {{ form_start(form) }}
         <div class="row">
@@ -25,10 +29,5 @@
         </div>
 
     {{ form_end(form) }}
-
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
 
 {% endblock %}
