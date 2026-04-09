@@ -174,4 +174,32 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Recherche des établissements par libellé (dernières informations) pour autocomplete.
+     *
+     * @return Etablissement[]
+     */
+    public function searchByLibelle(string $query, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('e')
+            ->innerJoin(
+                'e.informations',
+                'info',
+                'WITH',
+                'info.id = (
+                    SELECT MAX(info_sub.id)
+                    FROM App\Entity\EtablissementInformations info_sub
+                    WHERE info_sub.etablissement = e
+                )'
+            )
+            ->addSelect('info')
+            ->where('info.libelle LIKE :query')
+            ->setParameter('query', '%'.$query.'%')
+            ->andWhere('e.dateSuppression IS NULL')
+            ->orderBy('info.libelle', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

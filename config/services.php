@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -24,6 +25,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
+        ->bind(FlashBagInterface::class, ref('session.flash_bag'))
     ;
 
 
@@ -43,12 +45,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('container.env_var_processor');
 
     $services->set('App\Controller\EtablissementController')
-        ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%');
+        ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
+        ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
     $services->set('App\Form\CommissionRegleType')
         ->arg('$commissionCommunaleType', '%app.commission_communale_type%');
+    $services->set('App\Form\DescriptifOriginalType')
+        ->arg('$risquesNaturelsExemples', '%app.risques_naturels_exemples%')
+        ->arg('$risquesTechnologiquesExemples', '%app.risques_technologiques_exemples%');
 
     $services->set('App\Validator\PasswordValidator')
         ->arg('$enforceSecurity', '%app.enforce_security%');

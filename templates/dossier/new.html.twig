@@ -1,0 +1,573 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% form_theme form _self '_form_theme_tom_select.html.twig' %}
+
+{# Form theme personnalisé pour documents manquants #}
+{% block _dossier_documentsManquants_entry_row %}
+    {{ include('dossier/_document_manquant_item.html.twig', {form: form}) }}
+{% endblock %}
+
+{# Form theme personnalisé pour masquer l'option vide des radios incomplet #}
+{% block _dossier_incomplet_widget %}
+    <div {{ block('widget_container_attributes') }}>
+        {% for child in form %}
+            {# Masquer l'option avec valeur vide (afficher uniquement Complet/Incomplet) #}
+            {% if child.vars.value != '' %}
+                <div class="radio">
+                    {{ form_widget(child) }}
+                    {{ form_label(child, null, {translation_domain: choice_translation_domain}) }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block title %}{{ parent() }} / Ajouter{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+
+    {# Module ES6 pour le formulaire dossier (chargement en module) #}
+    <script type="module" src="{{ asset('js/dossier/form.js') }}"></script>
+
+    {# Autres scripts (sans modules ES6) #}
+    <script src="{{ asset('js/dossier/gestion-incomplet.js') }}"></script>
+    <script src="{{ asset('js/dossier/commission.js') }}"></script>
+
+    {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
+    <script src="{{ asset('js/calendrier/date-collection-observer.js') }}"></script>
+    <script src="{{ asset('js/dossier/calendar-init.js') }}"></script>
+{% endblock %}
+
+{% block lateral_navigation %}
+{% endblock %}
+
+{% block body %}
+    <div id='dossierInfos'>
+        <div class='action-buttons pull-right'>
+            {% if etablissement is not null %}
+                <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}" class='btn btn-default'>
+                    <span class='glyphicon glyphicon-remove' aria-hidden="true"></span> Annuler
+                </a>
+            {% endif %}
+            <button type='submit' class='btn btn-success' form="newDossier">
+                <span class='glyphicon glyphicon-plus' aria-hidden="true"></span> Créer le dossier
+            </button>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <h3>Informations générales</h3>
+
+        {# Configuration des champs pour JavaScript #}
+        <div data-fields-config='{{ fieldsConfig|e('html_attr') }}' style="display:none;"></div>
+
+        {{ form_start(form, {attr: {id: 'newDossier', name: 'newDossier'}}) }}
+            <section>
+                <h4>Type et nature du dossier</h4>
+                <ul class='list-unstyled'>
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.type) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.type) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+                    </li>
+
+                    <li class='row'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.nature) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.nature) }}
+                            {{ form_errors(form.nature) }}
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h4>Informations sur le dossier</h4>
+                <ul class='list-unstyled'>
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateInsert}) }}
+
+                    <li class='row' id='field-objet'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.objet) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.objet) }}
+                            {{ form_errors(form.objet) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-demandeur'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.demandeur) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.demandeur) }}
+                            {{ form_errors(form.demandeur) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-lieuReunion'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.lieuReunion) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.lieuReunion) }}
+                            {{ form_errors(form.lieuReunion) }}
+                        </div>
+                    </li>
+
+                    {# Champs spécifiques études (PC/AT) - Ordre selon legacy #}
+                    {% do form.documentsUrbanisme.setRendered %}
+                    <li class='row' id='field-documentsUrbanisme'>
+                        <div class='left libelle col-md-3'>
+                            <label>Numéros documents d'urbanisme</label>
+                        </div>
+                        <div class='right form col-md-9'>
+                            <ul id="dossier_documentsUrbanisme"
+                                class="row list-unstyled remove-collection-widget"
+                                data-prototype="{{ form_widget(form.documentsUrbanisme.vars.prototype)|e }}"
+                                data-widget-tags="{{ '<li></li>'|e }}"
+                                data-widget-counter="{{ form.documentsUrbanisme|length }}">
+                                {% for document_urbanisme in form.documentsUrbanisme %}
+                                    <li>
+                                        {{ form_errors(document_urbanisme) }}
+                                        {{ form_widget(document_urbanisme, {attr: {class: 'collection-item-wrapper'}}) }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <div class="text-center mt-2">
+                                <button type="button"
+                                        class="btn btn-primary add-collection-widget"
+                                        data-list-selector="#dossier_documentsUrbanisme">
+                                    <span class="glyphicon glyphicon-plus"></span> Ajouter un numéro
+                                </button>
+                            </div>
+                            {{ form_errors(form.documentsUrbanisme) }}
+                        </div>
+                    </li>
+
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateMairie}) }}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateSecretariat}) }}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateEnvoiTransit}) }}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReception}) }}
+
+                    <li class='row' id='field-serviceInstructeur'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.serviceInstructeur) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.serviceInstructeur) }}
+                            {{ form_errors(form.serviceInstructeur) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-commission'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.commission) }}
+                            {{ form_errors(form.commission) }}
+                        </div>
+                    </li>
+
+                    {% set has_commission = form.commission.vars.value is not empty %}
+                    <li class="row" id="field-dateVisite">
+                        <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
+                        <div class="right form col-md-9">
+                            {{ form_widget(form.dateVisite) }}
+
+                            <button type='button'
+                                    class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
+                                    data-calendar-target='calendarVisite'
+                                    data-calendar-type='visite'
+                                    data-calendar-affectation="idAffectationDossierVisite"
+                            >
+                                <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
+                            </button>
+                            <button type='button'
+                                    class='btn btn-default hideCalendar hidden'
+                                    data-calendar-target='calendarVisite'
+                                    data-calendar-type='visite'
+                            >
+                                <span class='glyphicon glyphicon-chevron-up' aria-hidden='true'></span> Cacher le calendrier
+                            </button>
+                            Afficher
+                            <label for="month_visite" class="sr-only">Sélectionner le mois à afficher</label>
+                            <select id='month_visite' class="form-control calendrier__select-month">
+                                {% set mois_actuel = 'now'|date('m') %}
+                                {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                                {% for i in 0..11 %}
+                                    <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="year_visite" class="sr-only">Sélectionner l'année à afficher</label>
+                            <select id='year_visite' class="form-control calendrier__select-year">
+                                {% set annee_actuelle = 'now'|date('Y') %}
+                                {% for i in (annee_actuelle + 2)..(1990) %}
+                                    <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
+                                {% endfor %}
+                            </select>
+
+                            {{ form_errors(form.dateVisite) }}
+                        </div>
+                    </li>
+
+                    {# Conteneur calendrier visite (caché par défaut) #}
+                    <li class='row' style='display:none;'>
+                        <div class='col-md-12'>
+                            <h1>Choisir une date de visite</h1>
+                            <div id='calendarVisite' class='calendar' style='display:none;'></div>
+                            <hr class='clear' />
+                        </div>
+                    </li>
+
+                    {{ include('dossier/_alert_dates_liees_template.html.twig') }}
+
+                    {{ form_row(form.idAffectationDossierVisite) }}
+
+                    {# Champs spécifiques visites - date réception RVRAT #}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
+
+                    <li class="row" id="field-dateCommission">
+                        <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
+                        <div class="right form col-md-9">
+                            {{ form_widget(form.dateCommission) }}
+
+                            <button type='button'
+                                    class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
+                                    data-calendar-target='calendar'
+                                    data-calendar-type='commission'
+                                    data-calendar-affectation="idAffectationDossierCommission"
+                            >
+                                <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
+                            </button>
+                            <button type='button'
+                                    class='btn btn-default hideCalendar hidden'
+                                    data-calendar-target='calendar'
+                                    data-calendar-type='commission'
+                            >
+                                <span class='glyphicon glyphicon-chevron-up' aria-hidden='true'></span> Cacher le calendrier
+                            </button>
+                            Afficher
+                            <label for="month_comm" class="sr-only">Sélectionner le mois à afficher</label>
+                            <select id='month_comm' class="form-control calendrier__select-month">
+                                {% set mois_actuel = 'now'|date('m') %}
+                                {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                                {% for i in 0..11 %}
+                                    <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="year_comm" class="sr-only">Sélectionner l'année à afficher</label>
+                            <select id='year_comm' class="form-control calendrier__select-year">
+                                {% set annee_actuelle = 'now'|date('Y') %}
+                                {% for i in (annee_actuelle + 2)..(1990) %}
+                                    <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
+                                {% endfor %}
+                            </select>
+
+                            {{ form_errors(form.dateCommission) }}
+                        </div>
+                    </li>
+
+                    {# Conteneur calendrier commission (caché par défaut) #}
+                    <li class='row' style='display:none;'>
+                        <div class='col-md-12'>
+                            <h1>Choisir une date de commission en salle</h1>
+                            <div id='calendar' class='calendar' style='display:none;'></div>
+                            <hr class='clear' />
+                        </div>
+                    </li>
+
+                    {{ form_row(form.idAffectationDossierCommission) }}
+
+                    {# Champs spécifiques dérogations (nature 3) - Ordre legacy #}
+                    <li class='row' id='field-reglesDerogation'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.reglesDerogation) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.reglesDerogation) }}
+                            {{ form_errors(form.reglesDerogation) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-justificationDerogation'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.justificationDerogation) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.justificationDerogation) }}
+                            {{ form_errors(form.justificationDerogation) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-mesuresCompensatoires'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.mesuresCompensatoires) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.mesuresCompensatoires) }}
+                            {{ form_errors(form.mesuresCompensatoires) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-mesuresComplementaires'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.mesuresComplementaires) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.mesuresComplementaires) }}
+                            {{ form_errors(form.mesuresComplementaires) }}
+                        </div>
+                    </li>
+
+                    {# Champs spécifiques études - État dossier (incomplet) avec documents manquants #}
+                    {% do form.documentsManquants.setRendered %}
+                    <li class='row' id='field-incomplet'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.incomplet) }}</div>
+                        <div class='right form col-md-9'>
+                            {# Zone documents manquants (collection Symfony) - Triés par le controller #}
+                            <div id='dossierIncomplet'
+                                 data-prototype="{{ form_row(form.documentsManquants.vars.prototype)|e }}"
+                                 data-index="{{ form.documentsManquants|length }}">
+
+                                {# @fixme: la logique est déjà faite dans le service, il faut différencier les clés et utiliser ça #}
+                                {# Séparer documents actifs et historique #}
+                                {% set documents_actifs = [] %}
+                                {% set documents_historique = [] %}
+
+                                {% for document_manquant in form.documentsManquants %}
+                                    {% if document_manquant.dateReception.vars.value %}
+                                        {% set documents_historique = documents_historique|merge([document_manquant]) %}
+                                    {% else %}
+                                        {% set documents_actifs = documents_actifs|merge([document_manquant]) %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# Afficher documents actifs (déjà triés par le controller) #}
+                                {% for document_manquant in documents_actifs %}
+                                    {{ form_row(document_manquant) }}
+                                {% endfor %}
+
+                                {# Historique dans un accordéon (déjà triés par le controller) #}
+                                {% if documents_historique|length > 0 %}
+                                    <div class="panel-group" style="margin-top: 15px;">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading" style="cursor: pointer;" data-toggle="collapse" data-target="#historique-documents">
+                                                <h4 class="panel-title">
+                                                    <i class="glyphicon glyphicon-folder-close"></i>
+                                                    Historique ({{ documents_historique|length }} document{{ documents_historique|length > 1 ? 's' : '' }})
+                                                    <small class="text-muted">Cliquer pour afficher/masquer</small>
+                                                </h4>
+                                            </div>
+                                            <div id="historique-documents" class="panel-collapse collapse">
+                                                <div class="panel-body">
+                                                    {% for document_manquant in documents_historique %}
+                                                        {{ form_row(document_manquant) }}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {# Radios Complet / Incomplet (masqués quand incomplet sélectionné) #}
+                            <div id='inputComplet'>
+                                {{ form_widget(form.incomplet, {
+                                    attr: {class: 'incomplet'},
+                                }) }}
+                                {{ form_errors(form.incomplet) }}
+                                <p class='help-block'>
+                                    <small>Si le dossier est incomplet, vous pourrez ajouter des documents manquants</small>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-horsDelai'>
+                        <div class='left libelle col-md-3'></div>
+                        <div class='right form col-md-9'>
+                            <div class='form-check'>
+                                {{ form_widget(form.horsDelai) }}
+                                {{ form_label(form.horsDelai) }}
+                                {{ form_errors(form.horsDelai) }}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-avisDiffere'>
+                        <div class='left libelle col-md-3'></div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.avisDiffere, {
+                                attr: {
+                                    disabled: lastAvisEtab != 'Favorable',
+                                },
+                            }) }}
+                            {{ form_label(form.avisDiffere) }}
+                            {% if lastAvisEtab != 'Favorable' %}
+                                {{ form_help(form.avisDiffere) }}
+                            {% endif %}
+                            {{ form_errors(form.avisDiffere) }}
+                        </div>
+                    </li>
+
+                    {# Champs spécifiques visites - ne peut se prononcer #}
+                    <li class='row' id='field-nePeutSePrononcer'>
+                        <div class='left libelle col-md-3'></div>
+                        <div class='right form col-md-9'>
+                            <div class='form-check'>
+                                {{ form_widget(form.nePeutSePrononcer) }}
+                                {{ form_label(form.nePeutSePrononcer) }}
+                                {{ form_errors(form.nePeutSePrononcer) }}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-absenceDeQuorum'>
+                        <div class='left libelle col-md-3'></div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.absenceDeQuorum) }}
+                            {{ form_label(form.absenceDeQuorum) }}
+                            {{ form_errors(form.absenceDeQuorum) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-avis'>
+                        <div class='left libelle col-md-3'>
+                            <label class="control-label" for="dossier_avis">
+                                {% if dossier.type is not null and dossier.type.id is same as(3) %}
+                                    Avis du groupe de visite
+                                {% else %}
+                                    Avis du rapporteur
+                                {% endif %}
+                            </label>
+                        </div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.avis) }}
+                            {{ form_errors(form.avis) }}
+                        </div>
+                    </li>
+
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateLimitePrescription}) }}
+
+                    <li class='row' id='field-avisCommission'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.avisCommission) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.avisCommission) }}
+                            {{ form_errors(form.avisCommission) }}
+
+                            {{ form_widget(form.repercuterAvis) }}
+                            {{ form_errors(form.repercuterAvis) }}
+                        </div>
+                    </li>
+
+                    {# @todo: Reprendre la logique avec le plugin pour modifier le template (Plugin_FacteurCriticite) #}
+                    <li class='row' id='field-facteurDangerosite'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.facteurDangerosite) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.facteurDangerosite) }}
+                            {{ form_errors(form.facteurDangerosite) }}
+                        </div>
+                    </li>
+
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.echeancierTravaux, show_today: false}) }}
+
+                    {# Analyse de risque : affiché pour types 1, 2, 3 (géré par JS - voir form.js) #}
+                    <li class='row' id='field-analyseDeRisque' style='display:none;'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.analyseDeRisque) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.analyseDeRisque) }}
+                            {{ form_errors(form.analyseDeRisque) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-observations'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.observations) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.observations) }}
+                            {{ form_errors(form.observations) }}
+                        </div>
+                    </li>
+
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.datePrefecture}) }}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReponse}) }}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateSignature}) }}
+
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateTransfertCommission}) }}
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionCommission}) }}
+
+                    {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReunion}) }}
+
+                    <li class='row' id='field-chargeSecurite'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.chargeSecurite) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.chargeSecurite) }}
+                            {{ form_errors(form.chargeSecurite) }}
+                        </div>
+                    </li>
+
+                    {# Champs spécifiques interventions (natures 37, 38, 39) #}
+                    <li class='row' id='field-operationSdis'>
+                        <div class='left libelle col-md-3'></div>
+                        <div class='right form col-md-9'>
+                            <div class='form-check'>
+                                {{ form_widget(form.operationSdis) }}
+                                {{ form_label(form.operationSdis) }}
+                                {{ form_errors(form.operationSdis) }}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-rcci'>
+                        <div class='left libelle col-md-3'></div>
+                        <div class='right form col-md-9'>
+                            <div class='form-check'>
+                                {{ form_widget(form.rcci) }}
+                                {{ form_label(form.rcci) }}
+                                {{ form_errors(form.rcci) }}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-rex'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.rex) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.rex) }}
+                            {{ form_errors(form.rex) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-numeroIntervention'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.numeroIntervention) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.numeroIntervention) }}
+                            {{ form_errors(form.numeroIntervention) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-dateIntervention'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.dateIntervention) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.dateIntervention) }}
+                            {{ form_errors(form.dateIntervention) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-dureeIntervention'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.dureeIntervention) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.dureeIntervention) }}
+                            {{ form_errors(form.dureeIntervention) }}
+                        </div>
+                    </li>
+
+                    <li class='row' id='field-preventionnistes'>
+                        <div class='left libelle col-md-3'>{{ form_label(form.preventionnistes) }}</div>
+                        <div class='right form col-md-9'>
+                            {{ form_widget(form.preventionnistes) }}
+                            {{ form_errors(form.preventionnistes) }}
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            {# Les champs non rendus explicitement seront affichés ici (hidden, csrf, etc.) #}
+            {{ form_rest(form) }}
+        {{ form_end(form) }}
+
+        {{ include('calendrier_des_commissions/_modal_creation_date.html.twig') }}
+    </div>
+{% endblock %}

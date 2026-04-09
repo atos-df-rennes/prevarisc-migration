@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\PrescriptionReglementaire;
 use App\Form\PrescriptionReglementaireType;
 use App\Service\Prescriptions;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,13 +17,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsRappelsController extends AbstractController
 {
-    /**
-     * @var Prescriptions
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var Prescriptions */
     private $prescriptions;
 
-    public function __construct(Prescriptions $prescriptions)
+    public function __construct(EntityManagerInterface $entityManager, Prescriptions $prescriptions)
     {
+        $this->entityManager = $entityManager;
         $this->prescriptions = $prescriptions;
     }
 
@@ -51,10 +54,8 @@ class PrescriptionsRappelsController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($rappelReg);
-            $em->flush();
+            $this->entityManager->persist($rappelReg);
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('admin_prescriptions_rappels');
         }

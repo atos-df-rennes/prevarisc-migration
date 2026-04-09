@@ -1184,7 +1184,6 @@ dl.champ_effectif_camping dd input {
 }
 
 .action-buttons {
-  background-color: white;
   height: fit-content;
   z-index: 10;
 }
@@ -1282,20 +1281,17 @@ form[name='textes_applicables_etablissement'] div.checkbox label:has(input[check
   right: 0;
   border-left: 1px solid black;
   border-right: 0;
+  z-index: 3;
 }
 
 .table-wrapper .table .colonne-edition.with-shadow {
   box-shadow: -21px 3px 15px -3px rgba(0,0,0,0.2);
 }
 
-.table-wrapper .table-responsive {
-  overflow-x: scroll;
-  margin-bottom: 0;
-}
-
 .table-wrapper .table-responsive .table td,
 .table-wrapper .table-responsive .table th {
   white-space: nowrap;
+  border-bottom: 0;
 }
 
 .table-wrapper .table-responsive:not(.table-tableau) .table,

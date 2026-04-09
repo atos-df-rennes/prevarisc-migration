@@ -23,37 +23,12 @@
             const listValuesContainer = document.getElementById('champ_valeurs_liste');
             if (!listValuesContainer) return;
 
-            const getValuesOrder = () => {
-                return Array.from(listValuesContainer.children).map((el, idx) => ({
-                    idx: idx,
-                    ID: el.id
-                }));
-            };
-            let originalList = [];
-
-            const updateAllValuesIdx = (originalList, newList) => {
-                const changes = newList
-                    .filter(item => {
-                        const originalItem = originalList.find(originalItem => originalItem.ID === item.ID);
-                        return originalItem && originalItem.idx !== item.idx;
-                    });
-
-                if (changes.length === 0) return;
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ path('admin_formulaires_order_champ_valeur_liste') }}",
-                    data: { changes: JSON.stringify(changes) },
-                    datatype: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            $.toast.success(response.message || 'Les valeurs ont bien été réordonnées.')
-                        } else {
-                            $.toast.error('Erreur lors du réordonnancement des valeurs.')
-                        }
-                    },
-                    error: function() {
-                        $.toast.error('Une erreur est survenue lors du réordonnancement des valeurs.')
+            // Met à jour les inputs idx cachés selon la position DOM actuelle
+            const updateIdx = () => {
+                Array.from(listValuesContainer.children).forEach(function(li, position) {
+                    const idxInput = li.querySelector('input[name$="[idx]"]');
+                    if (idxInput) {
+                        idxInput.value = position;
                     }
                 });
             };
@@ -61,14 +36,14 @@
             new Sortable(listValuesContainer, {
                 handle: '.tdMove',
                 animation: 100,
-                onStart: function () {
-                    originalList = getValuesOrder();
-                },
-                onEnd: function () {
-                    const newList = getValuesOrder();
-                    updateAllValuesIdx(originalList, newList);
-                }
+                onEnd: updateIdx
             });
+
+            // Garantit que les idx sont à jour même si des éléments ont été ajoutés/supprimés
+            const form = listValuesContainer.closest('form');
+            if (form) {
+                form.addEventListener('submit', updateIdx);
+            }
         });
     </script>
 {% endblock %}

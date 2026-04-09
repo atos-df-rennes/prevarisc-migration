@@ -1,14 +1,22 @@
 $(document).ready(function() {
-    $('input[type="checkbox"]').on('click', function() {
-        const elemToToggle = $('#'+this.name)
-        if (elemToToggle.hasClass('hide')) {
-            elemToToggle.show()
-            elemToToggle.removeClass('hide')
-        } else {
-            elemToToggle.hide()
-            elemToToggle.addClass('hide')
-        }
-    })
+    /**
+     * TOC Modal : synchronise les checkboxes miroirs (data-controls-rubrique)
+     * avec la visibilité des panneaux de rubrique et le champ display réel.
+     *
+     * Les checkboxes dans le TOC modal ont l'attribut data-controls-rubrique="{rubriqueId}".
+     * Chaque panneau de rubrique a l'id "afficher_rubrique-{rubriqueId}".
+     * Le champ display réel a l'attribut data-display-checkbox="{rubriqueId}".
+     */
+    $('[data-controls-rubrique]').on('change', function() {
+        const rubriqueId = $(this).data('controls-rubrique');
+        const isChecked = this.checked;
+
+        // Affiche/masque le panneau de rubrique
+        $('#afficher_rubrique-' + rubriqueId).toggleClass('hide', !isChecked);
+
+        // Met à jour le champ display réel du formulaire Symfony
+        $('[data-display-checkbox="' + rubriqueId + '"]').prop('checked', isChecked);
+    });
 
     $('.table-responsive').each(function() {
         if ($(this)[0].scrollWidth > $(this)[0].clientWidth) {
@@ -46,13 +54,3 @@ $(document).ready(function() {
         }
     })
 })
-
-document.addEventListener('DOMContentLoaded', () => {
-    const showTocButton = document.getElementById('show-toc');
-
-    if (showTocButton) {
-        showTocButton.addEventListener('click', () => {
-            $('#tocModal').modal('show');
-        });
-    }
-});

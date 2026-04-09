@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Form\MessagesAlerteType;
 use App\Repository\ChangementRepository;
 use App\Service\Changement;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,18 +17,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChangementController extends AbstractController
 {
-    /**
-     * @var ChangementRepository
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var ChangementRepository */
     private $changementRepository;
 
-    /**
-     * @var Changement
-     */
+    /** @var Changement */
     private $changement;
 
-    public function __construct(ChangementRepository $changementRepository, Changement $changement)
+    public function __construct(EntityManagerInterface $entityManager, ChangementRepository $changementRepository, Changement $changement)
     {
+        $this->entityManager = $entityManager;
         $this->changementRepository = $changementRepository;
         $this->changement = $changement;
     }
@@ -43,13 +44,11 @@ class ChangementController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-
             foreach ($messages as $message) {
-                $entityManager->persist($message);
+                $this->entityManager->persist($message);
             }
 
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', "Les messages d'alerte ont bien été mis à jour.");
 

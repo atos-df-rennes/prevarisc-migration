@@ -664,4 +664,132 @@ final class Etablissement
 
         $this->entityManager->flush();
     }
+
+    /**
+     * Retourne les données du descriptif original (champs fixes) d'un établissement,
+     * groupées par section pour l'affichage.
+     *
+     * @return array{
+     *     descriptif: ?string,
+     *     historique: ?string,
+     *     derogation: ?string,
+     *     techniquesGroupes: array<string, array<string, array{value: mixed, type: string}>>
+     * }
+     */
+    public function getDescriptifOriginal(EtablissementEntity $etablissement): array
+    {
+        $techniquesGroupes = [
+            'Implantation' => [
+                'Surface emprise au sol (m²)' => ['value' => $etablissement->getDesctechImplantationSurface(), 'type' => 'int'],
+                'Surface totale (m²)' => ['value' => $etablissement->getDesctechImplantationSurfaceTotale(), 'type' => 'int'],
+                'Surface accessible au public (m²)' => ['value' => $etablissement->getDesctechImplantationSurfaceAccPublic(), 'type' => 'int'],
+                'Surface de plancher (m²)' => ['value' => $etablissement->getDesctechImplantationShon(), 'type' => 'int'],
+                'Nombre de niveaux' => ['value' => $etablissement->getDesctechImplantationNbNiveaux(), 'type' => 'int'],
+                'Plancher bas du dernier niveau (m)' => ['value' => $etablissement->getDesctechImplantationPbdn(), 'type' => 'int'],
+            ],
+            'Desserte' => [
+                'Nombre de façades accessibles' => ['value' => $etablissement->getDesctechDesserteNbFacadeLibre(), 'type' => 'int'],
+                'Voie engin' => ['value' => $etablissement->getDesctechDesserteVoieEngin(), 'type' => 'int'],
+                'Voie échelle' => ['value' => $etablissement->getDesctechDesserteVoieEchelle(), 'type' => 'int'],
+                'Espace libre' => ['value' => $etablissement->getDesctechDesserteEspaceLibre(), 'type' => 'int'],
+            ],
+            'Isolement par rapport aux tiers' => [
+                'Latéral CF (minute)' => ['value' => $etablissement->getDesctechIsolementLateralCf(), 'type' => 'int'],
+                'Superposé CF (minute)' => ['value' => $etablissement->getDesctechIsolementSuperposeCf(), 'type' => 'int'],
+                'Vis-à-vis (m)' => ['value' => $etablissement->getDesctechIsolementVisAVis(), 'type' => 'int'],
+            ],
+            'Stabilité au feu' => [
+                'Structure SF (minute)' => ['value' => $etablissement->getDesctechStabiliteStructureSf(), 'type' => 'int'],
+                'Plancher SF (minute)' => ['value' => $etablissement->getDesctechStabilitePlancher(), 'type' => 'int'],
+            ],
+            'Distribution intérieure' => [
+                'Cloisonnement traditionnel' => ['value' => $etablissement->getDesctechDistributionCloisonnementTrad(), 'type' => 'tinyint'],
+                'Secteurs' => ['value' => $etablissement->getDesctechDistributionSecteurs(), 'type' => 'tinyint'],
+                'Compartiments' => ['value' => $etablissement->getDesctechDistributionCompartiments(), 'type' => 'tinyint'],
+            ],
+            'Locaux à risques' => [
+                'Nombre de locaux à risques moyens' => ['value' => $etablissement->getDesctechLocauxRisqueNbMoyens(), 'type' => 'int'],
+                'Nombre de locaux à risques importants' => ['value' => $etablissement->getDesctechLocauxRisqueNbImportants(), 'type' => 'int'],
+            ],
+            "Espaces d'attentes sécurisés" => [
+                'Nombre' => ['value' => $etablissement->getDesctechEspacesNombre(), 'type' => 'int'],
+                'Nombre de niveaux concernés' => ['value' => $etablissement->getDesctechEspacesNiveauConcerne(), 'type' => 'int'],
+            ],
+            'Désenfumage' => [
+                'Naturel' => ['value' => $etablissement->getDesctechDesenfumageNaturel(), 'type' => 'tinyint'],
+                'Mécanique' => ['value' => $etablissement->getDesctechDesenfumageMecanique(), 'type' => 'tinyint'],
+                'Commentaire' => ['value' => $etablissement->getDesctechDesenfumageCommentaire(), 'type' => 'text'],
+            ],
+            'Chaufferies' => [
+                'Nombre' => ['value' => $etablissement->getDesctechChaufferiesNb(), 'type' => 'int'],
+                'Puissance max (kw)' => ['value' => $etablissement->getDesctechChaufferiesPuissMax(), 'type' => 'int'],
+                'Puissance totale (kw)' => ['value' => $etablissement->getDesctechChaufferiesPuissanceTotale(), 'type' => 'int'],
+                'Nombre de chaufferies 30kw' => ['value' => $etablissement->getDesctechChaufferiesNb30Kw(), 'type' => 'int'],
+                'Nombre de chaufferies 70kw' => ['value' => $etablissement->getDesctechChaufferiesNb70Kw(), 'type' => 'int'],
+                'Nombre de chaufferies 2mw' => ['value' => $etablissement->getDesctechChaufferiesNb2Mw(), 'type' => 'int'],
+            ],
+            "Localisation des coupures d'énergies" => [
+                'Gaz' => ['value' => $etablissement->getDesctechCoupureNrjGaz(), 'type' => 'text'],
+                'Électricité' => ['value' => $etablissement->getDesctechCoupureNrjElec(), 'type' => 'text'],
+                'Photovoltaïque' => ['value' => $etablissement->getDesctechCoupureNrjPhotovoltaique(), 'type' => 'text'],
+                'Autre' => ['value' => $etablissement->getDesctechCoupureNrjAutre(), 'type' => 'text'],
+            ],
+            'Ascenseurs' => [
+                'Nombre ascenseurs total' => ['value' => $etablissement->getDesctechAscenseursNbTotal(), 'type' => 'int'],
+                'Nombre ascenseurs de type AS4' => ['value' => $etablissement->getDesctechAscenseursNbAs4(), 'type' => 'int'],
+            ],
+            'Moyens de secours' => [
+                'Colonnes sèches' => ['value' => $etablissement->getDesctechMoyensSecoursColonnesSeches(), 'type' => 'tinyint'],
+                'Colonnes humides' => ['value' => $etablissement->getDesctechMoyensSecoursColonnesHumides(), 'type' => 'tinyint'],
+                'RIA' => ['value' => $etablissement->getDesctechMoyensSecoursRia(), 'type' => 'tinyint'],
+                'Sprinkleur' => ['value' => $etablissement->getDesctechMoyensSecoursSprinkleur(), 'type' => 'tinyint'],
+                "Brouillard d'eau" => ['value' => $etablissement->getDesctechMoyensSecoursBrouillardEau(), 'type' => 'tinyint'],
+            ],
+            'PC Sécurité' => [
+                'Présence' => ['value' => $etablissement->getDesctechPcSecuPresence(), 'type' => 'tinyint'],
+                'Localisation' => ['value' => $etablissement->getDesctechPcSecuLocalisation(), 'type' => 'text'],
+            ],
+            'SSI' => [
+                'Présence' => ['value' => $etablissement->getDesctechSsiPresence(), 'type' => 'tinyint'],
+                'Catégorie SSI' => ['value' => $etablissement->getDesctechSsiCategorie(), 'type' => 'char'],
+                'Alarme type' => ['value' => $etablissement->getDesctechSsiAlarmeType(), 'type' => 'char'],
+            ],
+            'Service de sécurité' => [
+                'Personne qualifiée désignée (EL18)' => ['value' => $etablissement->getDesctechServiceSecuEl18(), 'type' => 'tinyint'],
+                'Personnels désignés' => ['value' => $etablissement->getDesctechServiceSecuPersonnelsDesignes(), 'type' => 'tinyint'],
+                'Agent de sécurité' => ['value' => $etablissement->getDesctechServiceSecuAgentSecu(), 'type' => 'int'],
+                "Chef d'équipe sécurité" => ['value' => $etablissement->getDesctechServiceSecuChefEquipe(), 'type' => 'int'],
+                'Chef de service sécurité' => ['value' => $etablissement->getDesctechServiceSecuChefDeService(), 'type' => 'int'],
+                'Sapeurs Pompiers' => ['value' => $etablissement->getDesctechServiceSecuSp(), 'type' => 'int'],
+                'Commentaire sur les SP' => ['value' => $etablissement->getDesctechServiceSecuCommentaireSp(), 'type' => 'text'],
+            ],
+            'Défense incendie' => [
+                "Nombre de point d'eau" => ['value' => $etablissement->getDesctechDefensePtEau(), 'type' => 'int'],
+                "Volume des points d'eau (m3)" => ['value' => $etablissement->getDesctechDefenseVolumePtEau(), 'type' => 'int'],
+                "Commentaires sur le / les points d'eau naturel" => ['value' => $etablissement->getDesctechDefensePtEauCommentaire(), 'type' => 'text'],
+                'PI' => ['value' => $etablissement->getDesctechDefensePi(), 'type' => 'int'],
+                'BI' => ['value' => $etablissement->getDesctechDefenseBi(), 'type' => 'int'],
+                'Débit simultané (m3/h)' => ['value' => $etablissement->getDesctechDefenseDebitSimultane(), 'type' => 'int'],
+            ],
+            'Risques' => [
+                'Risques naturels' => ['value' => $etablissement->getRisquesNaturels(), 'type' => 'text'],
+                'Risques technologiques' => ['value' => $etablissement->getRisquesTechnologiques(), 'type' => 'text'],
+            ],
+        ];
+
+        return [
+            'descriptif' => $etablissement->getDescriptif(),
+            'historique' => $etablissement->getHistoriqueDescriptif(),
+            'derogation' => $etablissement->getDescriptifDerogation(),
+            'techniquesGroupes' => $techniquesGroupes,
+        ];
+    }
+
+    /**
+     * Sauvegarde le descriptif original d'un établissement.
+     */
+    public function saveDescriptifOriginal(): void
+    {
+        $this->entityManager->flush();
+    }
 }

@@ -1,7 +1,2 @@
 parameters:
-	ignoreErrors:
-		-
-			message: '#^Parameter \#1 \$changes of method App\\Repository\\ChampValeurListeRepository\:\:updateIndexesBatch\(\) expects non\-empty\-array\<int, array\{ID\: int, idx\: int\}\>, non\-empty\-array\<mixed, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Controller/ChampController.php
+	ignoreErrors: []

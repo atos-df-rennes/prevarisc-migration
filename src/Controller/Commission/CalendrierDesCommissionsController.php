@@ -46,7 +46,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/calendrier-des-commissions/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
      */
-    public function recupevenement(Request $request): JsonResponse
+    public function getCalendarEvents(Request $request): JsonResponse
     {
         /** @var string|null $start */
         $start = $request->query->get('start');
@@ -93,7 +93,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
      */
-    public function recupdateliee(Request $request): JsonResponse
+    public function getLinkedDates(Request $request): JsonResponse
     {
         $idDate = filter_var($request->query->get('idDate'), FILTER_VALIDATE_INT);
 
@@ -126,7 +126,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/symfony/calendrier-des-commissions/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
      */
-    public function resizecommissiondate(Request $request): JsonResponse
+    public function resizeCommissionDate(Request $request): JsonResponse
     {
         try {
             $idComm = filter_var($request->request->get('idComm'), FILTER_VALIDATE_INT);
@@ -166,7 +166,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/symfony/calendrier-des-commissions/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
      */
-    public function deplacecommissiondate(Request $request): JsonResponse
+    public function moveCommissionDate(Request $request): JsonResponse
     {
         try {
             $idComm = filter_var($request->request->get('idComm'), FILTER_VALIDATE_INT);

@@ -40,7 +40,7 @@ class Rubrique
     /**
      * @var ?int
      *
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=false)
      */
     private $idx;
 
@@ -57,6 +57,8 @@ class Rubrique
      * @var Collection<int, Champ>
      *
      * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true, cascade={"persist"})
+     *
+     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
     private $champs;
 
@@ -106,7 +108,7 @@ class Rubrique
         return $this->idx;
     }
 
-    public function setIdx(?int $idx): self
+    public function setIdx(int $idx): self
     {
         $this->idx = $idx;
 
@@ -133,6 +135,21 @@ class Rubrique
         return $this->champs;
     }
 
+    /**
+     * Retourne uniquement les champs racine (sans parent) de la rubrique, dans l'ordre idx.
+     *
+     * En base de données, les champs enfants partagent la même FK rubrique que leur parent.
+     * Cette méthode filtre la collection en mémoire pour n'exposer que les champs de premier niveau.
+     *
+     * @return Collection<int, Champ>
+     */
+    public function getRootChamps(): Collection
+    {
+        return $this->champs->filter(function (Champ $champ): bool {
+            return null === $champ->getParent();
+        });
+    }
+
     public function addChamp(Champ $champ): self
     {
         if (!$this->champs->contains($champ)) {
@@ -140,7 +157,7 @@ class Rubrique
             $champ->setRubrique($this);
             $champ->setIdx($this->champs->filter(function (Champ $champ): bool {
                 return null === $champ->getParent();
-            })->count());
+            })->count() - 1);
         }
 
         return $this;

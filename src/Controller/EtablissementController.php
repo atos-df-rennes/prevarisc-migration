@@ -3,12 +3,12 @@
 namespace App\Controller;
 
 use App\Constant\DossierType;
+use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
-use App\Entity\UtilisateurInformations;
-use App\Form\ContactType;
+use App\Form\DescriptifOriginalType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
@@ -17,21 +17,23 @@ use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\PeriodiciteRepository;
-use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Alerte\AlerteService;
-use App\Service\Contact;
 use App\Service\DataStore\DataStore;
+use App\Service\Descriptif as DescriptifService;
+use App\Service\Descriptif\DescriptifFormBuilder;
+use App\Service\Descriptif\DescriptifFormHydrator;
+use App\Service\Descriptif\DescriptifFormPersister;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
 use App\Service\Mail\MailerConfiguration;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -80,16 +82,6 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $serializer;
 
-    /**
-     * @var UtilisateurInformationsRepository
-     */
-    private $utilisateurInformationsRepository;
-
-    /**
-     * @var Contact
-     */
-    private $contactService;
-
     /** @var Dossier */
     private $dossierService;
 
@@ -106,6 +98,24 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var int */
     private $nbDossiersAAfficher;
 
+    /** @var DescriptifService */
+    private $descriptifService;
+
+    /** @var DescriptifFormHydrator */
+    private $descriptifFormHydrator;
+
+    /** @var DescriptifFormBuilder */
+    private $descriptifFormBuilder;
+
+    /** @var DescriptifFormPersister */
+    private $descriptifFormPersister;
+
+    /** @var bool */
+    private $descriptifPersonnalise;
+
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -119,11 +129,15 @@ class EtablissementController extends AbstractController implements Etablissemen
         GroupementRepository $groupementRepository,
         DataStore $dataStore,
         SerializerInterface $serializer,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        Contact $contactService,
         MailerConfiguration $mailerConfig,
         AlerteService $alerteService,
-        int $nbDossiersAAfficher
+        int $nbDossiersAAfficher,
+        DescriptifService $descriptifService,
+        DescriptifFormHydrator $descriptifFormHydrator,
+        DescriptifFormBuilder $descriptifFormBuilder,
+        DescriptifFormPersister $descriptifFormPersister,
+        bool $descriptifPersonnalise,
+        LoggerInterface $logger
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -137,11 +151,15 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->groupementRepository = $groupementRepository;
         $this->dataStore = $dataStore;
         $this->serializer = $serializer;
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
-        $this->contactService = $contactService;
         $this->mailerConfig = $mailerConfig;
         $this->alerteService = $alerteService;
         $this->nbDossiersAAfficher = $nbDossiersAAfficher;
+        $this->descriptifService = $descriptifService;
+        $this->descriptifFormHydrator = $descriptifFormHydrator;
+        $this->descriptifFormBuilder = $descriptifFormBuilder;
+        $this->descriptifFormPersister = $descriptifFormPersister;
+        $this->descriptifPersonnalise = $descriptifPersonnalise;
+        $this->logger = $logger;
     }
 
     /**
@@ -333,159 +351,6 @@ class EtablissementController extends AbstractController implements Etablissemen
     }
 
     /**
-     * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
-    public function contacts(Etablissement $etablissement): Response
-    {
-        $etablissementWithContacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId());
-
-        $contacts = null !== $etablissementWithContacts
-            ? $etablissementWithContacts->getSortedContacts()
-            : null;
-
-        $contactsParents = new ArrayCollection();
-
-        foreach ($etablissement->getParents() as $parent) {
-            $parentWithContacts = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
-
-            if (null === $parentWithContacts) {
-                continue;
-            }
-
-            foreach ($parentWithContacts->getSortedContacts() as $contactParent) {
-                $contactsParents->add($contactParent);
-            }
-        }
-
-        return $this->render('etablissement/contacts.html.twig', [
-            'etablissement' => $etablissement,
-            'contacts' => $contacts,
-            'contacts_parents' => $contactsParents
-        ]);
-    }
-
-    /**
-     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add", defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
-    public function addContact(Request $request, Etablissement $etablissement): Response
-    {
-        $contact = new UtilisateurInformations();
-
-        $form = $this->createForm(ContactType::class, $contact, [
-            'action' => $this->generateUrl('etablissement_contacts_add', ['id' => $etablissement->getId()]),
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->persist($contact);
-            $etablissement->addContact($contact);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Le contact a bien été ajouté.');
-
-            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
-        }
-
-        return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
-    public function addExistingContact(
-        Request $request,
-        Etablissement $etablissement
-    ): Response {
-        $contactIdsString = $request->request->get('contacts');
-
-        if (!\is_string($contactIdsString) || !preg_match('/^\d+(?:,\d+)*$/', $contactIdsString)) {
-            throw new \InvalidArgumentException("La liste des identifiants des contacts n'a pas le bon format.");
-        }
-
-        if ('' === $contactIdsString) {
-            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
-        }
-
-        $contactIds = explode(',', $contactIdsString);
-
-        foreach ($contactIds as $contactId) {
-            $contact = $this->utilisateurInformationsRepository->find($contactId);
-
-            if (null === $contact) {
-                throw new NotFoundHttpException();
-            }
-
-            $etablissement->addContact($contact);
-        }
-
-        $this->entityManager->flush();
-
-        $this->addFlash('success', 'Les contacts ont bien été ajoutés.');
-
-        return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
-    }
-
-    /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     *
-     * @ParamConverter("etablissement", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
-    public function deleteContact(
-        Request $request,
-        Etablissement $etablissement,
-        UtilisateurInformations $contact
-    ): Response {
-        $form = $this->createFormBuilder()
-            ->setMethod(Request::METHOD_DELETE)
-            ->setAction($this->generateUrl('etablissement_contacts_delete', [
-                'id' => $etablissement->getId(),
-                'contact' => $contact->getId()
-            ]))
-            ->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (!$etablissement->getContacts()->contains($contact)) {
-                $this->addFlash('warning', "Le contact n'appartient pas à l'établissement.");
-
-                return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
-            }
-
-            // Suppression de l'association.
-            $etablissement->removeContact($contact);
-
-            // Suppression définitive du contact
-            if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
-                $this->entityManager->remove($contact);
-            }
-
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'Le contact a bien été supprimé.');
-
-            return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
-        }
-
-        return $this->render('etablissement/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
-            'etablissement' => $etablissement,
-            'contact' => $contact,
-        ]);
-    }
-
-    /**
      * @Route("/etablissement/{id}/dossiers", name="etablissement_dossiers", methods={"GET"})
      *
      * @IsGranted("view_ets", subject="etablissement")
@@ -555,5 +420,194 @@ class EtablissementController extends AbstractController implements Etablissemen
         }
 
         return new Response($html);
+    }
+
+    /**
+     * Affiche l'onglet Descriptif de l'établissement.
+     * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, affiche les formulaires personnalisés.
+     * Sinon, affiche le descriptif original (champs fixes).
+     *
+     * @Route("/etablissement/{id}/descriptif", name="etablissement_descriptif", methods={"GET"})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function descriptif(Etablissement $etablissement): Response
+    {
+        if (!$this->descriptifPersonnalise) {
+            $data = $this->etablissementService->getDescriptifOriginal($etablissement);
+
+            return $this->render('etablissement/descriptif_original.html.twig', [
+                'etablissement' => $etablissement,
+                'descriptif' => $data['descriptif'],
+                'historique' => $data['historique'],
+                'derogation' => $data['derogation'],
+                'techniquesGroupes' => $data['techniquesGroupes'],
+            ]);
+        }
+
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
+
+        return $this->render('etablissement/_informations/descriptif_personnalise.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Retourne le contenu du descriptif original pour la modale (sans layout).
+     *
+     * @Route("/etablissement/{id}/descriptif-original", name="etablissement_descriptif_original", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
+     *
+     * @IsGranted("view_ets", subject="etablissement")
+     */
+    public function descriptifOriginal(Etablissement $etablissement, Request $request): Response
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw $this->createNotFoundException();
+        }
+
+        $data = $this->etablissementService->getDescriptifOriginal($etablissement);
+
+        return $this->render('etablissement/_descriptif_original_content.html.twig', [
+            'descriptif' => $data['descriptif'],
+            'historique' => $data['historique'],
+            'derogation' => $data['derogation'],
+            'techniquesGroupes' => $data['techniquesGroupes'],
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition du descriptif.
+     * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, gère les formulaires personnalisés (POST).
+     * Sinon, gère le descriptif original (champs fixes).
+     *
+     * @Route("/etablissement/{id}/descriptif/modifier", name="etablissement_descriptif_modifier", methods={"GET", "POST"})
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
+     */
+    public function editDescriptifOriginal(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        if ($this->descriptifPersonnalise) {
+            return $this->editDescriptifPersonnalise($etablissement, $request, $formFactory);
+        }
+
+        $form = $this->createForm(DescriptifOriginalType::class, $etablissement);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->etablissementService->saveDescriptifOriginal();
+                $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde du descriptif original', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/edit_descriptif_original.html.twig', [
+            'etablissement' => $etablissement,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Gère l'édition du descriptif personnalisé (formulaire personnalisé).
+     * Appelée par editDescriptifOriginal lorsque PREVARISC_DESCRIPTIF_PERSONNALISE est activé.
+     */
+    private function editDescriptifPersonnalise(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT);
+
+        $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
+                $this->addFlash('success', 'Les descriptifs ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde du descriptif personnalisé', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/_informations/edit_descriptif_personnalise.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition des effectifs et dégagements de l'établissement.
+     *
+     * @Route("/etablissement/{id}/effectifs-degagements/modifier", name="etablissement_effectifs_degagements_edit", methods={"GET", "POST"})
+     *
+     * @Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")
+     */
+    public function editEffectifsDegagements(Etablissement $etablissement, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+
+        $formData = $this->descriptifFormHydrator->hydrateFromEtablissement($etablissement, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForEtablissement($etablissement, $submittedData, $data['rubriques']);
+                $this->addFlash('success', 'Les effectifs et dégagements ont bien été mis à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements', [
+                    'etablissement_id' => $etablissement->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('etablissement_effectifs_degagements', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/_informations/edit_effectifs_degagements.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Effectifs et Dégagements de l'établissement.
+     *
+     * @Route("/etablissement/{id}/effectifs-degagements", name="etablissement_effectifs_degagements", methods={"GET"})
+     *
+     * @Security("is_granted('effectifs_degagements_ets') and is_granted('view_ets', etablissement)")
+     */
+    public function effectifsDegagements(Etablissement $etablissement): Response
+    {
+        $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
+
+        return $this->render('etablissement/_informations/effectifs_degagements.html.twig', [
+            'etablissement' => $etablissement,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
     }
 }

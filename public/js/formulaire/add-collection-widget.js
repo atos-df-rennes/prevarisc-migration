@@ -77,7 +77,7 @@ function addTagFormOrderButton(element) {
     const buttonWrapper = document.createElement('span');
     buttonWrapper.classList.add('tdMove');
 
-    buttonWrapper.innerHTML = '<span class="glyphicon glyphicon-move"></span>';
+    buttonWrapper.innerHTML = '<span class="glyphicon glyphicon-move" aria-hidden="true"></span>';
 
     element.firstElementChild.prepend(buttonWrapper);
 }

@@ -57,8 +57,37 @@ class CapsuleRubriqueRepository extends ServiceEntityRepository
             ->leftJoin('cr.rubriques', 'r')
             ->orderBy('cr.id', 'ASC')
             ->addOrderBy('r.idx', 'ASC')
+            ->addOrderBy('r.id', 'ASC')
             ->getQuery()
             ->getResult()
+        ;
+    }
+
+    public function findByNomInterneWithFullData(string $nomInterne): ?CapsuleRubrique
+    {
+        return $this->createQueryBuilder('cr')
+            ->addSelect('r', 'c', 'ct', 'cvl', 'ce', 'cet', 'cevl')
+            ->leftJoin('cr.rubriques', 'r')
+            ->leftJoin('r.champs', 'c')
+            ->leftJoin('c.type', 'ct')
+            ->leftJoin('c.valeursListe', 'cvl')
+            ->leftJoin('c.enfants', 'ce')
+            ->leftJoin('ce.type', 'cet')
+            ->leftJoin('ce.valeursListe', 'cevl')
+            ->andWhere('cr.nomInterne = :nomInterne')
+            ->setParameter('nomInterne', $nomInterne)
+            ->orderBy('r.idx', 'ASC')
+            ->addOrderBy('r.id', 'ASC')
+            ->addOrderBy('c.idx', 'ASC')
+            ->addOrderBy('c.id', 'ASC')
+            ->addOrderBy('cvl.idx', 'ASC')
+            ->addOrderBy('cvl.id', 'ASC')
+            ->addOrderBy('ce.idx', 'ASC')
+            ->addOrderBy('ce.id', 'ASC')
+            ->addOrderBy('cevl.idx', 'ASC')
+            ->addOrderBy('cevl.id', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
     }
 }

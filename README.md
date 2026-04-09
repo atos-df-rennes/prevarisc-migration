@@ -82,8 +82,9 @@ $ php bin/console doctrine:migrations:migrate
 6. Appliquez les permissions nécessaires :
 ```sh
 $ chown –R www-data:www-data *
-$ chmod –R 555 *
-$ chmod –R 755 public/
+$ find . -type d -exec chmod 0755 {} \;
+$ find . -type f -exec chmod 0644 {} \;
+$ chmod -R 755 vendor/bin
 ```
 
 Vous devez ensuite modifier le Virtualhost pour définir ce dossier comme étant le principale avec le dossier *prevarisc/* celui de secours.\

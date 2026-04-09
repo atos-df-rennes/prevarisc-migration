@@ -4,9 +4,8 @@ namespace App\Controller;
 
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
-use App\Constant\TypeChangement;
+use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
-use App\Entity\Avis;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
 use App\Entity\DossierNatureListe;
@@ -27,13 +26,18 @@ use App\Repository\DossierRepository;
 use App\Repository\DossierTypeRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurRepository;
-use App\Service\Alerte\AlerteService;
 use App\Service\Commission\DateCommission;
+use App\Service\Descriptif as DescriptifService;
+use App\Service\Descriptif\DescriptifFormBuilder;
+use App\Service\Descriptif\DescriptifFormHydrator;
+use App\Service\Descriptif\DescriptifFormPersister;
+use Symfony\Component\Form\FormFactoryInterface;
 use App\Service\Dossier as DossierService;
 use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
+use App\Service\Dossier\DossierCreationService;
+use App\Service\Dossier\DossierSauvegardeService;
 use App\Service\Dossier\DossierDocumentsConsultesService;
-use App\Service\Dossier\DossierDonnantAvisService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\Etablissement;
@@ -43,12 +47,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
@@ -122,30 +126,33 @@ class DossierController extends AbstractController implements DossierLateralNavi
     private $dossierAffectationRepository;
 
     /**
-     * @var DossierDonnantAvisService
-     */
-    private $dossierDonnantAvisService;
-
-    /**
-     * @var AlerteService
-     */
-    private $alerteService;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
 
     /** @var DossierService */
     private $dossierService;
 
     /** @var DossierRepository */
     private $dossierRepository;
+
+    /** @var DossierCreationService */
+    private $dossierCreationService;
+
+    /** @var DossierSauvegardeService */
+    private $dossierSauvegardeService;
+
+    /** @var DescriptifService */
+    private $descriptifService;
+
+    /** @var DescriptifFormHydrator */
+    private $descriptifFormHydrator;
+
+    /** @var DescriptifFormBuilder */
+    private $descriptifFormBuilder;
+
+    /** @var DescriptifFormPersister */
+    private $descriptifFormPersister;
 
     /** @var DossierDocumentsConsultesService */
     private $dossierDocumentsConsultesService;
@@ -166,12 +173,15 @@ class DossierController extends AbstractController implements DossierLateralNavi
         PieceJointeExportService $pieceJointeExportService,
         DossierAffectationService $dossierAffectationService,
         DossierAffectationRepository $dossierAffectationRepository,
-        DossierDonnantAvisService $dossierDonnantAvisService,
-        AlerteService $alerteService,
         LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator,
         DossierService $dossierService,
         DossierRepository $dossierRepository,
+        DossierCreationService $dossierCreationService,
+        DossierSauvegardeService $dossierSauvegardeService,
+        DescriptifService $descriptifService,
+        DescriptifFormHydrator $descriptifFormHydrator,
+        DescriptifFormBuilder $descriptifFormBuilder,
+        DescriptifFormPersister $descriptifFormPersister,
         DossierDocumentsConsultesService $dossierDocumentsConsultesService
     ) {
         $this->entityManager = $entityManager;
@@ -189,12 +199,15 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->pieceJointeExportService = $pieceJointeExportService;
         $this->dossierAffectationService = $dossierAffectationService;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
-        $this->alerteService = $alerteService;
         $this->logger = $logger;
-        $this->urlGenerator = $urlGenerator;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
+        $this->dossierCreationService = $dossierCreationService;
+        $this->dossierSauvegardeService = $dossierSauvegardeService;
+        $this->descriptifService = $descriptifService;
+        $this->descriptifFormHydrator = $descriptifFormHydrator;
+        $this->descriptifFormBuilder = $descriptifFormBuilder;
+        $this->descriptifFormPersister = $descriptifFormPersister;
         $this->dossierDocumentsConsultesService = $dossierDocumentsConsultesService;
     }
 
@@ -223,6 +236,144 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'afficher_avis' => $afficherAvis,
             'platau' => $platauData,
             'datesCommissionLiees' => $datesCommissionLiees,
+        ]);
+    }
+
+    /**
+     * Création d'un nouveau dossier.
+     *
+     * L'établissement est optionnel : /dossier/ajouter?etablissement=42
+     *
+     * @Route("/dossier/ajouter", name="dossier_new", methods={"GET", "POST"}, defaults={"_dossier_lateral_nav": false})
+     *
+     * @IsGranted("add_dossier")
+     */
+    public function new(
+        Request $request,
+        bool $mailEnabled
+    ): Response {
+        $dossier = new Dossier();
+
+        // Récupération de l'établissement si passé en query param
+        $idEtablissement = $request->query->getInt('etablissement', 0);
+        $etablissement = $idEtablissement > 0
+            ? $this->etablissementRepository->find($idEtablissement)
+            : null;
+
+        $anciensAvis = [];
+        // Actions déclenchées si le dossier est ajouté sur un établissement
+        if (null !== $etablissement) {
+            $dossier->addEtablissement($etablissement);
+
+            $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
+            $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
+                ? $dossierDonnantAvis->getAvisCommission()
+                : null;
+        }
+
+        // Définir le créateur (utilisateur connecté)
+        /** @var Utilisateur $user */
+        $user = $this->getUser();
+        $dossier->setCreateur($user);
+
+        $form = $this->createForm(DossierType::class, $dossier, [
+            'is_edit' => false,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var int[] $etablissementsIds */
+                $etablissementsIds = $this->entityManager->wrapInTransaction(function () use ($dossier, $etablissement, $form): array {
+                    // Affectations commissions/visites + dénormalisation dates
+                    /** @var string|null $idAffectationCommission */
+                    $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
+                    /** @var string|null $idAffectationVisite */
+                    $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+
+                    // Persist du dossier avant les opérations dépendantes de l'ID
+                    $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
+                    $this->entityManager->persist($dossier);
+                    $this->entityManager->flush();
+
+                    // Gestion des affectations commission/visite
+                    $this->dossierAffectationService->gererAffectations(
+                        $dossier,
+                        $idAffectationCommission ? (int) $idAffectationCommission : null,
+                        $idAffectationVisite ? (int) $idAffectationVisite : null
+                    );
+
+                    // Opérations d'initialisation spécifiques à la création
+                    if (null !== $etablissement) {
+                        $this->dossierCreationService->initialiserDepuisEtablissement($dossier, $etablissement);
+                    }
+
+                    $this->dossierCreationService->creerDocumentsAttestationLevee($dossier);
+                    $this->dossierCreationService->initialiserPrescriptionsReglementaires($dossier);
+
+                    $this->entityManager->flush();
+
+                    // Dossier donnant avis : pas de désaffectation possible en création
+                    $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
+                    $ids = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis);
+
+                    $this->entityManager->flush();
+
+                    return $ids;
+                });
+
+                $this->dossierSauvegardeService->genererAlertesVAO($dossier);
+                $this->dossierSauvegardeService->genererAlertesEmailAvis($dossier, $etablissementsIds, $anciensAvis, $mailEnabled);
+
+                $this->addFlash('success', 'Le dossier a été créé avec succès.');
+
+                return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
+            } catch (\Throwable $e) {
+                // Purge le cache de l'EM pour éviter de conserver des entités
+                // en mémoire avec des IDs invalides après le rollback.
+                $this->entityManager->clear();
+
+                $this->logger->error('Erreur lors de la création du dossier', [
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                $this->addFlash('danger', 'Une erreur est survenue lors de la création du dossier. Veuillez réessayer ou contacter le service informatique.');
+            }
+        }
+
+        // Données nécessaires à l'affichage du formulaire
+        $dossierTypes = $this->dossierTypeRepository->findAll();
+        $avis = $this->avisRepository->findAll();
+
+        $commissionsParType = [];
+        foreach ($this->commissionTypeRepository->findAll() as $type) {
+            $commissionsParType[$type->getId()] = [
+                'libelle' => $type->getLibelle(),
+                'commissions' => $this->commissionRepository->findBy(['type' => $type]),
+            ];
+        }
+
+        $fieldsConfig = json_encode($this->dossierFieldsService->getAllFieldsByNature());
+
+        $enteteEtab = $etablissement;
+        $lastAvisEtab = '';
+
+        if (null !== $etablissement) {
+            $lastAvisEtab = $this->etablissementService->getLastAvisLibelle($etablissement->getId());
+        }
+
+        return $this->render('dossier/new.html.twig', [
+            'dossier' => $dossier,
+            'form' => $form->createView(),
+            'dossierTypes' => $dossierTypes,
+            'avis' => $avis,
+            'commissionsParType' => $commissionsParType,
+            'etablissement' => $etablissement,
+            'enteteEtab' => $enteteEtab,
+            'lastAvisEtab' => $lastAvisEtab,
+            'fieldsConfig' => $fieldsConfig,
         ]);
     }
 
@@ -323,115 +474,24 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     $idAffectationVisite ? (int) $idAffectationVisite : null
                 );
 
-                // Dossier donnant avis : gestion affectation/désaffectation
-                // Récupérer la valeur de la checkbox repercuterAvis
+                // Dossier donnant avis : gestion affectation/désaffectation selon changement de nature
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
-
-                // Liste des IDs établissements modifiés (pour vidage cache legacy)
-                /** @var int[] $etablissementsIds */
-                $etablissementsIds = [];
-
-                // Cas 1 : Nouvelle nature donne avis → Affectation
-                if ($dossier->donneAvis()) {
-                    $etablissementsIds = $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
-                }
-                // Cas 2 : Changement de nature donnant avis → non donnant avis → Désaffectation
-                // Note : Le elseif garantit qu'on ne passe ici QUE si nouvelle nature ne donne PAS avis
-                elseif (null !== $ancienneNature) {
-                    $etablissementsIds = $this->dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
-                }
+                $etablissementsIds = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis, $ancienneNature);
 
                 // Persist et flush toutes les modifications
+                $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
                 $this->entityManager->persist($dossier);
                 $this->entityManager->flush();
 
                 // Commit transaction
                 $this->entityManager->commit();
 
-                // Alerte "Visite Avant Ouverture favorable" si établissement en statut "Projet"
-                $natureId = $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null;
-                $avisCommission = $dossier->getAvisCommission() instanceof Avis ? $dossier->getAvisCommission()->getId() : null;
+                $this->dossierSauvegardeService->genererAlertesVAO($dossier);
+                $this->dossierSauvegardeService->genererAlertesEmailAvis($dossier, $etablissementsIds, $anciensAvis, $mailEnabled);
 
-                if (
-                    1 === $avisCommission // Avis favorable
-                    && in_array($natureId, DossierNature::VISITE_AVANT_OUVERTURE, true) // Nature 47 ou 48
-                ) {
-                    foreach ($dossier->getEtablissements() as $etablissement) {
-                        $informations = $etablissement->getLatestInformations();
-                        $statut = $informations->getStatut();
-
-                        // Si établissement en statut "Projet" (ID=1)
-                        if ($statut && 1 === $statut->getId()) {
-                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissement->getId();
-
-                            $informationsEtablissement = $this->urlGenerator->generate('etablissement_informations', ['id' => $etablissement->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-                            $this->addFlash('warning', sprintf(
-                                '<strong>Avertissement</strong><br>'.
-                                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
-                                '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
-                                $informationsEtablissement,
-                                htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
-                            ));
-                        }
-                    }
-                }
-
-                // Alertes email si changement d'avis (flash messages)
-                if ($mailEnabled && [] !== $etablissementsIds && $this->isGranted('alerte_avis')) {
-                    // Vérifier pour chaque établissement modifié si l'avis a changé
-                    foreach ($dossier->getEtablissements() as $etablissement) {
-                        $etablissementId = $etablissement->getId();
-
-                        // Uniquement établissements qui ont été modifiés par affectation
-                        if (!in_array($etablissementId, $etablissementsIds, true)) {
-                            continue;
-                        }
-
-                        // Récupérer nouvel avis
-                        $dossierDonnantAvis = $etablissement->getDossierDonnantAvis();
-                        $nouvelAvis = $dossierDonnantAvis ? $dossierDonnantAvis->getAvisCommission() : null;
-
-                        // Comparer avec ancien avis
-                        $ancienAvis = $anciensAvis[$etablissementId] ?? null;
-
-                        // Si avis a changé, ajouter flash avec lien "Alerter"
-                        if ($ancienAvis !== $nouvelAvis) {
-                            $informations = $etablissement->getLatestInformations();
-                            $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
-
-                            $lienAlerter = $this->alerteService->getLink(
-                                TypeChangement::AVIS,
-                                $etablissementId
-                            );
-
-                            $this->addFlash('success', sprintf(
-                                '<p>L\'établissement %s a bien été mis à jour.</p>%s',
-                                $libelle,
-                                $lienAlerter
-                            ));
-                        }
-                    }
-                }
-
-                // Redirect vers legacy pour vidage cache établissements (si modifications)
                 $this->addFlash('success', 'Le dossier a été mis à jour avec succès.');
 
-                if ([] !== $etablissementsIds) {
-                    // Rediriger vers route legacy pour vidage cache + redirect Symfony
-                    $etablissementsJson = json_encode($etablissementsIds);
-                    if (false === $etablissementsJson) {
-                        throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
-                    }
-
-                    return $this->redirect(sprintf(
-                        '/legacy/dossier/vider-cache?id=%d&etablissements=%s',
-                        $dossier->getId(),
-                        urlencode($etablissementsJson)
-                    ));
-                }
-
-                // Cas sans modification établissements : redirect direct vers page dossier
-                return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+                return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection($dossier, $etablissementsIds));
             } catch (\Exception $e) {
                 // Rollback en cas d'erreur
                 $this->entityManager->rollback();
@@ -479,6 +539,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             }
         }
 
+        // @todo: Peut être utilisé directement en Twig ?
         // Récupération des informations de l'utilisateur connecté
         /** @var Utilisateur $user */
         $user = $this->getUser();
@@ -655,6 +716,64 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * Affiche l'onglet Vérifications techniques du dossier.
+     *
+     * @Route("/dossier/{id}/verifications-techniques", name="dossier_verifications_techniques", methods={"GET"})
+     *
+     * @Security("is_granted('verifications_techniques') and is_granted('view_doss', dossier)")
+     */
+    public function verificationsTechniques(Dossier $dossier): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
+
+        return $this->render('dossier/_verifications_techniques.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
+        ]);
+    }
+
+    /**
+     * Affiche et traite le formulaire d'édition des vérifications techniques du dossier.
+     *
+     * @Route("/dossier/{id}/verifications-techniques/modifier", name="dossier_verifications_techniques_edit", methods={"GET", "POST"})
+     *
+     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss', dossier)")
+     */
+    public function editVerificationsTechniques(Dossier $dossier, Request $request, FormFactoryInterface $formFactory): Response
+    {
+        $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
+
+        $formData = $this->descriptifFormHydrator->hydrateFromDossier($dossier, $data['rubriques']);
+        $form = $this->descriptifFormBuilder->buildForm($formFactory, $formData, $data['rubriques']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                /** @var \App\Dto\Descriptif\DescriptifFormData $submittedData */
+                $submittedData = $form->getData();
+                $this->descriptifFormPersister->persistForDossier($dossier, $submittedData, $data['rubriques']);
+                $this->addFlash('success', 'Les vérifications techniques ont bien été mises à jour.');
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur lors de la sauvegarde des vérifications techniques', [
+                    'dossier_id' => $dossier->getId(),
+                    'exception' => $e->getMessage(),
+                ]);
+                $this->addFlash('error', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
+            }
+
+            return $this->redirectToRoute('dossier_verifications_techniques', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/edit_verifications_techniques.html.twig', [
+            'dossier' => $dossier,
+            'capsule' => $data['capsule'],
+            'rubriques' => $data['rubriques'],
             'form' => $form->createView(),
         ]);
     }
