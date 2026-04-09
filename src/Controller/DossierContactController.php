@@ -10,6 +10,7 @@ use App\Repository\DossierRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Security\Voter\DossierVoter;
 use App\Service\Contact;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -58,7 +59,11 @@ class DossierContactController extends AbstractController implements DossierLate
     public function contacts(Dossier $dossier): Response
     {
         $idDossier = $dossier->getId();
-        $contacts = $this->dossierRepository->findContactsOrderedByNom($idDossier)->getContacts();
+        $contacts = new ArrayCollection();
+
+        if (null !== $idDossier) {
+            $contacts = $this->dossierRepository->findContactsOrderedByNom($idDossier)->getContacts();
+        }
 
         return $this->render('dossier/contacts/contacts.html.twig', [
             'dossier' => $dossier,
