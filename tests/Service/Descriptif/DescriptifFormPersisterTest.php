@@ -9,6 +9,7 @@ use App\Dto\Descriptif\RubriqueFormData;
 use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use App\Entity\Dossier;
+use App\Entity\DossierDisplayRubrique;
 use App\Entity\Rubrique;
 use App\Entity\TypeChamp as TypeChampEntity;
 use App\Entity\Valeur;
@@ -83,7 +84,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-
         $this->entityManager->expects(self::once())->method('flush');
 
         $dossier = $this->makeDossier([$existing]);
@@ -113,7 +113,6 @@ class DescriptifFormPersisterTest extends TestCase
         $this->dossierDisplayRubriqueRepository
             ->method('findOneBy')
             ->willReturn(null);
-
 
         $persisted = null;
         $this->entityManager
@@ -161,7 +160,6 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-
         $removed = null;
         $this->entityManager
             ->expects(self::once())
@@ -196,10 +194,11 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->champRepository
             ->method('find')
-            ->willReturnCallback(function ($id) use ($parentChamp, $enfantChamp) {
+            ->willReturnCallback(function ($id) use ($parentChamp, $enfantChamp): ?Champ {
                 if (10 === $id) {
                     return $parentChamp;
                 }
+
                 if (11 === $id) {
                     return $enfantChamp;
                 }
@@ -210,7 +209,6 @@ class DescriptifFormPersisterTest extends TestCase
         $this->dossierDisplayRubriqueRepository
             ->method('findOneBy')
             ->willReturn(null);
-
 
         $persisted = [];
         $this->entityManager
@@ -232,7 +230,7 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        $valeurs = array_filter($persisted, static function ($obj) { return $obj instanceof Valeur; });
+        $valeurs = array_filter($persisted, static function ($obj): bool { return $obj instanceof Valeur; });
         self::assertNotEmpty($valeurs);
 
         $created = array_values($valeurs)[0];
@@ -260,10 +258,11 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->champRepository
             ->method('find')
-            ->willReturnCallback(function ($id) use ($parentChamp, $enfantChamp) {
+            ->willReturnCallback(function ($id) use ($parentChamp, $enfantChamp): ?Champ {
                 if (10 === $id) {
                     return $parentChamp;
                 }
+
                 if (11 === $id) {
                     return $enfantChamp;
                 }
@@ -274,7 +273,6 @@ class DescriptifFormPersisterTest extends TestCase
         $this->dossierDisplayRubriqueRepository
             ->method('findOneBy')
             ->willReturn(null);
-
 
         $removed = [];
         $this->entityManager
@@ -306,7 +304,6 @@ class DescriptifFormPersisterTest extends TestCase
         $this->valeurRepository->method('findByDossier')->willReturn([]);
         $this->champRepository->method('find')->willReturn($champ);
 
-
         // Pas de préférence existante → doit appeler persist avec un DisplayRubrique
         $this->dossierDisplayRubriqueRepository
             ->method('findOneBy')
@@ -333,8 +330,8 @@ class DescriptifFormPersisterTest extends TestCase
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
         // Un objet DossierDisplayRubrique doit avoir été persisté
-        $displayPrefs = array_filter($persisted, static function ($obj) {
-            return $obj instanceof \App\Entity\DossierDisplayRubrique;
+        $displayPrefs = array_filter($persisted, static function ($obj): bool {
+            return $obj instanceof DossierDisplayRubrique;
         });
         self::assertNotEmpty($displayPrefs);
     }
@@ -383,6 +380,7 @@ class DescriptifFormPersisterTest extends TestCase
 
     /**
      * @param list<array<string, mixed>> $champs
+     *
      * @return list<array<string, mixed>>
      */
     private function makeRubriquesStructure(int $rubriqueId, array $champs): array

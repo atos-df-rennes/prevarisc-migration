@@ -115,7 +115,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      * @Route("/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer",
      *     name="dossier_documents_consultes_delete",
      *     requirements={"id"="\d+", "idDocumentConsulte"="\d+"},
-     *     methods={"DELETE"})
+     *     methods={"DELETE"},
+     *     options={"_dossier_lateral_nav": false})
      *
      * @ParamConverter("documentConsulte", options={"id" = "idDocumentConsulte"})
      *
@@ -182,7 +183,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      * @Route("/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer",
      *     name="dossier_documents_ajoutes_delete",
      *     requirements={"id"="\d+", "idDocumentAjoute"="\d+"},
-     *     methods={"DELETE"})
+     *     methods={"DELETE"},
+     *     options={"_dossier_lateral_nav": false})
      *
      * @ParamConverter("documentAjoute", options={"id" = "idDocumentAjoute"})
      *

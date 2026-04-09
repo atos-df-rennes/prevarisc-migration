@@ -10,33 +10,32 @@
             <h4 class="h4_subtitle">Liste des documents consultés concernant la nature {{ dossier.nature.libelle }}</h4>
 
             <div class="row">
-                <div class="col-md-4"><strong>Libellé</strong></div>
-                <div class="col-md-8">
-                    <div class="col-md-6"><strong>Référence</strong></div>
-                    <div class="col-md-6"><strong>Date</strong></div>
+                <div class="col-xs-4"><strong>Libellé</strong></div>
+                <div class="col-xs-8">
+                    <div class="col-xs-5"><strong>Référence</strong></div>
+                    <div class="col-xs-7"><strong>Date</strong></div>
                 </div>
             </div>
 
             <ul class="list-unstyled mt-2">
-
                 {# Documents consultés : ajoutés manuellement + consultables déjà renseignés #}
                 {% set has_consultes = dossier.documentsAjoutes is not empty or documentsConsultes is not empty %}
                 {% if has_consultes %}
                     <li class="row mt-2 mb-1">
-                        <div class="col-md-12"><strong>Documents consultés</strong></div>
+                        <div class="col-xs-12"><strong>Documents consultés</strong></div>
                     </li>
 
                     {% for doc_ajoute in dossier.documentsAjoutes %}
                         <li class="row mb-2">
-                            <div class="col-md-4">{{ doc_ajoute.libelle }}</div>
-                            <div class="col-md-8">
-                                <div class="col-md-6">{{ doc_ajoute.reference }}</div>
-                                <div class="col-md-3">
+                            <div class="col-xs-4">{{ doc_ajoute.libelle }}</div>
+                            <div class="col-xs-8">
+                                <div class="col-xs-5">{{ doc_ajoute.reference }}</div>
+                                <div class="col-xs-3">
                                     {% if doc_ajoute.date is not null and doc_ajoute.date.timestamp >= 0 %}
                                         {{ doc_ajoute.date|date('d/m/Y') }}
                                     {% endif %}
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-xs-4">
                                     <a href="{{ path('dossier_documents_ajoutes_edit', {id: dossier.id, idDocumentAjoute: doc_ajoute.id}) }}" class="btn btn-default btn-sm">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                                     </a>
@@ -51,16 +50,16 @@
                     {% endfor %}
 
                     {% for item in documentsConsultes %}
-                        <li class="row mb-2">
-                            <div class="col-md-4">{{ item.doc.libelle }}</div>
-                            <div class="col-md-8">
-                                <div class="col-md-6">{{ item.documentConsulte.reference }}</div>
-                                <div class="col-md-3">
+                        <li class="row mb-4">
+                            <div class="col-xs-4">{{ item.doc.libelle }}</div>
+                            <div class="col-xs-8">
+                                <div class="col-xs-5">{{ item.documentConsulte.reference }}</div>
+                                <div class="col-xs-3">
                                     {% if item.documentConsulte.date is not null and item.documentConsulte.date.timestamp >= 0 %}
                                         {{ item.documentConsulte.date|date('d/m/Y') }}
                                     {% endif %}
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-xs-4">
                                     <a href="{{ path('dossier_documents_consultes_edit', {id: dossier.id, idDocumentConsulte: item.documentConsulte.id}) }}" class="btn btn-default btn-sm">
                                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                                     </a>
@@ -78,15 +77,13 @@
                 {# Documents consultables non encore renseignés #}
                 {% if documentsNonConsultes is not empty %}
                     <li class="row mt-2 mb-1">
-                        <div class="col-md-12"><strong>Documents consultables</strong></div>
+                        <div class="col-xs-12"><strong>Documents consultables</strong></div>
                     </li>
                     {% for doc in documentsNonConsultes %}
-                        <li class="row mb-2">
-                            <div class="col-md-4">{{ doc.libelle }}</div>
-                            <div class="col-md-8">
-                                <div class="col-md-6"></div>
-                                <div class="col-md-3"></div>
-                                <div class="col-md-3">
+                        <li class="row mb-4">
+                            <div class="col-xs-4">{{ doc.libelle }}</div>
+                            <div class="col-xs-8">
+                                <div class="col-xs-4 col-xs-offset-8">
                                     <a href="{{ path('dossier_documents_consultes_add', {id: dossier.id, idDocumentConsultable: doc.id}) }}" class="btn btn-default btn-sm">
                                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                                     </a>
@@ -95,15 +92,14 @@
                         </li>
                     {% endfor %}
                 {% endif %}
-
             </ul>
 
             <hr />
             <p>
                 <a href="{{ path('dossier_documents_ajoutes_add', {id: dossier.id}) }}" class="docAjout">+ Ajouter un nouveau document</a>
             </p>
+            <hr />
         </div>
-        <hr />
     </div>
 
     {# Modale de confirmation de suppression #}

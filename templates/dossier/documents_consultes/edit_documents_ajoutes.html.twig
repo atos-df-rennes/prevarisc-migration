@@ -12,23 +12,21 @@
     {% endif %}
 
     {{ form_start(form) }}
-    <div class="row">
-        <div class="col-md-4">
-            {{ form_row(form.libelle) }}
-            {{ form_row(form.reference) }}
-            {{ form_row(form.date) }}
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.libelle) }}
+                {{ form_row(form.reference) }}
+                {{ form_row(form.date) }}
+            </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-success ml-2">
-                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Sauvegarder
-            </button>
-            <a href="{{ path('dossier_documents_consultes', {id: dossier.id}) }}" class="btn btn-default">Annuler</a>
+        <div class="row">
+            <div class="col-xs-12">
+                <button type="submit" class="btn btn-success">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Sauvegarder
+                </button>
+                <a href="{{ path('dossier_documents_consultes', {id: dossier.id}) }}" class="btn btn-default">Annuler</a>
+            </div>
         </div>
-    </div>
-
     {{ form_end(form) }}
-
 {% endblock %}

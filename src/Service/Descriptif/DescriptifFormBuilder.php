@@ -4,6 +4,7 @@ namespace App\Service\Descriptif;
 
 use App\Dto\Descriptif\DescriptifFormData;
 use App\Dto\Descriptif\RubriqueFormData;
+use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\Type\Descriptif\ChampValueType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -59,7 +60,7 @@ class DescriptifFormBuilder
             ]);
 
             foreach ($item['champs'] as $champData) {
-                /** @var \App\Entity\Champ $champ */
+                /** @var Champ $champ */
                 $champ = $champData['champ'];
                 $champId = (int) $champ->getId();
 

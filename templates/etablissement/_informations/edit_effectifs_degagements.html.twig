@@ -19,8 +19,8 @@
 {% endblock %}
 
 {% block body %}
-    {% include 'components/_formulaire_personnalise_edit.html.twig' with {
+    {{ include('components/_formulaire_personnalise_edit.html.twig', {
         form: form,
         capsule: capsule,
-    } %}
+    }) }}
 {% endblock %}

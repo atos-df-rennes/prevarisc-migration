@@ -31,7 +31,7 @@
     {% for rubriqueKey, rubriqueForm in form %}
         {% if rubriqueKey starts with 'rubrique_' %}
             {% set hasRubriques = true %}
-            {% set rubriqueId = rubriqueKey|replace({'rubrique_': ''}) %}
+            {% set rubriqueId = rubriqueKey|replace({rubrique_: ''}) %}
             {% set isDisplayed = rubriqueForm.display.vars.data %}
 
             <div id="afficher_rubrique-{{ rubriqueId }}"
@@ -54,7 +54,7 @@
                 <div id="rubrique-edit-body-{{ rubriqueId }}" class="panel-collapse collapse{% if rubriqueForm.vars.attr['data-ouverte'] %} in{% endif %}">
                     <div class="panel-body">
                         {# Rendu caché — valeur soumise avec le formulaire ; le TOC modal (mirror checkbox) le synchronise via JS #}
-                        {{ form_row(rubriqueForm.display, {'row_attr': {'style': 'display:none'}, 'attr': {'data-display-checkbox': rubriqueId}}) }}
+                        {{ form_row(rubriqueForm.display, {row_attr: {style: 'display:none'}, attr: {'data-display-checkbox': rubriqueId}}) }}
 
                         {% for champKey, champForm in rubriqueForm %}
                             {% if champKey starts with 'champ_' %}
@@ -154,7 +154,7 @@
                     <div class="modal-body">
                         {% for rubriqueKey, rubriqueForm in form %}
                             {% if rubriqueKey starts with 'rubrique_' %}
-                                {% set rubriqueId = rubriqueKey|replace({'rubrique_': ''}) %}
+                                {% set rubriqueId = rubriqueKey|replace({rubrique_: ''}) %}
                                 <div class="descriptif-personnalise_rubrique">
                                     <label>
                                         {# Checkbox miroir (non soumis) — contrôle la visibilité via JS #}
@@ -208,4 +208,3 @@
         ].join('-');
     });
 </script>
-

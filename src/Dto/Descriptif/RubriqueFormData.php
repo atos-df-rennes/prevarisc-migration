@@ -82,9 +82,6 @@ class RubriqueFormData implements \ArrayAccess
 
     // --- ArrayAccess (clés au format "champ_{id}") ---
 
-    /**
-     * @param mixed $offset
-     */
     public function offsetExists($offset): bool
     {
         if (!is_string($offset)) {
@@ -95,8 +92,6 @@ class RubriqueFormData implements \ArrayAccess
     }
 
     /**
-     * @param mixed $offset
-     *
      * @return ChampValueData|null
      */
     public function offsetGet($offset)
@@ -108,10 +103,6 @@ class RubriqueFormData implements \ArrayAccess
         return $this->getChamp($this->parseChampId($offset));
     }
 
-    /**
-     * @param mixed $offset
-     * @param mixed $value
-     */
     public function offsetSet($offset, $value): void
     {
         if (is_string($offset) && $value instanceof ChampValueData) {
@@ -119,9 +110,6 @@ class RubriqueFormData implements \ArrayAccess
         }
     }
 
-    /**
-     * @param mixed $offset
-     */
     public function offsetUnset($offset): void
     {
         if (!is_string($offset)) {
