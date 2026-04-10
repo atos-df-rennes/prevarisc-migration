@@ -26,6 +26,17 @@ final class DossierNature
     public const NATURES_DONNANT_AVIS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
 
     /**
+     * Natures de type "visite" pour lesquelles la date pertinente est DATEVISITE_DOSSIER.
+     *
+     * Legacy : getNaturesVisites() dans Service_Dossier.
+     * Ces natures nécessitent que DATEVISITE_DOSSIER soit renseignée pour donner avis.
+     * Les autres natures donnant avis (études + groupes) nécessitent DATECOMM_DOSSIER.
+     *
+     * @var int[]
+     */
+    public const NATURES_VISITES_COMMISSION = [21, 23, 24, 47];
+
+    /**
      * @var int[]
      */
     public const NATURES_EXPLOITATION = [7, 16, 17, 19];
