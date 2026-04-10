@@ -6,7 +6,7 @@
         </a>
         {% if dossier.etablissements[0].dossierDonnantAvis is not null and dossier.etablissements[0].dossierDonnantAvis.id == dossier.id %}
             <span
-                class="glyphicon glyphicon-pushpin text-warning"
+                class="glyphicon glyphicon-certificate text-warning"
                 aria-hidden="true"
                 title="Ce dossier donne avis pour cet établissement"
                 data-toggle="tooltip"
@@ -50,7 +50,7 @@
 
                     {% if etablissement.dossierDonnantAvis is not null and etablissement.dossierDonnantAvis.id == dossier.id %}
                         <span
-                            class="glyphicon glyphicon-pushpin text-warning"
+                            class="glyphicon glyphicon-certificate text-warning"
                             aria-hidden="true"
                             title="Ce dossier donne avis pour cet établissement"
                             data-toggle="tooltip"
