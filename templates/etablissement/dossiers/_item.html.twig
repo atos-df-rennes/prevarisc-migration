@@ -16,6 +16,14 @@
                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                 </a>
             {% endif %}
+            {% if dossierDonnantAvisId is defined and dossierDonnantAvisId is not null and dossierDonnantAvisId == dossier.id %}
+                <span
+                    class="glyphicon glyphicon-certificate text-warning"
+                    aria-hidden="true"
+                    title="Dossier donnant avis"
+                    data-toggle="tooltip"
+                ></span>
+            {% endif %}
             <a href='{{ path('dossier_index', {id: dossier.id}) }}' title='{{ dossier.objet|e('html_attr') }}'>
                 {% if dossier.etablissement is not null %}
                     {{ '[' ~ dossier.etablissement ~ '] ' }}

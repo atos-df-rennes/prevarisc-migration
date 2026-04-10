@@ -11,6 +11,8 @@
 
     <h3>Liste des dossiers</h3>
 
+    {% set dossierDonnantAvisId = etablissement.dossierDonnantAvis ? etablissement.dossierDonnantAvis.id : null %}
+
     {% if visites|length == 0 and etudes|length == 0 and autres|length == 0 %}
         <div class="well well-large text-center">
             <p class="lead">Il n'y a pas de dossier.</p>
@@ -22,7 +24,7 @@
                 <h4>Visites</h4>
                 <ul class="recherche_liste">
                     {% for dossier in visites %}
-                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier, dossierDonnantAvisId: dossierDonnantAvisId}) }}
                     {% endfor %}
                     <div class="voir-plus" id="divcompleteListeVisite"></div>
                 </ul>
@@ -39,7 +41,7 @@
                 <h4>Études</h4>
                 <ul class="recherche_liste">
                     {% for dossier in etudes %}
-                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier, dossierDonnantAvisId: dossierDonnantAvisId}) }}
                     {% endfor %}
                     <div class="voir-plus" id="divcompleteListeEtude"></div>
                 </ul>
@@ -56,7 +58,7 @@
                 <h4>Autres</h4>
                 <ul class="recherche_liste">
                     {% for dossier in autres %}
-                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier}) }}
+                        {{ include('etablissement/dossiers/_item.html.twig', {dossier: dossier, dossierDonnantAvisId: dossierDonnantAvisId}) }}
                     {% endfor %}
                     <div class="voir-plus" id="divcompleteListeAutres"></div>
                 </ul>
