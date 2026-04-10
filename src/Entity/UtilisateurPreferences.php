@@ -39,6 +39,13 @@ class UtilisateurPreferences
      */
     private $utilisateur;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="DERNIERE_VERSION_VUE", type="string", length=50, nullable=true)
+     */
+    private $derniereVersionVue;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,6 +71,18 @@ class UtilisateurPreferences
     public function setUtilisateur(Utilisateur $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getDerniereVersionVue(): ?string
+    {
+        return $this->derniereVersionVue;
+    }
+
+    public function setDerniereVersionVue(?string $version): self
+    {
+        $this->derniereVersionVue = $version;
 
         return $this;
     }

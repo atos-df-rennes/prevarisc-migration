@@ -28,6 +28,7 @@
             <link href="{{ asset('css/components/calendrier.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/components/list.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/components/thumbnail.css') }}" rel="stylesheet" />
+            <link href="{{ asset('css/components/changelog.css') }}" rel="stylesheet" />
         {% endblock %}
 
         {% block javascripts %}
@@ -65,6 +66,7 @@
     {% block main %}
         <body>
             {{ include('_header.html.twig') }}
+            {{ render(controller('App\\Controller\\ChangelogController::banner')) }}
 
             {% block content %}
                 <div class="container-fluid main-container-f">
