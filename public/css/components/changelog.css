@@ -1,0 +1,20 @@
+/* === Bandeau changelog === */
+.changelog-banner {
+    margin: 50px 0 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+}
+
+/* === Page d'index changelog === */
+.changelog-index .nav-pills {
+    margin-bottom: 20px;
+}
+
+.changelog-index .panel {
+    margin-bottom: 15px;
+}
+
+.changelog-index .panel-heading .text-muted {
+    margin-left: 10px;
+}
