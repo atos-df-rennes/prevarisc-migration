@@ -109,6 +109,25 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     }
 
     /**
+     * Retourne les groupements de type territorial (ID_GROUPEMENTTYPE = 5) triés par libellé.
+     * Port de Service_GroupementCommunes::findGroupementForGroupementType([5]).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findTerritoriaux(): array
+    {
+        return $this->createQueryBuilder('g')
+            ->select('g.id AS ID_GROUPEMENT, g.libelle AS LIBELLE_GROUPEMENT')
+            ->innerJoin('g.type', 't')
+            ->where('t.id = :typeId')
+            ->setParameter('typeId', 5)
+            ->orderBy('g.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
+
+    /**
      * Retourne tous les groupements ordonnés par libellé.
      *
      * @return Groupement[]

@@ -11,10 +11,10 @@
     {% else %}
         {# Navigation par version mineure #}
         <ul class="nav nav-pills" id="changelog-nav">
-            {% for minorVersion, entries in sections %}
+            {% for minor_version, entries in sections %}
                 <li{% if loop.first %} class="active"{% endif %}>
-                    <a href="#changelog-{{ minorVersion|replace({'.': '-'}) }}" data-toggle="tab">
-                        {{ minorVersion }}.x
+                    <a href="#changelog-{{ minor_version|replace({'.': '-'}) }}" data-toggle="tab">
+                        {{ minor_version }}.x
                     </a>
                 </li>
             {% endfor %}
@@ -22,8 +22,8 @@
 
         {# Contenu par version mineure #}
         <div class="tab-content">
-            {% for minorVersion, entries in sections %}
-                <div class="tab-pane{% if loop.first %} active{% endif %}" id="changelog-{{ minorVersion|replace({'.': '-'}) }}">
+            {% for minor_version, entries in sections %}
+                <div class="tab-pane{% if loop.first %} active{% endif %}" id="changelog-{{ minor_version|replace({'.': '-'}) }}">
                     {% for entry in entries %}
                         <div class="panel panel-default">
                             <div class="panel-heading">

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Utilisateur;
 use App\Entity\UtilisateurPreferences;
 use App\Repository\UtilisateurPreferencesRepository;
 use App\Service\VersionService;
@@ -17,10 +18,15 @@ class ChangelogController extends AbstractController
 {
     /** @var VersionService */
     private $versionService;
+    /**
+     * @var UtilisateurPreferencesRepository
+     */
+    private $prefsRepository;
 
-    public function __construct(VersionService $versionService)
+    public function __construct(VersionService $versionService, UtilisateurPreferencesRepository $prefsRepository)
     {
         $this->versionService = $versionService;
+        $this->prefsRepository = $prefsRepository;
     }
 
     /**
@@ -40,6 +46,7 @@ class ChangelogController extends AbstractController
                     'html' => Markdown::defaultTransform($entry['content']),
                 ];
             }
+
             $sections[(string) $minorVersion] = $rendered;
         }
 
@@ -51,17 +58,15 @@ class ChangelogController extends AbstractController
     /**
      * @Route("/changelog/banner", name="changelog_banner")
      */
-    public function banner(UtilisateurPreferencesRepository $prefsRepository): Response
+    public function banner(): Response
     {
-        /** @var \App\Entity\Utilisateur|null $user */
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
-
         if (null === $user) {
             return new Response('');
         }
-
         $currentVersion = $this->versionService->getCurrentVersion();
-        $prefs = $prefsRepository->findOneBy(['utilisateur' => $user]);
+        $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
         $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;
 
         return $this->render('changelog/banner.html.twig', [
@@ -75,21 +80,21 @@ class ChangelogController extends AbstractController
      */
     public function dismiss(
         Request $request,
-        UtilisateurPreferencesRepository $prefsRepository,
         EntityManagerInterface $em
     ): JsonResponse {
-        /** @var \App\Entity\Utilisateur|null $user */
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
 
         if (null === $user) {
             return new JsonResponse(['success' => false], Response::HTTP_UNAUTHORIZED);
         }
 
-        if (!$this->isCsrfTokenValid('changelog_dismiss', $request->request->get('_token'))) {
+        $csrfToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('changelog_dismiss', is_string($csrfToken) ? $csrfToken : null)) {
             return new JsonResponse(['success' => false], Response::HTTP_FORBIDDEN);
         }
 
-        $prefs = $prefsRepository->findOneBy(['utilisateur' => $user]);
+        $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
 
         if (null === $prefs) {
             $prefs = new UtilisateurPreferences();

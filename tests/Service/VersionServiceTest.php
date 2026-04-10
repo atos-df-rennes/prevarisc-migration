@@ -12,16 +12,17 @@ final class VersionServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tmpDir = sys_get_temp_dir() . '/prevarisc_changelog_test_' . uniqid();
+        $this->tmpDir = sys_get_temp_dir().'/prevarisc_changelog_test_'.uniqid();
         mkdir($this->tmpDir);
     }
 
     protected function tearDown(): void
     {
-        $changelog = $this->tmpDir . '/CHANGELOG.md';
+        $changelog = $this->tmpDir.'/CHANGELOG.md';
         if (file_exists($changelog)) {
             unlink($changelog);
         }
+
         rmdir($this->tmpDir);
     }
 
@@ -115,7 +116,7 @@ final class VersionServiceTest extends TestCase
     public function testGetChangelogByMinorVersionConserveLaDateDeChaquePatch(): void
     {
         $this->writeChangelog(
-            "## [2.8.18](https://example.com) (31-03-2026)\n\nContenu.\n\n---\n\n" .
+            "## [2.8.18](https://example.com) (31-03-2026)\n\nContenu.\n\n---\n\n".
             "## [2.8.17](https://example.com) (24-03-2026)\n\nContenu.\n\n"
         );
 
@@ -132,7 +133,7 @@ final class VersionServiceTest extends TestCase
 
     private function writeChangelog(string $content): void
     {
-        file_put_contents($this->tmpDir . '/CHANGELOG.md', $content);
+        file_put_contents($this->tmpDir.'/CHANGELOG.md', $content);
     }
 
     /**

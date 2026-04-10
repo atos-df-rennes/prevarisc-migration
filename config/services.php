@@ -70,6 +70,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\Etablissement')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
 
+    $services->set('App\Controller\SearchController')
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
+        ->tag('controller.service_arguments');
+
     $services->set('App\Service\Mail\MailerConfiguration')
         ->arg('$transport', '%app.mail_transport%')
         ->arg('$host', '%app.mail_host%')
