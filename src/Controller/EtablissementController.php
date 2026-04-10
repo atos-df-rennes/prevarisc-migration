@@ -421,10 +421,18 @@ class EtablissementController extends AbstractController implements Etablissemen
             return new Response('');
         }
 
+        $etablissement = $this->etablissementRepository->find($id);
+        $dossierDonnantAvisId = null !== $etablissement && null !== $etablissement->getDossierDonnantAvis()
+            ? $etablissement->getDossierDonnantAvis()->getId()
+            : null;
+
         // Génération du HTML
         $html = '';
         foreach ($this->dossierService->extraireDonneesUtiles($dossiers) as $dossier) {
-            $html .= $this->renderView('etablissement/dossiers/_item.html.twig', ['dossier' => $dossier]);
+            $html .= $this->renderView('etablissement/dossiers/_item.html.twig', [
+                'dossier' => $dossier,
+                'dossierDonnantAvisId' => $dossierDonnantAvisId,
+            ]);
         }
 
         return new Response($html);

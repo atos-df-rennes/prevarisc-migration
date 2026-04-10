@@ -210,6 +210,17 @@
                                 DOSSIER SUPPRIME
                             </span>
                         {% endif %}
+
+                        {% for etablissement in dossier.etablissements %}
+                            {% if etablissement.dossierDonnantAvis is not null and etablissement.dossierDonnantAvis.id == dossier.id %}
+                                <span
+                                    class="glyphicon glyphicon-pushpin text-warning"
+                                    aria-hidden="true"
+                                    title="Dossier donnant avis"
+                                    data-toggle="tooltip"
+                                ></span>
+                            {% endif %}
+                        {% endfor %}
                     </p>
 
                     {% if dossier.objet or dossier.consultationPlatau is not null %}
