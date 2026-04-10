@@ -85,6 +85,11 @@ final class VersionService
     private function readChangelog(): ?string
     {
         $path = $this->srcDir . '/CHANGELOG.md';
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
         $contents = file_get_contents($path);
 
         return false !== $contents ? $contents : null;
