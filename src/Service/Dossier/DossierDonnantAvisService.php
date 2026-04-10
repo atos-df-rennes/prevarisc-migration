@@ -41,11 +41,13 @@ class DossierDonnantAvisService
      * Affecte le dossier comme "donnant avis" aux établissements concernés.
      *
      * Logique :
-     * 1. Vérifie que le dossier donne avis (nature dans liste)
+     * 1. Vérifie que le dossier donne avis (nature dans liste ET date pertinente renseignée)
      * 2. Pour chaque établissement lié au dossier :
      *    - Compare date nouveau dossier vs ancien dossier donnant avis
      *    - Met à jour uniquement si date >= (évite régression)
      *    - Si repercuterAvis = true : répercute aux enfants (statut ouvert uniquement)
+     *
+     * Legacy : isDossierDonnantAvis() vérifie DEUX conditions : nature ET présence de la date pertinente.
      *
      * @param Dossier $dossier        Dossier à affecter
      * @param bool    $repercuterAvis Si true, répercute aux établissements enfants (cellules)
@@ -54,9 +56,20 @@ class DossierDonnantAvisService
      */
     public function affecterDossierDonnantAvis(Dossier $dossier, bool $repercuterAvis = false): array
     {
-        // Vérifier que le dossier donne avis
+        // Vérifier que le dossier donne avis (nature dans liste)
         if (!$dossier->donneAvis()) {
             $this->logger->debug('Dossier ne donne pas avis, skip affectation', [
+                'dossier_id' => $dossier->getId(),
+                'nature_id' => $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null,
+            ]);
+
+            return [];
+        }
+
+        // Vérifier que la date pertinente est renseignée (legacy isDossierDonnantAvis)
+        // Ex: un groupe de visite sans dateCommission ne doit pas devenir donnant avis
+        if (!$this->aRelevanteDatePourAvis($dossier)) {
+            $this->logger->debug('Dossier sans date pertinente, skip affectation', [
                 'dossier_id' => $dossier->getId(),
                 'nature_id' => $dossier->getNature() instanceof DossierNatureListe ? $dossier->getNature()->getId() : null,
             ]);
@@ -168,9 +181,41 @@ class DossierDonnantAvisService
     }
 
     /**
-     * Récupère la date pertinente d'un dossier pour comparaison.
+     * Vérifie si la date pertinente est renseignée pour que le dossier puisse donner avis.
      *
-     * Ordre de priorité : dateCommission > dateVisite > dateInsert
+     * Logique legacy (isDossierDonnantAvis) :
+     * - Visites (natures [21, 23, 24, 47]) → DATEVISITE_DOSSIER doit être renseignée
+     * - Études et groupes (natures [7, 16, 17, 19, 26, 28, 29, 48]) → DATECOMM_DOSSIER doit être renseignée
+     * Un dossier sans date pertinente ne peut pas devenir "donnant avis".
+     *
+     * @param Dossier $dossier Dossier à vérifier
+     *
+     * @return bool True si la date pertinente est présente
+     */
+    private function aRelevanteDatePourAvis(Dossier $dossier): bool
+    {
+        $nature = $dossier->getNature();
+        $natureId = $nature instanceof DossierNatureListe ? $nature->getId() : null;
+
+        if (null === $natureId) {
+            return false;
+        }
+
+        if (in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
+            return null !== $dossier->getDateVisite();
+        }
+
+        // Études et groupes → dateCommission
+        return null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission();
+    }
+
+    /**
+     * Récupère la date pertinente d'un dossier pour comparaison, selon sa nature.
+     *
+     * Logique legacy (getDateDossier) :
+     * - Visites (natures [21, 23, 24, 47]) → dateVisite
+     * - Études et groupes (natures [7, 16, 17, 19, 26, 28, 29, 48]) → dateCommission
+     * - Fallback : dateInsert (toujours défini)
      *
      * @param Dossier $dossier Dossier dont extraire la date
      *
@@ -180,20 +225,25 @@ class DossierDonnantAvisService
      */
     private function getDateDossier(Dossier $dossier): \DateTimeInterface
     {
-        // Priorité 1 : dateCommission (string dd/mm/yyyy à convertir)
-        if (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
-            $dateCommission = \DateTime::createFromFormat('Y-m-d', $dossier->getDateCommission());
-            if (false !== $dateCommission) {
-                return $dateCommission->setTime(0, 0, 0);
+        $nature = $dossier->getNature();
+        $natureId = $nature instanceof DossierNatureListe ? $nature->getId() : null;
+
+        if (null !== $natureId && in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
+            // Visites → dateVisite en priorité
+            if (null !== $dossier->getDateVisite()) {
+                return (clone $dossier->getDateVisite())->setTime(0, 0, 0);
+            }
+        } else {
+            // Études et groupes → dateCommission en priorité
+            if (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
+                $dateCommission = \DateTime::createFromFormat('Y-m-d', $dossier->getDateCommission());
+                if (false !== $dateCommission) {
+                    return $dateCommission->setTime(0, 0, 0);
+                }
             }
         }
 
-        // Priorité 2 : dateVisite
-        if (null !== $dossier->getDateVisite()) {
-            return (clone $dossier->getDateVisite())->setTime(0, 0, 0);
-        }
-
-        // Priorité 3 : dateInsert (toujours définie à la création)
+        // Fallback : dateInsert (toujours définie à la création)
         if (null !== $dossier->getDateInsert()) {
             return (clone $dossier->getDateInsert())->setTime(0, 0, 0);
         }
