@@ -4,6 +4,14 @@
         <a href="{{ path('etablissement_informations', {id: dossier.etablissements[0].id}) }}" class="etab">
             {{ dossier.etablissements[0].latestInformations.libelle }}
         </a>
+        {% if dossier.etablissements[0].dossierDonnantAvis is not null and dossier.etablissements[0].dossierDonnantAvis.id == dossier.id %}
+            <span
+                class="glyphicon glyphicon-pushpin text-warning"
+                aria-hidden="true"
+                title="Ce dossier donne avis pour cet établissement"
+                data-toggle="tooltip"
+            ></span>
+        {% endif %}
     {% else %}
         Etablissement(s) concerné(s) :
 
@@ -39,6 +47,15 @@
                             [{{ etablissement.parent.latestInformations.libelle }}]
                         {% endif %}
                     </a>
+
+                    {% if etablissement.dossierDonnantAvis is not null and etablissement.dossierDonnantAvis.id == dossier.id %}
+                        <span
+                            class="glyphicon glyphicon-pushpin text-warning"
+                            aria-hidden="true"
+                            title="Ce dossier donne avis pour cet établissement"
+                            data-toggle="tooltip"
+                        ></span>
+                    {% endif %}
 
                     {% if etablissement.dossierDonnantAvis %}
                         {% if etablissement.dossierDonnantAvis.avisCommission %}
