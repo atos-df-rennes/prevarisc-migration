@@ -57,7 +57,7 @@ class SearchController extends AbstractController
     /**
      * Recherche d'établissements.
      *
-     * @Route("/search/etablissement", name="search_etablissement", methods={"GET"})
+     * @Route("/rechercher/etablissement", name="search_etablissement", methods={"GET"})
      */
     public function etablissement(Request $request): Response
     {
@@ -229,7 +229,7 @@ class SearchController extends AbstractController
     /**
      * Recherche de dossiers.
      *
-     * @Route("/search/dossier", name="search_dossier", methods={"GET"})
+     * @Route("/rechercher/dossier", name="search_dossier", methods={"GET"})
      */
     public function dossier(Request $request): Response
     {
@@ -398,7 +398,7 @@ class SearchController extends AbstractController
     /**
      * AJAX : liste des établissements enfants d'un parent.
      *
-     * @Route("/search/display-ajax-search-etablissement", name="search_ajax_etablissement", methods={"POST"})
+     * @Route("/rechercher/display-ajax-search-etablissement", name="search_ajax_etablissement", methods={"POST"})
      */
     public function ajaxEtablissement(Request $request): Response
     {
@@ -427,7 +427,7 @@ class SearchController extends AbstractController
     /**
      * AJAX : liste des dossiers enfants d'un parent.
      *
-     * @Route("/search/display-ajax-search-dossier", name="search_ajax_dossier", methods={"POST"})
+     * @Route("/rechercher/display-ajax-search-dossier", name="search_ajax_dossier", methods={"POST"})
      */
     public function ajaxDossier(Request $request): Response
     {

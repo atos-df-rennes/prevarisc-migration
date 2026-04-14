@@ -84,7 +84,7 @@ class Search
             ? self::MAX_LIMIT_PAGES_ETABLISSEMENTS
             : $count;
 
-        $sqlSelect = 'SELECT e.ID_ETABLISSEMENT, e.NUMEROID_ETABLISSEMENT, e.DUREEVISITE_ETABLISSEMENT, e.NBPREV_ETABLISSEMENT,
+        $sqlSelect = 'SELECT e.NUMEROID_ETABLISSEMENT, e.DUREEVISITE_ETABLISSEMENT, e.NBPREV_ETABLISSEMENT,
             ( SELECT COUNT(etablissementlie2.ID_FILS_ETABLISSEMENT)
                 FROM etablissement etab2
                 INNER JOIN etablissementlie etablissementlie2 ON etab2.ID_ETABLISSEMENT = etablissementlie2.ID_ETABLISSEMENT
