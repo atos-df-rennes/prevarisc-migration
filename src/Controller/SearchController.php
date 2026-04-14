@@ -64,7 +64,7 @@ class SearchController extends AbstractController
         // Données de référence pour les filtres
         /** @var array<int, array<string, mixed>> $DB_genre */
         $DB_genre = $this->connection->executeQuery(
-            'SELECT * FROM genre ORDER BY LIBELLE_GENRE ASC'
+            'SELECT * FROM genre ORDER BY ID_GENRE ASC'
         )->fetchAllAssociative();
 
         /** @var array<int, array<string, mixed>> $DB_statut */
@@ -101,7 +101,7 @@ class SearchController extends AbstractController
 
         /** @var array<int, array<string, mixed>> $DB_commission */
         $DB_commission = $this->connection->executeQuery(
-            'SELECT * FROM commission ORDER BY LIBELLE_COMMISSION ASC'
+            'SELECT * FROM commission ORDER BY ID_COMMISSION ASC'
         )->fetchAllAssociative();
 
         $DB_groupementterritorial = $this->groupementRepository->findTerritoriaux();
