@@ -168,6 +168,12 @@ class SearchController extends AbstractController
                         $city, $street, $number, $commissions, $groupements_territoriaux, $preventionniste
                     );
 
+                    if ($search['search_metadata']['count'] > 10000) {
+                        $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
+
+                        return $this->redirectToRoute('search_etablissement', $request->query->all());
+                    }
+
                     $filename = 'Export_Etablissements_'.date('Y-m-d_H-i-s').'.ods';
                     $rows = $search['results'];
 
@@ -554,6 +560,12 @@ class SearchController extends AbstractController
                     $criteresRecherche['identifiant'] = null;
 
                     $search = $this->searchService->extractionDossiers($types, $objet, $num_doc_urba, null, null, $criteresRecherche);
+
+                    if ($search['search_metadata']['count'] > 10000) {
+                        $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
+
+                        return $this->redirectToRoute('search_dossier', $request->query->all());
+                    }
 
                     $filename = 'Export_Dossiers_'.date('Y-m-d_H-i-s').'.ods';
                     $rows = $search['results'];
