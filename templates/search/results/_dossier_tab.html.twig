@@ -90,8 +90,10 @@
 
         {# Temps restant Platau #}
         {% if item.DATE_REPONSE_ATTENDUE is not empty %}
-            {% set temps_restant = format_date_diff(item.DATE_REPONSE_ATTENDUE) %}
-            <span class='label label-default'>Temps restant : {{ temps_restant }}</span>
+            {% set temps = platau_temps_restant(item.DATE_REPONSE_ATTENDUE) %}
+            {% if temps is not empty %}
+                <span class='label label-{{ platau_couleur_temps_restant(item.DATE_REPONSE_ATTENDUE) }}'>Temps restant : {{ temps }}</span>
+            {% endif %}
         {% endif %}
 
     </td>
@@ -114,7 +116,7 @@
 
     {# Icone chargement des enfants #}
     {% if item.NB_DOSS_LIES > 0 %}
-        <span class='load hidden'><img src='/images/load.gif' alt='Chargement ...' /></span>
+        <span class='load' style='display:none'><img src='/images/load.gif' alt='Chargement ...' /></span>
     {% endif %}
 
     {# Préventionnistes #}
@@ -129,7 +131,7 @@
     {# Pièces jointes #}
     <td>
         {% if item.PIECESJOINTES is defined and item.PIECESJOINTES is not empty %}
-            <a class="btn pj" href="#"><i class="glyphicon glyphicon-share" id="iconpj{{ item.ID_DOSSIER }}"></i></a>
+            <a class="btn btn-default pj" href="#"><i class="glyphicon glyphicon-share" id="iconpj{{ item.ID_DOSSIER }}"></i></a>
         {% endif %}
     </td>
 

@@ -2,12 +2,21 @@
 
 namespace App\Twig;
 
+use App\Service\PlatauTempsRestant;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class SearchExtension extends AbstractExtension
 {
+    /** @var PlatauTempsRestant */
+    private $platauTempsRestant;
+
+    public function __construct(PlatauTempsRestant $platauTempsRestant)
+    {
+        $this->platauTempsRestant = $platauTempsRestant;
+    }
+
     /**
      * @return TwigFilter[]
      */
@@ -25,6 +34,8 @@ class SearchExtension extends AbstractExtension
     {
         return [
             new TwigFunction('format_date_diff', [$this, 'formatDateDiff']),
+            new TwigFunction('platau_temps_restant', [$this, 'platauTempsRestant']),
+            new TwigFunction('platau_couleur_temps_restant', [$this, 'platauCouleurTempsRestant']),
         ];
     }
 
@@ -71,6 +82,36 @@ class SearchExtension extends AbstractExtension
             return implode(', ', $parts);
         } catch (\Exception $exception) {
             return '';
+        }
+    }
+
+    /**
+     * Retourne le temps restant pour une consultation Plat'AU (port de Service_Utils_TempsRestant::calculate).
+     * Inclut le signe "-" pour les délais dépassés.
+     */
+    public function platauTempsRestant(string $dateString): string
+    {
+        try {
+            $date = new \DateTime(substr($dateString, 0, 10));
+
+            return $this->platauTempsRestant->calculate($date);
+        } catch (\Exception $exception) {
+            return '';
+        }
+    }
+
+    /**
+     * Retourne la couleur Bootstrap du label Plat'AU en fonction du temps restant.
+     * Valeurs possibles : success, warning, danger, default.
+     */
+    public function platauCouleurTempsRestant(string $dateString): string
+    {
+        try {
+            $date = new \DateTime(substr($dateString, 0, 10));
+
+            return $this->platauTempsRestant->getCouleurTempsRestant($date);
+        } catch (\Exception $exception) {
+            return 'default';
         }
     }
 }

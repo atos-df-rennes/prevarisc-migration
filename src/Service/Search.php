@@ -318,7 +318,7 @@ class Search
 
         // COUNT total
         $countSql = 'SELECT COUNT(*) FROM ('.$sqlFull.') AS total_count';
-        $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne(0);
+        $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
         $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
         // Requête paginée
@@ -617,7 +617,7 @@ class Search
 
         // COUNT total
         $countSql = 'SELECT COUNT(*) FROM ('.$sqlFull.') AS total_count';
-        $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne(0);
+        $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
         $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
         // Requête paginée
