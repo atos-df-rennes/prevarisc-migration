@@ -36,71 +36,59 @@
     </div>
 
     <div id='filterContainer' class='well' style="margin-left: 0;">
-        <div class='row'>
-            <div class='col-md-3'>
-                <select name='types[]' class="form-control chosen" data-placeholder='Types' multiple onchange="masquerBoutonExportCalc()">
-                    {% for type in DB_type %}
-                        <option value='{{ type.id }}'
-                            {% if app.request.query.get('types') is not null and type.id in app.request.query.get('types') %}selected{% endif %}>
-                            {{ type.libelle }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class='col-md-3'>
-                <select name='commissions[]' class="form-control chosen" data-placeholder='Commissions' multiple onchange="masquerBoutonExportCalc()">
-                    {% for array_commission in array_commissions %}
-                        <optgroup label="{{ array_commission.LIBELLE|e('html_attr') }}">
-                            {% for item in array_commission.ARRAY %}
-                                <option value='{{ item.ID_COMMISSION }}'
-                                    {% if app.request.query.get('commissions') is not null and item.ID_COMMISSION in app.request.query.get('commissions') %}selected{% endif %}>
-                                    {{ item.LIBELLE_COMMISSION }}
-                                </option>
-                            {% endfor %}
-                        </optgroup>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class='col-md-3'>
-                <select name='groupements_territoriaux[]' class="form-control chosen" data-placeholder='Groupements territoriaux' multiple onchange="masquerBoutonExportCalc()">
-                    {% for groupement in DB_groupementterritorial %}
-                        {% set selected = false %}
-                        {% if user is not null %}
-                            {% for user_groupement in user.groupements %}
-                                {% if groupement.ID_GROUPEMENT == user_groupement.id %}
-                                    {% set selected = true %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        <option value='{{ groupement.ID_GROUPEMENT }}'
-                            {% if (app.request.query.get('groupements_territoriaux') is not null and groupement.ID_GROUPEMENT in app.request.query.get('groupements_territoriaux')) or selected %}selected{% endif %}>
-                            {{ groupement.LIBELLE_GROUPEMENT }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class='col-md-3'>
-                <select name='avisCommission[]' class="form-control chosen" data-placeholder='Avis de la commission' multiple onchange="masquerBoutonExportCalc()">
-                    <option value='1' {% if app.request.query.get('avisCommission') is not null and 1 in app.request.query.get('avisCommission') %}selected{% endif %}>Favorable</option>
-                    <option value='2' {% if app.request.query.get('avisCommission') is not null and 2 in app.request.query.get('avisCommission') %}selected{% endif %}>Défavorable</option>
-                </select>
-            </div>
+        <div>
+            <select name='types[]' class="chosen" style="width: 23%" data-placeholder='Types' multiple onchange="masquerBoutonExportCalc()">
+                {% for type in DB_type %}
+                    <option value='{{ type.id }}'
+                        {% if app.request.query.get('types') is not null and type.id in app.request.query.get('types') %}selected{% endif %}>
+                        {{ type.libelle }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name='commissions[]' class="chosen" style="width: 23%" data-placeholder='Commissions' multiple onchange="masquerBoutonExportCalc()">
+                {% for array_commission in array_commissions %}
+                    <optgroup label="{{ array_commission.LIBELLE|e('html_attr') }}">
+                        {% for item in array_commission.ARRAY %}
+                            <option value='{{ item.ID_COMMISSION }}'
+                                {% if app.request.query.get('commissions') is not null and item.ID_COMMISSION in app.request.query.get('commissions') %}selected{% endif %}>
+                                {{ item.LIBELLE_COMMISSION }}
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+            <select name='groupements_territoriaux[]' class="chosen" style="width: 23%" data-placeholder='Groupements territoriaux' multiple onchange="masquerBoutonExportCalc()">
+                {% for groupement in DB_groupementterritorial %}
+                    {% set selected = false %}
+                    {% if user is not null %}
+                        {% for user_groupement in user.groupements %}
+                            {% if groupement.ID_GROUPEMENT == user_groupement.id %}
+                                {% set selected = true %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    <option value='{{ groupement.ID_GROUPEMENT }}'
+                        {% if (app.request.query.get('groupements_territoriaux') is not null and groupement.ID_GROUPEMENT in app.request.query.get('groupements_territoriaux')) or selected %}selected{% endif %}>
+                        {{ groupement.LIBELLE_GROUPEMENT }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name='avisCommission[]' class="chosen" style="width: 23%" data-placeholder='Avis de la commission' multiple onchange="masquerBoutonExportCalc()">
+                <option value='1' {% if app.request.query.get('avisCommission') is not null and 1 in app.request.query.get('avisCommission') %}selected{% endif %}>Favorable</option>
+                <option value='2' {% if app.request.query.get('avisCommission') is not null and 2 in app.request.query.get('avisCommission') %}selected{% endif %}>Défavorable</option>
+            </select>
         </div>
 
-        <div class='row' style="margin-top: 4px;">
-            <div class='col-md-3'>
-                <select name='avisRapporteur[]' class="form-control chosen" data-placeholder='Avis du rapporteur' multiple onchange="masquerBoutonExportCalc()">
-                    <option value='1' {% if app.request.query.get('avisRapporteur') is not null and 1 in app.request.query.get('avisRapporteur') %}selected{% endif %}>Favorable</option>
-                    <option value='2' {% if app.request.query.get('avisRapporteur') is not null and 2 in app.request.query.get('avisRapporteur') %}selected{% endif %}>Défavorable</option>
-                </select>
-            </div>
+        <div style="margin-top: 4px;">
+            <select name='avisRapporteur[]' class="chosen" style="width: 23%" data-placeholder='Avis du rapporteur' multiple onchange="masquerBoutonExportCalc()">
+                <option value='1' {% if app.request.query.get('avisRapporteur') is not null and 1 in app.request.query.get('avisRapporteur') %}selected{% endif %}>Favorable</option>
+                <option value='2' {% if app.request.query.get('avisRapporteur') is not null and 2 in app.request.query.get('avisRapporteur') %}selected{% endif %}>Défavorable</option>
+            </select>
             {% if platau_active %}
-                <div class='col-md-3'>
-                    <select name='provenance' class="form-control chosen" data-placeholder='Provenance' multiple onchange="masquerBoutonExportCalc()">
-                        <option value='1' {% if app.request.query.get('provenance') is not null and 1 in app.request.query.get('provenance') %}selected{% endif %}>Provenant de PLATAU</option>
-                        <option value='2' {% if app.request.query.get('provenance') is not null and 2 in app.request.query.get('provenance') %}selected{% endif %}>Ne provenant pas de PLATAU</option>
-                    </select>
-                </div>
+                <select name='provenance' class="chosen" style="width: 23%" data-placeholder='Provenance' multiple onchange="masquerBoutonExportCalc()">
+                    <option value='1' {% if app.request.query.get('provenance') is not null and 1 in app.request.query.get('provenance') %}selected{% endif %}>Provenant de PLATAU</option>
+                    <option value='2' {% if app.request.query.get('provenance') is not null and 2 in app.request.query.get('provenance') %}selected{% endif %}>Ne provenant pas de PLATAU</option>
+                </select>
             {% endif %}
         </div>
 
