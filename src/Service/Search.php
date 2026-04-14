@@ -115,7 +115,8 @@ class Search
             etablissementadressecell.ID_RUE AS ID_RUE_CELL,
             adressecommunecell.LIBELLE_COMMUNE AS LIBELLE_COMMUNE_ADRESSE_CELLULE';
 
-        $sqlFrom = ' FROM etablissement e
+        // FROM de base : tables nécessaires aux filtres ET à l'affichage
+        $sqlFromBase = ' FROM etablissement e
             INNER JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
                 AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
                     SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
@@ -130,7 +131,12 @@ class Search
             LEFT JOIN etablissementlie ON e.ID_ETABLISSEMENT = etablissementlie.ID_FILS_ETABLISSEMENT
             LEFT JOIN etablissementadresse ON e.ID_ETABLISSEMENT = etablissementadresse.ID_ETABLISSEMENT
             LEFT JOIN adressecommune ON etablissementadresse.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
-            LEFT JOIN adresserue ON adresserue.ID_RUE = etablissementadresse.ID_RUE
+            LEFT JOIN adresserue ON adresserue.ID_RUE = etablissementadresse.ID_RUE';
+
+        // JOINs adressesite/adressecell : utilisés pour l'affichage ET pour les filtres géographiques.
+        // Ces JOINs contiennent des sous-requêtes corrélées : on les inclut conditionnellement
+        // dans la requête de COUNT (uniquement si un filtre géographique est actif).
+        $sqlFromAdresseSiteCell = '
             LEFT JOIN etablissementadresse AS etablissementadressesite
                 ON etablissementadressesite.ID_ETABLISSEMENT = (
                     SELECT ID_FILS_ETABLISSEMENT FROM etablissementlie WHERE ID_ETABLISSEMENT = e.ID_ETABLISSEMENT LIMIT 1
@@ -143,6 +149,9 @@ class Search
                 )
             LEFT JOIN adressecommune AS adressecommunecell
                 ON etablissementadressecell.NUMINSEE_COMMUNE = adressecommunecell.NUMINSEE_COMMUNE';
+
+        // Requête de données : inclut toujours adressesite/adressecell pour l'affichage
+        $sqlFrom = $sqlFromBase . $sqlFromAdresseSiteCell;
 
         $whereConditions = ['e.DATESUPPRESSION_ETABLISSEMENT IS NULL'];
         $hasAdditionalConditions = false;
@@ -316,8 +325,17 @@ class Search
             $sqlFull .= ' ORDER BY etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS ASC';
         }
 
-        // COUNT total
-        $countSql = 'SELECT COUNT(*) FROM ('.$sqlFull.') AS total_count';
+        // COUNT lean : sans les sous-requêtes corrélées d'affichage (NB_ENFANTS, PRESENCE_ECHEANCIER_TRAVAUX)
+        // ni les JOINs adressesite/adressecell sauf si un filtre géographique les requiert.
+        // Gain : évite d'exécuter ~N×2 sous-requêtes corrélées sur la totalité des lignes.
+        $needsAdresseFiltering = null !== $city || null !== $street || null !== $number;
+        $sqlFromCount = $sqlFromBase
+            . ($needsAdresseFiltering ? $sqlFromAdresseSiteCell : '')
+            . $groupementJoin
+            . $preventionnisteJoin;
+        $countSql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)'
+            . $sqlFromCount
+            . ' WHERE ' . implode(' AND ', $whereConditions);
         $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
         $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
