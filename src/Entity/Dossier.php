@@ -573,9 +573,9 @@ class Dossier
     private $gravitePrescription;
 
     /**
-     * @var ?int
+     * @var ?string
      *
-     * @ORM\Column(name="NUMINTERV_DOSSIER", type="integer", nullable=true)
+     * @ORM\Column(name="NUMINTERV_DOSSIER", type="string", length=255, nullable=true)
      */
     private $numeroIntervention;
 
@@ -1685,12 +1685,12 @@ class Dossier
         return $this;
     }
 
-    public function getNumeroIntervention(): ?int
+    public function getNumeroIntervention(): ?string
     {
         return $this->numeroIntervention;
     }
 
-    public function setNumeroIntervention(?int $numeroIntervention): self
+    public function setNumeroIntervention(?string $numeroIntervention): self
     {
         $this->numeroIntervention = $numeroIntervention;
 
