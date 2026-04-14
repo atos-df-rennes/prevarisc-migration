@@ -18,6 +18,7 @@ class ChangelogController extends AbstractController
 {
     /** @var VersionService */
     private $versionService;
+
     /**
      * @var UtilisateurPreferencesRepository
      */
@@ -65,6 +66,7 @@ class ChangelogController extends AbstractController
         if (null === $user) {
             return new Response('');
         }
+
         $currentVersion = $this->versionService->getCurrentVersion();
         $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
         $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;

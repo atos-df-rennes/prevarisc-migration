@@ -19,3 +19,7 @@ parameters:
                 - src/Entity
         -
             identifier: missingType.generics
+        -
+            # PHPExcel 1.8 a des @param string incorrects pour des paramètres int (colonne 0-based)
+            message: '#Parameter .* of method PHPExcel_Worksheet::(setCellValueByColumnAndRow|getStyleByColumnAndRow)\(\) expects string, .* given#'
+            identifier: argument.type

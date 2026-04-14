@@ -196,10 +196,11 @@
             <div class='pull-left'>
                 <p class='text-muted'><small>Nombre total d'éléments : {{ results.totalCount }}</small></p>
             </div>
+            {% if is_allowed_export_calc %}
             <div class='pull-right' style="visibility: hidden;">
-                {# Export Calc non migré #}
                 <input type='submit' class='btn btn-success' id='exporter' name='Exporter' value='Export Calc' style="visibility: hidden;">
             </div>
+            {% endif %}
         </div>
 
         <table class='table table-condensed'>
@@ -324,12 +325,14 @@
 
     function masquerBoutonExportCalc ()
     {
-        // Export Calc non migré
+        $('#exporter').css('visibility', 'hidden');
+        $('#exporter').parent().css('visibility', 'hidden');
     }
 
     function afficherBoutonExportCalc ()
     {
-        // Export Calc non migré
+        $('#exporter').css('visibility', 'visible');
+        $('#exporter').parent().css('visibility', 'visible');
     }
 </script>
 {% endblock %}
