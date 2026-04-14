@@ -14,8 +14,8 @@
 
 <h2 class="page-header">Dossiers</h2>
 <form method='get'>
-    <div class='well well-sm' style='margin-bottom: 5px;'>
-        <div class="input-group pull-left">
+    <div class='well well-sm clearfix' style='margin-bottom: 5px;'>
+        <div class="input-group pull-left" style="max-width: 340px;">
             <input type="text" name='objet' class="form-control search-query"
                    placeholder="Objet du dossier ..."
                    value="{{ app.request.query.get('objet', '') }}"

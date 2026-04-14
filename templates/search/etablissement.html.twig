@@ -6,8 +6,8 @@
 
 <h2 class="page-header">Etablissements</h2>
 <form method='get'>
-    <div class='well well-sm' style='margin-bottom: 5px;'>
-        <div class="input-group pull-left">
+    <div class='well well-sm clearfix' style='margin-bottom: 5px;'>
+        <div class="input-group pull-left" style="max-width: 340px;">
             <input type="text" name='label' class="form-control search-query"
                    placeholder="Libellé de l'établissement ou son #ID ..."
                    value="{{ app.request.query.get('label', '') }}"
@@ -199,18 +199,18 @@
                 <dl class='dl-horizontal'>
                     <dt>Ville</dt>
                     <dd>
-                        <input name='commune_ac' type='text' placeholder='Nom de la commune ou code postal ...' />
+                        <input name='commune_ac' type='text' class="form-control" placeholder='Nom de la commune ou code postal ...' />
                         <input name='code_insee' type='hidden' />
                     </dd>
 
                     <dt>Voie</dt>
                     <dd>
-                        <input type='text' name='voie_ac' placeholder='Nom de la voie ...' disabled />
+                        <input type='text' name='voie_ac' class="form-control" placeholder='Nom de la voie ...' disabled />
                         <input type='hidden' name='voie' />
                     </dd>
                     <dt>Numéro</dt>
                     <dd>
-                        <input name='numero_ac' type='text' placeholder='Numéro de la voie ...' disabled />
+                        <input name='numero_ac' type='text' class="form-control" placeholder='Numéro de la voie ...' disabled />
                     </dd>
                 </dl>
             </div>
@@ -272,7 +272,7 @@
                 $(container).find(".load").show();
                 $.post("{{ path('search_ajax_etablissement') }}", {parent: $(this).attr("id")}, function(html) {
                     $(container).toggleClass("active").find(".load").hide();
-                    $(container).after("<li class='hidden' style='overflow: auto; height: auto;' >" + html + "</li>").next().slideDown();
+                    $(container).after("<li style='display:none; overflow:auto; height:auto;'>" + html + "</li>").next().slideDown();
                 });
             }
         });
