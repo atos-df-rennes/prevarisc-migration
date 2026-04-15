@@ -151,7 +151,7 @@ class Search
                 ON etablissementadressecell.NUMINSEE_COMMUNE = adressecommunecell.NUMINSEE_COMMUNE';
 
         // Requête de données : inclut toujours adressesite/adressecell pour l'affichage
-        $sqlFrom = $sqlFromBase . $sqlFromAdresseSiteCell;
+        $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell;
 
         $whereConditions = ['e.DATESUPPRESSION_ETABLISSEMENT IS NULL'];
         $hasAdditionalConditions = false;
@@ -330,12 +330,12 @@ class Search
         // Gain : évite d'exécuter ~N×2 sous-requêtes corrélées sur la totalité des lignes.
         $needsAdresseFiltering = null !== $city || null !== $street || null !== $number;
         $sqlFromCount = $sqlFromBase
-            . ($needsAdresseFiltering ? $sqlFromAdresseSiteCell : '')
-            . $groupementJoin
-            . $preventionnisteJoin;
+            .($needsAdresseFiltering ? $sqlFromAdresseSiteCell : '')
+            .$groupementJoin
+            .$preventionnisteJoin;
         $countSql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)'
-            . $sqlFromCount
-            . ' WHERE ' . implode(' AND ', $whereConditions);
+            .$sqlFromCount
+            .' WHERE '.implode(' AND ', $whereConditions);
         $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
         $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
@@ -435,18 +435,30 @@ class Search
         $preventionnisteJoin = '';
         $groupementJoin = '';
 
+        // Flags COUNT lean : JOINs supplémentaires nécessaires uniquement pour certains filtres
+        $needsAdresseCommune = false;
+        $needsDocUrba = false;
+        /** @var string[] $countWhereFromHaving */
+        $countWhereFromHaving = [];
+
         // Critères : numéro de doc urba
         if (null !== $numDocUrba) {
-            $havingConditions[] = 'NB_URBA LIKE '.$this->safeQuote('%'.$numDocUrba.'%');
+            $nbUrbaPattern = $this->safeQuote('%'.$numDocUrba.'%');
+            $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
+            $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
         }
 
         // Critères : objet
         if (null !== $objet) {
             $cleanObjet = trim($objet);
             if ('#' === substr($cleanObjet, 0, 1)) {
-                $havingConditions[] = 'NB_URBA LIKE '.$this->safeQuote('%'.substr($cleanObjet, 1).'%');
+                $nbUrbaPattern = $this->safeQuote('%'.substr($cleanObjet, 1).'%');
+                $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
+                $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
             } elseif (1 === preg_match('/^[0-9A-Z\.]+$/', $cleanObjet)) {
-                $havingConditions[] = 'NB_URBA LIKE '.$this->safeQuote('%'.$cleanObjet.'%');
+                $nbUrbaPattern = $this->safeQuote('%'.$cleanObjet.'%');
+                $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
+                $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
             } elseif (1 === preg_match('/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/', $cleanObjet)) {
                 $whereConditions[] = 'd.ID_PLATAU='.$this->safeQuote($cleanObjet);
                 $hasAdditionalConditions = true;
@@ -522,6 +534,7 @@ class Search
                 $permisValue = $criterias['permis'];
                 $whereConditions[] = $this->buildCriteria('dossierdocurba.NUM_DOCURBA', $permisValue);
                 $hasAdditionalConditions = true;
+                $needsDocUrba = true;
             }
 
             // Critères : courrier
@@ -547,6 +560,7 @@ class Search
                 $communeValue = $criterias['commune'];
                 $whereConditions[] = $this->buildCriteria('ea.NUMINSEE_COMMUNE', $communeValue);
                 $hasAdditionalConditions = true;
+                $needsAdresseCommune = true;
             }
 
             if (isset($criterias['voie'])) {
@@ -554,6 +568,7 @@ class Search
                 $voieValue = $criterias['voie'];
                 $whereConditions[] = $this->buildCriteria('ea.ID_RUE', $voieValue);
                 $hasAdditionalConditions = true;
+                $needsAdresseCommune = true;
             }
 
             if (isset($criterias['numero'])) {
@@ -561,6 +576,7 @@ class Search
                 $numeroValue = $criterias['numero'];
                 $whereConditions[] = $this->buildCriteria('ea.NUMERO_ADRESSE', $numeroValue);
                 $hasAdditionalConditions = true;
+                $needsAdresseCommune = true;
             }
 
             // Critère : groupement territorial
@@ -572,6 +588,7 @@ class Search
                 $groupementValue = $criterias['groupements_territoriaux'];
                 $whereConditions[] = $this->buildCriteria('groupement.ID_GROUPEMENT', $groupementValue);
                 $hasAdditionalConditions = true;
+                $needsAdresseCommune = true;
             }
 
             if (isset($criterias['dateCreationStart']) && is_string($criterias['dateCreationStart'])) {
@@ -633,8 +650,34 @@ class Search
             $sqlFull .= ' ORDER BY d.DATEINSERT_DOSSIER DESC';
         }
 
-        // COUNT total
-        $countSql = 'SELECT COUNT(*) FROM ('.$sqlFull.') AS total_count';
+        // COUNT lean : sans les sous-requêtes corrélées d'affichage
+        // (NB_DOSS_LIES, NB_URBA, ALERTE_RECEPTION_TRAVAUX, ECHEANCIER_TRAVAUX)
+        // ni les JOINs d'affichage uniquement (eia, type, genre, avis, platauconsultation).
+        // Les conditions HAVING sur NB_URBA sont converties en WHERE EXISTS pour ne pas dépendre de la sous-requête SELECT.
+        // Gain : évite ~4×N sous-requêtes corrélées sur la totalité des lignes.
+        $sqlFromCountBase = ' FROM dossier d
+            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
+            INNER JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            INNER JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
+            INNER JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE';
+        $sqlFromCountAdresse = '
+            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN etablissementadresse ea ON ea.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            LEFT JOIN adressecommune ON ea.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE';
+        $sqlFromCountDocUrba = '
+            LEFT JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = d.ID_DOSSIER';
+
+        $sqlFromCount = $sqlFromCountBase
+            .($needsAdresseCommune ? $sqlFromCountAdresse : '')
+            .($needsDocUrba ? $sqlFromCountDocUrba : '')
+            .$commissionsJoin
+            .$preventionnisteJoin
+            .$groupementJoin;
+
+        $countWhereAllConditions = array_merge($whereConditions, $countWhereFromHaving);
+        $countSql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)'
+            .$sqlFromCount
+            .' WHERE '.implode(' AND ', $countWhereAllConditions);
         $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
         $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
