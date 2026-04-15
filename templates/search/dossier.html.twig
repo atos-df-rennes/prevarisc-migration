@@ -207,7 +207,7 @@
             {% endif %}
         </div>
 
-        <table class='table table-condensed table-recherche-dossiers'>
+        <table class='table table-condensed'>
             <tr>
                 <th>Etablissement</th>
                 <th>Objet</th>
@@ -235,24 +235,6 @@
         // Gestion des select et multiselect
         $(".chosen").chosen({
             allow_single_deselect: true
-        });
-
-        // Affichage des dossiers liés
-        $("table.table-recherche-dossiers tr.slide").live("click", function() {
-            var container = $(this);
-            var nextRow = $(this).next("tr.dossiers-lies-row");
-            if (nextRow.length > 0) {
-                nextRow.slideUp(400, function() { nextRow.remove(); });
-                container.toggleClass("active");
-            } else {
-                container.find(".load").show();
-                $.post("{{ path('search_ajax_dossier') }}", {parent: $(this).attr("id")}, function(html) {
-                    container.toggleClass("active").find(".load").hide();
-                    $("<tr class='dossiers-lies-row ui-helper-hidden'><td colspan='5'>" + html + "</td></tr>")
-                        .insertAfter(container)
-                        .slideDown();
-                });
-            }
         });
 
         $('select[name=commune]').change(function(){

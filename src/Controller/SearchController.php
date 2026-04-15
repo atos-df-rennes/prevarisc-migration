@@ -833,32 +833,6 @@ class SearchController extends AbstractController
     }
 
     /**
-     * AJAX : liste des dossiers enfants d'un parent.
-     *
-     * @Route("/rechercher/display-ajax-search-dossier", name="search_ajax_dossier", methods={"POST"})
-     */
-    public function ajaxDossier(Request $request): Response
-    {
-        $this->denyAccessUnlessGranted('search_dossiers');
-        $parentIdRaw = $request->request->get('parent', 0);
-        $parentId = is_numeric($parentIdRaw) ? (int) $parentIdRaw : 0;
-
-        $search = $this->searchService->dossiers(null, null, null, $parentId, null, 100);
-
-        /** @var array<int, array<string, mixed>> $data */
-        $data = array_values($search['results']);
-
-        $html = "<ul class='recherche_liste'>";
-        foreach ($data as $item) {
-            $html .= $this->renderView('search/results/_dossier.html.twig', ['item' => $item]);
-        }
-
-        $html .= '</ul>';
-
-        return new Response($html);
-    }
-
-    /**
      * Extrait un paramètre GET de type string non vide, retourne null sinon.
      */
     private function getStringQueryParam(Request $request, string $key): ?string
