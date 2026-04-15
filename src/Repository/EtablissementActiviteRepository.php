@@ -46,4 +46,19 @@ class EtablissementActiviteRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return array<int, array{ID_TYPEACTIVITE: int, LIBELLE_ACTIVITE: string, LIBELLE_TYPE: string}>
+     */
+    public function findAllWithTypeForSearch(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.id AS ID_TYPEACTIVITE, a.libelle AS LIBELLE_ACTIVITE, t.libelle AS LIBELLE_TYPE')
+            ->innerJoin('a.type', 't')
+            ->orderBy('t.libelle', 'ASC')
+            ->addOrderBy('a.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

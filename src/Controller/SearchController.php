@@ -3,12 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
+use App\Repository\AdresseRueRepository;
 use App\Repository\CommissionRepository;
+use App\Repository\CommuneRepository;
 use App\Repository\DossierTypeRepository;
+use App\Repository\EtablissementActiviteRepository;
+use App\Repository\EtablissementAdresseRepository;
+use App\Repository\EtablissementCategorieRepository;
+use App\Repository\EtablissementStatutRepository;
+use App\Repository\FamilleRepository;
+use App\Repository\GenreRepository;
 use App\Repository\GroupementRepository;
+use App\Repository\IghClasseRepository;
 use App\Service\Search as SearchService;
 use App\ValueObject\SearchPagination;
-use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,8 +41,32 @@ class SearchController extends AbstractController
     /** @var DossierTypeRepository */
     private $dossierTypeRepository;
 
-    /** @var Connection */
-    private $connection;
+    /** @var GenreRepository */
+    private $genreRepository;
+
+    /** @var EtablissementStatutRepository */
+    private $etablissementStatutRepository;
+
+    /** @var EtablissementCategorieRepository */
+    private $etablissementCategorieRepository;
+
+    /** @var IghClasseRepository */
+    private $ighClasseRepository;
+
+    /** @var EtablissementActiviteRepository */
+    private $etablissementActiviteRepository;
+
+    /** @var FamilleRepository */
+    private $familleRepository;
+
+    /** @var CommuneRepository */
+    private $communeRepository;
+
+    /** @var AdresseRueRepository */
+    private $adresseRueRepository;
+
+    /** @var EtablissementAdresseRepository */
+    private $etablissementAdresseRepository;
 
     /** @var bool */
     private $deactivatePlatau;
@@ -44,14 +76,30 @@ class SearchController extends AbstractController
         GroupementRepository $groupementRepository,
         CommissionRepository $commissionRepository,
         DossierTypeRepository $dossierTypeRepository,
-        Connection $connection,
+        GenreRepository $genreRepository,
+        EtablissementStatutRepository $etablissementStatutRepository,
+        EtablissementCategorieRepository $etablissementCategorieRepository,
+        IghClasseRepository $ighClasseRepository,
+        EtablissementActiviteRepository $etablissementActiviteRepository,
+        FamilleRepository $familleRepository,
+        CommuneRepository $communeRepository,
+        AdresseRueRepository $adresseRueRepository,
+        EtablissementAdresseRepository $etablissementAdresseRepository,
         bool $deactivatePlatau
     ) {
         $this->searchService = $searchService;
         $this->groupementRepository = $groupementRepository;
         $this->commissionRepository = $commissionRepository;
         $this->dossierTypeRepository = $dossierTypeRepository;
-        $this->connection = $connection;
+        $this->genreRepository = $genreRepository;
+        $this->etablissementStatutRepository = $etablissementStatutRepository;
+        $this->etablissementCategorieRepository = $etablissementCategorieRepository;
+        $this->ighClasseRepository = $ighClasseRepository;
+        $this->etablissementActiviteRepository = $etablissementActiviteRepository;
+        $this->familleRepository = $familleRepository;
+        $this->communeRepository = $communeRepository;
+        $this->adresseRueRepository = $adresseRueRepository;
+        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
         $this->deactivatePlatau = $deactivatePlatau;
     }
 
@@ -62,48 +110,16 @@ class SearchController extends AbstractController
      */
     public function etablissement(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('search_ets');
+
         // Données de référence pour les filtres
-        /** @var array<int, array<string, mixed>> $DB_genre */
-        $DB_genre = $this->connection->executeQuery(
-            'SELECT * FROM genre ORDER BY ID_GENRE ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_statut */
-        $DB_statut = $this->connection->executeQuery(
-            'SELECT * FROM statut ORDER BY LIBELLE_STATUT ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_avis */
-        $DB_avis = $this->connection->executeQuery(
-            'SELECT * FROM avis ORDER BY ID_AVIS ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_classe */
-        $DB_classe = $this->connection->executeQuery(
-            'SELECT * FROM classe ORDER BY LIBELLE_CLASSE ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_categorie */
-        $DB_categorie = $this->connection->executeQuery(
-            'SELECT * FROM categorie ORDER BY LIBELLE_CATEGORIE ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_typeactivite */
-        $DB_typeactivite = $this->connection->executeQuery(
-            'SELECT typeactivite.*, type.LIBELLE_TYPE FROM typeactivite
-             LEFT JOIN type ON typeactivite.ID_TYPE = type.ID_TYPE
-             ORDER BY type.LIBELLE_TYPE ASC, typeactivite.LIBELLE_ACTIVITE ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_famille */
-        $DB_famille = $this->connection->executeQuery(
-            'SELECT * FROM famille ORDER BY LIBELLE_FAMILLE ASC'
-        )->fetchAllAssociative();
-
-        /** @var array<int, array<string, mixed>> $DB_commission */
-        $DB_commission = $this->connection->executeQuery(
-            'SELECT * FROM commission ORDER BY ID_COMMISSION ASC'
-        )->fetchAllAssociative();
+        $DB_genre = $this->genreRepository->findAllForSearch();
+        $DB_statut = $this->etablissementStatutRepository->findAllForSearch();
+        $DB_classe = $this->ighClasseRepository->findAllForSearch();
+        $DB_categorie = $this->etablissementCategorieRepository->findAllForSearch();
+        $DB_typeactivite = $this->etablissementActiviteRepository->findAllWithTypeForSearch();
+        $DB_famille = $this->familleRepository->findAllForSearch();
+        $DB_commission = $this->commissionRepository->findAllForSearch();
 
         $DB_groupementterritorial = $this->groupementRepository->findTerritoriaux();
         $liste_prev = $this->searchService->listePrevActifs();
@@ -430,7 +446,6 @@ class SearchController extends AbstractController
         return $this->render('search/etablissement.html.twig', [
             'DB_genre' => $DB_genre,
             'DB_statut' => $DB_statut,
-            'DB_avis' => $DB_avis,
             'DB_classe' => $DB_classe,
             'DB_categorie' => $DB_categorie,
             'DB_typeactivite' => $DB_typeactivite,
@@ -451,34 +466,25 @@ class SearchController extends AbstractController
      */
     public function dossier(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('search_dossiers');
+
         $DB_type = $this->dossierTypeRepository->findAll();
         $array_commissions = $this->commissionRepository->getCommissionsAndTypes();
         $DB_groupementterritorial = $this->groupementRepository->findTerritoriaux();
         $liste_prev = $this->searchService->listePrevActifs();
 
-        /** @var array<int, array<string, mixed>> $array_communes */
-        $array_communes = $this->connection->executeQuery(
-            'SELECT * FROM adressecommune ORDER BY LIBELLE_COMMUNE ASC'
-        )->fetchAllAssociative();
+        $array_communes = $this->communeRepository->findAllForSearch();
 
-        /** @var array<int, array<string, mixed>> $array_voies */
         $array_voies = [];
         $communeParam = $this->getStringQueryParam($request, 'commune');
         if ($request->query->count() > 0 && null !== $communeParam) {
-            $array_voies = $this->connection->executeQuery(
-                'SELECT * FROM adresserue WHERE NUMINSEE_COMMUNE = ?',
-                [$communeParam]
-            )->fetchAllAssociative();
+            $array_voies = $this->adresseRueRepository->findByCommune($communeParam);
         }
 
-        /** @var array<int, array<string, mixed>> $array_numeros */
         $array_numeros = [];
         $voieParam = $this->getStringQueryParam($request, 'voie');
         if ($request->query->count() > 0 && null !== $voieParam) {
-            $array_numeros = $this->connection->executeQuery(
-                'SELECT DISTINCT NUMERO_ADRESSE FROM etablissementadresse WHERE ID_RUE = ? ORDER BY NUMERO_ADRESSE',
-                [(int) $voieParam]
-            )->fetchAllAssociative();
+            $array_numeros = $this->etablissementAdresseRepository->findDistinctNumerosByRue((int) $voieParam);
         }
 
         // Validation du format de date (port du $checkDateFormat du legacy)
@@ -803,6 +809,7 @@ class SearchController extends AbstractController
      */
     public function ajaxEtablissement(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('search_ets');
         $parentIdRaw = $request->request->get('parent', 0);
         $parentId = is_numeric($parentIdRaw) ? (int) $parentIdRaw : 0;
 
@@ -832,6 +839,7 @@ class SearchController extends AbstractController
      */
     public function ajaxDossier(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('search_dossiers');
         $parentIdRaw = $request->request->get('parent', 0);
         $parentId = is_numeric($parentIdRaw) ? (int) $parentIdRaw : 0;
 

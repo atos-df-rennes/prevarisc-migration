@@ -75,4 +75,17 @@ class EtablissementCategorieRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @return array<int, array{ID_CATEGORIE: int, LIBELLE_CATEGORIE: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id AS ID_CATEGORIE, c.libelle AS LIBELLE_CATEGORIE')
+            ->orderBy('c.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

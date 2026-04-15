@@ -75,4 +75,17 @@ class CommissionRepository extends ServiceEntityRepository implements HasContact
 
         return $query->getSingleScalarResult();
     }
+
+    /**
+     * @return array<int, array{ID_COMMISSION: string, LIBELLE_COMMISSION: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id AS ID_COMMISSION, c.libelle AS LIBELLE_COMMISSION')
+            ->orderBy('c.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }
