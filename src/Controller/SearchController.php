@@ -18,6 +18,7 @@ use App\Repository\IghClasseRepository;
 use App\Service\Search as SearchService;
 use App\ValueObject\SearchPagination;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -141,12 +142,6 @@ class SearchController extends AbstractController
             if ($request->query->has('Exporter') && $this->isGranted('export_ets')) {
                 try {
                     $label = $this->getStringQueryParam($request, 'label');
-                    $identifiant = null;
-                    if (null !== $label && '' !== $label && '#' === $label[0]) {
-                        $subResult = substr($label, 1);
-                        $identifiant = is_string($subResult) ? $subResult : '';
-                        $label = null;
-                    }
 
                     $genres = $this->getArrayQueryParam($request, 'genres');
                     $categories = $this->getArrayQueryParam($request, 'categories');
@@ -179,7 +174,7 @@ class SearchController extends AbstractController
                     $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
 
                     $search = $this->searchService->extractionEtablissements(
-                        $label, $identifiant, $genres, $categories, $classes, $familles, $types_activites,
+                        $label, null, $genres, $categories, $classes, $familles, $types_activites,
                         $avis_favorable, $statuts, $local_sommeil, null, null, null,
                         $city, $street, $number, $commissions, $groupements_territoriaux, $preventionniste
                     );
@@ -343,11 +338,11 @@ class SearchController extends AbstractController
                             ++$ligne;
                         }
 
-                        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+                        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'OpenDocument');
                         $writer->save('php://output');
                     }, Response::HTTP_OK, [
                         'Content-Type' => 'application/vnd.oasis.opendocument.spreadsheet',
-                        'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+                        'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename),
                     ]);
                 } catch (\Exception $e) {
                     $this->addFlash('error', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
@@ -358,12 +353,6 @@ class SearchController extends AbstractController
                 $page = max(1, $request->query->getInt('page', 1));
 
                 $label = $this->getStringQueryParam($request, 'label');
-                $identifiant = null;
-                if (null !== $label && '' !== $label && '#' === $label[0]) {
-                    $subResult = substr($label, 1);
-                    $identifiant = is_string($subResult) ? $subResult : '';
-                    $label = null;
-                }
 
                 $genres = $this->getArrayQueryParam($request, 'genres');
                 $categories = $this->getArrayQueryParam($request, 'categories');
@@ -408,7 +397,7 @@ class SearchController extends AbstractController
 
                 $search = $this->searchService->etablissements(
                     $label,
-                    $identifiant,
+                    null,
                     $genres,
                     $categories,
                     $classes,
@@ -518,11 +507,7 @@ class SearchController extends AbstractController
             if ($request->query->has('Exporter') && $this->isGranted('export_doss')) {
                 try {
                     $num_doc_urba = $this->getStringQueryParam($request, 'permis');
-
-                    $objetRaw = $this->getStringQueryParam($request, 'objet');
-                    $objet = (null !== $objetRaw && '' !== $objetRaw && '#' !== substr($objetRaw, 0, 1))
-                        ? $objetRaw
-                        : null;
+                    $objet = $this->getStringQueryParam($request, 'objet');
 
                     $types = $this->getArrayQueryParam($request, 'types');
 
@@ -687,11 +672,11 @@ class SearchController extends AbstractController
                             ++$ligne;
                         }
 
-                        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+                        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'OpenDocument');
                         $writer->save('php://output');
                     }, Response::HTTP_OK, [
                         'Content-Type' => 'application/vnd.oasis.opendocument.spreadsheet',
-                        'Content-Disposition' => 'attachment; filename='.$filename,
+                        'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename),
                     ]);
                 } catch (\Exception $e) {
                     $this->addFlash('error', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
@@ -701,11 +686,7 @@ class SearchController extends AbstractController
             try {
                 $page = max(1, $request->query->getInt('page', 1));
                 $num_doc_urba = $this->getStringQueryParam($request, 'permis');
-
-                $objetRaw = $this->getStringQueryParam($request, 'objet');
-                $objet = (null !== $objetRaw && '' !== $objetRaw && '#' !== substr($objetRaw, 0, 1))
-                    ? $objetRaw
-                    : null;
+                $objet = $this->getStringQueryParam($request, 'objet');
 
                 $types = $this->getArrayQueryParam($request, 'types');
 

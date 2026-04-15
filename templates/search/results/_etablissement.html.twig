@@ -11,7 +11,8 @@
         <small style='display: inline-block; width: 65px'>
             <strong>
             {% if item.ID_TYPE %}
-                <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}' />&nbsp;-&nbsp;
+                <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}'
+                     onerror="this.outerHTML='{{ item.LIBELLE_TYPE|e('js') }}&amp;nbsp;-&amp;nbsp;'" />&nbsp;-&nbsp;
             {% endif %}
             {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
             </strong>

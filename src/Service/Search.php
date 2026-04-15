@@ -1364,7 +1364,7 @@ class Search
         $values = is_array($value) ? $value : [$value];
 
         foreach ($values as $singleValue) {
-            $stringValue = (string) $singleValue;
+            $stringValue = is_bool($singleValue) ? (string) (int) $singleValue : (string) $singleValue;
             $quotedVal = $this->safeQuote(
                 $exact ? $stringValue : '%'.$stringValue.'%'
             );

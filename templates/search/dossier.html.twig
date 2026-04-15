@@ -28,7 +28,7 @@
 
         <div class="pull-left" style='margin: 9px 0 0 5px'>
             <small>
-                <a href="{{ path('search_dossier', {label: '', page: 1, Rechercher: 'Rechercher'}) }}">
+                <a href="{{ path('search_dossier', {objet: '', page: 1, Rechercher: 'Rechercher'}) }}">
                     Réinitialiser
                 </a>
             </small>
@@ -230,7 +230,8 @@
 <script>
     $(document).ready(function() {
 
-        $("input[name='num_doc_urba']").focus().keyup(function() {$('input[type="submit"]').attr('disabled', $(this).val() == '')}).keyup();
+        $("input[name='permis']").focus();
+        $('input[type="submit"]').attr('disabled', false);
 
         // Gestion des select et multiselect
         $(".chosen").chosen({
