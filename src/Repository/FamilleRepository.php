@@ -46,4 +46,17 @@ class FamilleRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return array<int, array{ID_FAMILLE: int, LIBELLE_FAMILLE: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->select('f.id AS ID_FAMILLE, f.libelle AS LIBELLE_FAMILLE')
+            ->orderBy('f.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

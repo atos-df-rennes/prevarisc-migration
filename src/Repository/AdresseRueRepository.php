@@ -75,4 +75,19 @@ class AdresseRueRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @return array<int, array{ID_RUE: string, LIBELLE_RUE: string}>
+     */
+    public function findByCommune(string $codeInsee): array
+    {
+        return $this->createQueryBuilder('r')
+            ->select('r.id AS ID_RUE, r.libelle AS LIBELLE_RUE')
+            ->where('r.commune = :commune')
+            ->setParameter('commune', $codeInsee)
+            ->orderBy('r.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

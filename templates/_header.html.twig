@@ -18,7 +18,7 @@
                         Établissements <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href='/search/etablissement?label=&page=1&Rechercher=Rechercher'><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Rechercher</a></li>
+                        <li><a href="{{ path('search_etablissement', {label: '', page: 1, Rechercher: 'Rechercher'}) }}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Rechercher</a></li>
                         <li><a href='/etablissement/add'><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter</a></li>
                     </ul>
                 </li>
@@ -27,7 +27,7 @@
                         Dossiers <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href='/search/dossier?objet=&page=1&Rechercher=Rechercher'><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>  Rechercher</a></li>
+                        <li><a href="{{ path('search_dossier', {objet: '', page: 1, Rechercher: 'Rechercher'}) }}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>  Rechercher</a></li>
                         <li><a href="{{ path('dossier_new') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>  Ajouter</a></li>
                     </ul>
                 </li>
@@ -44,7 +44,7 @@
             </ul>
             <ul class='nav navbar-nav navbar-right'>
                 <li class="li-searched">
-                    <form class="navbar-search navbar-form" action="/search/etablissement" method="get">
+                    <form class="navbar-search navbar-form" action="{{ path('search_etablissement') }}" method="get">
                         <div class="input-group">
                             <input name="label" class="form-control" id="nav-main-search-field" type="text" placeholder="Rechercher ..." />
                             <input name="page" type="hidden" value="1" />
@@ -53,7 +53,7 @@
                                 <button class="btn btn-default" type="submit">
                                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                 </button>
-                                <a class="btn btn-default" href="/search/etablissement?Rechercher=Rechercher&statuts%5B%5D=2&statuts%5B%5D=4">Avancée &raquo;</a>
+                                <a class="btn btn-default" href="{{ path('search_etablissement', {Rechercher: 'Rechercher', statuts: [2, 4]}) }}">Avancée &raquo;</a>
                             </div>
                         </div>
                     </form>

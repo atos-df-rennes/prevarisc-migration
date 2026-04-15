@@ -1,0 +1,49 @@
+{#
+  Composant de pagination Bootstrap 3.
+  Variables : pagination (SearchPagination), route (string), query_params (array)
+#}
+{% if pagination is not null and pagination.pageCount > 1 %}
+{% set qs = app.request.queryString|split('&')|filter(p => not (p starts with 'page='))|join('&') %}
+<div class="text-center">
+    <ul class="pagination pagination-sm">
+
+        {# Première page #}
+        {% if pagination.currentPage > 1 %}
+            <li>
+                <a href="{{ app.request.pathInfo }}?{{ qs }}&page=1">&laquo;</a>
+            </li>
+            <li>
+                <a href="{{ app.request.pathInfo }}?{{ qs }}&page={{ pagination.currentPage - 1 }}">&lsaquo;</a>
+            </li>
+        {% else %}
+            <li class="disabled"><a>&laquo;</a></li>
+            <li class="disabled"><a>&lsaquo;</a></li>
+        {% endif %}
+
+        {# Pages dans la plage #}
+        {% for page_num in pagination.pagesInRange %}
+            {% if page_num == pagination.currentPage %}
+                <li class="active"><a>{{ page_num }}</a></li>
+            {% else %}
+                <li>
+                    <a href="{{ app.request.pathInfo }}?{{ qs }}&page={{ page_num }}">{{ page_num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {# Dernière page #}
+        {% if pagination.currentPage < pagination.pageCount %}
+            <li>
+                <a href="{{ app.request.pathInfo }}?{{ qs }}&page={{ pagination.currentPage + 1 }}">&rsaquo;</a>
+            </li>
+            <li>
+                <a href="{{ app.request.pathInfo }}?{{ qs }}&page={{ pagination.pageCount }}">&raquo;</a>
+            </li>
+        {% else %}
+            <li class="disabled"><a>&rsaquo;</a></li>
+            <li class="disabled"><a>&raquo;</a></li>
+        {% endif %}
+
+    </ul>
+</div>
+{% endif %}

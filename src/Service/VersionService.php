@@ -84,7 +84,7 @@ final class VersionService
 
     private function readChangelog(): ?string
     {
-        $path = $this->srcDir . '/CHANGELOG.md';
+        $path = $this->srcDir.'/CHANGELOG.md';
 
         if (!file_exists($path)) {
             return null;
@@ -100,6 +100,6 @@ final class VersionService
         $clean = (string) preg_replace('/[^0-9.].*/', '', $version);
         $parts = explode('.', $clean);
 
-        return isset($parts[1]) ? $parts[0] . '.' . $parts[1] : $parts[0];
+        return isset($parts[1]) ? $parts[0].'.'.$parts[1] : $parts[0];
     }
 }

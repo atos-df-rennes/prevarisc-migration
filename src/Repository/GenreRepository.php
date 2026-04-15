@@ -46,4 +46,17 @@ class GenreRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return array<int, array{ID_GENRE: int, LIBELLE_GENRE: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('g')
+            ->select('g.id AS ID_GENRE, g.libelle AS LIBELLE_GENRE')
+            ->orderBy('g.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

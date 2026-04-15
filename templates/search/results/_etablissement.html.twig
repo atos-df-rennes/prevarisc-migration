@@ -1,0 +1,88 @@
+{#
+  Partial <li> résultat d'établissement dans la liste de recherche.
+  Variable : item (array)
+#}
+<li class="etablissement {% if item.NB_ENFANTS > 0 %}slide{% endif %}" id="{{ item.ID_ETABLISSEMENT }}"
+    {% if item.ID_STATUT == 1 or item.ID_STATUT == 3 %}style="opacity: 0.5;"{% endif %}>
+
+    <div class='pull-left'>
+
+        {# Affichage du libellé du type #}
+        <small style='display: inline-block; width: 65px'>
+            <strong>
+            {% if item.ID_TYPE %}
+                <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}'
+                     onerror="this.outerHTML='{{ item.LIBELLE_TYPE|e('js') }}&amp;nbsp;-&amp;nbsp;'" />&nbsp;-&nbsp;
+            {% endif %}
+            {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
+            </strong>
+        </small>
+
+        {# Nom de l'établissement #}
+        <span class="nom-etablissement">
+            <a href='/etablissement/{{ item.ID_ETABLISSEMENT }}/informations'>
+                {% if item.LIBELLE_ETABLISSEMENTINFORMATIONS is empty %}
+                    <em class='muted'>Libellé non renseigné</em>
+                {% else %}
+                    {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
+                {% endif %}
+                <small>
+                    {% if item.ID_GENRE == 1 %}
+                        {% if item.LIBELLE_COMMUNE_ADRESSE_SITE is not empty %}
+                            - {{ item.LIBELLE_COMMUNE_ADRESSE_SITE }}
+                        {% endif %}
+                    {% elseif item.ID_GENRE == 3 %}
+                        {% if item.LIBELLE_COMMUNE_ADRESSE_CELLULE is not empty %}
+                            - {{ item.LIBELLE_COMMUNE_ADRESSE_CELLULE }}
+                        {% endif %}
+                    {% else %}
+                        {% if item.LIBELLE_COMMUNE_ADRESSE_DEFAULT is not empty %}
+                            - {{ item.LIBELLE_COMMUNE_ADRESSE_DEFAULT }}
+                        {% endif %}
+                    {% endif %}
+                </small>
+            </a>
+        </span>
+
+        {# Icone de chargement des enfants #}
+        {% if item.NB_ENFANTS > 0 %}
+            <span class='load ui-helper-hidden'><img src='/images/load.gif' alt='Chargement ...' /></span>
+        {% endif %}
+
+        {# Calcul de la date d'avis #}
+        {% set date = null %}
+        {% if item.DATEVISITE_DOSSIER is not empty %}
+            {% set date_str = item.DATEVISITE_DOSSIER|slice(0, 10) %}
+            {% set date = "Date de l'avis : " ~ (date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000') ~ '&nbsp;' %}
+        {% elseif item.DATECOMM_DOSSIER is not empty %}
+            {% set date_str = item.DATECOMM_DOSSIER|slice(0, 10) %}
+            {% set date = "Date de l'avis : " ~ (date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000') ~ '&nbsp;' %}
+        {% else %}
+            {% set date = 'Pas de date' %}
+        {% endif %}
+
+    </div>
+
+    <div class='pull-right'>
+
+        {# Avis #}
+        {% if item.DIFFEREAVIS_DOSSIER == 1 %}
+            <span class='avis' style='background-color: #3a87ad; font-size: .7em;'>Avis différé</span>
+        {% elseif item.ID_AVIS == 1 %}
+            <span class="avis F" style="font-size: .7em">Favorable {% if item.ID_GENRE != 3 %} à l'exploitation {% endif %} <small>({{ date|raw }})</small></span>
+        {% elseif item.ID_AVIS == 2 %}
+            <span class="avis D" style="font-size: .7em">Défavorable {% if item.ID_GENRE != 3 %} à l'exploitation {% endif %} <small>({{ date|raw }})</small></span>
+        {% elseif item.ID_GENRE != 1 %}
+            <span class="avis" style="font-size: .7em">Avis d'exploitation indisponible</span>
+        {% endif %}
+
+        {# Alerte échéancier de travaux #}
+        {% if item.PRESENCE_ECHEANCIER_TRAVAUX > 0 %}
+            <span class='avis' style='background-color: #3a87ad; font-size: .7em;'>Présence d'un échéancier de travaux</span>
+        {% endif %}
+
+    </div>
+
+    <div style='clear: both'></div>
+
+</li>

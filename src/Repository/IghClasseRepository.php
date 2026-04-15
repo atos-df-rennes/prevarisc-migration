@@ -75,4 +75,17 @@ class IghClasseRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @return array<int, array{ID_CLASSE: int, LIBELLE_CLASSE: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id AS ID_CLASSE, c.libelle AS LIBELLE_CLASSE')
+            ->orderBy('c.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

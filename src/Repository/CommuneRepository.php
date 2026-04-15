@@ -39,4 +39,17 @@ class CommuneRepository extends ServiceEntityRepository implements HasContacts
 
         return $query->getSingleScalarResult();
     }
+
+    /**
+     * @return array<int, array{NUMINSEE_COMMUNE: string, LIBELLE_COMMUNE: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id AS NUMINSEE_COMMUNE, c.libelle AS LIBELLE_COMMUNE')
+            ->orderBy('c.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

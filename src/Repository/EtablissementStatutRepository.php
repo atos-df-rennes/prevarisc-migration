@@ -46,4 +46,17 @@ class EtablissementStatutRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * @return array<int, array{ID_STATUT: int, LIBELLE_STATUT: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.id AS ID_STATUT, s.libelle AS LIBELLE_STATUT')
+            ->orderBy('s.libelle', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

@@ -164,4 +164,20 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * @return array<int, array{NUMERO_ADRESSE: string|null}>
+     */
+    public function findDistinctNumerosByRue(int $idRue): array
+    {
+        return $this->createQueryBuilder('ea')
+            ->select('ea.numero AS NUMERO_ADRESSE')
+            ->where('ea.rue = :rue')
+            ->setParameter('rue', $idRue)
+            ->groupBy('ea.numero')
+            ->orderBy('ea.numero', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+    }
 }

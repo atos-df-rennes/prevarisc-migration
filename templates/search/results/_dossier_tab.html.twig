@@ -1,0 +1,139 @@
+{#
+  Ligne <tr> de résultat dossier dans la table de recherche.
+  Variable : item (array avec PREVENTIONNISTES et PIECESJOINTES)
+#}
+{% set date_text = '' %}
+{% set date = '' %}
+{% if item.DATECOMM_DOSSIER is not empty %}
+    {% set date_str = item.DATECOMM_DOSSIER|slice(0, 10) %}
+    {% set date = date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000' %}
+    {% set date_text = '<br/>ayant pour date de passage en commission le' %}
+{% elseif item.DATEVISITE_DOSSIER is not empty %}
+    {% set date_str = item.DATEVISITE_DOSSIER|slice(0, 10) %}
+    {% set date = date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000' %}
+    {% set date_text = '<br/>ayant pour date de visite le' %}
+{% endif %}
+
+<tr>
+
+    {# Établissement #}
+    <td class="doss-nom">
+        <a href='/etablissement/{{ item.ID_ETABLISSEMENT }}/informations' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
+            {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
+        </a>
+        <br/>
+        {# Affichage du libellé du type #}
+        <small style='display: inline-block; width: 65px'>
+            <strong>
+            {% if item.ID_TYPE %}
+                <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}' />&nbsp;-&nbsp;
+            {% endif %}
+            {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
+            </strong>
+        </small>
+    </td>
+
+    {# Nom du dossier #}
+    <td class="doss-nom">
+        {% if item.VERROU_DOSSIER == 1 %}
+            <i class="glyphicon glyphicon-lock"></i>
+        {% endif %}
+        <a href='/dossier/{{ item.ID_DOSSIER }}' title='{{ (item.LIBELLE_DOSSIERTYPE ~ ' - ' ~ item.LIBELLE_DOSSIERNATURE ~ (item.OBJET_DOSSIER is not empty ? ' - ' ~ item.OBJET_DOSSIER : ''))|e('html_attr') }}'>
+            {{ item.LIBELLE_DOSSIERTYPE }} - {{ item.LIBELLE_DOSSIERNATURE }}{% if item.OBJET_DOSSIER is not empty %} - {{ item.OBJET_DOSSIER|slice(0, 70) }}{% if item.OBJET_DOSSIER|length > 70 %}(...){% endif %}{% endif %}{% if item.NB_URBA is not empty %} - {{ item.NB_URBA }}{% endif %}
+        </a>
+        <small class='text-muted'>{{ date_text|raw }} {{ date }}</small>
+        <br/>
+
+        {# Badges d'avis #}
+        {% if item.INCOMPLET_DOSSIER == 1 %}
+            <span class='avis' style='background-color: #f89406;'>Dossier incomplet</span>
+        {% elseif item.DIFFEREAVIS_DOSSIER == 1 %}
+            <span class='avis' style='background-color: #3a87ad;'>Avis différé</span>
+        {% elseif item.TYPE_DOSSIER == 5 and item.DATEREP_DOSSIER is not empty %}
+            <span class="avis F">Répondu</span>
+        {% elseif item.TYPE_DOSSIER == 5 and item.DATEREP_DOSSIER is empty %}
+            <span class="avis">Réponse à faire
+                {% if item.DATESDIS_DOSSIER is not empty %}
+                    ({{ format_date_diff(item.DATESDIS_DOSSIER) }})
+                {% endif %}
+            </span>
+        {% elseif item.ID_AVIS == 1 %}
+            <span class="avis F">Favorable {% if item.ID_DOSSIERNATURE in [19, 21, 23, 24, 47, 26, 28, 29, 48] %} à l'exploitation{% endif %}</span>
+        {% elseif item.ID_AVIS == 2 %}
+            <span class="avis D">Défavorable {% if item.ID_DOSSIERNATURE in [19, 21, 23, 24, 47, 26, 28, 29, 48] %} à l'exploitation{% endif %}</span>
+        {% else %}
+            <span class="avis">Avis indisponible</span>
+        {% endif %}
+
+        {# Alerte réception travaux #}
+        {% if item.ALERTE_RECEPTION_TRAVAUX > 0 %}
+            <span class='avis' style='background-color: #3a87ad'>Présence d'un dossier de reception de travaux</span>
+        {% endif %}
+
+        {# Alerte échéancier de travaux #}
+        {% if item.ECHEANCIER_TRAVAUX > 0 %}
+            <span class='avis' style='background-color: #3a87ad'>Fait l'objet d'un échéancier de travaux</span>
+        {% endif %}
+
+        {# Badge Platau #}
+        {% if item.ID_PLATAU is not empty %}
+            <span class='label label-info'>CONSULTATION PLATAU : {{ item.ID_PLATAU }}</span>
+        {% endif %}
+        {% if item.ID_PLATAU is not empty and item.INCOMPLET_DOSSIER is empty %}
+            <span class='label label-info'>EN ATTENTE DE PEC</span>
+        {% endif %}
+
+        {# Temps restant Platau #}
+        {% if item.DATE_REPONSE_ATTENDUE is not empty %}
+            {% set temps = platau_temps_restant(item.DATE_REPONSE_ATTENDUE) %}
+            {% if temps is not empty %}
+                <span class='label label-{{ platau_couleur_temps_restant(item.DATE_REPONSE_ATTENDUE) }}'>Temps restant : {{ temps }}</span>
+            {% endif %}
+        {% endif %}
+
+    </td>
+
+    {# Dates du dossier #}
+    <td>
+        {% if item.DATEINSERT_DOSSIER is not empty %}
+            {% set date_str = item.DATEINSERT_DOSSIER|slice(0, 10) %}
+            <small class='text-muted'>Créé le {{ date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000' }}</small><br/>
+        {% endif %}
+        {% if item.DATESDIS_DOSSIER is not empty %}
+            {% set date_str = item.DATESDIS_DOSSIER|slice(0, 10) %}
+            <small class='text-muted'>Reçu le {{ date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000' }}</small><br/>
+        {% endif %}
+        {% if item.DATEREP_DOSSIER is not empty %}
+            {% set date_str = item.DATEREP_DOSSIER|slice(0, 10) %}
+            <small class='text-muted'>Répondu le {{ date_str != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000' }}</small><br/>
+        {% endif %}
+    </td>
+
+    {# Préventionnistes #}
+    <td>
+        {% if item.PREVENTIONNISTES is defined and item.PREVENTIONNISTES is not empty %}
+            {% for preventionniste in item.PREVENTIONNISTES %}
+                {{ preventionniste.NOM_UTILISATEURINFORMATIONS }} {{ preventionniste.PRENOM_UTILISATEURINFORMATIONS }}<br/>
+            {% endfor %}
+        {% endif %}
+    </td>
+
+    {# Pièces jointes #}
+    <td>
+        {% if item.PIECESJOINTES is defined and item.PIECESJOINTES is not empty %}
+            <a class="btn btn-default pj" href="#"><i class="glyphicon glyphicon-share" id="iconpj{{ item.ID_DOSSIER }}"></i></a>
+        {% endif %}
+    </td>
+
+</tr>
+<tr hidden class="info" id="rowpj{{ item.ID_DOSSIER }}">
+    <td colspan="5">
+        {% if item.PIECESJOINTES is defined and item.PIECESJOINTES is not empty %}
+            {% for piecejointe in item.PIECESJOINTES %}
+                <a href='#' title='{{ piecejointe.NOM_PIECEJOINTE|e('html_attr') }}'>
+                    {{ piecejointe.NOM_PIECEJOINTE }}{{ piecejointe.EXTENSION_PIECEJOINTE }}
+                </a><br/>
+            {% endfor %}
+        {% endif %}
+    </td>
+</tr>

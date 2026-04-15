@@ -24,6 +24,42 @@ class CommissionRepository extends ServiceEntityRepository implements HasContact
     }
 
     /**
+     * Retourne les commissions groupées par type.
+     * Port de Service_Commission::getCommissionsAndTypes().
+     *
+     * @return array<int, array{LIBELLE: string, ARRAY: array<int, array<string, mixed>>}>
+     */
+    public function getCommissionsAndTypes(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        /** @var array<int, array<string, mixed>> $types */
+        $types = $conn->executeQuery(
+            'SELECT ID_COMMISSIONTYPE, LIBELLE_COMMISSIONTYPE FROM commissiontype ORDER BY ID_COMMISSIONTYPE ASC'
+        )->fetchAllAssociative();
+
+        /** @var array<int, array{LIBELLE: string, ARRAY: array<int, array<string, mixed>>}> $result */
+        $result = [];
+
+        foreach ($types as $type) {
+            $typeId = (int) $type['ID_COMMISSIONTYPE'];
+
+            /** @var array<int, array<string, mixed>> $commissions */
+            $commissions = $conn->executeQuery(
+                'SELECT ID_COMMISSION, LIBELLE_COMMISSION FROM commission WHERE ID_COMMISSIONTYPE = ? ORDER BY LIBELLE_COMMISSION ASC',
+                [$typeId]
+            )->fetchAllAssociative();
+
+            $result[$typeId] = [
+                'LIBELLE' => (string) $type['LIBELLE_COMMISSIONTYPE'],
+                'ARRAY' => $commissions,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Retourne le nombre de commissions ayant comme contact celui passé en paramètre.
      */
     public function findNumberByContacts(UtilisateurInformations $contact): int
@@ -38,5 +74,18 @@ class CommissionRepository extends ServiceEntityRepository implements HasContact
         ;
 
         return $query->getSingleScalarResult();
+    }
+
+    /**
+     * @return array<int, array{ID_COMMISSION: string, LIBELLE_COMMISSION: string}>
+     */
+    public function findAllForSearch(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.id AS ID_COMMISSION, c.libelle AS LIBELLE_COMMISSION')
+            ->orderBy('c.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
     }
 }
