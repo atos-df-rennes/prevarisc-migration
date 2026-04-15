@@ -2,6 +2,11 @@
   Partial <li> pour l'affichage AJAX des dossiers enfants.
   Variable : item (array)
 #}
+{#
+    Ce template est aussi utilisé pour l'affichage des résultats de recherche.
+    En revanche certains éléments sont inutiles dans ce contexte (ex: item.NB_DOSS_LIES).
+    => Un template dédié serait plus adapté.
+#}
 <li class="dossier {% if item.NB_DOSS_LIES > 0 %}slide{% endif %}" id="{{ item.ID_DOSSIER }}">
 
     {# Icone dropdown des fils #}
