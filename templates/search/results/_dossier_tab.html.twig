@@ -14,7 +14,7 @@
     {% set date_text = '<br/>ayant pour date de visite le' %}
 {% endif %}
 
-<tr {% if item.NB_DOSS_LIES > 0 %}class='slide'{% endif %} id="row{{ item.ID_DOSSIER }}">
+<tr {% if item.NB_DOSS_LIES > 0 %}class='slide'{% endif %} id="{{ item.ID_DOSSIER }}">
 
     {# Établissement #}
     <td class="doss-nom">
@@ -33,13 +33,12 @@
         </small>
     </td>
 
-    {# Icone dropdown des fils #}
-    {% if item.NB_DOSS_LIES > 0 %}
-        <span class="icone_enfants"><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;'></i></span>
-    {% endif %}
-
     {# Nom du dossier #}
     <td class="doss-nom">
+        {# Icone de dossiers liés — déplacée dans le td pour HTML valide #}
+        {% if item.NB_DOSS_LIES > 0 %}
+            <span class="icone_enfants"><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;'></i></span>
+        {% endif %}
         {% if item.VERROU_DOSSIER == 1 %}
             <i class="glyphicon glyphicon-lock"></i>
         {% endif %}
@@ -114,11 +113,6 @@
         {% endif %}
     </td>
 
-    {# Icone chargement des enfants #}
-    {% if item.NB_DOSS_LIES > 0 %}
-        <span class='load' style='display:none'><img src='/images/load.gif' alt='Chargement ...' /></span>
-    {% endif %}
-
     {# Préventionnistes #}
     <td>
         {% if item.PREVENTIONNISTES is defined and item.PREVENTIONNISTES is not empty %}
@@ -128,10 +122,14 @@
         {% endif %}
     </td>
 
-    {# Pièces jointes #}
+    {# Pièces jointes + spinner chargement dossiers liés #}
     <td>
         {% if item.PIECESJOINTES is defined and item.PIECESJOINTES is not empty %}
             <a class="btn btn-default pj" href="#"><i class="glyphicon glyphicon-share" id="iconpj{{ item.ID_DOSSIER }}"></i></a>
+        {% endif %}
+        {# Spinner déplacé dans le td pour HTML valide #}
+        {% if item.NB_DOSS_LIES > 0 %}
+            <span class='load' style='display:none'><img src='/images/load.gif' alt='Chargement ...' /></span>
         {% endif %}
     </td>
 
