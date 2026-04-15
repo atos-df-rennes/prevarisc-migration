@@ -108,6 +108,8 @@ class CommissionCompetencesController extends AbstractController
 
         $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
 
+        // @todo Décommissionnement legacy : remplacer par return $this->redirect($target);
+        // Cette redirection via le legacy ne sert qu'à vider le cache Zend général (inutile une fois le legacy retiré).
         return $this->redirect('/legacy/admin/clear-cache-and-redirect?target='.urlencode($target));
     }
 }

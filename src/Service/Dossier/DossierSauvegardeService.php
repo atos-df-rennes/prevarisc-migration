@@ -177,6 +177,9 @@ class DossierSauvegardeService
      * qui gère en plus le cache de chaque établissement concerné.
      * Sinon, passe par la route de vidage du cache de recherche seul.
      *
+     * @todo Décommissionnement legacy : supprimer ce passage par le legacy et retourner $target directement.
+     * Les deux routes /legacy/* ne servent qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
+     *
      * @param int[]       $etablissementsIds IDs des établissements modifiés
      * @param string|null $target            URL cible après vidage de cache (null = dossier_index par défaut)
      */
