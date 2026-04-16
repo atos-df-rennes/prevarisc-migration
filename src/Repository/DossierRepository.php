@@ -884,7 +884,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $dossiers = $conn->fetchAllAssociative($sql, []);
 
         foreach ($dossiers as $key => $dossier) {
-            $idDossier = intval($dossier['ID_DOSSIER']);
+            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
 
             /** @var array<int, array<string, mixed>> $dossiersLies */
             $dossiersLies = $conn->fetchAllAssociative(
@@ -893,13 +893,15 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             );
 
             foreach ($dossiersLies as $lien) {
-                $idLien = intval($lien['ID_DOSSIER1']) === $idDossier ? intval($lien['ID_DOSSIER2']) : intval($lien['ID_DOSSIER1']);
+                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
+                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
+                $idLien = $id1 === $idDossier ? $id2 : $id1;
                 $row = $conn->fetchAssociative(
                     'SELECT ID_DOSSIERNATURE, ID_NATURE FROM dossiernature WHERE ID_DOSSIER = :id',
                     ['id' => $idLien]
                 );
                 if (false !== $row) {
-                    $idNature = intval($row['ID_NATURE']);
+                    $idNature = is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : 0;
                     // 7 = levée prescriptions, 19 = levée avis déf., 46 = échéancier travaux
                     if (7 === $idNature || 19 === $idNature || 46 === $idNature) {
                         unset($dossiers[$key]);
@@ -929,7 +931,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $dossiers = $conn->fetchAllAssociative($sql, []);
 
         foreach ($dossiers as $key => $dossier) {
-            $idDossier = intval($dossier['ID_DOSSIER']);
+            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
 
             /** @var array<int, array<string, mixed>> $dossiersLies */
             $dossiersLies = $conn->fetchAllAssociative(
@@ -938,10 +940,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             );
 
             foreach ($dossiersLies as $lien) {
-                $idLien = intval($lien['ID_DOSSIER1']) === $idDossier ? intval($lien['ID_DOSSIER2']) : intval($lien['ID_DOSSIER1']);
+                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
+                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
+                $idLien = $id1 === $idDossier ? $id2 : $id1;
                 $tabType = $this->getTypeDossier($idLien);
                 if (false !== $tabType) {
-                    $typeDossier = intval($tabType['TYPE_DOSSIER']);
+                    $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
                     // 5 = ID_DOSSIERTYPE_COURRIER
                     if (0 === $typeDossier || 5 === $typeDossier) {
                         unset($dossiers[$key]);
@@ -971,7 +975,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $dossiers = $conn->fetchAllAssociative($sql, []);
 
         foreach ($dossiers as $key => $dossier) {
-            $idDossier = intval($dossier['ID_DOSSIER']);
+            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
 
             /** @var array<int, array<string, mixed>> $dossiersLies */
             $dossiersLies = $conn->fetchAllAssociative(
@@ -980,10 +984,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             );
 
             foreach ($dossiersLies as $lien) {
-                $idLien = intval($lien['ID_DOSSIER1']) === $idDossier ? intval($lien['ID_DOSSIER2']) : intval($lien['ID_DOSSIER1']);
+                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
+                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
+                $idLien = $id1 === $idDossier ? $id2 : $id1;
                 $tabType = $this->getTypeDossier($idLien);
                 if (false !== $tabType) {
-                    $typeDossier = intval($tabType['TYPE_DOSSIER']);
+                    $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
                     // 5 = ID_DOSSIERTYPE_COURRIER
                     if (0 === $typeDossier || 5 === $typeDossier) {
                         unset($dossiers[$key]);
@@ -1254,7 +1260,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             return null;
         }
 
-        return intval($row['ID_NATURE']);
+        return is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : null;
     }
 
     /**
@@ -1269,7 +1275,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             return null;
         }
 
-        return intval($row['TYPE_DOSSIER']);
+        return is_numeric($row['TYPE_DOSSIER']) ? (int) $row['TYPE_DOSSIER'] : null;
     }
 
     /**
