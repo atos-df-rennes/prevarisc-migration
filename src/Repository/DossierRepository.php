@@ -722,16 +722,13 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      *
      * @param int[] $idsCommission
      *
-     * @return array<int, array<string, mixed>>|int
+     * @return array<int, array<string, mixed>>
      */
-    public function findDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100, bool $getCount = false)
+    public function findDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): array
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        if ($getCount) {
-            $selectCols = 'SELECT COUNT(*) as count';
-        } else {
-            $selectCols = 'SELECT d.*, dossierlie.*,
+        $sql = 'SELECT d.*, dossierlie.*,
                 dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
                 dossiertype.LIBELLE_DOSSIERTYPE,
                 dossierdocurba.NUM_DOCURBA,
@@ -739,10 +736,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 utilisateur.ID_UTILISATEUR,
                 etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
                 dossieraffectation.*,
-                datecommission.*';
-        }
-
-        $sql = $selectCols.'
+                datecommission.*
             FROM dossier d
             LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
             JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
@@ -772,12 +766,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
         }
 
-        if ($getCount) {
-            $count = $conn->fetchOne($sql, $params);
-
-            return is_numeric($count) ? (int) $count : 0;
-        }
-
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY datecommission.DATE_COMMISSION DESC';
 
         /** @var array<int, array<string, mixed>> $rows */
@@ -792,12 +780,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      *
      * @param int[] $idsCommission
      *
-     * @return array<int, array<string, mixed>>|int
+     * @return array<int, array<string, mixed>>
      */
-    public function findDossierAvecAvisDiffere(array $idsCommission, bool $getCount = false)
+    public function findDossierAvecAvisDiffere(array $idsCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql($getCount);
+        $sql = $this->buildSearchDossierBaseSql(false);
         $params = [];
 
         if ([] !== $idsCommission) {
@@ -806,12 +794,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         $sql .= ' AND d.DIFFEREAVIS_DOSSIER = 1';
-
-        if ($getCount) {
-            $count = $conn->fetchOne($sql, $params);
-
-            return is_numeric($count) ? (int) $count : 0;
-        }
 
         $sql .= ' GROUP BY d.ID_DOSSIER';
 
@@ -825,24 +807,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Retourne les courriers sans réponse pour le tableau de bord.
      * Port direct de Model_DbTable_Dossier::listeDesCourrierSansReponse().
      *
-     * @return array<int, array<string, mixed>>|int
+     * @return array<int, array<string, mixed>>
      */
-    public function findCourrierSansReponse(int $dureeEnJour = 5, bool $getCount = false)
+    public function findCourrierSansReponse(int $dureeEnJour = 5): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql($getCount);
+        $sql = $this->buildSearchDossierBaseSql(false);
         $params = ['dureeEnJour' => $dureeEnJour];
 
         $sql .= ' AND d.TYPE_DOSSIER = 5';
         $sql .= ' AND d.DATEREP_DOSSIER IS NULL';
         $sql .= ' AND d.OBJET_DOSSIER IS NOT NULL';
         $sql .= ' AND DATEDIFF(CURDATE(), d.DATEINSERT_DOSSIER) > :dureeEnJour';
-
-        if ($getCount) {
-            $count = $conn->fetchOne($sql, $params);
-
-            return is_numeric($count) ? (int) $count : 0;
-        }
 
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER DESC';
 
@@ -1226,6 +1202,76 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
+     * Compte les dossiers Plat'AU non associés à un établissement.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     */
+    public function countDossiersPlatauSansEtablissement(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
+            FROM dossier d
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
+            AND d.ID_PLATAU IS NOT NULL
+            AND e.ID_DOSSIER IS NULL';
+        $count = $conn->fetchOne($sql, []);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers Plat'AU avec des pièces jointes en erreur d'envoi.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     */
+    public function countDossiersPlatauPjsEnErreur(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
+            FROM dossier d
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
+            JOIN piecejointestatut ON piecejointestatut.ID_PIECEJOINTESTATUT = piecejointe.ID_PIECEJOINTESTATUT
+            JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
+            AND d.ID_PLATAU IS NOT NULL
+            AND platauconsultation.STATUT_AVIS = \'treated\'
+            AND piecejointestatut.NOM_STATUT IN (\'to_be_exported\', \'on_error\', \'awaiting_status\')';
+        $count = $conn->fetchOne($sql, []);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers Plat'AU avec de nouvelles pièces jointes.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     *
+     * @param \DateTimeInterface $lastPiecesVisitDate Date de dernière visite de la page pièces jointes
+     */
+    public function countDossiersPlatauNouvellesPjs(\DateTimeInterface $lastPiecesVisitDate): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $lastPiecesVisitDateStr = $lastPiecesVisitDate->format('Y-m-d H:i:s');
+        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
+            FROM dossier d
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
+            JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
+            AND d.ID_PLATAU IS NOT NULL
+            AND d.ID_DOSSIER = e.ID_DOSSIER
+            AND piecejointe.DATE_NOTIFICATION >= :lastPiecesVisitDate';
+        $count = $conn->fetchOne($sql, ['lastPiecesVisitDate' => $lastPiecesVisitDateStr]);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
      * Retourne les liaisons d'un dossier (dossier lié).
      * Port direct de Model_DbTable_DossierLie::getDossierLie().
      *
@@ -1309,36 +1355,70 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
     /**
      * Compte les dossiers avec date de commission échue pour le tableau de bord.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
      *
      * @param int[] $idsCommission
      */
     public function countDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): int
     {
-        $result = $this->findDossierDateCommissionEchu($idsCommission, $sinceDays, $untilDays, true);
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(*) as count
+            FROM dossier d
+            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
+            JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE
+            LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+            LEFT JOIN datecommission ON dossieraffectation.ID_DATECOMMISSION_AFFECT = datecommission.ID_DATECOMMISSION
+            WHERE DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) >= :sinceDays
+            AND DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) <= :untilDays
+            AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)
+            AND d.DATESUPPRESSION_DOSSIER IS NULL';
+        $params = ['sinceDays' => $sinceDays, 'untilDays' => $untilDays];
+        if ([] !== $idsCommission) {
+            $inList = implode(',', array_map('intval', $idsCommission));
+            $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
+        }
+        $count = $conn->fetchOne($sql, $params);
 
-        return is_int($result) ? $result : 0;
+        return is_numeric($count) ? (int) $count : 0;
     }
 
     /**
      * Compte les dossiers avec avis différé pour le tableau de bord.
+     * Requête COUNT lean via buildSearchDossierBaseSql.
      *
      * @param int[] $idsCommission
      */
     public function countDossierAvecAvisDiffere(array $idsCommission): int
     {
-        $result = $this->findDossierAvecAvisDiffere($idsCommission, true);
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true);
+        if ([] !== $idsCommission) {
+            $inList = implode(',', array_map('intval', $idsCommission));
+            $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
+        }
+        $sql .= ' AND d.DIFFEREAVIS_DOSSIER = 1';
+        $count = $conn->fetchOne($sql, []);
 
-        return is_int($result) ? $result : 0;
+        return is_numeric($count) ? (int) $count : 0;
     }
 
     /**
      * Compte les courriers sans réponse.
+     * Requête COUNT lean via buildSearchDossierBaseSql.
      */
     public function countCourrierSansReponse(int $dureeEnJour = 5): int
     {
-        $result = $this->findCourrierSansReponse($dureeEnJour, true);
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true);
+        $sql .= ' AND d.TYPE_DOSSIER = 5';
+        $sql .= ' AND d.DATEREP_DOSSIER IS NULL';
+        $sql .= ' AND d.OBJET_DOSSIER IS NOT NULL';
+        $sql .= ' AND DATEDIFF(CURDATE(), d.DATEINSERT_DOSSIER) > :dureeEnJour';
+        $count = $conn->fetchOne($sql, ['dureeEnJour' => $dureeEnJour]);
 
-        return is_int($result) ? $result : 0;
+        return is_numeric($count) ? (int) $count : 0;
     }
 
     /**

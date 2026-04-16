@@ -193,13 +193,13 @@ class DashboardService
                 return $this->getDossiersIncompleCountDirecte();
 
             case 'dossierPlatau':
-                return count($this->getDossiersPlatauSansEtablissement($user));
+                return $this->getDossiersPlatauSansEtablissementCount();
 
             case 'pjPlatauErreur':
-                return count($this->getDossiersPlatauPjsEnErreur());
+                return $this->getDossiersPlatauPjsEnErreurCount();
 
             case 'nouvellesPjsPlatau':
-                return count($this->getDossiersPlatauNouvellesPjs($user));
+                return $this->getDossiersPlatauNouvellesPjsCount($user);
 
             default:
                 return 0;
@@ -236,10 +236,6 @@ class DashboardService
             $to
         );
 
-        if (!is_array($prochainesCommissions)) {
-            return [];
-        }
-
         $commissions = [];
         foreach ($prochainesCommissions as $commissiondujour) {
             $rawHeureDebut = $commissiondujour['HEUREDEB_COMMISSION'] ?? '';
@@ -265,7 +261,11 @@ class DashboardService
 
     private function getNextCommissionCount(Utilisateur $user): int
     {
-        return count($this->getNextCommission($user));
+        $commissionIds = $this->getCommissionIds($user);
+        $from = time();
+        $to = time() + 3600 * 24 * $this->blocConfig->getNextCommissionsDays();
+
+        return $this->dateCommissionRepository->countNextCommissionsForDashboard($commissionIds, $from, $to);
     }
 
     /**
@@ -579,6 +579,23 @@ class DashboardService
         $lastVisitPieces = $this->notificationService->getLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
 
         return $this->dossierRepository->findDossiersPlatauNouvellesPjs($lastVisitPieces);
+    }
+
+    private function getDossiersPlatauSansEtablissementCount(): int
+    {
+        return $this->dossierRepository->countDossiersPlatauSansEtablissement();
+    }
+
+    private function getDossiersPlatauPjsEnErreurCount(): int
+    {
+        return $this->dossierRepository->countDossiersPlatauPjsEnErreur();
+    }
+
+    private function getDossiersPlatauNouvellesPjsCount(Utilisateur $user): int
+    {
+        $lastVisitPieces = $this->notificationService->getLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
+
+        return $this->dossierRepository->countDossiersPlatauNouvellesPjs($lastVisitPieces);
     }
 
     /**

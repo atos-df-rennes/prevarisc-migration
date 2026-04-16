@@ -284,12 +284,12 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
      *
      * @param int[]|null $commissionIds
      *
-     * @return array<int, array<string, mixed>>|int
+     * @return array<int, array<string, mixed>>
      */
-    public function findERPOuvertsSousAvisDefavorable(?array $commissionIds = null, ?string $numInseeCommune = null, ?int $idUtilisateur = null, bool $getCount = false)
+    public function findERPOuvertsSousAvisDefavorable(?array $commissionIds = null, ?string $numInseeCommune = null, ?int $idUtilisateur = null): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildEtablissementBaseSql($getCount);
+        $sql = $this->buildEtablissementBaseSql(false);
         $params = [];
 
         $sql .= ' AND avis.ID_AVIS = 2';
@@ -309,12 +309,6 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         if (null !== $idUtilisateur) {
             $sql .= ' AND utilisateur.ID_UTILISATEUR = :idUtilisateur';
             $params['idUtilisateur'] = $idUtilisateur;
-        }
-
-        if ($getCount) {
-            $count = $conn->fetchOne($sql, $params);
-
-            return is_numeric($count) ? (int) $count : 0;
         }
 
         $sql .= ' GROUP BY e.ID_ETABLISSEMENT
@@ -396,22 +390,16 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
      * Retourne les ERP ouverts sans préventionniste assigné pour le tableau de bord.
      * Port direct de Model_DbTable_Etablissement::listeERPSansPreventionniste().
      *
-     * @return array<int, array<string, mixed>>|int
+     * @return array<int, array<string, mixed>>
      */
-    public function findERPSansPreventionniste(bool $getCount = false)
+    public function findERPSansPreventionniste(): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildEtablissementBaseSql($getCount);
+        $sql = $this->buildEtablissementBaseSql(false);
 
         $sql .= ' AND etablissementinformations.ID_STATUT = 2';
         $sql .= ' AND utilisateur.ID_UTILISATEUR IS NULL';
         $sql .= ' AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0';
-
-        if ($getCount) {
-            $count = $conn->fetchOne($sql, []);
-
-            return is_numeric($count) ? (int) $count : 0;
-        }
 
         $sql .= ' GROUP BY e.ID_ETABLISSEMENT
             ORDER BY CAST(etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS AS UNSIGNED),
@@ -541,23 +529,90 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
 
     /**
      * Compte les ERP ouverts sous avis défavorable.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
      *
      * @param int[]|null $commissionIds
      */
     public function countERPOuvertsSousAvisDefavorable(?array $commissionIds = null, ?string $numInseeCommune = null, ?int $idUtilisateur = null): int
     {
-        $result = $this->findERPOuvertsSousAvisDefavorable($commissionIds, $numInseeCommune, $idUtilisateur, true);
+        $conn = $this->getEntityManager()->getConnection();
+        $params = [];
 
-        return is_int($result) ? $result : 0;
+        $sql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)
+            FROM etablissement e
+            JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
+            LEFT JOIN dossier ON e.ID_DOSSIER_DONNANT_AVIS = dossier.ID_DOSSIER
+            LEFT JOIN avis ON dossier.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS';
+
+        if (null !== $numInseeCommune) {
+            $sql .= '
+            LEFT JOIN etablissementadresse ON e.ID_ETABLISSEMENT = etablissementadresse.ID_ETABLISSEMENT';
+        }
+
+        if (null !== $idUtilisateur) {
+            $sql .= '
+            LEFT JOIN etablissementinformationspreventionniste
+                ON etablissementinformationspreventionniste.ID_ETABLISSEMENTINFORMATIONS = etablissementinformations.ID_ETABLISSEMENTINFORMATIONS
+            LEFT JOIN utilisateur ON utilisateur.ID_UTILISATEUR = etablissementinformationspreventionniste.ID_UTILISATEUR';
+        }
+
+        $sql .= '
+            WHERE e.DATESUPPRESSION_ETABLISSEMENT IS NULL
+            AND avis.ID_AVIS = 2
+            AND etablissementinformations.ID_GENRE = 2
+            AND etablissementinformations.ID_STATUT = 2';
+
+        if (null !== $numInseeCommune) {
+            $sql .= ' AND etablissementadresse.NUMINSEE_COMMUNE = :numInseeCommune';
+            $params['numInseeCommune'] = $numInseeCommune;
+        }
+
+        if (null !== $commissionIds && [] !== $commissionIds) {
+            $inList = implode(',', array_map('intval', $commissionIds));
+            $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
+        }
+
+        if (null !== $idUtilisateur) {
+            $sql .= ' AND utilisateur.ID_UTILISATEUR = :idUtilisateur';
+            $params['idUtilisateur'] = $idUtilisateur;
+        }
+
+        $count = $conn->fetchOne($sql, $params);
+
+        return is_numeric($count) ? (int) $count : 0;
     }
 
     /**
      * Compte les ERP sans préventionniste assigné.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
      */
     public function countERPSansPreventionniste(): int
     {
-        $result = $this->findERPSansPreventionniste(true);
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)
+            FROM etablissement e
+            JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
+            LEFT JOIN etablissementinformationspreventionniste
+                ON etablissementinformationspreventionniste.ID_ETABLISSEMENTINFORMATIONS = etablissementinformations.ID_ETABLISSEMENTINFORMATIONS
+            LEFT JOIN utilisateur ON utilisateur.ID_UTILISATEUR = etablissementinformationspreventionniste.ID_UTILISATEUR
+            WHERE e.DATESUPPRESSION_ETABLISSEMENT IS NULL
+            AND etablissementinformations.ID_STATUT = 2
+            AND utilisateur.ID_UTILISATEUR IS NULL
+            AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0';
+        $count = $conn->fetchOne($sql, []);
 
-        return is_int($result) ? $result : 0;
+        return is_numeric($count) ? (int) $count : 0;
     }
 }

@@ -80,16 +80,15 @@ class DateCommissionRepository extends ServiceEntityRepository
      *
      * @param int[] $commissionIds
      *
-     * @return array<int, array<string, mixed>>|int
+     * @return array<int, array<string, mixed>>
      */
-    public function findNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp, bool $getCount = false)
+    public function findNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp): array
     {
         $conn = $this->getEntityManager()->getConnection();
         $fromDate = date('Y-m-d', $fromTimestamp);
         $toDate = date('Y-m-d', $toTimestamp);
 
-        $select = $getCount ? 'SELECT COUNT(*) as count ' : 'SELECT * ';
-        $select .= 'FROM datecommission d
+        $select = 'SELECT * FROM datecommission d
             LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
             WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
 
@@ -98,22 +97,41 @@ class DateCommissionRepository extends ServiceEntityRepository
             $select .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
         }
 
-        if (!$getCount) {
-            $select .= ' ORDER BY DATE_COMMISSION, HEUREDEB_COMMISSION';
-        }
+        $select .= ' ORDER BY DATE_COMMISSION, HEUREDEB_COMMISSION';
 
         $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
-
-        if ($getCount) {
-            $count = $conn->fetchOne($select, $params);
-
-            return is_numeric($count) ? (int) $count : 0;
-        }
 
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($select, $params);
 
         return $rows;
+    }
+
+    /**
+     * Compte les prochaines séances de commission pour le tableau de bord.
+     * Requête COUNT lean extraite de findNextCommissionsForDashboard.
+     *
+     * @param int[] $commissionIds
+     */
+    public function countNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $fromDate = date('Y-m-d', $fromTimestamp);
+        $toDate = date('Y-m-d', $toTimestamp);
+
+        $sql = 'SELECT COUNT(*) as count FROM datecommission d
+            LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
+            WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
+
+        if ([] !== $commissionIds) {
+            $inList = implode(',', array_map('intval', $commissionIds));
+            $sql .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+        }
+
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+        $count = $conn->fetchOne($sql, $params);
+
+        return is_numeric($count) ? (int) $count : 0;
     }
 
     /**
