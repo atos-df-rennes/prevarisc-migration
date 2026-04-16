@@ -12,19 +12,19 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20260414064443 extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return "Autorise les numéros d'intervention non-entiers.";
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE `dossier` CHANGE `NUMINTERV_DOSSIER` `NUMINTERV_DOSSIER` VARCHAR(255) NULL DEFAULT NULL');
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
 

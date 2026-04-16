@@ -135,7 +135,7 @@ class PlatauHealthcheckService
     private function getPisteCredentials(): ?array
     {
         if (!file_exists($this->platauConfigFilePath)) {
-            $this->logger->warning('Le fichier de configuration Plat\'AU est introuvable : '.$this->platauConfigFilePath);
+            $this->logger->warning("Le fichier de configuration Plat'AU est introuvable : ".$this->platauConfigFilePath);
 
             return null;
         }
@@ -231,7 +231,7 @@ class PlatauHealthcheckService
             return null;
         }
 
-        /** @var array<string, mixed> $decodedData */
+        /* @var array<string, mixed> $decodedData */
         return $decodedData;
     }
 
@@ -326,7 +326,7 @@ class PlatauHealthcheckService
             return [];
         }
 
-        /** @var array<string, mixed> $decodedRaw */
+        /* @var array<string, mixed> $decodedRaw */
         return $decodedRaw;
     }
 
