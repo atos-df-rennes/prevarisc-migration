@@ -22,10 +22,14 @@
             <strong class="jourcom">
                 {% if datec == aujourdhui and garde_aujourdhui == 0 %}
                     Aujourd'hui{% set garde_aujourdhui = garde_aujourdhui + 1 %}
+                {% elseif datec == aujourdhui %}
+                    {% set garde_aujourdhui = garde_aujourdhui + 1 %}
                 {% elseif datec == demain and garde_demain == 0 %}
                     Demain{% set garde_demain = garde_demain + 1 %}
+                {% elseif datec == demain %}
+                    {% set garde_demain = garde_demain + 1 %}
                 {% else %}
-                    {{ commissiondujour.DATE_COMMISSION|date('l d/m/y') }}
+                    {{ jours[commissiondujour.DATE_COMMISSION|date('w')] }} {{ commissiondujour.DATE_COMMISSION|date('d/m/y') }}
                 {% endif %}
             </strong>
             {% set verrouilles = 0 %}

@@ -107,9 +107,6 @@ class IndexController extends AbstractController
             }
         }
 
-        // Met à jour la date de dernière visite du dashboard
-        $this->notificationService->setLastVisitDate($user, NotificationService::DASHBOARD_NAMESPACE);
-
         return $this->render('index/index.html.twig', [
             'user' => $user,
             'blocs' => $blocs,

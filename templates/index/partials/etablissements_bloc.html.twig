@@ -1,6 +1,6 @@
 <div id="{{ id }}" class="panel panel-default{{ bloc.width != 'small' ? ' w2' : '' }} empty folded">
     <div class="panel-heading">
-        <i class="icon glyphicon glyphicon-chevron-right"></i>
+        <span class="icon glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
         {{ bloc.title ~ ' (' ~ (bloc.count ?? 0) ~ ')' }}
     </div>
     <div class="panel-body" style="display:none">
