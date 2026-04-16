@@ -46,6 +46,11 @@ class UtilisateurPreferencesController extends AbstractController
             $preferences = is_array($decoded) ? $decoded : [];
         }
 
+        // Le JS poste {preferences: {DASHBOARD_BLOCS: [...]}} — extraire le niveau "preferences"
+        $prefsData = isset($preferences['preferences']) && is_array($preferences['preferences'])
+            ? $preferences['preferences']
+            : $preferences;
+
         $userPreferences = $user->getPreferences();
 
         if (null === $userPreferences) {
@@ -54,8 +59,13 @@ class UtilisateurPreferencesController extends AbstractController
             $this->entityManager->persist($userPreferences);
         }
 
-        if (isset($preferences['DASHBOARD_BLOCS']) && is_array($preferences['DASHBOARD_BLOCS'])) {
-            $userPreferences->setBlocsDashboard(json_encode($preferences['DASHBOARD_BLOCS']) ?: null);
+        if (array_key_exists('DASHBOARD_BLOCS', $prefsData)) {
+            $blocs = $prefsData['DASHBOARD_BLOCS'];
+            if (is_array($blocs) && [] !== $blocs) {
+                $userPreferences->setBlocsDashboard(json_encode($blocs) ?: null);
+            } else {
+                $userPreferences->setBlocsDashboard(null);
+            }
         }
 
         $this->entityManager->flush();

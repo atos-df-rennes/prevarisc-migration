@@ -218,6 +218,14 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                     FROM etablissement etmp
                     INNER JOIN etablissementlie el2 ON etmp.ID_ETABLISSEMENT = el2.ID_ETABLISSEMENT
                     WHERE etmp.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT) AS NB_ENFANTS,
+                (SELECT COUNT(dossierlie.ID_DOSSIER1)
+                    FROM dossier
+                    INNER JOIN etablissementdossier ON dossier.ID_DOSSIER = etablissementdossier.ID_DOSSIER
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER2
+                    INNER JOIN dossiernature ON dossierlie.ID_DOSSIER1 = dossiernature.ID_DOSSIER
+                    WHERE dossiernature.ID_NATURE = 46
+                    AND etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                    AND dossier.DATESUPPRESSION_DOSSIER IS NULL) AS PRESENCE_ECHEANCIER_TRAVAUX,
                 etablissementinformations.*,
                 dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
                 avis.ID_AVIS, avis.LIBELLE_AVIS,
