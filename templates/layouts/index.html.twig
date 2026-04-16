@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="container-fluid main-container-f">
-        <div class="row page-header">
+        <div class="row mb-4">
             <div class="col-xs-12">
                 <h2 style="margin: 4px 0">
                     {{ avatar(app.user.id, 'medium', 'float: left; width: 50px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px; margin-top: 14px;') }}
@@ -15,8 +15,8 @@
                     Bonjour {{ app.user.informations.prenom }}
                     <a class="deconnexion" href="/session/logout">Déconnexion</a>
                 </span>
-                <a id="reinitBlocOrder" class="btn btn-sm pull-right" href="#">
-                    <i class="glyphicon glyphicon-refresh"></i> Ré-initialiser les blocs
+                <a id="reinitBlocOrder" class="btn btn-sm btn-default pull-right" href="#">
+                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Ré-initialiser les blocs
                 </a>
             </div>
         </div>
