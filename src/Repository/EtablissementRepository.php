@@ -219,7 +219,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                     INNER JOIN etablissementlie el2 ON etmp.ID_ETABLISSEMENT = el2.ID_ETABLISSEMENT
                     WHERE etmp.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT) AS NB_ENFANTS,
                 etablissementinformations.*,
-                dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER,
+                dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
                 avis.ID_AVIS, avis.LIBELLE_AVIS,
                 type.LIBELLE_TYPE,
                 genre.LIBELLE_GENRE,
@@ -349,16 +349,19 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         $extraJoins = '
             LEFT JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
             LEFT JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
-            LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER
-                AND dossiers.DATEVISITE_DOSSIER = (
-                    SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
-                    LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
-                    LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
-                    WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                    AND dos.TYPE_DOSSIER IN(2,3)
-                    AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))';
+            LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER';
 
         $sql = $this->buildEtablissementBaseSql(false, $extraJoins);
+
+        // Port direct du legacy : WHERE dossiers.DATEVISITE_DOSSIER = MAX(...) plutôt que condition dans le JOIN
+        $sql .= '
+            AND dossiers.DATEVISITE_DOSSIER = (
+                SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
+                LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
+                LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
+                WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                AND dos.TYPE_DOSSIER IN(2,3)
+                AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))';
 
         $sql .= ' AND etablissementinformations.ID_STATUT = 2';
         $sql .= ' AND etablissementinformations.ID_GENRE = 2';
