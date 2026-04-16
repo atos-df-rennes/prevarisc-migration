@@ -10,17 +10,20 @@ use Psr\Log\LoggerInterface;
  *
  * Note : ne peut pas utiliser le service PlatauHealthcheck de la passerelle car
  * celui-ci requiert PHP 8.1 (propriétés typées) alors que l'applicatif utilise PHP 7.1.
+ *
+ * Les URLs PISTE et Plat'AU sont lues depuis PlatauAbstract.php de la passerelle
+ * (même mécanisme que le legacy via getConstInFile), afin que les SDIS en prod
+ * n'aient pas à modifier l'applicatif quand la passerelle change d'environnement.
  */
 class PlatauHealthcheckService
 {
-    private const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
-
-    private const PLATAU_URL = 'https://api.piste.gouv.fr/mtes_preprod/platau/v12/dau/';
-
     private const HEALTHCHECK_ENDPOINT = 'healthcheck';
 
     /** @var string */
     private $platauConfigFilePath;
+
+    /** @var string */
+    private $platauServiceFilePath;
 
     /** @var string */
     private $varDir;
@@ -39,7 +42,9 @@ class PlatauHealthcheckService
 
     public function __construct(string $platauConfigFile, string $projectDir, string $appEnv, LoggerInterface $logger)
     {
-        $this->platauConfigFilePath = $projectDir.DIRECTORY_SEPARATOR.$platauConfigFile;
+        $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
+        $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
+        $this->platauServiceFilePath = $platauPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, ['src', 'Service', 'PlatauAbstract.php']);
         $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
         $this->appEnv = $appEnv;
         $this->logger = $logger;
@@ -178,8 +183,16 @@ class PlatauHealthcheckService
      */
     private function requestPisteToken(): ?array
     {
+        $url = $this->getConstInFile($this->platauServiceFilePath, 'PISTE_ACCESS_TOKEN_URL');
+
+        if (null === $url) {
+            $this->logger->error("L'URL de PISTE n'a pas pu être récupérée correctement.");
+
+            return null;
+        }
+
         $curlOptions = $this->buildBaseCurlOptions();
-        $curlOptions[CURLOPT_URL] = self::PISTE_ACCESS_TOKEN_URL;
+        $curlOptions[CURLOPT_URL] = $url;
         $curlOptions[CURLOPT_POSTFIELDS] = sprintf(
             'scope=openid&grant_type=client_credentials&client_id=%s&client_secret=%s',
             $this->pisteClientId,
@@ -227,8 +240,16 @@ class PlatauHealthcheckService
      */
     private function requestPlatauHealthcheck(string $pisteToken): ?string
     {
+        $url = $this->getConstInFile($this->platauServiceFilePath, 'PLATAU_URL');
+
+        if (null === $url) {
+            $this->logger->error("L'URL de Plat'AU n'a pas pu être récupérée correctement.");
+
+            return null;
+        }
+
         $curlOptions = $this->buildBaseCurlOptions();
-        $curlOptions[CURLOPT_URL] = self::PLATAU_URL.self::HEALTHCHECK_ENDPOINT;
+        $curlOptions[CURLOPT_URL] = $url.self::HEALTHCHECK_ENDPOINT;
         $curlOptions[CURLOPT_HTTPHEADER] = [
             'Content-Type: application/json',
             sprintf('Authorization: Bearer %s', $pisteToken),
@@ -343,6 +364,28 @@ class PlatauHealthcheckService
         }
 
         return time() < (int) $requestTime + ((int) $expiresIn - 300);
+    }
+
+    /**
+     * Récupère la valeur d'une constante dans un fichier PHP.
+     * Port direct de Service_Platau::getConstInFile().
+     * Exemple : `private const PLATAU_URL = 'https://...'` → retourne `https://...`.
+     */
+    private function getConstInFile(string $filepath, string $const): ?string
+    {
+        $fileContent = file($filepath);
+
+        if (false === $fileContent) {
+            return null;
+        }
+
+        foreach ($fileContent as $line) {
+            if (false !== strpos($line, $const)) {
+                return explode("'", $line)[1];
+            }
+        }
+
+        return null;
     }
 
     private function getPisteEnvironmentFilePath(): string
