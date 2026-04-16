@@ -42,11 +42,34 @@
 - Export Calc → fichier .ods (PHPExcel 1.8, 24 colonnes ETS / 22 colonnes DOSS)
 - API adresses (communes, voies, numéros) déjà migrée dans `AdresseController`
 
+### Phase 5 — Migration page d'accueil (dashboard)
+**Branche :** `migration/page-accueil`  
+**Commit :** `feat(dashboard): migration page d'accueil`  
+**Périmètre :** Page d'accueil avec 21 blocs conditionnels (ACL), lazy-loading AJAX, grille Packery drag-and-drop, healthcheck Plat'AU, flux de messages.
+
+**Fichiers créés :**
+- `src/Controller/IndexController.php` — 5 routes (index, bloc, add-message, delete-message, platau-healthcheck)
+- `src/Controller/Api/UtilisateurPreferencesController.php` — POST /api/utilisateur/preferences
+- `src/Service/Dashboard/DashboardService.php` — orchestration 21 blocs
+- `src/Service/Dashboard/DashboardBlocConfig.php` — configuration blocs + ACL
+- `src/Service/PlatauHealthcheckService.php` — healthcheck cURL Plat'AU/PISTE
+- `src/Service/NotificationService.php` — dates dernière visite
+- `src/Service/FeedService.php` — gestion flux messages
+- `templates/layouts/index.html.twig` — layout plein écran (sans sidebar)
+- `templates/index/` — 11 templates (index, bloc, add_message, 5 shells, 5 contents)
+
+**Repositories enrichis :** DossierRepository, EtablissementRepository, DateCommissionRepository, NewsRepository
+
+**Écarts documentés :**
+- URL préférences : `/api/1.0/user/preferences` → `/api/utilisateur/preferences`
+- Bootstrap 2 → Bootstrap 3 (glyphicons, btn-xs)
+- Token PISTE : `var/piste-{env}.json` (legacy : DataStore)
+
 ---
 
 ## 🎯 Prochaine phase : à définir
 
-**Branche courante :** `migration/recherches`
+**Branche courante :** `migration/page-accueil`
 
 Suggestions :
 - Continuer la migration des autres fonctionnalités (voir backlog)
