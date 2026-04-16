@@ -475,6 +475,71 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
     }
 
     /**
+     * Compte les ERP ouverts sans prochaines visites périodiques.
+     * Requête allégée : suppression de tous les JOINs d'affichage et des sous-requêtes
+     * corrélées NB_ENFANTS / PRESENCE_ECHEANCIER_TRAVAUX, inutiles pour un comptage.
+     *
+     * @param int[] $commissionsUser
+     */
+    public function countERPOuvertsSansProchainesVisitePeriodiques(array $commissionsUser): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $useDateCommissionForPeriodicity = filter_var(
+            (string) getenv('PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE'),
+            FILTER_VALIDATE_BOOLEAN
+        );
+
+        if ($useDateCommissionForPeriodicity) {
+            $periodicityCondition = "IF(
+                dossiers.DATECOMM_DOSSIER >= dossiers.DATEVISITE_DOSSIER,
+                DATE_FORMAT(DATE_ADD(dossiers.DATECOMM_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m'),
+                DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')
+            )";
+        } else {
+            $periodicityCondition = "DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')";
+        }
+
+        // Requête COUNT allégée : uniquement les JOINs nécessaires aux conditions WHERE.
+        // Supprimés vs buildEtablissementBaseSql : dossier donnant avis, avis, type, genre,
+        // etablissementlie, etablissementinformationspreventionniste, utilisateur, adresses (×6).
+        $sql = "SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)
+            FROM etablissement e
+            JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            LEFT JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            LEFT JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
+            LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER
+            WHERE e.DATESUPPRESSION_ETABLISSEMENT IS NULL
+            AND dossiers.DATEVISITE_DOSSIER = (
+                SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
+                LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
+                LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
+                WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                AND dos.TYPE_DOSSIER IN(2,3)
+                AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))
+            AND etablissementinformations.ID_STATUT = 2
+            AND etablissementinformations.ID_GENRE = 2
+            AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0";
+
+        $params = [];
+        if ([] !== $commissionsUser) {
+            $inList = implode(',', array_map('intval', $commissionsUser));
+            $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
+        }
+
+        $sql .= sprintf(" AND %s < DATE_FORMAT(CURDATE(), '%%Y-%%m')", $periodicityCondition);
+
+        $count = $conn->fetchOne($sql, $params);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
      * Compte les ERP ouverts sous avis défavorable.
      *
      * @param int[]|null $commissionIds

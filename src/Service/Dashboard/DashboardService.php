@@ -382,7 +382,9 @@ class DashboardService
 
     private function getERPOuvertsSansProchainesVisitePeriodiquesCount(Utilisateur $user): int
     {
-        return count($this->getERPOuvertsSansProchainesVisitePeriodiques($user));
+        return $this->etablissementRepository->countERPOuvertsSansProchainesVisitePeriodiques(
+            $this->getCommissionIds($user)
+        );
     }
 
     /**
