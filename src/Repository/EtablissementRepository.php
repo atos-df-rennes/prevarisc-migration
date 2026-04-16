@@ -207,7 +207,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
      * Construit le SQL de base pour la recherche d'établissements (port de Model_DbTable_Search::setItem('etablissement')).
      * Sélectionne tous les champs attendus par les templates de tableau de bord.
      */
-    private function buildEtablissementBaseSql(bool $getCount): string
+    private function buildEtablissementBaseSql(bool $getCount, string $extraJoins = ''): string
     {
         if ($getCount) {
             $select = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT) as count';
@@ -266,6 +266,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                 )
             LEFT JOIN adressecommune adressecommunecell
                 ON etablissementadressecell.NUMINSEE_COMMUNE = adressecommunecell.NUMINSEE_COMMUNE
+            '.$extraJoins.'
             WHERE e.DATESUPPRESSION_ETABLISSEMENT IS NULL';
     }
 
@@ -345,21 +346,20 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             $periodicityCondition = "DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')";
         }
 
-        $sql = $this->buildEtablissementBaseSql(false);
-
-        // joinEtablissementDossier() equivalent
-        $sql .= '
+        $extraJoins = '
             LEFT JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
             LEFT JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
-            LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER';
+            LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER
+                AND dossiers.DATEVISITE_DOSSIER = (
+                    SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
+                    LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
+                    LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
+                    WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                    AND dos.TYPE_DOSSIER IN(2,3)
+                    AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))';
 
-        $sql .= ' AND dossiers.DATEVISITE_DOSSIER = (
-                SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
-                LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
-                LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
-                WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                AND dos.TYPE_DOSSIER IN(2,3)
-                AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))';
+        $sql = $this->buildEtablissementBaseSql(false, $extraJoins);
+
         $sql .= ' AND etablissementinformations.ID_STATUT = 2';
         $sql .= ' AND etablissementinformations.ID_GENRE = 2';
         $sql .= ' AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0';
