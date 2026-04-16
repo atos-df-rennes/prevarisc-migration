@@ -108,7 +108,7 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         $event->getRequest()->attributes->set('has_avis_derogations', $this->etablissementRepository->hasAvisDerogationsVisibles($etablissement->getId()));
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => 'onKernelController',
