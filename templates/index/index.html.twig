@@ -1,0 +1,164 @@
+{% extends 'layouts/index.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/jquery.packery.pkgd.min.js') }}"></script>
+{% endblock %}
+
+{% block body_structure %}
+    <div id="bloc__connexion-platau" class="mb-4"></div>
+
+    <div id="home" class="dashboard">
+        {% for id, bloc in blocs %}
+            {{ include('index/partials/' ~ bloc.type ~ '_bloc.html.twig', {id: id, bloc: bloc}) }}
+        {% endfor %}
+        <div class="grid-gutter"></div>
+    </div>
+
+    <div id="reponse-modal" class="modal fade" tabindex="-1" role="dialog"></div>
+
+    <br>
+
+    <script>
+        $(document).ready(function() {
+            // Gestion des boites modales
+            $("a[data-toggle='modal']").click(function() {
+                const target = $(this).attr("data-target");
+                const url = $(this).attr("href");
+                $(target).load(url);
+            });
+
+            const $container = $('.dashboard').packery({
+                itemSelector: '.panel',
+                gutter: '.grid-gutter',
+                isInitLayout: false
+            });
+
+            const pckry = $container.data('packery');
+
+            // ----- initial sort ----- //
+            let sortOrder = [];
+            const storedSortOrder = {{ blocsOrder|json_encode|raw }};
+            if (storedSortOrder) {
+                const itemsByTabIndex = {};
+                for (let i = 0, len = pckry.items.length; i < len; i++) {
+                    const item = pckry.items[i];
+                    const tabIndex = $(item.element).attr('id');
+                    itemsByTabIndex[tabIndex] = item;
+                }
+                let j = 0;
+                for (let i = 0, len = storedSortOrder.length; i < len; i++) {
+                    const tabIndex = storedSortOrder[i];
+                    if (itemsByTabIndex[tabIndex] !== undefined) {
+                        pckry.items[j] = itemsByTabIndex[tabIndex];
+                        j++;
+                    }
+                }
+            }
+
+            // ----- packery setup ----- //
+            $('.panel').show();
+            $container.packery();
+
+            const $itemElems = $($container.packery('getItemElements'));
+            $itemElems.draggable({
+                handle: ".panel-heading",
+                containment: "parent"
+            });
+            $container.packery('bindUIDraggableEvents', $itemElems);
+
+            let saveTimeout = null;
+            const saveTimeoutMilliseconds = 1000;
+
+            function orderItems() {
+                clearTimeout(saveTimeout);
+                const itemElems = pckry.getItemElements();
+                sortOrder.length = 0;
+                for (let i = 0; i < itemElems.length; i++) {
+                    sortOrder[i] = itemElems[i].getAttribute("id");
+                }
+                if ($('.panel.loading').length === 0) {
+                    saveTimeout = setTimeout(function() {
+                        $.post("/api/utilisateur/preferences", {
+                            preferences: {
+                                'DASHBOARD_BLOCS': sortOrder
+                            }
+                        });
+                    }, saveTimeoutMilliseconds);
+                }
+            }
+
+            $container.packery('on', 'layoutComplete', orderItems);
+
+            $('#reinitBlocOrder').click(function() {
+                $.post("/api/utilisateur/preferences", {
+                    preferences: {
+                        'DASHBOARD_BLOCS': null
+                    }
+                }, function() {
+                    window.location.reload();
+                });
+            });
+
+            $(".panel-heading .icon").click(function() {
+                const $self = $(this);
+                const $panel = $self.parents('.panel');
+                $panel.toggleClass('folded');
+                if ($self.hasClass('glyphicon-chevron-right')) {
+                    $self.removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+                    if ($panel.hasClass('empty') && !$panel.hasClass('loading')) {
+                        $panel.find('.panel-body img').show();
+                        loadBloc($panel);
+                    } else {
+                        $panel.find('.panel-body').show();
+                        $container.packery('fit', $panel.get(0));
+                    }
+                } else {
+                    $self.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+                    $panel.find('.panel-body').hide();
+                    $container.packery('fit', $panel.get(0));
+                }
+            });
+
+            {% if not deactivatePlatau and not platauNoHealthcheck %}
+                $.ajax({
+                    type: 'GET',
+                    url: '/index/platau-healthcheck',
+                    beforeSend: function() {
+                        $("#bloc__connexion-platau").html("Vérification de la connexion à Plat'AU <img src='/images/load.gif' />");
+                    },
+                    success: function(result) {
+                        const res = typeof result === 'object' ? result : JSON.parse(result);
+
+                        if (res.healthcheckOk) {
+                            $("#bloc__connexion-platau").html(`<div class="alert alert-info">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <strong>La connexion à Plat'AU a fonctionnée.</strong>
+                            </div>`);
+                        } else {
+                            if (res.errorOrigin === 'prevarisc') {
+                                $("#bloc__connexion-platau").html(`<div class="alert alert-danger">
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <h4>La connexion à Plat'AU depuis Prevarisc a échouée.</h4>
+                                    Veuillez suivre les instructions du Manuel Utilisateur §6.17.2
+                                </div>`);
+                            } else if (res.errorOrigin === 'PlatAU') {
+                                $("#bloc__connexion-platau").html(`<div class="alert alert-danger">
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <h4>Plat'AU est en erreur.</h4>
+                                    Veuillez réessayer ultérieurement.
+                                </div>`);
+                            }
+                        }
+                    },
+                    error: function() {
+                        $("#bloc__connexion-platau").html(`<div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.</strong>
+                        </div>`);
+                    }
+                });
+            {% endif %}
+        });
+    </script>
+{% endblock %}

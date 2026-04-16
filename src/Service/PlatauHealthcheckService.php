@@ -1,0 +1,348 @@
+<?php
+
+namespace App\Service;
+
+use Psr\Log\LoggerInterface;
+
+/**
+ * Vérification de la santé de Plat'AU via cURL.
+ * Port direct de Service_Platau::executeHealthcheck() et Service_PlatauClient (legacy).
+ *
+ * Note : ne peut pas utiliser le service PlatauHealthcheck de la passerelle car
+ * celui-ci requiert PHP 8.1 (propriétés typées) alors que l'applicatif utilise PHP 7.1.
+ */
+class PlatauHealthcheckService
+{
+    private const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
+
+    private const PLATAU_URL = 'https://api.piste.gouv.fr/mtes_preprod/platau/v12/dau/';
+
+    private const HEALTHCHECK_ENDPOINT = 'healthcheck';
+
+    /** @var string */
+    private $platauConfigFilePath;
+
+    /** @var string */
+    private $varDir;
+
+    /** @var string */
+    private $appEnv;
+
+    /** @var LoggerInterface */
+    private $logger;
+
+    /** @var string|null */
+    private $pisteClientId;
+
+    /** @var string|null */
+    private $pisteClientSecret;
+
+    public function __construct(string $platauConfigFile, string $projectDir, string $appEnv, LoggerInterface $logger)
+    {
+        $this->platauConfigFilePath = $projectDir.DIRECTORY_SEPARATOR.$platauConfigFile;
+        $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
+        $this->appEnv = $appEnv;
+        $this->logger = $logger;
+
+        $pisteCredentials = $this->getPisteCredentials();
+        if (is_array($pisteCredentials)) {
+            [$this->pisteClientId, $this->pisteClientSecret] = $pisteCredentials;
+        } else {
+            $this->pisteClientId = null;
+            $this->pisteClientSecret = null;
+        }
+    }
+
+    /**
+     * Vérifie la santé de Plat'AU.
+     *
+     * @return array<string, mixed> {healthcheckOk: bool, errorOrigin?: string}
+     */
+    public function executeHealthcheck(): array
+    {
+        $pisteTokenData = $this->getPisteTokenData();
+        $pisteToken = $pisteTokenData['access_token'] ?? null;
+
+        if (null === $pisteToken || !$this->isTokenValid($pisteTokenData)) {
+            $pisteData = $this->requestPisteToken();
+
+            if (null === $pisteData) {
+                return [
+                    'healthcheckOk' => false,
+                    'errorOrigin' => 'prevarisc',
+                ];
+            }
+
+            $this->storePisteToken($pisteData);
+            $rawToken = $pisteData['access_token'] ?? null;
+            $pisteToken = is_string($rawToken) ? $rawToken : null;
+        }
+
+        if (!is_string($pisteToken)) {
+            $this->logger->error("Le token PISTE n'est pas disponible.");
+
+            return [
+                'healthcheckOk' => false,
+                'errorOrigin' => 'prevarisc',
+            ];
+        }
+
+        $platauHealth = $this->requestPlatauHealthcheck($pisteToken);
+        $platauHealthDecoded = json_decode((string) $platauHealth);
+
+        if (!is_object($platauHealthDecoded)) {
+            $this->logger->error("Erreur lors de la vérification de la santé de Plat'AU.");
+
+            return [
+                'healthcheckOk' => false,
+                'errorOrigin' => 'prevarisc',
+            ];
+        }
+
+        if (true !== ($platauHealthDecoded->etatGeneral ?? null)) {
+            $this->logger->error("L'état général de Plat'AU est en erreur.");
+
+            return [
+                'healthcheckOk' => false,
+                'errorOrigin' => 'PlatAU',
+            ];
+        }
+
+        if (true !== ($platauHealthDecoded->etatBdd ?? null)) {
+            $this->logger->error("L'état BDD de Plat'AU est en erreur.");
+
+            return [
+                'healthcheckOk' => false,
+                'errorOrigin' => 'PlatAU',
+            ];
+        }
+
+        return [
+            'healthcheckOk' => true,
+        ];
+    }
+
+    /**
+     * Récupère les identifiants PISTE depuis le fichier de configuration Plat'AU.
+     *
+     * @return array<int, string>|null
+     */
+    private function getPisteCredentials(): ?array
+    {
+        $platauConfigContentAsString = file_get_contents($this->platauConfigFilePath);
+
+        if (false === $platauConfigContentAsString) {
+            $this->logger->error("Le fichier de configuration Plat'AU n'a pas pu être récupéré correctement.");
+
+            return null;
+        }
+
+        $decodedContent = json_decode($platauConfigContentAsString, true);
+
+        if (!is_array($decodedContent) || !isset($decodedContent['platau.options'])) {
+            $this->logger->error("Le fichier de configuration Plat'AU est invalide.");
+
+            return null;
+        }
+
+        $platauOptions = $decodedContent['platau.options'];
+
+        if (!is_array($platauOptions) || !isset($platauOptions['PISTE_CLIENT_ID'], $platauOptions['PISTE_CLIENT_SECRET'])) {
+            $this->logger->error("Les options Plat'AU sont invalides dans le fichier de configuration.");
+
+            return null;
+        }
+
+        $clientId = $platauOptions['PISTE_CLIENT_ID'];
+        $clientSecret = $platauOptions['PISTE_CLIENT_SECRET'];
+
+        if (!is_string($clientId) || !is_string($clientSecret)) {
+            $this->logger->error('Les identifiants PISTE sont invalides dans le fichier de configuration.');
+
+            return null;
+        }
+
+        return [$clientId, $clientSecret];
+    }
+
+    /**
+     * Demande un nouveau token PISTE via OAuth.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function requestPisteToken(): ?array
+    {
+        $curlOptions = $this->buildBaseCurlOptions();
+        $curlOptions[CURLOPT_URL] = self::PISTE_ACCESS_TOKEN_URL;
+        $curlOptions[CURLOPT_POSTFIELDS] = sprintf(
+            'scope=openid&grant_type=client_credentials&client_id=%s&client_secret=%s',
+            $this->pisteClientId,
+            $this->pisteClientSecret
+        );
+
+        $curlHandle = curl_init();
+        curl_setopt_array($curlHandle, $curlOptions);
+        $data = curl_exec($curlHandle);
+
+        if ('' !== ($error = curl_error($curlHandle))) {
+            $this->logger->error($error);
+
+            return null;
+        }
+
+        curl_close($curlHandle);
+
+        if (!is_string($data)) {
+            return null;
+        }
+
+        $decodedData = json_decode($data, true);
+
+        if (!is_array($decodedData)) {
+            $this->logger->error("La récupération du token PISTE n'a rien renvoyé. Vérifiez vos identifiants.");
+
+            return null;
+        }
+
+        if (array_key_exists('error', $decodedData)) {
+            $rawError = $decodedData['error'];
+            $errorMsg = is_string($rawError) ? $rawError : (string) json_encode($rawError);
+            $this->logger->error(sprintf('Erreur lors de la récupération du token PISTE : %s', $errorMsg));
+
+            return null;
+        }
+
+        /* @var array<string, mixed> $decodedData */
+        /* @var array<string, mixed> $decodedData */
+        return $decodedData;
+    }
+
+    /**
+     * Effectue le healthcheck sur l'API Plat'AU.
+     */
+    private function requestPlatauHealthcheck(string $pisteToken): ?string
+    {
+        $curlOptions = $this->buildBaseCurlOptions();
+        $curlOptions[CURLOPT_URL] = self::PLATAU_URL.self::HEALTHCHECK_ENDPOINT;
+        $curlOptions[CURLOPT_HTTPHEADER] = [
+            'Content-Type: application/json',
+            sprintf('Authorization: Bearer %s', $pisteToken),
+        ];
+
+        $curlHandle = curl_init();
+        curl_setopt_array($curlHandle, $curlOptions);
+        $data = curl_exec($curlHandle);
+
+        if ('' !== ($error = curl_error($curlHandle))) {
+            $this->logger->error($error);
+
+            return null;
+        }
+
+        curl_close($curlHandle);
+
+        if (!is_string($data) || '' === $data) {
+            $this->logger->error("Le healthcheck n'a rien renvoyé. Vérifiez que l'URL de Plat'AU est correctement renseignée.");
+
+            return null;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Construit les options cURL de base avec support du proxy.
+     * Port direct de Service_PlatauClient (legacy).
+     *
+     * @return array<int, mixed>
+     */
+    private function buildBaseCurlOptions(): array
+    {
+        $options = [
+            CURLOPT_RETURNTRANSFER => 1,
+        ];
+
+        if (filter_var(getenv('PREVARISC_PROXY_ENABLED'), FILTER_VALIDATE_BOOLEAN)) {
+            $options[CURLOPT_PROXYTYPE] = getenv('PREVARISC_PROXY_PROTOCOL');
+            $options[CURLOPT_PROXYPORT] = getenv('PREVARISC_PROXY_PORT');
+            $options[CURLOPT_PROXY] = getenv('PREVARISC_PROXY_HOST');
+
+            if (getenv('PREVARISC_PROXY_USERNAME')) {
+                $options[CURLOPT_PROXYUSERPWD] = getenv('PREVARISC_PROXY_USERNAME').':'.getenv('PREVARISC_PROXY_PASSWORD');
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Récupère le token PISTE stocké s'il existe.
+     *
+     * @return array<string, mixed>
+     */
+    private function getPisteTokenData(): array
+    {
+        $filepath = $this->getPisteEnvironmentFilePath();
+
+        if (!file_exists($filepath)) {
+            return [];
+        }
+
+        $pisteData = file_get_contents($filepath);
+
+        if (false === $pisteData) {
+            return [];
+        }
+
+        $decodedRaw = json_decode($pisteData, true);
+
+        if (!is_array($decodedRaw)) {
+            return [];
+        }
+
+        /* @var array<string, mixed> $decodedRaw */
+        /* @var array<string, mixed> $decodedRaw */
+        return $decodedRaw;
+    }
+
+    /**
+     * Stocke le token PISTE pour le réutiliser tant qu'il n'est pas expiré.
+     *
+     * @param array<string, mixed> $pisteData
+     */
+    private function storePisteToken(array $pisteData): void
+    {
+        $storedData = json_encode(
+            array_merge_recursive($pisteData, ['request_time' => time()]),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        );
+
+        file_put_contents($this->getPisteEnvironmentFilePath(), $storedData);
+    }
+
+    /**
+     * Détermine si le token est valide (avec une marge de 5 minutes).
+     *
+     * @param array<string, mixed> $tokenData
+     */
+    private function isTokenValid(array $tokenData): bool
+    {
+        if (!isset($tokenData['request_time'], $tokenData['expires_in'])) {
+            return false;
+        }
+
+        $requestTime = $tokenData['request_time'];
+        $expiresIn = $tokenData['expires_in'];
+
+        if (!is_numeric($requestTime) || !is_numeric($expiresIn)) {
+            return false;
+        }
+
+        return time() < (int) $requestTime + ((int) $expiresIn - 300);
+    }
+
+    private function getPisteEnvironmentFilePath(): string
+    {
+        return $this->varDir.DIRECTORY_SEPARATOR.'piste-'.$this->appEnv.'.json';
+    }
+}

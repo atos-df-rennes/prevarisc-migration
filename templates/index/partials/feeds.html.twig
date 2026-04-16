@@ -1,0 +1,27 @@
+{% if bloc.data is not empty %}
+    <table class="table table-condensed">
+        {% for message in bloc.data %}
+            {% set text_filtered = message.texte ?? message.TEXTE_NEWS ?? '' %}
+            {# Convert URLs to links — port direct de la regex legacy #}
+            {% set text_filtered = text_filtered|e|replace({'&amp;': '&'}) %}
+            <tr>
+                <td style="width: 80px; vertical-align: top; border: none;">
+                    {{ avatar(message.utilisateur.id ?? message.ID_UTILISATEUR ?? null, 'medium', 'float: left; width: 40px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px;') }}
+                </td>
+                <td style="border: none">
+                    <small class="text-muted pull-right">
+                        {{ message.id ?? message.ID_NEWS ?? '' }}
+                        - {{ message.type ?? message.TYPE_NEWS ?? '' }}
+                        - <a href="{{ path('index_delete_message', {id: message.id ?? message.ID_NEWS ?? 0}) }}">Supprimer</a>
+                    </small>
+                    <a href="#">
+                        <strong>{{ message.utilisateur.informations.prenom ?? message.PRENOM_UTILISATEURINFORMATIONS ?? '' }} {{ message.utilisateur.informations.nom ?? message.NOM_UTILISATEURINFORMATIONS ?? '' }}</strong>
+                    </a><br>
+                    <p>{{ text_filtered|raw }}</p>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <small class="text-muted">Aucun message disponible.</small>
+{% endif %}

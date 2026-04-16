@@ -1,0 +1,44 @@
+{% extends 'layouts/index.html.twig' %}
+
+{% block body_structure %}
+<form class="modal-content" action="{{ path('index_add_message') }}" method="post">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Ajouter un message</h3>
+    </div>
+
+    <div class="modal-body">
+        <textarea id="textarea" class="bigger form-control" name="text" rows="10"
+                  placeholder="Entrez ici votre message d'information."></textarea>
+
+        <dl class="dl-horizontal" style="margin-top: 10px;">
+            <dt>Confidentialité</dt>
+            <dd>
+                <p>
+                    {% for groupe in groupes %}
+                        <input type="checkbox" name="conf[]" value="{{ groupe.id }}" checked="checked" />
+                        {{ groupe.libelle }}<br/>
+                    {% endfor %}
+                </p>
+            </dd>
+
+            <dt>Type du message</dt>
+            <dd>
+                <p>
+                    <select name="type" class="form-control">
+                        <option>Message de service</option>
+                        <option>Informations</option>
+                        <option>Message personnel</option>
+                        <option>Autre</option>
+                    </select>
+                </p>
+            </dd>
+        </dl>
+    </div>
+
+    <div class="modal-footer">
+        <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
+        <input type="submit" id="submit" value="Ajouter" class="btn btn-success" />
+    </div>
+</form>
+{% endblock %}

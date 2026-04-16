@@ -1,0 +1,9 @@
+{% if bloc.data is not empty %}
+    <ul class="recherche_liste list-unstyled no_slide scroll-bloc-medium">
+        {% for etablissement in bloc.data %}
+            {{ include('search/results/_etablissement.html.twig', {item: etablissement}) }}
+        {% endfor %}
+    </ul>
+{% else %}
+    <small class="text-muted">Aucun établissement.</small>
+{% endif %}
