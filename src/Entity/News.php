@@ -15,8 +15,6 @@ class News
      *
      * @ORM\Id
      *
-     * @ORM\GeneratedValue
-     *
      * @ORM\Column(name="ID_NEWS", type="bigint", options={"unsigned":true})
      */
     private $id;
@@ -47,6 +45,13 @@ class News
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getType(): ?string

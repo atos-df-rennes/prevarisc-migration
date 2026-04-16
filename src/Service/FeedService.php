@@ -63,12 +63,14 @@ class FeedService
 
     /**
      * Ajoute un message visible par les groupes spécifiés.
+     * Port direct : ID_NEWS = time() (timestamp Unix), pas d'auto-incrément.
      *
      * @param int[] $groupeIds
      */
     public function addMessage(string $type, string $texte, Utilisateur $author, array $groupeIds): void
     {
         $news = new News();
+        $news->setId(time());
         $news->setType($type);
         $news->setTexte($texte);
         $news->setUtilisateur($author);
