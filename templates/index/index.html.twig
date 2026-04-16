@@ -123,7 +123,7 @@
             {% if not deactivatePlatau and not platauNoHealthcheck %}
                 $.ajax({
                     type: 'GET',
-                    url: '/index/platau-healthcheck',
+                    url: '/accueil/platau-healthcheck',
                     beforeSend: function() {
                         $("#bloc__connexion-platau").html("Vérification de la connexion à Plat'AU <img src='/images/load.gif' />");
                     },

@@ -157,7 +157,7 @@ function loadBloc($bloc) {
     $bloc.removeClass('empty').addClass('loading');
     $.ajax({
         type: 'post',
-        url: "/index/bloc",
+        url: "/accueil/bloc",
         data: {id: $bloc.attr('id')},
         success: function(data) {
             $bloc.find(".panel-body").html(data);

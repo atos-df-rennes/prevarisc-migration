@@ -68,7 +68,7 @@ class IndexController extends AbstractController
     }
 
     /**
-     * @Route("/index", name="index_index", methods={"GET"})
+     * @Route("/accueil", name="accueil_index", methods={"GET"})
      */
     public function index(): Response
     {
@@ -121,9 +121,8 @@ class IndexController extends AbstractController
 
     /**
      * Chargement AJAX d'un bloc du tableau de bord.
-     * L'URL doit être exactement /index/bloc (utilisée par main-bs3.js:155).
      *
-     * @Route("/index/bloc", name="index_bloc", methods={"POST"})
+     * @Route("/accueil/bloc", name="accueil_bloc", methods={"POST"})
      */
     public function bloc(Request $request): Response
     {
@@ -161,7 +160,7 @@ class IndexController extends AbstractController
     /**
      * Formulaire d'ajout d'un message dans le flux.
      *
-     * @Route("/index/add-message", name="index_add_message", methods={"GET", "POST"})
+     * @Route("/accueil/add-message", name="accueil_add_message", methods={"GET", "POST"})
      */
     public function addMessage(Request $request): Response
     {
@@ -190,7 +189,7 @@ class IndexController extends AbstractController
                 $this->addFlash('danger', "Erreur lors de l'ajout du message : ".$e->getMessage());
             }
 
-            return $this->redirectToRoute('index_index');
+            return $this->redirectToRoute('accueil_index');
         }
 
         return $this->render('index/add_message.html.twig', [
@@ -201,7 +200,7 @@ class IndexController extends AbstractController
     /**
      * Suppression d'un message du flux.
      *
-     * @Route("/index/delete-message", name="index_delete_message", methods={"GET"})
+     * @Route("/accueil/delete-message", name="accueil_delete_message", methods={"GET"})
      */
     public function deleteMessage(Request $request): Response
     {
@@ -216,13 +215,13 @@ class IndexController extends AbstractController
             $this->addFlash('danger', 'Erreur lors de la suppression du message : '.$exception->getMessage());
         }
 
-        return $this->redirectToRoute('index_index');
+        return $this->redirectToRoute('accueil_index');
     }
 
     /**
      * Vérification de la santé de Plat'AU (AJAX).
      *
-     * @Route("/index/platau-healthcheck", name="index_platau_healthcheck", methods={"GET"})
+     * @Route("/accueil/platau-healthcheck", name="accueil_platau_healthcheck", methods={"GET"})
      */
     public function platauHealthcheck(): JsonResponse
     {
