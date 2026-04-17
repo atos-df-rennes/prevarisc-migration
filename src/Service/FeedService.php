@@ -88,6 +88,14 @@ class FeedService
     }
 
     /**
+     * Retourne un message par son identifiant, ou null s'il n'existe pas.
+     */
+    public function findMessage(int $id): ?News
+    {
+        return $this->newsRepository->find($id);
+    }
+
+    /**
      * Supprime un message.
      */
     public function deleteMessage(int $id): void

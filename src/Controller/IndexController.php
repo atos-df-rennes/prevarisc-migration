@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
@@ -164,6 +165,11 @@ class IndexController extends AbstractController
         $groupes = $this->groupeRepository->findAll();
 
         if ($request->isMethod('POST')) {
+            $rawToken = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('add_message', is_string($rawToken) ? $rawToken : null)) {
+                throw $this->createAccessDeniedException('Token CSRF invalide.');
+            }
+
             try {
                 /** @var Utilisateur $user */
                 $user = $this->getUser();
@@ -197,17 +203,33 @@ class IndexController extends AbstractController
     /**
      * Suppression d'un message du flux.
      *
-     * @Route("/accueil/delete-message", name="accueil_delete_message", methods={"GET"})
+     * @Route("/accueil/delete-message", name="accueil_delete_message", methods={"POST"})
      */
     public function deleteMessage(Request $request): Response
     {
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_message', is_string($rawToken) ? $rawToken : null)) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
         try {
-            $id = filter_var($request->query->get('id'), FILTER_VALIDATE_INT);
+            $id = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
             if (false !== $id) {
-                $this->feedService->deleteMessage((int) $id);
+                $news = $this->feedService->findMessage((int) $id);
+                if (null !== $news) {
+                    /** @var Utilisateur $currentUser */
+                    $currentUser = $this->getUser();
+                    if (null !== $news->getUtilisateur() && $news->getUtilisateur()->getId() !== $currentUser->getId()) {
+                        throw $this->createAccessDeniedException("Vous ne pouvez pas supprimer le message d'un autre utilisateur.");
+                    }
+
+                    $this->feedService->deleteMessage((int) $id);
+                }
             }
 
             $this->addFlash('success', 'Le message a bien été supprimé.');
+        } catch (AccessDeniedException $e) {
+            throw $e;
         } catch (\Exception $exception) {
             $this->addFlash('danger', 'Erreur lors de la suppression du message : '.$exception->getMessage());
         }

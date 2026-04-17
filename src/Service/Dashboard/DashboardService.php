@@ -2,6 +2,8 @@
 
 namespace App\Service\Dashboard;
 
+use App\Constant\DossierNature;
+use App\Constant\DossierType;
 use App\Entity\Utilisateur;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierRepository;
@@ -18,14 +20,6 @@ use App\Service\NotificationService;
  */
 class DashboardService
 {
-    public const ID_DOSSIERTYPE_COURRIER = 5;
-
-    public const ID_NATURE_LEVEE_PRESCRIPTIONS = 7;
-
-    public const ID_NATURE_LEVEE_AVIS_DEF = 19;
-
-    public const ID_NATURE_ECHEANCIER_TRAVAUX = 46;
-
     /** @var DashboardBlocConfig */
     private $blocConfig;
 
@@ -495,9 +489,9 @@ class DashboardService
                 $idNature = $this->dossierRepository->getDossierNatureId($idLien);
 
                 if (
-                    self::ID_NATURE_LEVEE_AVIS_DEF === $idNature
-                    || self::ID_NATURE_LEVEE_PRESCRIPTIONS === $idNature
-                    || self::ID_NATURE_ECHEANCIER_TRAVAUX === $idNature
+                    DossierNature::LEVEE_AVIS_DEFAVORABLE === $idNature
+                    || DossierNature::LEVEE_PRESCRIPTIONS === $idNature
+                    || DossierNature::ECHEANCIER_TRAVAUX === $idNature
                 ) {
                     $exclude = true;
                     break;
@@ -625,7 +619,7 @@ class DashboardService
 
                 $typeDossier = $this->dossierRepository->getDossierType($idLien);
 
-                if (0 === $typeDossier || self::ID_DOSSIERTYPE_COURRIER === $typeDossier) {
+                if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
                     $exclude = true;
                     break;
                 }

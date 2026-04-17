@@ -17,7 +17,11 @@
                     <small class="text-muted pull-right">
                         {{ date_label }}
                         - {{ message.type ?? message.TYPE_NEWS ?? '' }}
-                        - <a href="{{ path('accueil_delete_message', {id: msg_id}) }}">Supprimer</a>
+                        - <form method="post" action="{{ path('accueil_delete_message') }}" style="display:inline;">
+                            <input type="hidden" name="id" value="{{ msg_id }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_message') }}">
+                            <button type="submit" class="btn btn-link" style="padding:0; vertical-align:baseline;">Supprimer</button>
+                          </form>
                     </small>
                     <a href="#">
                         <strong>{{ message.utilisateur.informations.prenom ?? message.PRENOM_UTILISATEURINFORMATIONS ?? '' }} {{ message.utilisateur.informations.nom ?? message.NOM_UTILISATEURINFORMATIONS ?? '' }}</strong>

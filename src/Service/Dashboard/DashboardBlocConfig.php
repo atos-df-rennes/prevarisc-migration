@@ -189,7 +189,7 @@ class DashboardBlocConfig
 
         if (!$this->deactivatePlatau) {
             $this->blocsConfig['dossierPlatau'] = [
-                'method' => 'getDossiersPlatAUSansEtablissement',
+                'method' => 'getDossiersPlatauSansEtablissement',
                 'acl' => 'view_doss_platau_sans_etab',
                 'title' => "Dossiers Plat'AU à traiter",
                 'type' => 'dossiers',

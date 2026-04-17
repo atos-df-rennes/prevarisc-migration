@@ -205,6 +205,7 @@ class PlatauHealthcheckService
 
         if ('' !== ($error = curl_error($curlHandle))) {
             $this->logger->error($error);
+            curl_close($curlHandle);
 
             return null;
         }
@@ -261,6 +262,7 @@ class PlatauHealthcheckService
 
         if ('' !== ($error = curl_error($curlHandle))) {
             $this->logger->error($error);
+            curl_close($curlHandle);
 
             return null;
         }
@@ -342,7 +344,10 @@ class PlatauHealthcheckService
             JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
         );
 
-        file_put_contents($this->getPisteEnvironmentFilePath(), $storedData);
+        $filepath = $this->getPisteEnvironmentFilePath();
+        $tmpFile = $filepath.'.tmp.'.uniqid('', true);
+        file_put_contents($tmpFile, $storedData, LOCK_EX);
+        rename($tmpFile, $filepath);
     }
 
     /**
