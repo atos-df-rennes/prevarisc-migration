@@ -79,7 +79,7 @@
                 }
                 if ($('.panel.loading').length === 0) {
                     saveTimeout = setTimeout(function() {
-                        $.post("/api/utilisateur/preferences", {
+                        $.post(Routing.generate('api_utilisateur_preferences'), {
                             preferences: {
                                 'DASHBOARD_BLOCS': sortOrder
                             }
@@ -91,7 +91,7 @@
             $container.packery('on', 'layoutComplete', orderItems);
 
             $('#reinitBlocOrder').click(function() {
-                $.post("/api/utilisateur/preferences", {
+                $.post(Routing.generate('api_utilisateur_preferences'), {
                     preferences: {
                         'DASHBOARD_BLOCS': null
                     }
@@ -123,9 +123,9 @@
             {% if not deactivatePlatau and not platauNoHealthcheck %}
                 $.ajax({
                     type: 'GET',
-                    url: '/accueil/platau-healthcheck',
+                    url: Routing.generate('accueil_platau_healthcheck'),
                     beforeSend: function() {
-                        $("#bloc__connexion-platau").html("Vérification de la connexion à Plat'AU <img src='/images/load.gif' />");
+                        $("#bloc__connexion-platau").html("Vérification de la connexion à Plat'AU <img src='{{ asset('images/load.gif') }}' />");
                     },
                     success: function(result) {
                         const res = typeof result === 'object' ? result : JSON.parse(result);

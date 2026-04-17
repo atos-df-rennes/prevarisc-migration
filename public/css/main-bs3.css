@@ -779,18 +779,17 @@ ul#gestionCommissionMenu li.active {
 }
 
 .dashboard .panel {
-  width: 49%;
+  width: 100%;
   float: left;
-  margin-bottom: 0px;
+
+  @media (min-width: 768px) {
+    width: 49%;
+  }
 }
 
 .dashboard .panel.ui-draggable-dragging {
   border-style: dashed;
   border-width: 3px;
-}
-
-.dashboard .panel.w2 {
-  width: 100%;
 }
 
 .dashboard .panel-heading {

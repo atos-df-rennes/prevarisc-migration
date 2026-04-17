@@ -28,7 +28,7 @@ class UtilisateurPreferencesController extends AbstractController
     /**
      * Sauvegarde les préférences utilisateur (blocs dashboard).
      *
-     * @Route("/api/utilisateur/preferences", name="api_utilisateur_preferences", methods={"POST"})
+     * @Route("/api/utilisateur/preferences", name="api_utilisateur_preferences", methods={"POST"}, options={"expose"=true})
      */
     public function update(Request $request): JsonResponse
     {

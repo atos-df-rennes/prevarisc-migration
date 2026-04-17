@@ -218,7 +218,7 @@ class IndexController extends AbstractController
     /**
      * Vérification de la santé de Plat'AU (AJAX).
      *
-     * @Route("/accueil/platau-healthcheck", name="accueil_platau_healthcheck", methods={"GET"})
+     * @Route("/accueil/platau-healthcheck", name="accueil_platau_healthcheck", methods={"GET"}, options={"expose"=true})
      */
     public function platauHealthcheck(): JsonResponse
     {
