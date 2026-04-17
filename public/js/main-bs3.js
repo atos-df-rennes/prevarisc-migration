@@ -9,8 +9,11 @@ document.addEventListener("DOMContentLoaded", function() {
 }, false);
 
 function bindTitlePopup() {
-    // Titres
-    $('a[title]').tipsy({live: true});
+    // Titres — exclure les boutons remove TomSelect (.ts-wrapper a) :
+    // Tipsy est initialisé APRÈS $(document).ready() des templates (ordre DOMContentLoaded),
+    // donc il capte les <a title="Remove"> dynamiques de TomSelect. Quand TomSelect supprime
+    // un item, le div.tipsy appendé au <body> est orphelin (mouseleave jamais déclenché).
+    $('a[title]:not(.ts-wrapper a)').tipsy({live: true});
     $('abbr[title]').tipsy({live: true});
 }
 

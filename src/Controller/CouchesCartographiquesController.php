@@ -45,7 +45,7 @@ class CouchesCartographiquesController extends AbstractController
     public function index(): Response
     {
         /** @var string $documentRoot */
-        $documentRoot = $_SERVER['DOCUMENT_ROOT'];
+        $documentRoot = $this->getParameter('kernel.project_dir').'/public';
         /** @var string $autoconfPath */
         $autoconfPath = $this->getParameter('app.carto_autoconf_path');
 
