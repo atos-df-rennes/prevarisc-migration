@@ -1,0 +1,3 @@
+{% if bloc is not empty %}
+    {{ include('index/partials/' ~ bloc.type ~ '.html.twig', {bloc: bloc}) }}
+{% endif %}

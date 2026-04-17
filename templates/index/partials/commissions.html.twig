@@ -1,0 +1,57 @@
+{% if bloc.data is not empty %}
+    {% set jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] %}
+    {% set garde_aujourdhui = 0 %}
+    {% set garde_demain = 0 %}
+    {% for commissiondujour in bloc.data %}
+        {% set datec = commissiondujour.DATE_COMMISSION|date('d/m/y') %}
+        {% set aujourdhui = 'now'|date('d/m/y') %}
+        {% set demain = ('+1 day')|date('d/m/y') %}
+
+        {% if commissiondujour.ID_COMMISSIONTYPEEVENEMENT == 1 %}
+            {% set badge_class = 'badge-info' %}
+            {% set message = 'En salle' %}
+        {% elseif commissiondujour.ID_COMMISSIONTYPEEVENEMENT == 2 %}
+            {% set badge_class = 'badge-success' %}
+            {% set message = 'Visite de sécurité' %}
+        {% else %}
+            {% set badge_class = 'badge-warning' %}
+            {% set message = 'Groupe de visite' %}
+        {% endif %}
+
+        <div class="listcom">
+            <strong class="jourcom">
+                {% if datec == aujourdhui and garde_aujourdhui == 0 %}
+                    Aujourd'hui{% set garde_aujourdhui = garde_aujourdhui + 1 %}
+                {% elseif datec == aujourdhui %}
+                    {% set garde_aujourdhui = garde_aujourdhui + 1 %}
+                {% elseif datec == demain and garde_demain == 0 %}
+                    Demain{% set garde_demain = garde_demain + 1 %}
+                {% elseif datec == demain %}
+                    {% set garde_demain = garde_demain + 1 %}
+                {% else %}
+                    {{ jours[commissiondujour.DATE_COMMISSION|date('w')] }} {{ commissiondujour.DATE_COMMISSION|date('d/m/y') }}
+                {% endif %}
+            </strong>
+            {% set verrouilles = 0 %}
+            {% set total = 0 %}
+            {% for dossier in commissiondujour.odj %}
+                {% set verrouilles = verrouilles + dossier.VERROU_DOSSIER %}
+                {% set total = total + 1 %}
+            {% endfor %}
+            <div class="proch-com">
+                <span class="badge {{ badge_class }}" style="margin-left:3px; float: right;">
+                    {{ verrouilles }} / {{ total }}
+                </span>
+                <span class="badge {{ badge_class }}" style="float: right;">{{ message }}</span>
+                <a href="/calendrier-des-commissions/gestionodj/dateCommId/{{ commissiondujour.id }}">
+                    <strong>{{ commissiondujour.LIBELLE_COMMISSION }} - {{ commissiondujour.LIBELLE_DATECOMMISSION }}</strong>
+                </a>
+                <p class="heurcom">
+                    {{ commissiondujour.HEUREDEB_COMMISSION|slice(0, 5) }} - {{ commissiondujour.HEUREFIN_COMMISSION|slice(0, 5) }}
+                </p>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p class="text-muted"><small>Aucune prochaine commission</small></p>
+{% endif %}

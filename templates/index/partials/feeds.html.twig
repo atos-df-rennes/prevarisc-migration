@@ -1,0 +1,36 @@
+{% if bloc.data is not empty %}
+    {% set jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] %}
+    {% set mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'] %}
+    <table class="table table-condensed">
+        {% for message in bloc.data %}
+            {% set msg_id = message.id ?? message.ID_NEWS ?? 0 %}
+            {% if msg_id|date('d/m/Y') == 'now'|date('d/m/Y') %}
+                {% set date_label = msg_id|date('H:i') %}
+            {% else %}
+                {% set date_label = jours[msg_id|date('w')] ~ ' ' ~ msg_id|date('j') ~ ' ' ~ mois[msg_id|date('n') - 1] ~ ' ' ~ msg_id|date('H:i') %}
+            {% endif %}
+            <tr>
+                <td style="width: 80px; vertical-align: top; border: none;">
+                    {{ avatar(message.utilisateur.id ?? message.ID_UTILISATEUR ?? null, 'medium', 'float: left; width: 40px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px;') }}
+                </td>
+                <td style="border: none">
+                    <small class="text-muted pull-right">
+                        {{ date_label }}
+                        - {{ message.type ?? message.TYPE_NEWS ?? '' }}
+                        - <form method="post" action="{{ path('accueil_delete_message') }}" style="display:inline;">
+                            <input type="hidden" name="id" value="{{ msg_id }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_message') }}">
+                            <button type="submit" class="btn btn-link" style="padding:0; vertical-align:baseline;">Supprimer</button>
+                          </form>
+                    </small>
+                    <a href="#">
+                        <strong>{{ message.utilisateur.informations.prenom ?? message.PRENOM_UTILISATEURINFORMATIONS ?? '' }} {{ message.utilisateur.informations.nom ?? message.NOM_UTILISATEURINFORMATIONS ?? '' }}</strong>
+                    </a><br>
+                    <p>{{ (message.texte ?? message.TEXTE_NEWS ?? '')|urlize }}</p>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <small class="text-muted">Aucun message disponible.</small>
+{% endif %}

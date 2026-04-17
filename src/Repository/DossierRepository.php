@@ -641,6 +641,833 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
+     * Construit le SQL de base pour la recherche de dossiers (port de Model_DbTable_Search::setItem('dossier')).
+     * Sélectionne tous les champs attendus par les templates de tableau de bord.
+     */
+    private function buildSearchDossierBaseSql(bool $getCount): string
+    {
+        if ($getCount) {
+            $select = 'SELECT COUNT(DISTINCT d.ID_DOSSIER) as count';
+        } else {
+            $select = 'SELECT d.*,
+                (SELECT COUNT(dossierpj.ID_DOSSIER) FROM dossierpj WHERE dossierpj.ID_DOSSIER = d.ID_DOSSIER) AS NB_PJ,
+                (SELECT COUNT(dossierlie.ID_DOSSIER2)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER1
+                    WHERE dossier.ID_DOSSIER = d.ID_DOSSIER) AS NB_DOSS_LIES,
+                (SELECT group_concat(dossierdocurba.NUM_DOCURBA, \', \')
+                    FROM dossier
+                    INNER JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = dossier.ID_DOSSIER
+                    WHERE dossier.ID_DOSSIER = d.ID_DOSSIER LIMIT 1) AS NB_URBA,
+                (SELECT COUNT(dossierlie.ID_DOSSIER2)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER1
+                    INNER JOIN dossiernature dn2 ON dossierlie.ID_DOSSIER1 = dn2.ID_DOSSIER
+                    WHERE (dn2.ID_NATURE = 2 OR dn2.ID_NATURE = 1 OR dn2.ID_NATURE = 13 OR dn2.ID_NATURE = 12)
+                    AND dossier.ID_DOSSIER = d.ID_DOSSIER) AS ALERTE_RECEPTION_TRAVAUX,
+                (SELECT COUNT(dossierlie.ID_DOSSIER1)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER2
+                    INNER JOIN dossiernature dn3 ON dossierlie.ID_DOSSIER1 = dn3.ID_DOSSIER
+                    WHERE dn3.ID_NATURE = 46
+                    AND dossier.ID_DOSSIER = d.ID_DOSSIER) AS ECHEANCIER_TRAVAUX,
+                dossierlie.ID_DOSSIER1, dossierlie.ID_DOSSIER2,
+                dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
+                dossiertype.LIBELLE_DOSSIERTYPE,
+                dossierdocurba.NUM_DOCURBA,
+                avis.ID_AVIS, avis.LIBELLE_AVIS,
+                utilisateur.ID_UTILISATEUR,
+                e.ID_ETABLISSEMENT,
+                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                etablissementinformations.ID_TYPE,
+                type.LIBELLE_TYPE,
+                genre.LIBELLE_GENRE,
+                platauconsultation.DATE_REPONSE_ATTENDUE';
+        }
+
+        return $select.'
+            FROM dossier d
+            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
+            JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE
+            LEFT JOIN dossierdocurba ON d.ID_DOSSIER = dossierdocurba.ID_DOSSIER
+            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN avis ON d.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
+            LEFT JOIN dossierpreventionniste ON dossierpreventionniste.ID_DOSSIER = d.ID_DOSSIER
+            LEFT JOIN utilisateur ON utilisateur.ID_UTILISATEUR = dossierpreventionniste.ID_PREVENTIONNISTE
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = IFNULL(
+                    (CASE
+                        WHEN d.DATECOMM_DOSSIER IS NOT NULL THEN (
+                            SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                            AND ei.DATE_ETABLISSEMENTINFORMATIONS <= d.DATEINSERT_DOSSIER)
+                        WHEN d.DATEVISITE_DOSSIER IS NOT NULL THEN (
+                            SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                            AND ei.DATE_ETABLISSEMENTINFORMATIONS <= d.DATEVISITE_DOSSIER)
+                        WHEN d.DATEINSERT_DOSSIER IS NOT NULL THEN (
+                            SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                            AND ei.DATE_ETABLISSEMENTINFORMATIONS <= d.DATEINSERT_DOSSIER)
+                        ELSE (
+                            SELECT MIN(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT)
+                    END),
+                    (SELECT MIN(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT)
+                )
+            LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            LEFT JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
+            LEFT JOIN platauconsultation ON d.ID_PLATAU = platauconsultation.ID_PLATAU
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL';
+    }
+
+    /**
+     * Retourne les dossiers dont la date de commission est échue et sans avis pour le tableau de bord.
+     * Port direct de Model_DbTable_Dossier::listeDesDossierDateCommissionEchu().
+     *
+     * @param int[] $idsCommission
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT d.*, dossierlie.*,
+                dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
+                dossiertype.LIBELLE_DOSSIERTYPE,
+                dossierdocurba.NUM_DOCURBA,
+                avis.*,
+                utilisateur.ID_UTILISATEUR,
+                e.ID_ETABLISSEMENT,
+                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                etablissementinformations.ID_TYPE,
+                type.LIBELLE_TYPE,
+                genre.LIBELLE_GENRE,
+                platauconsultation.DATE_REPONSE_ATTENDUE,
+                dossieraffectation.*,
+                datecommission.*
+            FROM dossier d
+            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
+            JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE
+            LEFT JOIN dossierdocurba ON d.ID_DOSSIER = dossierdocurba.ID_DOSSIER
+            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN avis ON d.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
+            LEFT JOIN dossierpreventionniste ON dossierpreventionniste.ID_DOSSIER = d.ID_DOSSIER
+            LEFT JOIN utilisateur ON utilisateur.ID_UTILISATEUR = dossierpreventionniste.ID_PREVENTIONNISTE
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            LEFT JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
+            LEFT JOIN platauconsultation ON d.ID_PLATAU = platauconsultation.ID_PLATAU
+            LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+            LEFT JOIN datecommission ON dossieraffectation.ID_DATECOMMISSION_AFFECT = datecommission.ID_DATECOMMISSION
+            WHERE DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) >= :sinceDays
+            AND DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) <= :untilDays
+            AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)';
+
+        $params = ['sinceDays' => $sinceDays, 'untilDays' => $untilDays];
+
+        if ([] !== $idsCommission) {
+            $inList = implode(',', array_map('intval', $idsCommission));
+            $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
+        }
+
+        $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY datecommission.DATE_COMMISSION DESC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, $params);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les dossiers avec avis différé pour le tableau de bord.
+     * Port direct de Model_DbTable_Dossier::listeDossierAvecAvisDiffere().
+     *
+     * @param int[] $idsCommission
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossierAvecAvisDiffere(array $idsCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false);
+        $params = [];
+
+        if ([] !== $idsCommission) {
+            $inList = implode(',', array_map('intval', $idsCommission));
+            $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
+        }
+
+        $sql .= ' AND d.DIFFEREAVIS_DOSSIER = 1';
+
+        $sql .= ' GROUP BY d.ID_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, $params);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les courriers sans réponse pour le tableau de bord.
+     * Port direct de Model_DbTable_Dossier::listeDesCourrierSansReponse().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findCourrierSansReponse(int $dureeEnJour = 5): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false);
+        $params = ['dureeEnJour' => $dureeEnJour];
+
+        $sql .= ' AND d.TYPE_DOSSIER = 5';
+        $sql .= ' AND d.DATEREP_DOSSIER IS NULL';
+        $sql .= ' AND d.OBJET_DOSSIER IS NOT NULL';
+        $sql .= ' AND DATEDIFF(CURDATE(), d.DATEINSERT_DOSSIER) > :dureeEnJour';
+
+        $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER DESC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, $params);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne le type d'un dossier (Etude=1 / Visite=2,3 / Courrier=5 etc.).
+     * Port direct de Model_DbTable_Dossier::getTypeDossier().
+     *
+     * @return array<string, mixed>|false
+     */
+    public function getTypeDossier(int $idDossier)
+    {
+        return $this->getEntityManager()->getConnection()->fetchAssociative(
+            'SELECT TYPE_DOSSIER FROM dossier WHERE ID_DOSSIER = :id',
+            ['id' => $idDossier]
+        );
+    }
+
+    /**
+     * Retourne les dossiers avec délai de prescription à lever, après filtrage PHP sur les dossiers liés.
+     * Port direct de Service_Dashboard::getLeveePresc().
+     * Les dossiers ayant un dossier lié de nature 7 (levée prescriptions), 19 (levée avis déf.) ou 46 (échéancier travaux) sont exclus.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findLeveePresc(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false)
+            .' AND d.DELAIPRESC_DOSSIER IS NOT NULL'
+            .' GROUP BY d.ID_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $dossiers */
+        $dossiers = $conn->fetchAllAssociative($sql, []);
+
+        foreach ($dossiers as $key => $dossier) {
+            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
+
+            /** @var array<int, array<string, mixed>> $dossiersLies */
+            $dossiersLies = $conn->fetchAllAssociative(
+                'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
+                ['id' => $idDossier]
+            );
+
+            foreach ($dossiersLies as $lien) {
+                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
+                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
+                $idLien = $id1 === $idDossier ? $id2 : $id1;
+                $row = $conn->fetchAssociative(
+                    'SELECT ID_DOSSIERNATURE, ID_NATURE FROM dossiernature WHERE ID_DOSSIER = :id',
+                    ['id' => $idLien]
+                );
+                if (false !== $row) {
+                    $idNature = is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : 0;
+                    if (DossierNature::LEVEE_PRESCRIPTIONS === $idNature || DossierNature::LEVEE_AVIS_DEFAVORABLE === $idNature || DossierNature::ECHEANCIER_TRAVAUX === $idNature) {
+                        unset($dossiers[$key]);
+                    }
+                }
+            }
+        }
+
+        return array_values($dossiers);
+    }
+
+    /**
+     * Retourne les dossiers avec absence de quorum, après filtrage PHP sur les dossiers liés.
+     * Port direct de Service_Dashboard::getAbsenceQuorum().
+     * Les dossiers ayant un dossier lié de type 0 ou 5 (courrier) sont exclus.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findAbsenceQuorum(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false)
+            .' AND d.ABSQUORUM_DOSSIER = 1'
+            .' GROUP BY d.ID_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $dossiers */
+        $dossiers = $conn->fetchAllAssociative($sql, []);
+
+        foreach ($dossiers as $key => $dossier) {
+            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
+
+            /** @var array<int, array<string, mixed>> $dossiersLies */
+            $dossiersLies = $conn->fetchAllAssociative(
+                'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
+                ['id' => $idDossier]
+            );
+
+            foreach ($dossiersLies as $lien) {
+                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
+                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
+                $idLien = $id1 === $idDossier ? $id2 : $id1;
+                $tabType = $this->getTypeDossier($idLien);
+                if (false !== $tabType) {
+                    $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
+                    if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
+                        unset($dossiers[$key]);
+                    }
+                }
+            }
+        }
+
+        return array_values($dossiers);
+    }
+
+    /**
+     * Retourne les dossiers NPSP (Ne Peut Se Prononcer), après filtrage PHP sur les dossiers liés.
+     * Port direct de Service_Dashboard::getNpsp().
+     * Les dossiers ayant un dossier lié de type 0 ou 5 (courrier) sont exclus.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findNpsp(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false)
+            .' AND d.NPSP_DOSSIER = 1'
+            .' GROUP BY d.ID_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $dossiers */
+        $dossiers = $conn->fetchAllAssociative($sql, []);
+
+        foreach ($dossiers as $key => $dossier) {
+            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
+
+            /** @var array<int, array<string, mixed>> $dossiersLies */
+            $dossiersLies = $conn->fetchAllAssociative(
+                'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
+                ['id' => $idDossier]
+            );
+
+            foreach ($dossiersLies as $lien) {
+                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
+                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
+                $idLien = $id1 === $idDossier ? $id2 : $id1;
+                $tabType = $this->getTypeDossier($idLien);
+                if (false !== $tabType) {
+                    $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
+                    if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
+                        unset($dossiers[$key]);
+                    }
+                }
+            }
+        }
+
+        return array_values($dossiers);
+    }
+
+    /**
+     * Retourne les dossiers incomplets pour le tableau de bord.
+     * Port direct de Service_Dashboard::getDossiersIncomplets().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersIncomplets(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false)
+            .' AND d.INCOMPLET_DOSSIER = 1'
+            .' GROUP BY d.ID_DOSSIER'
+            .' ORDER BY d.DATEINSERT_DOSSIER DESC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, []);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les dossiers suivis par un utilisateur et non verrouillés.
+     * Port direct de Service_Dashboard::getDossiersSuivisNonVerrouilles().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersSuivisNonVerrouilles(int $userId): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false);
+        $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
+        $sql .= ' AND d.VERROU_DOSSIER = 0';
+        $sql .= ' GROUP BY d.ID_DOSSIER';
+        $sql .= ' ORDER BY IFNULL(d.DATEVISITE_DOSSIER, d.DATEINSERT_DOSSIER) DESC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['userId' => $userId]);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les dossiers suivis par un utilisateur et sans avis du rapporteur.
+     * Port direct de Service_Dashboard::getDossiersSuivisSansAvis().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersSuivisSansAvis(int $userId): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(false);
+        $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
+        $sql .= ' AND ((d.AVIS_DOSSIER IS NULL AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0) AND d.TYPE_DOSSIER = 1)'
+            .' OR (d.DATEREP_DOSSIER IS NULL AND d.TYPE_DOSSIER = 5))';
+        $sql .= ' GROUP BY d.ID_DOSSIER';
+        $sql .= ' ORDER BY d.DATEINSERT_DOSSIER DESC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['userId' => $userId]);
+
+        return $rows;
+    }
+
+    /**
+     * Construit le fragment SQL SELECT+FROM+JOINs pour les dossiers Plat'AU.
+     * Identique à buildSearchDossierBaseSql mais avec des joins Plat'AU supplémentaires insérés
+     * avant la clause WHERE.
+     *
+     * @param string $extraJoins      JOINs Plat'AU supplémentaires à insérer avant WHERE
+     * @param string $extraSelectCols Colonnes supplémentaires à insérer dans le SELECT (avec virgule de tête)
+     */
+    private function buildPlatauDossierSql(string $extraJoins, string $extraSelectCols): string
+    {
+        return 'SELECT d.*,
+                (SELECT COUNT(dossierpj.ID_DOSSIER) FROM dossierpj WHERE dossierpj.ID_DOSSIER = d.ID_DOSSIER) AS NB_PJ,
+                (SELECT COUNT(dossierlie.ID_DOSSIER2)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER1
+                    WHERE dossier.ID_DOSSIER = d.ID_DOSSIER) AS NB_DOSS_LIES,
+                (SELECT group_concat(dossierdocurba.NUM_DOCURBA, \', \')
+                    FROM dossier
+                    INNER JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = dossier.ID_DOSSIER
+                    WHERE dossier.ID_DOSSIER = d.ID_DOSSIER LIMIT 1) AS NB_URBA,
+                (SELECT COUNT(dossierlie.ID_DOSSIER2)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER1
+                    INNER JOIN dossiernature dn2 ON dossierlie.ID_DOSSIER1 = dn2.ID_DOSSIER
+                    WHERE (dn2.ID_NATURE = 2 OR dn2.ID_NATURE = 1 OR dn2.ID_NATURE = 13 OR dn2.ID_NATURE = 12)
+                    AND dossier.ID_DOSSIER = d.ID_DOSSIER) AS ALERTE_RECEPTION_TRAVAUX,
+                (SELECT COUNT(dossierlie.ID_DOSSIER1)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER2
+                    INNER JOIN dossiernature dn3 ON dossierlie.ID_DOSSIER1 = dn3.ID_DOSSIER
+                    WHERE dn3.ID_NATURE = 46
+                    AND dossier.ID_DOSSIER = d.ID_DOSSIER) AS ECHEANCIER_TRAVAUX,
+                dossierlie.ID_DOSSIER1, dossierlie.ID_DOSSIER2,
+                dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
+                dossiertype.LIBELLE_DOSSIERTYPE,
+                dossierdocurba.NUM_DOCURBA,
+                avis.ID_AVIS, avis.LIBELLE_AVIS,
+                utilisateur.ID_UTILISATEUR,
+                e.ID_ETABLISSEMENT,
+                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                etablissementinformations.ID_TYPE,
+                type.LIBELLE_TYPE,
+                genre.LIBELLE_GENRE'
+            .$extraSelectCols.'
+            FROM dossier d
+            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
+            JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE
+            LEFT JOIN dossierdocurba ON d.ID_DOSSIER = dossierdocurba.ID_DOSSIER
+            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN avis ON d.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
+            LEFT JOIN dossierpreventionniste ON dossierpreventionniste.ID_DOSSIER = d.ID_DOSSIER
+            LEFT JOIN utilisateur ON utilisateur.ID_UTILISATEUR = dossierpreventionniste.ID_PREVENTIONNISTE
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = IFNULL(
+                    (CASE
+                        WHEN d.DATECOMM_DOSSIER IS NOT NULL THEN (
+                            SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                            AND ei.DATE_ETABLISSEMENTINFORMATIONS <= d.DATEINSERT_DOSSIER)
+                        WHEN d.DATEVISITE_DOSSIER IS NOT NULL THEN (
+                            SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                            AND ei.DATE_ETABLISSEMENTINFORMATIONS <= d.DATEVISITE_DOSSIER)
+                        WHEN d.DATEINSERT_DOSSIER IS NOT NULL THEN (
+                            SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                            AND ei.DATE_ETABLISSEMENTINFORMATIONS <= d.DATEINSERT_DOSSIER)
+                        ELSE (
+                            SELECT MIN(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                            WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT)
+                    END),
+                    (SELECT MIN(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT)
+                )
+            LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            LEFT JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE'
+            .$extraJoins.'
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL';
+    }
+
+    /**
+     * Retourne les dossiers Plat'AU non associés à un établissement.
+     * Port direct de Service_Dashboard::getDossiersPlatAUSansEtablissement().
+     *
+     * @param \DateTimeInterface $lastVisitDate Date de dernière visite de la page (pour IS_NEW)
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersPlatauSansEtablissement(\DateTimeInterface $lastVisitDate): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $lastVisitDateStr = $lastVisitDate->format('Y-m-d H:i:s');
+
+        $extraJoins = '
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            LEFT JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            LEFT JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE';
+
+        $extraSelectCols = ',
+            platauconsultation.DATE_REPONSE_ATTENDUE,
+            IF(d.DATE_NOTIFICATION IS NOT NULL AND d.DATE_NOTIFICATION >= :lastVisitDate, 1, 0) AS IS_NEW,
+            IF(piecejointe.DATE_NOTIFICATION IS NOT NULL AND piecejointe.DATE_NOTIFICATION >= :lastVisitDate, 1, 0) AS HAS_NEW_PJ';
+
+        $sql = $this->buildPlatauDossierSql($extraJoins, $extraSelectCols);
+        $sql .= ' AND d.ID_PLATAU IS NOT NULL';
+        $sql .= ' AND e.ID_DOSSIER IS NULL';
+        $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['lastVisitDate' => $lastVisitDateStr]);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les dossiers Plat'AU avec des pièces jointes en erreur d'envoi.
+     * Port direct de Service_Dashboard::getDossiersPlatauPjsEnErreur().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersPlatauPjsEnErreur(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $extraJoins = '
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
+            JOIN piecejointestatut ON piecejointestatut.ID_PIECEJOINTESTATUT = piecejointe.ID_PIECEJOINTESTATUT';
+
+        $extraSelectCols = ', platauconsultation.DATE_REPONSE_ATTENDUE, piecejointe.ID_PIECEJOINTESTATUT';
+
+        $sql = $this->buildPlatauDossierSql($extraJoins, $extraSelectCols);
+        $sql .= ' AND d.ID_PLATAU IS NOT NULL';
+        $sql .= ' AND d.ID_DOSSIER = e.ID_DOSSIER';
+        $sql .= " AND platauconsultation.STATUT_AVIS = 'treated'";
+        $sql .= " AND piecejointestatut.NOM_STATUT IN ('to_be_exported', 'on_error', 'awaiting_status')";
+        $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, []);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les dossiers Plat'AU avec de nouvelles pièces jointes.
+     * Port direct de Service_Dashboard::getDossiersPlatauNouvellesPjs().
+     *
+     * @param \DateTimeInterface $lastPiecesVisitDate Date de dernière visite de la page pièces jointes
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersPlatauNouvellesPjs(\DateTimeInterface $lastPiecesVisitDate): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $lastPiecesVisitDateStr = $lastPiecesVisitDate->format('Y-m-d H:i:s');
+
+        $extraJoins = '
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE';
+
+        $extraSelectCols = ', platauconsultation.DATE_REPONSE_ATTENDUE';
+
+        $sql = $this->buildPlatauDossierSql($extraJoins, $extraSelectCols);
+        $sql .= ' AND d.ID_PLATAU IS NOT NULL';
+        $sql .= ' AND d.ID_DOSSIER = e.ID_DOSSIER';
+        $sql .= ' AND piecejointe.DATE_NOTIFICATION >= :lastPiecesVisitDate';
+        $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['lastPiecesVisitDate' => $lastPiecesVisitDateStr]);
+
+        return $rows;
+    }
+
+    /**
+     * Compte les dossiers Plat'AU non associés à un établissement.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     */
+    public function countDossiersPlatauSansEtablissement(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
+            FROM dossier d
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
+            AND d.ID_PLATAU IS NOT NULL
+            AND e.ID_DOSSIER IS NULL';
+        $count = $conn->fetchOne($sql, []);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers Plat'AU avec des pièces jointes en erreur d'envoi.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     */
+    public function countDossiersPlatauPjsEnErreur(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
+            FROM dossier d
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
+            JOIN piecejointestatut ON piecejointestatut.ID_PIECEJOINTESTATUT = piecejointe.ID_PIECEJOINTESTATUT
+            JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
+            AND d.ID_PLATAU IS NOT NULL
+            AND platauconsultation.STATUT_AVIS = \'treated\'
+            AND piecejointestatut.NOM_STATUT IN (\'to_be_exported\', \'on_error\', \'awaiting_status\')';
+        $count = $conn->fetchOne($sql, []);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers Plat'AU avec de nouvelles pièces jointes.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     *
+     * @param \DateTimeInterface $lastPiecesVisitDate Date de dernière visite de la page pièces jointes
+     */
+    public function countDossiersPlatauNouvellesPjs(\DateTimeInterface $lastPiecesVisitDate): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $lastPiecesVisitDateStr = $lastPiecesVisitDate->format('Y-m-d H:i:s');
+        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
+            FROM dossier d
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
+            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
+            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
+            JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
+            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
+            AND d.ID_PLATAU IS NOT NULL
+            AND d.ID_DOSSIER = e.ID_DOSSIER
+            AND piecejointe.DATE_NOTIFICATION >= :lastPiecesVisitDate';
+        $count = $conn->fetchOne($sql, ['lastPiecesVisitDate' => $lastPiecesVisitDateStr]);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Retourne les liaisons d'un dossier (dossier lié).
+     * Port direct de Model_DbTable_DossierLie::getDossierLie().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersLies(int $idDossier): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative(
+            'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
+            ['id' => $idDossier]
+        );
+
+        return $rows;
+    }
+
+    /**
+     * Retourne l'identifiant de la nature d'un dossier.
+     * Port direct de Model_DbTable_DossierNature::getDossierNaturesId().
+     */
+    public function getDossierNatureId(int $idDossier): ?int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $row = $conn->fetchAssociative(
+            'SELECT ID_NATURE FROM dossiernature WHERE id_dossier = :id',
+            ['id' => $idDossier]
+        );
+
+        if (!is_array($row) || !isset($row['ID_NATURE'])) {
+            return null;
+        }
+
+        return is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : null;
+    }
+
+    /**
+     * Retourne le type d'un dossier (Etude=1/Visite=2,3/Courrier=5…).
+     * Port direct de Model_DbTable_Dossier::getTypeDossier() — retourne int ou null.
+     */
+    public function getDossierType(int $idDossier): ?int
+    {
+        $row = $this->getTypeDossier($idDossier);
+
+        if (!is_array($row) || !isset($row['TYPE_DOSSIER'])) {
+            return null;
+        }
+
+        return is_numeric($row['TYPE_DOSSIER']) ? (int) $row['TYPE_DOSSIER'] : null;
+    }
+
+    /**
+     * Compte les dossiers suivis non verrouillés pour un utilisateur.
+     */
+    public function countDossiersSuivisNonVerrouilles(int $userId): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true);
+        $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
+        $sql .= ' AND d.VERROU_DOSSIER = 0';
+        $count = $conn->fetchOne($sql, ['userId' => $userId]);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers suivis sans avis pour un utilisateur.
+     */
+    public function countDossiersSuivisSansAvis(int $userId): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true);
+        $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
+        $sql .= ' AND ((d.AVIS_DOSSIER IS NULL AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0) AND d.TYPE_DOSSIER = 1)'
+            .' OR (d.DATEREP_DOSSIER IS NULL AND d.TYPE_DOSSIER = 5))';
+        $count = $conn->fetchOne($sql, ['userId' => $userId]);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers avec date de commission échue pour le tableau de bord.
+     * Requête COUNT lean : uniquement les JOINs nécessaires aux conditions WHERE.
+     *
+     * @param int[] $idsCommission
+     */
+    public function countDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT COUNT(*) as count
+            FROM dossier d
+            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
+            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
+            JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
+            JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE
+            LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+            LEFT JOIN datecommission ON dossieraffectation.ID_DATECOMMISSION_AFFECT = datecommission.ID_DATECOMMISSION
+            WHERE DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) >= :sinceDays
+            AND DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) <= :untilDays
+            AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)
+            AND d.DATESUPPRESSION_DOSSIER IS NULL';
+        $params = ['sinceDays' => $sinceDays, 'untilDays' => $untilDays];
+        if ([] !== $idsCommission) {
+            $inList = implode(',', array_map('intval', $idsCommission));
+            $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
+        }
+
+        $count = $conn->fetchOne($sql, $params);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers avec avis différé pour le tableau de bord.
+     * Requête COUNT lean via buildSearchDossierBaseSql.
+     *
+     * @param int[] $idsCommission
+     */
+    public function countDossierAvecAvisDiffere(array $idsCommission): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true);
+        if ([] !== $idsCommission) {
+            $inList = implode(',', array_map('intval', $idsCommission));
+            $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
+        }
+
+        $sql .= ' AND d.DIFFEREAVIS_DOSSIER = 1';
+        $count = $conn->fetchOne($sql, []);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les courriers sans réponse.
+     * Requête COUNT lean via buildSearchDossierBaseSql.
+     */
+    public function countCourrierSansReponse(int $dureeEnJour = 5): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true);
+        $sql .= ' AND d.TYPE_DOSSIER = 5';
+        $sql .= ' AND d.DATEREP_DOSSIER IS NULL';
+        $sql .= ' AND d.OBJET_DOSSIER IS NOT NULL';
+        $sql .= ' AND DATEDIFF(CURDATE(), d.DATEINSERT_DOSSIER) > :dureeEnJour';
+        $count = $conn->fetchOne($sql, ['dureeEnJour' => $dureeEnJour]);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Compte les dossiers incomplets.
+     */
+    public function countDossiersIncomplets(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = $this->buildSearchDossierBaseSql(true)
+            .' AND d.INCOMPLET_DOSSIER = 1';
+        $count = $conn->fetchOne($sql, []);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
      * Trouve la dernière visite périodique (nature 21 ou 26) d'un établissement.
      *
      * Utilisée lors de la création d'un nouveau dossier VP pour copier les documents

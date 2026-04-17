@@ -231,13 +231,11 @@ class DossierDonnantAvisService
             if (null !== $dossier->getDateVisite()) {
                 return (new \DateTime($dossier->getDateVisite()->format('Y-m-d')))->setTime(0, 0, 0);
             }
-        } else {
+        } elseif (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
             // Études et groupes → dateCommission en priorité
-            if (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
-                $dateCommission = \DateTime::createFromFormat('Y-m-d', $dossier->getDateCommission());
-                if (false !== $dateCommission) {
-                    return $dateCommission->setTime(0, 0, 0);
-                }
+            $dateCommission = \DateTime::createFromFormat('Y-m-d', $dossier->getDateCommission());
+            if (false !== $dateCommission) {
+                return $dateCommission->setTime(0, 0, 0);
             }
         }
 

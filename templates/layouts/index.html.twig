@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+    <div class="container-fluid main-container-f">
+        <div class="row mb-4">
+            <div class="col-xs-12">
+                <h2 style="margin: 4px 0">
+                    {{ avatar(app.user.id, 'medium', 'float: left; width: 50px; border: 1px solid #dfdfdf; border-radius: 50%; margin-right: 15px;') }}
+                    Tableau de bord
+                    <small>Profil : {{ app.user.groupe ? app.user.groupe.libelle : '' }}</small>
+                </h2>
+                <span>
+                    Bonjour {{ app.user.informations.prenom }}
+                    <a class="deconnexion" href="/session/logout">Déconnexion</a>
+                </span>
+                <a id="reinitBlocOrder" class="btn btn-xs btn-default pull-right" href="#">
+                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Ré-initialiser les blocs
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                {% set flashes = app.flashes %}
+                {% if flashes is not empty %}
+                    <ul class="list-unstyled">
+                        {% for label, messages in flashes %}
+                            {% for message in messages %}
+                                <li class="alert alert-{{ label }}">
+                                    <button data-dismiss="alert" class="close">&times;</button>
+                                    {{ message|raw }}
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% block body_structure %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% if bloc.data is not empty %}
+    {% for commission in bloc.data %}
+        <p class="lead" style="font-size: 1.2em; margin-bottom: 0px;">
+            <a href="/calendrier-des-commissions/gestionodj/dateCommId/{{ commission.id }}">
+                {{ (commission.LIBELLE_COMMISSION ~ ' - ' ~ commission.LIBELLE_DATECOMMISSION)|upper }}
+            </a>
+            du {{ commission.DATE_COMMISSION|date('d/m/Y') }} ({{ commission.heure }})
+        </p>
+        {% if commission.odj is empty %}
+            <p class="text-muted">Pas de dossier affecté.</p>
+        {% else %}
+            <ul class="recherche_liste list-unstyled no_slide">
+                {% for dossier in commission.odj %}
+                    {{ include('search/results/_dossier.html.twig', {item: dossier}) }}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <p class="text-muted"><small>Aucune prochaine commission</small></p>
+{% endif %}

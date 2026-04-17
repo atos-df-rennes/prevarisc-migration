@@ -74,6 +74,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->tag('controller.service_arguments');
 
+    $services->set('App\Controller\IndexController')
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
+        ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%')
+        ->tag('controller.service_arguments');
+
+    $services->set('App\Service\Dashboard\DashboardBlocConfig')
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
+        ->arg('$nextCommissionsDays', '%app.dashboard.next_commissions_days%')
+        ->arg('$dossiersSansAvisDays', '%app.dashboard.dossiers_sans_avis_days%')
+        ->arg('$courrierSansReponseDays', '%app.dashboard.courrier_sans_reponse_days%');
+
+    $services->set('App\Service\PlatauHealthcheckService')
+        ->arg('$platauConfigFile', '%app.platau_config_file%')
+        ->arg('$projectDir', '%kernel.project_dir%')
+        ->arg('$appEnv', '%kernel.environment%');
+
     $services->set('App\Service\Mail\MailerConfiguration')
         ->arg('$transport', '%app.mail_transport%')
         ->arg('$host', '%app.mail_host%')

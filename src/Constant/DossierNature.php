@@ -13,6 +13,10 @@ final class DossierNature
 {
     public const ECHEANCIER_TRAVAUX = 46;
 
+    public const LEVEE_PRESCRIPTIONS = 7;
+
+    public const LEVEE_AVIS_DEFAVORABLE = 19;
+
     /**
      * Natures Visite Avant Ouverture (VAO).
      *

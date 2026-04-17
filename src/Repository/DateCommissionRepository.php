@@ -75,6 +75,135 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne les prochaines séances de commission pour le tableau de bord.
+     * Port direct de Model_DbTable_DateCommission::getNextCommission().
+     *
+     * @param int[] $commissionIds
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $fromDate = date('Y-m-d', $fromTimestamp);
+        $toDate = date('Y-m-d', $toTimestamp);
+
+        $select = 'SELECT * FROM datecommission d
+            LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
+            WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
+
+        if ([] !== $commissionIds) {
+            $inList = implode(',', array_map('intval', $commissionIds));
+            $select .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+        }
+
+        $select .= ' ORDER BY DATE_COMMISSION, HEUREDEB_COMMISSION';
+
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($select, $params);
+
+        return $rows;
+    }
+
+    /**
+     * Compte les prochaines séances de commission pour le tableau de bord.
+     * Requête COUNT lean extraite de findNextCommissionsForDashboard.
+     *
+     * @param int[] $commissionIds
+     */
+    public function countNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $fromDate = date('Y-m-d', $fromTimestamp);
+        $toDate = date('Y-m-d', $toTimestamp);
+
+        $sql = 'SELECT COUNT(*) as count FROM datecommission d
+            LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
+            WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
+
+        if ([] !== $commissionIds) {
+            $inList = implode(',', array_map('intval', $commissionIds));
+            $sql .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+        }
+
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+        $count = $conn->fetchOne($sql, $params);
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * Retourne les dossiers affectés (avec horaire précisé) à une date de commission (ODJ).
+     * Port direct de Model_DbTable_DossierAffectation::getDossierAffect().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossierAffectForCommission(int $idDateCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT doss.*, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
+            FROM dossier doss
+            JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
+            JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
+            JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
+            JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
+            JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
+            LEFT JOIN etablissementdossier e ON doss.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            WHERE dateComm.ID_DATECOMMISSION = :idDateCommission
+            AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL
+            AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL
+            GROUP BY doss.ID_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les dossiers non-affectés (sans horaire précisé) à une date de commission (ODJ).
+     * Port direct de Model_DbTable_DossierAffectation::getDossierNonAffect().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossierNonAffectForCommission(int $idDateCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT doss.*, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
+            FROM dossier doss
+            JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
+            JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
+            JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
+            JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
+            JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
+            LEFT JOIN etablissementdossier e ON doss.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            WHERE dateComm.ID_DATECOMMISSION = :idDateCommission
+            AND dossAffect.HEURE_DEB_AFFECT IS NULL
+            AND dossAffect.HEURE_FIN_AFFECT IS NULL
+            GROUP BY doss.ID_DOSSIER
+            ORDER BY dossAffect.NUM_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
+
+        return $rows;
+    }
+
+    /**
      * Récupère les événements de commission entre deux dates.
      *
      * @return DateCommission[]
