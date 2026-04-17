@@ -1379,6 +1379,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             $inList = implode(',', array_map('intval', $idsCommission));
             $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
         }
+
         $count = $conn->fetchOne($sql, $params);
 
         return is_numeric($count) ? (int) $count : 0;
@@ -1398,6 +1399,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             $inList = implode(',', array_map('intval', $idsCommission));
             $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
         }
+
         $sql .= ' AND d.DIFFEREAVIS_DOSSIER = 1';
         $count = $conn->fetchOne($sql, []);
 

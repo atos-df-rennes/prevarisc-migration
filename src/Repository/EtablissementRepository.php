@@ -491,7 +491,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         // Requête COUNT allégée : uniquement les JOINs nécessaires aux conditions WHERE.
         // Supprimés vs buildEtablissementBaseSql : dossier donnant avis, avis, type, genre,
         // etablissementlie, etablissementinformationspreventionniste, utilisateur, adresses (×6).
-        $sql = "SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)
+        $sql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)
             FROM etablissement e
             JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
                 AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
@@ -512,7 +512,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                 AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))
             AND etablissementinformations.ID_STATUT = 2
             AND etablissementinformations.ID_GENRE = 2
-            AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0";
+            AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0';
 
         $params = [];
         if ([] !== $commissionsUser) {
