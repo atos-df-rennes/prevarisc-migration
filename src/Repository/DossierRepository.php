@@ -894,8 +894,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 );
                 if (false !== $row) {
                     $idNature = is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : 0;
-                    // 7 = levée prescriptions, 19 = levée avis déf., 46 = échéancier travaux
-                    if (7 === $idNature || 19 === $idNature || 46 === $idNature) {
+                    if (DossierNature::LEVEE_PRESCRIPTIONS === $idNature || DossierNature::LEVEE_AVIS_DEFAVORABLE === $idNature || DossierNature::ECHEANCIER_TRAVAUX === $idNature) {
                         unset($dossiers[$key]);
                     }
                 }
@@ -938,8 +937,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 $tabType = $this->getTypeDossier($idLien);
                 if (false !== $tabType) {
                     $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
-                    // 5 = ID_DOSSIERTYPE_COURRIER
-                    if (0 === $typeDossier || 5 === $typeDossier) {
+                    if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
                         unset($dossiers[$key]);
                     }
                 }
@@ -982,8 +980,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 $tabType = $this->getTypeDossier($idLien);
                 if (false !== $tabType) {
                     $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
-                    // 5 = ID_DOSSIERTYPE_COURRIER
-                    if (0 === $typeDossier || 5 === $typeDossier) {
+                    if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
                         unset($dossiers[$key]);
                     }
                 }
