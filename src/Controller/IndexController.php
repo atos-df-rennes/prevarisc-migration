@@ -84,8 +84,6 @@ class IndexController extends AbstractController
                     'type' => $blocConfig['type'],
                     'title' => $blocConfig['title'],
                     'count' => $this->dashboardService->getCountForBloc($blocId, $user),
-                    'height' => $blocConfig['height'],
-                    'width' => $blocConfig['width'],
                 ];
             }
         }
@@ -140,8 +138,6 @@ class IndexController extends AbstractController
                     'data' => $this->dashboardService->getDataForBloc($id, $user),
                     'type' => $blocConfig['type'],
                     'title' => $blocConfig['title'],
-                    'height' => $blocConfig['height'],
-                    'width' => $blocConfig['width'],
                 ];
             }
         }

@@ -6,8 +6,6 @@
 {% endblock %}
 
 {% block body_structure %}
-    <div id="bloc__connexion-platau" class="mb-4"></div>
-
     <div id="home" class="dashboard">
         {% for id, bloc in blocs %}
             {{ include('index/partials/' ~ bloc.type ~ '_bloc.html.twig', {id: id, bloc: bloc}) }}
@@ -124,38 +122,21 @@
                 $.ajax({
                     type: 'GET',
                     url: Routing.generate('accueil_platau_healthcheck'),
-                    beforeSend: function() {
-                        $("#bloc__connexion-platau").html("Vérification de la connexion à Plat'AU <img src='{{ asset('images/load.gif') }}' />");
-                    },
                     success: function(result) {
                         const res = typeof result === 'object' ? result : JSON.parse(result);
 
                         if (res.healthcheckOk) {
-                            $("#bloc__connexion-platau").html(`<div class="alert alert-info">
-                                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                <strong>La connexion à Plat'AU a fonctionnée.</strong>
-                            </div>`);
+                            $.toast.success("La connexion à Plat'AU a fonctionnée.");
                         } else {
                             if (res.errorOrigin === 'prevarisc') {
-                                $("#bloc__connexion-platau").html(`<div class="alert alert-danger">
-                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                    <h4>La connexion à Plat'AU depuis Prevarisc a échouée.</h4>
-                                    Veuillez suivre les instructions du Manuel Utilisateur §6.17.2
-                                </div>`);
+                                $.toast.error("La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2");
                             } else if (res.errorOrigin === 'PlatAU') {
-                                $("#bloc__connexion-platau").html(`<div class="alert alert-danger">
-                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                    <h4>Plat'AU est en erreur.</h4>
-                                    Veuillez réessayer ultérieurement.
-                                </div>`);
+                                $.toast.error("Plat'AU est en erreur. Veuillez réessayer ultérieurement.");
                             }
                         }
                     },
                     error: function() {
-                        $("#bloc__connexion-platau").html(`<div class="alert alert-danger">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.</strong>
-                        </div>`);
+                        $.toast.error("Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.");
                     }
                 });
             {% endif %}

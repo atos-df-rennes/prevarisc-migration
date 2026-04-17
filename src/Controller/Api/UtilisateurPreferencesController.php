@@ -40,7 +40,7 @@ class UtilisateurPreferencesController extends AbstractController
 
         $preferences = $request->request->all();
 
-        if (empty($preferences)) {
+        if ([] === $preferences) {
             $body = $request->getContent();
             $decoded = json_decode($body, true);
             $preferences = is_array($decoded) ? $decoded : [];
