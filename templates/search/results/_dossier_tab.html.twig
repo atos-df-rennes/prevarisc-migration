@@ -36,7 +36,7 @@
     {# Nom du dossier #}
     <td class="doss-nom">
         {% if item.VERROU_DOSSIER == 1 %}
-            <i class="glyphicon glyphicon-lock"></i>
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
         {% endif %}
         <a href='/dossier/{{ item.ID_DOSSIER }}' title='{{ (item.LIBELLE_DOSSIERTYPE ~ ' - ' ~ item.LIBELLE_DOSSIERNATURE ~ (item.OBJET_DOSSIER is not empty ? ' - ' ~ item.OBJET_DOSSIER : ''))|e('html_attr') }}'>
             {{ item.LIBELLE_DOSSIERTYPE }} - {{ item.LIBELLE_DOSSIERNATURE }}{% if item.OBJET_DOSSIER is not empty %} - {{ item.OBJET_DOSSIER|slice(0, 70) }}{% if item.OBJET_DOSSIER|length > 70 %}(...){% endif %}{% endif %}{% if item.NB_URBA is not empty %} - {{ item.NB_URBA }}{% endif %}
@@ -121,7 +121,7 @@
     {# Pièces jointes #}
     <td>
         {% if item.PIECESJOINTES is defined and item.PIECESJOINTES is not empty %}
-            <a class="btn btn-default pj" href="#"><i class="glyphicon glyphicon-share" id="iconpj{{ item.ID_DOSSIER }}"></i></a>
+            <a class="btn btn-default pj" href="#"><span class="glyphicon glyphicon-share" aria-hidden="true" id="iconpj{{ item.ID_DOSSIER }}"></span></a>
         {% endif %}
     </td>
 
