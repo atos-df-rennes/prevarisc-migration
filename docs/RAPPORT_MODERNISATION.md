@@ -1,8 +1,28 @@
 # Rapport de modernisation — prevarisc-migration
 
 > Branche analysée : `chore/modernisation` (depuis `develop`)
-> Date : 2026-04-16
+> Date initiale : 2026-04-16 | Dernière mise à jour : 2026-04-17
 > Périmètre : 449 fichiers PHP (`src/`), 101 fichiers de tests, 185 templates Twig
+
+## Suivi d'avancement
+
+| # | Action | Statut | Commit |
+|---|--------|--------|--------|
+| QW-1 | Ajouter `: array` sur `getSubscribedEvents()` | ✅ Fait | `9a926c6` |
+| QW-2 | Renommer `dossierDonnantAvisId` → `dossier_donnant_avis_id` | ✅ Fait | `9a926c6` |
+| QW-3 | `%kernel.project_dir%` à la place de `$_SERVER['DOCUMENT_ROOT']` | ✅ Fait | `9a926c6` |
+| QW-4 | Chosen 1.1.0 → **1.8.7** | ✅ Fait | `a251c4a` |
+| QW-5 | TomSelect 2.0 → **2.5.2** | ✅ Fait | `a251c4a` |
+| QW-6 | SortableJS 1.15.0 → **1.15.7** | ✅ Fait | `a251c4a` |
+| QW-7 | TableSorter 2.0.5b → 2.31.x | ⏳ À faire | — |
+| BUG-1 | Fix tooltip Tipsy orphelin sur bouton × TomSelect (`main-bs3.js`) | ✅ Fait | `fde17ae` |
+| MT-1 | **PHPExcel → PhpSpreadsheet** (`SearchController`) | ⏳ Prochain worktree | — |
+| MT-2 | Injecter `CacheInterface` dans `CouchesCarto` | ⏳ À faire | — |
+| MT-3 | Multiselect → TomSelect (4 templates) | ⏳ À faire | — |
+| MT-4 | FancyBox 1.3.4 → 3.5.x | ⏳ À faire | — |
+| MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire | — |
+
+> **Worktree `chore/modernisation` clos.** Prochaine session : nouveau worktree pour MT-1 (PHPExcel → PhpSpreadsheet).
 
 ---
 
@@ -444,32 +464,55 @@ Les assets sont chargés manuellement depuis `public/`. L'intégration de Webpac
 
 ## 5. Plan d'action recommandé
 
-### Quick wins (patch sans risque — faire en parallèle)
+### ✅ Quick wins réalisés (worktree `chore/modernisation`)
 
-Ces tâches sont mécaniques, sans risque de régression, et peuvent être faites immédiatement dans le worktree `chore/modernisation` :
+| # | Action | Commit |
+|---|--------|--------|
+| 1 | `: array` sur `getSubscribedEvents()` + `%kernel.project_dir%` + Twig snake_case | `9a926c6` |
+| 2 | Chosen 1.1.0 → 1.8.7, TomSelect 2.0 → 2.5.2, SortableJS 1.15.0 → 1.15.7 | `a251c4a` |
+| 3 | Fix tooltip Tipsy orphelin sur bouton × TomSelect (exclusion `.ts-wrapper a` dans `bindTitlePopup`) | `fde17ae` |
 
-| # | Action | Fichiers | PR suggérée |
-|---|--------|---------|-------------|
-| 1 | Ajouter `: array` sur 2 `getSubscribedEvents()` sans return type | `DossierLateralNavigationSubscriber.php:85`, `EtablissementLateralNavigationSubscriber.php:111` | `chore(php): add missing return types on getSubscribedEvents` |
-| 2 | Renommer `dossierDonnantAvisId` → `dossier_donnant_avis_id` (twig-cs-fixer) | `templates/etablissement/dossiers.html.twig:14` | `chore(twig): fix snake_case variable name` |
-| 3 | Remplacer `$_SERVER['DOCUMENT_ROOT']` par `%kernel.project_dir%/public` | `CouchesCartographiquesController.php:48` | `fix(carto): use kernel.project_dir instead of $_SERVER` |
-| 4 | Mettre à jour **Chosen** 1.1.0 → **1.8.7** | `public/js/chosen.jquery.min.js`, `public/css/chosen.min.css` | `chore(frontend): update chosen to 1.8.7` |
-| 5 | Mettre à jour **TomSelect** 2.0 → **2.4.x** | `public/js/tom-select.complete.min.js`, `public/css/tom-select.default.min.css` | `chore(frontend): update tom-select to 2.4.x` |
-| 6 | Mettre à jour **SortableJS** 1.15.0 → **1.15.6** | `public/js/formulaire/ordonnancement/Sortable.min.js` | `chore(frontend): update sortablejs to 1.15.6` |
-| 7 | Mettre à jour **TableSorter** 2.0.5b → **2.31.x** | `public/js/jquery.tablesorter.js`, `public/js/jquery.tablesorter.pager.js`, `public/css/jquery/jquery.tablesorter.css` | `chore(frontend): update tablesorter to 2.31.x` |
+### ⏳ Prochain worktree — Priorité : PHPExcel → PhpSpreadsheet
 
-### Moyen terme (avant montée de version)
+**Objectif** : remplacer `phpoffice/phpexcel` (EOL 2017) par `phpoffice/phpspreadsheet`.
+
+**Périmètre** : un seul fichier à migrer — `src/Controller/SearchController.php` (méthodes `etablissement()` et `dossier()`).
+
+**Mapping API PHPExcel → PhpSpreadsheet** :
+
+| PHPExcel (ancien) | PhpSpreadsheet (nouveau) |
+|-------------------|--------------------------|
+| `new \PHPExcel()` | `new \PhpOffice\PhpSpreadsheet\Spreadsheet()` |
+| `\PHPExcel_IOFactory::createWriter($obj, 'Excel5')` | `\PhpOffice\PhpSpreadsheet\IOFactory::createWriter($obj, 'Xls')` |
+| `\PHPExcel_Style_Border::BORDER_THIN` | `\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN` |
+| `\PHPExcel_Style_Alignment::HORIZONTAL_CENTER` | `\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER` |
+| `\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY` | `\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY` |
+| `\PHPExcel_Shared_Date::FormattedPHPToExcel(y, m, d)` | `\PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel(y, m, d)` *(lowercase f)* |
+| `setCellValueByColumnAndRow($col, $row, $val)` — col 0-based | `setCellValueByColumnAndRow($col, $row, $val)` — col **1-based** ⚠️ |
+
+> ⚠️ **Point de vigilance** : PhpSpreadsheet utilise des colonnes **1-based** (colonne A = 1) là où PHPExcel utilisait du **0-based** (colonne A = 0). Incrémenter tous les index de colonne de +1.
+
+**Commandes** :
+```bash
+composer remove phpoffice/phpexcel
+composer require phpoffice/phpspreadsheet
+```
+
+**Décision d'extraction** : le rapport initial suggérait d'extraire le code d'export en service. En cohérence avec la **stratégie port direct**, ne pas extraire — migrer l'API inline dans `SearchController`. L'extraction pourra être faite dans un second temps si nécessaire.
+
+### Moyen terme (suite)
 
 | # | Action | Effort | Prérequis |
 |---|--------|--------|-----------|
-| 1 | **Migrer PHPExcel → PHPSpreadsheet** dans `SearchController` (+ extraire en service) | M | Aucun |
+| 1 | ~~**Migrer PHPExcel → PHPSpreadsheet**~~ | ~~M~~ | ✅ Prochain worktree |
 | 2 | Injecter `CacheInterface` dans `CouchesCarto` (supprimer `new FilesystemAdapter()`) | S | Aucun |
 | 3 | Remplacer jQuery Multiselect par TomSelect (4 templates restants avec Chosen) | M | Aucun |
 | 4 | Remplacer FancyBox 1.3.4 par FancyBox 3.5.x | M | Aucun |
 | 5 | Remplacer FullCalendar 1.6.4 par FullCalendar 5.x | L | Identifier usage actif |
-| 6 | Ajouter tests sur `DossierType` FormType | M | Aucun |
-| 7 | Ajouter tests sur `DossierRepository` (requêtes complexes) | M | Aucun |
-| 8 | Traiter les 8 `@todo breadcrumb Bootstrap` dans les templates prescriptions | S | Aucun |
+| 6 | Mettre à jour TableSorter 2.0.5b → 2.31.x | S | Aucun |
+| 7 | Ajouter tests sur `DossierType` FormType | M | Aucun |
+| 8 | Ajouter tests sur `DossierRepository` (requêtes complexes) | M | Aucun |
+| 9 | Traiter les 8 `@todo breadcrumb Bootstrap` dans les templates prescriptions | S | Aucun |
 
 ### Long terme (après montée de version PHP 8.1+)
 
