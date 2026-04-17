@@ -677,7 +677,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 dossierdocurba.NUM_DOCURBA,
                 avis.ID_AVIS, avis.LIBELLE_AVIS,
                 utilisateur.ID_UTILISATEUR,
-                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS';
+                e.ID_ETABLISSEMENT,
+                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                etablissementinformations.ID_TYPE,
+                type.LIBELLE_TYPE,
+                genre.LIBELLE_GENRE,
+                platauconsultation.DATE_REPONSE_ATTENDUE';
         }
 
         return $select.'
@@ -713,6 +718,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                     (SELECT MIN(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
                     WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT)
                 )
+            LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            LEFT JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
+            LEFT JOIN platauconsultation ON d.ID_PLATAU = platauconsultation.ID_PLATAU
             WHERE d.DATESUPPRESSION_DOSSIER IS NULL';
     }
 
@@ -734,7 +742,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 dossierdocurba.NUM_DOCURBA,
                 avis.*,
                 utilisateur.ID_UTILISATEUR,
+                e.ID_ETABLISSEMENT,
                 etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                etablissementinformations.ID_TYPE,
+                type.LIBELLE_TYPE,
+                genre.LIBELLE_GENRE,
+                platauconsultation.DATE_REPONSE_ATTENDUE,
                 dossieraffectation.*,
                 datecommission.*
             FROM dossier d
@@ -753,6 +766,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                     FROM etablissementinformations ei
                     WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
                 )
+            LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            LEFT JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
+            LEFT JOIN platauconsultation ON d.ID_PLATAU = platauconsultation.ID_PLATAU
             LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
             LEFT JOIN datecommission ON dossieraffectation.ID_DATECOMMISSION_AFFECT = datecommission.ID_DATECOMMISSION
             WHERE DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) >= :sinceDays
@@ -1060,13 +1076,29 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                     FROM dossier
                     INNER JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = dossier.ID_DOSSIER
                     WHERE dossier.ID_DOSSIER = d.ID_DOSSIER LIMIT 1) AS NB_URBA,
+                (SELECT COUNT(dossierlie.ID_DOSSIER2)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER1
+                    INNER JOIN dossiernature dn2 ON dossierlie.ID_DOSSIER1 = dn2.ID_DOSSIER
+                    WHERE (dn2.ID_NATURE = 2 OR dn2.ID_NATURE = 1 OR dn2.ID_NATURE = 13 OR dn2.ID_NATURE = 12)
+                    AND dossier.ID_DOSSIER = d.ID_DOSSIER) AS ALERTE_RECEPTION_TRAVAUX,
+                (SELECT COUNT(dossierlie.ID_DOSSIER1)
+                    FROM dossier
+                    INNER JOIN dossierlie ON dossier.ID_DOSSIER = dossierlie.ID_DOSSIER2
+                    INNER JOIN dossiernature dn3 ON dossierlie.ID_DOSSIER1 = dn3.ID_DOSSIER
+                    WHERE dn3.ID_NATURE = 46
+                    AND dossier.ID_DOSSIER = d.ID_DOSSIER) AS ECHEANCIER_TRAVAUX,
                 dossierlie.ID_DOSSIER1, dossierlie.ID_DOSSIER2,
                 dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
                 dossiertype.LIBELLE_DOSSIERTYPE,
                 dossierdocurba.NUM_DOCURBA,
                 avis.ID_AVIS, avis.LIBELLE_AVIS,
                 utilisateur.ID_UTILISATEUR,
-                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS'
+                e.ID_ETABLISSEMENT,
+                etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                etablissementinformations.ID_TYPE,
+                type.LIBELLE_TYPE,
+                genre.LIBELLE_GENRE'
             .$extraSelectCols.'
             FROM dossier d
             LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
@@ -1099,7 +1131,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                     END),
                     (SELECT MIN(ei.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations ei
                     WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT)
-                )'
+                )
+            LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            LEFT JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE'
             .$extraJoins.'
             WHERE d.DATESUPPRESSION_DOSSIER IS NULL';
     }

@@ -1,7 +1,7 @@
 {% if bloc.data is not empty %}
     <ul class="recherche_liste list-unstyled no_slide scroll-bloc-medium">
         {% for dossier in bloc.data %}
-            {{ include('search/results/_dossier_tab.html.twig', {item: dossier}) }}
+            {{ include('search/results/_dossier.html.twig', {item: dossier}) }}
         {% endfor %}
     </ul>
 {% else %}

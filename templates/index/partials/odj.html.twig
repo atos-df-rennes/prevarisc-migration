@@ -11,7 +11,7 @@
         {% else %}
             <ul class="recherche_liste list-unstyled no_slide">
                 {% for dossier in commission.odj %}
-                    {{ include('search/results/_dossier_tab.html.twig', {item: dossier}) }}
+                    {{ include('search/results/_dossier.html.twig', {item: dossier}) }}
                 {% endfor %}
             </ul>
         {% endif %}
