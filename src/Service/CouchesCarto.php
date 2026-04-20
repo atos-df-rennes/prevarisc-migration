@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Dto\IgnApi;
 use App\Dto\IgnCapabilities;
 use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -26,10 +26,14 @@ final class CouchesCarto
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(HttpClientInterface $client, LoggerInterface $logger)
+    /** @var CacheItemPoolInterface */
+    private $cache;
+
+    public function __construct(HttpClientInterface $client, LoggerInterface $logger, CacheItemPoolInterface $cache)
     {
         $this->client = $client;
         $this->logger = $logger;
+        $this->cache = $cache;
     }
 
     // @todo: A refacto
@@ -201,10 +205,8 @@ final class CouchesCarto
 
     private function getCrawler(IgnCapabilities $capabilities, string $format): ?Crawler
     {
-        $cache = new FilesystemAdapter('app.cache');
-
         /** @var CacheItemInterface $cacheIgn */
-        $cacheIgn = $cache->getItem(str_replace(' ', '_', $format));
+        $cacheIgn = $this->cache->getItem(str_replace(' ', '_', $format));
 
         if ($cacheIgn->isHit()) {
             /** @var string $cacheContent */
@@ -223,7 +225,7 @@ final class CouchesCarto
 
             $cacheIgn->set($ignApiResponse);
             $cacheIgn->expiresAfter(\DateInterval::createFromDateString('1 week'));
-            $cache->save($cacheIgn);
+            $this->cache->save($cacheIgn);
         } catch (\Exception $exception) {
             $this->logger->error("Problème lors de la connexion a l'API IGN : ".$exception->getMessage());
 
