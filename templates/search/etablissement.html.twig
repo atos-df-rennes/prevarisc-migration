@@ -126,14 +126,19 @@
                     </div>
                     <div class="col-sm-3 form-group" id='type_span' style='display:none'>
                         <select name='types_activites[]' multiple onchange="masquerBoutonExportCalc()">
-                            {% for type in DB_typeactivite %}
-                                <optgroup label="{{ type.LIBELLE_TYPE }}">
-                                    <option value='{{ type.ID_TYPEACTIVITE }}'
-                                        {% if app.request.query.get('types_activites') is not null and type.ID_TYPEACTIVITE in app.request.query.get('types_activites') %}selected{% endif %}>
-                                        {{ type.LIBELLE_TYPE }} - {{ type.LIBELLE_ACTIVITE }}
-                                    </option>
-                                </optgroup>
+                            {% set current_type = null %}
+                            {% for activite in DB_typeactivite %}
+                                {% if activite.LIBELLE_TYPE != current_type %}
+                                    {% if current_type is not null %}</optgroup>{% endif %}
+                                    <optgroup label="{{ activite.LIBELLE_TYPE }}">
+                                    {% set current_type = activite.LIBELLE_TYPE %}
+                                {% endif %}
+                                <option value='{{ activite.ID_TYPEACTIVITE }}'
+                                    {% if app.request.query.get('types_activites') is not null and activite.ID_TYPEACTIVITE in app.request.query.get('types_activites') %}selected{% endif %}>
+                                    {{ activite.LIBELLE_ACTIVITE }}
+                                </option>
                             {% endfor %}
+                            {% if current_type is not null %}</optgroup>{% endif %}
                         </select>
                     </div>
                 </div>
