@@ -1,0 +1,8 @@
+Veuillez selectionner le type de la commission :
+<select name='typeCom' id='typeCom'>
+    {% for type in listeCommType %}
+        <option value='{{ type.id }}' {% if type.id == typeComSelect %}selected{% endif %}>{{ type.libelle }}</option>
+    {% endfor %}
+</select>
+<button class='validation btn' id='valid_typeCom'><span class='glyphicon glyphicon-ok'></span>&nbsp;</button>
+<button class='annulation btn' id='annule_typeCom'><span class='glyphicon glyphicon-remove'></span>&nbsp;</button>

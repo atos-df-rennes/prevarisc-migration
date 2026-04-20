@@ -1,0 +1,12 @@
+<ul class='list-unstyled row' id='ligne_{{ updateDateComm.id }}' style='text-align:center;font-weight:bold;float:left;padding:3px 0 3px 0;'>
+    <li class='col-md-6'>{{ updateDateComm.date|date('d/m/Y') }}</li>
+    <li class='col-md-2'>{{ updateDateComm.heureDebut|date('H:i') }}</li>
+    <li class='col-md-2'>{{ updateDateComm.heureFin|date('H:i') }}</li>
+    <li class='col-md-2'>
+        <button class='edition btn' id='edit_dateComm_{{ updateDateComm.id }}'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
+        {% if updateDateComm.dateCommissionLiees is not null %}
+            <button class='suppression btn' id='supp_dateComm_{{ updateDateComm.id }}'><span class='glyphicon glyphicon-trash'></span>&nbsp;</button>
+            <button style='float:right;' class='dateDefaut btn' id='defaut_dateComm_{{ updateDateComm.id }}'><span class='glyphicon glyphicon-check'></span>&nbsp;</button>
+        {% endif %}
+    </li>
+</ul>

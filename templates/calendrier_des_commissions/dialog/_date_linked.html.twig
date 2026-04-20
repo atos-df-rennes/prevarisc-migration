@@ -1,0 +1,10 @@
+<ul class='list-unstyled row' id='ligne_{{ tabNouvelleDate.id }}' style='text-align:center;font-weight:bold;float:left;padding:3px 0 3px 0;'>
+    <li class='col-md-6'>{{ nouvelleDate }}</li>
+    <li class='col-md-2'>{{ tabNouvelleDate.heureDebut|date('H:i') }}</li>
+    <li class='col-md-2'>{{ tabNouvelleDate.heureFin|date('H:i') }}</li>
+    <li class='col-md-2'>
+        <button class='edition btn' id='edit_dateComm_{{ tabNouvelleDate.id }}'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
+        <button class='suppression btn' id='supp_dateComm_{{ tabNouvelleDate.id }}'><span class='glyphicon glyphicon-trash'></span>&nbsp;</button>
+        <button style='float:right;' class='dateDefaut btn' id='defaut_dateComm_{{ tabNouvelleDate.id }}'><span class='glyphicon glyphicon-check'></span>&nbsp;</button>
+    </li>
+</ul>

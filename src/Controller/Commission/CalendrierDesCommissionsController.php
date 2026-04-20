@@ -5,10 +5,16 @@ namespace App\Controller\Commission;
 use App\Dto\Commission\CalendarEventDto;
 use App\Dto\Commission\CommissionDatesDto;
 use App\Dto\Commission\DateCommissionLieeDto;
+use App\Entity\Commission;
+use App\Entity\Utilisateur;
 use App\Form\CalendrierDesCommissions\CommissionDatesType;
+use App\Repository\CommissionRepository;
+use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use App\Service\Commission\CommissionDatesTransformer;
+use App\Service\DataStore\SimpleFileDataStore;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,11 +40,404 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     private $commissionDatesTransformer;
 
-    public function __construct(CalendarService $calendarService, DateCommissionRepository $dateCommissionRepository, CommissionDatesTransformer $commissionDatesTransformer)
-    {
+    /**
+     * @var CommissionTypeEvenementRepository
+     */
+    private $commissionTypeEvenementRepository;
+
+    /**
+     * @var CommissionRepository
+     */
+    private $commissionRepository;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
+     * @var SimpleFileDataStore
+     */
+    private $dataStore;
+
+    public function __construct(
+        CalendarService $calendarService,
+        DateCommissionRepository $dateCommissionRepository,
+        CommissionDatesTransformer $commissionDatesTransformer,
+        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
+        CommissionRepository $commissionRepository,
+        EntityManagerInterface $entityManager,
+        SimpleFileDataStore $dataStore
+    ) {
         $this->calendarService = $calendarService;
         $this->dateCommissionRepository = $dateCommissionRepository;
         $this->commissionDatesTransformer = $commissionDatesTransformer;
+        $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
+        $this->commissionRepository = $commissionRepository;
+        $this->entityManager = $entityManager;
+        $this->dataStore = $dataStore;
+    }
+
+    /**
+     * Page principale du calendrier des commissions.
+     *
+     * @Route("/calendrier-des-commissions", name="calendrier_des_commissions_index", methods={"GET"}, options={"expose"=true})
+     */
+    public function index(Request $request): Response
+    {
+        /** @var string|null $rawIdComm */
+        $rawIdComm = $request->query->get('idComm');
+        $idComm = null !== $rawIdComm && '' !== $rawIdComm ? (int) $rawIdComm : null;
+
+        $arrayCommissions = $this->commissionRepository->getCommissionsAndTypes();
+
+        $isAdmin = $this->isGranted('gestion_commissions');
+        $isViewAll = $this->isGranted('calendar_view_all');
+
+        $user = $this->getUser();
+        $userCommissionIds = [];
+        if ($user instanceof Utilisateur) {
+            $userCommissionIds = array_map(
+                function (Commission $c): int {
+                    return (int) $c->getId();
+                },
+                $user->getCommissions()->toArray()
+            );
+        }
+
+        $urlWebcal = '';
+        $securityKey = getenv('PREVARISC_SECURITY_KEY');
+        if (false !== $securityKey && '' !== $securityKey) {
+            $userId = ($user instanceof Utilisateur) ? (int) $user->getId() : 0;
+            $protocol = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS']) ? 'webcals' : 'webcal';
+            $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+            $url = sprintf('/api/1.0/calendar?userid=%s&key=%s', $userId, $securityKey);
+            if (null !== $idComm) {
+                $url .= sprintf('&commission=%s', $idComm);
+            }
+
+            $urlWebcal = $protocol.'://'.$host.$url;
+        }
+
+        return $this->render('calendrier_des_commissions/index.html.twig', [
+            'idComm' => $idComm,
+            'array_commissions' => $arrayCommissions,
+            'url_webcal' => $urlWebcal,
+            'is_admin' => $isAdmin,
+            'is_view_all' => $isViewAll,
+            'user_commission_ids' => $userCommissionIds,
+        ]);
+    }
+
+    /**
+     * Autocomplete de recherche de commission.
+     *
+     * @Route("/calendrier-des-commissions/commissionselection", name="calendrier_des_commissions_commissionselection", methods={"GET"}, options={"expose"=true})
+     */
+    public function commissionSelection(Request $request): JsonResponse
+    {
+        /** @var string $q */
+        $q = $request->query->get('q', '');
+
+        if ('' === $q) {
+            return $this->json([]);
+        }
+
+        $conn = $this->entityManager->getConnection();
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative(
+            'SELECT ID_COMMISSION, LIBELLE_COMMISSION FROM commission WHERE LIBELLE_COMMISSION LIKE :q',
+            ['q' => '%'.$q.'%']
+        );
+
+        $items = array_map(function (array $row): array {
+            return [
+                'id' => $row['ID_COMMISSION'],
+                'infos' => $row['LIBELLE_COMMISSION'],
+            ];
+        }, $rows);
+
+        return $this->json($items);
+    }
+
+    /**
+     * Dialogue de gestion des dates de commission (mega-switch).
+     *
+     * @Route("/calendrier-des-commissions/dialogcomm", name="calendrier_des_commissions_dialog_edit", methods={"POST"}, options={"expose"=true})
+     */
+    public function dialogComm(Request $request): Response
+    {
+        /** @var string $do */
+        $do = $request->request->get('do', '');
+        /** @var string $rawIdDateComm */
+        $rawIdDateComm = $request->request->get('idDateComm', '0');
+        $idDateComm = (int) $rawIdDateComm;
+
+        if ('edit' === $do) {
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            if (null === $dateCommission->getDateCommissionLiees()) {
+                $idMaster = $dateCommission->getId();
+            } else {
+                $idMaster = $dateCommission->getDateCommissionLiees();
+            }
+
+            $listeDates = $this->dateCommissionRepository->getCommissionsQtypListing((int) $idMaster);
+
+            return $this->render('calendrier_des_commissions/dialog/_edit.html.twig', [
+                'dateCommission' => $dateCommission,
+                'idMaster' => $idMaster,
+                'listeDates' => $listeDates,
+                'idComm' => $request->request->get('idComm'),
+            ]);
+        }
+
+        if ('libelleCom' === $do || 'annule_libelleCom' === $do) {
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            return $this->render('calendrier_des_commissions/dialog/_libelle_edit.html.twig', [
+                'libelleDateComm' => $dateCommission->getLibelle(),
+            ]);
+        }
+
+        if ('valid_libelleCom' === $do) {
+            /** @var string $data */
+            $data = $request->request->get('data', '');
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            if (null === $dateCommission->getDateCommissionLiees()) {
+                $this->calendarService->updateLibelle($idDateComm, $data);
+            } else {
+                $this->calendarService->updateLibelle((int) $dateCommission->getDateCommissionLiees(), $data);
+            }
+
+            return $this->render('calendrier_des_commissions/dialog/_libelle_display.html.twig', [
+                'libelleDateComm' => $data,
+            ]);
+        }
+
+        if ('typeCom' === $do) {
+            $listeCommType = $this->commissionTypeEvenementRepository->findAll();
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            $typeEvenement = $dateCommission->getTypeEvenement();
+
+            return $this->render('calendrier_des_commissions/dialog/_type_edit.html.twig', [
+                'listeCommType' => $listeCommType,
+                'typeComSelect' => null !== $typeEvenement ? $typeEvenement->getId() : null,
+            ]);
+        }
+
+        if ('valid_typeCom' === $do) {
+            /** @var string $rawTypeSelect */
+            $rawTypeSelect = $request->request->get('typeSelect', '0');
+            $idTypeSelect = (int) $rawTypeSelect;
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            $idUtile = null !== $dateCommission->getDateCommissionLiees()
+                ? (int) $dateCommission->getDateCommissionLiees()
+                : $dateCommission->getId();
+
+            $this->calendarService->updateType((int) $idUtile, $idTypeSelect);
+
+            $infoType = $this->commissionTypeEvenementRepository->find($idTypeSelect);
+
+            return $this->render('calendrier_des_commissions/dialog/_type_display.html.twig', [
+                'libelleType' => null !== $infoType ? $infoType->getLibelle() : '',
+            ]);
+        }
+
+        if ('annule_typeCom' === $do) {
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            $infoType = $dateCommission->getTypeEvenement();
+
+            return $this->render('calendrier_des_commissions/dialog/_type_display.html.twig', [
+                'libelleType' => null !== $infoType ? $infoType->getLibelle() : '',
+            ]);
+        }
+
+        if ('dateComm' === $do) {
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            /** @var string|null $first */
+            $first = $request->request->get('first');
+
+            return $this->render('calendrier_des_commissions/dialog/_date_edit.html.twig', [
+                'dateCommDetail' => $dateCommission,
+                'first' => $first,
+            ]);
+        }
+
+        if ('annule_dateCom' === $do) {
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            /** @var string|null $first */
+            $first = $request->request->get('first');
+
+            return $this->render('calendrier_des_commissions/dialog/_date_display.html.twig', [
+                'updateDateComm' => $dateCommission,
+                'first' => $first,
+            ]);
+        }
+
+        if ('valid_dateCom' === $do) {
+            /** @var string $date */
+            $date = $request->request->get('date', '');
+            /** @var string $hd */
+            $hd = $request->request->get('hd', '');
+            /** @var string $hf */
+            $hf = $request->request->get('hf', '');
+            /** @var string|null $first */
+            $first = $request->request->get('first');
+
+            $dateCommission = $this->calendarService->updateDateCommission($idDateComm, $date, $hd, $hf);
+
+            return $this->render('calendrier_des_commissions/dialog/_date_display.html.twig', [
+                'updateDateComm' => $dateCommission,
+                'first' => $first,
+            ]);
+        }
+
+        if ('supp_dateCom' === $do) {
+            $deleted = $this->calendarService->deleteLinkedDate($idDateComm);
+
+            return new Response('');
+        }
+
+        if ('addDateN' === $do) {
+            /** @var string $dateStr */
+            $dateStr = $request->request->get('date', '');
+            $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+            if (false === $date) {
+                return new Response('Erreur format date');
+            }
+
+            $dateAjoutee = $this->formatDateFr($date);
+            $dateAjouteeInput = $date->format('Y-m-d');
+
+            return $this->render('calendrier_des_commissions/dialog/_date_new.html.twig', [
+                'dateAjoutee' => $dateAjoutee,
+                'dateAjouteeInput' => $dateAjouteeInput,
+            ]);
+        }
+
+        if ('addDateS' === $do) {
+            /** @var string $dateStr */
+            $dateStr = $request->request->get('date', '');
+            /** @var string $rawIdDateCommLiee */
+            $rawIdDateCommLiee = $request->request->get('idDateCommLiee', '0');
+            $idDateCommLiee = (int) $rawIdDateCommLiee;
+
+            $newDate = $this->calendarService->addLinkedDate($idDateCommLiee, $dateStr);
+
+            $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+            $nouvelleDate = false !== $date ? $this->formatDateFr($date) : $dateStr;
+
+            return $this->render('calendrier_des_commissions/dialog/_date_linked.html.twig', [
+                'tabNouvelleDate' => $newDate,
+                'nouvelleDate' => $nouvelleDate,
+            ]);
+        }
+
+        if ('makeDefaut' === $do) {
+            $this->calendarService->changeMasterDate($idDateComm);
+
+            return new Response('');
+        }
+
+        return new Response('Erreur mauvais choix');
+    }
+
+    /**
+     * Affiche la boîte de dialogue de confirmation de suppression d'une date.
+     *
+     * @Route("/calendrier-des-commissions/alertsuppression", name="calendrier_des_commissions_alertsuppression", methods={"POST"}, options={"expose"=true})
+     */
+    public function alertSuppression(Request $request): Response
+    {
+        /** @var string $commissionId */
+        $commissionId = $request->request->get('commissionId', '');
+        /** @var string $dateCommission */
+        $dateCommission = $request->request->get('dateCommission', '');
+
+        return $this->render('calendrier_des_commissions/alertsuppression.html.twig', [
+            'commissionId' => $commissionId,
+            'dateCommission' => $dateCommission,
+        ]);
+    }
+
+    /**
+     * Supprime définitivement une date de commission et ses données liées.
+     *
+     * @Route("/calendrier-des-commissions/validsuppression", name="calendrier_des_commissions_validsuppression", methods={"POST"}, options={"expose"=true})
+     */
+    public function validSuppression(Request $request): Response
+    {
+        /** @var string $rawIdDateCommission */
+        $rawIdDateCommission = $request->request->get('dateCommission', '0');
+        $idDateCommission = (int) $rawIdDateCommission;
+
+        $conn = $this->entityManager->getConnection();
+
+        $listeDossiersAffect = $this->dateCommissionRepository->findDossierAffectForCommission($idDateCommission);
+        $listeDossierNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($idDateCommission);
+        $listeDossiers = array_merge($listeDossiersAffect, $listeDossierNonAffect);
+
+        foreach ($listeDossiers as $dossier) {
+            $conn->executeStatement(
+                'UPDATE dossier SET DATECOMM_DOSSIER = NULL WHERE ID_DOSSIER = :id',
+                ['id' => is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0]
+            );
+        }
+
+        $conn->executeStatement(
+            'DELETE FROM dossieraffectation WHERE ID_DATECOMMISSION_AFFECT = :id',
+            ['id' => $idDateCommission]
+        );
+
+        $dateCommission = $this->dateCommissionRepository->find($idDateCommission);
+
+        if (null !== $dateCommission) {
+            $piecesJointes = $dateCommission->getPiecesJointes()->toArray();
+
+            foreach ($piecesJointes as $pj) {
+                $path = $this->dataStore->getFilePath($pj, 'dateCommission', $idDateCommission);
+                if (file_exists($path)) {
+                    @unlink($path);
+                }
+            }
+
+            $this->entityManager->remove($dateCommission);
+            $this->entityManager->flush();
+        }
+
+        return new Response('');
     }
 
     /**
@@ -272,5 +671,17 @@ class CalendrierDesCommissionsController extends AbstractController
         return $this->render('calendrier_des_commissions/form_date.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Formate une date en libellé français court (ex: "Lundi 12 Jan 2026").
+     * Port de Zend_Date::get(WEEKDAY DAY_SHORT MONTH_NAME_SHORT YEAR, 'fr').
+     */
+    private function formatDateFr(\DateTime $date): string
+    {
+        $days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        $months = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+        return $days[(int) $date->format('w')].' '.$date->format('d').' '.$months[(int) $date->format('n')].' '.$date->format('Y');
     }
 }
