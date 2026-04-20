@@ -26,11 +26,11 @@
                 })
             })
 
-            new TomSelect("#ressource_specialisee_dossier_natures", { plugins: ['remove_button'], maxOptions: null, placeholder: 'Toutes les natures' });
-            new TomSelect("#ressource_specialisee_etablissement_categories", { plugins: ['remove_button'], maxOptions: null, placeholder: 'Toutes les catégories' });
-            new TomSelect("#ressource_specialisee_etablissement_familles", { plugins: ['remove_button'], maxOptions: null, placeholder: 'Toutes les familles' });
-            new TomSelect("#ressource_specialisee_etablissement_classes", { plugins: ['remove_button'], maxOptions: null, placeholder: 'Toutes les classes' });
-            new TomSelect("#ressource_specialisee_etablissement_classements", { plugins: ['remove_button'], maxOptions: null, placeholder: 'Tous les classements' });
+            new TomSelect("#ressource_specialisee_dossier_natures", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les natures' });
+            new TomSelect("#ressource_specialisee_etablissement_categories", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les catégories' });
+            new TomSelect("#ressource_specialisee_etablissement_familles", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les familles' });
+            new TomSelect("#ressource_specialisee_etablissement_classes", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les classes' });
+            new TomSelect("#ressource_specialisee_etablissement_classements", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Tous les classements' });
 
             // Action sur le changement du genre des ressources établissement (affichage des champs)
             $("#ressource_specialisee_etablissement_genre").change(function() {
