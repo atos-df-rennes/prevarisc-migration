@@ -108,7 +108,7 @@
             <div class='col-md-7'>
                 <div class='row'>
                     <div class='col-md-6'>
-                        <select name='commune' data-placeholder='Sélectionner une commune' onchange="masquerBoutonExportCalc()">
+                        <select name='commune' class="form-control" data-placeholder='Sélectionner une commune' onchange="masquerBoutonExportCalc()">
                             <option value=''>Sélectionner une commune</option>
                             {% for commune in array_communes %}
                                 <option value='{{ commune.NUMINSEE_COMMUNE }}'
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class='col-md-6'>
-                        <select name='voie' data-placeholder='Sélectionner une voie' onchange="masquerBoutonExportCalc()">
+                        <select name='voie' class="form-control" data-placeholder='Sélectionner une voie' onchange="masquerBoutonExportCalc()">
                             <option value=''>Sélectionner une voie</option>
                             {% for voie in array_voies %}
                                 <option value='{{ voie.ID_RUE }}'
@@ -133,7 +133,7 @@
                 </div>
                 <div class='row' style="margin-top: 4px;">
                     <div class='col-md-6'>
-                        <select name='numero' data-placeholder='Sélectionner un numéro' onchange="masquerBoutonExportCalc()">
+                        <select name='numero' class="form-control" data-placeholder='Sélectionner un numéro' onchange="masquerBoutonExportCalc()">
                             <option value=''>Sélectionner un numéro</option>
                             {% for numero in array_numeros %}
                                 <option value='{{ numero.NUMERO_ADRESSE }}'
@@ -146,7 +146,7 @@
                 </div>
                 <div class='row' style="margin-top: 10px;">
                     <div class="col-md-6">
-                        <select name="preventionniste" data-placeholder='Sélectionner un préventionniste' onchange="masquerBoutonExportCalc()">
+                        <select name="preventionniste" class="form-control" data-placeholder='Sélectionner un préventionniste' onchange="masquerBoutonExportCalc()">
                             <option value=''>Sélectionner un préventionniste</option>
                             {% for prev in liste_prev %}
                                 <option value='{{ prev.ID_PREVENTIONNISTE }}'
