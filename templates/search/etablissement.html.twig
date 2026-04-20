@@ -45,7 +45,8 @@
 
     <div id="filterContainer" class="well" style="margin-left: 0;">
         <div class="row">
-            <div>
+            <div class="row">
+                <div class="col-sm-3">
                 <select name='statuts[]' multiple onchange="masquerBoutonExportCalc()">
                     {% for statut in DB_statut %}
                         <option value='{{ statut.ID_STATUT }}'
@@ -54,14 +55,20 @@
                         </option>
                     {% endfor %}
                 </select>
+                </div>
+                <div class="col-sm-3">
                 <select name='presences_local_sommeil[]' multiple onchange="masquerBoutonExportCalc()">
                     <option value='true' {% if app.request.query.get('presences_local_sommeil') is not null and 'true' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Avec</option>
                     <option value='false' {% if app.request.query.get('presences_local_sommeil') is not null and 'false' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Sans</option>
                 </select>
+                </div>
+                <div class="col-sm-3">
                 <select name='avis[]' multiple onchange="masquerBoutonExportCalc()">
                     <option value='true' {% if app.request.query.get('avis') is not null and 'true' in app.request.query.get('avis') %}selected{% endif %}>Favorable</option>
                     <option value='false' {% if app.request.query.get('avis') is not null and 'false' in app.request.query.get('avis') %}selected{% endif %}>Défavorable</option>
                 </select>
+                </div>
+                <div class="col-sm-3">
                 <select name='commissions[]' multiple onchange="masquerBoutonExportCalc()">
                     {% for commission in DB_commission %}
                         <option value='{{ commission.ID_COMMISSION }}'
@@ -70,8 +77,10 @@
                         </option>
                     {% endfor %}
                 </select>
+                </div>
             </div>
-            <div id='criteres_plus' style='margin-top: 4px;'>
+            <div id='criteres_plus' class="row" style='margin-top: 4px;'>
+                <div class="col-sm-3">
                 <select name='genres[]' multiple onchange="masquerBoutonExportCalc()">
                     {% for genre in DB_genre %}
                         <option value='{{ genre.ID_GENRE }}'
@@ -80,7 +89,8 @@
                         </option>
                     {% endfor %}
                 </select>
-                <span id='categorie_span' style='display:none'>
+                </div>
+                <div class="col-sm-3" id='categorie_span' style='display:none'>
                     <select name='categories[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for categorie in DB_categorie %}
                             <option value='{{ categorie.ID_CATEGORIE }}'
@@ -89,8 +99,8 @@
                             </option>
                         {% endfor %}
                     </select>
-                </span>
-                <span id='classe_span' style='display:none'>
+                </div>
+                <div class="col-sm-3" id='classe_span' style='display:none'>
                     <select name='classes[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for classe in DB_classe %}
                             <option value='{{ classe.ID_CLASSE }}'
@@ -99,8 +109,8 @@
                             </option>
                         {% endfor %}
                     </select>
-                </span>
-                <span id='famille_span' style='display:none'>
+                </div>
+                <div class="col-sm-3" id='famille_span' style='display:none'>
                     <select name='familles[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for famille in DB_famille %}
                             <option value='{{ famille.ID_FAMILLE }}'
@@ -109,8 +119,8 @@
                             </option>
                         {% endfor %}
                     </select>
-                </span>
-                <span id='type_span' style='display:none'>
+                </div>
+                <div class="col-sm-3" id='type_span' style='display:none'>
                     <select name='types_activites[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for type in DB_typeactivite %}
                             <optgroup label="{{ type.LIBELLE_TYPE }}">
@@ -121,10 +131,11 @@
                             </optgroup>
                         {% endfor %}
                     </select>
-                </span>
+                </div>
             </div>
 
-            <div style='margin-top: 4px; margin-bottom: 10px;'>
+            <div class="row" style='margin-top: 4px; margin-bottom: 10px;'>
+                <div class="col-sm-4">
                 <select name='groupements_territoriaux[]' multiple onchange="masquerBoutonExportCalc()">
                     {% for groupement in DB_groupementterritorial %}
                         {% set selected = false %}
@@ -141,10 +152,12 @@
                         </option>
                     {% endfor %}
                 </select>
+                </div>
             </div>
         </div>
 
         <div class="row">
+            <div class="col-sm-3">
             <select name="preventionniste" data-placeholder='Sélectionnez un préventionniste' onchange="masquerBoutonExportCalc()">
                 <option value=''></option>
                 {% for prev in liste_prev %}
@@ -154,6 +167,7 @@
                     </option>
                 {% endfor %}
             </select>
+            </div>
         </div>
     </div>
 
