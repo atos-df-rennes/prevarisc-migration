@@ -189,58 +189,58 @@ class SearchController extends AbstractController
                     $rows = $search['results'];
 
                     return new StreamedResponse(function () use ($rows): void {
-                        $objPHPExcel = new \PHPExcel();
-                        $objPHPExcel->setActiveSheetIndex(0);
+                        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                        $spreadsheet->setActiveSheetIndex(0);
 
-                        $sheet = $objPHPExcel->getActiveSheet();
+                        $sheet = $spreadsheet->getActiveSheet();
                         $sheet->setTitle('Liste des établissements');
 
-                        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10)->setBold(false);
+                        $spreadsheet->getDefaultStyle()->getFont()->setName('Arial')->setSize(10)->setBold(false);
                         $sheet->getDefaultRowDimension()->setRowHeight(-1);
 
                         $styleArray = [
-                            'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]],
+                            'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
                         ];
                         $sheet->getStyle('A1:X1')->applyFromArray($styleArray);
-                        $sheet->getStyle('A1:X1')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                        $sheet->getStyle('A1:X1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle('A1:X1')->getFont()->setSize(11)->setBold(true);
 
-                        $sheet->setCellValueByColumnAndRow(0, '1', 'Commune');
-                        $sheet->setCellValueByColumnAndRow(1, '1', 'Catégorie');
-                        $sheet->setCellValueByColumnAndRow(2, '1', 'Type');
-                        $sheet->setCellValueByColumnAndRow(3, '1', 'Activité');
-                        $sheet->setCellValueByColumnAndRow(4, '1', 'Commission compétente');
-                        $sheet->setCellValueByColumnAndRow(5, '1', 'Code/identifiant établissement');
-                        $sheet->setCellValueByColumnAndRow(6, '1', 'Libellé établissement');
-                        $sheet->setCellValueByColumnAndRow(7, '1', 'Statut');
-                        $sheet->setCellValueByColumnAndRow(8, '1', 'Avis');
-                        $sheet->setCellValueByColumnAndRow(9, '1', 'Date du dernier avis');
-                        $sheet->setCellValueByColumnAndRow(10, '1', 'Date du premier avis favorable');
-                        $sheet->setCellValueByColumnAndRow(11, '1', 'Date du premier avis défavorable consécutif');
-                        $sheet->setCellValueByColumnAndRow(12, '1', 'Effectif total');
-                        $sheet->setCellValueByColumnAndRow(13, '1', 'Effectif public');
-                        $sheet->setCellValueByColumnAndRow(14, '1', 'Effectif personnel');
-                        $sheet->setCellValueByColumnAndRow(15, '1', 'Date de dernière visite');
-                        $sheet->setCellValueByColumnAndRow(16, '1', 'Date de prochaine visite périodique');
-                        $sheet->setCellValueByColumnAndRow(17, '1', 'Date de visite prévue');
-                        $sheet->setCellValueByColumnAndRow(18, '1', 'Adresse');
-                        $sheet->setCellValueByColumnAndRow(19, '1', 'Groupement territorial compétent');
-                        $sheet->setCellValueByColumnAndRow(20, '1', 'Libellé du père/site');
-                        $sheet->setCellValueByColumnAndRow(21, '1', 'Genre');
-                        $sheet->setCellValueByColumnAndRow(22, '1', 'Préventionniste');
-                        $sheet->setCellValueByColumnAndRow(23, '1', 'Présence de locaux à sommeil');
+                        $sheet->setCellValueByColumnAndRow(1, 1, 'Commune');
+                        $sheet->setCellValueByColumnAndRow(2, 1, 'Catégorie');
+                        $sheet->setCellValueByColumnAndRow(3, 1, 'Type');
+                        $sheet->setCellValueByColumnAndRow(4, 1, 'Activité');
+                        $sheet->setCellValueByColumnAndRow(5, 1, 'Commission compétente');
+                        $sheet->setCellValueByColumnAndRow(6, 1, 'Code/identifiant établissement');
+                        $sheet->setCellValueByColumnAndRow(7, 1, 'Libellé établissement');
+                        $sheet->setCellValueByColumnAndRow(8, 1, 'Statut');
+                        $sheet->setCellValueByColumnAndRow(9, 1, 'Avis');
+                        $sheet->setCellValueByColumnAndRow(10, 1, 'Date du dernier avis');
+                        $sheet->setCellValueByColumnAndRow(11, 1, 'Date du premier avis favorable');
+                        $sheet->setCellValueByColumnAndRow(12, 1, 'Date du premier avis défavorable consécutif');
+                        $sheet->setCellValueByColumnAndRow(13, 1, 'Effectif total');
+                        $sheet->setCellValueByColumnAndRow(14, 1, 'Effectif public');
+                        $sheet->setCellValueByColumnAndRow(15, 1, 'Effectif personnel');
+                        $sheet->setCellValueByColumnAndRow(16, 1, 'Date de dernière visite');
+                        $sheet->setCellValueByColumnAndRow(17, 1, 'Date de prochaine visite périodique');
+                        $sheet->setCellValueByColumnAndRow(18, 1, 'Date de visite prévue');
+                        $sheet->setCellValueByColumnAndRow(19, 1, 'Adresse');
+                        $sheet->setCellValueByColumnAndRow(20, 1, 'Groupement territorial compétent');
+                        $sheet->setCellValueByColumnAndRow(21, 1, 'Libellé du père/site');
+                        $sheet->setCellValueByColumnAndRow(22, 1, 'Genre');
+                        $sheet->setCellValueByColumnAndRow(23, 1, 'Préventionniste');
+                        $sheet->setCellValueByColumnAndRow(24, 1, 'Présence de locaux à sommeil');
 
                         $ligne = 2;
                         foreach ($rows as $row) {
-                            $sheet->setCellValueByColumnAndRow(0, (string) $ligne, $row['LIBELLE_COMMUNE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(1, (string) $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(2, (string) $ligne, $row['LIBELLE_TYPE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(3, (string) $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(4, (string) $ligne, $row['LIBELLE_COMMISSION'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(5, (string) $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(6, (string) $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(7, (string) $ligne, $row['LIBELLE_STATUT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(8, (string) $ligne, $row['LIBELLE_AVIS'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(1, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(2, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(3, $ligne, $row['LIBELLE_TYPE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(4, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(5, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(8, $ligne, $row['LIBELLE_STATUT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(9, $ligne, $row['LIBELLE_AVIS'] ?? '');
 
                             if ('' !== ($row['DATE_DERNIER_AVIS'] ?? '')) {
                                 $dateDernierAvis = preg_split('/-|\//', (string) $row['DATE_DERNIER_AVIS']);
@@ -249,9 +249,9 @@ class SearchController extends AbstractController
                                         $dateDernierAvis[2] = substr($dateDernierAvis[2], 0, 2);
                                     }
 
-                                    $datetimeDernierAvis = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateDernierAvis[0], (int) $dateDernierAvis[1], (int) $dateDernierAvis[2]);
-                                    $sheet->setCellValueByColumnAndRow(9, (string) $ligne, $datetimeDernierAvis);
-                                    $sheet->getStyleByColumnAndRow(9, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $datetimeDernierAvis = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateDernierAvis[0], (int) $dateDernierAvis[1], (int) $dateDernierAvis[2]);
+                                    $sheet->setCellValueByColumnAndRow(10, $ligne, $datetimeDernierAvis);
+                                    $sheet->getStyleByColumnAndRow(10, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -262,9 +262,9 @@ class SearchController extends AbstractController
                                         $datePremierAvisFav[2] = substr($datePremierAvisFav[2], 0, 2);
                                     }
 
-                                    $dtPremierAvisFav = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $datePremierAvisFav[0], (int) $datePremierAvisFav[1], (int) $datePremierAvisFav[2]);
-                                    $sheet->setCellValueByColumnAndRow(10, (string) $ligne, $dtPremierAvisFav);
-                                    $sheet->getStyleByColumnAndRow(10, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $dtPremierAvisFav = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $datePremierAvisFav[0], (int) $datePremierAvisFav[1], (int) $datePremierAvisFav[2]);
+                                    $sheet->setCellValueByColumnAndRow(11, $ligne, $dtPremierAvisFav);
+                                    $sheet->getStyleByColumnAndRow(11, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -275,15 +275,15 @@ class SearchController extends AbstractController
                                         $datePremierAvisDefCons[2] = substr($datePremierAvisDefCons[2], 0, 2);
                                     }
 
-                                    $dtDefCons = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $datePremierAvisDefCons[0], (int) $datePremierAvisDefCons[1], (int) $datePremierAvisDefCons[2]);
-                                    $sheet->setCellValueByColumnAndRow(11, (string) $ligne, $dtDefCons);
-                                    $sheet->getStyleByColumnAndRow(11, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $dtDefCons = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $datePremierAvisDefCons[0], (int) $datePremierAvisDefCons[1], (int) $datePremierAvisDefCons[2]);
+                                    $sheet->setCellValueByColumnAndRow(12, $ligne, $dtDefCons);
+                                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
-                            $sheet->setCellValueByColumnAndRow(12, (string) $ligne, (int) ($row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0) + (int) ($row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                            $sheet->setCellValueByColumnAndRow(13, (string) $ligne, $row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(14, (string) $ligne, $row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(13, $ligne, (int) ($row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0) + (int) ($row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                            $sheet->setCellValueByColumnAndRow(14, $ligne, $row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(15, $ligne, $row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? '');
 
                             if ('' !== ($row['DATE_DERNIERE_VISITE'] ?? '')) {
                                 $dateDerniereVisite = preg_split('/-|\//', (string) $row['DATE_DERNIERE_VISITE']);
@@ -292,9 +292,9 @@ class SearchController extends AbstractController
                                         $dateDerniereVisite[2] = substr($dateDerniereVisite[2], 0, 2);
                                     }
 
-                                    $datetimeDerniereVisite = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateDerniereVisite[0], (int) $dateDerniereVisite[1], (int) $dateDerniereVisite[2]);
-                                    $sheet->setCellValueByColumnAndRow(15, (string) $ligne, $datetimeDerniereVisite);
-                                    $sheet->getStyleByColumnAndRow(15, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $datetimeDerniereVisite = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateDerniereVisite[0], (int) $dateDerniereVisite[1], (int) $dateDerniereVisite[2]);
+                                    $sheet->setCellValueByColumnAndRow(16, $ligne, $datetimeDerniereVisite);
+                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
 
                                     if (0 != $row['PERIODICITE_ETABLISSEMENTINFORMATIONS']) {
                                         $periodicite = (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS'];
@@ -305,9 +305,9 @@ class SearchController extends AbstractController
                                                 $dateProchaineVisite = date('Y-m-j', $tsProchaine);
                                                 $dateProchaineVisiteParts = preg_split('/-|\//', $dateProchaineVisite);
                                                 if (is_array($dateProchaineVisiteParts) && count($dateProchaineVisiteParts) >= 3) {
-                                                    $datetimeProchaineVisite = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateProchaineVisiteParts[0], (int) $dateProchaineVisiteParts[1], (int) $dateProchaineVisiteParts[2]);
-                                                    $sheet->setCellValueByColumnAndRow(16, (string) $ligne, $datetimeProchaineVisite);
-                                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                                    $datetimeProchaineVisite = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateProchaineVisiteParts[0], (int) $dateProchaineVisiteParts[1], (int) $dateProchaineVisiteParts[2]);
+                                                    $sheet->setCellValueByColumnAndRow(17, $ligne, $datetimeProchaineVisite);
+                                                    $sheet->getStyleByColumnAndRow(17, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                                 }
                                             }
                                         }
@@ -322,23 +322,23 @@ class SearchController extends AbstractController
                                         $dateVisitePrevue[2] = substr($dateVisitePrevue[2], 0, 2);
                                     }
 
-                                    $datetimeVisitePrevue = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateVisitePrevue[0], (int) $dateVisitePrevue[1], (int) $dateVisitePrevue[2]);
-                                    $sheet->setCellValueByColumnAndRow(17, (string) $ligne, $datetimeVisitePrevue);
-                                    $sheet->getStyleByColumnAndRow(17, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $datetimeVisitePrevue = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateVisitePrevue[0], (int) $dateVisitePrevue[1], (int) $dateVisitePrevue[2]);
+                                    $sheet->setCellValueByColumnAndRow(18, $ligne, $datetimeVisitePrevue);
+                                    $sheet->getStyleByColumnAndRow(18, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
-                            $sheet->setCellValueByColumnAndRow(18, (string) $ligne, ($row['NUMERO_ADRESSE'] ?? '').' '.($row['LIBELLE_RUE'] ?? '').' '.($row['COMPLEMENT_ADRESSE'] ?? '').' '.($row['CODEPOSTAL_COMMUNE'] ?? ''));
-                            $sheet->setCellValueByColumnAndRow(19, (string) $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(20, (string) $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(21, (string) $ligne, $row['LIBELLE_GENRE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(22, (string) $ligne, ($row['PRENOM_UTILISATEURINFORMATIONS'] ?? '').' '.($row['NOM_UTILISATEURINFORMATIONS'] ?? ''));
-                            $sheet->setCellValueByColumnAndRow(23, (string) $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
+                            $sheet->setCellValueByColumnAndRow(19, $ligne, ($row['NUMERO_ADRESSE'] ?? '').' '.($row['LIBELLE_RUE'] ?? '').' '.($row['COMPLEMENT_ADRESSE'] ?? '').' '.($row['CODEPOSTAL_COMMUNE'] ?? ''));
+                            $sheet->setCellValueByColumnAndRow(20, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(21, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(22, $ligne, $row['LIBELLE_GENRE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(23, $ligne, ($row['PRENOM_UTILISATEURINFORMATIONS'] ?? '').' '.($row['NOM_UTILISATEURINFORMATIONS'] ?? ''));
+                            $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
 
                             ++$ligne;
                         }
 
-                        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'OpenDocument');
+                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Ods');
                         $writer->save('php://output');
                     }, Response::HTTP_OK, [
                         'Content-Type' => 'application/vnd.oasis.opendocument.spreadsheet',
@@ -563,58 +563,58 @@ class SearchController extends AbstractController
                     $provenanceForExport = $criteresRecherche['provenance'];
 
                     return new StreamedResponse(function () use ($rows, $provenanceForExport): void {
-                        $objPHPExcel = new \PHPExcel();
-                        $objPHPExcel->setActiveSheetIndex(0);
+                        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                        $spreadsheet->setActiveSheetIndex(0);
 
-                        $sheet = $objPHPExcel->getActiveSheet();
+                        $sheet = $spreadsheet->getActiveSheet();
                         $sheet->setTitle('Liste des dossiers');
 
-                        $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial')->setSize(10)->setBold(false);
+                        $spreadsheet->getDefaultStyle()->getFont()->setName('Arial')->setSize(10)->setBold(false);
                         $sheet->getDefaultRowDimension()->setRowHeight(-1);
 
                         $styleArray = [
-                            'borders' => ['allborders' => ['style' => \PHPExcel_Style_Border::BORDER_THIN]],
+                            'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
                         ];
                         $sheet->getStyle('A1:V1')->applyFromArray($styleArray);
-                        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle('A1:V1')->getFont()->setSize(11)->setBold(true);
 
-                        $sheet->setCellValueByColumnAndRow(0, '1', 'Groupement');
-                        $sheet->setCellValueByColumnAndRow(1, '1', 'Commune');
-                        $sheet->setCellValueByColumnAndRow(2, '1', 'Catégorie');
-                        $sheet->setCellValueByColumnAndRow(3, '1', 'Type');
-                        $sheet->setCellValueByColumnAndRow(4, '1', 'Activité');
-                        $sheet->setCellValueByColumnAndRow(5, '1', 'Code/identifiant établissement');
-                        $sheet->setCellValueByColumnAndRow(6, '1', 'Libellé établissement');
-                        $sheet->setCellValueByColumnAndRow(7, '1', 'Statut');
-                        $sheet->setCellValueByColumnAndRow(8, '1', 'Genre');
-                        $sheet->setCellValueByColumnAndRow(9, '1', 'Type du dossier');
-                        $sheet->setCellValueByColumnAndRow(10, '1', 'Nature du dossier');
-                        $sheet->setCellValueByColumnAndRow(11, '1', 'Date de création du dossier');
-                        $sheet->setCellValueByColumnAndRow(12, '1', 'Objet du dossier');
-                        $sheet->setCellValueByColumnAndRow(13, '1', 'Numéro document urbanisme');
-                        $sheet->setCellValueByColumnAndRow(14, '1', 'Date de visite');
-                        $sheet->setCellValueByColumnAndRow(15, '1', 'Date de la commission en salle');
-                        $sheet->setCellValueByColumnAndRow(16, '1', 'Commission du dossier');
-                        $sheet->setCellValueByColumnAndRow(17, '1', 'Avis rapporteur');
-                        $sheet->setCellValueByColumnAndRow(18, '1', 'Avis commission');
-                        $sheet->setCellValueByColumnAndRow(19, '1', 'Préventionniste en charge du dossier');
-                        $sheet->setCellValueByColumnAndRow(20, '1', 'Pièces jointes ?');
-                        $sheet->setCellValueByColumnAndRow(21, '1', 'Identifiant PLATAU');
+                        $sheet->setCellValueByColumnAndRow(1, 1, 'Groupement');
+                        $sheet->setCellValueByColumnAndRow(2, 1, 'Commune');
+                        $sheet->setCellValueByColumnAndRow(3, 1, 'Catégorie');
+                        $sheet->setCellValueByColumnAndRow(4, 1, 'Type');
+                        $sheet->setCellValueByColumnAndRow(5, 1, 'Activité');
+                        $sheet->setCellValueByColumnAndRow(6, 1, 'Code/identifiant établissement');
+                        $sheet->setCellValueByColumnAndRow(7, 1, 'Libellé établissement');
+                        $sheet->setCellValueByColumnAndRow(8, 1, 'Statut');
+                        $sheet->setCellValueByColumnAndRow(9, 1, 'Genre');
+                        $sheet->setCellValueByColumnAndRow(10, 1, 'Type du dossier');
+                        $sheet->setCellValueByColumnAndRow(11, 1, 'Nature du dossier');
+                        $sheet->setCellValueByColumnAndRow(12, 1, 'Date de création du dossier');
+                        $sheet->setCellValueByColumnAndRow(13, 1, 'Objet du dossier');
+                        $sheet->setCellValueByColumnAndRow(14, 1, 'Numéro document urbanisme');
+                        $sheet->setCellValueByColumnAndRow(15, 1, 'Date de visite');
+                        $sheet->setCellValueByColumnAndRow(16, 1, 'Date de la commission en salle');
+                        $sheet->setCellValueByColumnAndRow(17, 1, 'Commission du dossier');
+                        $sheet->setCellValueByColumnAndRow(18, 1, 'Avis rapporteur');
+                        $sheet->setCellValueByColumnAndRow(19, 1, 'Avis commission');
+                        $sheet->setCellValueByColumnAndRow(20, 1, 'Préventionniste en charge du dossier');
+                        $sheet->setCellValueByColumnAndRow(21, 1, 'Pièces jointes ?');
+                        $sheet->setCellValueByColumnAndRow(22, 1, 'Identifiant PLATAU');
 
                         $ligne = 2;
                         foreach ($rows as $row) {
-                            $sheet->setCellValueByColumnAndRow(0, (string) $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(1, (string) $ligne, $row['LIBELLE_COMMUNE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(2, (string) $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(3, (string) $ligne, $row['LIBELLE_TYPE_ETABLISSEMENT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(4, (string) $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(5, (string) $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(6, (string) $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(7, (string) $ligne, $row['LIBELLE_STATUT'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(8, (string) $ligne, $row['LIBELLE_GENRE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(9, (string) $ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(10, (string) $ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(1, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(2, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(3, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(4, $ligne, $row['LIBELLE_TYPE_ETABLISSEMENT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(5, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(8, $ligne, $row['LIBELLE_STATUT'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(9, $ligne, $row['LIBELLE_GENRE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(10, $ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(11, $ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
 
                             if ('' !== ($row['DATEINSERT_DOSSIER'] ?? '')) {
                                 $dateCreationDossier = preg_split('/-|\//', (string) $row['DATEINSERT_DOSSIER']);
@@ -623,14 +623,14 @@ class SearchController extends AbstractController
                                         $dateCreationDossier[2] = substr($dateCreationDossier[2], 0, 2);
                                     }
 
-                                    $datetimeCreationDossier = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateCreationDossier[0], (int) $dateCreationDossier[1], (int) $dateCreationDossier[2]);
-                                    $sheet->setCellValueByColumnAndRow(11, (string) $ligne, $datetimeCreationDossier);
-                                    $sheet->getStyleByColumnAndRow(11, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $datetimeCreationDossier = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateCreationDossier[0], (int) $dateCreationDossier[1], (int) $dateCreationDossier[2]);
+                                    $sheet->setCellValueByColumnAndRow(12, $ligne, $datetimeCreationDossier);
+                                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
-                            $sheet->setCellValueByColumnAndRow(12, (string) $ligne, $row['OBJET_DOSSIER'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(13, (string) $ligne, $row['NUM_DOCURBA'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(13, $ligne, $row['OBJET_DOSSIER'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(14, $ligne, $row['NUM_DOCURBA'] ?? '');
 
                             if ('' !== ($row['DATEVISITE_DOSSIER'] ?? '')) {
                                 $dateVisiteDossier = preg_split('/-|\//', (string) $row['DATEVISITE_DOSSIER']);
@@ -639,9 +639,9 @@ class SearchController extends AbstractController
                                         $dateVisiteDossier[2] = substr($dateVisiteDossier[2], 0, 2);
                                     }
 
-                                    $datetimeVisiteDossier = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateVisiteDossier[0], (int) $dateVisiteDossier[1], (int) $dateVisiteDossier[2]);
-                                    $sheet->setCellValueByColumnAndRow(14, (string) $ligne, $datetimeVisiteDossier);
-                                    $sheet->getStyleByColumnAndRow(14, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $datetimeVisiteDossier = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateVisiteDossier[0], (int) $dateVisiteDossier[1], (int) $dateVisiteDossier[2]);
+                                    $sheet->setCellValueByColumnAndRow(15, $ligne, $datetimeVisiteDossier);
+                                    $sheet->getStyleByColumnAndRow(15, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -652,27 +652,27 @@ class SearchController extends AbstractController
                                         $dateCommissionDossier[2] = substr($dateCommissionDossier[2], 0, 2);
                                     }
 
-                                    $datetimeCommissionDossier = \PHPExcel_Shared_Date::FormattedPHPToExcel((int) $dateCommissionDossier[0], (int) $dateCommissionDossier[1], (int) $dateCommissionDossier[2]);
-                                    $sheet->setCellValueByColumnAndRow(15, (string) $ligne, $datetimeCommissionDossier);
-                                    $sheet->getStyleByColumnAndRow(15, $ligne)->getNumberFormat()->setFormatCode(\PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $datetimeCommissionDossier = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateCommissionDossier[0], (int) $dateCommissionDossier[1], (int) $dateCommissionDossier[2]);
+                                    $sheet->setCellValueByColumnAndRow(16, $ligne, $datetimeCommissionDossier);
+                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
-                            $sheet->setCellValueByColumnAndRow(16, (string) $ligne, $row['LIBELLE_COMMISSION'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(17, (string) $ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(18, (string) $ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
-                            $sheet->setCellValueByColumnAndRow(19, (string) $ligne, ($row['PRENOM_UTILISATEURINFORMATIONS'] ?? '').' '.($row['NOM_UTILISATEURINFORMATIONS'] ?? ''));
+                            $sheet->setCellValueByColumnAndRow(17, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(18, $ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(19, $ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
+                            $sheet->setCellValueByColumnAndRow(20, $ligne, ($row['PRENOM_UTILISATEURINFORMATIONS'] ?? '').' '.($row['NOM_UTILISATEURINFORMATIONS'] ?? ''));
 
-                            $sheet->setCellValueByColumnAndRow(20, (string) $ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
+                            $sheet->setCellValueByColumnAndRow(21, $ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
 
                             if ('1' === $provenanceForExport) {
-                                $sheet->setCellValueByColumnAndRow(21, (string) $ligne, $row['ID_PLATAU'] ?? '');
+                                $sheet->setCellValueByColumnAndRow(22, $ligne, $row['ID_PLATAU'] ?? '');
                             }
 
                             ++$ligne;
                         }
 
-                        $writer = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'OpenDocument');
+                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Ods');
                         $writer->save('php://output');
                     }, Response::HTTP_OK, [
                         'Content-Type' => 'application/vnd.oasis.opendocument.spreadsheet',
