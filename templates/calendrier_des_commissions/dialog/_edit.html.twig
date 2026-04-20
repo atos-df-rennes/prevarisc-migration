@@ -1,16 +1,17 @@
 <form name='formDateComm' id='formDateComm' methode='POST'>
     <input type='hidden' name='dateCommission' id='dateCommission' value='{{ idMaster }}' />
     <input type='hidden' name='dateClick' id='dateClick' value='{{ dateCommission.id }}' />
+    <input type='hidden' name='_csrf_dialog' id='csrf_token_dialog' value='{{ csrf_token('calendrier_commissions_dialog') }}' />
     <p>
         <div id='div_libelleCom'>
             Libelle de la commission : {{ dateCommission.libelle }}
-            <button id='edit_libelleCom' class='edition btn'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
+            <button id='edit_libelleCom' class='edition btn btn-default'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
         </div>
     </p>
     <p>
         <div id='div_typeCom'>
             Le type de commission est : {{ dateCommission.typeEvenement is not null ? dateCommission.typeEvenement.libelle : '' }}
-            <button id='edit_typeCom' class='edition btn'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
+            <button id='edit_typeCom' class='edition btn btn-default'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
         </div>
     </p>
 
@@ -20,7 +21,7 @@
             <li class='col-md-2'>Heure début</li>
             <li class='col-md-2'>Heure fin</li>
             <li class='col-md-2'>
-                <button class='addDate btn'><span class='glyphicon glyphicon-plus'></span>&nbsp;</button>
+                <button class='addDate btn btn-default'><span class='glyphicon glyphicon-plus'></span>&nbsp;</button>
             </li>
         </ul>
         {% for liste_date in listeDates %}
@@ -29,10 +30,10 @@
                 <li class='col-md-2'>{{ liste_date.HEUREDEB_COMMISSION|slice(0, 5) }}</li>
                 <li class='col-md-2'>{{ liste_date.HEUREFIN_COMMISSION|slice(0, 5) }}</li>
                 <li class='col-md-2'>
-                    <button class='edition btn' name='edition' id='edit_dateComm_{{ liste_date.ID_DATECOMMISSION }}'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
+                    <button class='edition btn btn-default' name='edition' id='edit_dateComm_{{ liste_date.ID_DATECOMMISSION }}'><span class='glyphicon glyphicon-pencil'></span>&nbsp;</button>
                     {% if liste_date.DATECOMMISSION_LIEES %}
-                        <button class='suppression btn' id='supp_dateComm_{{ liste_date.ID_DATECOMMISSION }}'><span class='glyphicon glyphicon-trash'></span>&nbsp;</button>
-                        <button style='float:right;' class='dateDefaut btn' id='defaut_dateComm_{{ liste_date.ID_DATECOMMISSION }}'><span class='glyphicon glyphicon-check'></span>&nbsp;</button>
+                        <button class='suppression btn btn-default' id='supp_dateComm_{{ liste_date.ID_DATECOMMISSION }}'><span class='glyphicon glyphicon-trash'></span>&nbsp;</button>
+                        <button style='float:right;' class='dateDefaut btn btn-default' id='defaut_dateComm_{{ liste_date.ID_DATECOMMISSION }}'><span class='glyphicon glyphicon-check'></span>&nbsp;</button>
                     {% endif %}
                 </li>
             </ul>
@@ -43,11 +44,11 @@
         &nbsp;&nbsp;
         <ul class='list-unstyled row' style='text-align:center;font-weight:bold;float:left;padding:3px 0 3px 0;'>
             <li class='col-md-6'>
-                Selectionnez la date <input type='text' class='date' id='addDate' />
+                Selectionnez la date <input type='text' class='date form-control' id='addDate' />
             </li>
             <li class='col-md-4'>
-                <button class='validAddDate btn'><span class='glyphicon glyphicon-plus'></span>&nbsp;</button>
-                <button class='cancelAddDate btn'><span class='glyphicon glyphicon-remove'></span>&nbsp;</button>
+                <button class='validAddDate btn btn-default'><span class='glyphicon glyphicon-plus'></span>&nbsp;</button>
+                <button class='cancelAddDate btn btn-default'><span class='glyphicon glyphicon-remove'></span>&nbsp;</button>
             </li>
         </ul>
     </div>

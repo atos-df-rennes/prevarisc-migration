@@ -317,7 +317,7 @@ $(document).ready(function () {
             if ($('#dateCommission').val()) {
                 // Édition : insertion en base puis rafraîchissement calendrier
                 $.ajax({
-                    data: 'do=addDateS&date=' + dateSelect + '&idDateCommLiee=' + $('#dateCommission').val(),
+                    data: 'do=addDateS&date=' + dateSelect + '&idDateCommLiee=' + $('#dateCommission').val() + '&_csrf_dialog=' + $('#csrf_token_dialog').val(),
                     type: 'POST',
                     url: Routing.generate('calendrier_des_commissions_dialog_edit'),
                     beforeSend: function () {
@@ -451,7 +451,7 @@ $(document).ready(function () {
             case 'libelleCom':
                 data = $('#value_' + tabDo[1]).val();
                 $.ajax({
-                    data: 'idDateComm=' + $('#dateCommission').val() + '&do=valid_' + tabDo[1] + '&data=' + data,
+                    data: 'idDateComm=' + $('#dateCommission').val() + '&do=valid_' + tabDo[1] + '&data=' + data + '&_csrf_dialog=' + $('#csrf_token_dialog').val(),
                     url: Routing.generate('calendrier_des_commissions_dialog_edit'),
                     type: 'POST',
                     beforeSend: function () {
@@ -473,7 +473,7 @@ $(document).ready(function () {
                     data += '&first=1';
                 }
                 $.ajax({
-                    data: 'idDateComm=' + tabDo[2] + '&do=valid_' + tabDo[1] + data,
+                    data: 'idDateComm=' + tabDo[2] + '&do=valid_' + tabDo[1] + data + '&_csrf_dialog=' + $('#csrf_token_dialog').val(),
                     url: Routing.generate('calendrier_des_commissions_dialog_edit'),
                     type: 'POST',
                     beforeSend: function () {
@@ -491,7 +491,7 @@ $(document).ready(function () {
                 break;
             case 'typeCom':
                 $.ajax({
-                    data: 'typeSelect=' + $('#typeCom').val() + '&do=valid_' + tabDo[1] + '&idDateComm=' + $('#dateCommission').val(),
+                    data: 'typeSelect=' + $('#typeCom').val() + '&do=valid_' + tabDo[1] + '&idDateComm=' + $('#dateCommission').val() + '&_csrf_dialog=' + $('#csrf_token_dialog').val(),
                     url: Routing.generate('calendrier_des_commissions_dialog_edit'),
                     type: 'POST',
                     beforeSend: function () {
@@ -570,7 +570,7 @@ $(document).ready(function () {
     $(document).on('click', '.dateDefaut', function () {
         var tabId = $(this).attr('id').split('_');
         var id = tabId[2];
-        var data = 'do=makeDefaut&idDateComm=' + id;
+        var data = 'do=makeDefaut&idDateComm=' + id + '&_csrf_dialog=' + $('#csrf_token_dialog').val();
         $.ajax({
             data: data,
             url: Routing.generate('calendrier_des_commissions_dialog_edit'),
@@ -619,7 +619,7 @@ $(document).ready(function () {
         if ($('#dateCommission').val()) {
             // Édition : supprime en base et rafraîchit le calendrier
             var tabDo = $(this).attr('id').split('_');
-            var data = 'do=supp_dateCom&idDateComm=' + tabDo[2];
+            var data = 'do=supp_dateCom&idDateComm=' + tabDo[2] + '&_csrf_dialog=' + $('#csrf_token_dialog').val();
             $.ajax({
                 data: data,
                 url: Routing.generate('calendrier_des_commissions_dialog_edit'),

@@ -17,6 +17,12 @@ use App\Repository\GroupementRepository;
 use App\Repository\IghClasseRepository;
 use App\Service\Search as SearchService;
 use App\ValueObject\SearchPagination;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -189,7 +195,7 @@ class SearchController extends AbstractController
                     $rows = $search['results'];
 
                     return new StreamedResponse(function () use ($rows): void {
-                        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                        $spreadsheet = new Spreadsheet();
                         $spreadsheet->setActiveSheetIndex(0);
 
                         $sheet = $spreadsheet->getActiveSheet();
@@ -199,10 +205,10 @@ class SearchController extends AbstractController
                         $sheet->getDefaultRowDimension()->setRowHeight(-1);
 
                         $styleArray = [
-                            'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
+                            'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
                         ];
                         $sheet->getStyle('A1:X1')->applyFromArray($styleArray);
-                        $sheet->getStyle('A1:X1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                        $sheet->getStyle('A1:X1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle('A1:X1')->getFont()->setSize(11)->setBold(true);
 
                         $sheet->setCellValueByColumnAndRow(1, 1, 'Commune');
@@ -249,9 +255,9 @@ class SearchController extends AbstractController
                                         $dateDernierAvis[2] = substr($dateDernierAvis[2], 0, 2);
                                     }
 
-                                    $datetimeDernierAvis = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateDernierAvis[0], (int) $dateDernierAvis[1], (int) $dateDernierAvis[2]);
+                                    $datetimeDernierAvis = Date::formattedPHPToExcel((int) $dateDernierAvis[0], (int) $dateDernierAvis[1], (int) $dateDernierAvis[2]);
                                     $sheet->setCellValueByColumnAndRow(10, $ligne, $datetimeDernierAvis);
-                                    $sheet->getStyleByColumnAndRow(10, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(10, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -262,9 +268,9 @@ class SearchController extends AbstractController
                                         $datePremierAvisFav[2] = substr($datePremierAvisFav[2], 0, 2);
                                     }
 
-                                    $dtPremierAvisFav = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $datePremierAvisFav[0], (int) $datePremierAvisFav[1], (int) $datePremierAvisFav[2]);
+                                    $dtPremierAvisFav = Date::formattedPHPToExcel((int) $datePremierAvisFav[0], (int) $datePremierAvisFav[1], (int) $datePremierAvisFav[2]);
                                     $sheet->setCellValueByColumnAndRow(11, $ligne, $dtPremierAvisFav);
-                                    $sheet->getStyleByColumnAndRow(11, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(11, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -275,9 +281,9 @@ class SearchController extends AbstractController
                                         $datePremierAvisDefCons[2] = substr($datePremierAvisDefCons[2], 0, 2);
                                     }
 
-                                    $dtDefCons = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $datePremierAvisDefCons[0], (int) $datePremierAvisDefCons[1], (int) $datePremierAvisDefCons[2]);
+                                    $dtDefCons = Date::formattedPHPToExcel((int) $datePremierAvisDefCons[0], (int) $datePremierAvisDefCons[1], (int) $datePremierAvisDefCons[2]);
                                     $sheet->setCellValueByColumnAndRow(12, $ligne, $dtDefCons);
-                                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -292,9 +298,9 @@ class SearchController extends AbstractController
                                         $dateDerniereVisite[2] = substr($dateDerniereVisite[2], 0, 2);
                                     }
 
-                                    $datetimeDerniereVisite = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateDerniereVisite[0], (int) $dateDerniereVisite[1], (int) $dateDerniereVisite[2]);
+                                    $datetimeDerniereVisite = Date::formattedPHPToExcel((int) $dateDerniereVisite[0], (int) $dateDerniereVisite[1], (int) $dateDerniereVisite[2]);
                                     $sheet->setCellValueByColumnAndRow(16, $ligne, $datetimeDerniereVisite);
-                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
 
                                     if (0 != $row['PERIODICITE_ETABLISSEMENTINFORMATIONS']) {
                                         $periodicite = (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS'];
@@ -305,9 +311,9 @@ class SearchController extends AbstractController
                                                 $dateProchaineVisite = date('Y-m-j', $tsProchaine);
                                                 $dateProchaineVisiteParts = preg_split('/-|\//', $dateProchaineVisite);
                                                 if (is_array($dateProchaineVisiteParts) && count($dateProchaineVisiteParts) >= 3) {
-                                                    $datetimeProchaineVisite = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateProchaineVisiteParts[0], (int) $dateProchaineVisiteParts[1], (int) $dateProchaineVisiteParts[2]);
+                                                    $datetimeProchaineVisite = Date::formattedPHPToExcel((int) $dateProchaineVisiteParts[0], (int) $dateProchaineVisiteParts[1], (int) $dateProchaineVisiteParts[2]);
                                                     $sheet->setCellValueByColumnAndRow(17, $ligne, $datetimeProchaineVisite);
-                                                    $sheet->getStyleByColumnAndRow(17, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                                    $sheet->getStyleByColumnAndRow(17, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                                 }
                                             }
                                         }
@@ -322,9 +328,9 @@ class SearchController extends AbstractController
                                         $dateVisitePrevue[2] = substr($dateVisitePrevue[2], 0, 2);
                                     }
 
-                                    $datetimeVisitePrevue = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateVisitePrevue[0], (int) $dateVisitePrevue[1], (int) $dateVisitePrevue[2]);
+                                    $datetimeVisitePrevue = Date::formattedPHPToExcel((int) $dateVisitePrevue[0], (int) $dateVisitePrevue[1], (int) $dateVisitePrevue[2]);
                                     $sheet->setCellValueByColumnAndRow(18, $ligne, $datetimeVisitePrevue);
-                                    $sheet->getStyleByColumnAndRow(18, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(18, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -338,7 +344,7 @@ class SearchController extends AbstractController
                             ++$ligne;
                         }
 
-                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Ods');
+                        $writer = IOFactory::createWriter($spreadsheet, 'Ods');
                         $writer->save('php://output');
                     }, Response::HTTP_OK, [
                         'Content-Type' => 'application/vnd.oasis.opendocument.spreadsheet',
@@ -563,7 +569,7 @@ class SearchController extends AbstractController
                     $provenanceForExport = $criteresRecherche['provenance'];
 
                     return new StreamedResponse(function () use ($rows, $provenanceForExport): void {
-                        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                        $spreadsheet = new Spreadsheet();
                         $spreadsheet->setActiveSheetIndex(0);
 
                         $sheet = $spreadsheet->getActiveSheet();
@@ -573,10 +579,10 @@ class SearchController extends AbstractController
                         $sheet->getDefaultRowDimension()->setRowHeight(-1);
 
                         $styleArray = [
-                            'borders' => ['allBorders' => ['style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
+                            'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
                         ];
                         $sheet->getStyle('A1:V1')->applyFromArray($styleArray);
-                        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         $sheet->getStyle('A1:V1')->getFont()->setSize(11)->setBold(true);
 
                         $sheet->setCellValueByColumnAndRow(1, 1, 'Groupement');
@@ -623,9 +629,9 @@ class SearchController extends AbstractController
                                         $dateCreationDossier[2] = substr($dateCreationDossier[2], 0, 2);
                                     }
 
-                                    $datetimeCreationDossier = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateCreationDossier[0], (int) $dateCreationDossier[1], (int) $dateCreationDossier[2]);
+                                    $datetimeCreationDossier = Date::formattedPHPToExcel((int) $dateCreationDossier[0], (int) $dateCreationDossier[1], (int) $dateCreationDossier[2]);
                                     $sheet->setCellValueByColumnAndRow(12, $ligne, $datetimeCreationDossier);
-                                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -639,9 +645,9 @@ class SearchController extends AbstractController
                                         $dateVisiteDossier[2] = substr($dateVisiteDossier[2], 0, 2);
                                     }
 
-                                    $datetimeVisiteDossier = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateVisiteDossier[0], (int) $dateVisiteDossier[1], (int) $dateVisiteDossier[2]);
+                                    $datetimeVisiteDossier = Date::formattedPHPToExcel((int) $dateVisiteDossier[0], (int) $dateVisiteDossier[1], (int) $dateVisiteDossier[2]);
                                     $sheet->setCellValueByColumnAndRow(15, $ligne, $datetimeVisiteDossier);
-                                    $sheet->getStyleByColumnAndRow(15, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(15, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -652,9 +658,9 @@ class SearchController extends AbstractController
                                         $dateCommissionDossier[2] = substr($dateCommissionDossier[2], 0, 2);
                                     }
 
-                                    $datetimeCommissionDossier = \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel((int) $dateCommissionDossier[0], (int) $dateCommissionDossier[1], (int) $dateCommissionDossier[2]);
+                                    $datetimeCommissionDossier = Date::formattedPHPToExcel((int) $dateCommissionDossier[0], (int) $dateCommissionDossier[1], (int) $dateCommissionDossier[2]);
                                     $sheet->setCellValueByColumnAndRow(16, $ligne, $datetimeCommissionDossier);
-                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+                                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
                                 }
                             }
 
@@ -672,7 +678,7 @@ class SearchController extends AbstractController
                             ++$ligne;
                         }
 
-                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Ods');
+                        $writer = IOFactory::createWriter($spreadsheet, 'Ods');
                         $writer->save('php://output');
                     }, Response::HTTP_OK, [
                         'Content-Type' => 'application/vnd.oasis.opendocument.spreadsheet',

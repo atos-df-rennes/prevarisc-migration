@@ -13,7 +13,7 @@ use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use App\Service\Commission\CommissionDatesTransformer;
-use App\Service\DataStore\SimpleFileDataStore;
+use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -56,7 +56,7 @@ class CalendrierDesCommissionsController extends AbstractController
     private $entityManager;
 
     /**
-     * @var SimpleFileDataStore
+     * @var DataStore
      */
     private $dataStore;
 
@@ -67,7 +67,7 @@ class CalendrierDesCommissionsController extends AbstractController
         CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
         CommissionRepository $commissionRepository,
         EntityManagerInterface $entityManager,
-        SimpleFileDataStore $dataStore
+        DataStore $dataStore
     ) {
         $this->calendarService = $calendarService;
         $this->dateCommissionRepository = $dateCommissionRepository;
@@ -173,6 +173,15 @@ class CalendrierDesCommissionsController extends AbstractController
         /** @var string $rawIdDateComm */
         $rawIdDateComm = $request->request->get('idDateComm', '0');
         $idDateComm = (int) $rawIdDateComm;
+
+        $destructiveDos = ['valid_libelleCom', 'valid_typeCom', 'valid_dateCom', 'supp_dateCom', 'addDateS', 'makeDefaut'];
+        if (in_array($do, $destructiveDos, true)) {
+            /** @var string $csrfToken */
+            $csrfToken = $request->request->get('_csrf_dialog', '');
+            if (!$this->isCsrfTokenValid('calendrier_commissions_dialog', $csrfToken)) {
+                return new Response('', Response::HTTP_FORBIDDEN);
+            }
+        }
 
         if ('edit' === $do) {
             $dateCommission = $this->dateCommissionRepository->find($idDateComm);
@@ -399,6 +408,12 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     public function validSuppression(Request $request): Response
     {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('calendrier_commissions_valid_suppression', $csrfToken)) {
+            return new Response('', Response::HTTP_FORBIDDEN);
+        }
+
         /** @var string $rawIdDateCommission */
         $rawIdDateCommission = $request->request->get('dateCommission', '0');
         $idDateCommission = (int) $rawIdDateCommission;
