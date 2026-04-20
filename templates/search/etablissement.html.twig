@@ -260,7 +260,7 @@
         $('input[type="submit"]').attr('disabled', false);
 
         // Gestion des multiselects → TomSelect
-        const tsMultiConfig = { plugins: ['remove_button'], maxOptions: null };
+        const tsMultiConfig = { plugins: ['remove_button', 'checkbox_options'], maxOptions: null };
         new TomSelect("select[name='statuts[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Tous les statuts' }));
         const tsGenres = new TomSelect("select[name='genres[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Tous les genres' }));
         new TomSelect("select[name='categories[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les catégories' }));
