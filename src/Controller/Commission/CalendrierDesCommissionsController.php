@@ -205,13 +205,24 @@ class CalendrierDesCommissionsController extends AbstractController
             ]);
         }
 
-        if ('libelleCom' === $do || 'annule_libelleCom' === $do) {
+        if ('libelleCom' === $do) {
             $dateCommission = $this->dateCommissionRepository->find($idDateComm);
             if (null === $dateCommission) {
                 throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
             }
 
             return $this->render('calendrier_des_commissions/dialog/_libelle_edit.html.twig', [
+                'libelleDateComm' => $dateCommission->getLibelle(),
+            ]);
+        }
+
+        if ('annule_libelleCom' === $do) {
+            $dateCommission = $this->dateCommissionRepository->find($idDateComm);
+            if (null === $dateCommission) {
+                throw $this->createNotFoundException(sprintf('Date de commission #%d introuvable', $idDateComm));
+            }
+
+            return $this->render('calendrier_des_commissions/dialog/_libelle_display.html.twig', [
                 'libelleDateComm' => $dateCommission->getLibelle(),
             ]);
         }
