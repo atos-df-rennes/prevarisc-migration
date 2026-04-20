@@ -6,6 +6,12 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->extension('framework', [
-        'cache' => null,
+        'cache' => [
+            'pools' => [
+                'cache.ign_capabilities' => [
+                    'adapter' => 'cache.adapter.filesystem',
+                ],
+            ],
+        ],
     ]);
 };
