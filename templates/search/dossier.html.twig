@@ -37,7 +37,7 @@
 
     <div id='filterContainer' class='well' style="margin-left: 0;">
         <div>
-            <select name='types[]' class="chosen" style="width: 23%" data-placeholder='Types' multiple onchange="masquerBoutonExportCalc()">
+            <select name='types[]' style="width: 23%" data-placeholder='Types' multiple onchange="masquerBoutonExportCalc()">
                 {% for type in DB_type %}
                     <option value='{{ type.id }}'
                         {% if app.request.query.get('types') is not null and type.id in app.request.query.get('types') %}selected{% endif %}>
@@ -45,7 +45,7 @@
                     </option>
                 {% endfor %}
             </select>
-            <select name='commissions[]' class="chosen" style="width: 23%" data-placeholder='Commissions' multiple onchange="masquerBoutonExportCalc()">
+            <select name='commissions[]' style="width: 23%" data-placeholder='Commissions' multiple onchange="masquerBoutonExportCalc()">
                 {% for array_commission in array_commissions %}
                     <optgroup label="{{ array_commission.LIBELLE|e('html_attr') }}">
                         {% for item in array_commission.ARRAY %}
@@ -57,7 +57,7 @@
                     </optgroup>
                 {% endfor %}
             </select>
-            <select name='groupements_territoriaux[]' class="chosen" style="width: 23%" data-placeholder='Groupements territoriaux' multiple onchange="masquerBoutonExportCalc()">
+            <select name='groupements_territoriaux[]' style="width: 23%" data-placeholder='Groupements territoriaux' multiple onchange="masquerBoutonExportCalc()">
                 {% for groupement in DB_groupementterritorial %}
                     {% set selected = false %}
                     {% if user is not null %}
@@ -73,19 +73,19 @@
                     </option>
                 {% endfor %}
             </select>
-            <select name='avisCommission[]' class="chosen" style="width: 23%" data-placeholder='Avis de la commission' multiple onchange="masquerBoutonExportCalc()">
+            <select name='avisCommission[]' style="width: 23%" data-placeholder='Avis de la commission' multiple onchange="masquerBoutonExportCalc()">
                 <option value='1' {% if app.request.query.get('avisCommission') is not null and 1 in app.request.query.get('avisCommission') %}selected{% endif %}>Favorable</option>
                 <option value='2' {% if app.request.query.get('avisCommission') is not null and 2 in app.request.query.get('avisCommission') %}selected{% endif %}>Défavorable</option>
             </select>
         </div>
 
         <div style="margin-top: 4px;">
-            <select name='avisRapporteur[]' class="chosen" style="width: 23%" data-placeholder='Avis du rapporteur' multiple onchange="masquerBoutonExportCalc()">
+            <select name='avisRapporteur[]' style="width: 23%" data-placeholder='Avis du rapporteur' multiple onchange="masquerBoutonExportCalc()">
                 <option value='1' {% if app.request.query.get('avisRapporteur') is not null and 1 in app.request.query.get('avisRapporteur') %}selected{% endif %}>Favorable</option>
                 <option value='2' {% if app.request.query.get('avisRapporteur') is not null and 2 in app.request.query.get('avisRapporteur') %}selected{% endif %}>Défavorable</option>
             </select>
             {% if platau_active %}
-                <select name='provenance' class="chosen" style="width: 23%" data-placeholder='Provenance' multiple onchange="masquerBoutonExportCalc()">
+                <select name='provenance' style="width: 23%" data-placeholder='Provenance' multiple onchange="masquerBoutonExportCalc()">
                     <option value='1' {% if app.request.query.get('provenance') is not null and 1 in app.request.query.get('provenance') %}selected{% endif %}>Provenant de PLATAU</option>
                     <option value='2' {% if app.request.query.get('provenance') is not null and 2 in app.request.query.get('provenance') %}selected{% endif %}>Ne provenant pas de PLATAU</option>
                 </select>
@@ -96,7 +96,7 @@
             <div class='col-md-7'>
                 <div class='row'>
                     <div class='col-md-6'>
-                        <select name='commune' class="form-control chosen" data-placeholder='Sélectionner une commune' onchange="masquerBoutonExportCalc()">
+                        <select name='commune' class="form-control" data-placeholder='Sélectionner une commune' onchange="masquerBoutonExportCalc()">
                             <option value=''></option>
                             {% for commune in array_communes %}
                                 <option value='{{ commune.NUMINSEE_COMMUNE }}'
@@ -108,7 +108,7 @@
                     </div>
 
                     <div class='col-md-6'>
-                        <select name='voie' class="form-control chosen" data-placeholder='Sélectionner une voie' onchange="masquerBoutonExportCalc()">
+                        <select name='voie' class="form-control" data-placeholder='Sélectionner une voie' onchange="masquerBoutonExportCalc()">
                             <option value=''></option>
                             {% for voie in array_voies %}
                                 <option value='{{ voie.ID_RUE }}'
@@ -121,7 +121,7 @@
                 </div>
                 <div class='row' style="margin-top: 4px;">
                     <div class='col-md-6'>
-                        <select name='numero' class="form-control chosen" data-placeholder='Sélectionner un numéro' onchange="masquerBoutonExportCalc()">
+                        <select name='numero' class="form-control" data-placeholder='Sélectionner un numéro' onchange="masquerBoutonExportCalc()">
                             <option value=''></option>
                             {% for numero in array_numeros %}
                                 <option value='{{ numero.NUMERO_ADRESSE }}'
@@ -134,7 +134,7 @@
                 </div>
                 <div class='row' style="margin-top: 10px;">
                     <div class="col-md-6">
-                        <select name="preventionniste" class='form-control chosen' data-placeholder='Sélectionner un préventionniste' onchange="masquerBoutonExportCalc()">
+                        <select name="preventionniste" class='form-control' data-placeholder='Sélectionner un préventionniste' onchange="masquerBoutonExportCalc()">
                             <option value=''></option>
                             {% for prev in liste_prev %}
                                 <option value='{{ prev.ID_PREVENTIONNISTE }}'
@@ -230,10 +230,20 @@
 <script>
     $(document).ready(function() {
 
-        // Gestion des select et multiselect
-        $(".chosen").chosen({
-            allow_single_deselect: true
-        });
+        // Gestion des selects → TomSelect
+        const tsDossierMultiConfig = { plugins: ['remove_button'], maxOptions: null };
+        new TomSelect("select[name='types[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Types' }));
+        new TomSelect("select[name='commissions[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Commissions' }));
+        new TomSelect("select[name='groupements_territoriaux[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Groupements territoriaux' }));
+        new TomSelect("select[name='avisCommission[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Avis de la commission' }));
+        new TomSelect("select[name='avisRapporteur[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Avis du rapporteur' }));
+        {% if platau_active %}
+        new TomSelect("select[name='provenance']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Provenance' }));
+        {% endif %}
+        new TomSelect("select[name='commune']", { allowEmptyOption: true, placeholder: 'Sélectionner une commune' });
+        const tsVoie = new TomSelect("select[name='voie']", { allowEmptyOption: true, placeholder: 'Sélectionner une voie' });
+        const tsNumero = new TomSelect("select[name='numero']", { allowEmptyOption: true, placeholder: 'Sélectionner un numéro' });
+        new TomSelect("select[name='preventionniste']", { allowEmptyOption: true, placeholder: 'Sélectionner un préventionniste' });
 
         $('select[name=commune]').change(function(){
             var selectedValue = $(this).val()
@@ -245,14 +255,13 @@
                         code_insee: selectedValue
                     },
                     success: function (result) {
-                        var selectVoie = $('select[name=voie]');
-                        selectVoie.empty();
-                        selectVoie.append("<option value=''></option>");
+                        tsVoie.clear(true);
+                        tsVoie.clearOptions();
+                        tsVoie.addOption({ value: '', text: '' });
                         $.each(result.response, function (i, voie) {
-                            selectVoie.append($("<option></option>")
-                                .attr("value", voie.ID_RUE).text(voie.LIBELLE_RUE));
+                            tsVoie.addOption({ value: voie.ID_RUE, text: voie.LIBELLE_RUE });
                         });
-                        $('.chosen').trigger("chosen:updated");
+                        tsVoie.refreshOptions(false);
                     }
                 });
             }
@@ -268,14 +277,13 @@
                         id_rue: selectedValue
                     },
                     success: function (result) {
-                        const selectNumero = $('select[name=numero]');
-                        selectNumero.empty();
-                        selectNumero.append("<option value=''></option>");
+                        tsNumero.clear(true);
+                        tsNumero.clearOptions();
+                        tsNumero.addOption({ value: '', text: '' });
                         $.each(result.response, function (i, numero) {
-                            selectNumero.append($("<option></option>")
-                                .attr("value", numero.NUMERO_ADRESSE).text(numero.NUMERO_ADRESSE));
+                            tsNumero.addOption({ value: numero.NUMERO_ADRESSE, text: numero.NUMERO_ADRESSE });
                         });
-                        $('.chosen').trigger("chosen:updated");
+                        tsNumero.refreshOptions(false);
                     }
                 });
             }
