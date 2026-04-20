@@ -109,14 +109,14 @@ class CalendrierDesCommissionsController extends AbstractController
         $securityKey = getenv('PREVARISC_SECURITY_KEY');
         if (false !== $securityKey && '' !== $securityKey) {
             $userId = ($user instanceof Utilisateur) ? (int) $user->getId() : 0;
-            $protocol = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS']) ? 'webcals' : 'webcal';
-            $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+            $baseScheme = $request->isSecure() ? 'webcals' : 'webcal';
+            $host = $request->getHttpHost();
             $url = sprintf('/api/1.0/calendar?userid=%s&key=%s', $userId, $securityKey);
             if (null !== $idComm) {
                 $url .= sprintf('&commission=%s', $idComm);
             }
 
-            $urlWebcal = $protocol.'://'.$host.$url;
+            $urlWebcal = $baseScheme.'://'.$host.$url;
         }
 
         return $this->render('calendrier_des_commissions/index.html.twig', [
