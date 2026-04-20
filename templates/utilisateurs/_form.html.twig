@@ -175,15 +175,15 @@
         <div class="form-group">
             <dt>{{ form_label(form.commissions) }}</dt>
             <dd>
-                <div class="col-md-6">{{ form_widget(form.commissions, {attr: {class: 'chosen', 'data-placeholder': 'Commissions'}}) }}</div>
+                <div class="col-md-6">{{ form_widget(form.commissions) }}</div>
                 <div class="col-xs-12">{{ form_errors(form.commissions) }}</div>
             </dd>
         </div>
 
-        <div>
+        <div class="form-group">
             <dt>{{ form_label(form.groupements) }}</dt>
             <dd>
-                <div class="col-md-6">{{ form_widget(form.groupements, {attr: {class: 'chosen', 'data-placeholder': 'Groupements'}}) }}</div>
+                <div class="col-md-6">{{ form_widget(form.groupements) }}</div>
                 <div class="col-xs-12">{{ form_errors(form.groupements) }}</div>
             </dd>
         </div>
@@ -219,9 +219,10 @@
             }
         }).change();
 
-        // Gestion des select et multiselect
-        $(".chosen").chosen({
-            search_contains : true
-        });
+        // Gestion des selects → TomSelect
+        const commissionsSelector = '#{{ form.commissions.vars.id|e('js') }}';
+        const groupementsSelector = '#{{ form.groupements.vars.id|e('js') }}';
+        new TomSelect(commissionsSelector, { plugins: ['remove_button'], maxOptions: null, placeholder: 'Commissions' });
+        new TomSelect(groupementsSelector, { plugins: ['remove_button'], maxOptions: null, placeholder: 'Groupements' });
     })
 </script>
