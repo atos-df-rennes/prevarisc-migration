@@ -33,7 +33,7 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/admin/", name="admin_index")
+     * @Route("/symfony/admin/", name="admin_index")
      */
     public function index(): Response
     {
