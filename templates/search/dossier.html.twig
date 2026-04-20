@@ -109,7 +109,7 @@
                 <div class='row'>
                     <div class='col-md-6'>
                         <select name='commune' data-placeholder='Sélectionner une commune' onchange="masquerBoutonExportCalc()">
-                            <option value=''></option>
+                            <option value=''>Sélectionner une commune</option>
                             {% for commune in array_communes %}
                                 <option value='{{ commune.NUMINSEE_COMMUNE }}'
                                     {% if app.request.query.get('commune') == commune.NUMINSEE_COMMUNE %}selected{% endif %}>
@@ -121,7 +121,7 @@
 
                     <div class='col-md-6'>
                         <select name='voie' data-placeholder='Sélectionner une voie' onchange="masquerBoutonExportCalc()">
-                            <option value=''></option>
+                            <option value=''>Sélectionner une voie</option>
                             {% for voie in array_voies %}
                                 <option value='{{ voie.ID_RUE }}'
                                     {% if app.request.query.get('voie') == voie.ID_RUE %}selected{% endif %}>
@@ -134,7 +134,7 @@
                 <div class='row' style="margin-top: 4px;">
                     <div class='col-md-6'>
                         <select name='numero' data-placeholder='Sélectionner un numéro' onchange="masquerBoutonExportCalc()">
-                            <option value=''></option>
+                            <option value=''>Sélectionner un numéro</option>
                             {% for numero in array_numeros %}
                                 <option value='{{ numero.NUMERO_ADRESSE }}'
                                     {% if app.request.query.get('numero') == numero.NUMERO_ADRESSE %}selected{% endif %}>
@@ -147,7 +147,7 @@
                 <div class='row' style="margin-top: 10px;">
                     <div class="col-md-6">
                         <select name="preventionniste" data-placeholder='Sélectionner un préventionniste' onchange="masquerBoutonExportCalc()">
-                            <option value=''></option>
+                            <option value=''>Sélectionner un préventionniste</option>
                             {% for prev in liste_prev %}
                                 <option value='{{ prev.ID_PREVENTIONNISTE }}'
                                     {% if app.request.query.get('preventionniste') == prev.ID_PREVENTIONNISTE %}selected{% endif %}>
@@ -244,18 +244,18 @@
 
         // Gestion des selects → TomSelect
         const tsDossierMultiConfig = { plugins: ['remove_button'], maxOptions: null };
-        new TomSelect("select[name='types[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Types' }));
-        new TomSelect("select[name='commissions[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Commissions' }));
-        new TomSelect("select[name='groupements_territoriaux[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Groupements territoriaux' }));
-        new TomSelect("select[name='avisCommission[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Avis de la commission' }));
-        new TomSelect("select[name='avisRapporteur[]']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Avis du rapporteur' }));
+        new TomSelect("select[name='types[]']", Object.assign({}, tsDossierMultiConfig));
+        new TomSelect("select[name='commissions[]']", Object.assign({}, tsDossierMultiConfig));
+        new TomSelect("select[name='groupements_territoriaux[]']", Object.assign({}, tsDossierMultiConfig));
+        new TomSelect("select[name='avisCommission[]']", Object.assign({}, tsDossierMultiConfig));
+        new TomSelect("select[name='avisRapporteur[]']", Object.assign({}, tsDossierMultiConfig));
         {% if platau_active %}
-        new TomSelect("select[name='provenance']", Object.assign({}, tsDossierMultiConfig, { placeholder: 'Provenance' }));
+        new TomSelect("select[name='provenance']", Object.assign({}, tsDossierMultiConfig));
         {% endif %}
-        new TomSelect("select[name='commune']", { allowEmptyOption: true, placeholder: 'Sélectionner une commune' });
-        const tsVoie = new TomSelect("select[name='voie']", { allowEmptyOption: true, placeholder: 'Sélectionner une voie' });
-        const tsNumero = new TomSelect("select[name='numero']", { allowEmptyOption: true, placeholder: 'Sélectionner un numéro' });
-        new TomSelect("select[name='preventionniste']", { allowEmptyOption: true, placeholder: 'Sélectionner un préventionniste' });
+        new TomSelect("select[name='commune']", { allowEmptyOption: true });
+        const tsVoie = new TomSelect("select[name='voie']", { allowEmptyOption: true });
+        const tsNumero = new TomSelect("select[name='numero']", { allowEmptyOption: true });
+        new TomSelect("select[name='preventionniste']", { allowEmptyOption: true });
 
         $('select[name=commune]').change(function(){
             var selectedValue = $(this).val()

@@ -45,113 +45,120 @@
 
     <div id="filterContainer" class="well" style="margin-left: 0;">
         <div class="row">
-            <div class="row">
-                <div class="col-sm-3">
-                <select name='statuts[]' multiple onchange="masquerBoutonExportCalc()">
-                    {% for statut in DB_statut %}
-                        <option value='{{ statut.ID_STATUT }}'
-                            {% if app.request.query.get('statuts') is not null and statut.ID_STATUT in app.request.query.get('statuts') %}selected{% endif %}>
-                            {{ statut.LIBELLE_STATUT }}
-                        </option>
-                    {% endfor %}
-                </select>
-                </div>
-                <div class="col-sm-3">
-                <select name='presences_local_sommeil[]' multiple onchange="masquerBoutonExportCalc()">
-                    <option value='true' {% if app.request.query.get('presences_local_sommeil') is not null and 'true' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Avec</option>
-                    <option value='false' {% if app.request.query.get('presences_local_sommeil') is not null and 'false' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Sans</option>
-                </select>
-                </div>
-                <div class="col-sm-3">
-                <select name='avis[]' multiple onchange="masquerBoutonExportCalc()">
-                    <option value='true' {% if app.request.query.get('avis') is not null and 'true' in app.request.query.get('avis') %}selected{% endif %}>Favorable</option>
-                    <option value='false' {% if app.request.query.get('avis') is not null and 'false' in app.request.query.get('avis') %}selected{% endif %}>Défavorable</option>
-                </select>
-                </div>
-                <div class="col-sm-3">
-                <select name='commissions[]' multiple onchange="masquerBoutonExportCalc()">
-                    {% for commission in DB_commission %}
-                        <option value='{{ commission.ID_COMMISSION }}'
-                            {% if app.request.query.get('commissions') is not null and commission.ID_COMMISSION in app.request.query.get('commissions') %}selected{% endif %}>
-                            {{ commission.LIBELLE_COMMISSION }}
-                        </option>
-                    {% endfor %}
-                </select>
-                </div>
-            </div>
-            <div id='criteres_plus' class="row" style='margin-top: 4px;'>
-                <div class="col-sm-3">
-                <select name='genres[]' multiple onchange="masquerBoutonExportCalc()">
-                    {% for genre in DB_genre %}
-                        <option value='{{ genre.ID_GENRE }}'
-                            {% if app.request.query.get('genres') is not null and genre.ID_GENRE in app.request.query.get('genres') %}selected{% endif %}>
-                            {{ genre.LIBELLE_GENRE }}
-                        </option>
-                    {% endfor %}
-                </select>
-                </div>
-                <div class="col-sm-3" id='categorie_span' style='display:none'>
-                    <select name='categories[]' multiple onchange="masquerBoutonExportCalc()">
-                        {% for categorie in DB_categorie %}
-                            <option value='{{ categorie.ID_CATEGORIE }}'
-                                {% if app.request.query.get('categories') is not null and categorie.ID_CATEGORIE in app.request.query.get('categories') %}selected{% endif %}>
-                                {{ categorie.LIBELLE_CATEGORIE }}
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-sm-3 form-group">
+                    <select name='statuts[]' multiple onchange="masquerBoutonExportCalc()">
+                        {% for statut in DB_statut %}
+                            <option value='{{ statut.ID_STATUT }}'
+                                {% if app.request.query.get('statuts') is not null and statut.ID_STATUT in app.request.query.get('statuts') %}selected{% endif %}>
+                                {{ statut.LIBELLE_STATUT }}
                             </option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="col-sm-3" id='classe_span' style='display:none'>
-                    <select name='classes[]' multiple onchange="masquerBoutonExportCalc()">
-                        {% for classe in DB_classe %}
-                            <option value='{{ classe.ID_CLASSE }}'
-                                {% if app.request.query.get('classes') is not null and classe.ID_CLASSE in app.request.query.get('classes') %}selected{% endif %}>
-                                {{ classe.LIBELLE_CLASSE }}
+                    </div>
+                    <div class="col-sm-3 form-group">
+                    <select name='presences_local_sommeil[]' multiple onchange="masquerBoutonExportCalc()">
+                        <option value='true' {% if app.request.query.get('presences_local_sommeil') is not null and 'true' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Avec</option>
+                        <option value='false' {% if app.request.query.get('presences_local_sommeil') is not null and 'false' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Sans</option>
+                    </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                    <select name='avis[]' multiple onchange="masquerBoutonExportCalc()">
+                        <option value='true' {% if app.request.query.get('avis') is not null and 'true' in app.request.query.get('avis') %}selected{% endif %}>Favorable</option>
+                        <option value='false' {% if app.request.query.get('avis') is not null and 'false' in app.request.query.get('avis') %}selected{% endif %}>Défavorable</option>
+                    </select>
+                    </div>
+                    <div class="col-sm-3 form-group">
+                    <select name='commissions[]' multiple onchange="masquerBoutonExportCalc()">
+                        {% for commission in DB_commission %}
+                            <option value='{{ commission.ID_COMMISSION }}'
+                                {% if app.request.query.get('commissions') is not null and commission.ID_COMMISSION in app.request.query.get('commissions') %}selected{% endif %}>
+                                {{ commission.LIBELLE_COMMISSION }}
                             </option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="col-sm-3" id='famille_span' style='display:none'>
-                    <select name='familles[]' multiple onchange="masquerBoutonExportCalc()">
-                        {% for famille in DB_famille %}
-                            <option value='{{ famille.ID_FAMILLE }}'
-                                {% if app.request.query.get('familles') is not null and famille.ID_FAMILLE in app.request.query.get('familles') %}selected{% endif %}>
-                                {{ famille.LIBELLE_FAMILLE }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-sm-3" id='type_span' style='display:none'>
-                    <select name='types_activites[]' multiple onchange="masquerBoutonExportCalc()">
-                        {% for type in DB_typeactivite %}
-                            <optgroup label="{{ type.LIBELLE_TYPE }}">
-                                <option value='{{ type.ID_TYPEACTIVITE }}'
-                                    {% if app.request.query.get('types_activites') is not null and type.ID_TYPEACTIVITE in app.request.query.get('types_activites') %}selected{% endif %}>
-                                    {{ type.LIBELLE_TYPE }} - {{ type.LIBELLE_ACTIVITE }}
-                                </option>
-                            </optgroup>
-                        {% endfor %}
-                    </select>
+                    </div>
                 </div>
             </div>
 
-            <div class="row" style='margin-top: 4px; margin-bottom: 10px;'>
-                <div class="col-sm-4">
-                <select name='groupements_territoriaux[]' multiple onchange="masquerBoutonExportCalc()">
-                    {% for groupement in DB_groupementterritorial %}
-                        {% set selected = false %}
-                        {% if user is not null %}
-                            {% for user_groupement in user.groupements %}
-                                {% if groupement.ID_GROUPEMENT == user_groupement.id %}
-                                    {% set selected = true %}
-                                {% endif %}
+            <div class="col-xs-12">
+                <div id='criteres_plus' class="row">
+                    <div class="col-sm-3 form-group">
+                    <select name='genres[]' multiple onchange="masquerBoutonExportCalc()">
+                        {% for genre in DB_genre %}
+                            <option value='{{ genre.ID_GENRE }}'
+                                {% if app.request.query.get('genres') is not null and genre.ID_GENRE in app.request.query.get('genres') %}selected{% endif %}>
+                                {{ genre.LIBELLE_GENRE }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    </div>
+                    <div class="col-sm-3 form-group" id='categorie_span' style='display:none'>
+                        <select name='categories[]' multiple onchange="masquerBoutonExportCalc()">
+                            {% for categorie in DB_categorie %}
+                                <option value='{{ categorie.ID_CATEGORIE }}'
+                                    {% if app.request.query.get('categories') is not null and categorie.ID_CATEGORIE in app.request.query.get('categories') %}selected{% endif %}>
+                                    {{ categorie.LIBELLE_CATEGORIE }}
+                                </option>
                             {% endfor %}
-                        {% endif %}
-                        <option value='{{ groupement.ID_GROUPEMENT }}'
-                            {% if (app.request.query.get('groupements_territoriaux') is not null and groupement.ID_GROUPEMENT in app.request.query.get('groupements_territoriaux')) or selected %}selected{% endif %}>
-                            {{ groupement.LIBELLE_GROUPEMENT }}
-                        </option>
-                    {% endfor %}
-                </select>
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group" id='classe_span' style='display:none'>
+                        <select name='classes[]' multiple onchange="masquerBoutonExportCalc()">
+                            {% for classe in DB_classe %}
+                                <option value='{{ classe.ID_CLASSE }}'
+                                    {% if app.request.query.get('classes') is not null and classe.ID_CLASSE in app.request.query.get('classes') %}selected{% endif %}>
+                                    {{ classe.LIBELLE_CLASSE }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group" id='famille_span' style='display:none'>
+                        <select name='familles[]' multiple onchange="masquerBoutonExportCalc()">
+                            {% for famille in DB_famille %}
+                                <option value='{{ famille.ID_FAMILLE }}'
+                                    {% if app.request.query.get('familles') is not null and famille.ID_FAMILLE in app.request.query.get('familles') %}selected{% endif %}>
+                                    {{ famille.LIBELLE_FAMILLE }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-3 form-group" id='type_span' style='display:none'>
+                        <select name='types_activites[]' multiple onchange="masquerBoutonExportCalc()">
+                            {% for type in DB_typeactivite %}
+                                <optgroup label="{{ type.LIBELLE_TYPE }}">
+                                    <option value='{{ type.ID_TYPEACTIVITE }}'
+                                        {% if app.request.query.get('types_activites') is not null and type.ID_TYPEACTIVITE in app.request.query.get('types_activites') %}selected{% endif %}>
+                                        {{ type.LIBELLE_TYPE }} - {{ type.LIBELLE_ACTIVITE }}
+                                    </option>
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-sm-4 form-group">
+                        <select name='groupements_territoriaux[]' multiple onchange="masquerBoutonExportCalc()">
+                            {% for groupement in DB_groupementterritorial %}
+                                {% set selected = false %}
+                                {% if user is not null %}
+                                    {% for user_groupement in user.groupements %}
+                                        {% if groupement.ID_GROUPEMENT == user_groupement.id %}
+                                            {% set selected = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                <option value='{{ groupement.ID_GROUPEMENT }}'
+                                    {% if (app.request.query.get('groupements_territoriaux') is not null and groupement.ID_GROUPEMENT in app.request.query.get('groupements_territoriaux')) or selected %}selected{% endif %}>
+                                    {{ groupement.LIBELLE_GROUPEMENT }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -159,7 +166,7 @@
         <div class="row">
             <div class="col-sm-3">
             <select name="preventionniste" data-placeholder='Sélectionnez un préventionniste' onchange="masquerBoutonExportCalc()">
-                <option value=''></option>
+                <option value=''>Sélectionnez un préventionniste</option>
                 {% for prev in liste_prev %}
                     <option value='{{ prev.ID_PREVENTIONNISTE }}'
                         {% if app.request.query.get('preventionniste') is not null and prev.ID_PREVENTIONNISTE == app.request.query.get('preventionniste') %}selected{% endif %}>
@@ -259,7 +266,7 @@
         new TomSelect("select[name='presences_local_sommeil[]']", Object.assign({}, tsMultiConfig, { placeholder: "Qu'importe la présence de local à sommeil" }));
         new TomSelect("select[name='commissions[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les commissions' }));
         new TomSelect("select[name='groupements_territoriaux[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Tous les groupements territoriaux' }));
-        new TomSelect("select[name='preventionniste']", { allowEmptyOption: true, placeholder: 'Sélectionnez un préventionniste' });
+        new TomSelect("select[name='preventionniste']", { allowEmptyOption: true });
 
         // Affichage des critères en fonction du genre
         function display_criteres_by_genres() {
