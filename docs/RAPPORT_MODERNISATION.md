@@ -19,7 +19,7 @@
 | MT-1 | **PHPExcel → PhpSpreadsheet** (`SearchController`) | ✅ Fait | `db4e5e4` (#169) |
 | MT-2 | Injecter `CacheInterface` dans `CouchesCarto` | ✅ Fait | `c76acdb` (#170) |
 | MT-3 | **Multiselect + Chosen → TomSelect** (5 templates, layout Bootstrap) | ✅ Fait | `ca636a6`, `d2b14e1`, `4fb4438` |
-| MT-4 | FancyBox 1.3.4 → **3.5.7** | ✅ Fait | en cours |
+| MT-4 | FancyBox 1.3.4 → **3.5.7** | ✅ Fait | `e53b773` |
 | MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire | — |
 
 > **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3).
@@ -191,6 +191,8 @@ Bibliothèque pure (sans dépendance jQuery UI ou Bootstrap), mise à jour direc
 **FancyBox 1.3.4 → 3.5.x**
 
 FancyBox 1.3.4 date de novembre 2010 et n'est plus maintenu. FancyBox 3.5.x est compatible Bootstrap 3 et ne dépend plus de jQuery UI. L'API a changé mais les appels sont localisables via `grep -r "fancybox\|$.fancybox" templates/ src/`.
+
+> **Assets 1.3.4 conservés intentionnellement** : `public/js/jquery.fancybox-1.3.4.js` et `public/css/jquery/jquery.fancybox-1.3.4.css` sont toujours chargés par `prevarisc/application/plugins/View.php` pour la vue legacy `piece-jointe/index.phtml` (liste des pièces jointes d'un dossier), qui n'est pas encore migrée vers Symfony. Ces fichiers devront être supprimés lorsque cette vue sera portée.
 
 **FullCalendar 1.6.4 → 5.x**
 

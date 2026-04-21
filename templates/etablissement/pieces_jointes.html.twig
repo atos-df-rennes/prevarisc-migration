@@ -75,6 +75,11 @@
             $('[data-fancybox="pj-gallery"]').fancybox({
                 animationEffect : 'zoom',
                 buttons         : ['zoom', 'slideShow', 'fullScreen', 'download', 'close'],
+                // Échappement explicite : data-caption est décodé par le navigateur,
+                // puis injecté via .html() par FancyBox — on crée un nœud texte pour éviter toute XSS.
+                caption : function() {
+                    return $('<span>').text($(this).data('caption'))[0].innerHTML;
+                },
             });
         });
     </script>
