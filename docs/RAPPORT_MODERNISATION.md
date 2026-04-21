@@ -1,6 +1,6 @@
 # Rapport de modernisation — prevarisc-migration
 
-> Branche analysée : `chore/modernisation` → `chore/table-sorter` (depuis `develop`)
+> Branche analysée : `chore/modernisation` → `chore/fancybox` (depuis `develop`)
 > Date initiale : 2026-04-16 | Dernière mise à jour : 2026-04-20
 > Périmètre : 449 fichiers PHP (`src/`), 101 fichiers de tests, 185 templates Twig
 
@@ -14,16 +14,16 @@
 | QW-4 | Chosen 1.1.0 → **1.8.7** | ✅ Fait | `a251c4a` |
 | QW-5 | TomSelect 2.0 → **2.5.2** | ✅ Fait | `a251c4a` |
 | QW-6 | SortableJS 1.15.0 → **1.15.7** | ✅ Fait | `a251c4a` |
-| QW-7 | TableSorter 2.0.5b → **2.31.3** | ✅ Fait | en cours |
+| QW-7 | **Suppression de TableSorter** (bibliothèque inutilisée) | ✅ Fait | `cedcc69` (#172) |
 | BUG-1 | Fix tooltip Tipsy orphelin sur bouton × TomSelect (`main-bs3.js`) | ✅ Fait | `fde17ae` |
 | MT-1 | **PHPExcel → PhpSpreadsheet** (`SearchController`) | ✅ Fait | `db4e5e4` (#169) |
 | MT-2 | Injecter `CacheInterface` dans `CouchesCarto` | ✅ Fait | `c76acdb` (#170) |
-| MT-3 | Multiselect → TomSelect (4 templates) | ⏳ À faire | — |
-| MT-4 | FancyBox 1.3.4 → 3.5.x | ⏳ À faire | — |
+| MT-3 | **Multiselect + Chosen → TomSelect** (5 templates, layout Bootstrap) | ✅ Fait | `ca636a6`, `d2b14e1`, `4fb4438` |
+| MT-4 | FancyBox 1.3.4 → **3.5.7** | ✅ Fait | `e53b773` |
 | MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire | — |
 
-> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2).
-> **Worktree actif :** `chore/table-sorter` (QW-7). Prochaine session : MT-3 (Multiselect → TomSelect).
+> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3).
+> **Worktree actif :** `chore/fancybox` (MT-4). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x).
 
 ---
 
@@ -60,9 +60,9 @@ L'analyse du code déjà migré identifie **4 catégories d'opportunités**, ave
 | ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour Chosen 1.1.0 → 1.8.7 (4 templates, compatible BS3)~~ **Fait** (`a251c4a`) | XS | L | 🟢 |
 | ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour TomSelect 2.0 → 2.5.2~~ **Fait** (`a251c4a`) | XS | L | 🟢 |
 | ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour SortableJS 1.15.0 → 1.15.7~~ **Fait** (`a251c4a`) | XS | L | 🟢 |
-| ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour TableSorter 2.0.5b → 2.31.3~~ **Fait** (branche `chore/table-sorter`) | S | M | 🟢 |
-| 🟡 Moyen | Frontend | Remplacer jQuery Multiselect (plus maintenu) par TomSelect (déjà présent) | M | M | 🟡 |
-| 🟡 Moyen | Frontend | Remplacer FancyBox 1.3.4 (2010, EOL) par Fancybox 3.x (BS3 compatible) | M | M | 🟡 |
+| ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour TableSorter 2.0.5b → 2.31.3~~ **Supprimé (inutilisé)** (`cedcc69` #172) | S | M | 🟢 |
+| ~~🟡 Moyen~~ ✅ | Frontend | ~~Remplacer jQuery Multiselect (plus maintenu) par TomSelect (déjà présent)~~ **Fait** + Chosen supprimé (`ca636a6`, `d2b14e1`, `4fb4438`) | M | M | 🟡 |
+| ~~🟡 Moyen~~ ✅ | Frontend | ~~Remplacer FancyBox 1.3.4 (2010, EOL) par Fancybox 3.x (BS3 compatible)~~ **Fait** (branche `chore/fancybox`) | M | M | 🟡 |
 | 🟡 Moyen | Frontend | Remplacer FullCalendar 1.6.4 (2012, EOL) par FullCalendar 5.x | L | M | 🟡 |
 | 🔵 Long terme | Frontend | Mettre à jour jQuery 1.10.2 → 3.x et les plugins associés | XL | H | 🔴 |
 | 🔵 Long terme | Frontend | Migrer Bootstrap 3 → Bootstrap 5 + Webpack Encore | XL | H | 🔴 |
@@ -191,6 +191,8 @@ Bibliothèque pure (sans dépendance jQuery UI ou Bootstrap), mise à jour direc
 **FancyBox 1.3.4 → 3.5.x**
 
 FancyBox 1.3.4 date de novembre 2010 et n'est plus maintenu. FancyBox 3.5.x est compatible Bootstrap 3 et ne dépend plus de jQuery UI. L'API a changé mais les appels sont localisables via `grep -r "fancybox\|$.fancybox" templates/ src/`.
+
+> **Assets 1.3.4 conservés intentionnellement** : `public/js/jquery.fancybox-1.3.4.js` et `public/css/jquery/jquery.fancybox-1.3.4.css` sont toujours chargés par `prevarisc/application/plugins/View.php` pour la vue legacy `piece-jointe/index.phtml` (liste des pièces jointes d'un dossier), qui n'est pas encore migrée vers Symfony. Ces fichiers devront être supprimés lorsque cette vue sera portée.
 
 **FullCalendar 1.6.4 → 5.x**
 

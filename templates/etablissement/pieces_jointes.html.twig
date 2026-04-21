@@ -56,7 +56,7 @@
             <div class="row">
                 {% for piecejointe in image_pjs %}
                     <div class="col-md-3">
-                        <a href='{{ absolute_url(piecejointe.1) }}' class="thumbnail">
+                        <a href='{{ absolute_url(piecejointe.1) }}' data-fancybox="pj-gallery" data-caption="{{ piecejointe.0.pieceJointe.nom }}" class="thumbnail">
                             <h5>{{ piecejointe.0.pieceJointe.nom }}</h5>
                             <p>{{ piecejointe.0.pieceJointe.description }}</p>
                         </a>
@@ -72,11 +72,14 @@
 
     <script>
         $(document).ready(function() {
-            $('a[href$=png], a[href$=jpg], a[href$=jpeg]').fancybox({
-                'transitionIn'    :    'elastic',
-                'transitionOut'    :    'elastic',
-                'speedIn'        :    600,
-                'speedOut'        :    200,
+            $('[data-fancybox="pj-gallery"]').fancybox({
+                animationEffect : 'zoom',
+                buttons         : ['zoom', 'slideShow', 'fullScreen', 'download', 'close'],
+                // Échappement explicite : data-caption est décodé par le navigateur,
+                // puis injecté via .html() par FancyBox — on crée un nœud texte pour éviter toute XSS.
+                caption : function() {
+                    return $('<span>').text($(this).data('caption'))[0].innerHTML;
+                },
             });
         });
     </script>
