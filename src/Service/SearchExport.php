@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -17,7 +18,7 @@ class SearchExport
     /**
      * Exporte une liste d'établissements au format ODS sur php://output.
      *
-     * @param array<int, array<string, string|null>> $rows
+     * @param array<int, array<string, mixed>> $rows
      */
     public function exportEtablissements(array $rows): void
     {
@@ -64,42 +65,47 @@ class SearchExport
 
         $ligne = 2;
         foreach ($rows as $row) {
-            $sheet->setCellValueByColumnAndRow(1, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(2, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(3, $ligne, $row['LIBELLE_TYPE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(4, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(5, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
-            $sheet->setCellValueByColumnAndRow(6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-            $sheet->setCellValueByColumnAndRow(8, $ligne, $row['LIBELLE_STATUT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(9, $ligne, $row['LIBELLE_AVIS'] ?? '');
+            $this->writeTextCell($sheet, 1, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
+            $this->writeTextCell($sheet, 2, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
+            $this->writeTextCell($sheet, 3, $ligne, $row['LIBELLE_TYPE'] ?? '');
+            $this->writeTextCell($sheet, 4, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
+            $this->writeTextCell($sheet, 5, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
+            $this->writeTextCell($sheet, 7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+            $this->writeTextCell($sheet, 8, $ligne, $row['LIBELLE_STATUT'] ?? '');
+            $this->writeTextCell($sheet, 9, $ligne, $row['LIBELLE_AVIS'] ?? '');
 
             $this->writeDateCell($sheet, 10, $ligne, $row['DATE_DERNIER_AVIS'] ?? null);
             $this->writeDateCell($sheet, 11, $ligne, $row['DATE_PREMIER_AVIS_FAVORABLE'] ?? null);
             $this->writeDateCell($sheet, 12, $ligne, $row['DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF'] ?? null);
 
-            $sheet->setCellValueByColumnAndRow(13, $ligne, (int) ($row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0) + (int) ($row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-            $sheet->setCellValueByColumnAndRow(14, $ligne, $row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? '');
-            $sheet->setCellValueByColumnAndRow(15, $ligne, $row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? '');
+            $effectifPublic = is_numeric($row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? null) ? (int) $row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] : 0;
+            $effectifPersonnel = is_numeric($row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? null) ? (int) $row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] : 0;
+            $sheet->setCellValueByColumnAndRow(13, $ligne, $effectifPublic + $effectifPersonnel);
+            $sheet->setCellValueByColumnAndRow(14, $ligne, $effectifPublic);
+            $sheet->setCellValueByColumnAndRow(15, $ligne, $effectifPersonnel);
 
             $this->writeDateCell($sheet, 16, $ligne, $row['DATE_DERNIERE_VISITE'] ?? null);
 
-            if ('' !== ($row['DATE_DERNIERE_VISITE'] ?? '') && 0 != ($row['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0)) {
-                $derniereVisite = \DateTime::createFromFormat('Y-m-d', substr((string) $row['DATE_DERNIERE_VISITE'], 0, 10));
+            if (is_string($row['DATE_DERNIERE_VISITE'] ?? null) && '' !== $row['DATE_DERNIERE_VISITE']
+                && is_numeric($row['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? null)
+                && 0 !== (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS']
+            ) {
+                $derniereVisite = \DateTime::createFromFormat('Y-m-d', substr($row['DATE_DERNIERE_VISITE'], 0, 10));
                 if ($derniereVisite instanceof \DateTime) {
                     $periodicite = (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS'];
                     $derniereVisite->modify('+'.$periodicite.' months');
-                    $sheet->setCellValueByColumnAndRow(17, $ligne, $derniereVisite->format('d/m/Y'));
+                    $this->writeTextCell($sheet, 17, $ligne, $derniereVisite->format('d/m/Y'));
                 }
             }
 
             $this->writeDateCell($sheet, 18, $ligne, $row['DATE_VISITE_PREVUE'] ?? null);
 
-            $sheet->setCellValueByColumnAndRow(19, $ligne, ($row['NUMERO_ADRESSE'] ?? '').' '.($row['LIBELLE_RUE'] ?? '').' '.($row['COMPLEMENT_ADRESSE'] ?? '').' '.($row['CODEPOSTAL_COMMUNE'] ?? ''));
-            $sheet->setCellValueByColumnAndRow(20, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(21, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(22, $ligne, $row['LIBELLE_GENRE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(23, $ligne, ($row['PRENOM_UTILISATEURINFORMATIONS'] ?? '').' '.($row['NOM_UTILISATEURINFORMATIONS'] ?? ''));
+            $this->writeTextCell($sheet, 19, $ligne, trim($this->toStr($row['NUMERO_ADRESSE'] ?? null).' '.$this->toStr($row['LIBELLE_RUE'] ?? null).' '.$this->toStr($row['COMPLEMENT_ADRESSE'] ?? null).' '.$this->toStr($row['CODEPOSTAL_COMMUNE'] ?? null)));
+            $this->writeTextCell($sheet, 20, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
+            $this->writeTextCell($sheet, 21, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
+            $this->writeTextCell($sheet, 22, $ligne, $row['LIBELLE_GENRE'] ?? '');
+            $this->writeTextCell($sheet, 23, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
             $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
 
             ++$ligne;
@@ -112,8 +118,8 @@ class SearchExport
     /**
      * Exporte une liste de dossiers au format ODS sur php://output.
      *
-     * @param array<int, array<string, string|null>> $rows
-     * @param string|null                            $provenance Filtre de provenance (ex: '1' pour PLATAU)
+     * @param array<int, array<string, mixed>> $rows
+     * @param string|null                      $provenance Filtre de provenance (ex: '1' pour PLATAU)
      */
     public function exportDossiers(array $rows, ?string $provenance): void
     {
@@ -158,36 +164,36 @@ class SearchExport
 
         $ligne = 2;
         foreach ($rows as $row) {
-            $sheet->setCellValueByColumnAndRow(1, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(2, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(3, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(4, $ligne, $row['LIBELLE_TYPE_ETABLISSEMENT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(5, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-            $sheet->setCellValueByColumnAndRow(8, $ligne, $row['LIBELLE_STATUT'] ?? '');
-            $sheet->setCellValueByColumnAndRow(9, $ligne, $row['LIBELLE_GENRE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(10, $ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
-            $sheet->setCellValueByColumnAndRow(11, $ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
+            $this->writeTextCell($sheet, 1, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
+            $this->writeTextCell($sheet, 2, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
+            $this->writeTextCell($sheet, 3, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
+            $this->writeTextCell($sheet, 4, $ligne, $row['LIBELLE_TYPE_ETABLISSEMENT'] ?? '');
+            $this->writeTextCell($sheet, 5, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
+            $this->writeTextCell($sheet, 6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
+            $this->writeTextCell($sheet, 7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+            $this->writeTextCell($sheet, 8, $ligne, $row['LIBELLE_STATUT'] ?? '');
+            $this->writeTextCell($sheet, 9, $ligne, $row['LIBELLE_GENRE'] ?? '');
+            $this->writeTextCell($sheet, 10, $ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
+            $this->writeTextCell($sheet, 11, $ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
 
             $this->writeDateCell($sheet, 12, $ligne, $row['DATEINSERT_DOSSIER'] ?? null);
 
-            $sheet->setCellValueByColumnAndRow(13, $ligne, $row['OBJET_DOSSIER'] ?? '');
-            $sheet->setCellValueByColumnAndRow(14, $ligne, $row['NUM_DOCURBA'] ?? '');
+            $this->writeTextCell($sheet, 13, $ligne, $row['OBJET_DOSSIER'] ?? '');
+            $this->writeTextCell($sheet, 14, $ligne, $row['NUM_DOCURBA'] ?? '');
 
             $this->writeDateCell($sheet, 15, $ligne, $row['DATEVISITE_DOSSIER'] ?? null);
 
             $this->writeDateCell($sheet, 16, $ligne, $row['DATECOMM_DOSSIER'] ?? null);
 
-            $sheet->setCellValueByColumnAndRow(17, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
-            $sheet->setCellValueByColumnAndRow(18, $ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
-            $sheet->setCellValueByColumnAndRow(19, $ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
-            $sheet->setCellValueByColumnAndRow(20, $ligne, ($row['PRENOM_UTILISATEURINFORMATIONS'] ?? '').' '.($row['NOM_UTILISATEURINFORMATIONS'] ?? ''));
+            $this->writeTextCell($sheet, 17, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 18, $ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
+            $this->writeTextCell($sheet, 19, $ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 20, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
 
             $sheet->setCellValueByColumnAndRow(21, $ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
 
             if ('1' === $provenance) {
-                $sheet->setCellValueByColumnAndRow(22, $ligne, $row['ID_PLATAU'] ?? '');
+                $this->writeTextCell($sheet, 22, $ligne, $row['ID_PLATAU'] ?? '');
             }
 
             ++$ligne;
@@ -198,21 +204,43 @@ class SearchExport
     }
 
     /**
+     * Convertit une valeur mixed en string de façon sûre pour PHPStan level 10.
+     *
+     * @param mixed $value
+     */
+    private function toStr($value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    /**
+     * Écrit une valeur texte dans une cellule en forçant le type STRING.
+     * Empêche l'interprétation comme formule (spreadsheet formula injection)
+     * pour les valeurs commençant par =, +, -, @.
+     *
+     * @param mixed $value
+     */
+    private function writeTextCell(Worksheet $sheet, int $col, int $row, $value): void
+    {
+        $sheet->setCellValueExplicitByColumnAndRow($col, $row, is_scalar($value) ? (string) $value : '', DataType::TYPE_STRING);
+    }
+
+    /**
      * Écrit une date au format dd/mm/yyyy dans une cellule à partir d'une valeur brute YYYY-MM-DD.
      * Contourne le bug du writer ODS de PhpSpreadsheet qui n'applique pas les format codes de date
      * (TYPE_NUMERIC écrit toujours office:value-type="float" sans vérifier le format de date).
      *
-     * @param string|null $rawDate Valeur brute YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
+     * @param mixed $rawDate Valeur brute YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
      */
-    private function writeDateCell(Worksheet $sheet, int $col, int $row, ?string $rawDate): void
+    private function writeDateCell(Worksheet $sheet, int $col, int $row, $rawDate): void
     {
-        if (null === $rawDate || '' === $rawDate) {
+        if (!is_string($rawDate) || '' === $rawDate) {
             return;
         }
 
         $date = \DateTime::createFromFormat('Y-m-d', substr($rawDate, 0, 10));
         if ($date instanceof \DateTime) {
-            $sheet->setCellValueByColumnAndRow($col, $row, $date->format('d/m/Y'));
+            $this->writeTextCell($sheet, $col, $row, $date->format('d/m/Y'));
         }
     }
 }
