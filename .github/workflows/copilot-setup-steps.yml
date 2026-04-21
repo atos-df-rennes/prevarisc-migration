@@ -2,14 +2,14 @@ name: "Copilot Setup Steps"
 
 # Exécuté automatiquement lors des modifications pour valider la configuration,
 # et manuellement depuis l'onglet "Actions" du dépôt pour tester l'environnement.
-on:
-    workflow_dispatch:
-    push:
-        paths:
-            - .github/workflows/copilot-setup-steps.yml
-    pull_request:
-        paths:
-            - .github/workflows/copilot-setup-steps.yml
+#on:
+#    workflow_dispatch:
+#    push:
+#        paths:
+#            - .github/workflows/copilot-setup-steps.yml
+#    pull_request:
+#        paths:
+#            - .github/workflows/copilot-setup-steps.yml
 
 jobs:
     # Le job DOIT s'appeler `copilot-setup-steps` pour être reconnu par Copilot.
