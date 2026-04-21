@@ -23,9 +23,10 @@
 | MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire (après merge calendrier-commissions) | — |
 | RE-1 | Extraire la logique d'export ODS dans `SearchExport` | ✅ Fait | `1f42d8f` |
 | RE-2 | Fix dates ODS : numéros de série → chaînes `dd/mm/yyyy` | ✅ Fait | `df10b04` |
+| RE-3 | Sécurité et qualité SearchExport : PHPDoc `array<int, array<string, mixed>>`, comparaison stricte `0 !== (int)`, helper `writeTextCell()` anti-formula-injection (`DataType::TYPE_STRING`), helper `toStr()` pour concaténations mixed-safe (PHPStan level 10) | ✅ Fait | `bd3180b` |
 
 > **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4).
-> **Worktree actif :** `refactor/export-recherche` (RE-1, RE-2). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
+> **Worktree actif :** `refactor/export-recherche` (RE-1, RE-2, RE-3). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
 
 ---
 
