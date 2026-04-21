@@ -1,7 +1,7 @@
 # Rapport de modernisation — prevarisc-migration
 
-> Branche analysée : `chore/modernisation` (depuis `develop`)
-> Date initiale : 2026-04-16 | Dernière mise à jour : 2026-04-17
+> Branche analysée : `chore/modernisation` → `chore/fancybox` (depuis `develop`)
+> Date initiale : 2026-04-16 | Dernière mise à jour : 2026-04-20
 > Périmètre : 449 fichiers PHP (`src/`), 101 fichiers de tests, 185 templates Twig
 
 ## Suivi d'avancement
@@ -14,15 +14,19 @@
 | QW-4 | Chosen 1.1.0 → **1.8.7** | ✅ Fait | `a251c4a` |
 | QW-5 | TomSelect 2.0 → **2.5.2** | ✅ Fait | `a251c4a` |
 | QW-6 | SortableJS 1.15.0 → **1.15.7** | ✅ Fait | `a251c4a` |
-| QW-7 | TableSorter 2.0.5b → 2.31.x | ⏳ À faire | — |
+| QW-7 | **Suppression de TableSorter** (bibliothèque inutilisée) | ✅ Fait | `cedcc69` (#172) |
 | BUG-1 | Fix tooltip Tipsy orphelin sur bouton × TomSelect (`main-bs3.js`) | ✅ Fait | `fde17ae` |
-| MT-1 | **PHPExcel → PhpSpreadsheet** (`SearchController`) | ⏳ Prochain worktree | — |
-| MT-2 | Injecter `CacheInterface` dans `CouchesCarto` | ⏳ À faire | — |
-| MT-3 | Multiselect → TomSelect (4 templates) | ⏳ À faire | — |
-| MT-4 | FancyBox 1.3.4 → 3.5.x | ⏳ À faire | — |
-| MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire | — |
+| MT-1 | **PHPExcel → PhpSpreadsheet** (`SearchController`) | ✅ Fait | `db4e5e4` (#169) |
+| MT-2 | Injecter `CacheInterface` dans `CouchesCarto` | ✅ Fait | `c76acdb` (#170) |
+| MT-3 | **Multiselect + Chosen → TomSelect** (5 templates, layout Bootstrap) | ✅ Fait | `ca636a6`, `d2b14e1`, `4fb4438` |
+| MT-4 | FancyBox 1.3.4 → **3.5.7** | ✅ Fait | `e53b773` |
+| MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire (après merge calendrier-commissions) | — |
+| RE-1 | Extraire la logique d'export ODS dans `SearchExport` | ✅ Fait | `1f42d8f` |
+| RE-2 | Fix dates ODS : numéros de série → chaînes `dd/mm/yyyy` | ✅ Fait | `df10b04` |
+| RE-3 | Sécurité et qualité SearchExport : PHPDoc `array<int, array<string, mixed>>`, comparaison stricte `0 !== (int)`, helper `writeTextCell()` anti-formula-injection (`DataType::TYPE_STRING`), helper `toStr()` pour concaténations mixed-safe (PHPStan level 10) | ✅ Fait | `bd3180b` |
 
-> **Worktree `chore/modernisation` clos.** Prochaine session : nouveau worktree pour MT-1 (PHPExcel → PhpSpreadsheet).
+> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4).
+> **Worktree actif :** `refactor/export-recherche` (RE-1, RE-2, RE-3). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
 
 ---
 
@@ -48,20 +52,20 @@ L'analyse du code déjà migré identifie **4 catégories d'opportunités**, ave
 
 | Priorité | Catégorie | Description | Effort | Impact | Risque |
 |----------|-----------|-------------|--------|--------|--------|
-| 🔴 Urgent | Dépendances | Remplacer `phpoffice/phpexcel` (EOL 2017) par `phpspreadsheet` | M | H | 🟡 |
+| ~~🔴 Urgent~~ ✅ | Dépendances | ~~Remplacer `phpoffice/phpexcel` (EOL 2017) par `phpspreadsheet`~~ **Fait** (#169) | M | H | 🟡 |
 | 🟡 Moyen | Dépendances | Monter `phpunit/phpunit` de 7.5 → 8.x (conditionné à PHP ≥ 7.2) | S | M | 🟢 |
 | 🟡 Moyen | Dépendances | Planifier la suppression de `sensio/framework-extra-bundle` | S | M | 🟢 |
 | 🟡 Moyen | Code PHP | Découper `SearchController::etablissement()` (344 lignes) et `SearchController::dossier()` (335 lignes) | L | H | 🟡 |
-| 🟡 Moyen | Code PHP | Remplacer `$_SERVER['DOCUMENT_ROOT']` par le paramètre Symfony kernel | S | L | 🟢 |
-| 🟡 Moyen | Code PHP | Injecter `CacheInterface` dans `CouchesCarto` au lieu de `new FilesystemAdapter()` | S | L | 🟢 |
-| 🟢 Quick win | Code PHP | Ajouter `: array` sur 2 méthodes `getSubscribedEvents()` sans return type | XS | L | 🟢 |
-| 🟢 Quick win | Twig | Renommer `dossierDonnantAvisId` → `dossier_donnant_avis_id` (twig-cs-fixer) | XS | L | 🟢 |
-| 🟢 Quick win | Frontend | Mettre à jour Chosen 1.1.0 → 1.8.7 (4 templates, compatible BS3) | XS | L | 🟢 |
-| 🟢 Quick win | Frontend | Mettre à jour TomSelect 2.0 → 2.4.x | XS | L | 🟢 |
-| 🟢 Quick win | Frontend | Mettre à jour SortableJS 1.15.0 → 1.15.6 | XS | L | 🟢 |
-| 🟢 Quick win | Frontend | Mettre à jour TableSorter 2.0.5b → 2.31.x (aucune dépendance BS) | S | M | 🟢 |
-| 🟡 Moyen | Frontend | Remplacer jQuery Multiselect (plus maintenu) par TomSelect (déjà présent) | M | M | 🟡 |
-| 🟡 Moyen | Frontend | Remplacer FancyBox 1.3.4 (2010, EOL) par Fancybox 3.x (BS3 compatible) | M | M | 🟡 |
+| ~~🟡 Moyen~~ ✅ | Code PHP | ~~Remplacer `$_SERVER['DOCUMENT_ROOT']` par le paramètre Symfony kernel~~ **Fait** (`9a926c6`) | S | L | 🟢 |
+| ~~🟡 Moyen~~ ✅ | Code PHP | ~~Injecter `CacheInterface` dans `CouchesCarto` au lieu de `new FilesystemAdapter()`~~ **Fait** (#170) | S | L | 🟢 |
+| ~~🟢 Quick win~~ ✅ | Code PHP | ~~Ajouter `: array` sur 2 méthodes `getSubscribedEvents()` sans return type~~ **Fait** (`9a926c6`) | XS | L | 🟢 |
+| ~~🟢 Quick win~~ ✅ | Twig | ~~Renommer `dossierDonnantAvisId` → `dossier_donnant_avis_id` (twig-cs-fixer)~~ **Fait** (`9a926c6`) | XS | L | 🟢 |
+| ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour Chosen 1.1.0 → 1.8.7 (4 templates, compatible BS3)~~ **Fait** (`a251c4a`) | XS | L | 🟢 |
+| ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour TomSelect 2.0 → 2.5.2~~ **Fait** (`a251c4a`) | XS | L | 🟢 |
+| ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour SortableJS 1.15.0 → 1.15.7~~ **Fait** (`a251c4a`) | XS | L | 🟢 |
+| ~~🟢 Quick win~~ ✅ | Frontend | ~~Mettre à jour TableSorter 2.0.5b → 2.31.3~~ **Supprimé (inutilisé)** (`cedcc69` #172) | S | M | 🟢 |
+| ~~🟡 Moyen~~ ✅ | Frontend | ~~Remplacer jQuery Multiselect (plus maintenu) par TomSelect (déjà présent)~~ **Fait** + Chosen supprimé (`ca636a6`, `d2b14e1`, `4fb4438`) | M | M | 🟡 |
+| ~~🟡 Moyen~~ ✅ | Frontend | ~~Remplacer FancyBox 1.3.4 (2010, EOL) par Fancybox 3.x (BS3 compatible)~~ **Fait** (branche `chore/fancybox`) | M | M | 🟡 |
 | 🟡 Moyen | Frontend | Remplacer FullCalendar 1.6.4 (2012, EOL) par FullCalendar 5.x | L | M | 🟡 |
 | 🔵 Long terme | Frontend | Mettre à jour jQuery 1.10.2 → 3.x et les plugins associés | XL | H | 🔴 |
 | 🔵 Long terme | Frontend | Migrer Bootstrap 3 → Bootstrap 5 + Webpack Encore | XL | H | 🔴 |
@@ -190,6 +194,8 @@ Bibliothèque pure (sans dépendance jQuery UI ou Bootstrap), mise à jour direc
 **FancyBox 1.3.4 → 3.5.x**
 
 FancyBox 1.3.4 date de novembre 2010 et n'est plus maintenu. FancyBox 3.5.x est compatible Bootstrap 3 et ne dépend plus de jQuery UI. L'API a changé mais les appels sont localisables via `grep -r "fancybox\|$.fancybox" templates/ src/`.
+
+> **Assets 1.3.4 conservés intentionnellement** : `public/js/jquery.fancybox-1.3.4.js` et `public/css/jquery/jquery.fancybox-1.3.4.css` sont toujours chargés par `prevarisc/application/plugins/View.php` pour la vue legacy `piece-jointe/index.phtml` (liste des pièces jointes d'un dossier), qui n'est pas encore migrée vers Symfony. Ces fichiers devront être supprimés lorsque cette vue sera portée.
 
 **FullCalendar 1.6.4 → 5.x**
 

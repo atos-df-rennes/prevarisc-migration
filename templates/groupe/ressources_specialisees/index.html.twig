@@ -26,12 +26,11 @@
                 })
             })
 
-            // @todo: Faire plutôt un Tom Select (après avoir validé l'ajout)
-            $("#ressource_specialisee_dossier_natures").multiselect({header: false, noneSelectedText: "Toutes les natures"});
-            $("#ressource_specialisee_etablissement_categories").multiselect({header: false, noneSelectedText: "Toutes les catégories"});
-            $("#ressource_specialisee_etablissement_familles").multiselect({header: false, noneSelectedText: "Toutes les familles"});
-            $("#ressource_specialisee_etablissement_classes").multiselect({header: false, noneSelectedText: "Toutes les classes"});
-            $("#ressource_specialisee_etablissement_classements").multiselect({header: false, noneSelectedText: "Tous les classements"});
+            new TomSelect("#ressource_specialisee_dossier_natures", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les natures' });
+            new TomSelect("#ressource_specialisee_etablissement_categories", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les catégories' });
+            new TomSelect("#ressource_specialisee_etablissement_familles", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les familles' });
+            new TomSelect("#ressource_specialisee_etablissement_classes", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Toutes les classes' });
+            new TomSelect("#ressource_specialisee_etablissement_classements", { plugins: ['remove_button', 'checkbox_options'], maxOptions: null, placeholder: 'Tous les classements' });
 
             // Action sur le changement du genre des ressources établissement (affichage des champs)
             $("#ressource_specialisee_etablissement_genre").change(function() {
