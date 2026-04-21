@@ -7,6 +7,7 @@ use App\Entity\CommissionTypeEvenement;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * DTO pour la création/édition d'une commission avec ses dates.
@@ -60,6 +61,20 @@ final class CommissionDatesDto
      * @var int
      */
     private $periodicite = 1;
+
+    /**
+     * Valide que dateFin est renseignée quand withPeriodicite est activée.
+     *
+     * @Assert\Callback
+     */
+    public function validatePeriodicite(ExecutionContextInterface $context): void
+    {
+        if ($this->withPeriodicite && null === $this->dateFin) {
+            $context->buildViolation('La date de fin est obligatoire pour la répétition périodique')
+                ->atPath('dateFin')
+                ->addViolation();
+        }
+    }
 
     public function __construct()
     {

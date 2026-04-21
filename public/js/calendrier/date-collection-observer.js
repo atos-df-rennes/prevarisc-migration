@@ -8,33 +8,27 @@ class DateCollectionObserver {
     }
 
     init() {
-        // Configuration de l'observer
         const config = {
-            childList: true,        // Observer les ajouts/suppressions d'enfants
-            subtree: false,         // Pas besoin d'observer les sous-éléments
-            attributes: false,      // On ne surveille pas les attributs
-            characterData: false    // On ne surveille pas le texte
+            childList: true,
+            subtree: false,
+            attributes: false,
+            characterData: false
         };
 
-        // Créer l'observer
         this.observer = new MutationObserver((mutations) => {
             this.handleCollectionChange(mutations);
         });
 
-        // Démarrer l'observation
         this.observer.observe(this.$collection[0], config);
 
-        // 🎯 État initial au chargement
         this.updateUI();
 
-        // 🎯 Événement sur la checkbox (inverse)
         this.$checkbox.on('change', () => {
             this.handleCheckboxChange();
         });
     }
 
     handleCollectionChange(mutations) {
-        // Filtrer uniquement les mutations qui ajoutent/suppriment des éléments
         const hasChanges = mutations.some(mutation =>
             mutation.type === 'childList' &&
             (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)
@@ -49,19 +43,23 @@ class DateCollectionObserver {
         const dateCount = this.getDateCount();
 
         if (dateCount === 1) {
-            // Une seule date : afficher la checkbox, masquer le bouton d'ajout
-            this.showCheckbox();
+            // Une seule date : afficher #addReapeat (contient la checkbox)
+            $('#addReapeat').show();
         } else if (dateCount > 1) {
-            // Plusieurs dates : masquer la checkbox et son contenu
-            this.hideCheckbox();
+            // Plusieurs dates : masquer #addReapeat et #planification
+            $('#addReapeat').hide();
+            $('#planification').hide();
+            this.$checkbox.prop('checked', false);
             this.showAddButton();
         }
     }
 
     handleCheckboxChange() {
         if (this.$checkbox.is(':checked')) {
+            $('#planification').show();
             this.hideAddButton();
         } else {
+            $('#planification').hide();
             const dateCount = this.getDateCount();
             if (dateCount === 1) {
                 this.showAddButton();
@@ -70,18 +68,7 @@ class DateCollectionObserver {
     }
 
     getDateCount() {
-        // Compter les éléments <li> ou .collection-item
         return this.$collection.children('li, .collection-item').length;
-    }
-
-    showCheckbox() {
-        this.$checkbox.closest('.form-group, .row').show();
-    }
-
-    hideCheckbox() {
-        this.$checkbox.closest('.form-group, .row').hide();
-        // Décocher automatiquement si cachée
-        this.$checkbox.prop('checked', false);
     }
 
     showAddButton() {
@@ -93,7 +80,6 @@ class DateCollectionObserver {
     }
 
     destroy() {
-        // Nettoyer l'observer si besoin de détruire l'instance
         if (this.observer) {
             this.observer.disconnect();
         }

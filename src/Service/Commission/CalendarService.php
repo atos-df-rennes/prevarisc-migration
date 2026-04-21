@@ -309,6 +309,184 @@ final class CalendarService
     }
 
     /**
+     * Met à jour le libellé d'une date de commission et de toutes ses dates liées.
+     * Port de dateCommUpdateLibelle.
+     */
+    public function updateLibelle(int $idDateCommission, string $libelle): void
+    {
+        $this->dateCommissionRepository->updateLibelle($idDateCommission, $libelle);
+    }
+
+    /**
+     * Met à jour le type d'une date de commission et de toutes ses dates liées.
+     * Port de dateCommUpdateType.
+     */
+    public function updateType(int $idDateCommission, int $idNewType): void
+    {
+        $this->dateCommissionRepository->updateType($idDateCommission, $idNewType);
+    }
+
+    /**
+     * Met à jour la date, l'heure de début et l'heure de fin d'une date de commission.
+     * Port de valid_dateCom.
+     *
+     * @throws \InvalidArgumentException si la DateCommission n'existe pas ou si les formats sont invalides
+     */
+    public function updateDateCommission(int $idDateCommission, string $dateStr, string $heureD, string $heureFin): DateCommission
+    {
+        $dateCommission = $this->dateCommissionRepository->find($idDateCommission);
+
+        if (null === $dateCommission) {
+            throw new \InvalidArgumentException(sprintf('Date de commission #%d introuvable', $idDateCommission));
+        }
+
+        $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+        $dateErrors = \DateTime::getLastErrors();
+        if (false === $date || (false !== $dateErrors && ($dateErrors['warning_count'] > 0 || $dateErrors['error_count'] > 0))) {
+            throw new \InvalidArgumentException(sprintf('Format de date invalide : "%s". Format attendu : dd/mm/yyyy', $dateStr));
+        }
+
+        $heureDebutObj = \DateTime::createFromFormat('H:i', $heureD);
+        if (false === $heureDebutObj) {
+            throw new \InvalidArgumentException(sprintf('Format d\'heure de début invalide : "%s". Format attendu : HH:mm', $heureD));
+        }
+
+        $heureFinObj = \DateTime::createFromFormat('H:i', $heureFin);
+        if (false === $heureFinObj) {
+            throw new \InvalidArgumentException(sprintf('Format d\'heure de fin invalide : "%s". Format attendu : HH:mm', $heureFin));
+        }
+
+        $dateCommission->setDate($date);
+        $dateCommission->setHeureDebut($heureDebutObj);
+        $dateCommission->setHeureFin($heureFinObj);
+
+        $this->entityManager->flush();
+
+        $typeEvenement = $dateCommission->getTypeEvenement();
+        if (null !== $typeEvenement && null !== $typeEvenement->getId()) {
+            $this->dateCommissionRepository->updateDependingDossierDates(
+                $idDateCommission,
+                $date->format('Y-m-d'),
+                (int) $typeEvenement->getId()
+            );
+        }
+
+        return $dateCommission;
+    }
+
+    /**
+     * Supprime une date de commission liée (non-maître).
+     * Port de supp_dateCom.
+     * Retourne false si la date est maître (non supprimée), true si supprimée.
+     */
+    public function deleteLinkedDate(int $idDateCommission): bool
+    {
+        $dateCommission = $this->dateCommissionRepository->find($idDateCommission);
+
+        if (null === $dateCommission) {
+            return false;
+        }
+
+        if (null === $dateCommission->getDateCommissionLiees()) {
+            return false;
+        }
+
+        $this->entityManager->remove($dateCommission);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    /**
+     * Ajoute une date liée à une commission existante.
+     * Port de addDateS.
+     *
+     * @throws \InvalidArgumentException si la date de référence n'existe pas ou si le format de date est invalide
+     */
+    public function addLinkedDate(int $idDateCommissionLiee, string $dateStr): DateCommission
+    {
+        $dateRef = $this->dateCommissionRepository->find($idDateCommissionLiee);
+
+        if (null === $dateRef) {
+            throw new \InvalidArgumentException(sprintf('Date de commission #%d introuvable', $idDateCommissionLiee));
+        }
+
+        $idUtile = $dateRef->getDateCommissionLiees() ?? $dateRef->getId();
+
+        /** @var int $idUtile */
+        $master = $this->dateCommissionRepository->find($idUtile);
+
+        if (null === $master) {
+            throw new \InvalidArgumentException(sprintf('Date de commission maître #%d introuvable', $idUtile));
+        }
+
+        $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+        $dateErrors = \DateTime::getLastErrors();
+        if (false === $date || (false !== $dateErrors && ($dateErrors['warning_count'] > 0 || $dateErrors['error_count'] > 0))) {
+            throw new \InvalidArgumentException(sprintf('Format de date invalide : "%s". Format attendu : dd/mm/yyyy', $dateStr));
+        }
+
+        $newDate = new DateCommission();
+        $newDate->setDate($date);
+        $newDate->setDateCommissionLiees((int) $idUtile);
+
+        $typeEvenement = $master->getTypeEvenement();
+        if (null !== $typeEvenement) {
+            $newDate->setTypeEvenement($typeEvenement);
+        }
+
+        $commission = $master->getCommission();
+        if (null !== $commission) {
+            $newDate->setCommission($commission);
+        }
+
+        $newDate->setLibelle($master->getLibelle());
+
+        $heureDebut = $master->getHeureDebut();
+        if (null !== $heureDebut) {
+            $newDate->setHeureDebut($heureDebut);
+        }
+
+        $heureFin = $master->getHeureFin();
+        if (null !== $heureFin) {
+            $newDate->setHeureFin($heureFin);
+        }
+
+        $newDate->setGestionHeures(false);
+
+        $this->entityManager->persist($newDate);
+        $this->entityManager->flush();
+
+        return $newDate;
+    }
+
+    /**
+     * Rend une date de commission maître parmi les dates liées (makeDefaut).
+     * Port de makeDefaut.
+     *
+     * @throws \InvalidArgumentException si la date de commission n'existe pas
+     */
+    public function changeMasterDate(int $idDateCommission): void
+    {
+        $dateCommission = $this->dateCommissionRepository->find($idDateCommission);
+
+        if (null === $dateCommission) {
+            throw new \InvalidArgumentException(sprintf('Date de commission #%d introuvable', $idDateCommission));
+        }
+
+        $oldMasterId = $dateCommission->getDateCommissionLiees();
+
+        if (null === $oldMasterId) {
+            return;
+        }
+
+        $this->dateCommissionRepository->changeMasterDateComm((int) $oldMasterId, $idDateCommission);
+
+        $dateCommission->setDateCommissionLiees(null);
+        $this->entityManager->flush();
+    }
+
+    /**
      * Met à jour les dates des dossiers liés à une date de commission.
      * Iso-fonctionnel avec Model_DbTable_DateCommission::updateDependingDossierDates().
      */

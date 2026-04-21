@@ -62,10 +62,6 @@ class CommissionDatesType extends AbstractType
                 'label' => 'Date de fin de planification',
                 'widget' => 'single_text',
                 'required' => false,
-                'row_attr' => [
-                    'placeholder' => 'jj/mm/aaaa',
-                    'class' => 'hidden'
-                ],
             ])
             ->add('periodicite', ChoiceType::class, [
                 'label' => 'Périodicité (en semaines)',
@@ -77,9 +73,6 @@ class CommissionDatesType extends AbstractType
                 ],
                 'data' => 1,
                 'required' => false,
-                'row_attr' => [
-                    'class' => 'hidden'
-                ]
             ])
         ;
     }
