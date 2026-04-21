@@ -9,12 +9,10 @@ document.addEventListener("DOMContentLoaded", function() {
 }, false);
 
 function bindTitlePopup() {
-    // Titres — exclure les boutons remove TomSelect (.ts-wrapper a) :
-    // Tipsy est initialisé APRÈS $(document).ready() des templates (ordre DOMContentLoaded),
-    // donc il capte les <a title="Remove"> dynamiques de TomSelect. Quand TomSelect supprime
-    // un item, le div.tipsy appendé au <body> est orphelin (mouseleave jamais déclenché).
-    $('a[title]:not(.ts-wrapper a)').tipsy({live: true});
-    $('abbr[title]').tipsy({live: true});
+    // Tooltips Bootstrap 3 — remplace Tipsy (EOL).
+    // Exclure les boutons remove TomSelect (.ts-wrapper a) pour éviter les tooltips orphelins.
+    // Le sélecteur couvre aussi [data-toggle="tooltip"] pour les templates qui l'utilisent déjà.
+    $('a[title]:not(.ts-wrapper a), abbr[title], [data-toggle="tooltip"]').tooltip();
 }
 
 function bindContainerSize() {
