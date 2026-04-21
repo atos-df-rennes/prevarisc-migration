@@ -1,4 +1,4 @@
-<form name='formDateComm' id='formDateComm' methode='POST'>
+<form name='formDateComm' id='formDateComm' method='POST'>
     <input type='hidden' name='dateCommission' id='dateCommission' value='{{ idMaster }}' />
     <input type='hidden' name='dateClick' id='dateClick' value='{{ dateCommission.id }}' />
     <input type='hidden' name='_csrf_dialog' id='csrf_token_dialog' value='{{ csrf_token('calendrier_commissions_dialog') }}' />

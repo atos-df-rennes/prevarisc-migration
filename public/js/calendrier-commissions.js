@@ -718,7 +718,7 @@ function my_dialog(url, data, callback) {
                         text: "Afficher l'ordre du jour",
                         'class': 'btn btn-primary',
                         click: function () {
-                            window.location.replace('./calendrier-des-commissions/gestionodj/dateCommId/' + $('#dateClick').val());
+                            window.location.replace('/calendrier-des-commissions/gestionodj/dateCommId/' + $('#dateClick').val());
                         }
                     },
                     {

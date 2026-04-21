@@ -323,6 +323,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->render('calendrier_des_commissions/dialog/_date_display.html.twig', [
                 'updateDateComm' => $dateCommission,
+                'dateFormatee' => $this->formatDateFr($dateCommission->getDate() ?? new \DateTime()),
                 'first' => $first,
             ]);
         }
@@ -341,6 +342,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->render('calendrier_des_commissions/dialog/_date_display.html.twig', [
                 'updateDateComm' => $dateCommission,
+                'dateFormatee' => $this->formatDateFr($dateCommission->getDate() ?? new \DateTime()),
                 'first' => $first,
             ]);
         }
@@ -674,7 +676,7 @@ class CalendrierDesCommissionsController extends AbstractController
             $nouvelleHeureFin = null;
             /** @var string|null $finParam */
             $finParam = $request->request->get('fin');
-            if (null !== $finParam) {
+            if (null !== $finParam && '' !== $finParam) {
                 $nouvelleHeureFin = $this->calendarService->parseJavaScriptDateToTime($finParam);
             }
 
@@ -721,6 +723,13 @@ class CalendrierDesCommissionsController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => false,
+                    'error' => "La requête n'est pas correcte",
+                ]);
+            }
+
             /** @var CommissionDatesDto $data */
             $data = $form->getData();
 
@@ -731,13 +740,6 @@ class CalendrierDesCommissionsController extends AbstractController
                 return $this->json([
                     'success' => false,
                     'error' => "La date principale n'a pas pu être récupérée correctement",
-                ]);
-            }
-
-            if (!$request->isXmlHttpRequest()) {
-                return $this->json([
-                    'success' => false,
-                    'error' => "La requête n'est pas correcte"
                 ]);
             }
 
@@ -759,7 +761,7 @@ class CalendrierDesCommissionsController extends AbstractController
      * Formate une date en libellé français court (ex: "Lundi 12 Jan 2026").
      * Port de Zend_Date::get(WEEKDAY DAY_SHORT MONTH_NAME_SHORT YEAR, 'fr').
      */
-    private function formatDateFr(\DateTime $date): string
+    private function formatDateFr(\DateTimeInterface $date): string
     {
         $days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         $months = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
