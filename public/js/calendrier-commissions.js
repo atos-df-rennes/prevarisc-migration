@@ -165,11 +165,11 @@
                                         type: 'POST',
                                         success: function (result) {
                                             if (result && result.success) {
-                                                showToast(result.message || 'Date(s) créée(s) avec succès', 'success');
+                                                $.toast.fromResponse(result);
                                                 $('#calendar').fullCalendar('refetchEvents');
                                                 $('#dialogComm').dialog('close').html('');
-                                            } else if (result && result.error) {
-                                                showToast(result.error, 'danger');
+                                            } else if (result && (result.error || result.success === false)) {
+                                                $.toast.fromResponse(result);
                                             } else if (typeof result === 'string') {
                                                 // Formulaire avec erreurs de validation
                                                 $('#dialogComm').html(result);
@@ -215,15 +215,13 @@
                     url: Routing.generate('calendrier_des_commissions_deplacer_date'),
                     type: 'POST',
                     success: function (result) {
-                        if (result && result.success) {
-                            showToast(result.message || 'Date déplacée avec succès', 'success');
-                        } else if (result && result.error) {
-                            showToast(result.error, 'danger');
+                        $.toast.fromResponse(result);
+                        if (!result || !result.success) {
                             revertFunc();
                         }
                     },
                     error: function () {
-                        showToast('Erreur lors du déplacement de la date', 'danger');
+                        $.toast.error('Erreur lors du déplacement de la date');
                         revertFunc();
                     }
                 });
@@ -240,15 +238,13 @@
                     url: Routing.generate('calendrier_des_commissions_redimensionner_date'),
                     type: 'POST',
                     success: function (result) {
-                        if (result && result.success) {
-                            showToast(result.message || 'Durée modifiée avec succès', 'success');
-                        } else if (result && result.error) {
-                            showToast(result.error, 'danger');
+                        $.toast.fromResponse(result);
+                        if (!result || !result.success) {
                             $('#calendar').fullCalendar('refetchEvents');
                         }
                     },
                     error: function () {
-                        showToast('Erreur lors de la modification de la durée', 'danger');
+                        $.toast.error('Erreur lors de la modification de la durée');
                         $('#calendar').fullCalendar('refetchEvents');
                     }
                 });
@@ -764,26 +760,3 @@ document.addEventListener('collection:item-removed', function (e) {
         $('#addReapeat').show();
     }
 });
-
-/**
- * Affiche une notification toast Bootstrap 3 en position fixe.
- *
- * @param {string} message
- * @param {string} type - 'success' | 'danger' | 'warning' | 'info'
- */
-function showToast(message, type) {
-    var alertClass = 'alert-' + (type || 'info');
-    var $toast = $(
-        '<div class="alert ' + alertClass + ' alert-dismissible" role="alert" style="' +
-        'position:fixed;top:20px;right:20px;z-index:10000;min-width:300px;max-width:450px;' +
-        'box-shadow:0 2px 8px rgba(0,0,0,.25);">' +
-        '<button type="button" class="close" data-dismiss="alert" aria-label="Fermer">' +
-        '<span aria-hidden="true">&times;</span></button>' +
-        message +
-        '</div>'
-    );
-    $('body').append($toast);
-    setTimeout(function () {
-        $toast.fadeOut(400, function () { $toast.remove(); });
-    }, 4000);
-}
