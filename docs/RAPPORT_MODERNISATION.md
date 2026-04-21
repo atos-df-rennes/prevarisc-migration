@@ -20,10 +20,12 @@
 | MT-2 | Injecter `CacheInterface` dans `CouchesCarto` | ✅ Fait | `c76acdb` (#170) |
 | MT-3 | **Multiselect + Chosen → TomSelect** (5 templates, layout Bootstrap) | ✅ Fait | `ca636a6`, `d2b14e1`, `4fb4438` |
 | MT-4 | FancyBox 1.3.4 → **3.5.7** | ✅ Fait | `e53b773` |
-| MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire | — |
+| MT-5 | FullCalendar 1.6.4 → 5.x | ⏳ À faire (après merge calendrier-commissions) | — |
+| RE-1 | Extraire la logique d'export ODS dans `SearchExport` | ✅ Fait | `1f42d8f` |
+| RE-2 | Fix dates ODS : numéros de série → chaînes `dd/mm/yyyy` | ✅ Fait | `df10b04` |
 
-> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3).
-> **Worktree actif :** `chore/fancybox` (MT-4). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x).
+> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4).
+> **Worktree actif :** `refactor/export-recherche` (RE-1, RE-2). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
 
 ---
 
