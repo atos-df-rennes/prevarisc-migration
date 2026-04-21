@@ -762,7 +762,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [
             'form' => $form->createView(),
-            'show_footer' => !$request->isXmlHttpRequest(),
+            // Par défaut : pas de footer si requête AJAX (calendrier principal gère ses propres boutons via jQuery UI dialog).
+            // Le contexte dossier passe show_footer=1 pour afficher les boutons dans la modale Bootstrap.
+            'show_footer' => (bool) $request->query->get('show_footer', !$request->isXmlHttpRequest()),
         ]);
     }
 

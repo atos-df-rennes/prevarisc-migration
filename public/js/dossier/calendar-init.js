@@ -239,6 +239,7 @@
                 typeEvenement: options.type,
                 start: start.toISOString(),
                 end: end.toISOString(),
+                show_footer: 1,
             },
             success: function(response) {
                 $('#' + CONFIG.selectors.modalName + ' .modal-body').html(response)
