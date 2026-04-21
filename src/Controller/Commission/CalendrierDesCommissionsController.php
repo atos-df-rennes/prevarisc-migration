@@ -23,7 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-// @todo: Une fois la migration terminée, supprimer les préfixes /symfony.
+// Routes du calendrier des commissions migrées vers Symfony.
+// URL principale : /commissions/calendrier (≠ legacy /calendrier-des-commissions).
+// Les routes AJAX partagent le même préfixe pour ne pas interférer avec le Zend legacy.
 class CalendrierDesCommissionsController extends AbstractController
 {
     /**
@@ -82,7 +84,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Page principale du calendrier des commissions.
      *
-     * @Route("/symfony/calendrier-des-commissions", name="calendrier_des_commissions_index", methods={"GET"}, options={"expose"=true})
+     * @Route("/commissions/calendrier", name="calendrier_des_commissions_index", methods={"GET"}, options={"expose"=true})
      */
     public function index(Request $request): Response
     {
@@ -133,7 +135,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Autocomplete de recherche de commission.
      *
-     * @Route("/symfony/calendrier-des-commissions/commissionselection", name="calendrier_des_commissions_commissionselection", methods={"GET"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/commissionselection", name="calendrier_des_commissions_commissionselection", methods={"GET"}, options={"expose"=true})
      */
     public function commissionSelection(Request $request): JsonResponse
     {
@@ -165,7 +167,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Dialogue de gestion des dates de commission (mega-switch).
      *
-     * @Route("/symfony/calendrier-des-commissions/dialogcomm", name="calendrier_des_commissions_dialog_edit", methods={"POST"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/dialogcomm", name="calendrier_des_commissions_dialog_edit", methods={"POST"}, options={"expose"=true})
      */
     public function dialogComm(Request $request): Response
     {
@@ -454,7 +456,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Affiche la boîte de dialogue de confirmation de suppression d'une date.
      *
-     * @Route("/symfony/calendrier-des-commissions/alertsuppression", name="calendrier_des_commissions_alertsuppression", methods={"POST"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/alertsuppression", name="calendrier_des_commissions_alertsuppression", methods={"POST"}, options={"expose"=true})
      */
     public function alertSuppression(Request $request): Response
     {
@@ -472,7 +474,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Supprime définitivement une date de commission et ses données liées.
      *
-     * @Route("/symfony/calendrier-des-commissions/validsuppression", name="calendrier_des_commissions_validsuppression", methods={"POST"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/validsuppression", name="calendrier_des_commissions_validsuppression", methods={"POST"}, options={"expose"=true})
      */
     public function validSuppression(Request $request): Response
     {
@@ -526,7 +528,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Récupère les événements du calendrier des commissions.
      *
-     * @Route("/symfony/calendrier-des-commissions/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
      */
     public function getCalendarEvents(Request $request): JsonResponse
     {
@@ -573,7 +575,7 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * Récupère les dates de commission liées à une date donnée.
      *
-     * @Route("/symfony/calendrier-des-commissions/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
      */
     public function getLinkedDates(Request $request): JsonResponse
     {
@@ -606,7 +608,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Modifie l'heure de fin d'une date de commission.
      *
-     * @Route("/symfony/calendrier-des-commissions/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
      */
     public function resizeCommissionDate(Request $request): JsonResponse
     {
@@ -646,7 +648,7 @@ class CalendrierDesCommissionsController extends AbstractController
     /**
      * Déplace une date de commission (modifie la date et les heures).
      *
-     * @Route("/symfony/calendrier-des-commissions/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
      */
     public function moveCommissionDate(Request $request): JsonResponse
     {
@@ -705,7 +707,7 @@ class CalendrierDesCommissionsController extends AbstractController
     }
 
     /**
-     * @Route("/symfony/calendrier-des-commissions/creer-date", name="calendrier_des_commissions_creer_date", methods={"GET", "POST"}, options={"expose"=true})
+     * @Route("/commissions/calendrier/creer-date", name="calendrier_des_commissions_creer_date", methods={"GET", "POST"}, options={"expose"=true})
      */
     public function creerDate(
         Request $request
