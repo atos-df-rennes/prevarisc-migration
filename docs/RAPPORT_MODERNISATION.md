@@ -1,7 +1,7 @@
 # Rapport de modernisation — prevarisc-migration
 
-> Branche analysée : `chore/modernisation` → `chore/fancybox` (depuis `develop`)
-> Date initiale : 2026-04-16 | Dernière mise à jour : 2026-04-20
+> Branche analysée : `chore/modernisation` → `chore/tipsy` (depuis `develop`)
+> Date initiale : 2026-04-16 | Dernière mise à jour : 2026-04-21
 > Périmètre : 449 fichiers PHP (`src/`), 101 fichiers de tests, 185 templates Twig
 
 ## Suivi d'avancement
@@ -24,9 +24,10 @@
 | RE-1 | Extraire la logique d'export ODS dans `SearchExport` | ✅ Fait | `1f42d8f` |
 | RE-2 | Fix dates ODS : numéros de série → chaînes `dd/mm/yyyy` | ✅ Fait | `df10b04` |
 | RE-3 | Sécurité et qualité SearchExport : PHPDoc `array<int, array<string, mixed>>`, comparaison stricte `0 !== (int)`, helper `writeTextCell()` anti-formula-injection (`DataType::TYPE_STRING`), helper `toStr()` pour concaténations mixed-safe (PHPStan level 10) | ✅ Fait | `bd3180b` |
+| MT-6 | **Tipsy → tooltips Bootstrap 3** (`main-bs3.js` + `base.html.twig`) — fichiers Tipsy conservés pour le legacy | ✅ Fait | `d5d2df9` |
 
-> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4).
-> **Worktree actif :** `refactor/export-recherche` (RE-1, RE-2, RE-3). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
+> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4), `refactor/export-recherche` (RE-1→RE-3), `chore/tipsy` (MT-6).
+> **Worktree actif :** `chore/tipsy` (MT-6). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
 
 ---
 
