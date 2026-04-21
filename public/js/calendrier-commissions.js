@@ -150,47 +150,32 @@
                 }
                 my_dialog(
                     Routing.generate('calendrier_des_commissions_dialog_edit'),
-                    'do=newComm&idComm=' + idComm + '&dateD=' + start + '&dateF=' + end,
+                    'do=newComm&idComm=' + idComm + '&dateD=' + encodeURIComponent(start.toISOString()) + '&dateF=' + encodeURIComponent(end.toISOString()),
                     function () {
                         $('#dialogComm').dialog('option', 'buttons', [
                             {
                                 text: 'Enregistrer dans le calendrier',
                                 'class': 'btn btn-success',
                                 click: function () {
-                                    if ($('#repeat').is(':checked') && $('#dateFin').val() === '') {
-                                        $('#erreurDateFin').html('Veuillez renseigner une date de fin');
-                                        return false;
-                                    }
-                                    if ($('#libelle_comm').val() === '') {
-                                        $('#libelle_comm').focus();
-                                        return false;
-                                    }
                                     $.ajax({
-                                        data: $('#formDateComm').serialize() + '&idComm=' + idComm,
-                                        url: Routing.generate('calendrier_des_commissions_creer_date'),
+                                        data: $('#formDateComm').serialize(),
+                                        url: $('#formDateComm').attr('action') || Routing.generate('calendrier_des_commissions_creer_date'),
                                         type: 'POST',
-                                        success: function (affichageResultat) {
-                                            var rez = eval('(' + affichageResultat + ')');
-                                            for (var i in rez) {
-                                                calendar.fullCalendar('renderEvent', {
-                                                    id: rez[i]['id'],
-                                                    title: rez[i]['title'],
-                                                    className: rez[i]['className'],
-                                                    start: rez[i]['start'],
-                                                    end: rez[i]['end'],
-                                                    allDay: false,
-                                                    url: '/commission/id/' + rez[i]['id']
-                                                });
+                                        success: function (result) {
+                                            if (result && result.success) {
+                                                $('#calendar').fullCalendar('refetchEvents');
+                                                $('#dialogComm').dialog('close').html('');
+                                            } else if (typeof result === 'string') {
+                                                // Formulaire avec erreurs de validation
+                                                $('#dialogComm').html(result);
                                             }
-                                            $('#calendar').fullCalendar('refetchEvents');
-                                            $('#dialogComm').dialog('close').html('');
                                         }
                                     });
                                 }
                             },
                             {
                                 text: "Fermer la fenêtre d'édition",
-                                'class': 'btn',
+                                'class': 'btn btn-default',
                                 click: function () {
                                     $('#dialogComm').dialog('close').html('');
                                 }
@@ -714,7 +699,7 @@ function my_dialog(url, data, callback) {
                     },
                     {
                         text: "Fermer la fenêtre d'édition",
-                        'class': 'btn',
+                        'class': 'btn btn-default',
                         click: function () {
                             $('#dialogComm').dialog('close').html('');
                         }

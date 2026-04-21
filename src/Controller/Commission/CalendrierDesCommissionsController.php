@@ -4,6 +4,7 @@ namespace App\Controller\Commission;
 
 use App\Dto\Commission\CalendarEventDto;
 use App\Dto\Commission\CommissionDatesDto;
+use App\Dto\Commission\DateCommissionItemDto;
 use App\Dto\Commission\DateCommissionLieeDto;
 use App\Entity\Commission;
 use App\Entity\Utilisateur;
@@ -391,6 +392,55 @@ class CalendrierDesCommissionsController extends AbstractController
             return new Response('');
         }
 
+        if ('newComm' === $do) {
+            /** @var string $rawIdComm */
+            $rawIdComm = $request->request->get('idComm', '0');
+            $idCommNewComm = (int) $rawIdComm;
+
+            $dateCommissionDto = new CommissionDatesDto();
+
+            $commission = $this->commissionRepository->find($idCommNewComm);
+            if (null !== $commission) {
+                $dateCommissionDto->setCommission($commission);
+            }
+
+            // Pré-remplissage des dates depuis la sélection FullCalendar (format ISO 8601).
+            /** @var string $dateDStr */
+            $dateDStr = $request->request->get('dateD', '');
+            /** @var string $dateFStr */
+            $dateFStr = $request->request->get('dateF', '');
+
+            try {
+                if ('' !== $dateDStr) {
+                    $dateStart = $this->calendarService->parseJavaScriptDate($dateDStr);
+                    $dateCommissionDto->addDate(new DateCommissionItemDto($dateStart));
+
+                    if ('' !== $dateFStr) {
+                        $dateEnd = $this->calendarService->parseJavaScriptDate($dateFStr);
+                        $numberOfDays = $dateStart->diff($dateEnd)->days;
+                        if (is_int($numberOfDays)) {
+                            for ($i = 1; $i < $numberOfDays; ++$i) {
+                                $date = clone $dateStart;
+                                $date->modify(sprintf('+%d days', $i));
+                                $dateCommissionDto->addDate(new DateCommissionItemDto($date));
+                            }
+                        }
+                    }
+                }
+            } catch (\InvalidArgumentException $e) {
+                // Date invalide ou absente : on laisse le formulaire vide
+            }
+
+            $form = $this->createForm(CommissionDatesType::class, $dateCommissionDto, [
+                'action' => $this->generateUrl('calendrier_des_commissions_creer_date'),
+            ]);
+
+            return $this->render('calendrier_des_commissions/form_date.html.twig', [
+                'form' => $form->createView(),
+                'show_footer' => false,
+            ]);
+        }
+
         return new Response('Erreur mauvais choix');
     }
 
@@ -696,6 +746,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [
             'form' => $form->createView(),
+            'show_footer' => !$request->isXmlHttpRequest(),
         ]);
     }
 
