@@ -731,6 +731,17 @@ function my_dialog(url, data, callback) {
                 ]
             });
 
+            // Initialise les boutons de suppression sur les dates pré-remplies (sélection de plage).
+            // DOMContentLoaded s'étant déjà déclenché, add-collection-widget.js n'a pas pu les initialiser.
+            // On saute le premier élément (date maître) comme le fait calendar-init.js côté dossier.
+            var collWidget = document.querySelector('#dialogComm .remove-collection-widget');
+            if (collWidget && typeof addTagFormDeleteLink === 'function') {
+                var items = collWidget.children;
+                for (var i = 1; i < items.length; i++) {
+                    addTagFormDeleteLink(items[i]);
+                }
+            }
+
             if (callback) {
                 callback();
             }
