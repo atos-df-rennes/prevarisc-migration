@@ -348,7 +348,8 @@ class CalendrierDesCommissionsController extends AbstractController
         if ('supp_dateCom' === $do) {
             $deleted = $this->calendarService->deleteLinkedDate($idDateComm);
 
-            return new Response('');
+            // Vide = date maître (impossible à supprimer), non-vide = suppression réussie.
+            return new Response($deleted ? 'ok' : '');
         }
 
         if ('addDateN' === $do) {
@@ -375,7 +376,11 @@ class CalendrierDesCommissionsController extends AbstractController
             $rawIdDateCommLiee = $request->request->get('idDateCommLiee', '0');
             $idDateCommLiee = (int) $rawIdDateCommLiee;
 
-            $newDate = $this->calendarService->addLinkedDate($idDateCommLiee, $dateStr);
+            try {
+                $newDate = $this->calendarService->addLinkedDate($idDateCommLiee, $dateStr);
+            } catch (\InvalidArgumentException $e) {
+                return new Response('<div class="alert alert-danger">'.htmlspecialchars($e->getMessage()).'</div>');
+            }
 
             $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
             $nouvelleDate = false !== $date ? $this->formatDateFr($date) : $dateStr;

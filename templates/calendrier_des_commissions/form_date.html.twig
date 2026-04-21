@@ -41,11 +41,17 @@
         </div>
     </section>
 
-    <section>
-        {{ form_row(form.withPeriodicite) }}
+    <div id="addReapeat">
+        <div class="form-group">
+            {{ form_label(form.withPeriodicite) }}
+            {{ form_widget(form.withPeriodicite, {attr: {id: 'repeat'}}) }}
+            {{ form_errors(form.withPeriodicite) }}
+        </div>
+    </div>
+    <div id="planification" style="display:none;">
         {{ form_row(form.dateFin) }}
         {{ form_row(form.periodicite) }}
-    </section>
+    </div>
 
     {% if show_footer is not defined or show_footer %}
     <div class="modal-footer">

@@ -31,6 +31,7 @@
         $('.suppression').hide();
         $('.dateDefaut').hide();
         $('.addDate').hide();
+        $('.add-collection-widget').hide();
     };
 
     $.fn.buttonShow = function () {
@@ -38,6 +39,7 @@
         $('.suppression').show();
         $('.dateDefaut').show();
         $('.addDate').show();
+        $('.add-collection-widget').show();
     };
 
     $.fn.reapeatHide = function () {
@@ -353,13 +355,13 @@ $(document).ready(function () {
 
     // Checkbox periodicité
     $(document).on('click', '#repeat', function () {
-        if ($(this).attr('checked')) {
+        if ($(this).prop('checked')) {
             $('#planification').fadeIn();
             $('#dialogComm').buttonHide();
         } else {
             $('#planification').fadeOut();
-            $('#dateFin').attr('value', '');
-            $('#periodicite').val('1');
+            $('#commission_dates_dateFin').val('');
+            $('#commission_dates_periodicite').val('1');
             $('#dialogComm').buttonShow();
         }
     });
@@ -713,3 +715,17 @@ function my_dialog(url, data, callback) {
         }
     });
 }
+
+// Lorsqu'une date est ajoutée via add-collection-widget (formulaire newComm),
+// masquer la section de planification périodique (incompatible avec multi-dates).
+document.addEventListener('collection:item-added', function () {
+    var listeItems = document.querySelectorAll('#liste_dates > li');
+    if (listeItems.length >= 2) {
+        $('#addReapeat').hide();
+        $('#planification').hide();
+        var repeatCheckbox = document.getElementById('repeat');
+        if (repeatCheckbox) {
+            repeatCheckbox.checked = false;
+        }
+    }
+});
