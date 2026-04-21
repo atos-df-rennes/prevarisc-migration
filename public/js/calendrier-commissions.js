@@ -154,7 +154,7 @@
                     Routing.generate('calendrier_des_commissions_dialog_edit'),
                     'do=newComm&idComm=' + idComm + '&dateD=' + encodeURIComponent(start.toISOString()) + '&dateF=' + encodeURIComponent(end.toISOString()),
                     function () {
-                        $('#dialogComm').dialog('option', 'buttons', [
+                        renderModalButtons([
                             {
                                 text: 'Enregistrer dans le calendrier',
                                 'class': 'btn btn-success',
@@ -167,7 +167,7 @@
                                             if (result && result.success) {
                                                 $.toast.fromResponse(result);
                                                 $('#calendar').fullCalendar('refetchEvents');
-                                                $('#dialogComm').dialog('close').html('');
+                                                closeModalComm();
                                             } else if (result && (result.error || result.success === false)) {
                                                 $.toast.fromResponse(result);
                                             } else if (typeof result === 'string') {
@@ -181,9 +181,7 @@
                             {
                                 text: "Fermer la fenêtre d'édition",
                                 'class': 'btn btn-default',
-                                click: function () {
-                                    $('#dialogComm').dialog('close').html('');
-                                }
+                                click: closeModalComm
                             }
                         ]);
                     }
@@ -581,21 +579,14 @@ $(document).ready(function () {
                     },
                     success: function (affichageResultat) {
                         $('#dialogComm').html(affichageResultat);
-                        $('body').css('overflow', 'hidden');
-                        $('#dialogComm').dialog({
-                            resizable: false,
-                            height: 800,
-                            width: 1200,
-                            buttons: {
-                                "Fermer la fenêtre d'édition": function () {
-                                    $(this).dialog('close');
-                                    $('#dialogComm').html('');
-                                }
-                            },
-                            close: function (event, ui) {
-                                $('body').css('overflow', 'auto');
+                        renderModalButtons([
+                            {
+                                text: "Fermer la fenêtre d'édition",
+                                'class': 'btn btn-default',
+                                click: closeModalComm
                             }
-                        });
+                        ]);
+                        $('#modalComm').modal('show');
                     },
                     error: function () {
                         return false;
@@ -651,7 +642,7 @@ $(document).ready(function () {
             type: 'POST',
             success: function (affichageResultat) {
                 $('#calendar').fullCalendar('refetchEvents');
-                $('#dialogComm').dialog('close').html('');
+                closeModalComm();
                 return false;
             },
             error: function () {
@@ -661,10 +652,35 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '#cancelSupp', function () {
-        $('#dialogComm').dialog('close').html('');
+        closeModalComm();
     });
 
 }); // fin document.ready
+
+// ─── Helpers Bootstrap modal ─────────────────────────────────────────────────
+
+/**
+ * Injecte des boutons dans le footer de la modale commission.
+ * @param {Array<{text: string, 'class': string, click: function}>} buttons
+ */
+function renderModalButtons(buttons) {
+    const $footer = $('#modalCommFooter').empty().show();
+    buttons.forEach(function (btn) {
+        $('<button>', { type: 'button' })
+            .text(btn.text)
+            .addClass(btn['class'] || 'btn btn-default')
+            .on('click', btn.click)
+            .appendTo($footer);
+    });
+}
+
+/**
+ * Ferme la modale commission et vide son contenu.
+ */
+function closeModalComm() {
+    $('#modalComm').modal('hide');
+    $('#dialogComm').html('');
+}
 
 // ─── Fonction dialogue standard (globale) ────────────────────────────────────
 
@@ -676,55 +692,49 @@ function my_dialog(url, data, callback) {
         success: function (result) {
             $('#dialogComm').html(result);
 
-            $('#dialogComm').dialog({
-                resizable: false,
-                height: '500',
-                width: '800',
-                modal: true,
-                buttons: [
-                    {
-                        text: 'Supprimer la date',
-                        'class': 'btn btn-warning',
-                        click: function () {
-                            $.ajax({
-                                url: Routing.generate('calendrier_des_commissions_alertsuppression'),
-                                data: '&dateCommission=' + $('#dateCommission').val() + '&commissionId=' + $('#commissionId').val(),
-                                type: 'POST',
-                                success: function (affichageResultat) {
-                                    $('#dialogComm').html(affichageResultat);
-                                    $('.ui-dialog-buttonset').children('button').remove();
-                                    return false;
-                                },
-                                error: function () {
-                                    return false;
-                                }
-                            });
-                        }
-                    },
-                    {
-                        text: "Afficher l'ordre du jour",
-                        'class': 'btn btn-primary',
-                        click: function () {
-                            window.location.replace('/calendrier-des-commissions/gestionodj/dateCommId/' + $('#dateClick').val());
-                        }
-                    },
-                    {
-                        text: "Fermer la fenêtre d'édition",
-                        'class': 'btn btn-default',
-                        click: function () {
-                            $('#dialogComm').dialog('close').html('');
-                        }
+            renderModalButtons([
+                {
+                    text: 'Supprimer la date',
+                    'class': 'btn btn-warning',
+                    click: function () {
+                        $.ajax({
+                            url: Routing.generate('calendrier_des_commissions_alertsuppression'),
+                            data: '&dateCommission=' + $('#dateCommission').val() + '&commissionId=' + $('#commissionId').val(),
+                            type: 'POST',
+                            success: function (affichageResultat) {
+                                $('#dialogComm').html(affichageResultat);
+                                $('#modalCommFooter').empty();
+                                return false;
+                            },
+                            error: function () {
+                                return false;
+                            }
+                        });
                     }
-                ]
-            });
+                },
+                {
+                    text: "Afficher l'ordre du jour",
+                    'class': 'btn btn-primary',
+                    click: function () {
+                        window.location.replace('/calendrier-des-commissions/gestionodj/dateCommId/' + $('#dateClick').val());
+                    }
+                },
+                {
+                    text: "Fermer la fenêtre d'édition",
+                    'class': 'btn btn-default',
+                    click: closeModalComm
+                }
+            ]);
+
+            $('#modalComm').modal('show');
 
             // Initialise les boutons de suppression sur les dates pré-remplies (sélection de plage).
             // DOMContentLoaded s'étant déjà déclenché, add-collection-widget.js n'a pas pu les initialiser.
             // On saute le premier élément (date maître) comme le fait calendar-init.js côté dossier.
-            var collWidget = document.querySelector('#dialogComm .remove-collection-widget');
+            const collWidget = document.querySelector('#dialogComm .remove-collection-widget');
             if (collWidget && typeof addTagFormDeleteLink === 'function') {
-                var items = collWidget.children;
-                for (var i = 1; i < items.length; i++) {
+                const items = collWidget.children;
+                for (let i = 1; i < items.length; i++) {
                     addTagFormDeleteLink(items[i]);
                 }
             }
