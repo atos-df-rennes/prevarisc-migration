@@ -1,4 +1,4 @@
-Veuillez selectionner le type de la commission :
+Veuillez sélectionner le type de la commission :
 <select name='typeCom' id='typeCom' class='form-control'>
     {% for type in listeCommType %}
         <option value='{{ type.id }}' {% if type.id == typeComSelect %}selected{% endif %}>{{ type.libelle }}</option>

@@ -3,7 +3,6 @@
 {% block title %}{{ parent() }} / Calendrier des commissions{% endblock %}
 
 {% block lateral_navigation %}
-    <input type='hidden' name='idCommission' id='idCommission' value='{{ idComm is not null ? idComm : '' }}'/>
     <ul class="nav nav-tabs nav-stacked menu_dashboard">
         {% if url_webcal is not empty %}
             <li>

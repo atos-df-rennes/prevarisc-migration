@@ -341,7 +341,8 @@ final class CalendarService
         }
 
         $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
-        if (false === $date) {
+        $dateErrors = \DateTime::getLastErrors();
+        if (false === $date || (false !== $dateErrors && ($dateErrors['warning_count'] > 0 || $dateErrors['error_count'] > 0))) {
             throw new \InvalidArgumentException(sprintf('Format de date invalide : "%s". Format attendu : dd/mm/yyyy', $dateStr));
         }
 
@@ -420,7 +421,8 @@ final class CalendarService
         }
 
         $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
-        if (false === $date) {
+        $dateErrors = \DateTime::getLastErrors();
+        if (false === $date || (false !== $dateErrors && ($dateErrors['warning_count'] > 0 || $dateErrors['error_count'] > 0))) {
             throw new \InvalidArgumentException(sprintf('Format de date invalide : "%s". Format attendu : dd/mm/yyyy', $dateStr));
         }
 

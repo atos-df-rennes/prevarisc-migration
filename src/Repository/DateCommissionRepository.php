@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -92,17 +93,19 @@ class DateCommissionRepository extends ServiceEntityRepository
             LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
             WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
 
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+        $types = [];
+
         if ([] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
-            $select .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+            $select .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
+            $params['commissionIds'] = array_map('intval', $commissionIds);
+            $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
         }
 
         $select .= ' ORDER BY DATE_COMMISSION, HEUREDEB_COMMISSION';
 
-        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
-
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($select, $params);
+        $rows = $conn->fetchAllAssociative($select, $params, $types);
 
         return $rows;
     }
@@ -123,13 +126,16 @@ class DateCommissionRepository extends ServiceEntityRepository
             LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
             WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
 
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+        $types = [];
+
         if ([] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
-            $sql .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+            $sql .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
+            $params['commissionIds'] = array_map('intval', $commissionIds);
+            $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
         }
 
-        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
-        $count = $conn->fetchOne($sql, $params);
+        $count = $conn->fetchOne($sql, $params, $types);
 
         return is_numeric($count) ? (int) $count : 0;
     }
@@ -286,17 +292,17 @@ class DateCommissionRepository extends ServiceEntityRepository
             return (int) $row['ID_DOSSIER_AFFECT'];
         }, $dossiers);
 
-        $inList = implode(',', $dossierIds);
-
         if (1 === $idTypeEvenement) {
             $conn->executeStatement(
-                'UPDATE dossier SET DATECOMM_DOSSIER = :date WHERE ID_DOSSIER IN ('.$inList.')',
-                ['date' => $dateCommission]
+                'UPDATE dossier SET DATECOMM_DOSSIER = :date WHERE ID_DOSSIER IN (:ids)',
+                ['date' => $dateCommission, 'ids' => $dossierIds],
+                ['ids' => Connection::PARAM_INT_ARRAY]
             );
         } elseif (in_array($idTypeEvenement, [2, 3], true)) {
             $conn->executeStatement(
-                'UPDATE dossier SET DATEVISITE_DOSSIER = :date WHERE ID_DOSSIER IN ('.$inList.')',
-                ['date' => $dateCommission]
+                'UPDATE dossier SET DATEVISITE_DOSSIER = :date WHERE ID_DOSSIER IN (:ids)',
+                ['date' => $dateCommission, 'ids' => $dossierIds],
+                ['ids' => Connection::PARAM_INT_ARRAY]
             );
         }
     }

@@ -18,6 +18,8 @@ use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -510,11 +512,16 @@ class CalendrierDesCommissionsController extends AbstractController
 
         if (null !== $dateCommission) {
             $piecesJointes = $dateCommission->getPiecesJointes()->toArray();
+            $filesystem = new Filesystem();
 
             foreach ($piecesJointes as $pj) {
                 $path = $this->dataStore->getFilePath($pj, 'dateCommission', $idDateCommission);
-                if (file_exists($path)) {
-                    @unlink($path);
+                if ('' !== $path && $filesystem->exists($path)) {
+                    try {
+                        $filesystem->remove($path);
+                    } catch (IOException $e) {
+                        // Fichier non supprimable (permissions) : on continue la suppression de la commission
+                    }
                 }
             }
 

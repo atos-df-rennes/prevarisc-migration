@@ -190,23 +190,10 @@
                 );
             },
             eventClick: function (event, jsEvent, view) {
-                var emplacement = 'calendrierComm';
-                if (emplacement === 'calendrierComm') {
-                    my_dialog(
-                        Routing.generate('calendrier_des_commissions_dialog_edit'),
-                        'idComm=' + idComm + '&idDateComm=' + event.id + '&do=edit'
-                    );
-                } else if (emplacement === 'dossier') {
-                    $('#ID_AFFECTATION_DOSSIER').val(event.id);
-                    var date = new Date(event.end);
-                    var dd = date.getUTCDate();
-                    var mm = date.getUTCMonth() + 1;
-                    var aa = date.getUTCFullYear();
-                    if (dd < 10) { dd = '0' + dd; }
-                    if (mm < 10) { mm = '0' + mm; }
-                    $('#DATECOMM_INPUT').val(dd + '/' + mm + '/' + aa);
-                    $('.hideCalendar').click();
-                }
+                my_dialog(
+                    Routing.generate('calendrier_des_commissions_dialog_edit'),
+                    'idComm=' + idComm + '&idDateComm=' + event.id + '&do=edit'
+                );
                 return false;
             },
             eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
@@ -268,7 +255,7 @@ $(document).ready(function () {
 
     // Initialisation si une commission est déjà sélectionnée (retour de page)
     if ($('#idCommission').val() !== '') {
-        $('.commissionLink[data-value="' + $('#idCommission').val() + '"').click();
+        $('.commissionLink[data-value="' + $('#idCommission').val() + '"]').click();
         $('#calendar').html('').afficheCalendar(null, 'calendrierComm');
         $('#syncCal').show();
         $('#syncCom').hide();
