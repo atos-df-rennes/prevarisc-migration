@@ -245,7 +245,7 @@
                 $('#' + CONFIG.selectors.modalName).modal('show')
 
                 const $datesCollection = $('#liste_dates');
-                const $planificationCheckbox = $('#commission_dates_withPeriodicite');
+                const $planificationCheckbox = $('#repeat');
 
                 const observer = new DateCollectionObserver(
                     $datesCollection,
@@ -254,12 +254,7 @@
 
                 $('#' + CONFIG.selectors.modalName).data('date-observer', observer);
 
-                $('#commission_dates_withPeriodicite').on('click', function () {
-                    $('#commission_dates_dateFin').closest('.form-group').toggleClass('hidden')
-                    $('#commission_dates_periodicite').closest('.form-group').toggleClass('hidden')
-                })
-
-                // Gestion de la soumission du formulaire en Ajax
+                // Setup form submission
                 setupFormSubmit(start, end, $container, options);
             }
         })

@@ -424,7 +424,7 @@ class CalendrierDesCommissionsController extends AbstractController
                         $dateEnd = $this->calendarService->parseJavaScriptDate($dateFStr);
                         $numberOfDays = $dateStart->diff($dateEnd)->days;
                         if (is_int($numberOfDays)) {
-                            for ($i = 1; $i < $numberOfDays; ++$i) {
+                            for ($i = 1; $i <= $numberOfDays; ++$i) {
                                 $date = clone $dateStart;
                                 $date->modify(sprintf('+%d days', $i));
                                 $dateCommissionDto->addDate(new DateCommissionItemDto($date));

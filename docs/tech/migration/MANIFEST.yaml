@@ -1,0 +1,24 @@
+# Manifest de migration — Prevarisc (Zend 1.12 → Symfony 4.4)
+# Ce fichier trace l'état de migration de chaque fonctionnalité.
+
+calendrier_des_commissions:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/CalendrierDesCommissionsController.php
+    - prevarisc/application/views/scripts/calendrier-des-commissions/index.phtml
+    - prevarisc/application/views/scripts/calendrier-des-commissions/dialogcomm.phtml
+  migrated_files:
+    - prevarisc-migration/src/Controller/Commission/CalendrierDesCommissionsController.php
+    - prevarisc-migration/src/Service/Commission/CalendarService.php
+    - prevarisc-migration/src/Form/CalendrierDesCommissions/CommissionDatesType.php
+    - prevarisc-migration/templates/calendrier_des_commissions/index.html.twig
+    - prevarisc-migration/templates/calendrier_des_commissions/form_date.html.twig
+    - prevarisc-migration/public/js/calendrier-commissions.js
+    - prevarisc-migration/public/js/dossier/calendar-init.js
+    - prevarisc-migration/public/js/calendrier/date-collection-observer.js
+  updated_at: "2025-07-17"
+  notes: >
+    Correction des classes CSS hidden sur les champs planification,
+    correction off-by-one sur la sélection multi-dates (FullCalendar v1.6.4 end inclusif),
+    correction des sélecteurs jQuery dans calendar-init.js (dossier) et
+    du DateCollectionObserver pour #addReapeat et #planification.
