@@ -3,11 +3,10 @@
 namespace App\Service;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * Service d'export ODS (Calc) pour les recherches d'établissements et de dossiers.
@@ -75,91 +74,26 @@ class SearchExport
             $sheet->setCellValueByColumnAndRow(8, $ligne, $row['LIBELLE_STATUT'] ?? '');
             $sheet->setCellValueByColumnAndRow(9, $ligne, $row['LIBELLE_AVIS'] ?? '');
 
-            if ('' !== ($row['DATE_DERNIER_AVIS'] ?? '')) {
-                $dateDernierAvis = preg_split('/-|\//', (string) $row['DATE_DERNIER_AVIS']);
-                if (is_array($dateDernierAvis) && isset($dateDernierAvis[0], $dateDernierAvis[1], $dateDernierAvis[2])) {
-                    if (!is_numeric($dateDernierAvis[2])) {
-                        $dateDernierAvis[2] = substr($dateDernierAvis[2], 0, 2);
-                    }
-
-                    $datetimeDernierAvis = Date::formattedPHPToExcel((int) $dateDernierAvis[0], (int) $dateDernierAvis[1], (int) $dateDernierAvis[2]);
-                    $sheet->setCellValueByColumnAndRow(10, $ligne, $datetimeDernierAvis);
-                    $sheet->getStyleByColumnAndRow(10, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
-
-            if ('' !== ($row['DATE_PREMIER_AVIS_FAVORABLE'] ?? '')) {
-                $datePremierAvisFav = preg_split('/-|\//', (string) $row['DATE_PREMIER_AVIS_FAVORABLE']);
-                if (is_array($datePremierAvisFav) && isset($datePremierAvisFav[0], $datePremierAvisFav[1], $datePremierAvisFav[2])) {
-                    if (!is_numeric($datePremierAvisFav[2])) {
-                        $datePremierAvisFav[2] = substr($datePremierAvisFav[2], 0, 2);
-                    }
-
-                    $dtPremierAvisFav = Date::formattedPHPToExcel((int) $datePremierAvisFav[0], (int) $datePremierAvisFav[1], (int) $datePremierAvisFav[2]);
-                    $sheet->setCellValueByColumnAndRow(11, $ligne, $dtPremierAvisFav);
-                    $sheet->getStyleByColumnAndRow(11, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
-
-            if ('' !== ($row['DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF'] ?? '')) {
-                $datePremierAvisDefCons = preg_split('/-|\//', (string) $row['DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF']);
-                if (is_array($datePremierAvisDefCons) && isset($datePremierAvisDefCons[0], $datePremierAvisDefCons[1], $datePremierAvisDefCons[2])) {
-                    if (!is_numeric($datePremierAvisDefCons[2])) {
-                        $datePremierAvisDefCons[2] = substr($datePremierAvisDefCons[2], 0, 2);
-                    }
-
-                    $dtDefCons = Date::formattedPHPToExcel((int) $datePremierAvisDefCons[0], (int) $datePremierAvisDefCons[1], (int) $datePremierAvisDefCons[2]);
-                    $sheet->setCellValueByColumnAndRow(12, $ligne, $dtDefCons);
-                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
+            $this->writeDateCell($sheet, 10, $ligne, $row['DATE_DERNIER_AVIS'] ?? null);
+            $this->writeDateCell($sheet, 11, $ligne, $row['DATE_PREMIER_AVIS_FAVORABLE'] ?? null);
+            $this->writeDateCell($sheet, 12, $ligne, $row['DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF'] ?? null);
 
             $sheet->setCellValueByColumnAndRow(13, $ligne, (int) ($row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0) + (int) ($row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
             $sheet->setCellValueByColumnAndRow(14, $ligne, $row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? '');
             $sheet->setCellValueByColumnAndRow(15, $ligne, $row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? '');
 
-            if ('' !== ($row['DATE_DERNIERE_VISITE'] ?? '')) {
-                $dateDerniereVisite = preg_split('/-|\//', (string) $row['DATE_DERNIERE_VISITE']);
-                if (is_array($dateDerniereVisite) && isset($dateDerniereVisite[0], $dateDerniereVisite[1], $dateDerniereVisite[2])) {
-                    if (!is_numeric($dateDerniereVisite[2])) {
-                        $dateDerniereVisite[2] = substr($dateDerniereVisite[2], 0, 2);
-                    }
+            $this->writeDateCell($sheet, 16, $ligne, $row['DATE_DERNIERE_VISITE'] ?? null);
 
-                    $datetimeDerniereVisite = Date::formattedPHPToExcel((int) $dateDerniereVisite[0], (int) $dateDerniereVisite[1], (int) $dateDerniereVisite[2]);
-                    $sheet->setCellValueByColumnAndRow(16, $ligne, $datetimeDerniereVisite);
-                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-
-                    if (0 != $row['PERIODICITE_ETABLISSEMENTINFORMATIONS']) {
-                        $periodicite = (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS'];
-                        $tsDateVisite = strtotime((string) ($row['DATE_DERNIERE_VISITE'] ?? ''));
-                        if (false !== $tsDateVisite) {
-                            $tsProchaine = strtotime('+'.$periodicite.' months', $tsDateVisite);
-                            if (false !== $tsProchaine) {
-                                $dateProchaineVisite = date('Y-m-j', $tsProchaine);
-                                $dateProchaineVisiteParts = preg_split('/-|\//', $dateProchaineVisite);
-                                if (is_array($dateProchaineVisiteParts) && count($dateProchaineVisiteParts) >= 3) {
-                                    $datetimeProchaineVisite = Date::formattedPHPToExcel((int) $dateProchaineVisiteParts[0], (int) $dateProchaineVisiteParts[1], (int) $dateProchaineVisiteParts[2]);
-                                    $sheet->setCellValueByColumnAndRow(17, $ligne, $datetimeProchaineVisite);
-                                    $sheet->getStyleByColumnAndRow(17, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                                }
-                            }
-                        }
-                    }
+            if ('' !== ($row['DATE_DERNIERE_VISITE'] ?? '') && 0 != ($row['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0)) {
+                $derniereVisite = \DateTime::createFromFormat('Y-m-d', substr((string) $row['DATE_DERNIERE_VISITE'], 0, 10));
+                if ($derniereVisite instanceof \DateTime) {
+                    $periodicite = (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS'];
+                    $derniereVisite->modify('+'.$periodicite.' months');
+                    $sheet->setCellValueByColumnAndRow(17, $ligne, $derniereVisite->format('d/m/Y'));
                 }
             }
 
-            if ('' !== ($row['DATE_VISITE_PREVUE'] ?? '')) {
-                $dateVisitePrevue = preg_split('/-|\//', (string) $row['DATE_VISITE_PREVUE']);
-                if (is_array($dateVisitePrevue) && isset($dateVisitePrevue[0], $dateVisitePrevue[1], $dateVisitePrevue[2])) {
-                    if (!is_numeric($dateVisitePrevue[2])) {
-                        $dateVisitePrevue[2] = substr($dateVisitePrevue[2], 0, 2);
-                    }
-
-                    $datetimeVisitePrevue = Date::formattedPHPToExcel((int) $dateVisitePrevue[0], (int) $dateVisitePrevue[1], (int) $dateVisitePrevue[2]);
-                    $sheet->setCellValueByColumnAndRow(18, $ligne, $datetimeVisitePrevue);
-                    $sheet->getStyleByColumnAndRow(18, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
+            $this->writeDateCell($sheet, 18, $ligne, $row['DATE_VISITE_PREVUE'] ?? null);
 
             $sheet->setCellValueByColumnAndRow(19, $ligne, ($row['NUMERO_ADRESSE'] ?? '').' '.($row['LIBELLE_RUE'] ?? '').' '.($row['COMPLEMENT_ADRESSE'] ?? '').' '.($row['CODEPOSTAL_COMMUNE'] ?? ''));
             $sheet->setCellValueByColumnAndRow(20, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
@@ -236,47 +170,14 @@ class SearchExport
             $sheet->setCellValueByColumnAndRow(10, $ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
             $sheet->setCellValueByColumnAndRow(11, $ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
 
-            if ('' !== ($row['DATEINSERT_DOSSIER'] ?? '')) {
-                $dateCreationDossier = preg_split('/-|\//', (string) $row['DATEINSERT_DOSSIER']);
-                if (is_array($dateCreationDossier) && isset($dateCreationDossier[0], $dateCreationDossier[1], $dateCreationDossier[2])) {
-                    if (!is_numeric($dateCreationDossier[2])) {
-                        $dateCreationDossier[2] = substr($dateCreationDossier[2], 0, 2);
-                    }
-
-                    $datetimeCreationDossier = Date::formattedPHPToExcel((int) $dateCreationDossier[0], (int) $dateCreationDossier[1], (int) $dateCreationDossier[2]);
-                    $sheet->setCellValueByColumnAndRow(12, $ligne, $datetimeCreationDossier);
-                    $sheet->getStyleByColumnAndRow(12, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
+            $this->writeDateCell($sheet, 12, $ligne, $row['DATEINSERT_DOSSIER'] ?? null);
 
             $sheet->setCellValueByColumnAndRow(13, $ligne, $row['OBJET_DOSSIER'] ?? '');
             $sheet->setCellValueByColumnAndRow(14, $ligne, $row['NUM_DOCURBA'] ?? '');
 
-            if ('' !== ($row['DATEVISITE_DOSSIER'] ?? '')) {
-                $dateVisiteDossier = preg_split('/-|\//', (string) $row['DATEVISITE_DOSSIER']);
-                if (is_array($dateVisiteDossier) && isset($dateVisiteDossier[0], $dateVisiteDossier[1], $dateVisiteDossier[2])) {
-                    if (!is_numeric($dateVisiteDossier[2])) {
-                        $dateVisiteDossier[2] = substr($dateVisiteDossier[2], 0, 2);
-                    }
+            $this->writeDateCell($sheet, 15, $ligne, $row['DATEVISITE_DOSSIER'] ?? null);
 
-                    $datetimeVisiteDossier = Date::formattedPHPToExcel((int) $dateVisiteDossier[0], (int) $dateVisiteDossier[1], (int) $dateVisiteDossier[2]);
-                    $sheet->setCellValueByColumnAndRow(15, $ligne, $datetimeVisiteDossier);
-                    $sheet->getStyleByColumnAndRow(15, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
-
-            if ('' !== ($row['DATECOMM_DOSSIER'] ?? '')) {
-                $dateCommissionDossier = preg_split('/-|\//', (string) $row['DATECOMM_DOSSIER']);
-                if (is_array($dateCommissionDossier) && isset($dateCommissionDossier[0], $dateCommissionDossier[1], $dateCommissionDossier[2])) {
-                    if (!is_numeric($dateCommissionDossier[2])) {
-                        $dateCommissionDossier[2] = substr($dateCommissionDossier[2], 0, 2);
-                    }
-
-                    $datetimeCommissionDossier = Date::formattedPHPToExcel((int) $dateCommissionDossier[0], (int) $dateCommissionDossier[1], (int) $dateCommissionDossier[2]);
-                    $sheet->setCellValueByColumnAndRow(16, $ligne, $datetimeCommissionDossier);
-                    $sheet->getStyleByColumnAndRow(16, $ligne)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
-                }
-            }
+            $this->writeDateCell($sheet, 16, $ligne, $row['DATECOMM_DOSSIER'] ?? null);
 
             $sheet->setCellValueByColumnAndRow(17, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
             $sheet->setCellValueByColumnAndRow(18, $ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
@@ -294,5 +195,24 @@ class SearchExport
 
         $writer = IOFactory::createWriter($spreadsheet, 'Ods');
         $writer->save('php://output');
+    }
+
+    /**
+     * Écrit une date au format dd/mm/yyyy dans une cellule à partir d'une valeur brute YYYY-MM-DD.
+     * Contourne le bug du writer ODS de PhpSpreadsheet qui n'applique pas les format codes de date
+     * (TYPE_NUMERIC écrit toujours office:value-type="float" sans vérifier le format de date).
+     *
+     * @param string|null $rawDate Valeur brute YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
+     */
+    private function writeDateCell(Worksheet $sheet, int $col, int $row, ?string $rawDate): void
+    {
+        if (null === $rawDate || '' === $rawDate) {
+            return;
+        }
+
+        $date = \DateTime::createFromFormat('Y-m-d', substr($rawDate, 0, 10));
+        if ($date instanceof \DateTime) {
+            $sheet->setCellValueByColumnAndRow($col, $row, $date->format('d/m/Y'));
+        }
     }
 }
