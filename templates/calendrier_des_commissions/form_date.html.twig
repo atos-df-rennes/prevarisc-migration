@@ -41,10 +41,11 @@
         </div>
     </section>
 
-    <div id="addReapeat">
+    {# #addReapeat masqué si 2+ dates pré-remplies — iso legacy afficheDivPeriodicite($countLigne > 1) #}
+    <div id="addReapeat"{% if form.dates|length > 1 %} style="display:none;"{% endif %}>
         <div class="form-group">
-            {{ form_label(form.withPeriodicite) }}
-            {{ form_widget(form.withPeriodicite, {attr: {id: 'repeat'}}) }}
+            {{ form_label(form.withPeriodicite, null, {id: 'repeat'}) }}
+            {{ form_widget(form.withPeriodicite, {id: 'repeat'}) }}
             {{ form_errors(form.withPeriodicite) }}
         </div>
     </div>
