@@ -18,10 +18,8 @@ class ZendSessionBridge
 {
     /**
      * Retourne le nom d'utilisateur issu de la session Zend, ou null si absent.
-     *
-     * @return string|null
      */
-    public function getAuthenticatedUsername()
+    public function getAuthenticatedUsername(): ?string
     {
         if (!isset($_SESSION['Zend_Auth']['storage']['USERNAME_UTILISATEUR'])) {
             return null;
