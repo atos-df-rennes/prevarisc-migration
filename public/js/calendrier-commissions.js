@@ -716,7 +716,7 @@ function my_dialog(url, data, callback) {
                     text: "Afficher l'ordre du jour",
                     'class': 'btn btn-primary',
                     click: function () {
-                        window.location.replace('/calendrier-des-commissions/gestionodj/dateCommId/' + $('#dateClick').val());
+                        window.location.replace(Routing.generate('calendrier_des_commissions_gestion_odj', { dateCommId: $('#dateClick').val() }));
                     }
                 },
                 {

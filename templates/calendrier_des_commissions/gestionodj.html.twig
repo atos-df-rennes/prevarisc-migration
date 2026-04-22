@@ -190,7 +190,7 @@
                         var copiedEventObject = $.extend({}, originalEventObject);
                         copiedEventObject.start = date;
                         copiedEventObject.end = new Date(date.getTime() + 5 * 60000);
-                        copiedEventObject.url = "/dossier/" + idDossier;
+                        copiedEventObject.url = Routing.generate('dossier_index', { id: idDossier });
                         copiedEventObject.allDay = allDay;
                         if (verrou == 1) {
                             copiedEventObject.backgroundColor = "#83bff6";
@@ -241,7 +241,7 @@
         $("#commissionPj").click(function() {
             $.ajax({
                 type: "GET",
-                url: "{{ path('calendrier_des_commissions_pieces_jointes', {id: '__ID__'}) }}".replace('__ID__', $("#dateCommId").val()),
+                url: Routing.generate('calendrier_des_commissions_pieces_jointes', { id: $("#dateCommId").val() }),
                 success: function(msg) {
                     dialogDateCommission.find('.modal-body').html(msg);
                     dialogDateCommission.modal('show');
