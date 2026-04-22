@@ -6,15 +6,11 @@ use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
-use App\Security\Voter\PrivilegeVoter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
-use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
 {
@@ -24,22 +20,17 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
     /** @var CapsuleRubriqueRepository */
     private $capsuleRubriqueRepository;
 
-    /** @var Security */
-    private $security;
-
-    /** @var PrivilegeVoter */
-    private $privilegeVoter;
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
         CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        Security $security,
-        PrivilegeVoter $privilegeVoter
+        AuthorizationCheckerInterface $authorizationChecker
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->security = $security;
-        $this->privilegeVoter = $privilegeVoter;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function onKernelController(ControllerEvent $event): void
@@ -73,14 +64,7 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
             throw new NotFoundHttpException(\sprintf("L'établissement ayant pour identifiant %s a été supprimé et n'est pas accessible.", $idEtablissement));
         }
 
-        $token = $this->security->getToken();
-
-        if (!$token instanceof TokenInterface) {
-            throw new TokenNotFoundException("Le token utilisateur n'existe pas.");
-        }
-
-        $isAllowedDeleteEtablissementVote = $this->privilegeVoter->vote($token, $etablissement, ['delete_etablissement']);
-        $isAllowedDeleteEtablissement = VoterInterface::ACCESS_GRANTED === $isAllowedDeleteEtablissementVote;
+        $isAllowedDeleteEtablissement = $this->authorizationChecker->isGranted('delete_etablissement', $etablissement);
 
         $event->getRequest()->attributes->set('is_allowed_delete_etablissement', $isAllowedDeleteEtablissement);
 
