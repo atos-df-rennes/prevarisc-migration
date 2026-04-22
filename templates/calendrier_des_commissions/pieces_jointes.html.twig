@@ -144,12 +144,24 @@
     });
 
     /* ── Suppression ────────────────────────────────────────────────────────── */
+    /* ── Suppression (bouton à deux états — évite window.confirm() bloqué) ───── */
     $(document).on('click', '.btn-delete-pj', function () {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cette pièce jointe ?')) {
+        var btn = $(this);
+
+        if (!btn.hasClass('confirming')) {
+            btn.addClass('confirming btn-danger').removeClass('btn-default');
+            btn.html('<span class="glyphicon glyphicon-trash"></span> Confirmer ?');
+            setTimeout(function () {
+                if (btn.hasClass('confirming')) {
+                    btn.removeClass('confirming btn-danger').addClass('btn-default');
+                    btn.html('<span class="glyphicon glyphicon-trash"></span>');
+                }
+            }, 3000);
             return;
         }
-        var btn = $(this);
+
         var deleteUrl = btn.data('url');
+        btn.prop('disabled', true);
         $.ajax({
             url: deleteUrl,
             type: 'POST',
@@ -158,11 +170,15 @@
                     btn.closest('tr').remove();
                     updateEmptyState();
                 } else {
-                    alert(result.message || 'Erreur lors de la suppression.');
+                    btn.prop('disabled', false);
+                    btn.removeClass('confirming btn-danger').addClass('btn-default');
+                    btn.html('<span class="glyphicon glyphicon-trash"></span>');
                 }
             },
             error: function () {
-                alert('Une erreur s\'est produite lors de la suppression.');
+                btn.prop('disabled', false);
+                btn.removeClass('confirming btn-danger').addClass('btn-default');
+                btn.html('<span class="glyphicon glyphicon-trash"></span>');
             }
         });
     });
