@@ -179,7 +179,7 @@
                             {{ dossier.dateCommission|date('d/m/Y') }}
 
                             {% if id_date_commission %}
-                                <a class="ml-2" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ id_date_commission }}" title="Afficher l'ordre du jour">
+                                <a class="ml-2" href="{{ path('calendrier_des_commissions_gestion_odj', {dateCommId: id_date_commission}) }}" title="Afficher l'ordre du jour">
                                     <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span>
                                 </a>
                             {% endif %}

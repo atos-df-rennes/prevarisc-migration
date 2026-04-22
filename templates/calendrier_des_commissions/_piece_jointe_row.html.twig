@@ -1,0 +1,24 @@
+<tr id="pj-row-{{ pj.id }}">
+    <td>
+        <a href="/piece-jointe/get/id/{{ dateCommission.id }}/idpj/{{ pj.id }}/type/dateCommission"
+           target="_blank" rel="noopener noreferrer">
+            {{ pj.nom }}{{ pj.extension }}
+        </a>
+    </td>
+    <td>
+        {% if pj.description is not empty %}
+            {{ pj.description|nl2br }}
+        {% else %}
+            <em class="text-muted">Aucune description</em>
+        {% endif %}
+    </td>
+    <td>{{ pj.date ? pj.date|date('d/m/Y') : '' }}</td>
+    <td>
+        <button type="button"
+                class="btn btn-default btn-xs btn-delete-pj"
+                data-pj-id="{{ pj.id }}"
+                data-url="{{ path('calendrier_des_commissions_pj_supprimer', {id: dateCommission.id, idPj: pj.id}) }}">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
+    </td>
+</tr>

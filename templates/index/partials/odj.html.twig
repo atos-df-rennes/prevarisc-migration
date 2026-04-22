@@ -1,7 +1,7 @@
 {% if bloc.data is not empty %}
     {% for commission in bloc.data %}
         <p class="lead" style="font-size: 1.2em; margin-bottom: 0px;">
-            <a href="/calendrier-des-commissions/gestionodj/dateCommId/{{ commission.id }}">
+            <a href="{{ path('calendrier_des_commissions_gestion_odj', {dateCommId: commission.id}) }}">
                 {{ (commission.LIBELLE_COMMISSION ~ ' - ' ~ commission.LIBELLE_DATECOMMISSION)|upper }}
             </a>
             du {{ commission.DATE_COMMISSION|date('d/m/Y') }} ({{ commission.heure }})

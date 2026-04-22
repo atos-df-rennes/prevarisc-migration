@@ -1,0 +1,616 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{{ parent() }} / Ordre du jour{% endblock %}
+
+{% block lateral_navigation %}
+    <ul class="nav nav-tabs nav-stacked menu_dashboard">
+        <li>
+            <a href="#" id="commissionPj">
+                <span class="glyphicon glyphicon-share"></span> Pièces jointes
+            </a>
+        </li>
+        <li class="nav-header">Actions</li>
+        <li>
+            {# Export Outlook : route non encore migrée — pointe vers le legacy #}
+            <a id="exportCom" href="/calendrier-des-commissions/exportoutlook/dateCommId/{{ dateCommission.id }}">
+                <span class="glyphicon glyphicon-calendar"></span> Exporter pour Outlook
+            </a>
+        </li>
+        <li>
+            {# TODO: génération documents — sera migré séparément #}
+            <a href="#" id="createConvoc">
+                <span class="glyphicon glyphicon-file"></span> Générer Convocations
+            </a>
+        </li>
+        <li>
+            {# TODO: génération documents — sera migré séparément #}
+            <a href="#" id="createOdj">
+                <span class="glyphicon glyphicon-list-alt"></span> Générer l'ordre du jour
+            </a>
+        </li>
+        <li>
+            {# TODO: génération documents — sera migré séparément #}
+            <a href="#" id="createPv">
+                <span class="glyphicon glyphicon-file"></span> Générer PV
+            </a>
+        </li>
+        <li>
+            {# TODO: génération documents — sera migré séparément #}
+            <a href="#" id="creationCompteRendu">
+                <span class="glyphicon glyphicon-book"></span> Générer le compte rendu
+            </a>
+        </li>
+        <li>
+            {% if dateCommission.gestionHeures %}
+                <a href="#" class="heures" id="non">
+                    <span class="glyphicon glyphicon-time"></span> Ne pas prendre en compte les heures
+                </a>
+            {% else %}
+                <a href="#" class="heures" id="oui">
+                    <span class="glyphicon glyphicon-time"></span> Prendre en compte les heures
+                </a>
+            {% endif %}
+        </li>
+    </ul>
+{% endblock %}
+
+{% block body_structure %}
+    <h2 class="page-header">
+        Ordre du jour de la {{ commissionType is not null ? commissionType.libelle : '' }} de
+        <a href="{{ path('calendrier_des_commissions_index', {idComm: dateCommission.commission is not null ? dateCommission.commission.id : ''}) }}">
+            {{ commission is not null ? commission.libelle : '' }}
+        </a>
+        du {{ dateFr }}
+    </h2>
+
+    <script type="text/javascript">
+    /* ── Helper timezone local ────────────────────────────────────────────────── */
+    /* toISOString() produit une heure UTC (ex: 9h Paris → 8hZ en hiver).        */
+    /* Ce helper envoie l'heure locale sans décalage pour que PHP crée une       */
+    /* \DateTime dans le fuseau par défaut du serveur (Europe/Paris).            */
+    function toLocalISOString(date) {
+        if (!date) { return ''; }
+        var pad = function(n) { return String(n).padStart(2, '0'); };
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
+            + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+    }
+
+    $(document).ready(function() {
+        $('#external-events div.external-event').each(function() {
+            // Création d'un objet Event (FullCalendar v1)
+            var eventObject = {
+                title: $.trim($(this).text())
+            };
+            $(this).data('eventObject', eventObject);
+
+            // Rendu draggable (jQuery UI)
+            $(this).draggable({
+                zIndex: 999,
+                revert: 'invalid',   // revenir seulement si drop invalide (hors calendrier)
+                revertDuration: 0
+            });
+        });
+
+        ( function($) {
+            $.fn.afficheCalendar = function(jour, mois, annee, hDeb, hFin) {
+                var calendar = $('#calendar').fullCalendar( {
+                    date: jour,
+                    month: mois,
+                    year: annee,
+                    header: {
+                        left: '',
+                        center: 'title',
+                        right: ''
+                    },
+                    columnFormat: {
+                        month: 'dddd',
+                        week: 'dddd dd',
+                        day: 'dddd dd MMMM yyyy'
+                    },
+                    defaultView: 'agendaDay',
+                    timeFormat: 'H:mm{ - H:mm}',
+                    allDaySlot: false,
+                    axisFormat: 'H(:mm)',
+                    slotMinutes: 5,
+                    selectHelper: true,
+                    weekends: false,
+                    monthNames: ['Janvier','F\u00e9vrier','Mars','Avril','Mai','Juin','Juillet','Ao\u00fbt','Septembre','Octobre','Novembre','D\u00e9cembre'],
+                    monthAbbrevs: ['Jan','Fev','Mar','Avr','Mai','Juin','Juil','Aout','Sep','Oct','Nov','Dec'],
+                    dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+                    dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+                    lazyFetching: false,
+                    minTime: hDeb,
+                    maxTime: hFin,
+                    editable: true,
+                    disableResizing: false,
+                    selectable: true,
+                    droppable: true,
+                    theme: true,
+                    aspectRatio: 0,
+                    defaultEventMinutes: 5,
+                    events: function(start, end, callback) {
+                        mois++;
+                        var myDate = new Date(annee + "/" + mois + "/" + jour);
+
+                        $.ajax({
+                            url: '{{ path('calendrier_des_commissions_recup_evenement_odj') }}?start=' + myDate.getTime() + "&end=" + myDate.getTime(),
+                            data: {
+                                dateCommId: $("#dateCommId").val()
+                            },
+                            success: function( result ) {
+                                var events = [];
+                                for( var x in result["items"] ) {
+                                    events.push({
+                                        id: result["items"][x]["id"],
+                                        title: result["items"][x]["title"],
+                                        start: result["items"][x]["start"],
+                                        end: result["items"][x]["end"],
+                                        allDay: result["items"][x]["allDay"],
+                                        url: result["items"][x]["url"],
+                                        backgroundColor: result["items"][x]["backgroundColor"],
+                                        textColor: "black"
+                                    });
+                                }
+                                callback(events);
+                            }
+                        });
+                    },
+                    select: function(start, end, allDay) {
+                        $(this).fullCalendar('refetchEvents');
+                    },
+                    eventDrop: function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+                        var heureDeb = event.start;
+                        var heureFin = event.end;
+
+                        var hrefTab = $(this).attr('href').split("/");
+                        var tailleTab = hrefTab.length;
+                        var idDossier = hrefTab[tailleTab - 1];
+
+                        $.ajax({
+                            url: '{{ path('calendrier_des_commissions_drop_odj') }}',
+                            type: 'POST',
+                            data: {
+                                heureDebut: toLocalISOString(heureDeb),
+                                heureFin: toLocalISOString(heureFin),
+                                dateCommId: $("#dateCommId").val(),
+                                idDossier: idDossier
+                            },
+                            success: function(result) {
+                                $.toast.fromResponse(result);
+                            },
+                            error: function() {
+                                $.toast.error('Erreur lors du déplacement de l\'événement.');
+                            }
+                        });
+                    },
+                    drop: function(date, allDay) {
+                        var idDossier = $(this).attr('id');
+                        /* Capturer $(this) et les données avant l'appel AJAX           */
+                        /* (le contexte 'this' change dans les callbacks asynchrones).  */
+                        var $droppedEl = $(this);
+                        var originalEventObject = $droppedEl.data('eventObject');
+
+                        $.ajax({
+                            url: '{{ path('calendrier_des_commissions_affecte_doss_odj') }}',
+                            type: 'POST',
+                            data: {
+                                datadebut: toLocalISOString(date),
+                                dateCommId: $("#dateCommId").val(),
+                                idDossier: idDossier
+                            },
+                            success: function(result) {
+                                $("#nbDossiersAffect").text(result.countAffect);
+                                $.toast.success('Dossier affecté à l\'ordre du jour.');
+
+                                var copiedEventObject = $.extend({}, originalEventObject || { title: $.trim($droppedEl.text()) });
+                                copiedEventObject.start = date;
+                                copiedEventObject.end = new Date(date.getTime() + 5 * 60000);
+                                copiedEventObject.url = Routing.generate('dossier_index', { id: idDossier });
+                                copiedEventObject.allDay = allDay;
+                                copiedEventObject.backgroundColor = result.verrou == 1 ? '#83bff6' : '#E2A420';
+                                copiedEventObject.textColor = 'black';
+
+                                $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+                                $droppedEl.remove();
+                            },
+                            error: function() {
+                                $.toast.error('Erreur lors de l\'affectation du dossier.');
+                            }
+                        });
+                    },
+                    eventResize: function( event, dayDelta, minuteDelta, revertFunc ) {
+                        var dateFin = event.end;
+
+                        var hrefTab = $(this).attr('href').split("/");
+                        var tailleTab = hrefTab.length;
+                        var idDossier = hrefTab[tailleTab - 1];
+
+                        $.ajax({
+                            url: '{{ path('calendrier_des_commissions_resize_odj') }}',
+                            type: 'POST',
+                            data: {
+                                dateFin: toLocalISOString(dateFin),
+                                dateCommId: $("#dateCommId").val(),
+                                idDossier: idDossier
+                            },
+                            success: function(result) {
+                                $.toast.fromResponse(result);
+                            },
+                            error: function() {
+                                $.toast.error('Erreur lors du redimensionnement de l\'événement.');
+                            }
+                        });
+                    }
+                });
+            }
+        })(jQuery);
+
+        var date;
+        var myDate = new Date($("#dateOdj").val());
+
+        $("#calendar").afficheCalendar(myDate.getUTCDate(), myDate.getUTCMonth(), myDate.getUTCFullYear(), $("#heureDeb").val(), $("#heureFin").val());
+
+        $(".fc-agenda-allday").hide();
+        $(".fc-header").hide();
+
+        /*
+         * INITIALISATION ET GESTION DES BOUTONS PJ, ODJ et CONVOC
+         */
+
+        var dialogDateCommission = $('#modal-pieces-jointes');
+
+        $("#commissionPj").click(function() {
+            $.ajax({
+                type: "GET",
+                url: Routing.generate('calendrier_des_commissions_pieces_jointes', { id: $("#dateCommId").val() }),
+                success: function(msg) {
+                    dialogDateCommission.find('.modal-body').html(msg);
+                    dialogDateCommission.modal('show');
+                }
+            });
+        });
+
+        // Génération de documents : appel des routes legacy en attendant la migration de cette fonctionnalité
+        $("#createConvoc").click(function() {
+            if ($("#external-events").children("div").children("div").length == 0) {
+                $.ajax({
+                    url: "/calendrier-des-commissions/generationconvoc",
+                    data: "dateCommId=" + $("#dateCommId").val(),
+                    type: "POST",
+                    beforeSend: function() {
+                        $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
+                    },
+                    success: function(affichageResultat) {
+                        $("#infoGeneration").html(affichageResultat);
+                    },
+                    error: function() {
+                        $("#infoGeneration").html("Une erreur s'est produite");
+                        return false;
+                    }
+                });
+            } else {
+                $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
+            }
+        });
+
+        $("#createOdj").click(function() {
+            if ($("#external-events").children("div").children("div").length == 0) {
+                $.ajax({
+                    url: "/calendrier-des-commissions/generationodj",
+                    data: "dateCommId=" + $("#dateCommId").val(),
+                    type: "POST",
+                    beforeSend: function() {
+                        $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
+                    },
+                    success: function(affichageResultat) {
+                        $("#infoGeneration").html(affichageResultat);
+                    },
+                    error: function() {
+                        $("#infoGeneration").html("Une erreur s'est produite");
+                        return false;
+                    }
+                });
+            } else {
+                $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
+            }
+        });
+
+        $("#createPv").click(function() {
+            if ($("#external-events").children("div").children("div").length == 0) {
+                $.ajax({
+                    url: "/calendrier-des-commissions/generationpv",
+                    data: "dateCommId=" + $("#dateCommId").val(),
+                    type: "POST",
+                    beforeSend: function() {
+                        $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
+                    },
+                    success: function(affichageResultat) {
+                        $("#infoGeneration").html(affichageResultat);
+                    },
+                    error: function() {
+                        $("#infoGeneration").html("Une erreur s'est produite");
+                        return false;
+                    }
+                });
+            } else {
+                $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
+            }
+        });
+
+        $("#creationCompteRendu").click(function() {
+            if ($("#external-events").children("div").children("div").length == 0) {
+                $.ajax({
+                    url: "/calendrier-des-commissions/generationcompterendu",
+                    data: "dateCommId=" + $("#dateCommId").val(),
+                    type: "POST",
+                    beforeSend: function() {
+                        $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
+                    },
+                    success: function(affichageResultat) {
+                        $("#infoGeneration").html(affichageResultat);
+                    },
+                    error: function() {
+                        $("#infoGeneration").html("Une erreur s'est produite");
+                        return false;
+                    }
+                });
+            } else {
+                $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
+            }
+        });
+
+        $(".heures").click(function() {
+            var gestionHeures = $(this).attr('id');
+            $.ajax({
+                url: '{{ path('calendrier_des_commissions_gestion_heures') }}',
+                data: "dateCommId=" + $("#dateCommId").val() + "&gestionHeure=" + gestionHeures,
+                type: "POST",
+                beforeSend: function() {},
+                success: function(affichageResultat) {
+                    window.location.reload();
+                },
+                error: function() {
+                    return false;
+                }
+            });
+        });
+
+        $(".sortable").sortable({
+            update: function(event, ui) {
+                var listeDossierUpdate = new Array();
+                var num = 0;
+                $(".sortable > li").each(function() {
+                    $(this).attr('num', num);
+                    listeDossierUpdate.push($(this).children("div").attr('id'));
+                    num = num + 1;
+                });
+                $.ajax({
+                    url: '{{ path('calendrier_des_commissions_changement_ordre') }}',
+                    data: "dateCommId=" + $("#dateCommId").val() + "&ordreDossier=" + listeDossierUpdate,
+                    type: "POST",
+                    beforeSend: function() {},
+                    success: function(result) {
+                        $.toast.fromResponse(result);
+                    },
+                    error: function() {
+                        $.toast.error('Erreur lors du réordonnancement.');
+                    }
+                });
+            }
+        });
+    });
+    </script>
+
+    <style>
+    .fc-event-vert {
+        border-width: 1px;
+    }
+    </style>
+
+    <div class="modal fade" id="modal-pieces-jointes" tabindex="-1" role="dialog" aria-labelledby="modal-pieces-jointes-label">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-pieces-jointes-label">Gestion des pièces jointes</h4>
+                </div>
+                <div class="modal-body" style="overflow-y: auto; max-height: 65vh;"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Terminer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <input type="hidden" id="tempVerrou" value="" />
+        <input type="hidden" name="dateOdj" id="dateOdj" value="{{ dateCommission.date|date('Y-m-d') }}" />
+        <input type="hidden" name="heureDeb" id="heureDeb" value="{{ dateCommission.heureDebut|date('H:i') }}" />
+        <input type="hidden" name="heureFin" id="heureFin" value="{{ dateCommission.heureFin|date('H:i') }}" />
+        <input type="hidden" name="dateCommId" id="dateCommId" value="{{ dateCommission.id }}" />
+
+        <h3>
+            {{ dateCommission.libelle }}
+            {% if dateCommission.gestionHeures %}
+                <span class="label label-info" style="margin:10px;">
+                    <span id="nbDossiersAffect">{{ nbDossiersAffect }}</span> / {{ nbDossiers }}
+                </span>
+            {% endif %}
+        </h3>
+
+        {% if recupCommLiees|length > 1 %}
+            <h4 style="margin:0px;">Autres dates de la commission</h4>
+            <br/>
+            <table><tr>
+            {% for loop_idx, comm_liee in recupCommLiees %}
+                {% if comm_liee.ID_DATECOMMISSION != dateCommission.id %}
+                    <td style="width:200px;text-align:center;">
+                        <a href="{{ path('calendrier_des_commissions_gestion_odj', {dateCommId: comm_liee.ID_DATECOMMISSION}) }}">
+                            {{ comm_liee.dateFr }}
+                        </a>
+                    </td>
+                {% else %}
+                    <td style="width:200px;text-align:center;">{{ comm_liee.dateFr }}</td>
+                {% endif %}
+                {% if loop.index0 % 6 == 5 %}
+                    </tr><tr>
+                {% endif %}
+            {% endfor %}
+            </tr></table>
+            <br/><br/>
+        {% endif %}
+
+        <div id="infoGeneration"></div>
+        <br/>
+
+        {% if dateCommission.gestionHeures %}
+            {# Mode horaire : calendrier FullCalendar + panneau dossiers non affectés #}
+            <div class="container-fluid">
+                <div class="row">
+                    <div id="calendar" name="calendar" class="col-md-9"></div>
+
+                    <span style="margin-left:45px;color:black;font-size:15px;">
+                        <span style="font-weight:bold;">Dossier :</span>
+                        <span class="label" style="background-color:#83bff6;color:black;font-size:15px;">Validé</span>
+                        <span class="label" style="background-color:#E2A420;color:black;font-size:15px;">En attente de Validation</span>
+                    </span>
+
+                    <div id="external-events" class="col-md-3" style="margin-top:5px;color:black;border:1px solid black;text-align:center;border-radius:10px 10px;-moz-border-radius:10px 10px; -webkit-border-radius:10px 10px;">
+                        <div>
+                            <h3>Liste des dossiers prévus</h3>
+
+                            {% if listeDossierNonAffect|length != 0 %}
+                                {% for dossier_non_affect in listeDossierNonAffect %}
+                                    {% if dossier_non_affect.VERROU_DOSSIER == 1 %}
+                                        {% set background = '#83bff6' %}
+                                    {% else %}
+                                        {% set background = '#E2A420' %}
+                                    {% endif %}
+                                    <div class="external-event eventExtODJ"
+                                         id="{{ dossier_non_affect.ID_DOSSIER }}"
+                                         style="padding:5px 0 5px 15px;margin:5px;text-align:left;border:1px solid #9FC6FF;background-color:{{ background }};border-radius:10px 10px;-moz-border-radius:10px 10px; -webkit-border-radius:10px 10px;">
+                                        <a href="{{ path('dossier_index', {id: dossier_non_affect.ID_DOSSIER}) }}" style="color:black;">
+                                            {% if dossier_non_affect.infosEtab is defined %}
+                                                {{ dossier_non_affect.infosEtab.informations.LIBELLE_ETABLISSEMENTINFORMATIONS }}
+                                            {% endif %}
+
+                                            {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.adresses is defined %}
+                                                {% set nb_adresse = dossier_non_affect.infosEtab.adresses|length %}
+                                                {% if nb_adresse != 0 %}
+                                                    ({% for commune in dossier_non_affect.infosEtab.adresses %}{{ commune.LIBELLE_COMMUNE }}{% if not loop.last %}, {% endif %}{% endfor %})
+                                                {% else %}
+                                                    ( adresse non renseignée )
+                                                {% endif %}
+                                            {% else %}
+                                                ( adresse non renseignée )
+                                            {% endif %}
+
+                                            {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.parents is defined and dossier_non_affect.infosEtab.parents[0] is defined %}
+                                                - {{ dossier_non_affect.infosEtab.parents[0].LIBELLE_ETABLISSEMENTINFORMATIONS }}
+                                            {% endif %}
+
+                                            <br/>
+
+                                            {% if dossier_non_affect.LIBELLE_DOSSIERNATURE is defined and dossier_non_affect.LIBELLE_DOSSIERNATURE != '' %}
+                                                {{ dossier_non_affect.LIBELLE_DOSSIERNATURE }}<br/>
+                                            {% endif %}
+
+                                            {% if dossier_non_affect.OBJET_DOSSIER is defined and dossier_non_affect.OBJET_DOSSIER != '' %}
+                                                Objet : {{ dossier_non_affect.OBJET_DOSSIER }}<br/>
+                                            {% endif %}
+
+                                            {% if dossier_non_affect.listeDocUrba is defined and dossier_non_affect.listeDocUrba|length > 0 %}
+                                                Numéro document d'urbanisme :
+                                                {% for doc_urba in dossier_non_affect.listeDocUrba %}{{ doc_urba.NUM_DOCURBA }} . {% endfor %}
+                                            {% endif %}
+
+                                            {% if dossier_non_affect.preventionnistes is defined and dossier_non_affect.preventionnistes|length > 0 %}
+                                                <br/><span style="font-size:10px;">
+                                                {% for prev in dossier_non_affect.preventionnistes %}
+                                                    {{ prev.NOM_UTILISATEURINFORMATIONS }} {{ prev.PRENOM_UTILISATEURINFORMATIONS }}{% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                                </span>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <h5>Tous les dossiers ont déjà été affectés</h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elseif dateCommission.gestionHeures == false %}
+            {# Mode séquentiel : liste triable (drag & drop jQuery UI sortable) #}
+            <h3 style="display:inline;">Liste des dossiers prévus</h3>
+
+            <span style="margin-left:50px;color:black;font-size:15px;">
+                <span style="font-weight:bold;">Dossier :</span>
+                <span class="label" style="background-color:#83bff6;color:black;font-size:15px;">Validé</span>
+                <span class="label" style="background-color:#E2A420;color:black;font-size:15px;">En attente de Validation</span>
+            </span>
+
+            <ul class="list-unstyled sortable" id="listeDossierNoHours">
+                {% if listeDossierNonAffect|length != 0 %}
+                    {% for dossier_non_affect in listeDossierNonAffect %}
+                        {% if dossier_non_affect.VERROU_DOSSIER == 1 %}
+                            {% set background = '#83bff6' %}
+                        {% else %}
+                            {% set background = '#E2A420' %}
+                        {% endif %}
+                        <li num="{{ dossier_non_affect.NUM_DOSSIER }}">
+                            <div class="dossierODJ external-event"
+                                 id="{{ dossier_non_affect.ID_DOSSIER_AFFECT }}"
+                                 style="padding:5px 0 5px 15px;margin:5px;text-align:left;border:1px solid #9FC6FF;background-color:{{ background }};border-radius:10px 10px;-moz-border-radius:10px 10px; -webkit-border-radius:10px 10px;">
+                                <a href="{{ path('dossier_index', {id: dossier_non_affect.ID_DOSSIER_AFFECT}) }}" style="color:black;">
+                                    {{ dossier_non_affect.LIBELLE_ETABLISSEMENTINFORMATIONS }}
+
+                                    {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.adresses is defined %}
+                                        {% set nb_adresse = dossier_non_affect.infosEtab.adresses|length %}
+                                        {% if nb_adresse != 0 %}
+                                            ({% for commune in dossier_non_affect.infosEtab.adresses %}{{ commune.LIBELLE_COMMUNE }}{% if not loop.last %}, {% endif %}{% endfor %})
+                                        {% else %}
+                                            ( adresse non renseignée )
+                                        {% endif %}
+                                    {% else %}
+                                        ( adresse non renseignée )
+                                    {% endif %}
+
+                                    {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.parents is defined and dossier_non_affect.infosEtab.parents[0] is defined %}
+                                        - {{ dossier_non_affect.infosEtab.parents[0].LIBELLE_ETABLISSEMENTINFORMATIONS }}
+                                    {% endif %}
+
+                                    <br/>
+
+                                    {% if dossier_non_affect.LIBELLE_DOSSIERNATURE is defined and dossier_non_affect.LIBELLE_DOSSIERNATURE != '' %}
+                                        {{ dossier_non_affect.LIBELLE_DOSSIERNATURE }}<br/>
+                                    {% endif %}
+
+                                    {% if dossier_non_affect.OBJET_DOSSIER is defined and dossier_non_affect.OBJET_DOSSIER != '' %}
+                                        Objet : {{ dossier_non_affect.OBJET_DOSSIER }}<br/>
+                                    {% endif %}
+
+                                    {% if dossier_non_affect.NUM_DOCURBA is defined and dossier_non_affect.NUM_DOCURBA is not null and dossier_non_affect.NUM_DOCURBA != '' %}
+                                        Numéro document d'urbanisme : {{ dossier_non_affect.NUM_DOCURBA }}
+                                    {% endif %}
+
+                                    {% if dossier_non_affect.preventionnistes is defined and dossier_non_affect.preventionnistes|length > 0 %}
+                                        <span style="font-size:10px;">
+                                        {% for prev in dossier_non_affect.preventionnistes %}
+                                            {{ prev.NOM_UTILISATEURINFORMATIONS }} {{ prev.PRENOM_UTILISATEURINFORMATIONS }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                        </span>
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <h5>Aucun dossier n'est associé à cette commission</h5>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

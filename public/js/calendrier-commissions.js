@@ -613,7 +613,7 @@ $(document).ready(function () {
                 type: 'POST',
                 success: function (affichageResultat) {
                     if (affichageResultat === '') {
-                        alert("Il est impossible de supprimer cette date. D'autres dates sont liées à celle-ci.\nUtilisez le bouton prévu à cet effet afin d'affecter une autre date principale à la commission");
+                        $.toast.error("Il est impossible de supprimer cette date. D'autres dates sont liées à celle-ci.\nUtilisez le bouton prévu à cet effet afin d'affecter une autre date principale à la commission");
                     } else {
                         $('#listeDates').countLigne('supp', 'edit');
                         $('#ligne_' + tabDo[2]).fadeOut().remove();
@@ -716,7 +716,7 @@ function my_dialog(url, data, callback) {
                     text: "Afficher l'ordre du jour",
                     'class': 'btn btn-primary',
                     click: function () {
-                        window.location.replace('/calendrier-des-commissions/gestionodj/dateCommId/' + $('#dateClick').val());
+                        window.location.replace(Routing.generate('calendrier_des_commissions_gestion_odj', { dateCommId: $('#dateClick').val() }));
                     }
                 },
                 {
