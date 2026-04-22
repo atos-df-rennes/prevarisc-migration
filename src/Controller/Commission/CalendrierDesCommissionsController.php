@@ -791,7 +791,7 @@ class CalendrierDesCommissionsController extends AbstractController
      * Page principale de gestion de l'ordre du jour (ODJ).
      * Port direct de gestionodjAction().
      *
-     * @Route("/commissions/calendrier/gestion-odj", name="calendrier_des_commissions_gestion_odj", methods={"GET"}, options={"expose"=true})})
+     * @Route("/commissions/calendrier/gestion-odj", name="calendrier_des_commissions_gestion_odj", methods={"GET"}, options={"expose"=true})
      */
     public function gestionOdj(Request $request): Response
     {
@@ -929,7 +929,7 @@ class CalendrierDesCommissionsController extends AbstractController
                 $affichage .= $parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'].' - ';
             }
 
-            $affichage = $libelleEtab;
+            $affichage .= $libelleEtab;
 
             $nbAdresse = count($adresses);
             if (0 !== $nbAdresse) {
@@ -1334,7 +1334,7 @@ class CalendrierDesCommissionsController extends AbstractController
             $pj->setDescription('' !== $description ? $description : null);
             $pj->setDate(new \DateTime());
 
-            $this->pieceJointeRepository->add($pj);
+            $this->pieceJointeRepository->add($pj, false);
 
             $filePath = $this->dataStore->getFilePath($pj, 'dateCommission', (int) $dateCommission->getId(), true);
             $fichier->move(dirname($filePath), basename($filePath));
@@ -1364,6 +1364,10 @@ class CalendrierDesCommissionsController extends AbstractController
             $pj = $this->pieceJointeRepository->find($idPj);
             if (null === $pj) {
                 return new JsonResponse(['success' => false, 'message' => 'Pièce jointe introuvable.'], Response::HTTP_NOT_FOUND);
+            }
+
+            if (!$dateCommission->getPiecesJointes()->contains($pj)) {
+                return new JsonResponse(['success' => false, 'message' => 'Cette pièce jointe n\'appartient pas à cette date de commission.'], Response::HTTP_FORBIDDEN);
             }
 
             $filePath = $this->dataStore->getFilePath($pj, 'dateCommission', (int) $dateCommission->getId());

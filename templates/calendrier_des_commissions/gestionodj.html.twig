@@ -42,11 +42,11 @@
         </li>
         <li>
             {% if dateCommission.gestionHeures %}
-                <a href="#" class="heures" id="non" onclick="return confirm('Confirmez vous de ne pas prendre en compte les heures ?');">
+                <a href="#" class="heures" id="non">
                     <span class="glyphicon glyphicon-time"></span> Ne pas prendre en compte les heures
                 </a>
             {% else %}
-                <a href="#" class="heures" id="oui" onclick="return confirm('Confirmez vous de prendre en compte les heures ?');">
+                <a href="#" class="heures" id="oui">
                     <span class="glyphicon glyphicon-time"></span> Prendre en compte les heures
                 </a>
             {% endif %}
@@ -159,8 +159,8 @@
                             url: '{{ path('calendrier_des_commissions_drop_odj') }}',
                             type: 'POST',
                             data: {
-                                heureDebut: heureDeb,
-                                heureFin: heureFin,
+                                heureDebut: heureDeb ? heureDeb.toISOString() : '',
+                                heureFin: heureFin ? heureFin.toISOString() : '',
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
@@ -176,7 +176,7 @@
                             type: 'POST',
                             async: false,
                             data: {
-                                datadebut: date,
+                                datadebut: date.toISOString(),
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
@@ -213,7 +213,7 @@
                             url: '{{ path('calendrier_des_commissions_resize_odj') }}',
                             type: 'POST',
                             data: {
-                                dateFin: dateFin,
+                                dateFin: dateFin ? dateFin.toISOString() : '',
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
@@ -339,6 +339,12 @@
         });
 
         $(".heures").click(function() {
+            var label = $(this).attr('id') === 'non'
+                ? 'Confirmez vous de ne pas prendre en compte les heures ?'
+                : 'Confirmez vous de prendre en compte les heures ?';
+            if (!confirm(label)) {
+                return false;
+            }
             var gestionHeures = $(this).attr('id');
             $.ajax({
                 url: '{{ path('calendrier_des_commissions_gestion_heures') }}',
