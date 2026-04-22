@@ -1,9 +1,9 @@
-{# Modale d'ajout via formulaire #}
+{# Modale d'ajout via formulaire — sera déplacée vers <body> via JS pour éviter les modales imbriquées #}
 <div class="modal fade" id="modal-add-pj" tabindex="-1" role="dialog" aria-labelledby="modal-add-pj-label">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                <button type="button" class="close" id="btn-close-add-pj" aria-label="Fermer">
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <h4 class="modal-title" id="modal-add-pj-label">Ajouter une pièce jointe</h4>
@@ -12,7 +12,7 @@
                 <div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-default" id="btn-cancel-add-pj">Annuler</button>
                 <button type="button" class="btn btn-primary" id="btn-submit-pj">
                     <span class="glyphicon glyphicon-upload"></span> Ajouter
                 </button>
@@ -67,6 +67,17 @@
     var addUrl      = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
     var formUrl     = {{ path('calendrier_des_commissions_pj_formulaire', {id: dateCommission.id})|json_encode|raw }};
     var dropzoneUrl = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
+    var $addModal   = $('#modal-add-pj');
+
+    /* ── Déplacement de la modale enfant vers <body> ────────────────────────── */
+    /* Bootstrap 3 ne supporte pas les modales imbriquées.                       */
+    /* Déplacer la modale hors du parent évite les conflits de backdrop/dismiss. */
+    $addModal.appendTo('body');
+
+    /* Nettoyage quand la modale parente se ferme */
+    $('#modal-pieces-jointes').one('hidden.bs.modal', function () {
+        $addModal.modal('hide').remove();
+    });
 
     /* ── Bouton "Ajouter une pièce jointe" ──────────────────────────────────── */
     $('#btn-add-pj').on('click', function () {
@@ -74,11 +85,16 @@
         $.get(formUrl, function (html) {
             $('#modal-add-pj-body').html(html);
         });
-        $('#modal-add-pj').modal('show');
+        $addModal.modal('show');
+    });
+
+    /* ── Fermeture de la modale enfant uniquement ───────────────────────────── */
+    $(document).on('click', '#btn-cancel-add-pj, #btn-close-add-pj', function () {
+        $addModal.modal('hide');
     });
 
     /* ── Soumission du formulaire via AJAX ──────────────────────────────────── */
-    $('#btn-submit-pj').on('click', function () {
+    $(document).on('click', '#btn-submit-pj', function () {
         var form = $('#formUploadPj')[0];
         if (!form) {
             return;
@@ -93,7 +109,7 @@
             success: function (result) {
                 if (result.success) {
                     appendRow(result.html);
-                    $('#modal-add-pj').modal('hide');
+                    $addModal.modal('hide');
                 } else {
                     alert(result.message || 'Erreur lors de l\'ajout.');
                 }
@@ -110,7 +126,7 @@
     });
 
     Dropzone.autoDiscover = false;
-    var dz = new Dropzone('#dropzone-pj', {
+    new Dropzone('#dropzone-pj', {
         url: dropzoneUrl,
         paramName: 'fichier',
         maxFilesize: 50,
