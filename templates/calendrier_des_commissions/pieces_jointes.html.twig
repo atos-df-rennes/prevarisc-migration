@@ -1,0 +1,52 @@
+<input type="hidden" id="typePJ" value="dateCommission" />
+<input type="hidden" id="idLinkPJ" value="{{ dateCommission.id }}" />
+
+<h3>
+    Liste de pièces jointes
+    <a href="/piece-jointe/form?id={{ dateCommission.id }}&type=dateCommission" class="btn btn-default" id="addPJ">
+        <span class="glyphicon glyphicon-paperclip"></span> Ajouter une pièce jointe
+    </a>
+</h3>
+
+{% if piecesJointes is empty %}
+    <div class="well text-center">
+        <p class="lead">Il n'y a pas de pièce jointe pour cette date de commission.</p>
+    </div>
+{% else %}
+    <table class="table table-striped table-condensed">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Date d'ajout</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pj in piecesJointes %}
+                <tr>
+                    <td>
+                        <a href="/piece-jointe/get/id/{{ dateCommission.id }}/idpj/{{ pj.id }}/type/dateCommission" target="_blank" rel="noopener noreferrer">
+                            {{ pj.nom }}{{ pj.extension }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if pj.description is not empty %}
+                            {{ pj.description|nl2br }}
+                        {% else %}
+                            <em class="text-muted">Aucune description</em>
+                        {% endif %}
+                    </td>
+                    <td>{{ pj.date ? pj.date|date('d/m/Y') : '' }}</td>
+                    <td>
+                        <a href="/piece-jointe/delete/id/{{ pj.id }}/type/dateCommission"
+                           class="btn btn-default btn-xs delete"
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette pièce jointe ?');">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

@@ -7,6 +7,8 @@ use App\Dto\Commission\CommissionDatesDto;
 use App\Dto\Commission\DateCommissionItemDto;
 use App\Dto\Commission\DateCommissionLieeDto;
 use App\Entity\Commission;
+use App\Entity\DateCommission;
+use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\CalendrierDesCommissions\CommissionDatesType;
 use App\Repository\CommissionRepository;
@@ -1254,6 +1256,28 @@ class CalendrierDesCommissionsController extends AbstractController
         }
 
         return new Response('');
+    }
+
+    /**
+     * Affiche les pièces jointes d'une date de commission dans la modale.
+     *
+     * @Route("/commissions/calendrier/pieces-jointes/{id}", name="calendrier_des_commissions_pieces_jointes", methods={"GET"}, requirements={"id"="\d+"}, options={"expose"=true})
+     */
+    public function piecesJointes(DateCommission $dateCommission): Response
+    {
+        $piecesJointes = array_values(array_filter(
+            $dateCommission->getPiecesJointes()->toArray(),
+            function (PieceJointe $pj) use ($dateCommission): bool {
+                $filePath = $this->dataStore->getFilePath($pj, 'dateCommission', (int) $dateCommission->getId());
+
+                return is_readable($filePath);
+            }
+        ));
+
+        return $this->render('calendrier_des_commissions/pieces_jointes.html.twig', [
+            'dateCommission' => $dateCommission,
+            'piecesJointes' => $piecesJointes,
+        ]);
     }
 
     /**
