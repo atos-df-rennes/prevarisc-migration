@@ -31,6 +31,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
@@ -145,6 +146,9 @@ class DossierType extends AbstractType
                     ]),
                 ],
                 'help' => 'Commencez à saisir pour rechercher un groupement ou saisissez librement',
+                'constraints' => [
+                    new Assert\Length(['max' => 255]),
+                ],
             ])
             ->add('incomplet', ChoiceType::class, [
                 'label' => 'État dossier',
@@ -334,6 +338,8 @@ class DossierType extends AbstractType
             ->add('numeroIntervention', TextType::class, [
                 'label' => "Numéro d'intervention",
                 'required' => false,
+                // @todo REF-FORM-02: NUMINTERV_DOSSIER est int(11) en DB mais TextType ici —
+                // vérifier si une contrainte Assert\Type('integer') ou Assert\Regex doit être ajoutée selon le legacy
             ])
             ->add('dateIntervention', DateTimeType::class, [
                 'label' => "Date et heure d'intervention",

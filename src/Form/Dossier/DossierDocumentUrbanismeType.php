@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierDocumentUrbanismeType extends AbstractType
 {
@@ -22,6 +23,9 @@ class DossierDocumentUrbanismeType extends AbstractType
                 ],
                 'row_attr' => [
                     'class' => 'col-sm-10',
+                ],
+                'constraints' => [
+                    new Assert\Length(['max' => 100]),
                 ],
             ]);
     }

@@ -9,6 +9,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class ContactType extends AbstractType
 {
@@ -19,23 +20,84 @@ class ContactType extends AbstractType
                 'class' => Fonction::class,
                 'choice_label' => 'libelle',
             ])
-            ->add('societe', null, ['required' => false])
+            ->add('societe', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 100]),
+                ],
+            ])
             ->add('civilite', EntityType::class, [
                 'class' => UtilisateurCivilite::class,
                 'choice_label' => 'libelle',
                 'required' => false,
             ])
-            ->add('nom', null, ['required' => false])
-            ->add('prenom', null, ['required' => false])
-            ->add('telephoneFixe', null, ['required' => false])
-            ->add('telephoneFax', null, ['required' => false])
-            ->add('telephonePortable', null, ['required' => false])
-            ->add('mail', null, ['required' => false])
-            ->add('siteWeb', null, ['required' => false])
-            ->add('numeroAdresse', null, ['required' => false])
-            ->add('rueAdresse', null, ['required' => false])
-            ->add('codePostalAdresse', null, ['required' => false])
-            ->add('villeAdresse', null, ['required' => false])
+            ->add('nom', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 50]),
+                ],
+            ])
+            ->add('prenom', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 50]),
+                ],
+            ])
+            ->add('telephoneFixe', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 20]),
+                ],
+            ])
+            ->add('telephoneFax', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 20]),
+                ],
+            ])
+            ->add('telephonePortable', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 20]),
+                ],
+            ])
+            ->add('mail', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Email(),
+                    new Assert\Length(['max' => 50]),
+                ],
+            ])
+            ->add('siteWeb', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 100]),
+                ],
+            ])
+            ->add('numeroAdresse', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 10]),
+                ],
+            ])
+            ->add('rueAdresse', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 255]),
+                ],
+            ])
+            ->add('codePostalAdresse', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 5]),
+                ],
+            ])
+            ->add('villeAdresse', null, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(['max' => 255]),
+                ],
+            ])
             ->add('observations', null, ['required' => false])
         ;
     }
