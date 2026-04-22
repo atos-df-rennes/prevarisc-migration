@@ -46,6 +46,7 @@ class LastActionSubscriber implements EventSubscriberInterface
      */
     public function onKernelTerminate(TerminateEvent $event): void
     {
+        // @todo SF 5.3: remplacer isMasterRequest() par isMainRequest() (déprécié en 5.3, supprimé en 7.0)
         if (!$event->isMasterRequest()) {
             return;
         }

@@ -27,6 +27,7 @@ final class SymfonyRouteFoundSubscriber implements EventSubscriberInterface
      */
     public function onKernelResponse(ResponseEvent $event): void
     {
+        // @todo SF 5.3: remplacer isMasterRequest() par isMainRequest() (déprécié en 5.3, supprimé en 7.0)
         if (!$event->isMasterRequest()) {
             return;
         }
