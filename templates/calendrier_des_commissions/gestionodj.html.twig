@@ -86,7 +86,7 @@
             // Rendu draggable (jQuery UI)
             $(this).draggable({
                 zIndex: 999,
-                revert: true,
+                revert: 'invalid',   // revenir seulement si drop invalide (hors calendrier)
                 revertDuration: 0
             });
         });
@@ -207,7 +207,7 @@
                         });
 
                         var originalEventObject = $(this).data('eventObject');
-                        var copiedEventObject = $.extend({}, originalEventObject);
+                        var copiedEventObject = $.extend({}, originalEventObject || { title: $.trim($(this).text()) });
                         copiedEventObject.start = date;
                         copiedEventObject.end = new Date(date.getTime() + 5 * 60000);
                         copiedEventObject.url = Routing.generate('dossier_index', { id: idDossier });
