@@ -64,7 +64,8 @@ function bindEtsPopup($elem) {
         over: function () {
             var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
-            e.popover({html: true, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
+            // animation: false évite la race condition Bootstrap 3 lors du destroy/update
+            e.popover({html: true, animation: false, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
             // @todo: migrer cette route vers Symfony
             $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
                 var ets_id = data.response.general.ID_ETABLISSEMENT;
@@ -135,8 +136,8 @@ function bindEtsPopup($elem) {
                 html += "<a href='" + Routing.generate('etablissement_informations', {id: ets_id}) + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
                 e.popover('destroy');
-                // @fixme: ça ne fonctionne pas
-                e.popover({html: true, content: html}).popover('show');
+                // Avec animation:false le destroy est synchrone — destroy+recreate est sûr.
+                e.popover({html: true, animation: false, content: html}).popover('show');
             });
         },
         out: function() {
@@ -164,7 +165,9 @@ function loadBloc($bloc) {
         data: {id: $bloc.attr('id')},
         success: function(data) {
             $bloc.find(".panel-body").html(data);
-            $container.packery('fit', $bloc.get(0));
+            // $container est une const locale au template Twig — on retrouve
+            // le conteneur Packery via le DOM plutôt que de dépendre de la portée externe.
+            $bloc.closest('.dashboard').packery('fit', $bloc.get(0));
             bindEtsMarquee($bloc);
             bindEtsPopup($bloc);
             $bloc.removeClass('loading').addClass('loaded');
