@@ -1308,6 +1308,13 @@ class CalendrierDesCommissionsController extends AbstractController
     public function piecesJointesAdd(Request $request, DateCommission $dateCommission): JsonResponse
     {
         try {
+            /* Le token est envoyé en POST par le formulaire et en header X-CSRF-Token par Dropzone */
+            /** @var string $csrfToken */
+            $csrfToken = $request->request->get('_csrf_token', '') ?: (string) $request->headers->get('X-CSRF-Token', '');
+            if (!$this->isCsrfTokenValid('calendrier_commissions_pj', $csrfToken)) {
+                return new JsonResponse(['success' => false, 'message' => 'Token CSRF invalide.'], Response::HTTP_FORBIDDEN);
+            }
+
             /** @var UploadedFile|null $fichier */
             $fichier = $request->files->get('fichier');
             if (!$fichier instanceof UploadedFile) {
@@ -1356,9 +1363,15 @@ class CalendrierDesCommissionsController extends AbstractController
      *
      * @Route("/commissions/calendrier/pieces-jointes/{id}/supprimer/{idPj}", name="calendrier_des_commissions_pj_supprimer", methods={"DELETE", "POST"}, requirements={"id"="\d+", "idPj"="\d+"}, options={"expose"=true})
      */
-    public function piecesJointesDelete(DateCommission $dateCommission, int $idPj): JsonResponse
+    public function piecesJointesDelete(Request $request, DateCommission $dateCommission, int $idPj): JsonResponse
     {
         try {
+            /** @var string $csrfToken */
+            $csrfToken = $request->request->get('_csrf_token', '');
+            if (!$this->isCsrfTokenValid('calendrier_commissions_pj', $csrfToken)) {
+                return new JsonResponse(['success' => false, 'message' => 'Token CSRF invalide.'], Response::HTTP_FORBIDDEN);
+            }
+
             $pj = $this->pieceJointeRepository->find($idPj);
             if (null === $pj) {
                 return new JsonResponse(['success' => false, 'message' => 'Pièce jointe introuvable.'], Response::HTTP_NOT_FOUND);

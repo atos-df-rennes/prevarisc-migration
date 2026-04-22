@@ -67,6 +67,7 @@
     var addUrl      = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
     var formUrl     = {{ path('calendrier_des_commissions_pj_formulaire', {id: dateCommission.id})|json_encode|raw }};
     var dropzoneUrl = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
+    var csrfToken   = {{ csrf_token('calendrier_commissions_pj')|json_encode|raw }};
     var $addModal   = $('#modal-add-pj');
 
     /* ── Déplacement de la modale enfant vers <body> ────────────────────────── */
@@ -89,17 +90,19 @@
     });
 
     /* ── Fermeture de la modale enfant uniquement ───────────────────────────── */
-    $(document).on('click', '#btn-cancel-add-pj, #btn-close-add-pj', function () {
+    /* Namespace obligatoire : même raison que click.pj-delete (injection AJAX) */
+    $(document).off('click.pj-modal').on('click.pj-modal', '#btn-cancel-add-pj, #btn-close-add-pj', function () {
         $addModal.modal('hide');
     });
 
     /* ── Soumission du formulaire via AJAX ──────────────────────────────────── */
-    $(document).on('click', '#btn-submit-pj', function () {
+    $(document).off('click.pj-submit').on('click.pj-submit', '#btn-submit-pj', function () {
         var form = $('#formUploadPj')[0];
         if (!form) {
             return;
         }
         var data = new FormData(form);
+        data.append('_csrf_token', csrfToken);
         $.ajax({
             url: addUrl,
             type: 'POST',
@@ -111,11 +114,11 @@
                     appendRow(result.html);
                     $addModal.modal('hide');
                 } else {
-                    alert(result.message || 'Erreur lors de l\'ajout.');
+                    $.toast.error(result.message || 'Erreur lors de l\'ajout.');
                 }
             },
             error: function () {
-                alert('Une erreur s\'est produite lors de l\'envoi.');
+                $.toast.error('Une erreur s\'est produite lors de l\'envoi.');
             }
         });
     });
@@ -131,6 +134,7 @@
         paramName: 'fichier',
         maxFilesize: 50,
         dictDefaultMessage: 'Glissez-déposez vos fichiers ici ou cliquez pour sélectionner',
+        headers: { 'X-CSRF-Token': csrfToken },
         success: function (file, response) {
             if (response && response.success) {
                 appendRow(response.html);
@@ -138,7 +142,7 @@
             }
         },
         error: function (file, message) {
-            alert(typeof message === 'string' ? message : (message.message || 'Erreur lors de l\'upload.'));
+            $.toast.error(typeof message === 'string' ? message : (message.message || 'Erreur lors de l\'upload.'));
             this.removeFile(file);
         }
     });
@@ -166,6 +170,7 @@
         $.ajax({
             url: deleteUrl,
             type: 'POST',
+            data: { _csrf_token: csrfToken },
             success: function (result) {
                 if (result.success) {
                     btn.closest('tr').remove();

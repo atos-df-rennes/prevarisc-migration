@@ -185,42 +185,38 @@
                     },
                     drop: function(date, allDay) {
                         var idDossier = $(this).attr('id');
-                        var verrou = "";
+                        /* Capturer $(this) et les données avant l'appel AJAX           */
+                        /* (le contexte 'this' change dans les callbacks asynchrones).  */
+                        var $droppedEl = $(this);
+                        var originalEventObject = $droppedEl.data('eventObject');
 
                         $.ajax({
                             url: '{{ path('calendrier_des_commissions_affecte_doss_odj') }}',
                             type: 'POST',
-                            async: false,
                             data: {
                                 datadebut: toLocalISOString(date),
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
                             success: function(result) {
-                                verrou = result.verrou;
                                 $("#nbDossiersAffect").text(result.countAffect);
                                 $.toast.success('Dossier affecté à l\'ordre du jour.');
+
+                                var copiedEventObject = $.extend({}, originalEventObject || { title: $.trim($droppedEl.text()) });
+                                copiedEventObject.start = date;
+                                copiedEventObject.end = new Date(date.getTime() + 5 * 60000);
+                                copiedEventObject.url = Routing.generate('dossier_index', { id: idDossier });
+                                copiedEventObject.allDay = allDay;
+                                copiedEventObject.backgroundColor = result.verrou == 1 ? '#83bff6' : '#E2A420';
+                                copiedEventObject.textColor = 'black';
+
+                                $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+                                $droppedEl.remove();
                             },
                             error: function() {
                                 $.toast.error('Erreur lors de l\'affectation du dossier.');
                             }
                         });
-
-                        var originalEventObject = $(this).data('eventObject');
-                        var copiedEventObject = $.extend({}, originalEventObject || { title: $.trim($(this).text()) });
-                        copiedEventObject.start = date;
-                        copiedEventObject.end = new Date(date.getTime() + 5 * 60000);
-                        copiedEventObject.url = Routing.generate('dossier_index', { id: idDossier });
-                        copiedEventObject.allDay = allDay;
-                        if (verrou == 1) {
-                            copiedEventObject.backgroundColor = "#83bff6";
-                        } else {
-                            copiedEventObject.backgroundColor = "#E2A420";
-                        }
-                        copiedEventObject.textColor = "black";
-
-                        $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
-                        $(this).remove();
                     },
                     eventResize: function( event, dayDelta, minuteDelta, revertFunc ) {
                         var dateFin = event.end;

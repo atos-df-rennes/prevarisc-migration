@@ -613,7 +613,7 @@ $(document).ready(function () {
                 type: 'POST',
                 success: function (affichageResultat) {
                     if (affichageResultat === '') {
-                        alert("Il est impossible de supprimer cette date. D'autres dates sont liées à celle-ci.\nUtilisez le bouton prévu à cet effet afin d'affecter une autre date principale à la commission");
+                        $.toast.error("Il est impossible de supprimer cette date. D'autres dates sont liées à celle-ci.\nUtilisez le bouton prévu à cet effet afin d'affecter une autre date principale à la commission");
                     } else {
                         $('#listeDates').countLigne('supp', 'edit');
                         $('#ligne_' + tabDo[2]).fadeOut().remove();
