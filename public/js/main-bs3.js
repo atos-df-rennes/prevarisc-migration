@@ -62,7 +62,8 @@ function bindEtsPopup($elem) {
         over: function () {
             var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
-            e.popover({html: true, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
+            // animation: false évite la race condition Bootstrap 3 lors du destroy/update
+            e.popover({html: true, animation: false, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
             // @todo: migrer cette route vers Symfony
             $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
                 var ets_id = data.response.general.ID_ETABLISSEMENT;
@@ -132,9 +133,15 @@ function bindEtsPopup($elem) {
                 html += "<br><br>";
                 html += "<a href='" + Routing.generate('etablissement_informations', {id: ets_id}) + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
-                e.popover('destroy');
-                // @fixme: ça ne fonctionne pas
-                e.popover({html: true, content: html}).popover('show');
+                // Mise à jour du contenu in-place pour éviter le destroy/show qui cause
+                // une race condition avec emulateTransitionEnd de Bootstrap 3.
+                var popInstance = e.data('bs.popover');
+                if (popInstance && popInstance.$tip) {
+                    popInstance.options.content = html;
+                    popInstance.$tip.find('.popover-content').html(html);
+                } else {
+                    e.popover({html: true, animation: false, content: html}).popover('show');
+                }
             });
         },
         out: function() {
