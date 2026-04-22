@@ -167,7 +167,9 @@ function loadBloc($bloc) {
         data: {id: $bloc.attr('id')},
         success: function(data) {
             $bloc.find(".panel-body").html(data);
-            $container.packery('fit', $bloc.get(0));
+            // $container est une const locale au template Twig — on retrouve
+            // le conteneur Packery via le DOM plutôt que de dépendre de la portée externe.
+            $bloc.closest('.dashboard').packery('fit', $bloc.get(0));
             bindEtsMarquee($bloc);
             bindEtsPopup($bloc);
             $bloc.removeClass('loading').addClass('loaded');
