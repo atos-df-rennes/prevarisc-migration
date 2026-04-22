@@ -1,52 +1,168 @@
-<input type="hidden" id="typePJ" value="dateCommission" />
-<input type="hidden" id="idLinkPJ" value="{{ dateCommission.id }}" />
+{# Modale d'ajout via formulaire #}
+<div class="modal fade" id="modal-add-pj" tabindex="-1" role="dialog" aria-labelledby="modal-add-pj-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modal-add-pj-label">Ajouter une pièce jointe</h4>
+            </div>
+            <div class="modal-body" id="modal-add-pj-body">
+                <div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="btn-submit-pj">
+                    <span class="glyphicon glyphicon-upload"></span> Ajouter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <h3>
     Liste de pièces jointes
-    <a href="/piece-jointe/form?id={{ dateCommission.id }}&type=dateCommission" class="btn btn-default" id="addPJ">
+
+    <button type="button" class="btn btn-default" id="btn-add-pj">
         <span class="glyphicon glyphicon-paperclip"></span> Ajouter une pièce jointe
-    </a>
+    </button>
+    <button type="button" class="btn btn-default" id="btn-toggle-dropzone">
+        <span class="glyphicon glyphicon-cloud-upload"></span> Ajout rapide
+    </button>
 </h3>
 
+<div id="dropzone-pj" class="dropzone" style="display:none; border: 2px dashed #ccc; padding: 20px; text-align: center; margin-bottom: 15px; cursor: pointer;">
+    <p><span class="glyphicon glyphicon-upload"></span> Glissez-déposez vos fichiers ici ou cliquez pour sélectionner</p>
+</div>
+
 {% if piecesJointes is empty %}
-    <div class="well text-center">
+    <div class="well text-center" id="pj-empty-msg">
         <p class="lead">Il n'y a pas de pièce jointe pour cette date de commission.</p>
     </div>
+    <table class="table table-striped table-condensed" id="pj-table" style="display:none">
 {% else %}
-    <table class="table table-striped table-condensed">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Description</th>
-                <th>Date d'ajout</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pj in piecesJointes %}
-                <tr>
-                    <td>
-                        <a href="/piece-jointe/get/id/{{ dateCommission.id }}/idpj/{{ pj.id }}/type/dateCommission" target="_blank" rel="noopener noreferrer">
-                            {{ pj.nom }}{{ pj.extension }}
-                        </a>
-                    </td>
-                    <td>
-                        {% if pj.description is not empty %}
-                            {{ pj.description|nl2br }}
-                        {% else %}
-                            <em class="text-muted">Aucune description</em>
-                        {% endif %}
-                    </td>
-                    <td>{{ pj.date ? pj.date|date('d/m/Y') : '' }}</td>
-                    <td>
-                        <a href="/piece-jointe/delete/id/{{ pj.id }}/type/dateCommission"
-                           class="btn btn-default btn-xs delete"
-                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette pièce jointe ?');">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div id="pj-empty-msg" style="display:none">
+        <div class="well text-center"><p class="lead">Il n'y a pas de pièce jointe pour cette date de commission.</p></div>
+    </div>
+    <table class="table table-striped table-condensed" id="pj-table">
 {% endif %}
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Date d'ajout</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="pj-tbody">
+        {% for pj in piecesJointes %}
+            {{ include('calendrier_des_commissions/_piece_jointe_row.html.twig', {pj: pj, dateCommission: dateCommission}) }}
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+(function () {
+    var addUrl      = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
+    var formUrl     = {{ path('calendrier_des_commissions_pj_formulaire', {id: dateCommission.id})|json_encode|raw }};
+    var dropzoneUrl = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
+
+    /* ── Bouton "Ajouter une pièce jointe" ──────────────────────────────────── */
+    $('#btn-add-pj').on('click', function () {
+        $('#modal-add-pj-body').html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></div>');
+        $.get(formUrl, function (html) {
+            $('#modal-add-pj-body').html(html);
+        });
+        $('#modal-add-pj').modal('show');
+    });
+
+    /* ── Soumission du formulaire via AJAX ──────────────────────────────────── */
+    $('#btn-submit-pj').on('click', function () {
+        var form = $('#formUploadPj')[0];
+        if (!form) {
+            return;
+        }
+        var data = new FormData(form);
+        $.ajax({
+            url: addUrl,
+            type: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (result.success) {
+                    appendRow(result.html);
+                    $('#modal-add-pj').modal('hide');
+                } else {
+                    alert(result.message || 'Erreur lors de l\'ajout.');
+                }
+            },
+            error: function () {
+                alert('Une erreur s\'est produite lors de l\'envoi.');
+            }
+        });
+    });
+
+    /* ── Ajout rapide Dropzone ──────────────────────────────────────────────── */
+    $('#btn-toggle-dropzone').on('click', function () {
+        $('#dropzone-pj').toggle();
+    });
+
+    Dropzone.autoDiscover = false;
+    var dz = new Dropzone('#dropzone-pj', {
+        url: dropzoneUrl,
+        paramName: 'fichier',
+        maxFilesize: 50,
+        dictDefaultMessage: 'Glissez-déposez vos fichiers ici ou cliquez pour sélectionner',
+        success: function (file, response) {
+            if (response && response.success) {
+                appendRow(response.html);
+                this.removeFile(file);
+            }
+        },
+        error: function (file, message) {
+            alert(typeof message === 'string' ? message : (message.message || 'Erreur lors de l\'upload.'));
+            this.removeFile(file);
+        }
+    });
+
+    /* ── Suppression ────────────────────────────────────────────────────────── */
+    $(document).on('click', '.btn-delete-pj', function () {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette pièce jointe ?')) {
+            return;
+        }
+        var btn = $(this);
+        var deleteUrl = btn.data('url');
+        $.ajax({
+            url: deleteUrl,
+            type: 'POST',
+            success: function (result) {
+                if (result.success) {
+                    btn.closest('tr').remove();
+                    updateEmptyState();
+                } else {
+                    alert(result.message || 'Erreur lors de la suppression.');
+                }
+            },
+            error: function () {
+                alert('Une erreur s\'est produite lors de la suppression.');
+            }
+        });
+    });
+
+    /* ── Helpers ────────────────────────────────────────────────────────────── */
+    function appendRow(html) {
+        $('#pj-tbody').prepend(html);
+        $('#pj-table').show();
+        $('#pj-empty-msg').hide();
+    }
+
+    function updateEmptyState() {
+        if ($('#pj-tbody tr').length === 0) {
+            $('#pj-table').hide();
+            $('#pj-empty-msg').show();
+        }
+    }
+}());
+</script>
