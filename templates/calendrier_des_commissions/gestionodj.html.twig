@@ -364,12 +364,6 @@
         });
 
         $(".heures").click(function() {
-            var label = $(this).attr('id') === 'non'
-                ? 'Confirmez vous de ne pas prendre en compte les heures ?'
-                : 'Confirmez vous de prendre en compte les heures ?';
-            if (!confirm(label)) {
-                return false;
-            }
             var gestionHeures = $(this).attr('id');
             $.ajax({
                 url: '{{ path('calendrier_des_commissions_gestion_heures') }}',
