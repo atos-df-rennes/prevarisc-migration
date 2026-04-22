@@ -236,33 +236,15 @@
          * INITIALISATION ET GESTION DES BOUTONS PJ, ODJ et CONVOC
          */
 
-        var dialogDateCommission = $('<div style="display:none"></div>').appendTo('body');
-
-        dialogDateCommission.dialog({
-            title: "Gestion des pièces jointes",
-            modal: true,
-            autoOpen: false,
-            width: 800,
-            height: 600,
-            buttons: [
-                {
-                    text: 'Terminer',
-                    'class': 'btn btn-default',
-                    click: function() {
-                        dialogDateCommission.dialog("close");
-                        return false;
-                    }
-                }
-            ]
-        });
+        var dialogDateCommission = $('#modal-pieces-jointes');
 
         $("#commissionPj").click(function() {
             $.ajax({
                 type: "POST",
                 url: "/piece-jointe?type=dateCommission&id=" + $("#dateCommId").val() + "&displayDownloadButton=false",
                 success: function(msg) {
-                    dialogDateCommission.html(msg);
-                    dialogDateCommission.dialog("open");
+                    dialogDateCommission.find('.modal-body').html(msg);
+                    dialogDateCommission.modal('show');
                 }
             });
         });
@@ -404,6 +386,21 @@
     }
     </style>
 
+    <div class="modal fade" id="modal-pieces-jointes" tabindex="-1" role="dialog" aria-labelledby="modal-pieces-jointes-label">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modal-pieces-jointes-label">Gestion des pièces jointes</h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Terminer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div>
         <input type="hidden" id="tempVerrou" value="" />
         <input type="hidden" name="dateOdj" id="dateOdj" value="{{ dateCommission.date|date('Y-m-d') }}" />
@@ -414,7 +411,7 @@
         <h3>
             {{ dateCommission.libelle }}
             {% if dateCommission.gestionHeures %}
-                <span class="badge badge-info" style="margin:10px;">
+                <span class="label label-info" style="margin:10px;">
                     <span id="nbDossiersAffect">{{ nbDossiersAffect }}</span> / {{ nbDossiers }}
                 </span>
             {% endif %}
@@ -574,7 +571,7 @@
                                         Objet : {{ dossier_non_affect.OBJET_DOSSIER }}<br/>
                                     {% endif %}
 
-                                    {% if dossier_non_affect.NUM_DOCURBA is defined %}
+                                    {% if dossier_non_affect.NUM_DOCURBA is defined and dossier_non_affect.NUM_DOCURBA is not null and dossier_non_affect.NUM_DOCURBA != '' %}
                                         Numéro document d'urbanisme : {{ dossier_non_affect.NUM_DOCURBA }}
                                     {% endif %}
 
