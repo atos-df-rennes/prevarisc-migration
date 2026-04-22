@@ -791,7 +791,7 @@ class CalendrierDesCommissionsController extends AbstractController
      * Page principale de gestion de l'ordre du jour (ODJ).
      * Port direct de gestionodjAction().
      *
-     * @Route("/commissions/calendrier/gestion-odj", name="calendrier_des_commissions_gestion_odj", methods={"GET"})
+     * @Route("/commissions/calendrier/gestion-odj", name="calendrier_des_commissions_gestion_odj", methods={"GET"}, options={"expose"=true})})
      */
     public function gestionOdj(Request $request): Response
     {
@@ -989,7 +989,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             $items[] = [
                 'id' => $idDossier,
-                'url' => '/dossier/index/id/'.$idDossier,
+                'url' => $this->generateUrl('dossier_index', ['id' => $idDossier]),
                 'title' => '   '.$affichage,
                 'start' => $dateDebut.' '.$heureDebAffect,
                 'end' => $dateFin.' '.$heureFinAffect,
