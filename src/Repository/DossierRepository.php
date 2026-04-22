@@ -5,10 +5,12 @@ namespace App\Repository;
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Entity\Dossier;
+use App\Entity\DossierAffectation;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -644,12 +646,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Construit le SQL de base pour la recherche de dossiers (port de Model_DbTable_Search::setItem('dossier')).
      * Sélectionne tous les champs attendus par les templates de tableau de bord.
      */
-    private function buildSearchDossierBaseSql(bool $getCount): string
+    private function buildSearchDossierBaseSql(): string
     {
-        if ($getCount) {
-            $select = 'SELECT COUNT(DISTINCT d.ID_DOSSIER) as count';
-        } else {
-            $select = 'SELECT d.*,
+        $select = 'SELECT d.*,
                 (SELECT COUNT(dossierpj.ID_DOSSIER) FROM dossierpj WHERE dossierpj.ID_DOSSIER = d.ID_DOSSIER) AS NB_PJ,
                 (SELECT COUNT(dossierlie.ID_DOSSIER2)
                     FROM dossier
@@ -683,7 +682,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
                 type.LIBELLE_TYPE,
                 genre.LIBELLE_GENRE,
                 platauconsultation.DATE_REPONSE_ATTENDUE';
-        }
 
         return $select.'
             FROM dossier d
@@ -734,7 +732,25 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): array
     {
-        $conn = $this->getEntityManager()->getConnection();
+        $extraColumns = [
+            'ID_DOSSIER1', 'ID_DOSSIER2',
+            'LIBELLE_DOSSIERNATURE', 'ID_DOSSIERNATURE',
+            'LIBELLE_DOSSIERTYPE',
+            'NUM_DOCURBA',
+            'ID_AVIS', 'LIBELLE_AVIS',
+            'ID_UTILISATEUR',
+            'ID_ETABLISSEMENT',
+            'LIBELLE_ETABLISSEMENTINFORMATIONS', 'ID_TYPE',
+            'LIBELLE_TYPE',
+            'LIBELLE_GENRE',
+            'DATE_REPONSE_ATTENDUE',
+            'HEURE_DEB_AFFECT', 'HEURE_FIN_AFFECT', 'NUM_DOSSIER',
+            'ID_DATECOMMISSION_AFFECT', 'ID_DOSSIER_AFFECT',
+            'ID_DATECOMMISSION', 'DATE_COMMISSION', 'HEUREDEB_COMMISSION', 'HEUREFIN_COMMISSION',
+            'LIBELLE_DATECOMMISSION', 'GESTION_HEURES', 'DATECOMMISSION_LIEES',
+            'ID_COMMISSIONTYPEEVENEMENT', 'COMMISSION_CONCERNE',
+        ];
+        $rsm = $this->buildNativeQueryRsm($extraColumns);
 
         $sql = 'SELECT d.*, dossierlie.*,
                 dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
@@ -775,8 +791,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             AND DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) <= :untilDays
             AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)';
 
-        $params = ['sinceDays' => $sinceDays, 'untilDays' => $untilDays];
-
         if ([] !== $idsCommission) {
             $inList = implode(',', array_map('intval', $idsCommission));
             $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
@@ -784,8 +798,12 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY datecommission.DATE_COMMISSION DESC';
 
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('sinceDays', $sinceDays);
+        $query->setParameter('untilDays', $untilDays);
+
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, $params);
+        $rows = $query->getResult();
 
         return $rows;
     }
@@ -800,9 +818,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossierAvecAvisDiffere(array $idsCommission): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false);
-        $params = [];
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql();
 
         if ([] !== $idsCommission) {
             $inList = implode(',', array_map('intval', $idsCommission));
@@ -814,7 +831,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $sql .= ' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, $params);
+        $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         return $rows;
     }
@@ -827,9 +844,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findCourrierSansReponse(int $dureeEnJour = 5): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false);
-        $params = ['dureeEnJour' => $dureeEnJour];
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql();
 
         $sql .= ' AND d.TYPE_DOSSIER = 5';
         $sql .= ' AND d.DATEREP_DOSSIER IS NULL';
@@ -838,8 +854,11 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER DESC';
 
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('dureeEnJour', $dureeEnJour);
+
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, $params);
+        $rows = $query->getResult();
 
         return $rows;
     }
@@ -852,10 +871,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function getTypeDossier(int $idDossier)
     {
-        return $this->getEntityManager()->getConnection()->fetchAssociative(
-            'SELECT TYPE_DOSSIER FROM dossier WHERE ID_DOSSIER = :id',
-            ['id' => $idDossier]
-        );
+        $result = $this->createQueryBuilder('d')
+            ->select('IDENTITY(d.type) as TYPE_DOSSIER')
+            ->where('d.id = :id')
+            ->setParameter('id', $idDossier)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (null === $result) {
+            return false;
+        }
+
+        /* @var array<string, mixed> $result */
+        return $result;
     }
 
     /**
@@ -867,33 +895,25 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findLeveePresc(): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false)
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql()
             .' AND d.DELAIPRESC_DOSSIER IS NOT NULL'
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
-        $dossiers = $conn->fetchAllAssociative($sql, []);
+        $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         foreach ($dossiers as $key => $dossier) {
             $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
 
-            /** @var array<int, array<string, mixed>> $dossiersLies */
-            $dossiersLies = $conn->fetchAllAssociative(
-                'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
-                ['id' => $idDossier]
-            );
+            $dossiersLies = $this->findDossiersLies($idDossier);
 
             foreach ($dossiersLies as $lien) {
                 $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
                 $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
                 $idLien = $id1 === $idDossier ? $id2 : $id1;
-                $row = $conn->fetchAssociative(
-                    'SELECT ID_DOSSIERNATURE, ID_NATURE FROM dossiernature WHERE ID_DOSSIER = :id',
-                    ['id' => $idLien]
-                );
-                if (false !== $row) {
-                    $idNature = is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : 0;
+                $idNature = $this->getDossierNatureId($idLien);
+                if (null !== $idNature) {
                     if (DossierNature::LEVEE_PRESCRIPTIONS === $idNature || DossierNature::LEVEE_AVIS_DEFAVORABLE === $idNature || DossierNature::ECHEANCIER_TRAVAUX === $idNature) {
                         unset($dossiers[$key]);
                     }
@@ -913,22 +933,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findAbsenceQuorum(): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false)
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql()
             .' AND d.ABSQUORUM_DOSSIER = 1'
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
-        $dossiers = $conn->fetchAllAssociative($sql, []);
+        $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         foreach ($dossiers as $key => $dossier) {
             $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
 
-            /** @var array<int, array<string, mixed>> $dossiersLies */
-            $dossiersLies = $conn->fetchAllAssociative(
-                'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
-                ['id' => $idDossier]
-            );
+            $dossiersLies = $this->findDossiersLies($idDossier);
 
             foreach ($dossiersLies as $lien) {
                 $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
@@ -956,22 +972,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findNpsp(): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false)
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql()
             .' AND d.NPSP_DOSSIER = 1'
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
-        $dossiers = $conn->fetchAllAssociative($sql, []);
+        $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         foreach ($dossiers as $key => $dossier) {
             $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
 
-            /** @var array<int, array<string, mixed>> $dossiersLies */
-            $dossiersLies = $conn->fetchAllAssociative(
-                'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
-                ['id' => $idDossier]
-            );
+            $dossiersLies = $this->findDossiersLies($idDossier);
 
             foreach ($dossiersLies as $lien) {
                 $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
@@ -998,14 +1010,14 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersIncomplets(): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false)
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql()
             .' AND d.INCOMPLET_DOSSIER = 1'
             .' GROUP BY d.ID_DOSSIER'
             .' ORDER BY d.DATEINSERT_DOSSIER DESC';
 
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, []);
+        $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         return $rows;
     }
@@ -1018,15 +1030,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersSuivisNonVerrouilles(int $userId): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false);
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql();
         $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
         $sql .= ' AND d.VERROU_DOSSIER = 0';
         $sql .= ' GROUP BY d.ID_DOSSIER';
         $sql .= ' ORDER BY IFNULL(d.DATEVISITE_DOSSIER, d.DATEINSERT_DOSSIER) DESC';
 
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('userId', $userId);
+
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, ['userId' => $userId]);
+        $rows = $query->getResult();
 
         return $rows;
     }
@@ -1039,16 +1054,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersSuivisSansAvis(int $userId): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(false);
+        $rsm = $this->buildDashboardResultSetMapping();
+        $sql = $this->buildSearchDossierBaseSql();
         $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
         $sql .= ' AND ((d.AVIS_DOSSIER IS NULL AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0) AND d.TYPE_DOSSIER = 1)'
             .' OR (d.DATEREP_DOSSIER IS NULL AND d.TYPE_DOSSIER = 5))';
         $sql .= ' GROUP BY d.ID_DOSSIER';
         $sql .= ' ORDER BY d.DATEINSERT_DOSSIER DESC';
 
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('userId', $userId);
+
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, ['userId' => $userId]);
+        $rows = $query->getResult();
 
         return $rows;
     }
@@ -1145,7 +1163,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersPlatauSansEtablissement(\DateTimeInterface $lastVisitDate): array
     {
-        $conn = $this->getEntityManager()->getConnection();
         $lastVisitDateStr = $lastVisitDate->format('Y-m-d H:i:s');
 
         $extraJoins = '
@@ -1158,13 +1175,18 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             IF(d.DATE_NOTIFICATION IS NOT NULL AND d.DATE_NOTIFICATION >= :lastVisitDate, 1, 0) AS IS_NEW,
             IF(piecejointe.DATE_NOTIFICATION IS NOT NULL AND piecejointe.DATE_NOTIFICATION >= :lastVisitDate, 1, 0) AS HAS_NEW_PJ';
 
+        $rsm = $this->buildDashboardResultSetMapping(['IS_NEW', 'HAS_NEW_PJ']);
+
         $sql = $this->buildPlatauDossierSql($extraJoins, $extraSelectCols);
         $sql .= ' AND d.ID_PLATAU IS NOT NULL';
         $sql .= ' AND e.ID_DOSSIER IS NULL';
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
 
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('lastVisitDate', $lastVisitDateStr);
+
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, ['lastVisitDate' => $lastVisitDateStr]);
+        $rows = $query->getResult();
 
         return $rows;
     }
@@ -1177,8 +1199,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersPlatauPjsEnErreur(): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-
         $extraJoins = '
             JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
             JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
@@ -1186,6 +1206,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             JOIN piecejointestatut ON piecejointestatut.ID_PIECEJOINTESTATUT = piecejointe.ID_PIECEJOINTESTATUT';
 
         $extraSelectCols = ', platauconsultation.DATE_REPONSE_ATTENDUE, piecejointe.ID_PIECEJOINTESTATUT';
+
+        $rsm = $this->buildDashboardResultSetMapping(['ID_PIECEJOINTESTATUT']);
 
         $sql = $this->buildPlatauDossierSql($extraJoins, $extraSelectCols);
         $sql .= ' AND d.ID_PLATAU IS NOT NULL';
@@ -1195,7 +1217,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, []);
+        $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         return $rows;
     }
@@ -1210,7 +1232,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersPlatauNouvellesPjs(\DateTimeInterface $lastPiecesVisitDate): array
     {
-        $conn = $this->getEntityManager()->getConnection();
         $lastPiecesVisitDateStr = $lastPiecesVisitDate->format('Y-m-d H:i:s');
 
         $extraJoins = '
@@ -1220,14 +1241,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         $extraSelectCols = ', platauconsultation.DATE_REPONSE_ATTENDUE';
 
+        $rsm = $this->buildDashboardResultSetMapping();
+
         $sql = $this->buildPlatauDossierSql($extraJoins, $extraSelectCols);
         $sql .= ' AND d.ID_PLATAU IS NOT NULL';
         $sql .= ' AND d.ID_DOSSIER = e.ID_DOSSIER';
         $sql .= ' AND piecejointe.DATE_NOTIFICATION >= :lastPiecesVisitDate';
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
 
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('lastPiecesVisitDate', $lastPiecesVisitDateStr);
+
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, ['lastPiecesVisitDate' => $lastPiecesVisitDateStr]);
+        $rows = $query->getResult();
 
         return $rows;
     }
@@ -1238,18 +1264,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossiersPlatauSansEtablissement(): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
-            FROM dossier d
-            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
-            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
-            LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
-            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
-            AND d.ID_PLATAU IS NOT NULL
-            AND e.ID_DOSSIER IS NULL';
-        $count = $conn->fetchOne($sql, []);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->join('d.consultationPlatau', 'cp')
+            ->leftJoin('d.etablissements', 'e')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('d.consultationPlatau IS NOT NULL')
+            ->andWhere('e.id IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
@@ -1258,22 +1282,22 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossiersPlatauPjsEnErreur(): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
-            FROM dossier d
-            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
-            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
-            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
-            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
-            JOIN piecejointestatut ON piecejointestatut.ID_PIECEJOINTESTATUT = piecejointe.ID_PIECEJOINTESTATUT
-            JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
-            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
-            AND d.ID_PLATAU IS NOT NULL
-            AND platauconsultation.STATUT_AVIS = \'treated\'
-            AND piecejointestatut.NOM_STATUT IN (\'to_be_exported\', \'on_error\', \'awaiting_status\')';
-        $count = $conn->fetchOne($sql, []);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->join('d.consultationPlatau', 'cp')
+            ->join('d.piecesJointes', 'dpj')
+            ->join('dpj.pieceJointe', 'pj')
+            ->join('pj.statut', 'pjs')
+            ->join('d.etablissements', 'e')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('d.consultationPlatau IS NOT NULL')
+            ->andWhere('cp.statutAvis = :statutAvis')
+            ->andWhere('pjs.nomStatut IN (:nomStatuts)')
+            ->setParameter('statutAvis', 'treated')
+            ->setParameter('nomStatuts', ['to_be_exported', 'on_error', 'awaiting_status'])
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
@@ -1284,22 +1308,19 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossiersPlatauNouvellesPjs(\DateTimeInterface $lastPiecesVisitDate): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $lastPiecesVisitDateStr = $lastPiecesVisitDate->format('Y-m-d H:i:s');
-        $sql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)
-            FROM dossier d
-            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
-            JOIN platauconsultation ON platauconsultation.ID_PLATAU = d.ID_PLATAU
-            JOIN dossierpj ON dossierpj.ID_DOSSIER = d.ID_DOSSIER
-            JOIN piecejointe ON piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE
-            JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
-            WHERE d.DATESUPPRESSION_DOSSIER IS NULL
-            AND d.ID_PLATAU IS NOT NULL
-            AND d.ID_DOSSIER = e.ID_DOSSIER
-            AND piecejointe.DATE_NOTIFICATION >= :lastPiecesVisitDate';
-        $count = $conn->fetchOne($sql, ['lastPiecesVisitDate' => $lastPiecesVisitDateStr]);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->join('d.consultationPlatau', 'cp')
+            ->join('d.piecesJointes', 'dpj')
+            ->join('dpj.pieceJointe', 'pj')
+            ->join('d.etablissements', 'e')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('d.consultationPlatau IS NOT NULL')
+            ->andWhere('pj.dateNotification >= :lastPiecesVisitDate')
+            ->setParameter('lastPiecesVisitDate', $lastPiecesVisitDate)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
@@ -1310,15 +1331,27 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function findDossiersLies(int $idDossier): array
     {
-        $conn = $this->getEntityManager()->getConnection();
+        // Links where dossier is ID_DOSSIER1 (owning side: dossiersLies)
+        /** @var array<int, array<string, mixed>> $asOwner */
+        $asOwner = $this->createQueryBuilder('d')
+            ->select('d.id as ID_DOSSIER1, dl.id as ID_DOSSIER2')
+            ->join('d.dossiersLies', 'dl')
+            ->where('d.id = :id')
+            ->setParameter('id', $idDossier)
+            ->getQuery()
+            ->getArrayResult();
 
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative(
-            'SELECT * FROM dossierlie WHERE ID_DOSSIER1 = :id OR ID_DOSSIER2 = :id',
-            ['id' => $idDossier]
-        );
+        // Links where dossier is ID_DOSSIER2 (inverse side: dossiersAyantLie)
+        /** @var array<int, array<string, mixed>> $asLinked */
+        $asLinked = $this->createQueryBuilder('d')
+            ->select('dal.id as ID_DOSSIER1, d.id as ID_DOSSIER2')
+            ->join('d.dossiersAyantLie', 'dal')
+            ->where('d.id = :id')
+            ->setParameter('id', $idDossier)
+            ->getQuery()
+            ->getArrayResult();
 
-        return $rows;
+        return array_merge($asOwner, $asLinked);
     }
 
     /**
@@ -1327,17 +1360,21 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function getDossierNatureId(int $idDossier): ?int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $row = $conn->fetchAssociative(
-            'SELECT ID_NATURE FROM dossiernature WHERE id_dossier = :id',
-            ['id' => $idDossier]
-        );
+        /** @var array<string, mixed>|null $result */
+        $result = $this->createQueryBuilder('d')
+            ->select('n.id')
+            ->join('d.nature', 'n')
+            ->where('d.id = :id')
+            ->setParameter('id', $idDossier)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
 
-        if (!is_array($row) || !isset($row['ID_NATURE'])) {
+        if (null === $result || !isset($result['id'])) {
             return null;
         }
 
-        return is_numeric($row['ID_NATURE']) ? (int) $row['ID_NATURE'] : null;
+        return is_numeric($result['id']) ? (int) $result['id'] : null;
     }
 
     /**
@@ -1360,13 +1397,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossiersSuivisNonVerrouilles(int $userId): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(true);
-        $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
-        $sql .= ' AND d.VERROU_DOSSIER = 0';
-        $count = $conn->fetchOne($sql, ['userId' => $userId]);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->join('d.preventionnistes', 'u')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('u.id = :userId')
+            ->andWhere('d.verrou = 0')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
@@ -1374,14 +1414,21 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossiersSuivisSansAvis(int $userId): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(true);
-        $sql .= ' AND utilisateur.ID_UTILISATEUR = :userId';
-        $sql .= ' AND ((d.AVIS_DOSSIER IS NULL AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0) AND d.TYPE_DOSSIER = 1)'
-            .' OR (d.DATEREP_DOSSIER IS NULL AND d.TYPE_DOSSIER = 5))';
-        $count = $conn->fetchOne($sql, ['userId' => $userId]);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->join('d.preventionnistes', 'u')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('u.id = :userId')
+            ->andWhere(
+                '(d.avis IS NULL AND (d.avisCommission IS NULL OR IDENTITY(d.avisCommission) = 0) AND IDENTITY(d.type) = :typeEtude)'
+                .' OR (d.dateReponse IS NULL AND IDENTITY(d.type) = :typeCourrier)'
+            )
+            ->setParameter('userId', $userId)
+            ->setParameter('typeEtude', DossierType::ETUDE)
+            ->setParameter('typeCourrier', DossierType::COURRIER)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
@@ -1392,66 +1439,77 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT COUNT(*) as count
-            FROM dossier d
-            LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
-            JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
-            JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
-            JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE
-            LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-            LEFT JOIN datecommission ON dossieraffectation.ID_DATECOMMISSION_AFFECT = datecommission.ID_DATECOMMISSION
-            WHERE DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) >= :sinceDays
-            AND DATEDIFF(CURDATE(), datecommission.DATE_COMMISSION) <= :untilDays
-            AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)
-            AND d.DATESUPPRESSION_DOSSIER IS NULL';
-        $params = ['sinceDays' => $sinceDays, 'untilDays' => $untilDays];
+        $sinceThreshold = new \DateTime('today');
+        $sinceThreshold->modify(sprintf('-%d days', $sinceDays));
+
+        $untilThreshold = new \DateTime('today');
+        $untilThreshold->modify(sprintf('-%d days', $untilDays));
+
+        $qb = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->join('d.nature', 'n')
+            ->join('n.type', 'nt')
+            ->leftJoin('d.dossiersAyantLie', 'dal')
+            ->leftJoin(DossierAffectation::class, 'da', 'WITH', 'da.dossier = d')
+            ->leftJoin('da.dateCommission', 'dc')
+            ->where('dc.date <= :sinceThreshold')
+            ->andWhere('dc.date >= :untilThreshold')
+            ->andWhere('(d.avisCommission IS NULL OR IDENTITY(d.avisCommission) = 0)')
+            ->andWhere('d.dateSuppression IS NULL')
+            ->setParameter('sinceThreshold', $sinceThreshold)
+            ->setParameter('untilThreshold', $untilThreshold);
+
         if ([] !== $idsCommission) {
-            $inList = implode(',', array_map('intval', $idsCommission));
-            $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
+            $qb->andWhere('IDENTITY(dc.commission) IN (:idsCommission)')
+                ->setParameter('idsCommission', $idsCommission);
         }
 
-        $count = $conn->fetchOne($sql, $params);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     /**
      * Compte les dossiers avec avis différé pour le tableau de bord.
-     * Requête COUNT lean via buildSearchDossierBaseSql.
+     * Requête COUNT lean via QueryBuilder.
      *
      * @param int[] $idsCommission
      */
     public function countDossierAvecAvisDiffere(array $idsCommission): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(true);
+        $qb = $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('d.avisDiffere = 1');
+
         if ([] !== $idsCommission) {
-            $inList = implode(',', array_map('intval', $idsCommission));
-            $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
+            $qb->andWhere('IDENTITY(d.commission) IN (:idsCommission)')
+                ->setParameter('idsCommission', $idsCommission);
         }
 
-        $sql .= ' AND d.DIFFEREAVIS_DOSSIER = 1';
-        $count = $conn->fetchOne($sql, []);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     /**
      * Compte les courriers sans réponse.
-     * Requête COUNT lean via buildSearchDossierBaseSql.
+     * Requête COUNT lean via QueryBuilder.
      */
     public function countCourrierSansReponse(int $dureeEnJour = 5): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(true);
-        $sql .= ' AND d.TYPE_DOSSIER = 5';
-        $sql .= ' AND d.DATEREP_DOSSIER IS NULL';
-        $sql .= ' AND d.OBJET_DOSSIER IS NOT NULL';
-        $sql .= ' AND DATEDIFF(CURDATE(), d.DATEINSERT_DOSSIER) > :dureeEnJour';
-        $count = $conn->fetchOne($sql, ['dureeEnJour' => $dureeEnJour]);
+        $cutoffDate = new \DateTime('today');
+        $cutoffDate->modify(sprintf('-%d days', $dureeEnJour));
 
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('IDENTITY(d.type) = :typeCourrier')
+            ->andWhere('d.dateReponse IS NULL')
+            ->andWhere('d.objet IS NOT NULL')
+            ->andWhere('d.dateInsert < :cutoffDate')
+            ->setParameter('typeCourrier', DossierType::COURRIER)
+            ->setParameter('cutoffDate', $cutoffDate)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
@@ -1459,12 +1517,77 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossiersIncomplets(): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = $this->buildSearchDossierBaseSql(true)
-            .' AND d.INCOMPLET_DOSSIER = 1';
-        $count = $conn->fetchOne($sql, []);
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(DISTINCT d.id)')
+            ->join('d.nature', 'n')
+            ->where('d.dateSuppression IS NULL')
+            ->andWhere('d.incomplet = 1')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
-        return is_numeric($count) ? (int) $count : 0;
+    /**
+     * Construit un ResultSetMapping pour les requêtes natives qui sélectionnent d.* + colonnes jointes.
+     * Utilise l'introspection des métadonnées Doctrine pour mapper automatiquement toutes les colonnes
+     * de la table dossier, puis ajoute les colonnes supplémentaires (computed, joined).
+     *
+     * @param string[] $extraColumns Colonnes supplémentaires (computed, tables jointes)
+     */
+    private function buildNativeQueryRsm(array $extraColumns = []): ResultSetMapping
+    {
+        $rsm = new ResultSetMapping();
+        $metadata = $this->getEntityManager()->getClassMetadata(Dossier::class);
+
+        // Map all scalar fields from dossier table (d.*)
+        foreach ($metadata->fieldMappings as $fieldName => $mapping) {
+            $rsm->addScalarResult($mapping['columnName'], $mapping['columnName']);
+        }
+
+        // Map FK columns from ManyToOne/OneToOne associations
+        foreach ($metadata->associationMappings as $fieldName => $mapping) {
+            if (isset($mapping['joinColumns'])) {
+                foreach ($mapping['joinColumns'] as $joinColumn) {
+                    $columnName = $joinColumn['name'];
+                    if (!isset($rsm->scalarMappings[$columnName])) {
+                        $rsm->addScalarResult($columnName, $columnName);
+                    }
+                }
+            }
+        }
+
+        // Map extra columns (computed subqueries, joined table columns)
+        foreach ($extraColumns as $column) {
+            if (!isset($rsm->scalarMappings[$column])) {
+                $rsm->addScalarResult($column, $column);
+            }
+        }
+
+        return $rsm;
+    }
+
+    /**
+     * Construit un ResultSetMapping pour les requêtes dashboard (buildSearchDossierBaseSql / buildPlatauDossierSql).
+     *
+     * @param string[] $additionalColumns Colonnes spécifiques à ajouter en plus des colonnes dashboard standard
+     */
+    private function buildDashboardResultSetMapping(array $additionalColumns = []): ResultSetMapping
+    {
+        $dashboardColumns = [
+            'NB_PJ', 'NB_DOSS_LIES', 'NB_URBA', 'ALERTE_RECEPTION_TRAVAUX', 'ECHEANCIER_TRAVAUX',
+            'ID_DOSSIER1', 'ID_DOSSIER2',
+            'LIBELLE_DOSSIERNATURE', 'ID_DOSSIERNATURE',
+            'LIBELLE_DOSSIERTYPE',
+            'NUM_DOCURBA',
+            'ID_AVIS', 'LIBELLE_AVIS',
+            'ID_UTILISATEUR',
+            'ID_ETABLISSEMENT',
+            'LIBELLE_ETABLISSEMENTINFORMATIONS', 'ID_TYPE',
+            'LIBELLE_TYPE',
+            'LIBELLE_GENRE',
+            'DATE_REPONSE_ATTENDUE',
+        ];
+
+        return $this->buildNativeQueryRsm(array_merge($dashboardColumns, $additionalColumns));
     }
 
     /**
