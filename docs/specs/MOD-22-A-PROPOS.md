@@ -26,9 +26,8 @@ Ces pages sont accessibles depuis le **pied de page** (footer), présent sur tou
 | Tout utilisateur authentifié | Consulte les pages « À propos », « Conditions d'utilisation » et « Aide » |
 | Développeur / Intégrateur | Consulte la documentation de l'API REST via la page « Développeurs » |
 | Administrateur fonctionnel | Peut être amené à mettre à jour le contenu rédactionnel des pages |
-| Visiteur non authentifié | Aucun accès vérifié — le module ne fait pas l'objet d'un contrôle d'accès spécifique |
 
-> **Note :** Le module ne possède aucune restriction de rôle ou de profil. Toute personne ayant accès à l'application peut consulter ces pages.
+> **Note :** Ces pages sont accessibles à **tout utilisateur authentifié**, sans restriction de rôle ou de profil. Elles ne sont pas accessibles avant authentification : le mécanisme ACL de l'application redirige systématiquement les visiteurs non authentifiés vers la page de connexion (seules les pages `login` et `error` sont publiques).
 
 ---
 

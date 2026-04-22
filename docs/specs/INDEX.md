@@ -137,7 +137,7 @@
 
 ### MOD-11 — Périodicités
 
-**Description** : Configuration et application du tableau des périodicités réglementaires de visites de contrôle. Ce tableau croise la **catégorie** d'ERP (1re à 5e catégorie), le **type d'activité** (J, L, M, N, O, P, R, S, T, U, V, W, X, Y) et la **présence de locaux à sommeil** pour déterminer la fréquence de visite obligatoire (exprimée en années). Le module permet de modifier cette matrice et d'appliquer les nouvelles valeurs à l'ensemble des établissements, mettant automatiquement à jour leur périodicité calculée.
+**Description** : Configuration et application du tableau des périodicités réglementaires de visites de contrôle. Ce tableau croise la **catégorie** d'ERP (1re à 5e catégorie), le **type d'activité** (J, L, M, N, O, P, R, S, T, U, V, W, X, Y) et la **présence de locaux à sommeil** pour déterminer la fréquence de visite obligatoire (exprimée en **mois**, avec affichage optionnel en années et mois au-delà de 12 mois). Le module permet de modifier cette matrice et d'appliquer les nouvelles valeurs à l'ensemble des établissements, mettant automatiquement à jour leur périodicité calculée.
 
 **Priorité** : 🟡 Important
 **Statut** : 📋 À documenter
