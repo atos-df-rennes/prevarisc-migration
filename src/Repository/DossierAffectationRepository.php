@@ -46,6 +46,26 @@ class DossierAffectationRepository extends ServiceEntityRepository
     }
 
     /**
+     * Récupère toutes les affectations de dossiers pour une date de commission (mode switch heures/séquentiel).
+     * Port direct de Model_DbTable_DossierAffectation::getAllDossierAffect().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findAllForCommission(int $idDateCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT dossieraffectation.*
+            FROM dossieraffectation, dossier
+            WHERE dossier.ID_DOSSIER = dossieraffectation.ID_DOSSIER_AFFECT
+            AND dossieraffectation.ID_DATECOMMISSION_AFFECT = :idDateCommission';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
+
+        return $rows;
+    }
+
+    /**
      * Supprime toutes les affectations d'un dossier.
      *
      * @param Dossier $dossier Dossier dont on veut supprimer les affectations
