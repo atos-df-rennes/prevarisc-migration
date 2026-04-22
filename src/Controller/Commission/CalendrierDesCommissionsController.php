@@ -21,6 +21,7 @@ use App\Service\Commission\CommissionDatesTransformer;
 use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Sabre\VObject\Component\VCalendar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -862,44 +864,46 @@ class CalendrierDesCommissionsController extends AbstractController
     {
         $dateCommission = $this->dateCommissionRepository->find($dateCommId);
 
-        $ics = '';
-
-        if (null !== $dateCommission) {
-            $date = $dateCommission->getDate();
-            $heureDebut = $dateCommission->getHeureDebut();
-            $heureFin = $dateCommission->getHeureFin();
-
-            if (!in_array(null, [$date, $heureDebut, $heureFin], true)) {
-                $dateStart = $date->format('Ymd').'T'.$heureDebut->format('His');
-                $dateEnd = $date->format('Ymd').'T'.$heureFin->format('His');
-
-                $descriptifAdd = '';
-                $commission = $dateCommission->getCommission();
-                if (null !== $commission) {
-                    $descriptifAdd .= ' / Commission : '.$commission->getLibelle();
-                }
-
-                $ics .= "BEGIN:VCALENDAR\n";
-                $ics .= "VERSION:2.0\n";
-                $ics .= "PRODID:SDIS62/Prevarisc\n";
-                $ics .= "METHOD:REQUEST\n"; // required by Outlook
-                $ics .= "BEGIN:VEVENT\n";
-                $ics .= "ORGANIZER:prevarisc@atos.net\n";
-                $ics .= 'DTSTART:'.$dateStart."\n";
-                $ics .= 'DTEND:'.$dateEnd."\n";
-                $ics .= 'SUMMARY:'.$dateCommission->getLibelle()."\n";
-                $ics .= 'DESCRIPTION:'.$dateCommission->getLibelle().$descriptifAdd."\n";
-                $ics .= 'UID:'.date('Ymd').'T'.date('His').'-'.random_int(0, mt_getrandmax())."prevarisc\n";
-                $ics .= "SEQUENCE:0\n";
-                $ics .= 'DTSTAMP:'.date('Ymd').'T'.date('His')."\n";
-                $ics .= "END:VEVENT\n";
-                $ics .= "END:VCALENDAR\n";
-            }
+        if (null === $dateCommission) {
+            return new Response('', Response::HTTP_NOT_FOUND);
         }
 
-        $response = new Response($ics);
-        $response->headers->set('Content-Type', 'text/calendar');
-        $response->headers->set('Content-Disposition', 'attachment; filename=calendar.ics');
+        $date = $dateCommission->getDate();
+        $heureDebut = $dateCommission->getHeureDebut();
+        $heureFin = $dateCommission->getHeureFin();
+
+        if (in_array(null, [$date, $heureDebut, $heureFin], true)) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
+        $tz = new \DateTimeZone('Europe/Paris');
+        $dtStart = new \DateTime($date->format('Y-m-d').' '.$heureDebut->format('H:i:s'), $tz);
+        $dtEnd = new \DateTime($date->format('Y-m-d').' '.$heureFin->format('H:i:s'), $tz);
+
+        $libelle = $dateCommission->getLibelle() ?? '';
+        $description = $libelle;
+        $commission = $dateCommission->getCommission();
+        if (null !== $commission) {
+            $description .= ' / Commission : '.$commission->getLibelle();
+        }
+
+        $calendar = new VCalendar(['METHOD' => 'REQUEST', 'PRODID' => 'SDIS62/Prevarisc']);
+        $calendar->add('VEVENT', [
+            'SUMMARY' => $libelle,
+            'DESCRIPTION' => $description,
+            'DTSTART' => $dtStart,
+            'DTEND' => $dtEnd,
+            'ORGANIZER' => 'mailto:prevarisc@atos.net',
+            'UID' => sprintf('prevarisc-datecomm-%d@prevarisc.local', $dateCommId),
+            'SEQUENCE' => 0,
+            'DTSTAMP' => new \DateTime('now', new \DateTimeZone('UTC')),
+        ]);
+
+        $response = new Response($calendar->serialize());
+        $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
+        /** @var string $disposition */
+        $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'calendar.ics');
+        $response->headers->set('Content-Disposition', $disposition);
 
         return $response;
     }
@@ -920,10 +924,10 @@ class CalendrierDesCommissionsController extends AbstractController
         }
 
         $libelleCommission = $commission->getLibelle() ?? '';
+        $tz = new \DateTimeZone('Europe/Paris');
+        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
 
-        $ics = "BEGIN:VCALENDAR\n";
-        $ics .= "VERSION:2.0\n";
-        $ics .= "PRODID:SDIS62/Prevarisc\n";
+        $calendar = new VCalendar(['PRODID' => 'SDIS62/Prevarisc']);
 
         foreach ($commissions as $commissiondujour) {
             /** @var array<string, mixed> $commissiondujour */
@@ -935,41 +939,44 @@ class CalendrierDesCommissionsController extends AbstractController
                 ? (int) $commissiondujour['ID_DATECOMMISSION']
                 : 0;
 
-            $dateStart = str_replace('-', '', $dateCommStr);
-            $dateStart .= 'T'.str_replace(':', '', $heureDebStr);
-            $dateEnd = str_replace('-', '', $dateCommStr);
-            $dateEnd .= 'T'.str_replace(':', '', $heureFinStr);
-            $descriptifAdd = '';
+            try {
+                $dtStart = new \DateTime($dateCommStr.' '.$heureDebStr, $tz);
+                $dtEnd = new \DateTime($dateCommStr.' '.$heureFinStr, $tz);
+            } catch (\Exception $e) {
+                continue;
+            }
 
-            $descriptifAdd .= ' / Commission : '.$libelleCommission;
+            $description = $libelleDate.' / Commission : '.$libelleCommission;
 
             $dossieraffecte = $this->dateCommissionRepository->findDossierAffectForCommission($idDateComm);
-
             if ([] !== $dossieraffecte) {
-                $descriptifAdd .= ' / Ordre du jour : ';
-                foreach ($dossieraffecte as $dossier) {
-                    /** @var array<string, mixed> $dossier */
-                    $objetDossier = \is_string($dossier['OBJET_DOSSIER'] ?? null) ? $dossier['OBJET_DOSSIER'] : '';
-                    $descriptifAdd .= $objetDossier.';';
+                $objetsDossiers = array_filter(array_map(function (array $d): string {
+                    return \is_string($d['OBJET_DOSSIER'] ?? null) ? $d['OBJET_DOSSIER'] : '';
+                }, $dossieraffecte));
+                if ([] !== $objetsDossiers) {
+                    $description .= ' / Ordre du jour : '.implode('; ', $objetsDossiers);
                 }
             }
 
-            $ics .= "BEGIN:VEVENT\n";
-            $ics .= "ORGANIZER:prevarisc@atos.net\n";
-            $ics .= 'DTSTART:'.$dateStart."\n";
-            $ics .= 'DTEND:'.$dateEnd."\n";
-            $ics .= 'SUMMARY:'.$libelleDate."\n";
-            $ics .= 'DESCRIPTION:'.$libelleDate.$descriptifAdd."\n";
-            $ics .= "END:VEVENT\n";
+            $calendar->add('VEVENT', [
+                'SUMMARY' => $libelleDate,
+                'DESCRIPTION' => $description,
+                'DTSTART' => $dtStart,
+                'DTEND' => $dtEnd,
+                'ORGANIZER' => 'mailto:prevarisc@atos.net',
+                'UID' => sprintf('prevarisc-datecomm-%d@prevarisc.local', $idDateComm),
+                'DTSTAMP' => $nowUtc,
+            ]);
         }
 
-        $ics .= "END:VCALENDAR\n";
+        $slug = (string) preg_replace('/[^a-zA-Z0-9_-]/', '_', $libelleCommission);
+        $filename = sprintf('calendar_%d_%d_%s.ics', $mois, $annee, $slug);
 
-        $filename = sprintf('calendar_%d_%d_%s.ics', $mois, $annee, $libelleCommission);
-
-        $response = new Response($ics);
-        $response->headers->set('Content-Type', 'text/calendar');
-        $response->headers->set('Content-Disposition', sprintf('attachment; filename=%s', $filename));
+        $response = new Response($calendar->serialize());
+        $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
+        /** @var string $disposition */
+        $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
+        $response->headers->set('Content-Disposition', $disposition);
 
         return $response;
     }

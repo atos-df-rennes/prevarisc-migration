@@ -316,15 +316,18 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findByMonthAndCommission(int $mois, int $annee, int $idCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
+        $start = (new \DateTime(sprintf('%04d-%02d-01', $annee, $mois)))->format('Y-m-d');
+        $end = (new \DateTime(sprintf('%04d-%02d-01', $annee, $mois)))->modify('+1 month')->format('Y-m-d');
+
         $sql = 'SELECT * FROM datecommission
-            WHERE MONTH(DATE_COMMISSION) = :mois
-            AND YEAR(DATE_COMMISSION) = :annee
+            WHERE DATE_COMMISSION >= :start
+            AND DATE_COMMISSION < :end
             AND COMMISSION_CONCERNE = :idCommission';
 
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, [
-            'mois' => $mois,
-            'annee' => $annee,
+            'start' => $start,
+            'end' => $end,
             'idCommission' => $idCommission,
         ]);
 
@@ -339,17 +342,17 @@ class DateCommissionRepository extends ServiceEntityRepository
      *   pour ne retourner que les DateCommissions des dossiers du préventionniste.
      * - Si commissionId non null : filtre par commission.
      * - Si les deux null (admin) : retourne tout.
-     * - yearFrom : filtre YEAR(DATE_COMMISSION) >= yearFrom (1 an en arrière).
+     * - fromDate : filtre dc.DATE_COMMISSION >= fromDate (date glissante, 1 an en arrière).
      * - Joint avec dossieraffectation pour récupérer OBJET_DOSSIER pour la DESCRIPTION.
      *
      * Retourne des lignes brutes : plusieurs lignes par DateCommission si plusieurs dossiers.
      *
      * @return array<int, array<string, mixed>>
      */
-    public function findForWebcalSync(?int $userId, ?int $commissionId, string $yearFrom): array
+    public function findForWebcalSync(?int $userId, ?int $commissionId, string $fromDate): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $params = ['yearFrom' => $yearFrom];
+        $params = ['fromDate' => $fromDate];
 
         if (null !== $userId) {
             // Filtre par préventionniste : joint dossieraffectation → dossier → dossierpreventionniste
@@ -363,7 +366,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                     LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
                     JOIN dossierpreventionniste dp ON dp.ID_DOSSIER = d.ID_DOSSIER
                     WHERE dp.ID_PREVENTIONNISTE = :userId
-                    AND YEAR(dc.DATE_COMMISSION) >= :yearFrom';
+                    AND dc.DATE_COMMISSION >= :fromDate';
             $params['userId'] = $userId;
         } else {
             // Admin : toutes les DateCommissions avec leurs dossiers (LEFT JOIN)
@@ -375,7 +378,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                     JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
                     LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
                     LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-                    WHERE YEAR(dc.DATE_COMMISSION) >= :yearFrom';
+                    WHERE dc.DATE_COMMISSION >= :fromDate';
         }
 
         if (null !== $commissionId) {

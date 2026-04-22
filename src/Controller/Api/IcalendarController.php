@@ -57,29 +57,31 @@ class IcalendarController extends AbstractController
         $key = \is_string($keyRaw) ? $keyRaw : '';
         $securityKey = (string) (getenv('PREVARISC_SECURITY_KEY') ?: '');
 
-        if ('' === $securityKey || $key !== $securityKey) {
+        if ('' === $securityKey || !hash_equals($securityKey, $key)) {
             return new Response('Accès refusé', Response::HTTP_FORBIDDEN);
         }
 
         /** @var string|null $rawUserId */
         $rawUserId = $request->query->get('userid');
-        $userId = null !== $rawUserId && '' !== $rawUserId ? (int) $rawUserId : null;
+        if (null === $rawUserId || '' === $rawUserId) {
+            return new Response('Paramètre userid requis', Response::HTTP_BAD_REQUEST);
+        }
+
+        $userId = (int) $rawUserId;
 
         /** @var string|null $rawCommissionId */
         $rawCommissionId = $request->query->get('commission');
         $commissionId = null !== $rawCommissionId && '' !== $rawCommissionId ? (int) $rawCommissionId : null;
 
-        // Vérification du privilège calendar_view_all pour l'utilisateur
-        // Si l'utilisateur a ce privilège → on retourne tout (null userId, null commissionId)
-        if (null !== $userId) {
-            $utilisateur = $this->utilisateurRepository->find($userId);
-            if (null !== $utilisateur && $this->hasCalendarViewAllPrivilege($utilisateur)) {
-                $userId = null;
-                $commissionId = null;
-            }
-        }
+        // Vérification du privilège calendar_view_all : si l'utilisateur peut tout voir,
+        // on retourne tout sans filtre (userId=null, commissionId=null).
+        $utilisateur = $this->utilisateurRepository->find($userId);
+        $effectiveUserId = null !== $utilisateur && $this->hasCalendarViewAllPrivilege($utilisateur)
+            ? null
+            : $userId;
+        $effectiveCommissionId = null === $effectiveUserId ? null : $commissionId;
 
-        $icsContent = $this->icalendarSyncService->generateFeed($userId, $commissionId);
+        $icsContent = $this->icalendarSyncService->generateFeed($effectiveUserId, $effectiveCommissionId);
 
         $response = new Response($icsContent);
         $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');

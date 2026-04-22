@@ -43,10 +43,10 @@ class IcalendarSyncService
         $today = new \DateTime();
         $today->modify('-1 year');
 
-        $yearFrom = $today->format('Y');
+        $fromDate = $today->format('Y-m-d');
 
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $this->dateCommissionRepository->findForWebcalSync($userId, $commissionId, $yearFrom);
+        $rows = $this->dateCommissionRepository->findForWebcalSync($userId, $commissionId, $fromDate);
 
         $refreshTime = (string) (getenv('PREVARISC_CALENDAR_REFRESH_TIME') ?: 'PT5M');
         $calendrierNom = 'Prévarisc';
@@ -60,7 +60,7 @@ class IcalendarSyncService
             'X-PUBLISHED-TTL' => $refreshTime,
         ]);
 
-        $tzid = date_default_timezone_get();
+        $tzid = 'Europe/Paris';
         $this->addVTimezone($calendar, $tzid);
 
         // Grouper les lignes par ID de DateCommission (plusieurs dossiers par DC possibles)

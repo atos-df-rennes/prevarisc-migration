@@ -238,9 +238,13 @@
                 var date = $('#calendar').fullCalendar('getDate');
                 var month_int = date.getMonth() + 1;
                 var year_int = date.getFullYear();
-                $('#exportCom').attr('href', Routing.generate('calendrier_des_commissions_export_outlook_mois', {commId: idComm, mois: month_int, annee: year_int}));
-                $('#syncCal').hide();
-                $('#syncCom').show();
+                if (idComm !== null && typeof idComm !== 'undefined') {
+                    $('#exportCom').attr('href', Routing.generate('calendrier_des_commissions_export_outlook_mois', {commId: idComm, mois: month_int, annee: year_int}));
+                    $('#syncCal').hide();
+                    $('#syncCom').show();
+                } else {
+                    $('#exportCom').hide();
+                }
             }
         });
     };
