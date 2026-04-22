@@ -1339,7 +1339,7 @@ class CalendrierDesCommissionsController extends AbstractController
         $adresses = $conn->fetchAllAssociative(
             'SELECT c.LIBELLE_COMMUNE
              FROM etablissementadresse ea
-             JOIN commune c ON ea.NUMINSEE_COMMUNE = c.NUMINSEE_COMMUNE
+             JOIN adressecommune c ON ea.NUMINSEE_COMMUNE = c.NUMINSEE_COMMUNE
              WHERE ea.ID_ETABLISSEMENT = :id',
             ['id' => $idEtab]
         );
