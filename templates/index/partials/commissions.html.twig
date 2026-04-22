@@ -43,7 +43,7 @@
                     {{ verrouilles }} / {{ total }}
                 </span>
                 <span class="badge {{ badge_class }}" style="float: right;">{{ message }}</span>
-                <a href="/calendrier-des-commissions/gestionodj/dateCommId/{{ commissiondujour.id }}">
+                <a href="{{ path('calendrier_des_commissions_gestion_odj', {dateCommId: commissiondujour.id}) }}">
                     <strong>{{ commissiondujour.LIBELLE_COMMISSION }} - {{ commissiondujour.LIBELLE_DATECOMMISSION }}</strong>
                 </a>
                 <p class="heurcom">

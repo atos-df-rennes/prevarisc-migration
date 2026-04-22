@@ -165,7 +165,7 @@
             and app.request.get('_route') is same as('dossier_index')
         %}
             <li>
-                <a class="sep" href="{{ '/calendrier-des-commissions/gestionodj/dateCommId/' ~ id_date_commission }}">
+                <a class="sep" href="{{ path('calendrier_des_commissions_gestion_odj', {dateCommId: id_date_commission}) }}">
                     <span class='glyphicon glyphicon-calendar' aria-hidden="true"></span> Afficher ordre du jour
                 </a>
             </li>
