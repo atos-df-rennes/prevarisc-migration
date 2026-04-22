@@ -9,12 +9,13 @@ document.addEventListener("DOMContentLoaded", function() {
 }, false);
 
 function bindTitlePopup() {
-    // Titres — exclure les boutons remove TomSelect (.ts-wrapper a) :
-    // Tipsy est initialisé APRÈS $(document).ready() des templates (ordre DOMContentLoaded),
-    // donc il capte les <a title="Remove"> dynamiques de TomSelect. Quand TomSelect supprime
-    // un item, le div.tipsy appendé au <body> est orphelin (mouseleave jamais déclenché).
-    $('a[title]:not(.ts-wrapper a)').tipsy({live: true});
-    $('abbr[title]').tipsy({live: true});
+    // Tooltips Bootstrap 3 délégués sur body — remplace Tipsy (EOL).
+    // La délégation (selector) couvre les éléments injectés via AJAX (loadBloc, etc.)
+    // sans avoir à rappeler cette fonction après chaque injection.
+    // Exclure .ts-wrapper a pour éviter les tooltips orphelins sur les boutons × TomSelect.
+    $('body').tooltip({
+        selector: 'a[title]:not(.ts-wrapper a), abbr[title], [data-toggle="tooltip"]'
+    });
 }
 
 function bindContainerSize() {
@@ -64,7 +65,8 @@ function bindEtsPopup($elem) {
         over: function () {
             var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
-            e.popover({html: true, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
+            // animation: false évite la race condition Bootstrap 3 lors du destroy/update
+            e.popover({html: true, animation: false, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
             // @todo: migrer cette route vers Symfony
             $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
                 var ets_id = data.response.general.ID_ETABLISSEMENT;
@@ -134,9 +136,10 @@ function bindEtsPopup($elem) {
                 html += "<br><br>";
                 html += "<a href='" + Routing.generate('etablissement_informations', {id: ets_id}) + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
+                // Avec animation:false le destroy est synchrone (pas d'emulateTransitionEnd),
+                // donc destroy+recreate est sûr et utilise uniquement l'API publique Bootstrap 3.
                 e.popover('destroy');
-                // @fixme: ça ne fonctionne pas
-                e.popover({html: true, content: html}).popover('show');
+                e.popover({html: true, animation: false, content: html}).popover('show');
             });
         },
         out: function() {
@@ -164,7 +167,9 @@ function loadBloc($bloc) {
         data: {id: $bloc.attr('id')},
         success: function(data) {
             $bloc.find(".panel-body").html(data);
-            $container.packery('fit', $bloc.get(0));
+            // $container est une const locale au template Twig — on retrouve
+            // le conteneur Packery via le DOM plutôt que de dépendre de la portée externe.
+            $bloc.closest('.dashboard').packery('fit', $bloc.get(0));
             bindEtsMarquee($bloc);
             bindEtsPopup($bloc);
             $bloc.removeClass('loading').addClass('loaded');
