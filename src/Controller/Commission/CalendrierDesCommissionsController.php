@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 // Routes du calendrier des commissions migrées vers Symfony.
 // URL principale : /commissions/calendrier (≠ legacy /calendrier-des-commissions).
@@ -135,12 +136,13 @@ class CalendrierDesCommissionsController extends AbstractController
             $userId = ($user instanceof Utilisateur) ? (int) $user->getId() : 0;
             $baseScheme = $request->isSecure() ? 'webcals' : 'webcal';
             $host = $request->getHttpHost();
-            $url = sprintf('/api/1.0/calendar?userid=%s&key=%s', $userId, $securityKey);
-            if (null !== $idComm) {
-                $url .= sprintf('&commission=%s', $idComm);
-            }
-
-            $urlWebcal = $baseScheme.'://'.$host.$url;
+            // Génère le chemin via le router Symfony (sans commission — le JS l'ajoute pour syncCom)
+            $path = $this->generateUrl(
+                'api_icalendar_sync',
+                ['userid' => $userId, 'key' => $securityKey],
+                UrlGeneratorInterface::ABSOLUTE_PATH
+            );
+            $urlWebcal = $baseScheme.'://'.$host.$path;
         }
 
         return $this->render('calendrier_des_commissions/index.html.twig', [
@@ -906,7 +908,7 @@ class CalendrierDesCommissionsController extends AbstractController
      * Génère un fichier ICS mensuel pour une commission (export Outlook — mois complet).
      * Port direct de exportoutlookmoisAction().
      *
-     * @Route("/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}", name="calendrier_des_commissions_export_outlook_mois", methods={"GET"}, requirements={"commId"="\d+", "mois"="\d+", "annee"="\d+"})
+     * @Route("/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}", name="calendrier_des_commissions_export_outlook_mois", methods={"GET"}, requirements={"commId"="\d+", "mois"="\d+", "annee"="\d+"}, options={"expose"=true})
      */
     public function exportOutlookMois(int $commId, int $mois, int $annee): Response
     {

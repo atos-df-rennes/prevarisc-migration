@@ -48,7 +48,7 @@ class IcalendarController extends AbstractController
      * - key        (string)      : Clé de sécurité (doit correspondre à PREVARISC_SECURITY_KEY)
      * - commission (int|null)    : Filtre par commission (optionnel)
      *
-     * @Route("/api/1.0/calendar", name="api_icalendar_sync", methods={"GET"})
+     * @Route("/api/commissions/icalendar", name="api_icalendar_sync", methods={"GET"})
      */
     public function sync(Request $request): Response
     {
