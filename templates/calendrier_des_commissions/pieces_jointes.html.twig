@@ -143,9 +143,10 @@
         }
     });
 
-    /* ── Suppression ────────────────────────────────────────────────────────── */
     /* ── Suppression (bouton à deux états — évite window.confirm() bloqué) ───── */
-    $(document).on('click', '.btn-delete-pj', function () {
+    /* Namespace obligatoire : ce JS est injecté en AJAX ; sans .off(), chaque  */
+    /* rechargement empilarait un nouveau handler sur $(document).              */
+    $(document).off('click.pj-delete').on('click.pj-delete', '.btn-delete-pj', function () {
         var btn = $(this);
 
         if (!btn.hasClass('confirming')) {
