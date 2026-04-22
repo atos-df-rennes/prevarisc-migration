@@ -25,10 +25,10 @@
 | RE-2 | Fix dates ODS : numéros de série → chaînes `dd/mm/yyyy` | ✅ Fait | `df10b04` |
 | RE-3 | Sécurité et qualité SearchExport : PHPDoc `array<int, array<string, mixed>>`, comparaison stricte `0 !== (int)`, helper `writeTextCell()` anti-formula-injection (`DataType::TYPE_STRING`), helper `toStr()` pour concaténations mixed-safe (PHPStan level 10) | ✅ Fait | `bd3180b` |
 | MT-6 | **Tipsy → tooltips Bootstrap 3** (`main-bs3.js` + `base.html.twig`) — fichiers Tipsy conservés pour le legacy | ✅ Fait | `d5d2df9` |
-| BUG-2 | Fix race condition Bootstrap 3 sur popover ETS (`$element is null`) : `animation:false` + mise à jour in-place du contenu (`main-bs3.js`) | ✅ Fait | `9962bd5` |
+| BUG-2 | Fix race condition Bootstrap 3 sur popover ETS (`$element is null`) : `animation:false` + tooltip délégué via `selector` sur `body` + destroy/recreate API publique (`main-bs3.js`) | ✅ Fait | `9962bd5` |
 
-> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4), `refactor/export-recherche` (RE-1→RE-3), `chore/tipsy` (MT-6, BUG-2).
-> **Worktree actif :** `chore/tipsy` (BUG-2 ✅). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
+> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4), `refactor/export-recherche` (RE-1→RE-3).
+> **Worktree actif :** `chore/tipsy` (MT-6, BUG-2 ✅). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
 
 ---
 

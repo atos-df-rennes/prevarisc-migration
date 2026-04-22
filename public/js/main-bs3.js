@@ -9,10 +9,13 @@ document.addEventListener("DOMContentLoaded", function() {
 }, false);
 
 function bindTitlePopup() {
-    // Tooltips Bootstrap 3 — remplace Tipsy (EOL).
-    // Exclure les boutons remove TomSelect (.ts-wrapper a) pour éviter les tooltips orphelins.
-    // Le sélecteur couvre aussi [data-toggle="tooltip"] pour les templates qui l'utilisent déjà.
-    $('a[title]:not(.ts-wrapper a), abbr[title], [data-toggle="tooltip"]').tooltip();
+    // Tooltips Bootstrap 3 délégués sur body — remplace Tipsy (EOL).
+    // La délégation (selector) couvre les éléments injectés via AJAX (loadBloc, etc.)
+    // sans avoir à rappeler cette fonction après chaque injection.
+    // Exclure .ts-wrapper a pour éviter les tooltips orphelins sur les boutons × TomSelect.
+    $('body').tooltip({
+        selector: 'a[title]:not(.ts-wrapper a), abbr[title], [data-toggle="tooltip"]'
+    });
 }
 
 function bindContainerSize() {
@@ -133,15 +136,10 @@ function bindEtsPopup($elem) {
                 html += "<br><br>";
                 html += "<a href='" + Routing.generate('etablissement_informations', {id: ets_id}) + "' class='btn btn-sm btn-primary btn-block'>Voir la fiche</a>";
 
-                // Mise à jour du contenu in-place pour éviter le destroy/show qui cause
-                // une race condition avec emulateTransitionEnd de Bootstrap 3.
-                var popInstance = e.data('bs.popover');
-                if (popInstance && popInstance.$tip) {
-                    popInstance.options.content = html;
-                    popInstance.$tip.find('.popover-content').html(html);
-                } else {
-                    e.popover({html: true, animation: false, content: html}).popover('show');
-                }
+                // Avec animation:false le destroy est synchrone (pas d'emulateTransitionEnd),
+                // donc destroy+recreate est sûr et utilise uniquement l'API publique Bootstrap 3.
+                e.popover('destroy');
+                e.popover({html: true, animation: false, content: html}).popover('show');
             });
         },
         out: function() {
