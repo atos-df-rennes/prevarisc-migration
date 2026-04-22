@@ -1089,12 +1089,10 @@ class CalendrierDesCommissionsController extends AbstractController
             $this->entityManager->persist($dossierAffectation);
             $this->entityManager->flush();
 
-            $this->addFlash('success', "L'événement a bien été modifié");
+            return new JsonResponse(['success' => true, 'message' => "L'événement a bien été modifié."]);
         } catch (\Exception $exception) {
-            $this->addFlash('danger', "Erreur lors de la modification de l'événement : ".$exception->getMessage());
+            return new JsonResponse(['success' => false, 'message' => "Erreur lors de la modification de l'événement : ".$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return new Response('');
     }
 
     /**
@@ -1134,11 +1132,11 @@ class CalendrierDesCommissionsController extends AbstractController
             $dossierAffectation->setHeureFin($heureFin);
             $this->entityManager->persist($dossierAffectation);
             $this->entityManager->flush();
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', 'Erreur inattendue : '.$exception->getMessage());
-        }
 
-        return new Response('');
+            return new JsonResponse(['success' => true, 'message' => 'Événement déplacé avec succès.']);
+        } catch (\Exception $exception) {
+            return new JsonResponse(['success' => false, 'message' => 'Erreur inattendue : '.$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -1260,11 +1258,11 @@ class CalendrierDesCommissionsController extends AbstractController
             }
 
             $this->entityManager->flush();
-        } catch (\Exception $exception) {
-            $this->addFlash('danger', 'Erreur inattendue : '.$exception->getMessage());
-        }
 
-        return new Response('');
+            return new JsonResponse(['success' => true, 'message' => 'Ordre des dossiers mis à jour.']);
+        } catch (\Exception $exception) {
+            return new JsonResponse(['success' => false, 'message' => 'Erreur inattendue : '.$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

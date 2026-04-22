@@ -64,6 +64,17 @@
     </h2>
 
     <script type="text/javascript">
+    /* ── Helper timezone local ────────────────────────────────────────────────── */
+    /* toISOString() produit une heure UTC (ex: 9h Paris → 8hZ en hiver).        */
+    /* Ce helper envoie l'heure locale sans décalage pour que PHP crée une       */
+    /* \DateTime dans le fuseau par défaut du serveur (Europe/Paris).            */
+    function toLocalISOString(date) {
+        if (!date) { return ''; }
+        var pad = function(n) { return String(n).padStart(2, '0'); };
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
+            + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+    }
+
     $(document).ready(function() {
         $('#external-events div.external-event').each(function() {
             // Création d'un objet Event (FullCalendar v1)
@@ -159,12 +170,17 @@
                             url: '{{ path('calendrier_des_commissions_drop_odj') }}',
                             type: 'POST',
                             data: {
-                                heureDebut: heureDeb ? heureDeb.toISOString() : '',
-                                heureFin: heureFin ? heureFin.toISOString() : '',
+                                heureDebut: toLocalISOString(heureDeb),
+                                heureFin: toLocalISOString(heureFin),
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
-                            success: function( result ) {}
+                            success: function(result) {
+                                $.toast.fromResponse(result);
+                            },
+                            error: function() {
+                                $.toast.error('Erreur lors du déplacement de l\'événement.');
+                            }
                         });
                     },
                     drop: function(date, allDay) {
@@ -176,13 +192,17 @@
                             type: 'POST',
                             async: false,
                             data: {
-                                datadebut: date.toISOString(),
+                                datadebut: toLocalISOString(date),
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
-                            success: function( result ) {
+                            success: function(result) {
                                 verrou = result.verrou;
                                 $("#nbDossiersAffect").text(result.countAffect);
+                                $.toast.success('Dossier affecté à l\'ordre du jour.');
+                            },
+                            error: function() {
+                                $.toast.error('Erreur lors de l\'affectation du dossier.');
                             }
                         });
 
@@ -213,11 +233,16 @@
                             url: '{{ path('calendrier_des_commissions_resize_odj') }}',
                             type: 'POST',
                             data: {
-                                dateFin: dateFin ? dateFin.toISOString() : '',
+                                dateFin: toLocalISOString(dateFin),
                                 dateCommId: $("#dateCommId").val(),
                                 idDossier: idDossier
                             },
-                            success: function( result ) {}
+                            success: function(result) {
+                                $.toast.fromResponse(result);
+                            },
+                            error: function() {
+                                $.toast.error('Erreur lors du redimensionnement de l\'événement.');
+                            }
                         });
                     }
                 });
@@ -374,11 +399,11 @@
                     data: "dateCommId=" + $("#dateCommId").val() + "&ordreDossier=" + listeDossierUpdate,
                     type: "POST",
                     beforeSend: function() {},
-                    success: function(affichageResultat) {
-                        return false;
+                    success: function(result) {
+                        $.toast.fromResponse(result);
                     },
                     error: function() {
-                        return false;
+                        $.toast.error('Erreur lors du réordonnancement.');
                     }
                 });
             }
