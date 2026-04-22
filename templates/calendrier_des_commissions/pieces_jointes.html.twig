@@ -75,7 +75,7 @@
     $addModal.appendTo('body');
 
     /* Nettoyage quand la modale parente se ferme */
-    $('#modal-pieces-jointes').one('hidden.bs.modal', function () {
+    $('#modal-pieces-jointes').on('hidden.bs.modal', function () {
         $addModal.modal('hide').remove();
     });
 
