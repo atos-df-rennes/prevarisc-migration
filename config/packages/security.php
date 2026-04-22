@@ -41,6 +41,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'roles' => 'IS_AUTHENTICATED_ANONYMOUSLY',
             ],
             [
+                'path' => '^/api/1\.0/calendar',
+                'roles' => 'IS_AUTHENTICATED_ANONYMOUSLY',
+            ],
+            [
                 'path' => '^/',
                 'roles' => 'ROLE_USER',
             ],

@@ -851,6 +851,128 @@ class CalendrierDesCommissionsController extends AbstractController
     }
 
     /**
+     * Génère un fichier ICS pour une DateCommission unique (export Outlook).
+     * Port direct de exportoutlookAction() — bug ligne 1539 ($ics .= $idDateComm) non reproduit.
+     *
+     * @Route("/commissions/calendrier/export-outlook/{dateCommId}", name="calendrier_des_commissions_export_outlook", methods={"GET"}, requirements={"dateCommId"="\d+"})
+     */
+    public function exportOutlook(int $dateCommId): Response
+    {
+        $dateCommission = $this->dateCommissionRepository->find($dateCommId);
+
+        $ics = '';
+
+        if (null !== $dateCommission) {
+            $date = $dateCommission->getDate();
+            $heureDebut = $dateCommission->getHeureDebut();
+            $heureFin = $dateCommission->getHeureFin();
+
+            if (!in_array(null, [$date, $heureDebut, $heureFin], true)) {
+                $dateStart = $date->format('Ymd').'T'.$heureDebut->format('His');
+                $dateEnd = $date->format('Ymd').'T'.$heureFin->format('His');
+
+                $descriptifAdd = '';
+                $commission = $dateCommission->getCommission();
+                if (null !== $commission) {
+                    $descriptifAdd .= ' / Commission : '.$commission->getLibelle();
+                }
+
+                $ics .= "BEGIN:VCALENDAR\n";
+                $ics .= "VERSION:2.0\n";
+                $ics .= "PRODID:SDIS62/Prevarisc\n";
+                $ics .= "METHOD:REQUEST\n"; // required by Outlook
+                $ics .= "BEGIN:VEVENT\n";
+                $ics .= "ORGANIZER:prevarisc@atos.net\n";
+                $ics .= 'DTSTART:'.$dateStart."\n";
+                $ics .= 'DTEND:'.$dateEnd."\n";
+                $ics .= 'SUMMARY:'.$dateCommission->getLibelle()."\n";
+                $ics .= 'DESCRIPTION:'.$dateCommission->getLibelle().$descriptifAdd."\n";
+                $ics .= 'UID:'.date('Ymd').'T'.date('His').'-'.random_int(0, mt_getrandmax())."prevarisc\n";
+                $ics .= "SEQUENCE:0\n";
+                $ics .= 'DTSTAMP:'.date('Ymd').'T'.date('His')."\n";
+                $ics .= "END:VEVENT\n";
+                $ics .= "END:VCALENDAR\n";
+            }
+        }
+
+        $response = new Response($ics);
+        $response->headers->set('Content-Type', 'text/calendar');
+        $response->headers->set('Content-Disposition', 'attachment; filename=calendar.ics');
+
+        return $response;
+    }
+
+    /**
+     * Génère un fichier ICS mensuel pour une commission (export Outlook — mois complet).
+     * Port direct de exportoutlookmoisAction().
+     *
+     * @Route("/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}", name="calendrier_des_commissions_export_outlook_mois", methods={"GET"}, requirements={"commId"="\d+", "mois"="\d+", "annee"="\d+"})
+     */
+    public function exportOutlookMois(int $commId, int $mois, int $annee): Response
+    {
+        $commission = $this->commissionRepository->find($commId);
+        $commissions = $this->dateCommissionRepository->findByMonthAndCommission($mois, $annee, $commId);
+
+        if ([] === $commissions || null === $commission) {
+            return new Response('');
+        }
+
+        $libelleCommission = $commission->getLibelle() ?? '';
+
+        $ics = "BEGIN:VCALENDAR\n";
+        $ics .= "VERSION:2.0\n";
+        $ics .= "PRODID:SDIS62/Prevarisc\n";
+
+        foreach ($commissions as $commissiondujour) {
+            /** @var array<string, mixed> $commissiondujour */
+            $dateCommStr = \is_string($commissiondujour['DATE_COMMISSION'] ?? null) ? $commissiondujour['DATE_COMMISSION'] : '';
+            $heureDebStr = \is_string($commissiondujour['HEUREDEB_COMMISSION'] ?? null) ? $commissiondujour['HEUREDEB_COMMISSION'] : '00:00:00';
+            $heureFinStr = \is_string($commissiondujour['HEUREFIN_COMMISSION'] ?? null) ? $commissiondujour['HEUREFIN_COMMISSION'] : '00:00:00';
+            $libelleDate = \is_string($commissiondujour['LIBELLE_DATECOMMISSION'] ?? null) ? $commissiondujour['LIBELLE_DATECOMMISSION'] : '';
+            $idDateComm = isset($commissiondujour['ID_DATECOMMISSION']) && is_numeric($commissiondujour['ID_DATECOMMISSION'])
+                ? (int) $commissiondujour['ID_DATECOMMISSION']
+                : 0;
+
+            $dateStart = str_replace('-', '', $dateCommStr);
+            $dateStart .= 'T'.str_replace(':', '', $heureDebStr);
+            $dateEnd = str_replace('-', '', $dateCommStr);
+            $dateEnd .= 'T'.str_replace(':', '', $heureFinStr);
+            $descriptifAdd = '';
+
+            $descriptifAdd .= ' / Commission : '.$libelleCommission;
+
+            $dossieraffecte = $this->dateCommissionRepository->findDossierAffectForCommission($idDateComm);
+
+            if ([] !== $dossieraffecte) {
+                $descriptifAdd .= ' / Ordre du jour : ';
+                foreach ($dossieraffecte as $dossier) {
+                    /** @var array<string, mixed> $dossier */
+                    $objetDossier = \is_string($dossier['OBJET_DOSSIER'] ?? null) ? $dossier['OBJET_DOSSIER'] : '';
+                    $descriptifAdd .= $objetDossier.';';
+                }
+            }
+
+            $ics .= "BEGIN:VEVENT\n";
+            $ics .= "ORGANIZER:prevarisc@atos.net\n";
+            $ics .= 'DTSTART:'.$dateStart."\n";
+            $ics .= 'DTEND:'.$dateEnd."\n";
+            $ics .= 'SUMMARY:'.$libelleDate."\n";
+            $ics .= 'DESCRIPTION:'.$libelleDate.$descriptifAdd."\n";
+            $ics .= "END:VEVENT\n";
+        }
+
+        $ics .= "END:VCALENDAR\n";
+
+        $filename = sprintf('calendar_%d_%d_%s.ics', $mois, $annee, $libelleCommission);
+
+        $response = new Response($ics);
+        $response->headers->set('Content-Type', 'text/calendar');
+        $response->headers->set('Content-Disposition', sprintf('attachment; filename=%s', $filename));
+
+        return $response;
+    }
+
+    /**
      * Retourne les événements FullCalendar JSON pour les dossiers affectés à une date de commission (ODJ).
      * Port direct de recupevenementodjAction().
      *

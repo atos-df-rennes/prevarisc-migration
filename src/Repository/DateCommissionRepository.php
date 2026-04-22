@@ -308,6 +308,90 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne les DateCommissions d'un mois/année pour une commission donnée.
+     * Port direct de Model_DbTable_DateCommission::getMonthCommission().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findByMonthAndCommission(int $mois, int $annee, int $idCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT * FROM datecommission
+            WHERE MONTH(DATE_COMMISSION) = :mois
+            AND YEAR(DATE_COMMISSION) = :annee
+            AND COMMISSION_CONCERNE = :idCommission';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, [
+            'mois' => $mois,
+            'annee' => $annee,
+            'idCommission' => $idCommission,
+        ]);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les DateCommissions pour la synchronisation webcal.
+     * Port simplifié de Model_DbTable_DateCommission::getEventInCommission().
+     *
+     * - Si userId non null : joint avec dossieraffectation + dossierpreventionniste
+     *   pour ne retourner que les DateCommissions des dossiers du préventionniste.
+     * - Si commissionId non null : filtre par commission.
+     * - Si les deux null (admin) : retourne tout.
+     * - yearFrom : filtre YEAR(DATE_COMMISSION) >= yearFrom (1 an en arrière).
+     * - Joint avec dossieraffectation pour récupérer OBJET_DOSSIER pour la DESCRIPTION.
+     *
+     * Retourne des lignes brutes : plusieurs lignes par DateCommission si plusieurs dossiers.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findForWebcalSync(?int $userId, ?int $commissionId, string $yearFrom): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $params = ['yearFrom' => $yearFrom];
+
+        if (null !== $userId) {
+            // Filtre par préventionniste : joint dossieraffectation → dossier → dossierpreventionniste
+            $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
+                           dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
+                           c.LIBELLE_COMMISSION,
+                           d.OBJET_DOSSIER, d.ID_DOSSIER
+                    FROM datecommission dc
+                    JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
+                    LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+                    LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+                    JOIN dossierpreventionniste dp ON dp.ID_DOSSIER = d.ID_DOSSIER
+                    WHERE dp.ID_PREVENTIONNISTE = :userId
+                    AND YEAR(dc.DATE_COMMISSION) >= :yearFrom';
+            $params['userId'] = $userId;
+        } else {
+            // Admin : toutes les DateCommissions avec leurs dossiers (LEFT JOIN)
+            $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
+                           dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
+                           c.LIBELLE_COMMISSION,
+                           d.OBJET_DOSSIER, d.ID_DOSSIER
+                    FROM datecommission dc
+                    JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
+                    LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+                    LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+                    WHERE YEAR(dc.DATE_COMMISSION) >= :yearFrom';
+        }
+
+        if (null !== $commissionId) {
+            $sql .= ' AND dc.COMMISSION_CONCERNE = :commissionId';
+            $params['commissionId'] = $commissionId;
+        }
+
+        $sql .= ' ORDER BY dc.DATE_COMMISSION ASC, dc.ID_DATECOMMISSION ASC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, $params);
+
+        return $rows;
+    }
+
+    /**
      * Récupère les événements de commission entre deux dates.
      *
      * @return DateCommission[]

@@ -11,8 +11,7 @@
         </li>
         <li class="nav-header">Actions</li>
         <li>
-            {# Export Outlook : route non encore migrée — pointe vers le legacy #}
-            <a id="exportCom" href="/calendrier-des-commissions/exportoutlook/dateCommId/{{ dateCommission.id }}">
+            <a id="exportCom" href="{{ path('calendrier_des_commissions_export_outlook', {dateCommId: dateCommission.id}) }}">
                 <span class="glyphicon glyphicon-calendar"></span> Exporter pour Outlook
             </a>
         </li>
