@@ -11,7 +11,7 @@
         <small style='display: inline-block; width: 65px'>
             <strong>
             {% if item.ID_TYPE %}
-                <img src='{{ asset("images/types/b/icone-type-" ~ item.LIBELLE_TYPE ~ ".png") }}' title='{{ item.LIBELLE_TYPE }}'
+                <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}'
                      onerror="this.outerHTML='{{ item.LIBELLE_TYPE|e('js') }}&amp;nbsp;-&amp;nbsp;'" />&nbsp;-&nbsp;
             {% endif %}
             {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
@@ -20,7 +20,7 @@
 
         {# Nom de l'établissement #}
         <span class="nom-etablissement">
-            <a href='{{ path("etablissement_informations", {id: item.ID_ETABLISSEMENT}) }}'>
+            <a href='{{ path('etablissement_informations', {id: item.ID_ETABLISSEMENT}) }}'>
                 {% if item.LIBELLE_ETABLISSEMENTINFORMATIONS is empty %}
                     <em class='muted'>Libellé non renseigné</em>
                 {% else %}
@@ -46,7 +46,7 @@
 
         {# Icone de chargement des enfants #}
         {% if item.NB_ENFANTS > 0 %}
-            <span class='load ui-helper-hidden'><img src='{{ asset("images/load.gif") }}' alt='Chargement ...' /></span>
+            <span class='load ui-helper-hidden'><img src='{{ asset('images/load.gif') }}' alt='Chargement ...' /></span>
         {% endif %}
 
         {# Calcul de la date d'avis #}
