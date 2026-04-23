@@ -1,0 +1,50 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Modifier {{ avisDerogation.type }} — {{ avisDerogation.titre }}{% endblock %}
+
+{% block body %}
+    <h3>{{ avisDerogation.type }} — {{ avisDerogation.titre }}</h3>
+
+    <form class="form-horizontal col-md-8" method="post">
+        <div class="form-group">
+            <div class="col-md-offset-3 col-md-9">
+                <a href="{{ path('dossier_avis_et_derogations', {id: dossier.id}) }}" class="btn btn-default">
+                    Annuler la modification
+                </a>
+                <button type="submit" class="btn btn-success">Sauvegarder</button>
+            </div>
+        </div>
+
+        {{ include('dossier/avis_et_derogations/_form.html.twig', {
+            listeAvis: listeAvis,
+            dossiersGroupes: dossiersGroupes,
+            avisDerogation: avisDerogation,
+            submitLabel: 'Sauvegarder',
+        }) }}
+
+        <div class="form-group">
+            <div class="col-md-offset-3 col-md-9">
+                <a href="{{ path('dossier_avis_et_derogations', {id: dossier.id}) }}" class="btn btn-default">
+                    Annuler la modification
+                </a>
+                <button type="submit" class="btn btn-success">Sauvegarder</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/dossier/avisDerogation.js') }}"></script>
+    {% if avisDerogation.dossierLie %}
+    <script>
+        // Pré-coche le radio du dossier lié en édition
+        document.addEventListener('DOMContentLoaded', function () {
+            var radio = document.querySelector('input[name="ID_DOSSIER_LIE"][value="{{ avisDerogation.dossierLie.id }}"]');
+            if (radio) {
+                radio.checked = true;
+            }
+        });
+    </script>
+    {% endif %}
+{% endblock %}

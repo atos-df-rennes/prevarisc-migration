@@ -1,0 +1,85 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Avis et dérogations{% endblock %}
+
+{% block body %}
+    <h3>Avis et dérogations</h3>
+
+    <form class="form-horizontal col-md-8" method="post">
+        {{ include('dossier/avis_et_derogations/_form.html.twig', {
+            listeAvis: listeAvis,
+            dossiersGroupes: dossiersGroupes,
+            avisDerogation: null,
+            submitLabel: "Ajouter l'avis",
+        }) }}
+        <div class="form-group">
+            <div class="col-md-offset-3 col-md-9">
+                <button type="submit" class="btn btn-success js-submit-label">Ajouter l'avis</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="clearfix"></div>
+
+    {% for avis_derogation in arrayAvisDerogations %}
+        {{ include('dossier/avis_et_derogations/_card.html.twig', {
+            avisDerogation: avis_derogation,
+            dossier: dossier,
+        }) }}
+    {% endfor %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/dossier/avisDerogation.js') }}"></script>
+    <script>
+        // Suppression d'un avis/dérogation via AJAX
+        $(document).on('click', '.js-delete-avis-derogation', function () {
+            var card = $(this).closest('.js-card-avis-derogation');
+            var titre = card.find('.panel-heading strong').text();
+            var deleteUrl = card.data('delete-url');
+
+            $('#dialog-supp').dialog('destroy');
+            $('#dialog-supp').remove();
+
+            var dialog = $('<div id="dialog-supp"></div>').appendTo('body');
+            dialog.html('Vous êtes sur le point de supprimer l\'avis ou la dérogation "' + titre + '".');
+            dialog.dialog({
+                title: "Suppression d'un avis ou d'une dérogation",
+                width: 650,
+                draggable: false,
+                resizable: false,
+                modal: true,
+                buttons: [
+                    {
+                        text: 'Supprimer',
+                        'class': 'btn btn-danger',
+                        click: function () {
+                            $.ajax({
+                                type: 'DELETE',
+                                url: deleteUrl,
+                                success: function () {
+                                    card.remove();
+                                }
+                            });
+                            dialog.dialog('close');
+                        }
+                    },
+                    {
+                        text: 'Annuler',
+                        'class': 'btn',
+                        click: function () {
+                            dialog.dialog('close');
+                        }
+                    }
+                ]
+            });
+        });
+
+        // Met à jour le label du bouton submit selon le type sélectionné
+        $('select[name="TYPE"]').on('change', function () {
+            var label = $(this).val() === 'Avis' ? "Ajouter l'avis" : "Ajouter la dérogation";
+            $('.js-submit-label').text(label);
+        });
+    </script>
+{% endblock %}

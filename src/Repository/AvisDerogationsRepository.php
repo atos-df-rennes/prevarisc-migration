@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\AvisDerogations;
+use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,6 +41,28 @@ class AvisDerogationsRepository extends ServiceEntityRepository
             ->where('e.id = :idEtablissement')
             ->andWhere('a.displayHistorique = 1')
             ->setParameter('idEtablissement', $idEtablissement)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * Retourne les avis et dérogations d'un dossier, avec avis et dossier lié pré-chargés.
+     *
+     * @return AvisDerogations[]
+     */
+    public function findByDossier(Dossier $dossier): array
+    {
+        return $this->createQueryBuilder('ad')
+            ->addSelect('av')
+            ->addSelect('dl')
+            ->leftJoin('ad.avis', 'av')
+            ->leftJoin('ad.dossierLie', 'dl')
+            ->leftJoin('dl.type', 'dlt')
+            ->addSelect('dlt')
+            ->where('ad.dossier = :dossier')
+            ->setParameter('dossier', $dossier)
+            ->orderBy('ad.id', 'DESC')
             ->getQuery()
             ->getResult()
         ;

@@ -1,0 +1,51 @@
+{#
+    Carte d'affichage d'un avis ou dérogation.
+
+    Variables :
+        - avisDerogation : AvisDerogations
+        - dossier        : Dossier
+#}
+<div class="panel panel-default mb-3 js-card-avis-derogation"
+     data-id="{{ avisDerogation.id }}"
+     data-delete-url="{{ path('dossier_avis_et_derogations_delete', {id: dossier.id, avisDerogationId: avisDerogation.id}) }}">
+    <div class="panel-heading clearfix">
+        <strong>{{ avisDerogation.type }} — {{ avisDerogation.titre }}</strong>
+        <button type="button" class="close pull-right js-delete-avis-derogation" aria-label="Supprimer">&times;</button>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Type :</strong> {{ avisDerogation.type }}</p>
+                {% if avisDerogation.objet %}
+                    <p><strong>Objet :</strong> {{ avisDerogation.objet }}</p>
+                {% endif %}
+                {% if avisDerogation.avis %}
+                    <p><strong>Avis :</strong> {{ avisDerogation.avis.libelle }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <strong>Avis/Dérogation levé(e) :</strong>
+                    {% if avisDerogation.dossierLie %}
+                        <a href="{{ path('dossier_index', {id: avisDerogation.dossierLie.id}) }}">
+                            {{ avisDerogation.dossierLie.objet ?: avisDerogation.dossierLie.id }}
+                        </a>
+                    {% endif %}
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" disabled {% if avisDerogation.displayHistorique %}checked{% endif %}>
+                        Afficher dans l'onglet de l'établissement
+                    </label>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-right">
+        <a href="{{ path('dossier_avis_et_derogations_edit', {id: dossier.id, avisDerogationId: avisDerogation.id}) }}"
+           class="btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            Modifier
+        </a>
+    </div>
+</div>
