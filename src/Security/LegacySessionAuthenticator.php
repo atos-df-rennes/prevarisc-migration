@@ -13,20 +13,25 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 /**
- * @phpstan-type ZendAuth array{
- *   storage: array{
- *     USERNAME_UTILISATEUR: string
- *   }
- * }
+ * Authentificateur Guard Symfony basé sur la session Zend héritée.
+ *
+ * Délègue l'accès à $_SESSION['Zend_Auth'] au ZendSessionBridge injectable.
+ *
+ * @todo SF 5.1+: migrer vers AbstractAuthenticator (Guard supprimé en SF 6.0).
+ *   La logique de credentials est déjà isolée dans ZendSessionBridge pour faciliter cette migration.
  */
 class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 {
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /** @var ZendSessionBridge */
+    private $zendSessionBridge;
+
+    public function __construct(LoggerInterface $logger, ZendSessionBridge $zendSessionBridge)
     {
         $this->logger = $logger;
+        $this->zendSessionBridge = $zendSessionBridge;
     }
 
     /**
@@ -49,18 +54,17 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        if (!isset($_SESSION['Zend_Auth'])) {
+        $username = $this->zendSessionBridge->getAuthenticatedUsername();
+
+        if (null === $username) {
             $this->logger->notice("L'utilisateur n'est pas connecté");
 
             throw new AuthenticationException();
         }
 
-        /** @var ZendAuth */
-        $zendAuth = $_SESSION['Zend_Auth'];
+        $request->getSession()->set('username', $username);
 
-        $request->getSession()->set('username', $zendAuth['storage']['USERNAME_UTILISATEUR']);
-
-        return $zendAuth['storage']['USERNAME_UTILISATEUR'];
+        return $username;
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface

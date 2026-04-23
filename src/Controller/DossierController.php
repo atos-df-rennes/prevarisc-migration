@@ -351,7 +351,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             ];
         }
 
-        $fieldsConfig = json_encode($this->dossierFieldsService->getAllFieldsByNature());
+        $fieldsConfig = $this->dossierFieldsService->getAllFieldsByNature();
 
         $enteteEtab = $etablissement;
         $lastAvisEtab = '';
@@ -551,7 +551,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         }
 
         // Configuration des champs pour JavaScript
-        $fieldsConfig = json_encode($this->dossierFieldsService->getAllFieldsByNature());
+        $fieldsConfig = $this->dossierFieldsService->getAllFieldsByNature();
 
         // Informations Plat'AU
         $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());

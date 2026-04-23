@@ -19,6 +19,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ path('search_etablissement', {label: '', page: 1, Rechercher: 'Rechercher'}) }}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Rechercher</a></li>
+                        {# @todo: utiliser path('etablissement_add') une fois la route migrée vers Symfony #}
                         <li><a href='/etablissement/add'><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter</a></li>
                     </ul>
                 </li>
@@ -37,6 +38,7 @@
                         <span class="glyphicon glyphicon-plus grey-icn-plus" aria-hidden="true" title="Plus"></span>
                     </a>
                     <ul class="dropdown-menu">
+                        {# @todo: utiliser path('statistiques') une fois la route migrée vers Symfony #}
                         <li><a href='/statistiques'>Statistiques</a></li>
                         <li><a href='{{ path('admin_index') }}'>Administration</a></li>
                     </ul>

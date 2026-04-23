@@ -65,7 +65,7 @@
         <h3>Informations générales</h3>
 
         {# Configuration des champs pour JavaScript #}
-        <div data-fields-config='{{ fieldsConfig|e('html_attr') }}' style="display:none;"></div>
+        <div data-fields-config='{{ fieldsConfig|json_encode|e('html_attr') }}' style="display:none;"></div>
 
         {{ form_start(form, {attr: {id: 'newDossier', name: 'newDossier'}}) }}
             <section>

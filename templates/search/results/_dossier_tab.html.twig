@@ -18,7 +18,7 @@
 
     {# Établissement #}
     <td class="doss-nom">
-        <a href='/etablissement/{{ item.ID_ETABLISSEMENT }}/informations' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
+        <a href='{{ path('etablissement_informations', {id: item.ID_ETABLISSEMENT}) }}' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
             {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
         </a>
         <br/>
@@ -26,7 +26,7 @@
         <small style='display: inline-block; width: 65px'>
             <strong>
             {% if item.ID_TYPE %}
-                <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}' />&nbsp;-&nbsp;
+                <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}' />&nbsp;-&nbsp;
             {% endif %}
             {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
             </strong>
@@ -38,7 +38,7 @@
         {% if item.VERROU_DOSSIER == 1 %}
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
         {% endif %}
-        <a href='/dossier/{{ item.ID_DOSSIER }}' title='{{ (item.LIBELLE_DOSSIERTYPE ~ ' - ' ~ item.LIBELLE_DOSSIERNATURE ~ (item.OBJET_DOSSIER is not empty ? ' - ' ~ item.OBJET_DOSSIER : ''))|e('html_attr') }}'>
+        <a href='{{ path('dossier_index', {id: item.ID_DOSSIER}) }}' title='{{ (item.LIBELLE_DOSSIERTYPE ~ ' - ' ~ item.LIBELLE_DOSSIERNATURE ~ (item.OBJET_DOSSIER is not empty ? ' - ' ~ item.OBJET_DOSSIER : ''))|e('html_attr') }}'>
             {{ item.LIBELLE_DOSSIERTYPE }} - {{ item.LIBELLE_DOSSIERNATURE }}{% if item.OBJET_DOSSIER is not empty %} - {{ item.OBJET_DOSSIER|slice(0, 70) }}{% if item.OBJET_DOSSIER|length > 70 %}(...){% endif %}{% endif %}{% if item.NB_URBA is not empty %} - {{ item.NB_URBA }}{% endif %}
         </a>
         <small class='text-muted'>{{ date_text|raw }} {{ date }}</small>
