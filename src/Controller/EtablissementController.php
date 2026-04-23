@@ -118,6 +118,9 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var LoggerInterface */
+    private $pieceJointeLogger;
+
     /**
      * @var FormFactoryInterface
      */
@@ -145,7 +148,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         DescriptifFormPersister $descriptifFormPersister,
         bool $descriptifPersonnalise,
         LoggerInterface $logger,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
+        LoggerInterface $pieceJointeLogger
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -169,6 +173,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->descriptifPersonnalise = $descriptifPersonnalise;
         $this->logger = $logger;
         $this->formFactory = $formFactory;
+        $this->pieceJointeLogger = $pieceJointeLogger;
     }
 
     /**
@@ -362,7 +367,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche la liste de gestion des pièces jointes d'un établissement.
      *
-     * @Route("/etablissement/{id}/edit-pieces-jointes", name="etablissement_edit_pieces_jointes", methods={"GET"})
+     * @Route("/etablissement/{id}/pieces-jointes/modifier", name="etablissement_edit_pieces_jointes", methods={"GET"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -381,7 +386,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche le formulaire modal d'ajout de pièce jointe (chargé via AJAX).
      *
-     * @Route("/etablissement/{id}/add-piece-jointe/form", name="etablissement_add_piece_jointe_form", methods={"GET"})
+     * @Route("/etablissement/{id}/pieces-jointes/ajouter/formulaire", name="etablissement_add_piece_jointe_form", methods={"GET"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -395,16 +400,23 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Traite l'ajout d'une pièce jointe à un établissement (formulaire modal ou Dropzone).
      *
-     * @Route("/etablissement/{id}/add-piece-jointe", name="etablissement_add_piece_jointe", methods={"POST"})
+     * @Route("/etablissement/{id}/pieces-jointes/ajouter", name="etablissement_add_piece_jointe", methods={"POST"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
     public function addPieceJointe(Etablissement $etablissement, Request $request): Response
     {
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('add_pj_etablissement', is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+        }
+
         $file = $request->files->get('file');
 
         if (!$file instanceof UploadedFile) {
-            $this->addFlash('error', 'Aucun fichier reçu. Veuillez réessayer.');
+            $this->addFlash('danger', 'Aucun fichier reçu. Veuillez réessayer.');
 
             return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
         }
@@ -420,7 +432,11 @@ class EtablissementController extends AbstractController implements Etablissemen
             $this->etablissementService->addPJ($etablissement, $file, $name, $description, $mise_en_avant);
             $this->addFlash('success', 'La pièce jointe a bien été ajoutée.');
         } catch (\Exception $exception) {
-            $this->addFlash('error', 'La pièce jointe n\'a pas été ajoutée. Veuillez réessayer. ('.$exception->getMessage().')');
+            $this->pieceJointeLogger->error('Erreur lors de l\'ajout d\'une pièce jointe', [
+                'etablissement_id' => $etablissement->getId(),
+                'error' => $exception->getMessage(),
+            ]);
+            $this->addFlash('danger', 'La pièce jointe n\'a pas été ajoutée. Veuillez réessayer. ('.$exception->getMessage().')');
         }
 
         if ($request->isXmlHttpRequest()) {
@@ -433,7 +449,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Supprime une pièce jointe d'un établissement.
      *
-     * @Route("/etablissement/{id}/delete-piece-jointe", name="etablissement_delete_piece_jointe", methods={"POST"})
+     * @Route("/etablissement/{id}/pieces-jointes/supprimer", name="etablissement_delete_piece_jointe", methods={"POST"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -443,7 +459,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete_pj_'.$idPj, is_string($rawToken) ? $rawToken : null)) {
-            $this->addFlash('error', 'Token de sécurité invalide. Veuillez réessayer.');
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
 
             return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
         }
@@ -452,7 +468,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             $this->etablissementService->deletePJ($etablissement, $idPj);
             $this->addFlash('success', 'La pièce jointe a bien été supprimée.');
         } catch (\Exception $exception) {
-            $this->addFlash('error', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer. ('.$exception->getMessage().')');
+            $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer. ('.$exception->getMessage().')');
         }
 
         return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);

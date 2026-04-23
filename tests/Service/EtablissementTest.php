@@ -8,13 +8,16 @@ use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
+use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Etablissement;
+use App\Service\Image;
 use App\Service\TexteApplicable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class EtablissementTest extends TestCase
 {
@@ -31,6 +34,9 @@ final class EtablissementTest extends TestCase
         $datastoreLogger = $this->createMock(LoggerInterface::class);
         $logger = $this->createMock(LoggerInterface::class);
         $texteApplicableService = $this->createMock(TexteApplicable::class);
+        $pieceJointeRepository = $this->createMock(PieceJointeRepository::class);
+        $imageService = new Image();
+        $filesystem = $this->createMock(Filesystem::class);
 
         // Construire les mocks de dossiers à partir des paramètres
         $dossiersData = [];
@@ -53,7 +59,10 @@ final class EtablissementTest extends TestCase
             $entityManager,
             $datastoreLogger,
             $logger,
-            $texteApplicableService
+            $texteApplicableService,
+            $pieceJointeRepository,
+            $imageService,
+            $filesystem
         );
 
         $result = $service->getLastAvisLibelle(1);

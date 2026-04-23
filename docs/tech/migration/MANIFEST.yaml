@@ -48,21 +48,26 @@ etablissement_pieces_jointes_gestion:
   status: migrated
   legacy_files:
     - prevarisc/application/controllers/EtablissementController.php (editPiecesJointesAction, addPieceJointeAction, deletePieceJointeAction)
+    - prevarisc/application/controllers/PieceJointeController.php (getAction)
     - prevarisc/application/services/Etablissement.php (addPJ, deletePJ)
     - prevarisc/application/views/scripts/etablissement/edit-pieces-jointes.phtml
     - prevarisc/application/views/scripts/etablissement/add-piece-jointe.phtml
   migrated_files:
     - prevarisc-migration/src/Controller/EtablissementController.php (editPiecesJointes, addPieceJointeForm, addPieceJointe, deletePieceJointe)
+    - prevarisc-migration/src/Controller/PieceJointeController.php (getEtablissement)
     - prevarisc-migration/src/Service/Etablissement.php (addPJ, deletePJ)
+    - prevarisc-migration/src/Constant/PlacementEtablissementPj.php
     - prevarisc-migration/templates/etablissement/edit_pieces_jointes.html.twig
     - prevarisc-migration/templates/etablissement/add_piece_jointe.html.twig
   updated_at: "2026-04-23"
   routes:
     - name: etablissement_edit_pieces_jointes
-      path: /etablissement/{id}/edit-pieces-jointes
+      path: /etablissement/{id}/pieces-jointes/modifier
     - name: etablissement_add_piece_jointe
-      path: /etablissement/{id}/add-piece-jointe
+      path: /etablissement/{id}/pieces-jointes/ajouter
     - name: etablissement_add_piece_jointe_form
-      path: /etablissement/{id}/add-piece-jointe/form
+      path: /etablissement/{id}/pieces-jointes/ajouter/formulaire
     - name: etablissement_delete_piece_jointe
-      path: /etablissement/{id}/delete-piece-jointe
+      path: /etablissement/{id}/pieces-jointes/supprimer
+    - name: piece_jointe_get_etablissement
+      path: /piece-jointe/get/id/{id}/idpj/{idpj}/type/etablissement

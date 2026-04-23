@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Constant\PlacementEtablissementPj;
 use App\Dto\AvisDerogationEtablissement;
 use App\Dto\Historique\Auteur;
 use App\Dto\Historique\DonneeHistorique;
@@ -23,6 +24,7 @@ use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class Etablissement
@@ -65,6 +67,9 @@ final class Etablissement
     /** @var Image */
     private $imageService;
 
+    /** @var Filesystem */
+    private $filesystem;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
@@ -77,7 +82,8 @@ final class Etablissement
         LoggerInterface $logger,
         TexteApplicable $texteApplicableService,
         PieceJointeRepository $pieceJointeRepository,
-        Image $imageService
+        Image $imageService,
+        Filesystem $filesystem
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
@@ -91,6 +97,7 @@ final class Etablissement
         $this->texteApplicableService = $texteApplicableService;
         $this->pieceJointeRepository = $pieceJointeRepository;
         $this->imageService = $imageService;
+        $this->filesystem = $filesystem;
     }
 
     /**
@@ -806,15 +813,11 @@ final class Etablissement
     }
 
     /**
-     * Ajoute une pièce jointe à un établissement.
+     * Ajout d'une pièce jointe pour un établissement.
      *
-     * @param EtablissementEntity $etablissement L'établissement auquel rattacher la pièce jointe
-     * @param UploadedFile        $file          Le fichier uploadé
-     * @param string              $name          Le libellé de la pièce jointe (si vide, utilise le nom du fichier)
-     * @param string              $description   La description de la pièce jointe
-     * @param int                 $mise_en_avant Le placement (0=liste, 1=diaporama, 2=plans)
+     * @param int $mise_en_avant 0 = liste, 1 = diaporama, 2 = plans
      *
-     * @throws \Exception Si le type de fichier est interdit ou si la miniature ne peut pas être créée
+     * @throws \Exception
      */
     public function addPJ(EtablissementEntity $etablissement, UploadedFile $file, string $name, string $description, int $mise_en_avant): void
     {
@@ -824,46 +827,66 @@ final class Etablissement
             throw new \Exception("Ce type de fichier n'est pas autorisé en upload");
         }
 
+        $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+        $placement = in_array($mise_en_avant, PlacementEtablissementPj::ALL) && in_array($extension, $imageExtensions)
+            ? $mise_en_avant
+            : PlacementEtablissementPj::LISTE;
+
         $pieceJointe = new PieceJointe();
-        $pieceJointe->setExtension($extension);
         $pieceJointe->setNom('' === $name ? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) : $name);
-        $pieceJointe->setDescription($description);
+        $pieceJointe->setExtension($extension);
+        $pieceJointe->setDescription('' !== $description ? $description : null);
         $pieceJointe->setDate(new \DateTime());
 
-        $this->entityManager->persist($pieceJointe);
-        $this->entityManager->flush();
+        $filePath = null;
+        $miniaturePath = null;
 
-        $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $etablissement->getId(), true);
-        $file->move(dirname($filePath), basename($filePath));
+        $this->entityManager->beginTransaction();
 
-        $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-        $placement = 0 !== $mise_en_avant && in_array($extension, $imageExtensions) ? $mise_en_avant : 0;
+        try {
+            $this->entityManager->persist($pieceJointe);
+            $this->entityManager->flush();
 
-        $etablissementPJ = new EtablissementPieceJointe();
-        $etablissementPJ->setEtablissement($etablissement);
-        $etablissementPJ->setPieceJointe($pieceJointe);
-        $etablissementPJ->setPlacement($placement);
+            $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $etablissement->getId(), true);
+            $file->move(dirname($filePath), basename($filePath));
 
-        $this->entityManager->persist($etablissementPJ);
-        $this->entityManager->flush();
+            $etablissementPJ = new EtablissementPieceJointe();
+            $etablissementPJ->setEtablissement($etablissement);
+            $etablissementPJ->setPieceJointe($pieceJointe);
+            $etablissementPJ->setPlacement($placement);
 
-        if (in_array($extension, $imageExtensions)) {
-            $miniaturePjHelper = clone $pieceJointe;
-            $miniaturePjHelper->setExtension('.jpg');
-            $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_minature', $etablissement->getId(), true);
-            $this->imageService->resize($filePath, 450)->save($miniaturePath);
+            $this->entityManager->persist($etablissementPJ);
+            $this->entityManager->flush();
 
-            if (!is_file($miniaturePath)) {
-                throw new \Exception('Cannot create miniature file: '.$miniaturePath);
+            if (in_array($extension, $imageExtensions)) {
+                $miniaturePjHelper = clone $pieceJointe;
+                $miniaturePjHelper->setExtension('.jpg');
+                $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_minature', $etablissement->getId(), true);
+                $this->imageService->resize($filePath, 450)->save($miniaturePath);
+
+                if (!is_file($miniaturePath)) {
+                    throw new \Exception('Cannot create miniature file: '.$miniaturePath);
+                }
             }
+
+            $this->entityManager->commit();
+        } catch (\Throwable $throwable) {
+            $this->entityManager->rollback();
+
+            if (null !== $miniaturePath && is_file($miniaturePath)) {
+                $this->filesystem->remove($miniaturePath);
+            }
+
+            if (null !== $filePath && is_file($filePath)) {
+                $this->filesystem->remove($filePath);
+            }
+
+            throw new \Exception($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
         }
     }
 
     /**
-     * Supprime une pièce jointe d'un établissement.
-     *
-     * @param EtablissementEntity $etablissement L'établissement propriétaire de la pièce jointe
-     * @param int                 $id_pj         L'identifiant de la pièce jointe à supprimer
+     * Suppression d'une pièce jointe d'un établissement.
      */
     public function deletePJ(EtablissementEntity $etablissement, int $id_pj): void
     {
@@ -877,6 +900,10 @@ final class Etablissement
             'pieceJointe' => $id_pj,
         ]);
 
+        if (null === $etablissementPJ) {
+            return;
+        }
+
         $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $etablissement->getId());
 
         $miniaturePjHelper = clone $pieceJointe;
@@ -884,18 +911,9 @@ final class Etablissement
 
         $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_minature', $etablissement->getId());
 
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
+        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], 'file_exists'));
 
-        if (file_exists($miniaturePath)) {
-            unlink($miniaturePath);
-        }
-
-        if (null !== $etablissementPJ) {
-            $this->entityManager->remove($etablissementPJ);
-        }
-
+        $this->entityManager->remove($etablissementPJ);
         $this->entityManager->remove($pieceJointe);
         $this->entityManager->flush();
     }

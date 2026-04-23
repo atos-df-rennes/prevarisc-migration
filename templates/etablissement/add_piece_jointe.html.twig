@@ -5,9 +5,10 @@
             <h4 class="modal-title">Ajouter une pièce jointe</h4>
         </div>
         <div class="modal-body">
+            <input type="hidden" name="_token" value="{{ csrf_token('add_pj_etablissement') }}" />
             <dl class="dl-horizontal">
                 <dt>Libellé</dt>
-                <dd><p><input type="text" name="name" /></p></dd>
+                <dd><p><input type="text" name="name" class="form-control" /></p></dd>
                 <dt>Fichier à envoyer</dt>
                 <dd><p><input type="file" name="file" /></p></dd>
                 <dt>Mise en avant</dt>
@@ -25,7 +26,7 @@
         </div>
         <div class="modal-footer">
             <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
-            <input type="submit" id="submit" value="Ajouter" class="btn btn-success" />
+            <button type="submit" class="btn btn-success">Ajouter</button>
         </div>
     </form>
 </div>
