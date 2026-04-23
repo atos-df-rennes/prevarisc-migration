@@ -845,6 +845,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $this->entityManager->persist($avisDerogation);
             $this->entityManager->flush();
 
+            $this->addFlash('success', 'L\'avis ou la dérogation a été ajouté(e) avec succès.');
+
             return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
         }
 
@@ -919,6 +921,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $avisDerogation->setDossierLie($dossierLie);
 
             $this->entityManager->flush();
+
+            $this->addFlash('success', 'L\'avis ou la dérogation a été modifié(e) avec succès.');
 
             return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
         }
