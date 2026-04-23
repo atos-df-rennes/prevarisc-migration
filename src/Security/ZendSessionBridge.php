@@ -33,8 +33,6 @@ class ZendSessionBridge
 
     /**
      * Indique si une session Zend_Auth est active.
-     *
-     * @return bool
      */
     public function isAuthenticated(): bool
     {

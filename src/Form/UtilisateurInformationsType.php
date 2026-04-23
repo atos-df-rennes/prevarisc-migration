@@ -113,15 +113,15 @@ class UtilisateurInformationsType extends AbstractType
 
         if (in_array(self::SCOPE_ADRESSE, $options['scopes'])) {
             $builder
-                ->add('numeroAdresse', null, [])
-                ->add('rueAdresse', null, [])
-                ->add('codePostalAdresse', null, [])
-                ->add('villeAdresse', null, [])
+                ->add('numeroAdresse')
+                ->add('rueAdresse')
+                ->add('codePostalAdresse')
+                ->add('villeAdresse')
             ;
         }
 
         if (in_array(self::SCOPE_SOCIETE, $options['scopes'])) {
-            $builder->add('societe', null, []);
+            $builder->add('societe');
         }
     }
 

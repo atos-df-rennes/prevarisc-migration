@@ -145,7 +145,6 @@ class DossierType extends AbstractType
                         'plugins' => [],
                     ]),
                 ],
-                'help' => 'Commencez à saisir pour rechercher un service instructeur ou saisissez librement',
                 'constraints' => [
                     new Assert\Length(['max' => 255]),
                 ],
@@ -338,9 +337,6 @@ class DossierType extends AbstractType
             ->add('numeroIntervention', TextType::class, [
                 'label' => "Numéro d'intervention",
                 'required' => false,
-                // @todo REF-FORM-02: NUMINTERV_DOSSIER est déclaré string(255) dans l'entité Dossier —
-                // le TextType est donc correct. Vérifier la cohérence avec le type int(11) réel en DB
-                // si une migration de colonne est un jour envisagée.
             ])
             ->add('dateIntervention', DateTimeType::class, [
                 'label' => "Date et heure d'intervention",
