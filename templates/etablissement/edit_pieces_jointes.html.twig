@@ -1,0 +1,110 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}{{ parent() }} / Gestion des pièces jointes{% endblock %}
+
+{% block body %}
+    <div class='pull-right'>
+        <a id="addPJQuick" class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> Ajout rapide</a>
+        <a href="{{ path('etablissement_add_piece_jointe_form', {id: etablissement.id}) }}" class="btn btn-default" data-toggle="modal" data-backdrop="false" data-target="#reponse-modal"><span class="glyphicon glyphicon-upload"></span> Ajouter une pièce jointe</a>
+        <a class='btn btn-default' href="{{ path('etablissement_pieces_jointes', {id: etablissement.id}) }}">Revenir sur l'affichage des pièces jointes</a>
+    </div>
+
+    <h3>Gestion des pièces jointes</h3>
+
+    <div id="dropzone" class="dropzone" style="display:none"></div>
+
+    {% if image_pjs is empty and doc_pjs is empty %}
+        <p class='text-muted'>Il n'y a pas de pièce jointe.</p>
+    {% else %}
+        <table id="table-pieces-jointes" class='table table-bordered table-condensed table-hover'>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Date d'ajout</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pj in image_pjs %}
+                    <tr>
+                        <td>
+                            <a href="{{ '/piece-jointe/get/id/' ~ etablissement.id ~ '/idpj/' ~ pj.0.pieceJointe.id ~ '/type/etablissement' }}" target='_blank'>{{ pj.0.pieceJointe.nom }}</a>
+                        </td>
+                        <td>
+                            {% if pj.0.pieceJointe.description is not empty %}
+                                {{ pj.0.pieceJointe.description|nl2br }}
+                            {% else %}
+                                Aucune description.
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if pj.0.pieceJointe.date is not null %}
+                                {{ pj.0.pieceJointe.date|date('d/m/Y') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id, id_pj: pj.0.pieceJointe.id}) }}">Supprimer la pièce jointe</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for pj in doc_pjs %}
+                    <tr>
+                        <td>
+                            <a href="{{ '/piece-jointe/get/id/' ~ etablissement.id ~ '/idpj/' ~ pj.0.pieceJointe.id ~ '/type/etablissement' }}" target='_blank'>{{ pj.0.pieceJointe.nom }}</a>
+                        </td>
+                        <td>
+                            {% if pj.0.pieceJointe.description is not empty %}
+                                {{ pj.0.pieceJointe.description|nl2br }}
+                            {% else %}
+                                Aucune description.
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if pj.0.pieceJointe.date is not null %}
+                                {{ pj.0.pieceJointe.date|date('d/m/Y') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id, id_pj: pj.0.pieceJointe.id}) }}">Supprimer la pièce jointe</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="reponse-modal" class="modal fade" tabindex="-1" role="dialog"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        Dropzone.autoDiscover = false;
+        $(document).ready(function() {
+            $("a[data-toggle='modal']").click(function() {
+                var target = $(this).attr("data-target");
+                var url = $(this).attr("href");
+                $(target).load(url);
+            });
+
+            $("#addPJQuick").click(function() {
+                $('#dropzone').toggle();
+            });
+
+            var myDropzone = new Dropzone("#dropzone", {
+                url: "{{ path('etablissement_add_piece_jointe', {id: etablissement.id}) }}",
+                paramName: "file"
+            });
+            myDropzone.on("success", function(file, responseText) {
+                if (responseText !== undefined) {
+                    $('#fiche_etablissement').empty().append(responseText);
+                } else {
+                    document.location.reload();
+                }
+            });
+        });
+    </script>
+{% endblock %}
