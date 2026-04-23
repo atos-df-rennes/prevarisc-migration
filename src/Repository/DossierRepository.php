@@ -893,22 +893,28 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Retourne les dossiers avec délai de prescription à lever.
      * Port direct de Service_Dashboard::getLeveePresc().
      * Les dossiers ayant un dossier lié de nature 7 (levée prescriptions), 19 (levée avis déf.) ou 46 (échéancier travaux) sont exclus.
-     * Le filtrage est intégré directement en SQL via NOT EXISTS pour éviter les requêtes N+1.
+     * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
+     * pour éviter les requêtes N+1. La référence à l'alias externe d est placée dans WHERE (pas dans ON)
+     * car MySQL n'autorise pas les corrélations dans la clause ON d'une sous-requête.
      *
      * @return array<int, array<string, mixed>>
      */
     public function findLeveePresc(): array
     {
+        $natures = DossierNature::LEVEE_PRESCRIPTIONS.', '.DossierNature::LEVEE_AVIS_DEFAVORABLE.', '.DossierNature::ECHEANCIER_TRAVAUX;
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.DELAIPRESC_DOSSIER IS NOT NULL'
             .' AND NOT EXISTS ('
             .'     SELECT 1 FROM dossierlie dl'
-            .'     JOIN dossiernature dn_lie'
-            .'         ON CASE WHEN dl.ID_DOSSIER1 = d.ID_DOSSIER THEN dl.ID_DOSSIER2'
-            .'                 ELSE dl.ID_DOSSIER1 END = dn_lie.ID_DOSSIER'
-            .'     WHERE (dl.ID_DOSSIER1 = d.ID_DOSSIER OR dl.ID_DOSSIER2 = d.ID_DOSSIER)'
-            .'       AND dn_lie.ID_NATURE IN ('.DossierNature::LEVEE_PRESCRIPTIONS.', '.DossierNature::LEVEE_AVIS_DEFAVORABLE.', '.DossierNature::ECHEANCIER_TRAVAUX.')'
+            .'     JOIN dossiernature dn_lie ON dl.ID_DOSSIER2 = dn_lie.ID_DOSSIER'
+            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
+            .'       AND dn_lie.ID_NATURE IN ('.$natures.')'
+            .'     UNION ALL'
+            .'     SELECT 1 FROM dossierlie dl2'
+            .'     JOIN dossiernature dn_lie2 ON dl2.ID_DOSSIER1 = dn_lie2.ID_DOSSIER'
+            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
+            .'       AND dn_lie2.ID_NATURE IN ('.$natures.')'
             .' )'
             .' GROUP BY d.ID_DOSSIER';
 
@@ -922,22 +928,27 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Retourne les dossiers avec absence de quorum.
      * Port direct de Service_Dashboard::getAbsenceQuorum().
      * Les dossiers ayant un dossier lié de type 0 ou 5 (courrier) sont exclus.
-     * Le filtrage est intégré directement en SQL via NOT EXISTS pour éviter les requêtes N+1.
+     * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
+     * pour éviter les requêtes N+1.
      *
      * @return array<int, array<string, mixed>>
      */
     public function findAbsenceQuorum(): array
     {
+        $types = '0, '.DossierType::COURRIER;
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.ABSQUORUM_DOSSIER = 1'
             .' AND NOT EXISTS ('
             .'     SELECT 1 FROM dossierlie dl'
-            .'     JOIN dossier d_lie'
-            .'         ON CASE WHEN dl.ID_DOSSIER1 = d.ID_DOSSIER THEN dl.ID_DOSSIER2'
-            .'                 ELSE dl.ID_DOSSIER1 END = d_lie.ID_DOSSIER'
-            .'     WHERE (dl.ID_DOSSIER1 = d.ID_DOSSIER OR dl.ID_DOSSIER2 = d.ID_DOSSIER)'
-            .'       AND d_lie.TYPE_DOSSIER IN (0, '.DossierType::COURRIER.')'
+            .'     JOIN dossier d_lie ON dl.ID_DOSSIER2 = d_lie.ID_DOSSIER'
+            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
+            .'       AND d_lie.TYPE_DOSSIER IN ('.$types.')'
+            .'     UNION ALL'
+            .'     SELECT 1 FROM dossierlie dl2'
+            .'     JOIN dossier d_lie2 ON dl2.ID_DOSSIER1 = d_lie2.ID_DOSSIER'
+            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
+            .'       AND d_lie2.TYPE_DOSSIER IN ('.$types.')'
             .' )'
             .' GROUP BY d.ID_DOSSIER';
 
@@ -951,22 +962,27 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Retourne les dossiers NPSP (Ne Peut Se Prononcer).
      * Port direct de Service_Dashboard::getNpsp().
      * Les dossiers ayant un dossier lié de type 0 ou 5 (courrier) sont exclus.
-     * Le filtrage est intégré directement en SQL via NOT EXISTS pour éviter les requêtes N+1.
+     * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
+     * pour éviter les requêtes N+1.
      *
      * @return array<int, array<string, mixed>>
      */
     public function findNpsp(): array
     {
+        $types = '0, '.DossierType::COURRIER;
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.NPSP_DOSSIER = 1'
             .' AND NOT EXISTS ('
             .'     SELECT 1 FROM dossierlie dl'
-            .'     JOIN dossier d_lie'
-            .'         ON CASE WHEN dl.ID_DOSSIER1 = d.ID_DOSSIER THEN dl.ID_DOSSIER2'
-            .'                 ELSE dl.ID_DOSSIER1 END = d_lie.ID_DOSSIER'
-            .'     WHERE (dl.ID_DOSSIER1 = d.ID_DOSSIER OR dl.ID_DOSSIER2 = d.ID_DOSSIER)'
-            .'       AND d_lie.TYPE_DOSSIER IN (0, '.DossierType::COURRIER.')'
+            .'     JOIN dossier d_lie ON dl.ID_DOSSIER2 = d_lie.ID_DOSSIER'
+            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
+            .'       AND d_lie.TYPE_DOSSIER IN ('.$types.')'
+            .'     UNION ALL'
+            .'     SELECT 1 FROM dossierlie dl2'
+            .'     JOIN dossier d_lie2 ON dl2.ID_DOSSIER1 = d_lie2.ID_DOSSIER'
+            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
+            .'       AND d_lie2.TYPE_DOSSIER IN ('.$types.')'
             .' )'
             .' GROUP BY d.ID_DOSSIER';
 
