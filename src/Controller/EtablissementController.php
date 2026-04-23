@@ -436,7 +436,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 'etablissement_id' => $etablissement->getId(),
                 'error' => $exception->getMessage(),
             ]);
-            $this->addFlash('danger', 'La pièce jointe n\'a pas été ajoutée. Veuillez réessayer. ('.$exception->getMessage().')');
+            $this->addFlash('danger', 'La pièce jointe n\'a pas été ajoutée. Veuillez réessayer.');
         }
 
         if ($request->isXmlHttpRequest()) {
@@ -468,7 +468,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             $this->etablissementService->deletePJ($etablissement, $idPj);
             $this->addFlash('success', 'La pièce jointe a bien été supprimée.');
         } catch (\Exception $exception) {
-            $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer. ('.$exception->getMessage().')');
+            $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer.');
         }
 
         return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);

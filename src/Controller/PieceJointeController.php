@@ -41,7 +41,7 @@ class PieceJointeController extends AbstractController
      *
      * Port direct de PieceJointeController::getAction() pour le type "etablissement".
      *
-     * @Route("/piece-jointe/get/id/{id}/idpj/{idpj}/type/etablissement", name="piece_jointe_get_etablissement", methods={"GET"}, requirements={"id"="\d+","idpj"="\d+"})
+     * @Route("/piece-jointe/etablissement/{id}/recuperer/{idpj}", name="piece_jointe_get_etablissement", methods={"GET"}, requirements={"id"="\d+","idpj"="\d+"})
      *
      * @IsGranted("ROLE_USER")
      */

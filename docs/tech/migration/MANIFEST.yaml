@@ -70,4 +70,4 @@ etablissement_pieces_jointes_gestion:
     - name: etablissement_delete_piece_jointe
       path: /etablissement/{id}/pieces-jointes/supprimer
     - name: piece_jointe_get_etablissement
-      path: /piece-jointe/get/id/{id}/idpj/{idpj}/type/etablissement
+      path: /piece-jointe/etablissement/{id}/recuperer/{idpj}
