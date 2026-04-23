@@ -11,15 +11,15 @@
             Conditionnel : should_display_field + valeur non nulle.
             Exemple : {{ dm.champ_date(dossier, 'dateMairie', 'Date de réception mairie') }}
 
-        champ_texte(dossier, champ, libelle, use_nl2br)
+        champ_texte(dossier, champ, libelle, use_nl2br = false)
             Affiche une ligne de consultation "<libelle> / <texte>".
             Conditionnel : should_display_field + valeur non nulle.
             use_nl2br : true pour appliquer le filtre nl2br (par défaut : false).
             Exemple : {{ dm.champ_texte(dossier, 'objet', 'Objet', true) }}
 
-        champ_form(field, field_id, style)
-            Affiche une ligne de formulaire "<label> / <widget> + <errors>".
-            Structure : li.row > div.col-md-3 (label) + div.col-md-9 (widget+errors).
+        champ_form(field, field_id, style = null)
+            Affiche une ligne de formulaire "<label> / <widget> + <errors> + <help>".
+            Structure : li.row > div.col-md-3 (label) + div.col-md-9 (widget+errors+help).
             field_id : valeur de l'attribut id sur le <li> (optionnel).
             style    : valeur de l'attribut style sur le <li> (optionnel).
             Exemple : {{ dm.champ_form(form.objet, 'field-objet') }}
@@ -51,7 +51,7 @@
     @param string libelle    Libellé affiché dans la colonne gauche
     @param bool   use_nl2br  true pour appliquer le filtre nl2br (défaut : false)
 #}
-{% macro champ_texte(dossier, champ, libelle, use_nl2br) %}
+{% macro champ_texte(dossier, champ, libelle, use_nl2br = false) %}
     {% if dossier|should_display_field(champ) and attribute(dossier, champ) %}
         <li class="row">
             <div class="left libelle col-md-3">{{ libelle }}</div>
@@ -73,12 +73,13 @@
     @param string|null field_id  Valeur de l'attribut id sur le <li> (optionnel)
     @param string|null style     Valeur de l'attribut style sur le <li> (optionnel)
 #}
-{% macro champ_form(field, field_id, style) %}
+{% macro champ_form(field, field_id, style = null) %}
     <li class="row"{% if field_id %} id="{{ field_id }}"{% endif %}{% if style %} style="{{ style }}"{% endif %}>
         <div class="left libelle col-md-3">{{ form_label(field) }}</div>
         <div class="right form col-md-9">
             {{ form_widget(field) }}
             {{ form_errors(field) }}
+            {{ form_help(field) }}
         </div>
     </li>
 {% endmacro %}
