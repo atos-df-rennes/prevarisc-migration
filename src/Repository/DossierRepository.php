@@ -645,6 +645,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * Construit le SQL de base pour la recherche de dossiers (port de Model_DbTable_Search::setItem('dossier')).
      * Sélectionne tous les champs attendus par les templates de tableau de bord.
+     *
+     * ⚠️ Méthode réservée aux requêtes de données (find*). Les comptages dashboard utilisent
+     * des méthodes count* dédiées (QueryBuilder lean) pour éviter le chargement de toutes les données.
      */
     private function buildSearchDossierBaseSql(): string
     {
@@ -1439,17 +1442,13 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     public function countDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): int
     {
-        $sinceThreshold = new \DateTime('today');
-        $sinceThreshold->modify(sprintf('-%d days', $sinceDays));
-
-        $untilThreshold = new \DateTime('today');
-        $untilThreshold->modify(sprintf('-%d days', $untilDays));
+        // Seuils calculés côté PHP — le timezone PHP doit être aligné avec le timezone MySQL.
+        $sinceThreshold = new \DateTimeImmutable(sprintf('-%d days', $sinceDays));
+        $untilThreshold = new \DateTimeImmutable(sprintf('-%d days', $untilDays));
 
         $qb = $this->createQueryBuilder('d')
-            ->select('COUNT(d.id)')
+            ->select('COUNT(DISTINCT d.id)')
             ->join('d.nature', 'n')
-            ->join('n.type', 'nt')
-            ->leftJoin('d.dossiersAyantLie', 'dal')
             ->leftJoin(DossierAffectation::class, 'da', 'WITH', 'da.dossier = d')
             ->leftJoin('da.dateCommission', 'dc')
             ->where('dc.date <= :sinceThreshold')
@@ -1530,6 +1529,10 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Construit un ResultSetMapping pour les requêtes natives qui sélectionnent d.* + colonnes jointes.
      * Utilise l'introspection des métadonnées Doctrine pour mapper automatiquement toutes les colonnes
      * de la table dossier, puis ajoute les colonnes supplémentaires (computed, joined).
+     *
+     * Note : le mode scalaire (addScalarResult) est intentionnel — il conserve le format
+     * array<string, mixed> attendu par les templates Twig du dashboard. Une hydratation vers
+     * des objets Doctrine typés nécessiterait d'adapter l'ensemble des templates concernés.
      *
      * @param string[] $extraColumns Colonnes supplémentaires (computed, tables jointes)
      */
