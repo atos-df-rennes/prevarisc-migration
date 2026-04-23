@@ -7,7 +7,9 @@
 #}
 <div class="panel panel-default mb-3 js-card-avis-derogation"
      data-id="{{ avisDerogation.id }}"
-     data-delete-url="{{ path('dossier_avis_et_derogations_delete', {id: dossier.id, avisDerogationId: avisDerogation.id}) }}">
+     data-titre="{{ avisDerogation.titre }}"
+     data-delete-url="{{ path('dossier_avis_et_derogations_delete', {id: dossier.id, avisDerogationId: avisDerogation.id}) }}"
+     data-csrf-token="{{ csrf_token('delete_avis_derogation_' ~ avisDerogation.id) }}">
     <div class="panel-heading clearfix">
         <strong>{{ avisDerogation.type }} — {{ avisDerogation.titre }}</strong>
         <button type="button" class="close pull-right js-delete-avis-derogation" aria-label="Supprimer">&times;</button>

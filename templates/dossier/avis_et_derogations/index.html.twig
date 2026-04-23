@@ -31,53 +31,61 @@
             </div>
         {% endfor %}
     </div>
+
+    {# Modale de confirmation de suppression #}
+    <div id="modal-suppr-avis-derogation" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3>Suppression d'un avis ou d'une dérogation</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Vous êtes sur le point de supprimer l'avis ou la dérogation
+                        "<strong id="modal-suppr-titre"></strong>".
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="modal-suppr-confirmer">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/dossier/avisDerogation-bs3.js') }}"></script>
     <script>
-        // Suppression d'un avis/dérogation via AJAX
         $(document).on('click', '.js-delete-avis-derogation', function () {
-            var card = $(this).closest('.js-card-avis-derogation');
-            var titre = card.find('.panel-heading strong').text();
-            var deleteUrl = card.data('delete-url');
+            const card = $(this).closest('.js-card-avis-derogation');
+            const titre = card.data('titre');
+            const deleteUrl = card.data('delete-url');
+            const csrfToken = card.data('csrf-token');
 
-            $('#dialog-supp').dialog('destroy');
-            $('#dialog-supp').remove();
+            $('#modal-suppr-titre').text(titre);
 
-            var dialog = $('<div id="dialog-supp"></div>').appendTo('body');
-            dialog.html('Vous êtes sur le point de supprimer l\'avis ou la dérogation "' + titre + '".');
-            dialog.dialog({
-                title: "Suppression d'un avis ou d'une dérogation",
-                width: 650,
-                draggable: false,
-                resizable: false,
-                modal: true,
-                buttons: [
-                    {
-                        text: 'Supprimer',
-                        'class': 'btn btn-danger',
-                        click: function () {
-                            $.ajax({
-                                type: 'DELETE',
-                                url: deleteUrl,
-                                success: function () {
-                                    card.remove();
-                                }
-                            });
-                            dialog.dialog('close');
-                        }
+            $('#modal-suppr-confirmer').off('click').on('click', function () {
+                $.ajax({
+                    type: 'POST',
+                    url: deleteUrl,
+                    data: { _token: csrfToken },
+                    success: function () {
+                        card.closest('.col-md-6').remove();
+                        $('#modal-suppr-avis-derogation').modal('hide');
+                        $.toast.success("L'avis ou la dérogation a été supprimé(e) avec succès.");
                     },
-                    {
-                        text: 'Annuler',
-                        'class': 'btn',
-                        click: function () {
-                            dialog.dialog('close');
-                        }
+                    error: function () {
+                        $('#modal-suppr-avis-derogation').modal('hide');
+                        $.toast.error('Erreur lors de la suppression. Veuillez réessayer.');
                     }
-                ]
+                });
             });
+
+            $('#modal-suppr-avis-derogation').modal('show');
         });
     </script>
 {% endblock %}

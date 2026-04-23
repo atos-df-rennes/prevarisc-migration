@@ -936,14 +936,21 @@ class DossierController extends AbstractController implements DossierLateralNavi
     }
 
     /**
-     * Supprime un avis ou une dérogation (appel AJAX DELETE).
+     * Supprime un avis ou une dérogation (appel AJAX POST).
      *
-     * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"DELETE"})
+     * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"POST"})
      *
      * @IsGranted("avis_derogations")
      */
-    public function avisEtDerogationsDelete(Dossier $dossier, int $avisDerogationId): Response
+    public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('delete_avis_derogation_'.$avisDerogationId, $csrfToken)) {
+            throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
+        }
+
         $avisDerogation = $this->avisDerogationsRepository->find($avisDerogationId);
         if (null !== $avisDerogation) {
             $this->entityManager->remove($avisDerogation);
