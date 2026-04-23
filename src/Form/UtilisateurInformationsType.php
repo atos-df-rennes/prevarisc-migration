@@ -51,15 +51,9 @@ class UtilisateurInformationsType extends AbstractType
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 50]),
-                ],
             ])
             ->add('nom', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 50]),
-                ],
             ])
 
             ->add('telephoneFixe', TelType::class, [
@@ -67,17 +61,11 @@ class UtilisateurInformationsType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Téléphone fixe ...',
                 ],
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('telephonePortable', TelType::class, [
                 'required' => false,
                 'attr' => [
                     'placeholder' => 'Portable ...',
-                ],
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
                 ],
             ])
             ->add('telephoneFax', TelType::class, [
@@ -85,23 +73,16 @@ class UtilisateurInformationsType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Fax ...',
                 ],
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('mail', EmailType::class, [
                 'label' => 'Courriel',
                 'required' => false,
                 'constraints' => [
                     new Assert\Email(),
-                    new Assert\Length(['max' => 50]),
                 ],
             ])
             ->add('siteWeb', UrlType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 100]),
-                ],
             ])
             ->add('observations', TextareaType::class, [
                 'label' => 'Adresse',
@@ -127,43 +108,20 @@ class UtilisateurInformationsType extends AbstractType
         if (in_array(self::SCOPE_GRADE, $options['scopes'])) {
             $builder->add('grade', TextType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
-                ],
             ]);
         }
 
         if (in_array(self::SCOPE_ADRESSE, $options['scopes'])) {
             $builder
-                ->add('numeroAdresse', null, [
-                    'constraints' => [
-                        new Assert\Length(['max' => 10]),
-                    ],
-                ])
-                ->add('rueAdresse', null, [
-                    'constraints' => [
-                        new Assert\Length(['max' => 255]),
-                    ],
-                ])
-                ->add('codePostalAdresse', null, [
-                    'constraints' => [
-                        new Assert\Length(['max' => 5]),
-                    ],
-                ])
-                ->add('villeAdresse', null, [
-                    'constraints' => [
-                        new Assert\Length(['max' => 255]),
-                    ],
-                ])
+                ->add('numeroAdresse', null, [])
+                ->add('rueAdresse', null, [])
+                ->add('codePostalAdresse', null, [])
+                ->add('villeAdresse', null, [])
             ;
         }
 
         if (in_array(self::SCOPE_SOCIETE, $options['scopes'])) {
-            $builder->add('societe', null, [
-                'constraints' => [
-                    new Assert\Length(['max' => 100]),
-                ],
-            ]);
+            $builder->add('societe', null, []);
         }
     }
 

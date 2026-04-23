@@ -29,79 +29,48 @@ class CommuneUtilisateurInformationsType extends AbstractType
             ->add('nom', TextType::class, [
                 'label' => false,
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 50]),
-                ],
             ])
             ->add('prenom', TextType::class, [
                 'label' => false,
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 50]),
-                ],
             ])
             ->add('telephoneFixe', TelType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('telephoneFax', TelType::class, [
                 'label' => 'Fax',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('telephonePortable', TelType::class, [
                 'label' => 'Portable',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('mail', EmailType::class, [
                 'label' => 'Courriel',
                 'required' => false,
                 'constraints' => [
                     new Assert\Email(),
-                    new Assert\Length(['max' => 50]),
                 ],
             ])
             ->add('siteWeb', UrlType::class, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 100]),
-                ],
             ])
             ->add('numeroAdresse', TextType::class, [
                 'label' => 'Numéro',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 10]),
-                ],
             ])
             ->add('rueAdresse', TextType::class, [
                 'label' => 'Rue',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
-                ],
             ])
             ->add('codePostalAdresse', TextType::class, [
                 'label' => 'Code postal',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 5]),
-                ],
             ])
             ->add('villeAdresse', TextType::class, [
                 'label' => 'Ville',
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
-                ],
             ])
             ->add('observations', TextareaType::class, [
                 'required' => false,

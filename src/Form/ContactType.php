@@ -22,9 +22,6 @@ class ContactType extends AbstractType
             ])
             ->add('societe', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 100]),
-                ],
             ])
             ->add('civilite', EntityType::class, [
                 'class' => UtilisateurCivilite::class,
@@ -33,70 +30,39 @@ class ContactType extends AbstractType
             ])
             ->add('nom', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 50]),
-                ],
             ])
             ->add('prenom', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 50]),
-                ],
             ])
             ->add('telephoneFixe', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('telephoneFax', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('telephonePortable', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 20]),
-                ],
             ])
             ->add('mail', null, [
                 'required' => false,
                 'constraints' => [
                     new Assert\Email(),
-                    new Assert\Length(['max' => 50]),
                 ],
             ])
             ->add('siteWeb', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 100]),
-                ],
             ])
             ->add('numeroAdresse', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 10]),
-                ],
             ])
             ->add('rueAdresse', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
-                ],
             ])
             ->add('codePostalAdresse', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 5]),
-                ],
             ])
             ->add('villeAdresse', null, [
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
-                ],
             ])
             ->add('observations', null, ['required' => false])
         ;

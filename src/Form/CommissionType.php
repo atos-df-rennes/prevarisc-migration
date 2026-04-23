@@ -9,7 +9,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class CommissionType extends AbstractType
 {
@@ -24,10 +23,6 @@ class CommissionType extends AbstractType
                 ],
                 'attr' => [
                     'placeholder' => 'Libellé de la commission',
-                ],
-                'constraints' => [
-                    new Assert\NotBlank(),
-                    new Assert\Length(['max' => 80]),
                 ],
             ])
             ->add('type', EntityType::class, [
