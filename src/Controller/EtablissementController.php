@@ -433,13 +433,20 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Supprime une pièce jointe d'un établissement.
      *
-     * @Route("/etablissement/{id}/delete-piece-jointe", name="etablissement_delete_piece_jointe", methods={"GET"})
+     * @Route("/etablissement/{id}/delete-piece-jointe", name="etablissement_delete_piece_jointe", methods={"POST"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
     public function deletePieceJointe(Etablissement $etablissement, Request $request): Response
     {
-        $idPj = $request->query->getInt('id_pj');
+        $idPj = $request->request->getInt('id_pj');
+
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_pj_'.$idPj, is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('error', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+        }
 
         try {
             $this->etablissementService->deletePJ($etablissement, $idPj);

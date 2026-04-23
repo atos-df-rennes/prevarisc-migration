@@ -44,7 +44,11 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id, id_pj: pj.0.pieceJointe.id}) }}">Supprimer la pièce jointe</a>
+                            <form method="post" action="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id}) }}" style="display:inline">
+                                <input type="hidden" name="id_pj" value="{{ pj.0.pieceJointe.id }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_pj_' ~ pj.0.pieceJointe.id) }}">
+                                <button type="submit" class="btn btn-link btn-sm" onclick="return confirm('Supprimer cette pièce jointe ?')">Supprimer la pièce jointe</button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}
@@ -66,7 +70,11 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id, id_pj: pj.0.pieceJointe.id}) }}">Supprimer la pièce jointe</a>
+                            <form method="post" action="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id}) }}" style="display:inline">
+                                <input type="hidden" name="id_pj" value="{{ pj.0.pieceJointe.id }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_pj_' ~ pj.0.pieceJointe.id) }}">
+                                <button type="submit" class="btn btn-link btn-sm" onclick="return confirm('Supprimer cette pièce jointe ?')">Supprimer la pièce jointe</button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}
@@ -98,12 +106,8 @@
                 url: "{{ path('etablissement_add_piece_jointe', {id: etablissement.id}) }}",
                 paramName: "file"
             });
-            myDropzone.on("success", function(file, responseText) {
-                if (responseText !== undefined) {
-                    $('#fiche_etablissement').empty().append(responseText);
-                } else {
-                    document.location.reload();
-                }
+            myDropzone.on("success", function() {
+                document.location.reload();
             });
         });
     </script>
