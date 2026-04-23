@@ -38,7 +38,7 @@ class SimpleFileDataStore implements DataStore
     ) {
         $this->types = [
             'etablissement' => 'pieces-jointes',
-            'etablissement_minature' => 'pieces-jointes'.DIRECTORY_SEPARATOR.'miniatures',
+            'etablissement_miniature' => 'etablissement_miniature',
             'dossier' => 'pieces-jointes',
             'dateCommission' => 'documents_commission',
             'document' => 'documents',
