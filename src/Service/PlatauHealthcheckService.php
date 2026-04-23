@@ -232,7 +232,7 @@ class PlatauHealthcheckService
             return null;
         }
 
-        /* @var array<string, mixed> $decodedData */
+        /** @var array<string, mixed> $decodedData */
         return $decodedData;
     }
 
@@ -328,7 +328,7 @@ class PlatauHealthcheckService
             return [];
         }
 
-        /* @var array<string, mixed> $decodedRaw */
+        /** @var array<string, mixed> $decodedRaw */
         return $decodedRaw;
     }
 

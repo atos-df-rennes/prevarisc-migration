@@ -21,13 +21,12 @@ class ZendSessionBridge
      */
     public function getAuthenticatedUsername(): ?string
     {
-        if (!isset($_SESSION['Zend_Auth']['storage']['USERNAME_UTILISATEUR'])) {
+        $zendAuth = $_SESSION['Zend_Auth'] ?? null;
+        if (!is_array($zendAuth)) {
             return null;
         }
 
         /** @var ZendAuth $zendAuth */
-        $zendAuth = $_SESSION['Zend_Auth'];
-
         return $zendAuth['storage']['USERNAME_UTILISATEUR'];
     }
 
