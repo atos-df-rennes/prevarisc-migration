@@ -27,7 +27,7 @@ class CommissionType extends AbstractType
                 ],
                 'constraints' => [
                     new Assert\NotBlank(),
-                    new Assert\Length(['max' => 50]),
+                    new Assert\Length(['max' => 80]),
                 ],
             ])
             ->add('type', EntityType::class, [
