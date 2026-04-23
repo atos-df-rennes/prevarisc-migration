@@ -52,11 +52,9 @@ class CoucheCartoRepository extends ServiceEntityRepository
      */
     public function findAllOrdered(): array
     {
-        $couchesCarto = $this->findAll();
-        usort($couchesCarto, function ($a, $b): int {
-            return ($a->getOrdre() ?? 0) - ($b->getOrdre() ?? 0);
-        });
-
-        return $couchesCarto;
+        return $this->createQueryBuilder('c')
+            ->orderBy('c.ordre', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }
