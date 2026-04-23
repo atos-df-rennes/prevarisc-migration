@@ -1,4 +1,5 @@
 {% extends 'layouts/dossier.html.twig' %}
+{% import 'macros/dossier.html.twig' as dm %}
 
 {% form_theme form _self '_form_theme_tom_select.html.twig' %}
 
@@ -110,29 +111,9 @@
         <ul class='list-unstyled'>
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateInsert}) }}
 
-            <li class='row' id='field-objet'>
-                <div class='left libelle col-md-3'>{{ form_label(form.objet) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.objet) }}
-                    {{ form_errors(form.objet) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-demandeur'>
-                <div class='left libelle col-md-3'>{{ form_label(form.demandeur) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.demandeur) }}
-                    {{ form_errors(form.demandeur) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-lieuReunion'>
-                <div class='left libelle col-md-3'>{{ form_label(form.lieuReunion) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.lieuReunion) }}
-                    {{ form_errors(form.lieuReunion) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.objet, 'field-objet') }}
+            {{ dm.champ_form(form.demandeur, 'field-demandeur') }}
+            {{ dm.champ_form(form.lieuReunion, 'field-lieuReunion') }}
 
             {# Champs spécifiques études (PC/AT) - Ordre selon legacy #}
             {% do form.documentsUrbanisme.setRendered %}
@@ -170,21 +151,8 @@
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateEnvoiTransit}) }}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReception}) }}
 
-            <li class='row' id='field-serviceInstructeur'>
-                <div class='left libelle col-md-3'>{{ form_label(form.serviceInstructeur) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.serviceInstructeur) }}
-                    {{ form_errors(form.serviceInstructeur) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-commission'>
-                <div class='left libelle col-md-3'>{{ form_label(form.commission) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.commission) }}
-                    {{ form_errors(form.commission) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.serviceInstructeur, 'field-serviceInstructeur') }}
+            {{ dm.champ_form(form.commission, 'field-commission') }}
 
             {# Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés #}
             {# (gérés dans sections séparées ou obsolètes) #}
@@ -304,37 +272,10 @@
             {{ form_row(form.idAffectationDossierCommission) }}
 
             {# Champs spécifiques dérogations (nature 3) - Ordre legacy #}
-            <li class='row' id='field-reglesDerogation'>
-                <div class='left libelle col-md-3'>{{ form_label(form.reglesDerogation) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.reglesDerogation) }}
-                    {{ form_errors(form.reglesDerogation) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-justificationDerogation'>
-                <div class='left libelle col-md-3'>{{ form_label(form.justificationDerogation) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.justificationDerogation) }}
-                    {{ form_errors(form.justificationDerogation) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-mesuresCompensatoires'>
-                <div class='left libelle col-md-3'>{{ form_label(form.mesuresCompensatoires) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.mesuresCompensatoires) }}
-                    {{ form_errors(form.mesuresCompensatoires) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-mesuresComplementaires'>
-                <div class='left libelle col-md-3'>{{ form_label(form.mesuresComplementaires) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.mesuresComplementaires) }}
-                    {{ form_errors(form.mesuresComplementaires) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.reglesDerogation, 'field-reglesDerogation') }}
+            {{ dm.champ_form(form.justificationDerogation, 'field-justificationDerogation') }}
+            {{ dm.champ_form(form.mesuresCompensatoires, 'field-mesuresCompensatoires') }}
+            {{ dm.champ_form(form.mesuresComplementaires, 'field-mesuresComplementaires') }}
 
             {# Champs spécifiques études - État dossier (incomplet) avec documents manquants #}
             {% do form.documentsManquants.setRendered %}
@@ -485,32 +426,14 @@
 
             {# @todo: Reprendre la logique avec le plugin pour modifier le template (Plugin_FacteurCriticite) #}
             {# Champs conditionnels - affichés/masqués par JS selon avis commission #}
-            <li class='row' id='field-facteurDangerosite'>
-                <div class='left libelle col-md-3'>{{ form_label(form.facteurDangerosite) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.facteurDangerosite) }}
-                    {{ form_errors(form.facteurDangerosite) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.facteurDangerosite, 'field-facteurDangerosite') }}
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.echeancierTravaux, show_today: false}) }}
 
             {# Analyse de risque : affiché pour types 1, 2, 3 (géré par JS - voir form.js) #}
-            <li class='row' id='field-analyseDeRisque' style='display:none;'>
-                <div class='left libelle col-md-3'>{{ form_label(form.analyseDeRisque) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.analyseDeRisque) }}
-                    {{ form_errors(form.analyseDeRisque) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.analyseDeRisque, 'field-analyseDeRisque', 'display:none;') }}
 
-            <li class='row' id='field-observations'>
-                <div class='left libelle col-md-3'>{{ form_label(form.observations) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.observations) }}
-                    {{ form_errors(form.observations) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.observations, 'field-observations') }}
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.datePrefecture}) }}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReponse}) }}
@@ -521,13 +444,7 @@
 
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReunion}) }}
 
-            <li class='row' id='field-chargeSecurite'>
-                <div class='left libelle col-md-3'>{{ form_label(form.chargeSecurite) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.chargeSecurite) }}
-                    {{ form_errors(form.chargeSecurite) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.chargeSecurite, 'field-chargeSecurite') }}
 
             {# Champs spécifiques interventions (natures 37, 38, 39) #}
             <li class='row' id='field-operationSdis'>
@@ -552,45 +469,11 @@
                 </div>
             </li>
 
-            <li class='row' id='field-rex'>
-                <div class='left libelle col-md-3'>{{ form_label(form.rex) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.rex) }}
-                    {{ form_errors(form.rex) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-numeroIntervention'>
-                <div class='left libelle col-md-3'>{{ form_label(form.numeroIntervention) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.numeroIntervention) }}
-                    {{ form_errors(form.numeroIntervention) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dateIntervention'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dateIntervention) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dateIntervention) }}
-                    {{ form_errors(form.dateIntervention) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-dureeIntervention'>
-                <div class='left libelle col-md-3'>{{ form_label(form.dureeIntervention) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.dureeIntervention) }}
-                    {{ form_errors(form.dureeIntervention) }}
-                </div>
-            </li>
-
-            <li class='row' id='field-preventionnistes'>
-                <div class='left libelle col-md-3'>{{ form_label(form.preventionnistes) }}</div>
-                <div class='right form col-md-9'>
-                    {{ form_widget(form.preventionnistes) }}
-                    {{ form_errors(form.preventionnistes) }}
-                </div>
-            </li>
+            {{ dm.champ_form(form.rex, 'field-rex') }}
+            {{ dm.champ_form(form.numeroIntervention, 'field-numeroIntervention') }}
+            {{ dm.champ_form(form.dateIntervention, 'field-dateIntervention') }}
+            {{ dm.champ_form(form.dureeIntervention, 'field-dureeIntervention') }}
+            {{ dm.champ_form(form.preventionnistes, 'field-preventionnistes') }}
         </ul>
     </section>
 
