@@ -386,7 +386,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche le formulaire modal d'ajout de pièce jointe (chargé via AJAX).
      *
-     * @Route("/etablissement/{id}/pieces-jointes/ajouter/formulaire", name="etablissement_pieces_jointes_ajouter_formulaire", methods={"GET"})
+     * @Route("/etablissement/{id}/pieces-jointes/ajouter/formulaire", name="etablissement_pieces_jointes_ajouter_formulaire", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -400,7 +400,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Traite l'ajout d'une pièce jointe à un établissement (formulaire modal ou Dropzone).
      *
-     * @Route("/etablissement/{id}/pieces-jointes/ajouter", name="etablissement_pieces_jointes_ajouter", methods={"POST"})
+     * @Route("/etablissement/{id}/pieces-jointes/ajouter", name="etablissement_pieces_jointes_ajouter", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -449,7 +449,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Supprime une pièce jointe d'un établissement.
      *
-     * @Route("/etablissement/{id}/pieces-jointes/supprimer", name="etablissement_pieces_jointes_supprimer", methods={"POST"})
+     * @Route("/etablissement/{id}/pieces-jointes/supprimer", name="etablissement_pieces_jointes_supprimer", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
