@@ -21,12 +21,16 @@
 
     <div class="clearfix"></div>
 
-    {% for avis_derogation in arrayAvisDerogations %}
-        {{ include('dossier/avis_et_derogations/_card.html.twig', {
-            avisDerogation: avis_derogation,
-            dossier: dossier,
-        }) }}
-    {% endfor %}
+    <div class="row">
+        {% for avis_derogation in arrayAvisDerogations %}
+            <div class="col-md-6">
+                {{ include('dossier/avis_et_derogations/_card.html.twig', {
+                    avisDerogation: avis_derogation,
+                    dossier: dossier,
+                }) }}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block javascripts %}
@@ -74,12 +78,6 @@
                     }
                 ]
             });
-        });
-
-        // Met à jour le label du bouton submit selon le type sélectionné
-        $('select[name="TYPE"]').on('change', function () {
-            var label = $(this).val() === 'Avis' ? "Ajouter l'avis" : "Ajouter la dérogation";
-            $('.js-submit-label').text(label);
         });
     </script>
 {% endblock %}
