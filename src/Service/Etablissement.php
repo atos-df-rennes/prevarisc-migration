@@ -385,7 +385,7 @@ final class Etablissement
     }
 
     /**
-     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     * @return array<list{0:EtablissementPieceJointe,1:string,2:string|null}>
      */
     public function getPJImages(int $id): array
     {
@@ -395,7 +395,7 @@ final class Etablissement
     }
 
     /**
-     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     * @return array<list{0:EtablissementPieceJointe,1:string,2:string|null}>
      */
     public function getAutresPJs(int $id): array
     {
@@ -407,7 +407,7 @@ final class Etablissement
     /**
      * @param EtablissementPieceJointe[] $pjs
      *
-     * @return array<list{0:EtablissementPieceJointe,1:string}>
+     * @return array<list{0:EtablissementPieceJointe,1:string,2:string|null}>
      */
     private function filtrePJs(array $pjs): array
     {
@@ -433,14 +433,23 @@ final class Etablissement
             }
         );
 
-        return array_map(function (EtablissementPieceJointe $pj) use ($store): array {
+        $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+
+        return array_map(function (EtablissementPieceJointe $pj) use ($store, $imageExtensions): array {
             $path = '';
+            $miniatureUrl = null;
 
             if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                 $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
+
+                if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions)) {
+                    $miniaturePjHelper = clone $pj->getPieceJointe();
+                    $miniaturePjHelper->setExtension('.jpg');
+                    $miniatureUrl = $store->getURLPath($miniaturePjHelper, 'etablissement_miniature', $pj->getEtablissement()->getId());
+                }
             }
 
-            return [$pj, $path ?? ''];
+            return [$pj, $path ?? '', $miniatureUrl];
         }, $pjsFiltrees);
     }
 
@@ -861,7 +870,7 @@ final class Etablissement
             if (in_array($extension, $imageExtensions)) {
                 $miniaturePjHelper = clone $pieceJointe;
                 $miniaturePjHelper->setExtension('.jpg');
-                $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_minature', $etablissement->getId(), true);
+                $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId(), true);
                 $this->imageService->resize($filePath, 450)->save($miniaturePath);
 
                 if (!is_file($miniaturePath)) {
@@ -909,7 +918,7 @@ final class Etablissement
         $miniaturePjHelper = clone $pieceJointe;
         $miniaturePjHelper->setExtension('.jpg');
 
-        $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_minature', $etablissement->getId());
+        $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId());
 
         $this->filesystem->remove(array_filter([$filePath, $miniaturePath], 'file_exists'));
 

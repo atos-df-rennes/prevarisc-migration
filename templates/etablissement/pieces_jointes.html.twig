@@ -57,9 +57,10 @@
                 {% for piecejointe in image_pjs %}
                     <div class="col-md-3">
                         <a href='{{ absolute_url(piecejointe.1) }}' data-fancybox="pj-gallery" data-caption="{{ piecejointe.0.pieceJointe.nom }}" class="thumbnail">
-                            <h5>{{ piecejointe.0.pieceJointe.nom }}</h5>
-                            <p>{{ piecejointe.0.pieceJointe.description }}</p>
-                        </a>
+                        <img src="{{ absolute_url(piecejointe.2) }}" alt="{{ piecejointe.0.pieceJointe.nom }}">
+                        <h5>{{ piecejointe.0.pieceJointe.nom }}</h5>
+                        <p>{{ piecejointe.0.pieceJointe.description }}</p>
+                    </a>
                     </div>
                 {% endfor %}
             </div>
