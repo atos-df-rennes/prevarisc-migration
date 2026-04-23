@@ -21,6 +21,9 @@ $config->registerCustomFixers([
         // PHP 7.1 : `mixed` n'est pas un type natif, le docblock @param/@return mixed
         // est nécessaire pour PHPStan niveau 10 et ne doit pas être supprimé.
         'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, 'allow_hidden_params' => true, 'remove_inheritdoc' => true],
+        // Conserver /** @var */ même avant un return (utilisé pour affiner les types
+        // pour PHPStan, e.g. json_decode() renvoie mixed).
+        'phpdoc_to_comment' => ['ignored_tags' => ['var']],
         'trailing_comma_in_multiline' => ['elements' => []],
         'Tombenevides/dump_removal' => true,
     ])
