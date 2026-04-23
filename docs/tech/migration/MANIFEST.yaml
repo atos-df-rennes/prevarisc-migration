@@ -71,3 +71,32 @@ etablissement_pieces_jointes_gestion:
       path: /etablissement/{id}/pieces-jointes/supprimer
     - name: piece_jointe_get_etablissement
       path: /piece-jointe/etablissement/{id}/recuperer/{idpj}
+
+dossier_avis_et_derogations:
+  status: done
+  legacy_files:
+    - prevarisc/application/controllers/DossierController.php (avisEtDerogationsAction, avisEtDerogationsEditAction, avisEtDerogationsDeleteAction, lignes 3425-3550)
+    - prevarisc/application/views/scripts/dossier/avis-et-derogations.phtml
+    - prevarisc/application/views/scripts/dossier/avis-et-derogations-edit.phtml
+  migrated_files:
+    - prevarisc-migration/src/Repository/AvisDerogationsRepository.php (findByDossier)
+    - prevarisc-migration/src/Controller/DossierController.php (avisEtDerogations, avisEtDerogationsEdit, avisEtDerogationsDelete)
+    - prevarisc-migration/templates/dossier/avis_et_derogations/index.html.twig
+    - prevarisc-migration/templates/dossier/avis_et_derogations/edit.html.twig
+    - prevarisc-migration/templates/dossier/avis_et_derogations/_card.html.twig
+    - prevarisc-migration/templates/dossier/avis_et_derogations/_form.html.twig
+    - prevarisc-migration/templates/layouts/dossier.html.twig (lien onglet mis à jour)
+  updated_at: "2026-05-06"
+  notes: >
+    Port direct des 3 actions legacy. Rendu du champ "dossier lié" enrichi via la macro
+    _macros_reprise_dossier.html.twig (radio, ID_DOSSIER_LIE) — comportement légèrement
+    plus riche que le legacy (liste groupée visites/études/autres) mais accepté.
+    Suppression AJAX via POST HTTP (js/dossier/avisDerogation.js, déjà migré BS3).
+    Pré-sélection du radio en mode édition via script inline DOMContentLoaded.
+  routes:
+    - name: dossier_avis_et_derogations
+      path: /dossier/{id}/avis-et-derogations
+    - name: dossier_avis_et_derogations_edit
+      path: /dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier
+    - name: dossier_avis_et_derogations_delete
+      path: /dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer

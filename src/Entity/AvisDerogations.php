@@ -81,7 +81,7 @@ class AvisDerogations
     /**
      * @var ?Avis
      *
-     * @ORM\ManyToOne(targetEntity=Avis::class, cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Avis::class)
      *
      * @ORM\JoinColumn(name="AVIS", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
      */
@@ -90,7 +90,7 @@ class AvisDerogations
     /**
      * @var ?Dossier
      *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Dossier::class)
      *
      * @ORM\JoinColumn(name="ID_DOSSIER_LIE", referencedColumnName="ID_DOSSIER", nullable=true)
      */

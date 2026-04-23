@@ -1,0 +1,112 @@
+{#
+    Formulaire partagé pour ajout/édition d'un avis ou dérogation.
+
+    Variables :
+        - dossier        : Dossier
+        - listeAvis      : Avis[]
+        - dossiersGroupes: array (etudes: Dossier[], visites: Dossier[], autres: Dossier[])
+        - avisDerogation : AvisDerogations|null  (null = mode ajout)
+        - submitLabel    : string
+#}
+{% import 'dossier/_macros_reprise_dossier.html.twig' as reprise %}
+
+{% set current_type = avisDerogation ? avisDerogation.type : 'Avis' %}
+{% set current_avis_id = avisDerogation and avisDerogation.avis ? avisDerogation.avis.id : null %}
+{% set current_dossier_lie_id = avisDerogation and avisDerogation.dossierLie ? avisDerogation.dossierLie.id : null %}
+{% set csrf_token_id = avisDerogation ? 'avis_derogation_edit_' ~ avisDerogation.id : 'avis_derogation_create_' ~ dossier.id %}
+
+<input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputType">Type</label>
+    <div class="col-md-9">
+        <select id="inputType" name="TYPE" class="form-control" required>
+            <option value="Avis" {% if current_type == 'Avis' %}selected{% endif %}>Avis</option>
+            <option value="Dérogation" {% if current_type == 'Dérogation' %}selected{% endif %}>Dérogation</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputTitre">Titre</label>
+    <div class="col-md-9">
+        <input name="TITRE" type="text" id="inputTitre" class="form-control" required
+               value="{{ avisDerogation ? avisDerogation.titre : '' }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputObjet">Objet</label>
+    <div class="col-md-9">
+        <textarea id="inputObjet" name="OBJET" class="form-control">{{ avisDerogation ? avisDerogation.objet : '' }}</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputJustification">Justification</label>
+    <div class="col-md-9">
+        <textarea id="inputJustification" name="JUSTIFICATION" class="form-control">{{ avisDerogation ? avisDerogation.justification : '' }}</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputArticlesConcernes">Article(s) concerné(s)</label>
+    <div class="col-md-9">
+        <textarea id="inputArticlesConcernes" name="ARTICLES_CONCERNES" class="form-control">{{ avisDerogation ? avisDerogation.articlesConcernes : '' }}</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputMesuresCompensatoiresProposees">Mesure(s) compensatoire(s) proposée(s)</label>
+    <div class="col-md-9">
+        <textarea id="inputMesuresCompensatoiresProposees" name="MESURES_COMPENSATOIRES_PROPOSEES" class="form-control">{{ avisDerogation ? avisDerogation.mesuresCompensatoiresProposees : '' }}</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputAnalyseDeRisque">Analyse de risque</label>
+    <div class="col-md-9">
+        <textarea id="inputAnalyseDeRisque" name="ANALYSE_DE_RISQUE" class="form-control">{{ avisDerogation ? avisDerogation.analyseDeRisque : '' }}</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="inputAvis">Avis</label>
+    <div class="col-md-9">
+        <select id="inputAvis" name="AVIS" class="form-control">
+            {% for avis in listeAvis %}
+                <option value="{{ avis.id }}" {% if current_avis_id == avis.id %}selected{% endif %}>
+                    {{ avis.libelle }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">Avis/Dérogation levé(e)</label>
+    <div class="col-md-9">
+        <button id="deselect" type="button" class="btn btn-info btn-sm {% if current_dossier_lie_id is null %}hide{% endif %}">
+            Désélectionner
+        </button>
+        <div class="avis-derogation__leve mt-2">
+            {{ reprise.groupe('Visite(s)', dossiersGroupes.visites, true, 'radio', 'ID_DOSSIER_LIE') }}
+            {{ reprise.groupe('Étude(s)', dossiersGroupes.etudes, dossiersGroupes.visites is empty, 'radio', 'ID_DOSSIER_LIE') }}
+            {{ reprise.groupe('Autre(s)', dossiersGroupes.autres, dossiersGroupes.visites is empty and dossiersGroupes.etudes is empty, 'radio', 'ID_DOSSIER_LIE') }}
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label" for="DISPLAY_HISTORIQUE">Afficher dans l'onglet de l'établissement</label>
+    <div class="col-md-9">
+        <input type="hidden" name="DISPLAY_HISTORIQUE" value="0">
+        <input
+            type="checkbox"
+            id="DISPLAY_HISTORIQUE"
+            name="DISPLAY_HISTORIQUE"
+            value="1"
+            {% if avisDerogation and avisDerogation.displayHistorique %}checked{% endif %}
+        >
+    </div>
+</div>

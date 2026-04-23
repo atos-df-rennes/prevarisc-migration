@@ -31,7 +31,7 @@
                         </td>
                         <td>
                             <a
-                                href="{{ '/dossier/avis-et-derogations-edit/id/' ~ item.idDossier ~ '/avis-derogation/' ~ item.id }}"
+                                href="{{ path('dossier_avis_et_derogations_edit', {id: item.idDossier, avisDerogationId: item.id}) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Ouvrir {{ item.titre }} (nouvel onglet)"
@@ -42,7 +42,7 @@
 
                                 {% if item.leve %}
                                     <span class="label label-info">
-                                        Levé{% if item.type == 'Dérogation' %}'e'{% endif %}
+                                        Levé{% if item.type == 'Dérogation' %}e{% endif %}
                                     </span>
                                 {% endif %}
                             </div>

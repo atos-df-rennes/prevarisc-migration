@@ -7,6 +7,7 @@ use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
+use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
@@ -14,6 +15,7 @@ use App\Entity\Utilisateur;
 use App\Form\Dossier\DossierDescriptifType;
 use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
+use App\Repository\AvisDerogationsRepository;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
@@ -63,6 +65,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * @var DossierTypeRepository
      */
     private $dossierTypeRepository;
+
+    /**
+     * @var AvisDerogationsRepository
+     */
+    private $avisDerogationsRepository;
 
     /**
      * @var AvisRepository
@@ -159,6 +166,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DateCommission $dateCommissionService,
         DossierTypeRepository $dossierTypeRepository,
         AvisRepository $avisRepository,
+        AvisDerogationsRepository $avisDerogationsRepository,
         CommissionTypeRepository $commissionTypeRepository,
         CommissionRepository $commissionRepository,
         EtablissementRepository $etablissementRepository,
@@ -185,6 +193,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dateCommissionService = $dateCommissionService;
         $this->dossierTypeRepository = $dossierTypeRepository;
         $this->avisRepository = $avisRepository;
+        $this->avisDerogationsRepository = $avisDerogationsRepository;
         $this->commissionTypeRepository = $commissionTypeRepository;
         $this->commissionRepository = $commissionRepository;
         $this->etablissementRepository = $etablissementRepository;
@@ -772,5 +781,204 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'rubriques' => $data['rubriques'],
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Affiche et gère les avis et dérogations d'un dossier.
+     *
+     * @Route("/dossier/{id}/avis-et-derogations", name="dossier_avis_et_derogations", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     *
+     * @Security("is_granted('avis_derogations') and is_granted('view_doss', dossier)")
+     */
+    public function avisEtDerogations(Request $request, Dossier $dossier): Response
+    {
+        $listeAvis = $this->avisRepository->findAll();
+        $etablissement = $dossier->getEtablissements()->first() ?: null;
+        $dossiersGroupes = $etablissement
+            ? $this->dossierRepository->findByEtablissementGrouped($etablissement, $dossier)
+            : ['etudes' => [], 'visites' => [], 'autres' => []];
+
+        if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('edit_doss', $dossier);
+
+            $data = $request->request->all();
+
+            /** @var string $csrfToken */
+            $csrfToken = $data['_token'] ?? '';
+            if (!$this->isCsrfTokenValid('avis_derogation_create_'.$dossier->getId(), $csrfToken)) {
+                throw $this->createAccessDeniedException('Token de sécurité invalide.');
+            }
+
+            $avisDerogation = new AvisDerogations();
+            $avisDerogation->setDossier($dossier);
+
+            /** @var string $type */
+            $type = $data['TYPE'] ?? 'Avis';
+            $avisDerogation->setType($type);
+
+            /** @var string|null $titre */
+            $titre = $data['TITRE'] ?? null;
+            $avisDerogation->setTitre($titre);
+
+            /** @var string|null $objet */
+            $objet = $data['OBJET'] ?? null;
+            $avisDerogation->setObjet($objet);
+
+            /** @var string|null $justification */
+            $justification = $data['JUSTIFICATION'] ?? null;
+            $avisDerogation->setJustification($justification);
+
+            /** @var string|null $articlesConcernes */
+            $articlesConcernes = $data['ARTICLES_CONCERNES'] ?? null;
+            $avisDerogation->setArticlesConcernes($articlesConcernes);
+
+            /** @var string|null $mesuresCompensatoiresProposees */
+            $mesuresCompensatoiresProposees = $data['MESURES_COMPENSATOIRES_PROPOSEES'] ?? null;
+            $avisDerogation->setMesuresCompensatoiresProposees($mesuresCompensatoiresProposees);
+
+            /** @var string|null $analyseDeRisque */
+            $analyseDeRisque = $data['ANALYSE_DE_RISQUE'] ?? null;
+            $avisDerogation->setAnalyseDeRisque($analyseDeRisque);
+
+            $avisDerogation->setDisplayHistorique((bool) ($data['DISPLAY_HISTORIQUE'] ?? false));
+
+            $rawAvisId = $data['AVIS'] ?? null;
+            $avis = is_numeric($rawAvisId) ? $this->avisRepository->find((int) $rawAvisId) : null;
+            $avisDerogation->setAvis($avis);
+
+            $rawDossierLieId = $data['ID_DOSSIER_LIE'] ?? null;
+            $dossierLie = is_numeric($rawDossierLieId) ? $this->dossierRepository->find((int) $rawDossierLieId) : null;
+            if (null !== $dossierLie && (null === $etablissement || !$dossierLie->getEtablissements()->contains($etablissement))) {
+                $dossierLie = null;
+            }
+
+            $avisDerogation->setDossierLie($dossierLie);
+
+            $this->entityManager->persist($avisDerogation);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'L\'avis ou la dérogation a été ajouté(e) avec succès.');
+
+            return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/avis_et_derogations/index.html.twig', [
+            'dossier' => $dossier,
+            'arrayAvisDerogations' => $this->avisDerogationsRepository->findByDossier($dossier),
+            'listeAvis' => $listeAvis,
+            'dossiersGroupes' => $dossiersGroupes,
+        ]);
+    }
+
+    /**
+     * Édite un avis ou une dérogation.
+     *
+     * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier", name="dossier_avis_et_derogations_edit", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"GET", "POST"})
+     *
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
+     */
+    public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
+    {
+        $avisDerogation = $this->avisDerogationsRepository->findOneBy(['id' => $avisDerogationId, 'dossier' => $dossier]);
+        if (null === $avisDerogation) {
+            throw $this->createNotFoundException('Avis ou dérogation introuvable.');
+        }
+
+        $listeAvis = $this->avisRepository->findAll();
+        $etablissement = $dossier->getEtablissements()->first() ?: null;
+        $dossiersGroupes = $etablissement
+            ? $this->dossierRepository->findByEtablissementGrouped($etablissement, $dossier)
+            : ['etudes' => [], 'visites' => [], 'autres' => []];
+
+        if ($request->isMethod('POST')) {
+            $data = $request->request->all();
+
+            /** @var string $csrfToken */
+            $csrfToken = $data['_token'] ?? '';
+            if (!$this->isCsrfTokenValid('avis_derogation_edit_'.$avisDerogation->getId(), $csrfToken)) {
+                throw $this->createAccessDeniedException('Token de sécurité invalide.');
+            }
+
+            /** @var string $type */
+            $type = $data['TYPE'] ?? $avisDerogation->getType();
+            $avisDerogation->setType($type);
+
+            /** @var string|null $titre */
+            $titre = $data['TITRE'] ?? null;
+            $avisDerogation->setTitre($titre);
+
+            /** @var string|null $objet */
+            $objet = $data['OBJET'] ?? null;
+            $avisDerogation->setObjet($objet);
+
+            /** @var string|null $justification */
+            $justification = $data['JUSTIFICATION'] ?? null;
+            $avisDerogation->setJustification($justification);
+
+            /** @var string|null $articlesConcernes */
+            $articlesConcernes = $data['ARTICLES_CONCERNES'] ?? null;
+            $avisDerogation->setArticlesConcernes($articlesConcernes);
+
+            /** @var string|null $mesuresCompensatoiresProposees */
+            $mesuresCompensatoiresProposees = $data['MESURES_COMPENSATOIRES_PROPOSEES'] ?? null;
+            $avisDerogation->setMesuresCompensatoiresProposees($mesuresCompensatoiresProposees);
+
+            /** @var string|null $analyseDeRisque */
+            $analyseDeRisque = $data['ANALYSE_DE_RISQUE'] ?? null;
+            $avisDerogation->setAnalyseDeRisque($analyseDeRisque);
+
+            $avisDerogation->setDisplayHistorique((bool) ($data['DISPLAY_HISTORIQUE'] ?? false));
+
+            $rawAvisId = $data['AVIS'] ?? null;
+            $avis = is_numeric($rawAvisId) ? $this->avisRepository->find((int) $rawAvisId) : null;
+            $avisDerogation->setAvis($avis);
+
+            // ID_DOSSIER_LIE absent du POST = désélectionné
+            $rawDossierLieId = $data['ID_DOSSIER_LIE'] ?? null;
+            $dossierLie = is_numeric($rawDossierLieId) ? $this->dossierRepository->find((int) $rawDossierLieId) : null;
+            if (null !== $dossierLie && (null === $etablissement || !$dossierLie->getEtablissements()->contains($etablissement))) {
+                $dossierLie = null;
+            }
+
+            $avisDerogation->setDossierLie($dossierLie);
+
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'L\'avis ou la dérogation a été modifié(e) avec succès.');
+
+            return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/avis_et_derogations/edit.html.twig', [
+            'dossier' => $dossier,
+            'avisDerogation' => $avisDerogation,
+            'listeAvis' => $listeAvis,
+            'dossiersGroupes' => $dossiersGroupes,
+        ]);
+    }
+
+    /**
+     * Supprime un avis ou une dérogation (appel AJAX POST).
+     *
+     * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"POST"})
+     *
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
+     */
+    public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
+    {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('delete_avis_derogation_'.$avisDerogationId, $csrfToken)) {
+            throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
+        }
+
+        $avisDerogation = $this->avisDerogationsRepository->findOneBy(['id' => $avisDerogationId, 'dossier' => $dossier]);
+        if (null !== $avisDerogation) {
+            $this->entityManager->remove($avisDerogation);
+            $this->entityManager->flush();
+        }
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }
