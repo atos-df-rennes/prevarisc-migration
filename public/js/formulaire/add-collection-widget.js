@@ -68,8 +68,14 @@ function addTagFormDeleteLink(element) {
     element.firstElementChild.append(buttonWrapper);
 
     buttonWrapper.querySelector('button').addEventListener('click', function(e) {
-        // remove the li for the tag form
+        const parentList = element.parentElement;
         element.remove();
+
+        // Permet aux modules spécifiques de réagir à la suppression d'un item.
+        const removeEvent = new CustomEvent('collection:item-removed', {
+            detail: { list: parentList, element: element }
+        });
+        document.dispatchEvent(removeEvent);
     });
 }
 

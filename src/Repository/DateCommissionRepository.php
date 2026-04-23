@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -92,17 +93,19 @@ class DateCommissionRepository extends ServiceEntityRepository
             LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
             WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
 
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+        $types = [];
+
         if ([] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
-            $select .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+            $select .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
+            $params['commissionIds'] = array_map('intval', $commissionIds);
+            $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
         }
 
         $select .= ' ORDER BY DATE_COMMISSION, HEUREDEB_COMMISSION';
 
-        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
-
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($select, $params);
+        $rows = $conn->fetchAllAssociative($select, $params, $types);
 
         return $rows;
     }
@@ -123,13 +126,16 @@ class DateCommissionRepository extends ServiceEntityRepository
             LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
             WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
 
+        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
+        $types = [];
+
         if ([] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
-            $sql .= ' AND d.COMMISSION_CONCERNE IN ('.$inList.')';
+            $sql .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
+            $params['commissionIds'] = array_map('intval', $commissionIds);
+            $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
         }
 
-        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
-        $count = $conn->fetchOne($sql, $params);
+        $count = $conn->fetchOne($sql, $params, $types);
 
         return is_numeric($count) ? (int) $count : 0;
     }
@@ -143,7 +149,7 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findDossierAffectForCommission(int $idDateCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
             FROM dossier doss
             JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
             JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
@@ -177,7 +183,7 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findDossierNonAffectForCommission(int $idDateCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
             FROM dossier doss
             JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
             JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
@@ -199,6 +205,192 @@ class DateCommissionRepository extends ServiceEntityRepository
 
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne la liste des dates de commission liées à une date maître (y compris elle-même).
+     * Port direct de Model_DbTable_DateCommission::getCommissionsQtypListing().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getCommissionsQtypListing(int $idDateCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT * FROM datecommission
+            WHERE (ID_DATECOMMISSION = :id OR DATECOMMISSION_LIEES = :id)
+            ORDER BY DATE_COMMISSION';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['id' => $idDateCommission]);
+
+        return $rows;
+    }
+
+    /**
+     * Met à jour le libellé d'une date de commission et de toutes ses dates liées.
+     * Port direct de Model_DbTable_DateCommission::dateCommUpdateLibelle().
+     */
+    public function updateLibelle(int $idDateCommission, string $libelle): void
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'UPDATE datecommission
+            SET LIBELLE_DATECOMMISSION = :libelle
+            WHERE (ID_DATECOMMISSION = :id OR DATECOMMISSION_LIEES = :id)';
+
+        $conn->executeStatement($sql, ['libelle' => $libelle, 'id' => $idDateCommission]);
+    }
+
+    /**
+     * Met à jour le type d'une date de commission et de toutes ses dates liées.
+     * Port direct de Model_DbTable_DateCommission::dateCommUpdateType().
+     */
+    public function updateType(int $idDateCommission, int $idNewType): void
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'UPDATE datecommission
+            SET ID_COMMISSIONTYPEEVENEMENT = :idNewType
+            WHERE (ID_DATECOMMISSION = :id OR DATECOMMISSION_LIEES = :id)';
+
+        $conn->executeStatement($sql, ['idNewType' => $idNewType, 'id' => $idDateCommission]);
+    }
+
+    /**
+     * Change la date maître d'un groupe de dates liées.
+     * Port direct de Model_DbTable_DateCommission::changeMasterDateComm().
+     */
+    public function changeMasterDateComm(int $oldMasterId, int $newMasterId): void
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'UPDATE datecommission
+            SET DATECOMMISSION_LIEES = :newMasterId
+            WHERE (ID_DATECOMMISSION = :oldMasterId OR DATECOMMISSION_LIEES = :oldMasterId)';
+
+        $conn->executeStatement($sql, ['newMasterId' => $newMasterId, 'oldMasterId' => $oldMasterId]);
+    }
+
+    /**
+     * Met à jour les dates de commission dans les dossiers liés à une date de commission.
+     * Port direct de Model_DbTable_DateCommission::updateDependingDossierDates().
+     */
+    public function updateDependingDossierDates(int $idDateCommission, string $dateCommission, int $idTypeEvenement): void
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        /** @var array<int, array<string, mixed>> $dossiers */
+        $dossiers = $conn->fetchAllAssociative(
+            'SELECT ID_DOSSIER_AFFECT FROM dossieraffectation WHERE ID_DATECOMMISSION_AFFECT = :id',
+            ['id' => $idDateCommission]
+        );
+
+        if ([] === $dossiers) {
+            return;
+        }
+
+        $dossierIds = array_map(function (array $row): int {
+            return (int) $row['ID_DOSSIER_AFFECT'];
+        }, $dossiers);
+
+        if (1 === $idTypeEvenement) {
+            $conn->executeStatement(
+                'UPDATE dossier SET DATECOMM_DOSSIER = :date WHERE ID_DOSSIER IN (:ids)',
+                ['date' => $dateCommission, 'ids' => $dossierIds],
+                ['ids' => Connection::PARAM_INT_ARRAY]
+            );
+        } elseif (in_array($idTypeEvenement, [2, 3], true)) {
+            $conn->executeStatement(
+                'UPDATE dossier SET DATEVISITE_DOSSIER = :date WHERE ID_DOSSIER IN (:ids)',
+                ['date' => $dateCommission, 'ids' => $dossierIds],
+                ['ids' => Connection::PARAM_INT_ARRAY]
+            );
+        }
+    }
+
+    /**
+     * Retourne les DateCommissions d'un mois/année pour une commission donnée.
+     * Port direct de Model_DbTable_DateCommission::getMonthCommission().
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findByMonthAndCommission(int $mois, int $annee, int $idCommission): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $start = (new \DateTime(sprintf('%04d-%02d-01', $annee, $mois)))->format('Y-m-d');
+        $end = (new \DateTime(sprintf('%04d-%02d-01', $annee, $mois)))->modify('+1 month')->format('Y-m-d');
+
+        $sql = 'SELECT * FROM datecommission
+            WHERE DATE_COMMISSION >= :start
+            AND DATE_COMMISSION < :end
+            AND COMMISSION_CONCERNE = :idCommission';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, [
+            'start' => $start,
+            'end' => $end,
+            'idCommission' => $idCommission,
+        ]);
+
+        return $rows;
+    }
+
+    /**
+     * Retourne les DateCommissions pour la synchronisation webcal.
+     * Port simplifié de Model_DbTable_DateCommission::getEventInCommission().
+     *
+     * - Si userId non null : joint avec dossieraffectation + dossierpreventionniste
+     *   pour ne retourner que les DateCommissions des dossiers du préventionniste.
+     * - Si commissionId non null : filtre par commission.
+     * - Si les deux null (admin) : retourne tout.
+     * - fromDate : filtre dc.DATE_COMMISSION >= fromDate (date glissante, 1 an en arrière).
+     * - Joint avec dossieraffectation pour récupérer OBJET_DOSSIER pour la DESCRIPTION.
+     *
+     * Retourne des lignes brutes : plusieurs lignes par DateCommission si plusieurs dossiers.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findForWebcalSync(?int $userId, ?int $commissionId, string $fromDate): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $params = ['fromDate' => $fromDate];
+
+        if (null !== $userId) {
+            // Filtre par préventionniste : joint dossieraffectation → dossier → dossierpreventionniste
+            // INNER JOINs explicites car le WHERE sur dp.ID_PREVENTIONNISTE exige que d et dp existent.
+            $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
+                           dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
+                           c.LIBELLE_COMMISSION,
+                           d.OBJET_DOSSIER, d.ID_DOSSIER
+                    FROM datecommission dc
+                    JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
+                    JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+                    JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+                    JOIN dossierpreventionniste dp ON dp.ID_DOSSIER = d.ID_DOSSIER
+                    WHERE dp.ID_PREVENTIONNISTE = :userId
+                    AND dc.DATE_COMMISSION >= :fromDate';
+            $params['userId'] = $userId;
+        } else {
+            // Admin : toutes les DateCommissions avec leurs dossiers (LEFT JOIN)
+            $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
+                           dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
+                           c.LIBELLE_COMMISSION,
+                           d.OBJET_DOSSIER, d.ID_DOSSIER
+                    FROM datecommission dc
+                    JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
+                    LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+                    LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+                    WHERE dc.DATE_COMMISSION >= :fromDate';
+        }
+
+        if (null !== $commissionId) {
+            $sql .= ' AND dc.COMMISSION_CONCERNE = :commissionId';
+            $params['commissionId'] = $commissionId;
+        }
+
+        $sql .= ' ORDER BY dc.DATE_COMMISSION ASC, dc.ID_DATECOMMISSION ASC';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, $params);
 
         return $rows;
     }

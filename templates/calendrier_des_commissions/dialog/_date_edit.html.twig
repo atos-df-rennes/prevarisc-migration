@@ -1,0 +1,14 @@
+<li class='col-md-6'>
+    <input type='text' class='date form-control' value='{{ dateCommDetail.date|date('d/m/Y') }}' id='date_{{ dateCommDetail.id }}' />
+</li>
+<li class='col-md-2'>
+    <input type='text' size='8' class='time form-control' id='D_{{ dateCommDetail.id }}' name='D_{{ dateCommDetail.id }}' value='{{ dateCommDetail.heureDebut|date('H:i') }}' />
+</li>
+<li class='col-md-2'>
+    <input type='text' size='8' class='time form-control' id='F_{{ dateCommDetail.id }}' name='F_{{ dateCommDetail.id }}' value='{{ dateCommDetail.heureFin|date('H:i') }}' />
+</li>
+<li class='col-md-2'>
+    <button class='validation btn btn-default' name='validation' id='valid_dateCom_{{ dateCommDetail.id }}'><span class='glyphicon glyphicon-ok'></span>&nbsp;</button>
+    <button class='annulation btn btn-default' name='annulation' id='annule_dateCom_{{ dateCommDetail.id }}'><span class='glyphicon glyphicon-remove'></span>&nbsp;</button>
+    <input type='hidden' name='first' id='first' value='{{ first }}' />
+</li>

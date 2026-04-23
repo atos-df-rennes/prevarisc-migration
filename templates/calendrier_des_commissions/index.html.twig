@@ -1,0 +1,94 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{{ parent() }} / Calendrier des commissions{% endblock %}
+
+{% block lateral_navigation %}
+    <ul class="nav nav-tabs nav-stacked menu_dashboard">
+        {% if url_webcal is not empty %}
+            <li>
+                <a id='syncCom' href='{{ url_webcal }}' style="display:none">
+                    <span class="glyphicon glyphicon-repeat"></span> Synchroniser le calendrier de cette commission
+                </a>
+            </li>
+        {% endif %}
+        <li>
+            <a id='exportCom' href='#' style="display:none">
+                <span class="glyphicon glyphicon-calendar"></span> Exporter pour Outlook
+            </a>
+        </li>
+        {% if is_view_all %}
+            <li>
+                <a id='viewAllLink' href='#'>
+                    <span class="glyphicon glyphicon-eye-open"></span> Voir tous les évènements
+                </a>
+            </li>
+        {% endif %}
+        {% if array_commissions %}
+            {% if url_webcal is not empty %}
+                <li>
+                    <a id='syncCal' href='{{ url_webcal }}'>
+                        <span class="glyphicon glyphicon-repeat"></span> Synchroniser le calendrier de toutes les commissions
+                    </a>
+                </li>
+            {% endif %}
+            {% for array_commission in array_commissions %}
+                {% if array_commission.ARRAY is defined and array_commission.ARRAY|length > 0 %}
+                    <li class="nav-header">
+                        {{ array_commission.LIBELLE }}
+                    </li>
+                    {% for item in array_commission.ARRAY %}
+                        {% if is_admin or (item.ID_COMMISSION in user_commission_ids) %}
+                            <li>
+                                <a href="#" class="commissionLink" data-value='{{ item.ID_COMMISSION }}' data-type='{{ array_commission.LIBELLE }}'>
+                                    {{ item.LIBELLE_COMMISSION }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <br>
+
+        <li class="nav-header">Légende</li>
+        <li><a><span class="label label-info">En salle</span></a></li>
+        <li><a><span class="label label-warning">Groupe de visite</span></a></li>
+        <li><a><span class="label label-success">Visite de sécurité</span></a></li>
+    </ul>
+{% endblock %}
+
+{% block body_structure %}
+    <h2 class="page-header">
+        Calendrier des commissions
+    </h2>
+
+    <input type='hidden' name='idCommission' id='idCommission' value='{{ idComm is not null ? idComm : '' }}' />
+
+    &nbsp;
+
+    <div id='infosCom' style='display:none;'></div>
+
+    <!-- Calendrier -->
+    <div id="calendar"></div>
+
+    <!-- Boite de dialogue Bootstrap 3 -->
+    <div class="modal fade" id="modalComm" tabindex="-1" role="dialog" aria-labelledby="modalCommLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalCommLabel">Planification commission</h4>
+                </div>
+                <div class="modal-body" id="dialogComm"></div>
+                <div class="modal-footer" id="modalCommFooter"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script src="{{ asset('js/calendrier-commissions.js') }}"></script>
+{% endblock %}

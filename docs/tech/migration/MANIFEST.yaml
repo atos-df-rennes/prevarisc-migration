@@ -1,0 +1,45 @@
+# Manifest de migration — Prevarisc (Zend 1.12 → Symfony 4.4)
+# Ce fichier trace l'état de migration de chaque fonctionnalité.
+
+calendrier_des_commissions:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/CalendrierDesCommissionsController.php
+    - prevarisc/application/views/scripts/calendrier-des-commissions/index.phtml
+    - prevarisc/application/views/scripts/calendrier-des-commissions/dialogcomm.phtml
+    - prevarisc/application/modules/api/controllers/CalendarController.php
+    - prevarisc/application/modules/api/services/Calendar.php
+  migrated_files:
+    - prevarisc-migration/src/Controller/Commission/CalendrierDesCommissionsController.php
+    - prevarisc-migration/src/Controller/Api/IcalendarController.php
+    - prevarisc-migration/src/Service/Commission/CalendarService.php
+    - prevarisc-migration/src/Service/Commission/IcalendarSyncService.php
+    - prevarisc-migration/src/Form/CalendrierDesCommissions/CommissionDatesType.php
+    - prevarisc-migration/src/Repository/DateCommissionRepository.php
+    - prevarisc-migration/templates/calendrier_des_commissions/index.html.twig
+    - prevarisc-migration/templates/calendrier_des_commissions/form_date.html.twig
+    - prevarisc-migration/templates/calendrier_des_commissions/gestionodj.html.twig
+    - prevarisc-migration/public/js/calendrier-commissions.js
+    - prevarisc-migration/public/js/dossier/calendar-init.js
+    - prevarisc-migration/public/js/calendrier/date-collection-observer.js
+    - prevarisc-migration/config/packages/security.php
+  updated_at: "2026-04-22"
+  notes: >
+    Correction des classes CSS hidden sur les champs planification,
+    correction off-by-one sur la sélection multi-dates (FullCalendar v1.6.4 end inclusif),
+    correction des sélecteurs jQuery dans calendar-init.js (dossier) et
+    du DateCollectionObserver pour #addReapeat et #planification.
+    Ajout exportOutlookAction (ICS date unique, bug ligne 1539 non reproduit),
+    ajout exportOutlookMoisAction (ICS mensuel avec ODJ),
+    ajout IcalendarController + IcalendarSyncService (endpoint webcal /api/1.0/calendar),
+    installation sabre/vobject ^4.5,
+    accès public /api/1.0/calendar (security.php),
+    correction lien gestionodj.html.twig vers route Symfony,
+    activation lien export Outlook mensuel dans calendrier-commissions.js.
+  routes:
+    - name: calendrier_des_commissions_export_outlook
+      path: /commissions/calendrier/export-outlook/{dateCommId}
+    - name: calendrier_des_commissions_export_outlook_mois
+      path: /commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}
+    - name: api_icalendar_sync
+      path: /api/1.0/calendar

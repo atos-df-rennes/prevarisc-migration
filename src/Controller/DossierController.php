@@ -210,7 +210,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /**
      * Affichage des informations générales d'un dossier (lecture seule).
      *
-     * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"})
+     * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"}, options={"expose"=true})
      *
      * @IsGranted("view_doss", subject="dossier")
      */
