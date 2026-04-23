@@ -1,9 +1,15 @@
 $(document).ready(function() {
     const selectType = $('select[name="TYPE"]')
+    const submit = $('input[type="submit"]')
 
     selectType.on('change', function() {
-        const label = selectType.val() === 'Avis' ? "Ajouter l'avis" : "Ajouter la dérogation"
-        $('button.js-submit-label').text(label)
+        const val = selectType.val()
+
+        if (val === 'Avis') {
+            submit.val("Ajouter l'avis")
+        } else {
+            submit.val("Ajouter la dérogation")
+        }
     })
 
     // Gestion du bouton de désélection
@@ -11,12 +17,15 @@ $(document).ready(function() {
 
     if (deselectButton) {
         deselectButton.addEventListener('click', function() {
-            $('.avis-derogation__leve input:checked').prop('checked', false)
-            $('#deselect').addClass('hide')
+            const idDossier = $('.avis-derogation__leve input:checked')[0].id
+
+            document.getElementById(idDossier).checked = false
+            
+            $('#deselect').hide()
         })
     }
 
     $('.avis-derogation__leve input').on('change', function() {
-        $('#deselect').removeClass('hide')
+        $('#deselect').show()
     })
 })
