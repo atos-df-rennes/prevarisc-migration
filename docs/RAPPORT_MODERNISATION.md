@@ -27,8 +27,8 @@
 | MT-6 | **Tipsy → tooltips Bootstrap 3** (`main-bs3.js` + `base.html.twig`) — fichiers Tipsy conservés pour le legacy | ✅ Fait | `d5d2df9` |
 | BUG-2 | Fix race condition Bootstrap 3 sur popover ETS (`$element is null`) : `animation:false` + tooltip délégué via `selector` sur `body` + destroy/recreate API publique (`main-bs3.js`) | ✅ Fait | `9962bd5` |
 
-> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4), `refactor/export-recherche` (RE-1→RE-3).
-> **Worktree actif :** `chore/tipsy` (MT-6, BUG-2 ✅). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
+> **Worktrees clos :** `chore/modernisation` (QW-1→QW-6, BUG-1), `chore/export-phpspreadsheet` (MT-1), `chore/inject-couchecarto` (MT-2), `chore/table-sorter` (QW-7), `chore/tom-select` (MT-3), `chore/fancybox` (MT-4), `refactor/export-recherche` (RE-1→RE-3), `chore/tipsy` (MT-6, BUG-2).
+> **Worktree actif :** `refactor/repositories-querybuilder` — avancement dans `docs/RAPPORT_SYMFONY.md` (REF-REP-01). Prochaine session : MT-5 (FullCalendar 1.6.4 → 5.x, après merge calendrier-commissions).
 
 ---
 
