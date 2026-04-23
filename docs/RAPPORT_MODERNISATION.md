@@ -480,6 +480,12 @@ Les assets sont chargés manuellement depuis `public/`. L'intégration de Webpac
 | 2 | Chosen 1.1.0 → 1.8.7, TomSelect 2.0 → 2.5.2, SortableJS 1.15.0 → 1.15.7 | `a251c4a` |
 | 3 | Fix tooltip Tipsy orphelin sur bouton × TomSelect (exclusion `.ts-wrapper a` dans `bindTitlePopup`) | `fde17ae` |
 
+### ✅ Quick wins réalisés (worktree `refactor/form-constraints`)
+
+| # | Action | Commit |
+|---|--------|--------|
+| 1 | Suppression des `Assert\Length` dupliqués dans CommissionType, UtilisateurInformationsType, ContactType, CommuneUtilisateurInformationsType (déjà portés par les entités) ; correction du texte d'aide "groupement" → "service instructeur" dans DossierType | `60f7eee` |
+
 ### ⏳ Prochain worktree — Priorité : PHPExcel → PhpSpreadsheet
 
 **Objectif** : remplacer `phpoffice/phpexcel` (EOL 2017) par `phpoffice/phpspreadsheet`.

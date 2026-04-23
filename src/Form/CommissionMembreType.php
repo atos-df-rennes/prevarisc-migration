@@ -21,6 +21,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class CommissionMembreType extends AbstractType
 {
@@ -33,6 +34,11 @@ class CommissionMembreType extends AbstractType
             'label' => 'Libellé',
             'required' => false,
             'attr' => ['placeholder' => 'Nom du membre'],
+            // @todo REF-FORM-02: libelle est NOT NULL en DB (commissionmembre.LIBELLE_COMMISSIONMEMBRE) mais
+            // le champ est required=false dans le formulaire — vérifier si NotBlank doit être ajouté selon le legacy
+            'constraints' => [
+                new Assert\Length(['max' => 255]),
+            ],
         ]);
 
         $builder->add('presence', ChoiceType::class, [

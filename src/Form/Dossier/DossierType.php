@@ -31,6 +31,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
@@ -144,7 +145,9 @@ class DossierType extends AbstractType
                         'plugins' => [],
                     ]),
                 ],
-                'help' => 'Commencez à saisir pour rechercher un groupement ou saisissez librement',
+                'constraints' => [
+                    new Assert\Length(['max' => 255]),
+                ],
             ])
             ->add('incomplet', ChoiceType::class, [
                 'label' => 'État dossier',
