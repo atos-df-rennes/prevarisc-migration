@@ -356,14 +356,15 @@ class DateCommissionRepository extends ServiceEntityRepository
 
         if (null !== $userId) {
             // Filtre par préventionniste : joint dossieraffectation → dossier → dossierpreventionniste
+            // INNER JOINs explicites car le WHERE sur dp.ID_PREVENTIONNISTE exige que d et dp existent.
             $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
                            dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
                            c.LIBELLE_COMMISSION,
                            d.OBJET_DOSSIER, d.ID_DOSSIER
                     FROM datecommission dc
                     JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
-                    LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
-                    LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+                    JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+                    JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
                     JOIN dossierpreventionniste dp ON dp.ID_DOSSIER = d.ID_DOSSIER
                     WHERE dp.ID_PREVENTIONNISTE = :userId
                     AND dc.DATE_COMMISSION >= :fromDate';

@@ -74,12 +74,13 @@ class IcalendarController extends AbstractController
         $commissionId = null !== $rawCommissionId && '' !== $rawCommissionId ? (int) $rawCommissionId : null;
 
         // Vérification du privilège calendar_view_all : si l'utilisateur peut tout voir,
-        // on retourne tout sans filtre (userId=null, commissionId=null).
+        // on retourne tout sans filtre utilisateur (userId=null).
+        // Le filtre commission reste toujours honoré, même pour les admins.
         $utilisateur = $this->utilisateurRepository->find($userId);
         $effectiveUserId = null !== $utilisateur && $this->hasCalendarViewAllPrivilege($utilisateur)
             ? null
             : $userId;
-        $effectiveCommissionId = null === $effectiveUserId ? null : $commissionId;
+        $effectiveCommissionId = $commissionId;
 
         $icsContent = $this->icalendarSyncService->generateFeed($effectiveUserId, $effectiveCommissionId);
 

@@ -916,11 +916,19 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     public function exportOutlookMois(int $commId, int $mois, int $annee): Response
     {
+        if ($mois < 1 || $mois > 12 || $annee < 1) {
+            return new Response('Paramètres invalides.', Response::HTTP_BAD_REQUEST);
+        }
+
         $commission = $this->commissionRepository->find($commId);
         $commissions = $this->dateCommissionRepository->findByMonthAndCommission($mois, $annee, $commId);
 
-        if ([] === $commissions || null === $commission) {
-            return new Response('');
+        if (null === $commission) {
+            return new Response('Commission introuvable.', Response::HTTP_NOT_FOUND);
+        }
+
+        if ([] === $commissions) {
+            return new Response('Aucune séance ce mois-ci.', Response::HTTP_NOT_FOUND);
         }
 
         $libelleCommission = $commission->getLibelle() ?? '';
