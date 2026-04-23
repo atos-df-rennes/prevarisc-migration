@@ -28,3 +28,6 @@
 /tools/vendor/
 .php-cs-fixer.cache
 .twig-cs-fixer.cache
+
+# Rapports de revue de code (usage local uniquement)
+REVIEW_REPORT.md
