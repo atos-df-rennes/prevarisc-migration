@@ -5,7 +5,7 @@
 {% block body %}
     <div class='pull-right'>
         <button type="button" id="addPJQuick" class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> Ajout rapide</button>
-        <a href="{{ path('etablissement_add_piece_jointe_form', {id: etablissement.id}) }}" class="btn btn-default" data-toggle="modal" data-backdrop="false" data-target="#reponse-modal"><span class="glyphicon glyphicon-upload"></span> Ajouter une pièce jointe</a>
+        <a href="{{ path('etablissement_pieces_jointes_ajouter_formulaire', {id: etablissement.id}) }}" class="btn btn-default" data-toggle="modal" data-backdrop="false" data-target="#reponse-modal"><span class="glyphicon glyphicon-upload"></span> Ajouter une pièce jointe</a>
         <a class='btn btn-default' href="{{ path('etablissement_pieces_jointes', {id: etablissement.id}) }}">Revenir sur l'affichage des pièces jointes</a>
     </div>
 
@@ -44,7 +44,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <form method="post" action="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id}) }}" style="display:inline">
+                            <form method="post" action="{{ path('etablissement_pieces_jointes_supprimer', {id: etablissement.id}) }}" style="display:inline">
                                 <input type="hidden" name="id_pj" value="{{ pj.0.pieceJointe.id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_pj_' ~ pj.0.pieceJointe.id) }}">
                                 <button type="submit" class="btn btn-link btn-sm" onclick="return confirm('Supprimer cette pièce jointe ?')">Supprimer la pièce jointe</button>
@@ -70,7 +70,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <form method="post" action="{{ path('etablissement_delete_piece_jointe', {id: etablissement.id}) }}" style="display:inline">
+                            <form method="post" action="{{ path('etablissement_pieces_jointes_supprimer', {id: etablissement.id}) }}" style="display:inline">
                                 <input type="hidden" name="id_pj" value="{{ pj.0.pieceJointe.id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_pj_' ~ pj.0.pieceJointe.id) }}">
                                 <button type="submit" class="btn btn-link btn-sm" onclick="return confirm('Supprimer cette pièce jointe ?')">Supprimer la pièce jointe</button>
@@ -103,7 +103,7 @@
             });
 
             var myDropzone = new Dropzone("#dropzone", {
-                url: "{{ path('etablissement_add_piece_jointe', {id: etablissement.id}) }}",
+                url: "{{ path('etablissement_pieces_jointes_ajouter', {id: etablissement.id}) }}",
                 paramName: "file",
                 params: {
                     _token: "{{ csrf_token('add_pj_etablissement') }}"

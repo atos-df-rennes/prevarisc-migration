@@ -61,13 +61,13 @@ etablissement_pieces_jointes_gestion:
     - prevarisc-migration/templates/etablissement/add_piece_jointe.html.twig
   updated_at: "2026-04-23"
   routes:
-    - name: etablissement_edit_pieces_jointes
+    - name: etablissement_pieces_jointes_modifier
       path: /etablissement/{id}/pieces-jointes/modifier
-    - name: etablissement_add_piece_jointe
+    - name: etablissement_pieces_jointes_ajouter
       path: /etablissement/{id}/pieces-jointes/ajouter
-    - name: etablissement_add_piece_jointe_form
+    - name: etablissement_pieces_jointes_ajouter_formulaire
       path: /etablissement/{id}/pieces-jointes/ajouter/formulaire
-    - name: etablissement_delete_piece_jointe
+    - name: etablissement_pieces_jointes_supprimer
       path: /etablissement/{id}/pieces-jointes/supprimer
     - name: piece_jointe_get_etablissement
       path: /piece-jointe/etablissement/{id}/recuperer/{idpj}

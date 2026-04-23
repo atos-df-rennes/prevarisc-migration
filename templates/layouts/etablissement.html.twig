@@ -62,7 +62,7 @@
             </li>
         {% endif %}
 
-        <li {% if app.request.get('_route') in ['etablissement_pieces_jointes', 'etablissement_edit_pieces_jointes', 'etablissement_add_piece_jointe_form', 'etablissement_add_piece_jointe', 'etablissement_delete_piece_jointe'] %}class="active"{% endif %}>
+        <li {% if app.request.get('_route') starts with 'etablissement_pieces_jointes' %}class="active"{% endif %}>
             <a href="{{ path('etablissement_pieces_jointes', {id: etablissement.id}) }}">
                 <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
                 Pièces jointes

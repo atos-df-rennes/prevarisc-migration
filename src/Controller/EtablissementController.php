@@ -367,7 +367,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche la liste de gestion des pièces jointes d'un établissement.
      *
-     * @Route("/etablissement/{id}/pieces-jointes/modifier", name="etablissement_edit_pieces_jointes", methods={"GET"})
+     * @Route("/etablissement/{id}/pieces-jointes/modifier", name="etablissement_pieces_jointes_modifier", methods={"GET"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -386,7 +386,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche le formulaire modal d'ajout de pièce jointe (chargé via AJAX).
      *
-     * @Route("/etablissement/{id}/pieces-jointes/ajouter/formulaire", name="etablissement_add_piece_jointe_form", methods={"GET"})
+     * @Route("/etablissement/{id}/pieces-jointes/ajouter/formulaire", name="etablissement_pieces_jointes_ajouter_formulaire", methods={"GET"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -400,7 +400,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Traite l'ajout d'une pièce jointe à un établissement (formulaire modal ou Dropzone).
      *
-     * @Route("/etablissement/{id}/pieces-jointes/ajouter", name="etablissement_add_piece_jointe", methods={"POST"})
+     * @Route("/etablissement/{id}/pieces-jointes/ajouter", name="etablissement_pieces_jointes_ajouter", methods={"POST"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -410,7 +410,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         if (!$this->isCsrfTokenValid('add_pj_etablissement', is_string($rawToken) ? $rawToken : null)) {
             $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
 
-            return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+            return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
         }
 
         $file = $request->files->get('file');
@@ -418,7 +418,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         if (!$file instanceof UploadedFile) {
             $this->addFlash('danger', 'Aucun fichier reçu. Veuillez réessayer.');
 
-            return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+            return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
         }
 
         $nameParam = $request->request->get('name', '');
@@ -443,13 +443,13 @@ class EtablissementController extends AbstractController implements Etablissemen
             return new Response('', Response::HTTP_OK);
         }
 
-        return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+        return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
     }
 
     /**
      * Supprime une pièce jointe d'un établissement.
      *
-     * @Route("/etablissement/{id}/pieces-jointes/supprimer", name="etablissement_delete_piece_jointe", methods={"POST"})
+     * @Route("/etablissement/{id}/pieces-jointes/supprimer", name="etablissement_pieces_jointes_supprimer", methods={"POST"})
      *
      * @IsGranted("edit_ets", subject="etablissement")
      */
@@ -461,7 +461,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         if (!$this->isCsrfTokenValid('delete_pj_'.$idPj, is_string($rawToken) ? $rawToken : null)) {
             $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
 
-            return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+            return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
         }
 
         try {
@@ -471,7 +471,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer.');
         }
 
-        return $this->redirectToRoute('etablissement_edit_pieces_jointes', ['id' => $etablissement->getId()]);
+        return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
     }
 
     /**
