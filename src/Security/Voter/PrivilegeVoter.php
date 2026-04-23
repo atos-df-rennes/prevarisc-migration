@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Privileges;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
@@ -12,6 +13,9 @@ class PrivilegeVoter implements VoterInterface
 {
     /** @var PrivilegesRepository */
     private $privilegesRepository;
+
+    /** @var array<string, Privileges>|null */
+    private $privilegesIndex;
 
     private const EXCLUDED_ATTRIBUTES = [
         DossierVoter::LECTURE,
@@ -30,11 +34,11 @@ class PrivilegeVoter implements VoterInterface
     {
         $attribute = $attributes[0];
 
-        if (in_array($attribute, self::EXCLUDED_ATTRIBUTES)) {
+        if (!is_string($attribute) || in_array($attribute, self::EXCLUDED_ATTRIBUTES)) {
             return self::ACCESS_ABSTAIN;
         }
 
-        $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute]);
+        $privilege = $this->findPrivilegeByName($attribute);
 
         if (null === $privilege) {
             return self::ACCESS_ABSTAIN;
@@ -59,5 +63,21 @@ class PrivilegeVoter implements VoterInterface
         }
 
         return self::ACCESS_DENIED;
+    }
+
+    /**
+     * Charge tous les privileges en une seule requête et retourne celui correspondant au nom demandé.
+     * Évite un SELECT par appel à isGranted() (typiquement ~18 sur la page d'accueil).
+     */
+    private function findPrivilegeByName(string $name): ?Privileges
+    {
+        if (null === $this->privilegesIndex) {
+            $this->privilegesIndex = [];
+            foreach ($this->privilegesRepository->findAll() as $privilege) {
+                $this->privilegesIndex[$privilege->getName()] = $privilege;
+            }
+        }
+
+        return $this->privilegesIndex[$name] ?? null;
     }
 }

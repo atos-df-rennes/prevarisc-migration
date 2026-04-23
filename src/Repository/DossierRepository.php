@@ -890,9 +890,10 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
-     * Retourne les dossiers avec délai de prescription à lever, après filtrage PHP sur les dossiers liés.
+     * Retourne les dossiers avec délai de prescription à lever.
      * Port direct de Service_Dashboard::getLeveePresc().
      * Les dossiers ayant un dossier lié de nature 7 (levée prescriptions), 19 (levée avis déf.) ou 46 (échéancier travaux) sont exclus.
+     * Le filtrage est intégré directement en SQL via NOT EXISTS pour éviter les requêtes N+1.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -901,36 +902,27 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.DELAIPRESC_DOSSIER IS NOT NULL'
+            .' AND NOT EXISTS ('
+            .'     SELECT 1 FROM dossierlie dl'
+            .'     JOIN dossiernature dn_lie'
+            .'         ON CASE WHEN dl.ID_DOSSIER1 = d.ID_DOSSIER THEN dl.ID_DOSSIER2'
+            .'                 ELSE dl.ID_DOSSIER1 END = dn_lie.ID_DOSSIER'
+            .'     WHERE (dl.ID_DOSSIER1 = d.ID_DOSSIER OR dl.ID_DOSSIER2 = d.ID_DOSSIER)'
+            .'       AND dn_lie.ID_NATURE IN ('.DossierNature::LEVEE_PRESCRIPTIONS.', '.DossierNature::LEVEE_AVIS_DEFAVORABLE.', '.DossierNature::ECHEANCIER_TRAVAUX.')'
+            .' )'
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        foreach ($dossiers as $key => $dossier) {
-            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
-
-            $dossiersLies = $this->findDossiersLies($idDossier);
-
-            foreach ($dossiersLies as $lien) {
-                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
-                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
-                $idLien = $id1 === $idDossier ? $id2 : $id1;
-                $idNature = $this->getDossierNatureId($idLien);
-                if (null !== $idNature) {
-                    if (DossierNature::LEVEE_PRESCRIPTIONS === $idNature || DossierNature::LEVEE_AVIS_DEFAVORABLE === $idNature || DossierNature::ECHEANCIER_TRAVAUX === $idNature) {
-                        unset($dossiers[$key]);
-                    }
-                }
-            }
-        }
-
-        return array_values($dossiers);
+        return $dossiers;
     }
 
     /**
-     * Retourne les dossiers avec absence de quorum, après filtrage PHP sur les dossiers liés.
+     * Retourne les dossiers avec absence de quorum.
      * Port direct de Service_Dashboard::getAbsenceQuorum().
      * Les dossiers ayant un dossier lié de type 0 ou 5 (courrier) sont exclus.
+     * Le filtrage est intégré directement en SQL via NOT EXISTS pour éviter les requêtes N+1.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -939,37 +931,27 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.ABSQUORUM_DOSSIER = 1'
+            .' AND NOT EXISTS ('
+            .'     SELECT 1 FROM dossierlie dl'
+            .'     JOIN dossier d_lie'
+            .'         ON CASE WHEN dl.ID_DOSSIER1 = d.ID_DOSSIER THEN dl.ID_DOSSIER2'
+            .'                 ELSE dl.ID_DOSSIER1 END = d_lie.ID_DOSSIER'
+            .'     WHERE (dl.ID_DOSSIER1 = d.ID_DOSSIER OR dl.ID_DOSSIER2 = d.ID_DOSSIER)'
+            .'       AND d_lie.TYPE_DOSSIER IN (0, '.DossierType::COURRIER.')'
+            .' )'
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        foreach ($dossiers as $key => $dossier) {
-            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
-
-            $dossiersLies = $this->findDossiersLies($idDossier);
-
-            foreach ($dossiersLies as $lien) {
-                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
-                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
-                $idLien = $id1 === $idDossier ? $id2 : $id1;
-                $tabType = $this->getTypeDossier($idLien);
-                if (false !== $tabType) {
-                    $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
-                    if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
-                        unset($dossiers[$key]);
-                    }
-                }
-            }
-        }
-
-        return array_values($dossiers);
+        return $dossiers;
     }
 
     /**
-     * Retourne les dossiers NPSP (Ne Peut Se Prononcer), après filtrage PHP sur les dossiers liés.
+     * Retourne les dossiers NPSP (Ne Peut Se Prononcer).
      * Port direct de Service_Dashboard::getNpsp().
      * Les dossiers ayant un dossier lié de type 0 ou 5 (courrier) sont exclus.
+     * Le filtrage est intégré directement en SQL via NOT EXISTS pour éviter les requêtes N+1.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -978,31 +960,20 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.NPSP_DOSSIER = 1'
+            .' AND NOT EXISTS ('
+            .'     SELECT 1 FROM dossierlie dl'
+            .'     JOIN dossier d_lie'
+            .'         ON CASE WHEN dl.ID_DOSSIER1 = d.ID_DOSSIER THEN dl.ID_DOSSIER2'
+            .'                 ELSE dl.ID_DOSSIER1 END = d_lie.ID_DOSSIER'
+            .'     WHERE (dl.ID_DOSSIER1 = d.ID_DOSSIER OR dl.ID_DOSSIER2 = d.ID_DOSSIER)'
+            .'       AND d_lie.TYPE_DOSSIER IN (0, '.DossierType::COURRIER.')'
+            .' )'
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        foreach ($dossiers as $key => $dossier) {
-            $idDossier = is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0;
-
-            $dossiersLies = $this->findDossiersLies($idDossier);
-
-            foreach ($dossiersLies as $lien) {
-                $id1 = is_numeric($lien['ID_DOSSIER1']) ? (int) $lien['ID_DOSSIER1'] : 0;
-                $id2 = is_numeric($lien['ID_DOSSIER2']) ? (int) $lien['ID_DOSSIER2'] : 0;
-                $idLien = $id1 === $idDossier ? $id2 : $id1;
-                $tabType = $this->getTypeDossier($idLien);
-                if (false !== $tabType) {
-                    $typeDossier = is_numeric($tabType['TYPE_DOSSIER']) ? (int) $tabType['TYPE_DOSSIER'] : 0;
-                    if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
-                        unset($dossiers[$key]);
-                    }
-                }
-            }
-        }
-
-        return array_values($dossiers);
+        return $dossiers;
     }
 
     /**
@@ -1547,7 +1518,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         // Map FK columns from ManyToOne/OneToOne associations
-        foreach ($metadata->associationMappings as $fieldName => $mapping) {
+        foreach ($metadata->associationMappings as $mapping) {
             if (isset($mapping['joinColumns'])) {
                 foreach ($mapping['joinColumns'] as $joinColumn) {
                     $columnName = $joinColumn['name'];
