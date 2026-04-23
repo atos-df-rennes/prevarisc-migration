@@ -788,7 +788,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations", name="dossier_avis_et_derogations", requirements={"id"="\d+"}, methods={"GET", "POST"})
      *
-     * @IsGranted("avis_derogations")
+     * @Security("is_granted('avis_derogations') and is_granted('view_doss', dossier)")
      */
     public function avisEtDerogations(Request $request, Dossier $dossier): Response
     {
@@ -799,7 +799,15 @@ class DossierController extends AbstractController implements DossierLateralNavi
             : ['etudes' => [], 'visites' => [], 'autres' => []];
 
         if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('edit_doss', $dossier);
+
             $data = $request->request->all();
+
+            /** @var string $csrfToken */
+            $csrfToken = $data['_token'] ?? '';
+            if (!$this->isCsrfTokenValid('avis_derogation_create_'.$dossier->getId(), $csrfToken)) {
+                throw $this->createAccessDeniedException('Token de sécurité invalide.');
+            }
 
             $avisDerogation = new AvisDerogations();
             $avisDerogation->setDossier($dossier);
@@ -840,6 +848,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
             $rawDossierLieId = $data['ID_DOSSIER_LIE'] ?? null;
             $dossierLie = is_numeric($rawDossierLieId) ? $this->dossierRepository->find((int) $rawDossierLieId) : null;
+            if (null !== $dossierLie && (null === $etablissement || !$dossierLie->getEtablissements()->contains($etablissement))) {
+                $dossierLie = null;
+            }
+
             $avisDerogation->setDossierLie($dossierLie);
 
             $this->entityManager->persist($avisDerogation);
@@ -863,11 +875,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier", name="dossier_avis_et_derogations_edit", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"GET", "POST"})
      *
-     * @IsGranted("avis_derogations")
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
      */
     public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
-        $avisDerogation = $this->avisDerogationsRepository->find($avisDerogationId);
+        $avisDerogation = $this->avisDerogationsRepository->findOneBy(['id' => $avisDerogationId, 'dossier' => $dossier]);
         if (null === $avisDerogation) {
             throw $this->createNotFoundException('Avis ou dérogation introuvable.');
         }
@@ -880,6 +892,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         if ($request->isMethod('POST')) {
             $data = $request->request->all();
+
+            /** @var string $csrfToken */
+            $csrfToken = $data['_token'] ?? '';
+            if (!$this->isCsrfTokenValid('avis_derogation_edit_'.$avisDerogation->getId(), $csrfToken)) {
+                throw $this->createAccessDeniedException('Token de sécurité invalide.');
+            }
 
             /** @var string $type */
             $type = $data['TYPE'] ?? $avisDerogation->getType();
@@ -918,6 +936,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
             // ID_DOSSIER_LIE absent du POST = désélectionné
             $rawDossierLieId = $data['ID_DOSSIER_LIE'] ?? null;
             $dossierLie = is_numeric($rawDossierLieId) ? $this->dossierRepository->find((int) $rawDossierLieId) : null;
+            if (null !== $dossierLie && (null === $etablissement || !$dossierLie->getEtablissements()->contains($etablissement))) {
+                $dossierLie = null;
+            }
+
             $avisDerogation->setDossierLie($dossierLie);
 
             $this->entityManager->flush();
@@ -940,7 +962,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"POST"})
      *
-     * @IsGranted("avis_derogations")
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
      */
     public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
@@ -951,7 +973,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
         }
 
-        $avisDerogation = $this->avisDerogationsRepository->find($avisDerogationId);
+        $avisDerogation = $this->avisDerogationsRepository->findOneBy(['id' => $avisDerogationId, 'dossier' => $dossier]);
         if (null !== $avisDerogation) {
             $this->entityManager->remove($avisDerogation);
             $this->entityManager->flush();

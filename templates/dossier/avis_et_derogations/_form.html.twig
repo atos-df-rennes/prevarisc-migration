@@ -2,6 +2,7 @@
     Formulaire partagé pour ajout/édition d'un avis ou dérogation.
 
     Variables :
+        - dossier        : Dossier
         - listeAvis      : Avis[]
         - dossiersGroupes: array (etudes: Dossier[], visites: Dossier[], autres: Dossier[])
         - avisDerogation : AvisDerogations|null  (null = mode ajout)
@@ -12,6 +13,9 @@
 {% set current_type = avisDerogation ? avisDerogation.type : 'Avis' %}
 {% set current_avis_id = avisDerogation and avisDerogation.avis ? avisDerogation.avis.id : null %}
 {% set current_dossier_lie_id = avisDerogation and avisDerogation.dossierLie ? avisDerogation.dossierLie.id : null %}
+{% set csrf_token_id = avisDerogation ? 'avis_derogation_edit_' ~ avisDerogation.id : 'avis_derogation_create_' ~ dossier.id %}
+
+<input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
 
 <div class="form-group">
     <label class="col-md-3 control-label" for="inputType">Type</label>

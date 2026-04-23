@@ -91,7 +91,7 @@ dossier_avis_et_derogations:
     Port direct des 3 actions legacy. Rendu du champ "dossier lié" enrichi via la macro
     _macros_reprise_dossier.html.twig (radio, ID_DOSSIER_LIE) — comportement légèrement
     plus riche que le legacy (liste groupée visites/études/autres) mais accepté.
-    Suppression AJAX via DELETE HTTP (js/dossier/avisDerogation.js, déjà migré BS3).
+    Suppression AJAX via POST HTTP (js/dossier/avisDerogation.js, déjà migré BS3).
     Pré-sélection du radio en mode édition via script inline DOMContentLoaded.
   routes:
     - name: dossier_avis_et_derogations

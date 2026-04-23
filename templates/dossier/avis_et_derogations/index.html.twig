@@ -7,6 +7,7 @@
 
     <form class="form-horizontal col-md-8" method="post">
         {{ include('dossier/avis_et_derogations/_form.html.twig', {
+            dossier: dossier,
             listeAvis: listeAvis,
             dossiersGroupes: dossiersGroupes,
             avisDerogation: null,
