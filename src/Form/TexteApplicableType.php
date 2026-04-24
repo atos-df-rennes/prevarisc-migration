@@ -21,10 +21,11 @@ class TexteApplicableType extends AbstractType
         $builder
             ->add('libelle', TextareaType::class)
             ->add('visible', ChoiceType::class, [
+                // Valeurs en string '1'/'0' pour cohérence avec BooleanStringTransformer.
                 'choices' => [
-                    'Afficher' => true,
-                    'Masquer' => false,
-                ]
+                    'Afficher' => '1',
+                    'Masquer' => '0',
+                ],
             ])
             ->add('num', HiddenType::class, [
                 'empty_data' => 9999,
@@ -56,6 +57,7 @@ class TexteApplicableType extends AbstractType
         // Cela permet à getData() de retourner directement un bool dans le controller,
         // sans avoir à appeler filter_var() manuellement.
         $builder->get('prescription')->addModelTransformer(new BooleanStringTransformer());
+        $builder->get('visible')->addModelTransformer(new BooleanStringTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver): void
