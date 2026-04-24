@@ -18,9 +18,11 @@
 
     {# Établissement #}
     <td class="doss-nom">
-        <a href='{{ path('etablissement_informations', {id: item.ID_ETABLISSEMENT}) }}' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
-            {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
-        </a>
+        {% if item.ID_ETABLISSEMENT is not empty %}
+            <a href='{{ path('etablissement_informations', {id: item.ID_ETABLISSEMENT}) }}' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
+                {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
+            </a>
+        {% endif %}
         <br/>
         {# Affichage du libellé du type #}
         <small style='display: inline-block; width: 65px'>
