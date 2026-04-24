@@ -18,19 +18,21 @@
 
     {# Établissement #}
     <td class="doss-nom">
-        <a href='/etablissement/{{ item.ID_ETABLISSEMENT }}/informations' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
-            {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
-        </a>
-        <br/>
-        {# Affichage du libellé du type #}
-        <small style='display: inline-block; width: 65px'>
-            <strong>
-            {% if item.ID_TYPE %}
-                <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}' />&nbsp;-&nbsp;
-            {% endif %}
-            {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
-            </strong>
-        </small>
+        {% if item.ID_ETABLISSEMENT is not empty %}
+            <a href='{{ path('etablissement_informations', {id: item.ID_ETABLISSEMENT}) }}' title='{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS|e('html_attr') }}'>
+                {{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}
+            </a>
+            <br/>
+            {# Affichage du libellé du type #}
+            <small style='display: inline-block; width: 65px'>
+                <strong>
+                {% if item.ID_TYPE %}
+                    <img src='/images/types/b/icone-type-{{ item.LIBELLE_TYPE }}.png' title='{{ item.LIBELLE_TYPE }}' />&nbsp;-&nbsp;
+                {% endif %}
+                {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
+                </strong>
+            </small>
+        {% endif %}
     </td>
 
     {# Nom du dossier #}
