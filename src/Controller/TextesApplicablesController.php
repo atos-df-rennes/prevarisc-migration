@@ -60,7 +60,7 @@ class TextesApplicablesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             // @todo: gestion de l'affichage prescription
             // la valeur oui/non n'est pas conservée, peut-être le gérer mais quid des conséquences d'affichage/masquaque
-            $prescription = filter_var($form->get('prescription')->getData(), FILTER_VALIDATE_BOOLEAN);
+            $prescription = (bool) $form->get('prescription')->getData();
             $this->serviceTexteApplicable->save($texteApplicable, $prescription);
 
             $this->addFlash('success', 'Texte applicable ajouté.');
@@ -84,7 +84,7 @@ class TextesApplicablesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $prescription = filter_var($form->get('prescription')->getData(), FILTER_VALIDATE_BOOLEAN);
+            $prescription = (bool) $form->get('prescription')->getData();
             $this->serviceTexteApplicable->save($texteApplicable, $prescription);
 
             $this->addFlash('success', 'Texte applicable modifié.');
