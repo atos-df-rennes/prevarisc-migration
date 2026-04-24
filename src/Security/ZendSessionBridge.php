@@ -27,7 +27,7 @@ class ZendSessionBridge
         }
 
         /** @var ZendAuth $zendAuth */
-        return $zendAuth['storage']['USERNAME_UTILISATEUR'];
+        return $zendAuth['storage']['USERNAME_UTILISATEUR'] ?? null;
     }
 
     /**

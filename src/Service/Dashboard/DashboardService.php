@@ -2,8 +2,6 @@
 
 namespace App\Service\Dashboard;
 
-use App\Constant\DossierNature;
-use App\Constant\DossierType;
 use App\Entity\Utilisateur;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierRepository;
@@ -463,75 +461,35 @@ class DashboardService
 
     /**
      * Dossiers avec date de levée des prescriptions.
-     * PHP post-filtering : supprime ceux qui ont un dossier lié de nature 7, 19 ou 46.
-     * Port direct de Service_Dashboard::getLeveePresc().
+     * Le filtrage (exclusion des natures 7, 19, 46) est géré directement par le repository.
      *
      * @return array<int, array<string, mixed>>
      */
     private function getLeveePresc(): array
     {
-        $dossiers = $this->dossierRepository->findLeveePresc();
-        $filtered = [];
-
-        foreach ($dossiers as $dossier) {
-            $rawDossierId = $dossier['ID_DOSSIER'] ?? 0;
-            $dossiersLies = $this->dossierRepository->findDossiersLies(is_numeric($rawDossierId) ? (int) $rawDossierId : 0);
-            $exclude = false;
-
-            foreach ($dossiersLies as $lien) {
-                $rawDossier1 = $lien['ID_DOSSIER1'] ?? 0;
-                $rawDossier2 = $lien['ID_DOSSIER2'] ?? 0;
-                $idDossier = is_numeric($rawDossierId) ? (int) $rawDossierId : 0;
-                $id1 = is_numeric($rawDossier1) ? (int) $rawDossier1 : 0;
-                $id2 = is_numeric($rawDossier2) ? (int) $rawDossier2 : 0;
-                $idLien = ($id1 === $idDossier) ? $id2 : $id1;
-
-                $idNature = $this->dossierRepository->getDossierNatureId($idLien);
-
-                if (
-                    DossierNature::LEVEE_AVIS_DEFAVORABLE === $idNature
-                    || DossierNature::LEVEE_PRESCRIPTIONS === $idNature
-                    || DossierNature::ECHEANCIER_TRAVAUX === $idNature
-                ) {
-                    $exclude = true;
-                    break;
-                }
-            }
-
-            if (!$exclude) {
-                $filtered[] = $dossier;
-            }
-        }
-
-        return $filtered;
+        return $this->dossierRepository->findLeveePresc();
     }
 
     /**
      * Dossiers ayant une absence de quorum.
-     * PHP post-filtering : supprime ceux dont le dossier lié est de type 0 ou 5 (courrier).
-     * Port direct de Service_Dashboard::getAbsenceQuorum().
+     * Le filtrage (exclusion des types 0 et 5) est géré directement par le repository.
      *
      * @return array<int, array<string, mixed>>
      */
     private function getAbsenceQuorum(): array
     {
-        $dossiers = $this->dossierRepository->findAbsenceQuorum();
-
-        return $this->filterByLinkedDossierType($dossiers);
+        return $this->dossierRepository->findAbsenceQuorum();
     }
 
     /**
      * Dossiers avec statut NPSP (ne peut se prononcer).
-     * PHP post-filtering : même logique que absQuorum.
-     * Port direct de Service_Dashboard::getNpsp().
+     * Le filtrage (exclusion des types 0 et 5) est géré directement par le repository.
      *
      * @return array<int, array<string, mixed>>
      */
     private function getNpsp(): array
     {
-        $dossiers = $this->dossierRepository->findNpsp();
-
-        return $this->filterByLinkedDossierType($dossiers);
+        return $this->dossierRepository->findNpsp();
     }
 
     /**
@@ -590,46 +548,5 @@ class DashboardService
         $lastVisitPieces = $this->notificationService->getLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
 
         return $this->dossierRepository->countDossiersPlatauNouvellesPjs($lastVisitPieces);
-    }
-
-    /**
-     * Filtre les dossiers en supprimant ceux dont le dossier lié est de type 0 ou 5 (courrier).
-     * Commun à absQuorum et npsp.
-     *
-     * @param array<int, array<string, mixed>> $dossiers
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function filterByLinkedDossierType(array $dossiers): array
-    {
-        $filtered = [];
-
-        foreach ($dossiers as $dossier) {
-            $rawDossierId = $dossier['ID_DOSSIER'] ?? 0;
-            $dossiersLies = $this->dossierRepository->findDossiersLies(is_numeric($rawDossierId) ? (int) $rawDossierId : 0);
-            $exclude = false;
-
-            foreach ($dossiersLies as $lien) {
-                $rawDossier1 = $lien['ID_DOSSIER1'] ?? 0;
-                $rawDossier2 = $lien['ID_DOSSIER2'] ?? 0;
-                $idDossier = is_numeric($rawDossierId) ? (int) $rawDossierId : 0;
-                $id1 = is_numeric($rawDossier1) ? (int) $rawDossier1 : 0;
-                $id2 = is_numeric($rawDossier2) ? (int) $rawDossier2 : 0;
-                $idLien = ($id1 === $idDossier) ? $id2 : $id1;
-
-                $typeDossier = $this->dossierRepository->getDossierType($idLien);
-
-                if (0 === $typeDossier || DossierType::COURRIER === $typeDossier) {
-                    $exclude = true;
-                    break;
-                }
-            }
-
-            if (!$exclude) {
-                $filtered[] = $dossier;
-            }
-        }
-
-        return $filtered;
     }
 }

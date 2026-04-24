@@ -339,31 +339,33 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         );
 
         if ($useDateCommissionForPeriodicity) {
-            $periodicityCondition = "IF(
-                dossiers.DATECOMM_DOSSIER >= dossiers.DATEVISITE_DOSSIER,
-                DATE_FORMAT(DATE_ADD(dossiers.DATECOMM_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m'),
-                DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')
-            )";
+            $periodicityCondition = 'DATE_ADD(
+                GREATEST(COALESCE(dossiers.DATECOMM_DOSSIER, dossiers.DATEVISITE_DOSSIER), dossiers.DATEVISITE_DOSSIER),
+                INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH
+            )';
         } else {
-            $periodicityCondition = "DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')";
+            $periodicityCondition = 'DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH)';
         }
 
+        // La sous-requête corrélée MAX(DATEVISITE) est remplacée par une table dérivée pré-agrégée
+        // injectée via $extraJoins, éliminant une exécution par ligne d'établissement.
         $extraJoins = '
-            LEFT JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-            LEFT JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
+            JOIN (
+                SELECT etabdoss.ID_ETABLISSEMENT, MAX(dos.DATEVISITE_DOSSIER) AS max_visite
+                FROM dossier dos
+                JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
+                JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
+                WHERE dos.TYPE_DOSSIER IN (2, 3)
+                  AND dn.ID_NATURE IN (21, 23, 24, 26, 28, 29, 47, 48)
+                  AND dos.DATEVISITE_DOSSIER IS NOT NULL
+                GROUP BY etabdoss.ID_ETABLISSEMENT
+            ) last_visite ON last_visite.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
+                AND dossiers.DATEVISITE_DOSSIER = last_visite.max_visite
             LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER';
 
         $sql = $this->buildEtablissementBaseSql(false, $extraJoins);
-
-        // Port direct du legacy : WHERE dossiers.DATEVISITE_DOSSIER = MAX(...) plutôt que condition dans le JOIN
-        $sql .= '
-            AND dossiers.DATEVISITE_DOSSIER = (
-                SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
-                LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
-                LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
-                WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                AND dos.TYPE_DOSSIER IN(2,3)
-                AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))';
 
         $sql .= ' AND etablissementinformations.ID_STATUT = 2';
         $sql .= ' AND etablissementinformations.ID_GENRE = 2';
@@ -375,7 +377,10 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
-        $sql .= sprintf(" AND %s < DATE_FORMAT(CURDATE(), '%%Y-%%m')", $periodicityCondition);
+        $sql .= sprintf(
+            ' AND %s < DATE_SUB(CURDATE(), INTERVAL DAYOFMONTH(CURDATE()) - 1 DAY)',
+            $periodicityCondition
+        );
         $sql .= ' GROUP BY e.ID_ETABLISSEMENT
             ORDER BY CAST(etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS AS UNSIGNED),
                      etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS';
@@ -479,37 +484,41 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         );
 
         if ($useDateCommissionForPeriodicity) {
-            $periodicityCondition = "IF(
-                dossiers.DATECOMM_DOSSIER >= dossiers.DATEVISITE_DOSSIER,
-                DATE_FORMAT(DATE_ADD(dossiers.DATECOMM_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m'),
-                DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')
-            )";
+            // GREATEST(COALESCE()) remplace IF(DATECOMM >= DATEVISITE) — sémantique identique,
+            // syntaxe plus simple et évaluée une seule fois par le moteur SQL.
+            $periodicityCondition = 'DATE_ADD(
+                GREATEST(COALESCE(dossiers.DATECOMM_DOSSIER, dossiers.DATEVISITE_DOSSIER), dossiers.DATEVISITE_DOSSIER),
+                INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH
+            )';
         } else {
-            $periodicityCondition = "DATE_FORMAT(DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH), '%Y-%m')";
+            $periodicityCondition = 'DATE_ADD(dossiers.DATEVISITE_DOSSIER, INTERVAL etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH)';
         }
 
-        // Requête COUNT allégée : uniquement les JOINs nécessaires aux conditions WHERE.
-        // Supprimés vs buildEtablissementBaseSql : dossier donnant avis, avis, type, genre,
-        // etablissementlie, etablissementinformationspreventionniste, utilisateur, adresses (×6).
+        // Les deux sous-requêtes corrélées originales (MAX par etablissement exécutées ligne à ligne)
+        // sont remplacées par des tables dérivées pré-agrégées, évaluées une seule fois.
         $sql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)
             FROM etablissement e
-            JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
-                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei
-                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                )
-            LEFT JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-            LEFT JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
-            LEFT JOIN dossiernature ON dossiernature.ID_DOSSIER = dossiers.ID_DOSSIER
+            JOIN (
+                SELECT ID_ETABLISSEMENT, MAX(DATE_ETABLISSEMENTINFORMATIONS) AS max_date
+                FROM etablissementinformations
+                GROUP BY ID_ETABLISSEMENT
+            ) last_ei ON last_ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            JOIN etablissementinformations ON etablissementinformations.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = last_ei.max_date
+            JOIN (
+                SELECT etabdoss.ID_ETABLISSEMENT, MAX(dos.DATEVISITE_DOSSIER) AS max_visite
+                FROM dossier dos
+                JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
+                JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
+                WHERE dos.TYPE_DOSSIER IN (2, 3)
+                  AND dn.ID_NATURE IN (21, 23, 24, 26, 28, 29, 47, 48)
+                  AND dos.DATEVISITE_DOSSIER IS NOT NULL
+                GROUP BY etabdoss.ID_ETABLISSEMENT
+            ) last_visite ON last_visite.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            JOIN etablissementdossier ON etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+            JOIN dossier dossiers ON dossiers.ID_DOSSIER = etablissementdossier.ID_DOSSIER
+                AND dossiers.DATEVISITE_DOSSIER = last_visite.max_visite
             WHERE e.DATESUPPRESSION_ETABLISSEMENT IS NULL
-            AND dossiers.DATEVISITE_DOSSIER = (
-                SELECT MAX(dos.DATEVISITE_DOSSIER) FROM dossier AS dos
-                LEFT JOIN etablissementdossier etabdoss ON etabdoss.ID_DOSSIER = dos.ID_DOSSIER
-                LEFT JOIN dossiernature dn ON dn.ID_DOSSIER = dos.ID_DOSSIER
-                WHERE etabdoss.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                AND dos.TYPE_DOSSIER IN(2,3)
-                AND dn.ID_NATURE IN (21,23,24,26,28,29,47,48))
             AND etablissementinformations.ID_STATUT = 2
             AND etablissementinformations.ID_GENRE = 2
             AND etablissementinformations.PERIODICITE_ETABLISSEMENTINFORMATIONS > 0';
@@ -520,7 +529,12 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
-        $sql .= sprintf(" AND %s < DATE_FORMAT(CURDATE(), '%%Y-%%m')", $periodicityCondition);
+        // 1er du mois courant exprimé comme une vraie date SQL pour une comparaison
+        // explicite date/date avec DATE_ADD(...), sans cast implicite de chaîne.
+        $sql .= sprintf(
+            ' AND %s < DATE_SUB(CURDATE(), INTERVAL DAYOFMONTH(CURDATE()) - 1 DAY)',
+            $periodicityCondition
+        );
 
         $count = $conn->fetchOne($sql, $params);
 
