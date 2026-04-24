@@ -14,7 +14,15 @@ class PrivilegeVoter implements VoterInterface
     /** @var PrivilegesRepository */
     private $privilegesRepository;
 
-    /** @var array<string, Privileges>|null */
+    /**
+     * Index en mémoire des privileges (name → entité), chargé en une seule requête.
+     * Ce voter est stateful par conception : acceptable dans un contexte web classique
+     * (requête HTTP courte). Si l'infrastructure évolue vers un environnement long-running
+     * (Messenger workers, RoadRunner, Swoole…), implémenter ResetInterface ou utiliser
+     * un cache applicatif avec TTL/invalidation.
+     *
+     * @var array<string, Privileges>|null
+     */
     private $privilegesIndex;
 
     private const EXCLUDED_ATTRIBUTES = [
@@ -74,7 +82,13 @@ class PrivilegeVoter implements VoterInterface
         if (null === $this->privilegesIndex) {
             $this->privilegesIndex = [];
             foreach ($this->privilegesRepository->findAll() as $privilege) {
-                $this->privilegesIndex[$privilege->getName()] = $privilege;
+                $privilegeName = $privilege->getName();
+
+                if (null === $privilegeName) {
+                    continue;
+                }
+
+                $this->privilegesIndex[$privilegeName] = $privilege;
             }
         }
 

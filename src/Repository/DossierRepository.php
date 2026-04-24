@@ -894,8 +894,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Port direct de Service_Dashboard::getLeveePresc().
      * Les dossiers ayant un dossier lié de nature 7 (levée prescriptions), 19 (levée avis déf.) ou 46 (échéancier travaux) sont exclus.
      * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
-     * pour éviter les requêtes N+1. La référence à l'alias externe d est placée dans WHERE (pas dans ON)
-     * car MySQL n'autorise pas les corrélations dans la clause ON d'une sous-requête.
+     * pour éviter les requêtes N+1.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -905,17 +904,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.DELAIPRESC_DOSSIER IS NOT NULL'
-            .' AND NOT EXISTS ('
-            .'     SELECT 1 FROM dossierlie dl'
-            .'     JOIN dossiernature dn_lie ON dl.ID_DOSSIER2 = dn_lie.ID_DOSSIER'
-            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
-            .'       AND dn_lie.ID_NATURE IN ('.$natures.')'
-            .'     UNION ALL'
-            .'     SELECT 1 FROM dossierlie dl2'
-            .'     JOIN dossiernature dn_lie2 ON dl2.ID_DOSSIER1 = dn_lie2.ID_DOSSIER'
-            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
-            .'       AND dn_lie2.ID_NATURE IN ('.$natures.')'
-            .' )'
+            .$this->buildNotExistsDossierLieParNatureSql($natures)
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
@@ -939,17 +928,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.ABSQUORUM_DOSSIER = 1'
-            .' AND NOT EXISTS ('
-            .'     SELECT 1 FROM dossierlie dl'
-            .'     JOIN dossier d_lie ON dl.ID_DOSSIER2 = d_lie.ID_DOSSIER'
-            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
-            .'       AND d_lie.TYPE_DOSSIER IN ('.$types.')'
-            .'     UNION ALL'
-            .'     SELECT 1 FROM dossierlie dl2'
-            .'     JOIN dossier d_lie2 ON dl2.ID_DOSSIER1 = d_lie2.ID_DOSSIER'
-            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
-            .'       AND d_lie2.TYPE_DOSSIER IN ('.$types.')'
-            .' )'
+            .$this->buildNotExistsDossierLieParTypeSql($types)
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
@@ -973,23 +952,55 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $rsm = $this->buildDashboardResultSetMapping();
         $sql = $this->buildSearchDossierBaseSql()
             .' AND d.NPSP_DOSSIER = 1'
-            .' AND NOT EXISTS ('
-            .'     SELECT 1 FROM dossierlie dl'
-            .'     JOIN dossier d_lie ON dl.ID_DOSSIER2 = d_lie.ID_DOSSIER'
-            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
-            .'       AND d_lie.TYPE_DOSSIER IN ('.$types.')'
-            .'     UNION ALL'
-            .'     SELECT 1 FROM dossierlie dl2'
-            .'     JOIN dossier d_lie2 ON dl2.ID_DOSSIER1 = d_lie2.ID_DOSSIER'
-            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
-            .'       AND d_lie2.TYPE_DOSSIER IN ('.$types.')'
-            .' )'
+            .$this->buildNotExistsDossierLieParTypeSql($types)
             .' GROUP BY d.ID_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
         return $dossiers;
+    }
+
+    /**
+     * Génère la clause NOT EXISTS bidirectionnelle sur dossierlie filtrée par type de dossier.
+     * Couvre les deux sens de la relation (ID_DOSSIER1 et ID_DOSSIER2) via UNION ALL.
+     *
+     * @param string $inClause Valeurs SQL pour IN (...), ex: "0, 5"
+     */
+    private function buildNotExistsDossierLieParTypeSql(string $inClause): string
+    {
+        return ' AND NOT EXISTS ('
+            .'     SELECT 1 FROM dossierlie dl'
+            .'     JOIN dossier d_lie ON dl.ID_DOSSIER2 = d_lie.ID_DOSSIER'
+            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
+            .'       AND d_lie.TYPE_DOSSIER IN ('.$inClause.')'
+            .'     UNION ALL'
+            .'     SELECT 1 FROM dossierlie dl2'
+            .'     JOIN dossier d_lie2 ON dl2.ID_DOSSIER1 = d_lie2.ID_DOSSIER'
+            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
+            .'       AND d_lie2.TYPE_DOSSIER IN ('.$inClause.')'
+            .' )';
+    }
+
+    /**
+     * Génère la clause NOT EXISTS bidirectionnelle sur dossierlie filtrée par nature de dossier.
+     * Couvre les deux sens de la relation (ID_DOSSIER1 et ID_DOSSIER2) via UNION ALL.
+     *
+     * @param string $inClause Valeurs SQL pour IN (...), ex: "7, 19, 46"
+     */
+    private function buildNotExistsDossierLieParNatureSql(string $inClause): string
+    {
+        return ' AND NOT EXISTS ('
+            .'     SELECT 1 FROM dossierlie dl'
+            .'     JOIN dossiernature dn_lie ON dl.ID_DOSSIER2 = dn_lie.ID_DOSSIER'
+            .'     WHERE dl.ID_DOSSIER1 = d.ID_DOSSIER'
+            .'       AND dn_lie.ID_NATURE IN ('.$inClause.')'
+            .'     UNION ALL'
+            .'     SELECT 1 FROM dossierlie dl2'
+            .'     JOIN dossiernature dn_lie2 ON dl2.ID_DOSSIER1 = dn_lie2.ID_DOSSIER'
+            .'     WHERE dl2.ID_DOSSIER2 = d.ID_DOSSIER'
+            .'       AND dn_lie2.ID_NATURE IN ('.$inClause.')'
+            .' )';
     }
 
     /**
@@ -1529,7 +1540,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $metadata = $this->getEntityManager()->getClassMetadata(Dossier::class);
 
         // Map all scalar fields from dossier table (d.*)
-        foreach ($metadata->fieldMappings as $fieldName => $mapping) {
+        foreach ($metadata->fieldMappings as $mapping) {
             $rsm->addScalarResult($mapping['columnName'], $mapping['columnName']);
         }
 

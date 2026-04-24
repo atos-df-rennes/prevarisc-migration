@@ -377,7 +377,10 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
-        $sql .= sprintf(" AND %s < DATE_FORMAT(CURDATE(), '%%Y-%%m-01')", $periodicityCondition);
+        $sql .= sprintf(
+            ' AND %s < DATE_SUB(CURDATE(), INTERVAL DAYOFMONTH(CURDATE()) - 1 DAY)',
+            $periodicityCondition
+        );
         $sql .= ' GROUP BY e.ID_ETABLISSEMENT
             ORDER BY CAST(etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS AS UNSIGNED),
                      etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS';
@@ -526,9 +529,12 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
-        // DATE_FORMAT(CURDATE(), '%Y-%m-01') = 1er du mois courant, équivalent à la comparaison
-        // de chaînes '%Y-%m' mais exprimé comme une vraie date pour comparer avec DATE_ADD(...).
-        $sql .= sprintf(" AND %s < DATE_FORMAT(CURDATE(), '%%Y-%%m-01')", $periodicityCondition);
+        // 1er du mois courant exprimé comme une vraie date SQL pour une comparaison
+        // explicite date/date avec DATE_ADD(...), sans cast implicite de chaîne.
+        $sql .= sprintf(
+            ' AND %s < DATE_SUB(CURDATE(), INTERVAL DAYOFMONTH(CURDATE()) - 1 DAY)',
+            $periodicityCondition
+        );
 
         $count = $conn->fetchOne($sql, $params);
 
