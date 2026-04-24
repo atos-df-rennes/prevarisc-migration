@@ -13,13 +13,12 @@ class ZendSessionBridgeTest extends TestCase
     protected function setUp(): void
     {
         $this->bridge = new ZendSessionBridge();
-        // Réinitialise la session avant chaque test
-        unset($_SESSION['Zend_Auth']);
+        $_SESSION = [];
     }
 
     protected function tearDown(): void
     {
-        unset($_SESSION['Zend_Auth']);
+        $_SESSION = [];
     }
 
     public function testGetAuthenticatedUsernameReturnsNullWhenSessionAbsente(): void
