@@ -149,7 +149,7 @@
                                     or type_id == constant('App\\Constant\\TypeChamp::NUMBER')
                                 %}
                                     {{ valeur.str ?? valeur.number }}
-                                {% elseif type_id == type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
+                                {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
                                     {{ (valeur.longStr ?? '')|nl2br }}
                                 {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
                                     {{ valeur.date ? valeur.date|date('d/m/Y') : '' }}

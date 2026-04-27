@@ -4,6 +4,100 @@
 
 <!--- END HEADER -->
 
+## [2.10.0-rc.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.18...v2.10.0-rc.1) (27-04-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+
+##### Changelog
+
+* Page changelog et bandeau de notification de mise à jour (#161) ([81ffef](https://github.com/atos-df-rennes/prevarisc-migration/commit/81ffef501171aeac344c937287070d5d9e39be74))
+
+##### Dashboard
+
+* Ajout du bloc dossiers incomplets (#153) ([dbc6cc](https://github.com/atos-df-rennes/prevarisc-migration/commit/dbc6cc4e00ac8b95a1b320a38a199598b6a6d34c))
+
+##### Dossier
+
+* Indicateur sur le dossier donnant avis d'un établissement (#163) ([6dcecf](https://github.com/atos-df-rennes/prevarisc-migration/commit/6dcecf8dd336abddc4b705f22bdce2a647628e78))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Les permissions à appliquer lors de l'installation n'étaient pas correctes (#152) ([e664f8](https://github.com/atos-df-rennes/prevarisc-migration/commit/e664f89bcbc90c60cb683c0eb549ec4cfe114569))
+* Mauvais ordre d'exécution des instructions d'une migration (#148) ([0a09ef](https://github.com/atos-df-rennes/prevarisc-migration/commit/0a09efcd4ef0843692da4a96be5d76bb16770d51))
+
+##### Accueil
+
+* Mauvais affichage du contenu du bloc lors du clic (#180) ([3de300](https://github.com/atos-df-rennes/prevarisc-migration/commit/3de300ca1b77155ff7a17b6c81542eeca815851e))
+
+##### Admin
+
+* Correction des permissions d'accès aux pages ([f5f69c](https://github.com/atos-df-rennes/prevarisc-migration/commit/f5f69c9e732d6176c8260bae8a06b987addfa4c4))
+
+##### Dossier
+
+* Autorise les numéros d'intervention non-entiers (#165) ([f1f250](https://github.com/atos-df-rennes/prevarisc-migration/commit/f1f250b8be515d70725676295fb63eabb671e1b2))
+* Vérifie qu'un dossier a bien une date de visite/de commission renseignée pour donner avis (#164) ([58a9cb](https://github.com/atos-df-rennes/prevarisc-migration/commit/58a9cbf3c490f3e3bdefd358341e6ff715d3bb3f))
+
+##### Etablissement
+
+* Ne plante pas si le type ou l'activité n'est pas renseigné (#136) ([bfcd18](https://github.com/atos-df-rennes/prevarisc-migration/commit/bfcd18b259a538dfab8419ed24c4266145f7c612))
+
+##### Recherche
+
+* Affiche les pièces d'un dossier au clic sur le bouton lié ([eeb14f](https://github.com/atos-df-rennes/prevarisc-migration/commit/eeb14fef931f5d1e1f2c144737fc65ab1afae20b))
+* Présélectionne uniquement les groupements territoriaux de l'utilisateur ([dd8042](https://github.com/atos-df-rennes/prevarisc-migration/commit/dd80426f582bd12901d0d9310d0d01119f6b0d85))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style
+
+* Adapte correctement la hauteur de la barre de navigation latérale (#146) ([ced5fe](https://github.com/atos-df-rennes/prevarisc-migration/commit/ced5fe322aec9c03ba1a99b4a5ebd5dffddf02b2))
+* Affichage de la table des matières sur grands écrans uniquement (#92) ([1eb521](https://github.com/atos-df-rennes/prevarisc-migration/commit/1eb521fc0b82b5cc0be8fd0c053123baac8e64ce))
+
+##### Formulaires
+
+* Les longs noms de boucle créaient un overflow sur la page (#108) ([963e6a](https://github.com/atos-df-rennes/prevarisc-migration/commit/963e6a914e7c89661c849c19aba9dea6aa18cdf2))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration
+
+* Page d'accueil (#168) ([8e88d5](https://github.com/atos-df-rennes/prevarisc-migration/commit/8e88d56cbf238f5701eff733ee67cf5c1e12acde))
+
+##### Administration
+
+* Gestion des commissions (#112) ([4fc579](https://github.com/atos-df-rennes/prevarisc-migration/commit/4fc579090d5410abb703ddd1866b3b3c3947b4f4))
+
+##### Dossier
+
+* Contacts (#162) ([a60cdc](https://github.com/atos-df-rennes/prevarisc-migration/commit/a60cdcde137b7fd89132280bc4578baa145da2fb))
+* Documents consultés (#158) ([86efcc](https://github.com/atos-df-rennes/prevarisc-migration/commit/86efcc80bf99e0e51645d6ee4d589c31bb7f7149))
+* établissements et dossiers liés (#156) ([76b1cb](https://github.com/atos-df-rennes/prevarisc-migration/commit/76b1cbd80b296f9f8ec22b4e5bb68db866276441))
+* Ajout seul ou sur un établissement (#147) ([5bf53d](https://github.com/atos-df-rennes/prevarisc-migration/commit/5bf53d5ed56e5786aaf3f14b51c7133a7aba9b86))
+* Reprise des effectifs et dégagements depuis une autre étude (#157) ([ab8e5a](https://github.com/atos-df-rennes/prevarisc-migration/commit/ab8e5ae568aedc54027cfd04752475448f1a9748))
+* Copie et reprise des effectifs et dégagements avec l'établissement (#155) ([551254](https://github.com/atos-df-rennes/prevarisc-migration/commit/55125470d5a624d06c57893965379c871ac62c59))
+* Onglet Prescriptions (#135) ([d57f5f](https://github.com/atos-df-rennes/prevarisc-migration/commit/d57f5ffca6f594d7d7a1eff6ac921d904995a75f))
+* Onglet Textes applicables (#144) ([4cd7bc](https://github.com/atos-df-rennes/prevarisc-migration/commit/4cd7bc22d58c30dc037c42803738233b73cc8acc))
+* Onglet descriptif (des travaux) (#143) ([8eb4f1](https://github.com/atos-df-rennes/prevarisc-migration/commit/8eb4f1bea87f098f646c66209c7002f2a6a8fd1f))
+
+##### Etablissement
+
+* Affichage et édition du descriptif original (#154) ([59c79a](https://github.com/atos-df-rennes/prevarisc-migration/commit/59c79ab6db9da0e1eb1f2ff17422890d36ed185e))
+* Onglet Dossiers (#129) ([67e8f1](https://github.com/atos-df-rennes/prevarisc-migration/commit/67e8f16c9c6dd7a6573dcc221c6b005135f56e04))
+
+##### Formulaires
+
+* édition des valeurs (#160) ([ffd504](https://github.com/atos-df-rennes/prevarisc-migration/commit/ffd5047c417f9ee166730a44d14413496d78150f))
+* Affichage des valeurs saisies (#150) ([4e77f6](https://github.com/atos-df-rennes/prevarisc-migration/commit/4e77f64a3478fe52056c647a175522072a06f560))
+
+##### Recherche
+
+* établissements et dossiers (#166) ([7c621d](https://github.com/atos-df-rennes/prevarisc-migration/commit/7c621d06cd16f82d22730c89109af35239377167))
+
+##### Tableau-periodicites
+
+* Application à tous les établissements (#132) ([ae2310](https://github.com/atos-df-rennes/prevarisc-migration/commit/ae231088acc69b71b8da67174907879c91f0cfa5))
+
+
+---
+
 ## [2.8.18](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.17...v2.8.18) (31-03-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections

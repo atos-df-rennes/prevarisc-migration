@@ -241,13 +241,24 @@ class SearchController extends AbstractController
                 $preventionniste = null !== $preventionnisteRaw ? (int) $preventionnisteRaw : null;
 
                 // Groupements : depuis GET params ou pré-sélection utilisateur
+                // Seuls les groupements de type territorial (ID_GROUPEMENTTYPE = 5) sont valides
+                // pour ce filtre. Pré-sélectionner un groupement non-territorial renverrait
+                // systématiquement zéro résultat.
                 $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
                 if (null === $groupements_territoriaux && null !== $user && $user->getGroupements()->count() > 0) {
                     $groupements_territoriaux = [];
                     foreach ($user->getGroupements() as $groupement) {
-                        if (null !== $groupement->getId()) {
+                        if (null !== $groupement->getId()
+                            && null !== $groupement->getType()
+                            && 5 === (int) $groupement->getType()->getId()
+                        ) {
                             $groupements_territoriaux[] = (int) $groupement->getId();
                         }
+                    }
+
+                    // Aucun groupement territorial : ne pas appliquer de filtre
+                    if (empty($groupements_territoriaux)) {
+                        $groupements_territoriaux = null;
                     }
                 }
 
@@ -479,13 +490,24 @@ class SearchController extends AbstractController
                 $criteresRecherche['provenance'] = $provenanceRaw;
 
                 // Groupements territoriaux
+                // Seuls les groupements de type territorial (ID_GROUPEMENTTYPE = 5) sont valides
+                // pour ce filtre. Pré-sélectionner un groupement non-territorial renverrait
+                // systématiquement zéro résultat.
                 $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
                 if (null === $groupements_territoriaux && null !== $user && $user->getGroupements()->count() > 0) {
                     $groupements_territoriaux = [];
                     foreach ($user->getGroupements() as $groupement) {
-                        if (null !== $groupement->getId()) {
+                        if (null !== $groupement->getId()
+                            && null !== $groupement->getType()
+                            && 5 === (int) $groupement->getType()->getId()
+                        ) {
                             $groupements_territoriaux[] = (int) $groupement->getId();
                         }
+                    }
+
+                    // Aucun groupement territorial : ne pas appliquer de filtre
+                    if (empty($groupements_territoriaux)) {
+                        $groupements_territoriaux = null;
                     }
                 }
 

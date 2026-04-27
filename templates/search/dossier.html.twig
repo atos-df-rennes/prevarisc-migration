@@ -28,7 +28,7 @@
 
         <div class="pull-left" style='margin: 9px 0 0 5px'>
             <small>
-                <a href="{{ path('search_dossier', {objet: '', page: 1, Rechercher: 'Rechercher'}) }}">
+                <a href="{{ path('search_dossier', {objet: '', page: 1}) }}">
                     Réinitialiser
                 </a>
             </small>
@@ -324,7 +324,7 @@
 
         $("a.pj").click(function(e){
             e.preventDefault();
-            var rowvalue = $(this).find('i').attr('id').substring(6);
+            var rowvalue = $(this).find('span').attr('id').substring(6);
             $('#rowpj'+rowvalue).toggle();
         });
     });
