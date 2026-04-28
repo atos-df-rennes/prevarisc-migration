@@ -80,13 +80,10 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     labelField: 'libelle',
                     searchField: 'libelle',
                     placeholder: 'Sélectionnez ou saisissez un service instructeur',
+                    preload: true,
                     
                     load: function(query, callback) {
-                        if (!query || query.length < 2) {
-                            callback();
-                            return;
-                        }
-
+                        // Chargement initial (preload) ou recherche : pas de min. de caractères
                         fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
                             .then(response => response.json())
                             .then(json => {

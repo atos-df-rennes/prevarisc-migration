@@ -42,11 +42,12 @@ class GroupementController extends AbstractController
             throw new \InvalidArgumentException('Limit must be an integer.');
         }
 
-        if (strlen($query) < 2) {
+        // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10)
+        // Une requête vide retourne tous les services instructeurs (pour le preload TomSelect)
+        if (strlen($query) > 0 && strlen($query) < 2) {
             return new JsonResponse([]);
         }
 
-        // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10)
         $groupements = $this->groupementRepository->searchByLibelle($query, $limit, 10);
 
         return $this->json($groupements, Response::HTTP_OK, [], [
