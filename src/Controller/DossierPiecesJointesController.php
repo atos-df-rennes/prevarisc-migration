@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\Etablissement;
@@ -9,14 +10,14 @@ use App\Entity\EtablissementPieceJointe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Repository\DossierPieceJointeRepository;
-use App\Repository\DossierRepository;
-use App\Repository\PieceJointeRepository;
 use App\Repository\PieceJointeStatutRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,27 +25,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Port direct de PieceJointeController (type=dossier) et DossierController (pieceJointeAction, getZipAllPjAction).
- *
- * @IsGranted("ROLE_USER")
  */
-class DossierPiecesJointesController extends AbstractController
+class DossierPiecesJointesController extends AbstractController implements DossierLateralNavigationInterface
 {
     private const FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 
     /** @var DataStore */
     private $dataStore;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
-
     /** @var DossierPieceJointeRepository */
     private $dossierPieceJointeRepository;
-
-    /** @var PieceJointeRepository */
-    private $pieceJointeRepository;
 
     /** @var PieceJointeStatutRepository */
     private $pieceJointeStatutRepository;
@@ -55,34 +51,37 @@ class DossierPiecesJointesController extends AbstractController
     /** @var NotificationService */
     private $notificationService;
 
+    /** @var ValidatorInterface */
+    private $validator;
+
+    /** @var Filesystem */
+    private $filesystem;
+
     /** @var string */
     private $realDataPath;
 
     public function __construct(
         DataStore $dataStore,
-        DossierRepository $dossierRepository,
         DossierPieceJointeRepository $dossierPieceJointeRepository,
-        PieceJointeRepository $pieceJointeRepository,
         PieceJointeStatutRepository $pieceJointeStatutRepository,
         EntityManagerInterface $entityManager,
         NotificationService $notificationService,
+        ValidatorInterface $validator,
+        Filesystem $filesystem,
         string $realDataPath
     ) {
         $this->dataStore = $dataStore;
-        $this->dossierRepository = $dossierRepository;
         $this->dossierPieceJointeRepository = $dossierPieceJointeRepository;
-        $this->pieceJointeRepository = $pieceJointeRepository;
         $this->pieceJointeStatutRepository = $pieceJointeStatutRepository;
         $this->entityManager = $entityManager;
         $this->notificationService = $notificationService;
+        $this->validator = $validator;
+        $this->filesystem = $filesystem;
         $this->realDataPath = $realDataPath;
     }
 
     /**
      * Résout le chemin physique d'une pièce jointe selon que le dossier est Platau ou non.
-     *
-     * Pour les dossiers Platau, les fichiers sont stockés dans un espace dédié.
-     * Pour les dossiers classiques, le DataStore gère la résolution.
      *
      * @param bool $createDir Créer le répertoire si inexistant (utile à l'upload)
      */
@@ -102,20 +101,17 @@ class DossierPiecesJointesController extends AbstractController
      *
      * @Route("/dossier/{id}/pieces-jointes", name="dossier_pieces_jointes", methods={"GET"})
      *
-     * @param int $id ID du dossier
+     * @IsGranted("view_doss", subject="dossier")
      */
-    public function index(int $id): Response
+    public function index(Dossier $dossier): Response
     {
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            throw $this->createNotFoundException('Dossier introuvable.');
-        }
-
-        $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier($id);
+        $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier((int) $dossier->getId());
 
         /** @var Utilisateur $user */
         $user = $this->getUser();
         $lastVisit = $this->notificationService->getLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
+
+        $isPlatau = null !== $dossier->getConsultationPlatau();
 
         $listePj = [];
         foreach ($dossierPjs as $dpj) {
@@ -130,7 +126,7 @@ class DossierPiecesJointesController extends AbstractController
             }
 
             $dateNotif = $pj->getDateNotification();
-            $isNew = null !== $dateNotif && $dateNotif > $lastVisit;
+            $isNew = $isPlatau && null !== $dateNotif && $dateNotif > $lastVisit;
 
             $listePj[] = [
                 'dpj' => $dpj,
@@ -139,8 +135,6 @@ class DossierPiecesJointesController extends AbstractController
         }
 
         $this->notificationService->setLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
-
-        $isPlatau = null !== $dossier->getConsultationPlatau();
 
         return $this->render('dossier/pieces_jointes/index.html.twig', [
             'dossier' => $dossier,
@@ -152,26 +146,19 @@ class DossierPiecesJointesController extends AbstractController
     }
 
     /**
-     * Formulaire d'ajout de pièce jointe (fragment AJAX).
+     * Formulaire d'ajout de pièce jointe (fragment AJAX, sans layout).
      *
      * Port direct de PieceJointeController::formAction() (type=dossier).
      *
-     * @Route("/dossier/{id}/pieces-jointes/formulaire", name="dossier_pieces_jointes_form", methods={"GET"})
+     * @Route("/dossier/{id}/pieces-jointes/formulaire", name="dossier_pieces_jointes_form", methods={"GET"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @param int $id ID du dossier
+     * @IsGranted("view_doss", subject="dossier")
      */
-    public function form(int $id): Response
+    public function form(Dossier $dossier): Response
     {
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            throw $this->createNotFoundException('Dossier introuvable.');
-        }
-
-        $etablissements = $dossier->getEtablissements()->toArray();
-
         return $this->render('dossier/pieces_jointes/form.html.twig', [
             'dossier' => $dossier,
-            'etablissements' => $etablissements,
+            'etablissements' => $dossier->getEtablissements()->toArray(),
         ]);
     }
 
@@ -180,20 +167,15 @@ class DossierPiecesJointesController extends AbstractController
      *
      * Port direct de PieceJointeController::addAction() (type=dossier).
      *
-     * @Route("/dossier/{id}/pieces-jointes/ajouter", name="dossier_pieces_jointes_add", methods={"POST"})
+     * @Route("/dossier/{id}/pieces-jointes/ajouter", name="dossier_pieces_jointes_add", methods={"POST"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @param int $id ID du dossier
+     * @IsGranted("edit_doss", subject="dossier")
      */
-    public function add(int $id, Request $request): JsonResponse
+    public function add(Dossier $dossier, Request $request): JsonResponse
     {
         $rawCsrfAdd = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawCsrfAdd) ? $rawCsrfAdd : null)) {
             return $this->json(['success' => false, 'message' => 'Token CSRF invalide.'], 403);
-        }
-
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            return $this->json(['success' => false, 'message' => 'Dossier introuvable.'], 404);
         }
 
         $file = $request->files->get('fichier');
@@ -205,21 +187,29 @@ class DossierPiecesJointesController extends AbstractController
         }
 
         /** @var UploadedFile $file */
-        $rawExtension = $file->getClientOriginalExtension();
-        if ('' === $rawExtension) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Les fichiers sans extension ne sont pas autorisés.',
-            ], 400);
+        $violations = $this->validator->validate($file, [
+            new Assert\Callback(function (UploadedFile $uploadedFile, ExecutionContextInterface $context): void {
+                $ext = $uploadedFile->getClientOriginalExtension();
+                if ('' === $ext) {
+                    $context->buildViolation('Les fichiers sans extension ne sont pas autorisés.')->addViolation();
+
+                    return;
+                }
+
+                if (in_array('.'.strtolower($ext), self::FORBIDDEN_EXTENSIONS, true)) {
+                    $context->buildViolation("Ce type de fichier n'est pas autorisé en upload")->addViolation();
+                }
+            }),
+        ]);
+
+        if (count($violations) > 0) {
+            $firstViolation = $violations[0];
+            $message = null !== $firstViolation ? (string) $firstViolation->getMessage() : 'Fichier invalide.';
+
+            return $this->json(['success' => false, 'message' => $message], 400);
         }
 
-        $extension = '.'.strtolower($rawExtension);
-        if (in_array($extension, self::FORBIDDEN_EXTENSIONS, true)) {
-            return $this->json([
-                'success' => false,
-                'message' => "Ce type de fichier n'est pas autorisé en upload",
-            ], 400);
-        }
+        $extension = '.'.strtolower($file->getClientOriginalExtension());
 
         $nomFichierRaw = $request->request->get('nomFichier', '');
         $nomFichier = is_string($nomFichierRaw) ? $nomFichierRaw : '';
@@ -234,7 +224,6 @@ class DossierPiecesJointesController extends AbstractController
         $descriptionRaw = $request->request->get('descriptionFichier');
         $pj->setDescription(is_string($descriptionRaw) && '' !== $descriptionRaw ? $descriptionRaw : null);
         $pj->setDate(new \DateTime());
-        $pj->setDateNotification(new \DateTime());
 
         $this->entityManager->persist($pj);
         $this->entityManager->flush();
@@ -293,24 +282,15 @@ class DossierPiecesJointesController extends AbstractController
      *
      * @Route("/dossier/{id}/pieces-jointes/{idpj}/telecharger", name="dossier_pieces_jointes_get", methods={"GET"}, requirements={"idpj"="\d+"})
      *
-     * @param int $id   ID du dossier
-     * @param int $idpj ID de la pièce jointe
+     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
+     *
+     * @IsGranted("view_doss", subject="dossier")
      */
-    public function download(int $id, int $idpj): Response
+    public function download(Dossier $dossier, PieceJointe $pj): Response
     {
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            throw $this->createNotFoundException('Dossier introuvable.');
-        }
-
-        $pj = $this->pieceJointeRepository->find($idpj);
-        if (null === $pj) {
-            throw $this->createNotFoundException('Pièce jointe introuvable.');
-        }
-
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
-            'pieceJointe' => $idpj,
-            'dossier' => $id,
+            'pieceJointe' => $pj,
+            'dossier' => $dossier,
         ]);
         if (null === $dpj) {
             throw $this->createNotFoundException('Pièce jointe non rattachée à ce dossier.');
@@ -335,41 +315,31 @@ class DossierPiecesJointesController extends AbstractController
      *
      * Port direct de PieceJointeController::deleteAction() (type=dossier).
      *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/supprimer", name="dossier_pieces_jointes_delete", methods={"POST"}, requirements={"idpj"="\d+"})
+     * @Route("/dossier/{id}/pieces-jointes/{idpj}/supprimer", name="dossier_pieces_jointes_delete", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @param int $id   ID du dossier
-     * @param int $idpj ID de la pièce jointe
+     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
      */
-    public function delete(int $id, int $idpj, Request $request): JsonResponse
+    public function delete(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
         $rawTokenDelete = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('dossier_pj_delete_'.$idpj, is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
+        if (!$this->isCsrfTokenValid('dossier_pj_delete_'.$pj->getId(), is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
-        }
-
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            return $this->json(['error' => 'Dossier introuvable.'], 404);
         }
 
         if ($dossier->hasVerrou()) {
             return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
         }
 
-        $pj = $this->pieceJointeRepository->find($idpj);
-        if (null === $pj) {
-            return $this->json(['error' => 'Pièce jointe introuvable.'], 404);
-        }
-
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
-            'pieceJointe' => $idpj,
-            'dossier' => $id,
+            'pieceJointe' => $pj,
+            'dossier' => $dossier,
         ]);
         if (null === $dpj) {
             return $this->json(['error' => 'Pièce jointe non rattachée à ce dossier.'], 404);
         }
 
-        // RG-PJ-010 : Impossible de supprimer une PJ en cours de traitement Plat'AU
         $statut = $pj->getStatut();
         if (null !== $statut && in_array($statut->getNomStatut(), ['to_be_exported', 'exported', 'awaiting_status'], true)) {
             return $this->json([
@@ -378,14 +348,12 @@ class DossierPiecesJointesController extends AbstractController
         }
 
         $filePath = $this->resolvePjFilePath($pj, $dossier);
-        if (file_exists($filePath)) {
-            @unlink($filePath);
-        }
+        $this->filesystem->remove($filePath);
 
-        // Tentative suppression miniature (port direct legacy)
+        // Tentative suppression miniature (port direct legacy — le chemin utilise l'ID dossier au lieu de l'ID établissement)
         $miniaturePath = $this->dataStore->getFilePath($pj, 'etablissement_miniature', (int) $dossier->getId());
-        if (file_exists($miniaturePath)) {
-            @unlink($miniaturePath);
+        if ($this->filesystem->exists($miniaturePath)) {
+            $this->filesystem->remove($miniaturePath);
         }
 
         $this->entityManager->remove($dpj);
@@ -400,31 +368,22 @@ class DossierPiecesJointesController extends AbstractController
      *
      * Port direct de PieceJointeController::checkAction() (type=dossier).
      *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/verifier", name="dossier_pieces_jointes_check", methods={"POST"}, requirements={"idpj"="\d+"})
+     * @Route("/dossier/{id}/pieces-jointes/{idpj}/verifier", name="dossier_pieces_jointes_check", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @param int $id   ID du dossier
-     * @param int $idpj ID de la pièce jointe
+     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
      */
-    public function check(int $id, int $idpj, Request $request): JsonResponse
+    public function check(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawToken) ? $rawToken : null)) {
             return $this->json(['exists' => false]);
         }
 
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            return $this->json(['exists' => false]);
-        }
-
-        $pj = $this->pieceJointeRepository->find($idpj);
-        if (null === $pj) {
-            return $this->json(['exists' => false]);
-        }
-
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
-            'pieceJointe' => $idpj,
-            'dossier' => $id,
+            'pieceJointe' => $pj,
+            'dossier' => $dossier,
         ]);
         if (null === $dpj) {
             return $this->json(['exists' => false]);
@@ -437,7 +396,7 @@ class DossierPiecesJointesController extends AbstractController
 
         $html = $this->renderView('dossier/pieces_jointes/_piece_jointe_row.html.twig', [
             'dpj' => $dpj,
-            'isNew' => true,
+            'isNew' => false,
             'isPlatau' => null !== $dossier->getConsultationPlatau(),
             'verrou' => $dossier->hasVerrou(),
             'dossier' => $dossier,
@@ -453,16 +412,11 @@ class DossierPiecesJointesController extends AbstractController
      *
      * @Route("/dossier/{id}/pieces-jointes/telecharger-tout", name="dossier_pieces_jointes_zip", methods={"GET"})
      *
-     * @param int $id ID du dossier
+     * @IsGranted("view_doss", subject="dossier")
      */
-    public function downloadZip(int $id): Response
+    public function downloadZip(Dossier $dossier): Response
     {
-        $dossier = $this->dossierRepository->find($id);
-        if (null === $dossier) {
-            throw $this->createNotFoundException('Dossier introuvable.');
-        }
-
-        $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier($id);
+        $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier((int) $dossier->getId());
 
         $fichiers = [];
         foreach ($dossierPjs as $dpj) {
@@ -482,19 +436,19 @@ class DossierPiecesJointesController extends AbstractController
             ];
         }
 
-        if (empty($fichiers)) {
-            $this->addFlash('error', 'Aucune pièce jointe disponible au téléchargement.');
+        if ([] === $fichiers) {
+            $this->addFlash('danger', 'Aucune pièce jointe disponible au téléchargement.');
 
-            return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $id]);
+            return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
         }
 
         $zipPath = $this->realDataPath.'/uploads/'.$dossier->getId().'_pj.zip';
 
         $zip = new \ZipArchive();
         if (true !== $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
-            $this->addFlash('error', 'Impossible de créer l\'archive ZIP. Veuillez contacter votre service informatique.');
+            $this->addFlash('danger', "Impossible de créer l'archive ZIP. Veuillez contacter votre service informatique.");
 
-            return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $id]);
+            return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
         }
 
         foreach ($fichiers as $fichier) {
@@ -518,34 +472,30 @@ class DossierPiecesJointesController extends AbstractController
      *
      * Port direct de PieceJointeController::retryExportPlatauAction().
      *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/renvoyer-platau", name="dossier_pieces_jointes_retry_platau", methods={"POST"}, requirements={"idpj"="\d+"})
+     * @Route("/dossier/{id}/pieces-jointes/{idpj}/renvoyer-platau", name="dossier_pieces_jointes_retry_platau", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @param int $id   ID du dossier
-     * @param int $idpj ID de la pièce jointe
+     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
      */
-    public function retryExportPlatau(int $id, int $idpj, Request $request): JsonResponse
+    public function retryExportPlatau(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
         $rawTokenRetry = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('dossier_pj_retry_'.$idpj, is_string($rawTokenRetry) ? $rawTokenRetry : null)) {
+        if (!$this->isCsrfTokenValid('dossier_pj_retry_'.$pj->getId(), is_string($rawTokenRetry) ? $rawTokenRetry : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
-        $pj = $this->pieceJointeRepository->find($idpj);
-        if (null === $pj) {
-            throw $this->createNotFoundException('Pièce jointe introuvable.');
-        }
-
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
-            'pieceJointe' => $idpj,
-            'dossier' => $id,
+            'pieceJointe' => $pj,
+            'dossier' => $dossier,
         ]);
         if (null === $dpj) {
-            throw $this->createNotFoundException('Pièce jointe non rattachée à ce dossier.');
+            return $this->json(['error' => 'Pièce jointe non rattachée à ce dossier.'], 404);
         }
 
         $statut = $this->pieceJointeStatutRepository->findOneBy(['nomStatut' => 'to_be_exported']);
         if (null === $statut) {
-            throw $this->createNotFoundException("Statut 'to_be_exported' introuvable.");
+            return $this->json(['error' => "Statut 'to_be_exported' introuvable."], 500);
         }
 
         $pj->setStatut($statut);
@@ -553,28 +503,6 @@ class DossierPiecesJointesController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->json(['success' => true]);
-    }
-
-    /**
-     * Fragment HTML listant les pièces jointes exportables vers Plat'AU (GET AJAX).
-     *
-     * Port direct de PieceJointeController::displayPjPlatauAction().
-     *
-     * @Route("/dossier/{id}/pieces-jointes/platau/exportables", name="dossier_pieces_jointes_platau_exportables", methods={"GET"})
-     *
-     * @param int $id ID du dossier
-     */
-    public function displayPjPlatau(int $id): Response
-    {
-        $pjs = $this->dossierPieceJointeRepository->findPiecesJointesByStatut($id, 'not_exported');
-
-        if (empty($pjs)) {
-            return new Response('', Response::HTTP_NO_CONTENT);
-        }
-
-        return $this->render('dossier/pieces_jointes/_platau_exportables.html.twig', [
-            'piecesJointes' => $pjs,
-        ]);
+        return $this->json(['success' => true, 'statut' => $statut->getNomLisible()]);
     }
 }

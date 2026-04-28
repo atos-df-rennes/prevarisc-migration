@@ -5,33 +5,33 @@
 
     <input type="hidden" name="_token" value="{{ csrf_token('dossier_pj_add') }}">
 
-    <dl class="dl-horizontal">
-        <dt><label for="pj-fichier">Fichier à envoyer</label></dt>
-        <dd><input type="file" name="fichier" id="pj-fichier"></dd>
+    <div class="form-group">
+        <label for="pj-fichier">Fichier à envoyer</label>
+        <input type="file" name="fichier" id="pj-fichier" class="form-control">
+    </div>
 
-        <dt><label for="pj-nom">Libellé de la pièce jointe</label></dt>
-        <dd>
-            <input type="text" class="form-control" name="nomFichier" id="pj-nom"
-                   placeholder="Laissez vide pour conserver le nom par défaut">
-        </dd>
+    <div class="form-group">
+        <label for="pj-nom">Libellé de la pièce jointe</label>
+        <input type="text" class="form-control" name="nomFichier" id="pj-nom"
+               placeholder="Laissez vide pour conserver le nom par défaut">
+    </div>
 
-        <dt><label for="pj-description">Description</label></dt>
-        <dd>
-            <textarea class="form-control" name="descriptionFichier" id="pj-description" rows="4"></textarea>
-        </dd>
+    <div class="form-group">
+        <label for="pj-description">Description</label>
+        <textarea class="form-control" name="descriptionFichier" id="pj-description" rows="4"></textarea>
+    </div>
 
-        {% if etablissements is not empty %}
-            <dt>Entités liées</dt>
-            <dd>
-                {% for etab in etablissements %}
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="etab[]" value="{{ etab.id }}">
-                            {{ etab.latestInformations.libelle }} ({{ etab.latestInformations.genre.libelle }})
-                        </label>
-                    </div>
-                {% endfor %}
-            </dd>
-        {% endif %}
-    </dl>
+    {% if etablissements is not empty %}
+        <div class="form-group">
+            <label>Entités liées</label>
+            {% for etab in etablissements %}
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="etab[]" value="{{ etab.id }}">
+                        {{ etab.latestInformations.libelle }} ({{ etab.latestInformations.genre.libelle }})
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 </form>

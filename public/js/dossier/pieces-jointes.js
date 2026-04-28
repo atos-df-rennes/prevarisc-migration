@@ -25,7 +25,6 @@ $(document).ready(function () {
     function insertRow(html) {
         $('#pj-table tbody').prepend(html);
         showTable();
-        // Réinitialiser FancyBox sur les nouvelles images
         initFancybox();
     }
 
@@ -45,7 +44,9 @@ $(document).ready(function () {
     // --- Modale d'ajout ---
 
     $('#btn-add-pj').on('click', function () {
-        $('#modal-add-pj-body').html('<p class="text-center"><span class="glyphicon glyphicon-refresh"></span> Chargement...</p>');
+        $('#modal-add-pj-body').html(
+            '<p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>'
+        );
         $('#modal-add-pj').modal('show');
 
         $.get(urlForm, function (html) {
@@ -73,13 +74,13 @@ $(document).ready(function () {
                     afterUpload(result.id);
                 } else {
                     $('#modal-add-pj-body').prepend(
-                        '<div class="alert alert-danger">' + (result.message || 'Erreur lors de l\'ajout.') + '</div>'
+                        '<div class="alert alert-danger">' + (result.message || "Erreur lors de l'ajout.") + '</div>'
                     );
                 }
             },
             error: function () {
                 $('#modal-add-pj-body').prepend(
-                    '<div class="alert alert-danger">Erreur lors de l\'envoi du fichier.</div>'
+                    "<div class=\"alert alert-danger\">Erreur lors de l'envoi du fichier.</div>"
                 );
             }
         });
@@ -93,6 +94,7 @@ $(document).ready(function () {
         url: urlAdd,
         paramName: 'fichier',
         autoProcessQueue: true,
+        dictDefaultMessage: '<span class="glyphicon glyphicon-upload"></span> Glissez-déposez vos fichiers ici ou cliquez pour parcourir',
         sending: function (file, xhr, formData) {
             formData.append('_token', csrfAdd);
         },
@@ -135,12 +137,18 @@ $(document).ready(function () {
             success: function (result) {
                 if (result.success) {
                     row.remove();
+                    $.toast.success('La pièce jointe a été supprimée.');
 
                     if ($('#pj-table tbody tr').length === 0) {
                         $('#pj-table').hide();
                         $('#pj-empty-msg').show();
                     }
+                } else {
+                    $.toast.error(result.error || 'Erreur lors de la suppression.');
                 }
+            },
+            error: function () {
+                $.toast.error('Erreur lors de la suppression de la pièce jointe.');
             }
         });
     });
@@ -151,14 +159,32 @@ $(document).ready(function () {
         const btn = $(this);
         const url = btn.data('url');
         const token = btn.data('token');
+        const cell = btn.closest('td');
+
+        btn.prop('disabled', true).html(
+            '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Renvoi...'
+        );
 
         $.ajax({
             url: url,
             method: 'POST',
             data: { _token: token },
-            success: function () {
-                // Recharger la page pour afficher le nouveau statut
-                window.location.reload();
+            success: function (result) {
+                if (result.success) {
+                    $.toast.success("La pièce jointe a été remise en file d'attente d'export vers Plat'AU.");
+                    cell.html('<span class="label label-info">' + (result.statut || 'En attente d\'export') + '</span>');
+                } else {
+                    $.toast.error(result.error || "Erreur lors du renvoi vers Plat'AU.");
+                    btn.prop('disabled', false).html(
+                        '<span class="glyphicon glyphicon-refresh"></span> Renvoyer'
+                    );
+                }
+            },
+            error: function () {
+                $.toast.error("Erreur lors du renvoi vers Plat'AU.");
+                btn.prop('disabled', false).html(
+                    '<span class="glyphicon glyphicon-refresh"></span> Renvoyer'
+                );
             }
         });
     });
