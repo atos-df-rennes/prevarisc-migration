@@ -64,6 +64,28 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
 
+    $services->set('App\Security\Md5SaltedEncoder')
+        ->arg('$globalSalt', '%app.security_salt%');
+
+    $services->set('App\Security\FormLoginAuthenticator')
+        ->arg('$tokenStorage', ref('security.token_storage'))
+        ->arg('$csrfTokenManager', ref('security.csrf.token_manager'))
+        ->arg('$symfonyLoginEnabled', '%app.symfony_login%')
+        ->arg('$casEnabled', '%app.cas_enabled%')
+        ->arg('$casHost', '%app.cas_host%')
+        ->arg('$casPort', '%app.cas_port%')
+        ->arg('$casContext', '%app.cas_context%')
+        ->arg('$casNoServerValidation', '%app.cas_no_server_validation%')
+        ->arg('$casVersion', '%app.cas_version%')
+        ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
+        ->arg('$ldapEnabled', '%app.ldap_enabled%')
+        ->arg('$ldapHost', '%app.ldap_host%')
+        ->arg('$ldapPort', '%app.ldap_port%')
+        ->arg('$ldapUsername', '%app.ldap_username%')
+        ->arg('$ldapPassword', '%app.ldap_password%')
+        ->arg('$ldapBaseDn', '%app.ldap_basedn%')
+        ->arg('$enforceSecurity', '%app.enforce_security%');
+
     $services->set('App\Service\DataStore\DataStoreFactory')
         ->arg('$adapter', '%app.datastore_adapter%');
 

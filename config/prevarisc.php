@@ -223,6 +223,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
 
+    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 0);
+
+    $parameters->set('app.symfony_login', '%env(bool:PREVARISC_SYMFONY_LOGIN)%');
+
+    $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
+
+    $parameters->set('app.ldap_account_form', '%env(string:PREVARISC_LDAP_ACCOUNT_FORM)%');
+
     $parameters->set('env(PREVARISC_LOCAL_SOMMEIL_TYPES)', '7;11');
 
     $parameters->set('app.local_sommeil_types', '%env(PREVARISC_LOCAL_SOMMEIL_TYPES)%');

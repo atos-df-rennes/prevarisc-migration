@@ -100,3 +100,38 @@ dossier_avis_et_derogations:
       path: /dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier
     - name: dossier_avis_et_derogations_delete
       path: /dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer
+
+authentification:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/SessionController.php
+    - prevarisc/library/Service/PassAuthAdapater.php
+  migrated_files:
+    - prevarisc-migration/src/Security/FormLoginAuthenticator.php
+    - prevarisc-migration/src/Security/Md5SaltedEncoder.php
+    - prevarisc-migration/src/Security/ZendIdentityBuilder.php
+    - prevarisc-migration/src/Security/ZendSessionBridge.php
+    - prevarisc-migration/src/Security/LegacySessionAuthenticator.php
+    - prevarisc-migration/src/Controller/SessionController.php
+    - prevarisc-migration/src/Entity/Utilisateur.php
+    - prevarisc-migration/src/Controller/UtilisateursController.php
+    - prevarisc-migration/templates/security/login.html.twig
+    - prevarisc-migration/config/packages/security.php
+    - prevarisc-migration/config/prevarisc.php
+    - prevarisc-migration/config/services.php
+    - prevarisc-migration/composer.json
+    - prevarisc-migration/docs/RAPPORT_ECARTS_AUTHENTIFICATION.md
+  updated_at: "2026-05-07"
+  notes: >
+    Authentification Symfony native (Guard) remplaçant LegacySessionAuthenticator.
+    Supporte CAS (phpCAS), NTLM (REMOTE_USER), LDAP (symfony/ldap), formulaire MD5→bcrypt.
+    Migration transparente des hashs via migrate_from (Md5SaltedEncoder + needsRehash=true).
+    Propagation session Zend_Auth via ZendSessionBridge pour compatibilité legacy.
+    Feature flag PREVARISC_SYMFONY_LOGIN=1 pour activation progressive.
+    Protections ajoutées : CSRF formulaire, open redirect (chemins relatifs uniquement).
+    Régression connue : updateLastActionDate non appelé au logout (mineur).
+  routes:
+    - name: session_login
+      path: /session/login
+    - name: session_logout
+      path: /session/logout

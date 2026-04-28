@@ -42,9 +42,18 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * On a pas accès à la variable $_SESSION ici.
      * Pour contourner, on laisse passer et on fait la vérification dans la méthode getCredentials().
      * Si l'utilisateur n'est pas connecté on throw une AuthenticationException et on redirige dans la méthode onAuthenticationFailure().
+     *
+     * Exclut /session/login pour éviter une boucle de redirection infinie
+     * quand le formulaire de login natif Symfony est actif.
      */
     public function supports(Request $request): bool
     {
+        // Ne pas tenter l'authentification Zend sur la page de login Symfony :
+        // cela provoquerait une boucle de redirection infinie pour les utilisateurs non connectés.
+        if ('/session/login' === $request->getPathInfo()) {
+            return false;
+        }
+
         return null === $request->getSession()->get('username');
     }
 
