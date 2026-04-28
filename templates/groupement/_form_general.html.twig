@@ -22,7 +22,7 @@
             <div class="clearfix"></div>
 
             <div class="col-xs-12 col-md-5">
-                <select id="liste_villes" multiple size=20 class="form-control" aria-label="Liste des communes disponibles">
+                <select id="liste_villes" multiple size="20" class="form-control" aria-label="Liste des communes disponibles">
                     {% for ville in villes %}
                         <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
                     {% endfor %}
@@ -35,7 +35,7 @@
             </div>
 
             <div class="col-xs-12 col-md-5">
-                <select id="villes_groupement" name="groupement[communes][]" class="form-control" multiple size=20 >
+                <select id="villes_groupement" name="groupement[communes][]" class="form-control" multiple size="20">
                     {% if groupement.communes is iterable %}
                         {% for ville in groupement.communes %}
                             <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
