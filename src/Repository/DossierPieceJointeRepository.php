@@ -70,6 +70,10 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
     /**
      * Récupère les pièces jointes d'un dossier par statut.
      *
+     * Il y a une table de jointure (dossierpj) entre le dossier et les pièces jointes,
+     * bien qu'une pièce jointe ne puisse en réalité être que sur un seul dossier.
+     * On ne peut donc pas faire la requête depuis le Repository PieceJointe.
+     *
      * @param int    $idDossier ID du dossier
      * @param string $statut    Nom du statut (ex: 'not_exported')
      *
@@ -85,39 +89,6 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
             ->andWhere('pjs.nomStatut = :statut')
             ->setParameter('idDossier', $idDossier)
             ->setParameter('statut', $statut)
-            ->getQuery()
-            ->getResult()
-        ;
-
-        return array_values(array_filter(array_map(function (DossierPieceJointe $dpj): ?PieceJointe {
-            return $dpj->getPieceJointe();
-        }, $dossierPiecesJointes)));
-    }
-
-    /**
-     * Récupère les pièces jointes exportables vers Plat'AU pour un dossier.
-     *
-     * Sont exportables :
-     * - les PJ avec statut 'not_exported' (reçues via Plat'AU, pas encore envoyées)
-     * - les PJ sans statut (ajoutées manuellement via l'onglet PJ)
-     *
-     * Le legacy exclut par inadvertance les PJ sans statut (INNER JOIN). Cette méthode
-     * corrige ce comportement pour permettre l'envoi de toutes les PJ pertinentes.
-     *
-     * @param int $idDossier ID du dossier
-     *
-     * @return PieceJointe[]
-     */
-    public function findPiecesJointesExportables(int $idDossier): array
-    {
-        $dossierPiecesJointes = $this->createQueryBuilder('dpj')
-            ->addSelect('pj', 'pjs')
-            ->innerJoin('dpj.pieceJointe', 'pj')
-            ->leftJoin('pj.statut', 'pjs')
-            ->where('dpj.dossier = :idDossier')
-            ->andWhere('pjs.nomStatut = :statut OR pjs.id IS NULL')
-            ->setParameter('idDossier', $idDossier)
-            ->setParameter('statut', 'not_exported')
             ->getQuery()
             ->getResult()
         ;

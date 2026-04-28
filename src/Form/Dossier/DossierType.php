@@ -513,8 +513,11 @@ class DossierType extends AbstractType
         /** @var DossierPieceJointeRepository $repository */
         $repository = $this->entityManager->getRepository(DossierPieceJointe::class);
 
-        // Récupère les pièces jointes exportables : statut 'not_exported' + PJ sans statut (ajoutées manuellement)
-        return $repository->findPiecesJointesExportables($options['data']->getId());
+        // Récupère les pièces jointes exportables (statut 'not_exported')
+        return $repository->findPiecesJointesByStatut(
+            $options['data']->getId(),
+            'not_exported'
+        );
     }
 
     /**
