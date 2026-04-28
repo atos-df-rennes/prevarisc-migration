@@ -29,11 +29,7 @@
         {% endif %}
     </h3>
 
-    <div id="dropzone-pj" class="dropzone" style="display:none">
-        <p class="text-muted text-center">
-            <span class="glyphicon glyphicon-upload"></span> Glissez-déposez vos fichiers ici
-        </p>
-    </div>
+    <div id="dropzone-pj" class="dropzone" style="display:none"></div>
 
     {% if listePj is empty %}
         <div id="pj-empty-msg" class="well text-center">
@@ -45,7 +41,7 @@
         </div>
     {% endif %}
 
-    <table id="pj-table" class="table table-striped table-condensed"{% if listePj is empty %} style="display:none"{% endif %}>
+    <table id="tabPieceJointe" class="table table-striped table-condensed"{% if listePj is empty %} style="display:none"{% endif %}>
         <thead>
             <tr>
                 <th>Nom</th>

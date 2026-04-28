@@ -18,14 +18,13 @@ $(document).ready(function () {
     }
 
     function showTable() {
-        $('#pj-table').show();
+        $('#tabPieceJointe').show();
         $('#pj-empty-msg').hide();
     }
 
     function insertRow(html) {
-        $('#pj-table tbody').prepend(html);
+        $('#tabPieceJointe tbody').prepend(html);
         showTable();
-        initFancybox();
     }
 
     function afterUpload(id) {
@@ -72,16 +71,13 @@ $(document).ready(function () {
                 if (result.success) {
                     $('#modal-add-pj').modal('hide');
                     afterUpload(result.id);
+                    $.toast.success('La pièce jointe a bien été ajoutée.');
                 } else {
-                    $('#modal-add-pj-body').prepend(
-                        '<div class="alert alert-danger">' + (result.message || "Erreur lors de l'ajout.") + '</div>'
-                    );
+                    $.toast.error(result.message || "Erreur lors de l'ajout de la pièce jointe.");
                 }
             },
             error: function () {
-                $('#modal-add-pj-body').prepend(
-                    "<div class=\"alert alert-danger\">Erreur lors de l'envoi du fichier.</div>"
-                );
+                $.toast.error("Erreur lors de l'envoi du fichier.");
             }
         });
     });
@@ -120,7 +116,7 @@ $(document).ready(function () {
 
     // --- Suppression AJAX ---
 
-    $('#pj-table').on('click', '.btn-delete-pj', function () {
+    $('#tabPieceJointe').on('click', '.btn-delete-pj', function () {
         if (!confirm('Êtes-vous sûr de vouloir supprimer cette pièce jointe ?')) {
             return;
         }
@@ -139,8 +135,8 @@ $(document).ready(function () {
                     row.remove();
                     $.toast.success('La pièce jointe a été supprimée.');
 
-                    if ($('#pj-table tbody tr').length === 0) {
-                        $('#pj-table').hide();
+                    if ($('#tabPieceJointe tbody tr').length === 0) {
+                        $('#tabPieceJointe').hide();
                         $('#pj-empty-msg').show();
                     }
                 } else {
@@ -155,7 +151,7 @@ $(document).ready(function () {
 
     // --- Retry export Platau ---
 
-    $('#pj-table').on('click', '.btn-retry-platau', function () {
+    $('#tabPieceJointe').on('click', '.btn-retry-platau', function () {
         const btn = $(this);
         const url = btn.data('url');
         const token = btn.data('token');
@@ -172,7 +168,7 @@ $(document).ready(function () {
             success: function (result) {
                 if (result.success) {
                     $.toast.success("La pièce jointe a été remise en file d'attente d'export vers Plat'AU.");
-                    cell.html('<span class="label label-info">' + (result.statut || 'En attente d\'export') + '</span>');
+                    cell.html('<span class="label label-info">' + (result.statut || "En attente d'export") + '</span>');
                 } else {
                     $.toast.error(result.error || "Erreur lors du renvoi vers Plat'AU.");
                     btn.prop('disabled', false).html(
@@ -188,17 +184,4 @@ $(document).ready(function () {
             }
         });
     });
-
-    // --- FancyBox ---
-
-    function initFancybox() {
-        $('[data-fancybox="pj-gallery"]').fancybox({
-            transitionIn: 'elastic',
-            transitionOut: 'elastic',
-            speedIn: 600,
-            speedOut: 200
-        });
-    }
-
-    initFancybox();
 });

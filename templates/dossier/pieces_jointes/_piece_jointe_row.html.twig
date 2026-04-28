@@ -1,6 +1,5 @@
 {% set pj = dpj.pieceJointe %}
 {% set ext = pj.extension|lower %}
-{% set is_image = ext in ['.png', '.jpg', '.jpeg', '.gif'] %}
 <tr id="pj-row-{{ pj.id }}">
     <td>
         {% if isPlatau and isNew %}
@@ -8,7 +7,6 @@
         {% endif %}
         <a class="file {{ ext|replace({'.': ''}) }}"
            href="{{ path('dossier_pieces_jointes_get', {id: dossier.id, idpj: pj.id}) }}"
-           {% if is_image %}data-fancybox="pj-gallery" data-caption="{{ pj.nom }}{{ pj.extension }}"{% endif %}
            {% if pj.description %}title="{{ pj.description }}"{% endif %}
            target="_blank">
             {{ pj.nom }}{{ pj.extension }}
@@ -70,7 +68,7 @@
                     <span class="label label-warning">Statut inconnu</span>
                 {% endif %}
             {% else %}
-                <span class="label label-default">Non exporté</span>
+                <span class="label label-warning">Statut inconnu</span>
             {% endif %}
         </td>
     {% endif %}
