@@ -21,24 +21,28 @@
             <label class="control-label" for="villes_groupement">Villes du groupement</label>
             <div class="clearfix"></div>
 
-            <select id="liste_villes" multiple size=20 class="col-md-5" aria-label="Liste des communes disponibles">
-                {% for ville in villes %}
-                    <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
-                {% endfor %}
-            </select>
-
-            <div class="btn-group btn-group-vertical col-md-1">
-                <button id="add_ville" type="button" class="btn" aria-label="Ajouter les communes sélectionnées"><span class="glyphicon glyphicon-chevron-right"></span></button>
-                <button id="remove_ville" type="button" class="btn" aria-label="Retirer les communes sélectionnées"><span class="glyphicon glyphicon-chevron-left"></span></button>
-            </div>
-
-            <select id="villes_groupement" name="groupement[communes][]" class="col-md-5" multiple size=20 >
-                {% if groupement.communes is iterable %}
-                    {% for ville in groupement.communes %}
+            <div class="col-xs-12 col-md-5">
+                <select id="liste_villes" multiple size=20 class="form-control" aria-label="Liste des communes disponibles">
+                    {% for ville in villes %}
                         <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
                     {% endfor %}
-                {% endif %}
-            </select>
+                </select>
+            </div>
+
+            <div class="btn-group btn-group-vertical col-xs-4 col-xs-offset-4 col-md-1 col-md-offset-0 mt-3 mb-3">
+                <button id="add_ville" type="button" class="btn btn-default" aria-label="Ajouter les communes sélectionnées"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                <button id="remove_ville" type="button" class="btn btn-default" aria-label="Retirer les communes sélectionnées"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            </div>
+
+            <div class="col-xs-12 col-md-5">
+                <select id="villes_groupement" name="groupement[communes][]" class="form-control" multiple size=20 >
+                    {% if groupement.communes is iterable %}
+                        {% for ville in groupement.communes %}
+                            <option id="{{ ville.id }}" value="{{ ville.id }}">{{ ville.id }} {{ ville.libelle }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
         </div>
     </div>
 </div>
