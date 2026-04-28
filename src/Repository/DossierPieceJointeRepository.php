@@ -49,6 +49,25 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Récupère toutes les pièces jointes d'un dossier, ordonnées par ID décroissant (plus récente en premier).
+     *
+     * @return DossierPieceJointe[]
+     */
+    public function findAllByDossier(int $idDossier): array
+    {
+        return $this->createQueryBuilder('dpj')
+            ->addSelect('pj', 'pjs')
+            ->innerJoin('dpj.pieceJointe', 'pj')
+            ->leftJoin('pj.statut', 'pjs')
+            ->where('dpj.dossier = :idDossier')
+            ->setParameter('idDossier', $idDossier)
+            ->orderBy('pj.id', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
      * Récupère les pièces jointes d'un dossier par statut.
      * Utilisé notamment pour récupérer les pièces jointes exportables vers Plat'AU.
      *
@@ -75,9 +94,9 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
             ->getResult()
         ;
 
-        // Extrait les PieceJointe depuis les DossierPieceJointe
-        return array_map(function (DossierPieceJointe $dpj): ?PieceJointe {
+        // Extrait les PieceJointe depuis les DossierPieceJointe, en filtrant les éventuels null
+        return array_values(array_filter(array_map(function (DossierPieceJointe $dpj): ?PieceJointe {
             return $dpj->getPieceJointe();
-        }, $dossierPiecesJointes);
+        }, $dossierPiecesJointes)));
     }
 }

@@ -1,0 +1,98 @@
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}{{ parent() }} / Pièces jointes{% endblock %}
+
+{% block body %}
+    {# Config pour le JS #}
+    <div id="pj-config" style="display:none"
+         data-url-form="{{ path('dossier_pieces_jointes_form', {id: dossier.id}) }}"
+         data-url-add="{{ path('dossier_pieces_jointes_add', {id: dossier.id}) }}"
+         data-url-check-base="{{ path('dossier_pieces_jointes_check', {id: dossier.id, idpj: 0})|replace({'/0/': '/__IDPJ__/'}) }}"
+         data-csrf-add="{{ csrf_token('dossier_pj_add') }}"
+         data-is-platau="{{ isPlatau ? '1' : '0' }}"
+    ></div>
+
+    <h3>
+        Liste de pièces jointes
+        {% if not verrou %}
+            <button type="button" class="btn btn-default" id="btn-add-pj">
+                <span class="glyphicon glyphicon-paperclip"></span> Ajouter une pièce jointe
+            </button>
+            <button type="button" class="btn btn-default" id="btn-toggle-dropzone">
+                <span class="glyphicon glyphicon-cloud-upload"></span> Ajout rapide
+            </button>
+        {% endif %}
+        {% if displayDownloadButton %}
+            <a href="{{ path('dossier_pieces_jointes_zip', {id: dossier.id}) }}" class="btn btn-default pull-right">
+                <span class="glyphicon glyphicon-download-alt"></span> Télécharger les pièces jointes
+            </a>
+        {% endif %}
+    </h3>
+
+    <div id="dropzone-pj" class="dropzone" style="display:none">
+        <p class="text-muted text-center">
+            <span class="glyphicon glyphicon-upload"></span> Glissez-déposez vos fichiers ici
+        </p>
+    </div>
+
+    {% if listePj is empty %}
+        <div id="pj-empty-msg" class="well text-center">
+            <p class="lead">Aucune pièce jointe pour ce dossier.</p>
+        </div>
+    {% else %}
+        <div id="pj-empty-msg" class="well text-center" style="display:none">
+            <p class="lead">Aucune pièce jointe pour ce dossier.</p>
+        </div>
+    {% endif %}
+
+    <table id="pj-table" class="table table-striped table-condensed"{% if listePj is empty %} style="display:none"{% endif %}>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Date d'ajout</th>
+                {% if isPlatau %}<th>Statut Plat'AU</th>{% endif %}
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in listePj %}
+                {{ include('dossier/pieces_jointes/_piece_jointe_row.html.twig', {
+                    dpj: item.dpj,
+                    isNew: item.isNew,
+                    isPlatau: isPlatau,
+                    verrou: verrou,
+                    dossier: dossier,
+                }, false) }}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# Modale d'ajout BS3 #}
+    <div class="modal fade" id="modal-add-pj" tabindex="-1" role="dialog" aria-labelledby="modal-add-pj-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="modal-add-pj-label">Ajouter une pièce jointe</h4>
+                </div>
+                <div class="modal-body" id="modal-add-pj-body">
+                    {# Chargé en AJAX #}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="btn-submit-pj">
+                        <span class="glyphicon glyphicon-ok"></span> Ajouter la pièce jointe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/dossier/pieces-jointes.js') }}"></script>
+{% endblock %}
