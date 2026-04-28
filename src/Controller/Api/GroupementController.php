@@ -39,11 +39,14 @@ class GroupementController extends AbstractController
         $limit = filter_var($request->query->get('limit', 50), FILTER_VALIDATE_INT);
 
         if (false === $limit) {
-            throw new \InvalidArgumentException('Limit must be an integer.');
+            $limit = 50;
         }
 
-        // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10)
-        // Une requête vide retourne tous les services instructeurs (pour le preload TomSelect)
+        $limit = max(1, min(50, $limit));
+
+        // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10).
+        // Une requête vide retourne les N premiers services instructeurs (pour le preload TomSelect).
+        // Un seul caractère est insuffisant pour filtrer utilement et génère des requêtes inutiles.
         if (strlen($query) > 0 && strlen($query) < 2) {
             return new JsonResponse([]);
         }

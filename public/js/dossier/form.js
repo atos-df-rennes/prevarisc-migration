@@ -81,9 +81,13 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     searchField: 'libelle',
                     placeholder: 'Sélectionnez ou saisissez un service instructeur',
                     preload: true,
+                    shouldLoad: function(query) {
+                        // Déclencher le preload (query vide) ou dès 2 caractères,
+                        // cohérent avec le backend qui bloque les requêtes à 1 caractère
+                        return query.length === 0 || query.length >= 2;
+                    },
                     
                     load: function(query, callback) {
-                        // Chargement initial (preload) ou recherche : pas de min. de caractères
                         fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
                             .then(response => response.json())
                             .then(json => {
