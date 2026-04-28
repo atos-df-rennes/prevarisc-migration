@@ -48,22 +48,22 @@
         <div class="tab-content mt-3">
             <!-- Partie générale -->
             <div id="tabs-1" role="tabpanel" class="tab-pane active" data-scope="general">
-                <p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>
+                <p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>
             </div>
 
             <!-- Partie des préventionnistes -->
             <div id="tabs-2" role="tabpanel" class="tab-pane" data-scope="affectations">
-                <p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>
+                <p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>
             </div>
 
             <!-- Coordonnées -->
             <div id="tabs-3" role="tabpanel" class="tab-pane" data-scope="coordonnees">
-                <p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>
+                <p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>
             </div>
 
             <!-- Partie contact -->
             <div id="tabs-4" role="tabpanel" class="tab-pane">
-                <p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>
+                <p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>
             </div>
         </div>
     </div>
@@ -128,7 +128,7 @@
                 url: url,
                 type: "GET",
                 beforeSend: function() {
-                    tabPane.html('<p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>');
+                    tabPane.html('<p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>');
                 },
                 success: function(result) {
                     tabPane.html(result);
@@ -149,7 +149,7 @@
                 url: url,
                 type: "GET",
                 beforeSend: function() {
-                    tabPane.html('<p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>');
+                    tabPane.html('<p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>');
                 },
                 success: function(result) {
                     tabPane.html(result);
@@ -224,7 +224,7 @@
         function resetTabs() {
             // Réinitialiser tous les onglets
             $('#tabs-1, #tabs-2, #tabs-3, #tabs-4').each(function() {
-                $(this).html('<p class="text-center"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Chargement...</p>');
+                $(this).html('<p class="text-center"><span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Chargement...</p>');
                 $(this).data('loaded', false);
             });
 
