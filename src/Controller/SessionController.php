@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Security\ZendSessionBridge;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -18,15 +16,9 @@ class SessionController extends AbstractController
      */
     private $authenticationUtils;
 
-    /**
-     * @var ZendSessionBridge
-     */
-    private $zendSessionBridge;
-
-    public function __construct(AuthenticationUtils $authenticationUtils, ZendSessionBridge $zendSessionBridge)
+    public function __construct(AuthenticationUtils $authenticationUtils)
     {
         $this->authenticationUtils = $authenticationUtils;
-        $this->zendSessionBridge = $zendSessionBridge;
     }
 
     /**
@@ -50,34 +42,17 @@ class SessionController extends AbstractController
     }
 
     /**
-     * Déconnexion de l'utilisateur.
+     * Point de terminaison de déconnexion.
      *
-     * Efface la session Zend_Auth, supprime le username Symfony de la session,
-     * effectue un logout CAS si activé, puis redirige vers la page de login.
+     * Cette action n'est JAMAIS exécutée directement : le firewall Symfony intercepte
+     * la route `session_logout` via LogoutListener avant d'atteindre ce contrôleur.
+     * Le nettoyage complémentaire (Zend_Auth, session username, phpCAS) est
+     * délégué à App\Security\LogoutHandler (enregistré dans security.php).
      *
-     * Note : Symfony invalide automatiquement le token de sécurité via le
-     * firewall (logout.path = session_logout dans security.php). Cette action
-     * est exécutée APRÈS la gestion du firewall (session invalidée) pour
-     * le cleanup complémentaire (phpCAS logout).
-     *
-     * @Route("/session/logout", name="session_logout", methods={"GET", "POST"})
-     *
-     * @param Request $request La requête HTTP
+     * @Route("/session/logout", name="session_logout", methods={"POST"})
      */
-    public function logout(Request $request): Response
+    public function logout(): void
     {
-        // 1. Effacer la session Zend_Auth
-        $this->zendSessionBridge->clearAuthentication();
-
-        // 2. Effacer le username stocké pour LegacySessionAuthenticator
-        $request->getSession()->remove('username');
-
-        // 3. Logout CAS si activé (redirection vers le serveur CAS)
-        if ($this->getParameter('app.cas_enabled')) {
-            \phpCAS::logout();
-        }
-
-        // 4. Redirection vers la page de login
-        return $this->redirectToRoute('session_login');
+        throw new \RuntimeException('La déconnexion est gérée par le firewall Symfony (LogoutListener). Ce code ne doit jamais être atteint.');
     }
 }

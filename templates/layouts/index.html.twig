@@ -13,7 +13,10 @@
                 </h2>
                 <span>
                     Bonjour {{ app.user.informations.prenom }}
-                    <a class="deconnexion" href="/session/logout">Déconnexion</a>
+                    <form action="{{ path('session_logout') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                        <button type="submit" class="deconnexion btn btn-link" style="padding:0;vertical-align:baseline;">Déconnexion</button>
+                    </form>
                 </span>
                 <a id="reinitBlocOrder" class="btn btn-xs btn-default pull-right" href="#">
                     <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Ré-initialiser les blocs

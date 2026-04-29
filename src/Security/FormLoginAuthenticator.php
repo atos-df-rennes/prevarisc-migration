@@ -24,6 +24,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 /**
  * Authentificateur Symfony natif pour Prévarisc.
@@ -41,6 +42,8 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
  */
 class FormLoginAuthenticator extends AbstractGuardAuthenticator
 {
+    use TargetPathTrait;
+
     public const MAX_LOGIN_ATTEMPTS = 2;
 
     /** @var LoggerInterface */
@@ -113,6 +116,13 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     private $csrfTokenManager;
 
     /**
+     * Instance LDAP partagée (connexion lazy, créée une seule fois par requête).
+     *
+     * @var Ldap|null
+     */
+    private $ldap;
+
+    /**
      * Dernier utilisateur tentant une authentification (pour onAuthenticationFailure).
      *
      * @var Utilisateur|null
@@ -149,7 +159,8 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         string $ldapUsername,
         string $ldapPassword,
         string $ldapBaseDn,
-        bool $enforceSecurity
+        bool $enforceSecurity,
+        ?Ldap $ldap = null
     ) {
         $this->logger = $logger;
         $this->zendSessionBridge = $zendSessionBridge;
@@ -174,6 +185,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $this->ldapPassword = $ldapPassword;
         $this->ldapBaseDn = $ldapBaseDn;
         $this->enforceSecurity = $enforceSecurity;
+        $this->ldap = $ldap;
     }
 
     /**
@@ -345,7 +357,9 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         // 4. LDAP (si activé) : authentification via bind Symfony\Component\Ldap
         if ($this->ldapEnabled) {
             try {
-                $ldap = Ldap::create('ext_ldap', [
+                // Utiliser l'instance LDAP injectée (connexion lazy, partagée sur la requête)
+                // ou en créer une à la volée si non injectée (fallback de compatibilité).
+                $ldap = $this->ldap ?? Ldap::create('ext_ldap', [
                     'connection_string' => sprintf('ldap://%s:%d', $this->ldapHost, $this->ldapPort),
                 ]);
 
@@ -419,7 +433,13 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
         $this->logger->info(sprintf("Auth: connexion réussie pour '%s'", $utilisateur->getUsername()));
 
-        // Redirection post-login : accepter uniquement les chemins relatifs (mitigation open redirect)
+        // Redirection post-login : priorité au target path Symfony (mécanisme natif),
+        // sinon fallback sur le paramètre query ?redirect= (mitigation open redirect).
+        $targetPath = $this->getTargetPath($request->getSession(), $providerKey);
+        if (null !== $targetPath) {
+            return new RedirectResponse($targetPath);
+        }
+
         $rawRedirect = $request->query->get('redirect');
         $redirectUrl = $this->router->generate('accueil_index');
         if (is_string($rawRedirect)
@@ -466,20 +486,19 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * Point d'entrée appelé quand une authentification est requise mais absente.
-     * Redirige vers la page de login avec l'URL courante en paramètre.
+     * Sauvegarde l'URL courante comme target path (mécanisme natif Symfony),
+     * puis redirige vers la page de login.
      *
      * @param Request                      $request       La requête HTTP
      * @param AuthenticationException|null $authException L'exception éventuelle
      */
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
-        $loginUrl = $this->router->generate('session_login');
-
         if ('/session/login' !== $request->getPathInfo()) {
-            $loginUrl .= '?redirect='.urlencode($request->getRequestUri());
+            $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
         }
 
-        return new RedirectResponse($loginUrl);
+        return new RedirectResponse($this->router->generate('session_login'));
     }
 
     public function supportsRememberMe(): bool

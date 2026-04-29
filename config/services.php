@@ -67,6 +67,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Security\Md5SaltedEncoder')
         ->arg('$globalSalt', '%app.security_salt%');
 
+    // Service LDAP partagé : connexion lazy, évite une nouvelle instance à chaque tentative d'auth.
+    // Utilisé uniquement si PREVARISC_LDAP_ENABLED=1.
+    $services->set('app.ldap', \Symfony\Component\Ldap\Ldap::class)
+        ->factory([\Symfony\Component\Ldap\Ldap::class, 'create'])
+        ->args([
+            'ext_ldap',
+            ['connection_string' => 'ldap://%app.ldap_host%:%app.ldap_port%'],
+        ]);
+
+    $services->set('App\Security\LegacySessionAuthenticator')
+        ->arg('$symfonyLoginEnabled', '%app.symfony_login%');
+
+    $services->set('App\Security\LogoutHandler')
+        ->arg('$casEnabled', '%app.cas_enabled%');
+
     $services->set('App\Security\FormLoginAuthenticator')
         ->arg('$tokenStorage', ref('security.token_storage'))
         ->arg('$csrfTokenManager', ref('security.csrf.token_manager'))
@@ -84,7 +99,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapUsername', '%app.ldap_username%')
         ->arg('$ldapPassword', '%app.ldap_password%')
         ->arg('$ldapBaseDn', '%app.ldap_basedn%')
-        ->arg('$enforceSecurity', '%app.enforce_security%');
+        ->arg('$enforceSecurity', '%app.enforce_security%')
+        ->arg('$ldap', ref('app.ldap'));
 
     $services->set('App\Service\DataStore\DataStoreFactory')
         ->arg('$adapter', '%app.datastore_adapter%');

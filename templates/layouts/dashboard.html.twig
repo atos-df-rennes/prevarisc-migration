@@ -8,7 +8,10 @@
 
                 <p style="line-height:15px">
                     <strong>Bonjour {{ app.user.informations.prenom }}</strong><br />
-                    <a class="deconnexion" href="/session/logout">Déconnexion</a><br /><br />
+                    <form action="{{ path('session_logout') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                        <button type="submit" class="deconnexion btn btn-link" style="padding:0;vertical-align:baseline;">Déconnexion</button>
+                    </form><br /><br />
                     <small class="label label-success" style="font-size: .8em">En ligne</small>
                 </p>
 

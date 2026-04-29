@@ -38,12 +38,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     ],
                     'entry_point' => 'App\Security\FormLoginAuthenticator',
                 ],
-                // Logout géré par le firewall : invalide le token Symfony et la session PHP
-                // (ce qui efface naturellement $_SESSION['Zend_Auth']).
-                // Le phpCAS::logout() complémentaire est dans SessionController::logout().
+                // Logout géré par le firewall : invalide le token Symfony et la session PHP.
+                // Le nettoyage complémentaire (Zend_Auth, username, phpCAS) est délégué à LogoutHandler.
                 'logout' => [
-                    'path'   => 'session_logout',
-                    'target' => 'session_login',
+                    'path'                 => 'session_logout',
+                    'target'               => 'session_login',
+                    'methods'              => ['POST'],
+                    'csrf_token_generator' => 'security.csrf.token_manager',
+                    'handlers'             => ['App\Security\LogoutHandler'],
                 ],
             ],
         ],

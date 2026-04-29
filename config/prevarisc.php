@@ -229,6 +229,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
 
+    // Compte LDAP utilisé par le formulaire legacy Zend (via Zend_Ldap).
+    // Ce paramètre est lu par le code legacy, pas directement par Symfony.
+    // Si PREVARISC_LDAP_ENABLED=1, c'est $ldapUsername (PREVARISC_LDAP_USERNAME) qui est utilisé par Symfony.
     $parameters->set('app.ldap_account_form', '%env(string:PREVARISC_LDAP_ACCOUNT_FORM)%');
 
     $parameters->set('env(PREVARISC_LOCAL_SOMMEIL_TYPES)', '7;11');

@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 /**
  * Authentificateur Guard Symfony basé sur la session Zend héritée.
@@ -22,16 +23,22 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
  */
 class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 {
+    use TargetPathTrait;
+
     /** @var LoggerInterface */
     private $logger;
 
     /** @var ZendSessionBridge */
     private $zendSessionBridge;
 
-    public function __construct(LoggerInterface $logger, ZendSessionBridge $zendSessionBridge)
+    /** @var bool */
+    private $symfonyLoginEnabled;
+
+    public function __construct(LoggerInterface $logger, ZendSessionBridge $zendSessionBridge, bool $symfonyLoginEnabled)
     {
         $this->logger = $logger;
         $this->zendSessionBridge = $zendSessionBridge;
+        $this->symfonyLoginEnabled = $symfonyLoginEnabled;
     }
 
     /**
@@ -43,14 +50,15 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * Pour contourner, on laisse passer et on fait la vérification dans la méthode getCredentials().
      * Si l'utilisateur n'est pas connecté on throw une AuthenticationException et on redirige dans la méthode onAuthenticationFailure().
      *
-     * Exclut /session/login pour éviter une boucle de redirection infinie
-     * quand le formulaire de login natif Symfony est actif.
+     * Exclut /session/login uniquement si PREVARISC_SYMFONY_LOGIN=1 pour éviter une boucle
+     * de redirection infinie quand le formulaire de login natif Symfony est actif.
+     * Avec PREVARISC_SYMFONY_LOGIN=0, la route /session/login est gérée par le legacy Zend.
      */
     public function supports(Request $request): bool
     {
-        // Ne pas tenter l'authentification Zend sur la page de login Symfony :
-        // cela provoquerait une boucle de redirection infinie pour les utilisateurs non connectés.
-        if ('/session/login' === $request->getPathInfo()) {
+        // Exclure /session/login uniquement quand le login Symfony natif est actif :
+        // sinon cela provoquerait une boucle infinie (plus aucun authenticator ne traiterait le POST).
+        if ($this->symfonyLoginEnabled && '/session/login' === $request->getPathInfo()) {
             return false;
         }
 
