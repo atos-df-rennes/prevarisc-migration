@@ -5,8 +5,6 @@ namespace App\Controller;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
-use App\Entity\Etablissement;
-use App\Entity\EtablissementPieceJointe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Repository\DossierPieceJointeRepository;
@@ -163,7 +161,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
     {
         return $this->render('dossier/pieces_jointes/form.html.twig', [
             'dossier' => $dossier,
-            'etablissements' => $dossier->getEtablissements()->toArray(),
         ]);
     }
 
@@ -263,23 +260,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $dpj->setPieceJointeCommission(false);
 
         $this->entityManager->persist($dpj);
-
-        $etabs = $request->request->get('etab', []);
-        if (is_array($etabs)) {
-            foreach ($etabs as $etabId) {
-                if (!is_numeric($etabId)) {
-                    continue;
-                }
-
-                /** @var Etablissement $etabRef */
-                $etabRef = $this->entityManager->getReference(Etablissement::class, (int) $etabId);
-                $etabPj = new EtablissementPieceJointe();
-                $etabPj->setEtablissement($etabRef);
-                $etabPj->setPieceJointe($pj);
-                $etabPj->setPlacement(null);
-                $this->entityManager->persist($etabPj);
-            }
-        }
 
         $this->entityManager->flush();
 

@@ -20,18 +20,4 @@
         <label for="pj-description">Description</label>
         <textarea class="form-control" name="descriptionFichier" id="pj-description" rows="4"></textarea>
     </div>
-
-    {% if etablissements is not empty %}
-        <div class="form-group">
-            <label>Entités liées</label>
-            {% for etab in etablissements %}
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="etab[]" value="{{ etab.id }}">
-                        {{ etab.latestInformations.libelle }} ({{ etab.latestInformations.genre.libelle }})
-                    </label>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
 </form>

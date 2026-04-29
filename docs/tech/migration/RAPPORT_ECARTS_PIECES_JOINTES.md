@@ -166,4 +166,15 @@ FONCTIONNALITÉS OMISES (écarts délibérés)
   Symfony : rejet explicite (400 + message d'erreur Dropzone)
   Impact : amélioration de la robustesse, cas d'usage rare
 
+ÉCART-PJ-07 : Liaison PJ ↔ établissement via EtablissementPieceJointe
+  Legacy : `addAction()` (type=dossier) créait des entrées `EtablissementPj` pour chaque établissement
+           coché dans la section "Entités liées" du formulaire. Cependant, le fichier physique était
+           stocké sous le chemin `dossier/` (via `getFilePath($pj, 'dossier', $idDossier)`), ce qui
+           rendait la PJ invisible depuis l'onglet PJ de l'établissement (chemin `etablissement/` attendu).
+           La miniature n'était générée que pour les PJ ajoutées directement sur un établissement.
+           Cette fonctionnalité n'a donc jamais fonctionné en production.
+  Symfony : section "Entités liées" retirée du formulaire, logique EtablissementPieceJointe supprimée.
+  Décision : code mort non fonctionnel, non porté.
+  Impact : aucun (la fonctionnalité n'était pas opérationnelle)
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
