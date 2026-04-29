@@ -12,6 +12,8 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Enum\PlatauStatutAvisEnum;
+use App\Enum\PlatauStatutPecEnum;
 use App\Form\Dossier\DossierDescriptifType;
 use App\Form\Dossier\DossierTextesApplicablesType;
 use App\Form\Dossier\DossierType;
@@ -460,6 +462,19 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     );
                 }
 
+                $platauConsultation = $dossier->getConsultationPlatau();
+                if (null !== $platauConsultation) {
+                    $platauRetryPec = (bool) $form->get('platauRetryPec')->getData();
+                    if ($platauRetryPec) {
+                        $platauConsultation->setStatutPriseEnCompte(PlatauStatutPecEnum::A_RENVOYER);
+                    }
+
+                    $platauRetryAvis = (bool) $form->get('platauRetryAvis')->getData();
+                    if ($platauRetryAvis) {
+                        $platauConsultation->setStatutAvis(PlatauStatutAvisEnum::A_RENVOYER);
+                    }
+                }
+
                 // Export Plat'AU - Marquer PJ sélectionnées pour export
                 /** @var Collection<int, PieceJointe>|null $piecesJointesPlatau */
                 $piecesJointesPlatau = $form->get('piecesJointesPlatau')->getData();
@@ -550,8 +565,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $user = $this->getUser();
 
         // Vérification des permissions
-        $isAllowedChangeAvis = $this->isGranted('edit_avis_com', 'avis_commission');
-        $isAllowedDeleteDossier = $this->isGranted('delete_dossier', 'suppression');
+        $isAllowedChangeAvis = $this->isGranted('edit_avis_com');
+        $isAllowedDeleteDossier = $this->isGranted('delete_dossier');
 
         // Informations sur le verrouillage
         $userInfoVerrou = null;
