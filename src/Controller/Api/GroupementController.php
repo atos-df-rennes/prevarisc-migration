@@ -47,7 +47,7 @@ class GroupementController extends AbstractController
         // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10).
         // Une requête vide retourne les N premiers services instructeurs (pour le preload TomSelect).
         // Un seul caractère est insuffisant pour filtrer utilement et génère des requêtes inutiles.
-        if (strlen($query) > 0 && strlen($query) < 2) {
+        if ('' !== $query && strlen($query) < 2) {
             return new JsonResponse([]);
         }
 
