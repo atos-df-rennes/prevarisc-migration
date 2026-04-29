@@ -33,7 +33,7 @@
                 </span>
             {% endif %}
             {% if pj.nature %}
-                <span class="label label-success">
+                <span class="label label-success {% if pj.dateDepot %}ml-2{% endif %}">
                     <span class="glyphicon glyphicon-tag"></span>&nbsp;{{ pj.nature }}
                 </span>
             {% endif %}
@@ -56,7 +56,7 @@
                     <span class="label label-success">{{ pj.statut.nomLisible }}</span>
                 {% elseif statut_name == 'on_error' %}
                     <span class="label label-danger js-statut-platau" title="{{ pj.messageErreur }}">{{ pj.statut.nomLisible }}</span>
-                    <span class="glyphicon glyphicon-info-sign" style="cursor:pointer" data-toggle="popover" data-content="{{ pj.messageErreur }}" data-placement="left"></span>
+                    <span class="glyphicon glyphicon-info-sign" style="cursor:pointer" title="Erreur" data-toggle="popover" data-content="{{ pj.messageErreur }}" data-placement="left"></span>
                     {% if not verrou %}
                         <button type="button" class="btn btn-xs btn-link btn-retry-platau"
                                 data-url="{{ path('dossier_pieces_jointes_retry_platau', {id: dossier.id, idpj: pj.id}) }}"

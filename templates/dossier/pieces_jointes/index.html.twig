@@ -22,12 +22,13 @@
                 <span class="glyphicon glyphicon-cloud-upload"></span> Ajout rapide
             </button>
         {% endif %}
-        {% if displayDownloadButton %}
-            <a href="{{ path('dossier_pieces_jointes_zip', {id: dossier.id}) }}" class="btn btn-default pull-right">
-                <span class="glyphicon glyphicon-download-alt"></span> Télécharger les pièces jointes
-            </a>
-        {% endif %}
     </h3>
+
+    {% if displayDownloadButton %}
+        <a href="{{ path('dossier_pieces_jointes_zip', {id: dossier.id}) }}" class="btn btn-primary pull-right">
+            <span class="glyphicon glyphicon-download-alt"></span> Télécharger les pièces jointes
+        </a>
+    {% endif %}
 
     <div id="dropzone-pj" class="dropzone" style="display:none"></div>
 
