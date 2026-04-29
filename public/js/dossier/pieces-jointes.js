@@ -112,8 +112,14 @@ $(document).ready(function () {
             }
         },
         error: function (file, message) {
-            file.previewElement.querySelector('.dz-error-message span').textContent =
-                (typeof message === 'object' && message.message) ? message.message : String(message);
+            const errorMessage = (typeof message === 'object' && message.message)
+                ? message.message
+                : String(message);
+            myDropzone.removeFile(file);
+            if ($('#dropzone-pj .dz-preview').length === 0) {
+                $('#dropzone-pj').removeClass('dz-started').hide();
+            }
+            $.toast.error(errorMessage);
         }
     });
 
