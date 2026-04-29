@@ -471,8 +471,8 @@ class DossierController extends AbstractController
         $user = $this->getUser();
 
         // Vérification des permissions
-        $isAllowedChangeAvis = $this->isGranted('edit_avis_com', 'avis_commission');
-        $isAllowedDeleteDossier = $this->isGranted('delete_dossier', 'suppression');
+        $isAllowedChangeAvis = $this->isGranted('edit_avis_com');
+        $isAllowedDeleteDossier = $this->isGranted('delete_dossier');
 
         // Informations sur le verrouillage
         $userInfoVerrou = null;
