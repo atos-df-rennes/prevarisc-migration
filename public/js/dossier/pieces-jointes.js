@@ -163,6 +163,7 @@ $(document).ready(function () {
         const url = btn.data('url');
         const token = btn.data('token');
         const cell = btn.closest('td');
+        const btnDelete = btn.closest('tr').find('.btn-delete-pj');
 
         btn.prop('disabled', true).html(
             '<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Renvoi...'
@@ -176,7 +177,7 @@ $(document).ready(function () {
                 if (result.success) {
                     $.toast.success("La pièce jointe a été remise en file d'attente d'export vers Plat'AU.");
                     cell.html('<span class="label label-info">' + (result.statut || "En attente d'export") + '</span>');
-                    btn.closest('tr').find('.btn-delete-pj').remove();
+                    btnDelete.remove();
                 } else {
                     $.toast.error(result.error || "Erreur lors du renvoi vers Plat'AU.");
                     btn.prop('disabled', false).html('Renvoyer');
