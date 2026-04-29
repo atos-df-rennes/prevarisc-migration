@@ -90,7 +90,6 @@ $(document).ready(function () {
         url: urlAdd,
         paramName: 'fichier',
         autoProcessQueue: true,
-        dictDefaultMessage: '<span class="glyphicon glyphicon-upload"></span> Glissez-déposez vos fichiers ici ou cliquez pour parcourir',
         sending: function (file, xhr, formData) {
             formData.append('_token', csrfAdd);
         },
