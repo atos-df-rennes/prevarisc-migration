@@ -58,10 +58,10 @@
                     <span class="label label-danger js-statut-platau" title="{{ pj.messageErreur }}">{{ pj.statut.nomLisible }}</span>
                     <span class="glyphicon glyphicon-info-sign" data-toggle="popover" data-content="{{ pj.messageErreur }}" data-placement="left"></span>
                     {% if not verrou %}
-                        <button type="button" class="btn btn-xs btn-warning btn-retry-platau"
+                        <button type="button" class="btn btn-xs btn-link btn-retry-platau"
                                 data-url="{{ path('dossier_pieces_jointes_retry_platau', {id: dossier.id, idpj: pj.id}) }}"
                                 data-token="{{ csrf_token('dossier_pj_retry_' ~ pj.id) }}">
-                            <span class="glyphicon glyphicon-refresh"></span> Renvoyer
+                            Renvoyer
                         </button>
                     {% endif %}
                 {% else %}

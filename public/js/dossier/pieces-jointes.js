@@ -170,16 +170,12 @@ $(document).ready(function () {
                     cell.html('<span class="label label-info">' + (result.statut || "En attente d'export") + '</span>');
                 } else {
                     $.toast.error(result.error || "Erreur lors du renvoi vers Plat'AU.");
-                    btn.prop('disabled', false).html(
-                        '<span class="glyphicon glyphicon-refresh"></span> Renvoyer'
-                    );
+                    btn.prop('disabled', false).html('Renvoyer');
                 }
             },
             error: function () {
                 $.toast.error("Erreur lors du renvoi vers Plat'AU.");
-                btn.prop('disabled', false).html(
-                    '<span class="glyphicon glyphicon-refresh"></span> Renvoyer'
-                );
+                btn.prop('disabled', false).html('Renvoyer');
             }
         });
     });
