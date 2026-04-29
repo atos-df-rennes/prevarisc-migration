@@ -17,7 +17,6 @@ Fichiers migrés :
   - prevarisc-migration/src/Repository/DossierPieceJointeRepository.php (ajout findAllByDossier)
   - prevarisc-migration/templates/dossier/pieces_jointes/index.html.twig
   - prevarisc-migration/templates/dossier/pieces_jointes/_piece_jointe_row.html.twig
-  - prevarisc-migration/templates/dossier/pieces_jointes/_platau_exportables.html.twig
   - prevarisc-migration/templates/dossier/pieces_jointes/form.html.twig
   - prevarisc-migration/public/js/dossier/pieces-jointes.js
   - prevarisc-migration/templates/layouts/dossier.html.twig (lien onglet PJ)
@@ -130,12 +129,6 @@ Niveau de confiance global : ⚠️
    Legacy : `affichagePieceJointe()` exécutait une jointure SQL multi-tables en une seule requête (statut, type, sous-type, nature, etc.)
    Symfony : `findAllByDossier()` utilise un QueryBuilder Doctrine avec `addSelect('pj', 'statut')` — les champs Platau (TYPE, SOUS_TYPE, etc.) ne sont pas chargés (entités non mappées)
    → Tester : ouvrir l'onglet PJ d'un dossier avec de nombreuses PJ Platau (>20) → vérifier l'absence de requêtes N+1 en mode dev (Symfony profiler)
-
-2. [delete()] Suppression miniature — chemin établissement vs dossier
-   Legacy : calcule la miniature avec `$this->store->getFilePath($miniature_pj, 'etablissement_miniature', $this->_request->id)`
-   où `$this->_request->id` est l'ID du **dossier** (c'est un FIXME signalé en legacy)
-   Symfony : même comportement (silencié avec `@unlink`) — la miniature n'est jamais trouvée pour les dossiers
-   → Comportement à parité avec le legacy (miniature non supprimée) — acceptable car les PJ dossier n'ont pas de miniature
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

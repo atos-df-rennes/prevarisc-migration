@@ -17,13 +17,19 @@ $(document).ready(function () {
         return urlCheckBase.replace('__IDPJ__', idpj);
     }
 
+    function initPopovers(context) {
+        $(context || document).find('[data-toggle="popover"]').popover();
+    }
+
     function showTable() {
         $('#tabPieceJointe').show();
         $('#pj-empty-msg').hide();
     }
 
     function insertRow(html) {
-        $('#tabPieceJointe tbody').prepend(html);
+        const $row = $(html);
+        $('#tabPieceJointe tbody').prepend($row);
+        initPopovers($row[0]);
         showTable();
     }
 
@@ -39,6 +45,8 @@ $(document).ready(function () {
             }
         });
     }
+
+    initPopovers();
 
     // --- Modale d'ajout ---
 
@@ -168,6 +176,7 @@ $(document).ready(function () {
                 if (result.success) {
                     $.toast.success("La pièce jointe a été remise en file d'attente d'export vers Plat'AU.");
                     cell.html('<span class="label label-info">' + (result.statut || "En attente d'export") + '</span>');
+                    btn.closest('tr').find('.btn-delete-pj').remove();
                 } else {
                     $.toast.error(result.error || "Erreur lors du renvoi vers Plat'AU.");
                     btn.prop('disabled', false).html('Renvoyer');

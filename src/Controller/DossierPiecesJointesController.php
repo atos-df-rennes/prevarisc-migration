@@ -88,7 +88,12 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
     private function resolvePjFilePath(PieceJointe $pj, Dossier $dossier, bool $createDir = false): string
     {
         if (null !== $dossier->getConsultationPlatau()) {
-            return $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
+            $path = $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
+            if ($createDir) {
+                $this->filesystem->mkdir(dirname($path));
+            }
+
+            return $path;
         }
 
         return $this->dataStore->getFilePath($pj, 'dossier', (int) $dossier->getId(), $createDir);
@@ -176,6 +181,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $rawCsrfAdd = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawCsrfAdd) ? $rawCsrfAdd : null)) {
             return $this->json(['success' => false, 'message' => 'Token CSRF invalide.'], 403);
+        }
+
+        if ($dossier->hasVerrou()) {
+            return $this->json(['success' => false, 'message' => 'Le dossier est verrouillé.'], 403);
         }
 
         $file = $request->files->get('fichier');
@@ -356,12 +365,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $filePath = $this->resolvePjFilePath($pj, $dossier);
         $this->filesystem->remove($filePath);
 
-        // Tentative suppression miniature (port direct legacy — le chemin utilise l'ID dossier au lieu de l'ID établissement)
-        $miniaturePath = $this->dataStore->getFilePath($pj, 'etablissement_miniature', (int) $dossier->getId());
-        if ($this->filesystem->exists($miniaturePath)) {
-            $this->filesystem->remove($miniaturePath);
-        }
-
         $this->entityManager->remove($dpj);
         $this->entityManager->remove($pj);
         $this->entityManager->flush();
@@ -448,7 +451,14 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
         }
 
-        $zipPath = $this->realDataPath.'/uploads/'.$dossier->getId().'_pj.zip';
+        $zipPath = tempnam(sys_get_temp_dir(), $dossier->getId().'_pj_');
+        if (false === $zipPath) {
+            $this->addFlash('danger', "Impossible de créer l'archive ZIP. Veuillez contacter votre service informatique.");
+
+            return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
+        }
+
+        $zipPath .= '.zip';
 
         $zip = new \ZipArchive();
         if (true !== $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
@@ -489,6 +499,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $rawTokenRetry = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_retry_'.$pj->getId(), is_string($rawTokenRetry) ? $rawTokenRetry : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
+        }
+
+        if ($dossier->hasVerrou()) {
+            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
         }
 
         $dpj = $this->dossierPieceJointeRepository->findOneBy([

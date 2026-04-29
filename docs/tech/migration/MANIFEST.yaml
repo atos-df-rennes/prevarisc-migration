@@ -116,7 +116,6 @@ dossier_pieces_jointes:
     - prevarisc-migration/templates/dossier/pieces_jointes/index.html.twig
     - prevarisc-migration/templates/dossier/pieces_jointes/_piece_jointe_row.html.twig
     - prevarisc-migration/templates/dossier/pieces_jointes/form.html.twig
-    - prevarisc-migration/templates/dossier/pieces_jointes/_platau_exportables.html.twig
     - prevarisc-migration/public/js/dossier/pieces-jointes.js
     - prevarisc-migration/templates/layouts/dossier.html.twig (lien onglet mis à jour)
   routes:
@@ -136,14 +135,13 @@ dossier_pieces_jointes:
       path: /dossier/{id}/pieces-jointes/telecharger-tout
     - name: dossier_pieces_jointes_retry_platau
       path: /dossier/{id}/pieces-jointes/{idpj}/renvoyer-platau
-    - name: dossier_pieces_jointes_platau_exportables
-      path: /dossier/{id}/pieces-jointes/platau/exportables
   notes: |
     Port direct de 9 actions legacy (DossierController + PieceJointeController type=dossier).
     Distinction Platau vs standard pour le stockage des fichiers physiques.
     IS_NEW via NotificationService::PIECES_DOSSIER_NAMESPACE (en base, pas en session).
     ZIP via ZipArchive + BinaryFileResponse::deleteFileAfterSend(true).
-    Template displayPjPlatau : chemin adapté en dossier/pieces_jointes/_platau_exportables.html.twig
-    car templates/dossier/_platau_pieces_jointes.html.twig est déjà utilisé par le formulaire Platau (edit.html.twig).
+    Les informations Platau (identifiant, description, type, état) sont affichées si présentes
+    directement dans _piece_jointe_row.html.twig — la gestion des exportables Platau est assurée
+    par le formulaire d'édition du dossier (hors périmètre de cet onglet).
     Sélection commission (PJ_COMMISSION / pjPassageCommission) omise :
     handler AJAX absent en legacy, checkbox non rendue dans display.phtml. Noté dans rapport d'écarts.
