@@ -9,6 +9,8 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Enum\PlatauStatutAvisEnum;
+use App\Enum\PlatauStatutPecEnum;
 use App\Form\DossierType;
 use App\Repository\AvisRepository;
 use App\Repository\CommissionRepository;
@@ -274,6 +276,19 @@ class DossierController extends AbstractController
                         $nouveauType,
                         $nouvelleNature
                     );
+                }
+
+                $platauConsultation = $dossier->getConsultationPlatau();
+                if (null !== $platauConsultation) {
+                    $platauRetryPec = (bool) $form->get('platauRetryPec')->getData();
+                    if ($platauRetryPec) {
+                        $platauConsultation->setStatutPriseEnCompte(PlatauStatutPecEnum::A_RENVOYER);
+                    }
+
+                    $platauRetryAvis = (bool) $form->get('platauRetryAvis')->getData();
+                    if ($platauRetryAvis) {
+                        $platauConsultation->setStatutAvis(PlatauStatutAvisEnum::A_RENVOYER);
+                    }
                 }
 
                 // Export Plat'AU - Marquer PJ sélectionnées pour export
