@@ -83,6 +83,9 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     /** @var bool */
     private $casNoServerValidation;
 
+    /** @var bool */
+    private $casNoSsl;
+
     /** @var string */
     private $casVersion;
 
@@ -152,6 +155,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         int $casPort,
         string $casContext,
         bool $casNoServerValidation,
+        bool $casNoSsl,
         string $casVersion,
         bool $ntlmEnabled,
         bool $ldapEnabled,
@@ -177,6 +181,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $this->casPort = $casPort;
         $this->casContext = $casContext;
         $this->casNoServerValidation = $casNoServerValidation;
+        $this->casNoSsl = $casNoSsl;
         $this->casVersion = $casVersion;
         $this->ntlmEnabled = $ntlmEnabled;
         $this->ldapEnabled = $ldapEnabled;
@@ -517,20 +522,31 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     /**
      * Initialise phpCAS (idempotent — la bibliothèque phpCAS est statique).
+     *
+     * Note : avec mod_php, les statics PHP persistent entre requêtes dans le même worker.
+     * phpCAS::client() ne peut être appelé qu'une fois par processus. En revanche,
+     * setServerLoginURL/setServerServiceValidateURL doivent être appliqués à chaque requête
+     * pour garantir les URLs http:// quand casNoSsl est actif.
      */
     private function initCas(): void
     {
-        if (self::$casInitialized) {
-            return;
+        if (!self::$casInitialized) {
+            $version = !empty($this->casVersion) ? $this->casVersion : CAS_VERSION_2_0;
+            \phpCAS::client($version, $this->casHost, $this->casPort, $this->casContext);
+            self::$casInitialized = true;
         }
 
-        $version = !empty($this->casVersion) ? $this->casVersion : CAS_VERSION_2_0;
-        \phpCAS::client($version, $this->casHost, $this->casPort, $this->casContext);
+        if ($this->casNoSsl) {
+            // Laisser phpCAS construire l'URL de login (lazy, inclut le service param), puis forcer http://
+            $loginUrl = str_replace('https://', 'http://', \phpCAS::getServerLoginURL());
+            \phpCAS::setServerLoginURL($loginUrl);
+            // service_validate_url est un appel serveur→CAS, pas de service param — juste le schéma à corriger
+            $validateUrl = sprintf('http://%s:%d/%s/serviceValidate', $this->casHost, $this->casPort, ltrim($this->casContext, '/'));
+            \phpCAS::setServerServiceValidateURL($validateUrl);
+        }
 
         if ($this->casNoServerValidation) {
             \phpCAS::setNoCasServerValidation();
         }
-
-        self::$casInitialized = true;
     }
 }

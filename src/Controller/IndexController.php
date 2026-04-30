@@ -69,6 +69,14 @@ class IndexController extends AbstractController
     }
 
     /**
+     * @Route("/", name="homepage")
+     */
+    public function homepage(): Response
+    {
+        return $this->redirectToRoute('accueil_index', [], 301);
+    }
+
+    /**
      * @Route("/accueil", name="accueil_index", methods={"GET"})
      */
     public function index(): Response

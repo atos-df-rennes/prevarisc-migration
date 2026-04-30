@@ -91,6 +91,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casPort', '%app.cas_port%')
         ->arg('$casContext', '%app.cas_context%')
         ->arg('$casNoServerValidation', '%app.cas_no_server_validation%')
+        ->arg('$casNoSsl', '%app.cas_no_ssl%')
         ->arg('$casVersion', '%app.cas_version%')
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%')

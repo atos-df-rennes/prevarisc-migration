@@ -215,6 +215,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.cas_no_server_validation', '%env(bool:PREVARISC_CAS_NO_SERVER_VALIDATION)%');
 
+    $parameters->set('env(PREVARISC_CAS_NO_SSL)', '');
+
+    $parameters->set('app.cas_no_ssl', '%env(bool:PREVARISC_CAS_NO_SSL)%');
+
     $parameters->set('env(PREVARISC_CAS_VERSION)', '');
 
     $parameters->set('app.cas_version', '%env(string:PREVARISC_CAS_VERSION)%');
