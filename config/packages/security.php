@@ -43,7 +43,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'logout' => [
                     'path'                 => 'session_logout',
                     'target'               => 'session_login',
-                    'methods'              => ['POST'],
                     'csrf_token_generator' => 'security.csrf.token_manager',
                     'handlers'             => ['App\Security\LogoutHandler'],
                 ],
