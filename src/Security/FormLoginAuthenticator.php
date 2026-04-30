@@ -233,6 +233,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         }
 
         if ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER'])) {
+            $token = $this->tokenStorage->getToken();
+            if (null !== $token && $token->isAuthenticated()) {
+                return false;
+            }
+
+            if ($request->getSession()->has('_security_main')) {
+                return false;
+            }
+
             return true;
         }
 
