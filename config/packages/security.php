@@ -42,7 +42,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 // Le nettoyage complémentaire (Zend_Auth, username, phpCAS) est délégué à LogoutHandler.
                 'logout' => [
                     'path'                 => 'session_logout',
-                    'target'               => 'session_login',
+                    'success_handler'      => 'App\Security\CasLogoutSuccessHandler',
                     'csrf_token_generator' => 'security.csrf.token_manager',
                     'handlers'             => ['App\Security\LogoutHandler'],
                 ],

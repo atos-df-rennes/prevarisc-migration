@@ -47,9 +47,11 @@ class LogoutHandler implements LogoutHandlerInterface
         // 2. Effacer le username stocké pour LegacySessionAuthenticator
         $request->getSession()->remove('username');
 
-        // 3. Logout CAS si activé : redirige vers le serveur CAS (le firewall utilisera $response)
-        if ($this->casEnabled) {
-            \phpCAS::logoutWithRedirectService(\phpCAS::getServerLoginURL());
+        // 3. Nettoyer la session phpCAS si activé.
+        // phpCAS::client() n'est pas encore initialisé dans ce contexte (nouveau process mod_php),
+        // donc on nettoie directement la clé de session phpCAS sans passer par l'API statique.
+        if ($this->casEnabled && isset($_SESSION['phpCAS'])) {
+            unset($_SESSION['phpCAS']);
         }
     }
 }

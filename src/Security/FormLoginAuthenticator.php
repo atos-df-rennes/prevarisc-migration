@@ -206,9 +206,16 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     public function supports(Request $request): bool
     {
         if ($this->casEnabled) {
-            // Ne pas relancer le pipeline d'auth si un token Symfony existe déjà en session
+            // Ne pas relancer le pipeline d'auth si un token Symfony existe déjà en session.
+            // Note : avec `anonymous: lazy`, le tokenStorage n'est pas encore peuplé lors de
+            // supports() — le token est chargé paresseusement et getToken() retourne null même
+            // si le token existe en session. On vérifie donc la session directement en complément.
             $token = $this->tokenStorage->getToken();
             if (null !== $token && $token->isAuthenticated()) {
+                return false;
+            }
+
+            if ($request->getSession()->has('_security_main')) {
                 return false;
             }
 
