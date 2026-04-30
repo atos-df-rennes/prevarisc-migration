@@ -19,6 +19,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
@@ -287,7 +288,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     {
         $username = $credentials['username'];
 
-        $user = $userProvider->loadUserByUsername($username);
+        try {
+            $user = $userProvider->loadUserByUsername($username);
+        } catch (UsernameNotFoundException $usernameNotFoundException) {
+            $this->logger->error("Auth: utilisateur inexistant en base de données Prevarisc. Veuillez l'ajouter.");
+            throw new AuthenticationException('Authentification invalide.');
+        }
 
         if (!$user instanceof Utilisateur) {
             $this->logger->error('Auth: type utilisateur inattendu', ['class' => get_class($user)]);
@@ -326,8 +332,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
             return true;
         }
 
-        // 2. Utilisateur SSO essayant le formulaire → configuration incohérente
-        if (true === $utilisateur->getSso()) {
+        // 2. Utilisateur SSO (CAS/NTLM) essayant le formulaire sans son mécanisme SSO configuré.
+        // Ne s'applique pas si LDAP est activé : les utilisateurs LDAP utilisent le formulaire
+        // même avec sso=true, car LDAP est un vérificateur de credentials sur le formulaire,
+        // pas une délégation de token (comportement identique au legacy — cf. SessionController).
+        if (true === $utilisateur->getSso() && !$this->ldapEnabled) {
             $this->logger->error(sprintf(
                 "Auth: utilisateur SSO '%s' tentant une connexion par formulaire (CAS/NTLM non activé)",
                 $utilisateur->getUsername()
