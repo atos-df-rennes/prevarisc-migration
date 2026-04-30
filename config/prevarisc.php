@@ -207,6 +207,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.cas_port', '%env(int:PREVARISC_CAS_PORT)%');
 
+    // Hostname/port utilisé par le NAVIGATEUR pour accéder à CAS (login URL).
+    // En dev, peut différer de CAS_HOST (utilisé côté serveur pour serviceValidate).
+    // Si vide, on utilise CAS_HOST/CAS_PORT.
+    $parameters->set('env(PREVARISC_CAS_PUBLIC_HOST)', '');
+
+    $parameters->set('app.cas_public_host', '%env(string:PREVARISC_CAS_PUBLIC_HOST)%');
+
+    $parameters->set('env(PREVARISC_CAS_PUBLIC_PORT)', 0);
+
+    $parameters->set('app.cas_public_port', '%env(int:PREVARISC_CAS_PUBLIC_PORT)%');
+
     $parameters->set('env(PREVARISC_CAS_CONTEXT)', '');
 
     $parameters->set('app.cas_context', '%env(string:PREVARISC_CAS_CONTEXT)%');

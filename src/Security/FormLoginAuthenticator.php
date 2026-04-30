@@ -78,6 +78,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     private $casPort;
 
     /** @var string */
+    private $casPublicHost;
+
+    /** @var int */
+    private $casPublicPort;
+
+    /** @var string */
     private $casContext;
 
     /** @var bool */
@@ -153,6 +159,8 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         bool $casEnabled,
         string $casHost,
         int $casPort,
+        string $casPublicHost,
+        int $casPublicPort,
         string $casContext,
         bool $casNoServerValidation,
         bool $casNoSsl,
@@ -179,6 +187,8 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $this->casEnabled = $casEnabled;
         $this->casHost = $casHost;
         $this->casPort = $casPort;
+        $this->casPublicHost = $casPublicHost;
+        $this->casPublicPort = $casPublicPort;
         $this->casContext = $casContext;
         $this->casNoServerValidation = $casNoServerValidation;
         $this->casNoSsl = $casNoSsl;
@@ -533,7 +543,8 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
      * Note : avec mod_php, les statics PHP persistent entre requêtes dans le même worker.
      * phpCAS::client() ne peut être appelé qu'une fois par processus. En revanche,
      * setServerLoginURL/setServerServiceValidateURL doivent être appliqués à chaque requête
-     * pour garantir les URLs http:// quand casNoSsl est actif.
+     * pour garantir les URLs http:// quand casNoSsl est actif, et le bon hostname public
+     * pour la login URL navigateur (casPublicHost peut différer de casHost en dev).
      */
     private function initCas(): void
     {
@@ -544,10 +555,22 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         }
 
         if ($this->casNoSsl) {
-            // Laisser phpCAS construire l'URL de login (lazy, inclut le service param), puis forcer http://
+            // Login URL : utilisée par le navigateur → appliquer le hostname public si défini.
+            // En dev, casHost peut être "host.docker.internal" (joignable depuis le conteneur)
+            // tandis que le navigateur accède à CAS via "localhost" — un mismatch de domaine
+            // empêcherait le renvoi du cookie TGT et casserait le SSO.
             $loginUrl = str_replace('https://', 'http://', \phpCAS::getServerLoginURL());
-            \phpCAS::setServerLoginURL($loginUrl);
-            // service_validate_url est un appel serveur→CAS, pas de service param — juste le schéma à corriger
+            if (!empty($this->casPublicHost)) {
+                $publicPort = $this->casPublicPort > 0 ? $this->casPublicPort : $this->casPort;
+                $loginUrl = preg_replace(
+                    '#http://[^/]+/#',
+                    sprintf('http://%s:%d/', $this->casPublicHost, $publicPort),
+                    $loginUrl
+                );
+            }
+            \phpCAS::setServerLoginURL((string) $loginUrl);
+
+            // serviceValidate URL : appel serveur→CAS → toujours utiliser casHost (joignable depuis le conteneur)
             $validateUrl = sprintf('http://%s:%d/%s/serviceValidate', $this->casHost, $this->casPort, ltrim($this->casContext, '/'));
             \phpCAS::setServerServiceValidateURL($validateUrl);
         }
