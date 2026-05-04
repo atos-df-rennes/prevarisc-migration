@@ -109,10 +109,15 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
     /**
      * L'authentification est gérée via Zend.
      * Si l'authentification ne fonctionne pas, c'est que l'utilisateur n'est pas connecté.
-     * On le redirige vers le formulaire de login Zend.
+     * Sauvegarde l'URL demandée comme target path pour redirection post-login,
+     * puis redirige vers le formulaire de login.
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
+        if ('/session/login' !== $request->getPathInfo()) {
+            $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
+        }
+
         return new RedirectResponse('/session/login');
     }
 
