@@ -99,6 +99,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ldap_basedn', '%env(string:PREVARISC_LDAP_BASEDN)%');
 
+    $parameters->set('env(PREVARISC_LDAP_FILTER)', '(uid=%s)');
+
+    // Filtre de recherche LDAP pour retrouver le DN d'un utilisateur dans l'annuaire.
+    // OpenLDAP (défaut) : (uid=%s)
+    // Active Directory  : (sAMAccountName=%s) ou (&(objectClass=user)(sAMAccountName=%s))
+    $parameters->set('app.ldap_filter', '%env(string:PREVARISC_LDAP_FILTER)%');
+
     $parameters->set('env(PREVARISC_SECURITY_KEY)', '');
 
     $parameters->set('app.security_key', '%env(string:PREVARISC_SECURITY_KEY)%');

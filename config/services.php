@@ -107,6 +107,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapUsername', '%app.ldap_username%')
         ->arg('$ldapPassword', '%app.ldap_password%')
         ->arg('$ldapBaseDn', '%app.ldap_basedn%')
+        ->arg('$ldapFilter', '%app.ldap_filter%')
         ->arg('$enforceSecurity', '%app.enforce_security%')
         ->arg('$ldap', ref('app.ldap'));
 

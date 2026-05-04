@@ -116,6 +116,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     /** @var string */
     private $ldapBaseDn;
 
+    /**
+     * Filtre de recherche LDAP pour retrouver le DN d'un utilisateur.
+     * Format sprintf avec %s pour le nom d'utilisateur.
+     * Exemples : '(uid=%s)' pour OpenLDAP, '(sAMAccountName=%s)' pour Active Directory.
+     *
+     * @var string
+     */
+    private $ldapFilter;
+
     /** @var bool */
     private $enforceSecurity;
 
@@ -180,6 +189,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         string $ldapUsername,
         string $ldapPassword,
         string $ldapBaseDn,
+        string $ldapFilter,
         bool $enforceSecurity,
         ?Ldap $ldap = null
     ) {
@@ -208,6 +218,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $this->ldapUsername = $ldapUsername;
         $this->ldapPassword = $ldapPassword;
         $this->ldapBaseDn = $ldapBaseDn;
+        $this->ldapFilter = $ldapFilter;
         $this->enforceSecurity = $enforceSecurity;
         $this->ldap = $ldap;
     }
@@ -408,7 +419,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
                 if (!empty($this->ldapUsername) && !empty($this->ldapBaseDn)) {
                     $ldap->bind($this->ldapUsername, $this->ldapPassword);
                     $escapedUser = str_replace(['\\', '*', '(', ')', "\0"], ['\\5c', '\\2a', '\\28', '\\29', '\\00'], $credentials['username']);
-                    $query = $ldap->query($this->ldapBaseDn, sprintf('(uid=%s)', $escapedUser));
+                    $query = $ldap->query($this->ldapBaseDn, sprintf($this->ldapFilter, $escapedUser));
                     /** @var Entry[] $results */
                     $results = $query->execute();
 
