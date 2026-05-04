@@ -149,14 +149,6 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     private $lastAttemptedUser;
 
     /**
-     * Mot de passe en clair en attente de rehachage (MD5 → bcrypt).
-     * Stocké temporairement entre checkCredentials() et onAuthenticationSuccess().
-     *
-     * @var string|null
-     */
-    private $pendingRehashPassword;
-
-    /**
      * Indicateur d'initialisation phpCAS (static car phpCAS est une classe statique).
      *
      * @var bool
@@ -452,12 +444,10 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         // 5. Vérification dbtable — passwordEncoder gère migrate_from (MD5 → bcrypt) automatiquement
         $isValid = $this->passwordEncoder->isPasswordValid($utilisateur, (string) $credentials['password']);
 
-        // Si la vérification réussit et que le hash nécessite une migration, on mémorise
-        // le mot de passe en clair pour le rehachage dans onAuthenticationSuccess().
-        // Note : avec Guard (SF 4.4), la migration n'est pas déclenchée automatiquement.
-        if ($isValid && $this->passwordEncoder->needsRehash($utilisateur)) {
-            $this->pendingRehashPassword = $credentials['password'];
-        }
+        // @todo Migration MD5 → bcrypt : activer le rehachage automatique au login une fois la
+        //       migration Symfony validée en production. Désactivé intentionnellement pour conserver
+        //       la réversibilité vers Zend (les mots de passe bcrypt sont incompatibles avec le legacy MD5).
+        //       Implémenter via une commande dédiée (ex: app:migrate-passwords) pour contrôler le périmètre.
 
         return $isValid;
     }
@@ -480,14 +470,6 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         // Mettre à jour les données de connexion en base
         $utilisateur->setIp($request->getClientIp());
         $utilisateur->setFailedLoginAttempts(0);
-
-        // Migration MD5 → bcrypt : rehacher le mot de passe si nécessaire.
-        // La migration n'est pas automatique avec Guard (SF 4.4), on la déclenche manuellement.
-        if (null !== $this->pendingRehashPassword) {
-            $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur, $this->pendingRehashPassword));
-            $this->pendingRehashPassword = null;
-            $this->logger->info(sprintf("Auth: rehachage MD5 → bcrypt effectué pour '%s'", $utilisateur->getUsername()));
-        }
 
         $this->entityManager->flush();
 
