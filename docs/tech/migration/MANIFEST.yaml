@@ -145,3 +145,31 @@ dossier_pieces_jointes:
     par le formulaire d'édition du dossier (hors périmètre de cet onglet).
     Sélection commission (PJ_COMMISSION / pjPassageCommission) omise :
     handler AJAX absent en legacy, checkbox non rendue dans display.phtml. Noté dans rapport d'écarts.
+
+dossier_rapport_generation:
+  status: partial
+  legacy_files:
+    - prevarisc/application/controllers/DossierController.php (rapportAction, generationrapportAction, creationdocAction, lignes 1951-2665+)
+    - prevarisc/application/views/scripts/dossier/rapport.phtml
+    - prevarisc/application/views/scripts/dossier/creation.phtml
+  migrated_files:
+    - prevarisc-migration/src/Controller/DossierRapportController.php
+    - prevarisc-migration/templates/dossier/rapport.html.twig
+  routes:
+    - name: dossier_rapport
+      path: /dossier/{id}/rapport
+    - name: dossier_generationrapport
+      path: /dossier/generationrapport
+  notes: |
+    Phase 2 (Port direct) : Structure et formulaire d'affichage implémentés ✅
+    Conversion Bootstrap 2 → 3 complète ✅
+    Logique métier (creationdoc) en @todo pour phases 3-7
+    
+    Phases 3-7 restantes (estimation 8-12h) :
+    - Collecte infos établissement (effectifs, types, activités)
+    - Collecte infos dossier (type, nature, documents manquants, avis)
+    - Collecte contacts (11 rôles via Service_Dossier)
+    - Collecte prescriptions/documents consultés/avis dérogatoires
+    - Fusion moteur ODT + sauvegarde en pièce jointe
+    
+    Rapport d'écarts : à générer après implémentation complète (skill rapport-ecarts)
