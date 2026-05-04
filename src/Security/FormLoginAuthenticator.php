@@ -140,6 +140,14 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     private $lastAttemptedUser;
 
     /**
+     * Mot de passe en clair en attente de rehachage (MD5 → bcrypt).
+     * Stocké temporairement entre checkCredentials() et onAuthenticationSuccess().
+     *
+     * @var string|null
+     */
+    private $pendingRehashPassword;
+
+    /**
      * Indicateur d'initialisation phpCAS (static car phpCAS est une classe statique).
      *
      * @var bool
@@ -225,11 +233,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
                 return false;
             }
 
-            if ($request->getSession()->has('_security_main')) {
-                return false;
-            }
-
-            return true;
+            return !$request->getSession()->has('_security_main');
         }
 
         if ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER'])) {
@@ -238,11 +242,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
                 return false;
             }
 
-            if ($request->getSession()->has('_security_main')) {
-                return false;
-            }
-
-            return true;
+            return !$request->getSession()->has('_security_main');
         }
 
         return $this->symfonyLoginEnabled
@@ -323,7 +323,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
             $user = $userProvider->loadUserByUsername($username);
         } catch (UsernameNotFoundException $usernameNotFoundException) {
             $this->logger->error("Auth: utilisateur inexistant en base de données Prevarisc. Veuillez l'ajouter.");
-            throw new AuthenticationException('Authentification invalide.');
+            throw new AuthenticationException('Authentification invalide.', $usernameNotFoundException->getCode(), $usernameNotFoundException);
         }
 
         if (!$user instanceof Utilisateur) {
@@ -439,7 +439,16 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         }
 
         // 5. Vérification dbtable — passwordEncoder gère migrate_from (MD5 → bcrypt) automatiquement
-        return $this->passwordEncoder->isPasswordValid($utilisateur, (string) $credentials['password']);
+        $isValid = $this->passwordEncoder->isPasswordValid($utilisateur, (string) $credentials['password']);
+
+        // Si la vérification réussit et que le hash nécessite une migration, on mémorise
+        // le mot de passe en clair pour le rehachage dans onAuthenticationSuccess().
+        // Note : avec Guard (SF 4.4), la migration n'est pas déclenchée automatiquement.
+        if ($isValid && $this->passwordEncoder->needsRehash($utilisateur)) {
+            $this->pendingRehashPassword = $credentials['password'];
+        }
+
+        return $isValid;
     }
 
     /**
@@ -460,6 +469,14 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         // Mettre à jour les données de connexion en base
         $utilisateur->setIp($request->getClientIp());
         $utilisateur->setFailedLoginAttempts(0);
+
+        // Migration MD5 → bcrypt : rehacher le mot de passe si nécessaire.
+        // La migration n'est pas automatique avec Guard (SF 4.4), on la déclenche manuellement.
+        if (null !== $this->pendingRehashPassword) {
+            $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur, $this->pendingRehashPassword));
+            $this->pendingRehashPassword = null;
+            $this->logger->info(sprintf("Auth: rehachage MD5 → bcrypt effectué pour '%s'", $utilisateur->getUsername()));
+        }
 
         $this->entityManager->flush();
 
@@ -577,6 +594,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
                     $loginUrl
                 );
             }
+
             \phpCAS::setServerLoginURL((string) $loginUrl);
 
             // serviceValidate URL : appel serveur→CAS → toujours utiliser casHost (joignable depuis le conteneur)
