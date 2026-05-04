@@ -10,26 +10,26 @@
     <body class="login">
         <div class="wrapper">
             <div class="block">
-
-                {# ─── Messages flash (erreurs d'authentification depuis onAuthenticationFailure) ─── #}
-                {% for type, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ type }} text-center" style="max-width: 350px; margin: 0 auto 15px auto;">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-
-                {# ─── Erreur retournée par AuthenticationUtils (tentative précédente) ─── #}
-                {% if error %}
-                    <div class="alert alert-danger text-center" style="max-width: 350px; margin: 0 auto 15px auto;">
-                        {{ error.messageKey|trans(error.messageData, 'security') }}
-                    </div>
-                {% endif %}
+                <h1 class="text-center">
+                    <img src="{{ asset('images/logo_prevarisc_big.jpg') }}" alt="Prévarisc">
+                </h1>
 
                 <div class="well">
+                    {# ─── Messages flash (erreurs d'authentification depuis onAuthenticationFailure) ─── #}
+                    {% for type, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ type }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
 
-                    <h3>Prévarisc</h3>
+                    {# ─── Erreur retournée par AuthenticationUtils (tentative précédente) ─── #}
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
 
                     {% if sso_enabled %}
                         {# ─── Mode SSO (CAS ou NTLM) : pas de formulaire ─── #}
@@ -75,13 +75,11 @@
                             </button>
                         </form>
                     {% endif %}
-
                 </div>{# /.well #}
 
-                <footer>
-                    <p>&copy; {{ 'now'|date('Y') }} Prévarisc</p>
-                </footer>
-
+                {{ render_esi(controller(
+                    'App\\Controller\\IndexController::footer',
+                )) }}
             </div>{# /.block #}
         </div>{# /.wrapper #}
     </body>
