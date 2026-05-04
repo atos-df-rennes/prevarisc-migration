@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\Ldap\Ldap;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -69,15 +70,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Service LDAP partagé : connexion lazy, évite une nouvelle instance à chaque tentative d'auth.
     // Utilisé uniquement si PREVARISC_LDAP_ENABLED=1.
-    $services->set('app.ldap', \Symfony\Component\Ldap\Ldap::class)
-        ->factory([\Symfony\Component\Ldap\Ldap::class, 'create'])
+    $services->set('app.ldap', Ldap::class)
+        ->factory([Ldap::class, 'create'])
         ->args([
             'ext_ldap',
             ['connection_string' => 'ldap://%app.ldap_host%:%app.ldap_port%'],
         ]);
-
-    $services->set('App\Security\LegacySessionAuthenticator')
-        ->arg('$symfonyLoginEnabled', '%app.symfony_login%');
 
     $services->set('App\Security\LogoutHandler')
         ->arg('$casEnabled', '%app.cas_enabled%');

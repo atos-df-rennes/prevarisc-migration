@@ -27,7 +27,8 @@ class SessionController extends AbstractController
      * GET  : affiche le formulaire (erreurs et dernier username depuis AuthenticationUtils).
      * POST : délégué à FormLoginAuthenticator — le controller n'est pas rappelé.
      *
-     * @Route("/session/login", name="session_login", methods={"GET", "POST"})
+     * Route enregistrée conditionnellement dans config/routes.php (PREVARISC_SYMFONY_LOGIN=1).
+     * Quand désactivé, /session/login est géré par le legacy Zend via le Strangler Pattern.
      */
     public function login(): Response
     {

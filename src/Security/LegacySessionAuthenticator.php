@@ -31,14 +31,10 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
     /** @var ZendSessionBridge */
     private $zendSessionBridge;
 
-    /** @var bool */
-    private $symfonyLoginEnabled;
-
-    public function __construct(LoggerInterface $logger, ZendSessionBridge $zendSessionBridge, bool $symfonyLoginEnabled)
+    public function __construct(LoggerInterface $logger, ZendSessionBridge $zendSessionBridge)
     {
         $this->logger = $logger;
         $this->zendSessionBridge = $zendSessionBridge;
-        $this->symfonyLoginEnabled = $symfonyLoginEnabled;
     }
 
     /**
@@ -50,15 +46,13 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * Pour contourner, on laisse passer et on fait la vérification dans la méthode getCredentials().
      * Si l'utilisateur n'est pas connecté on throw une AuthenticationException et on redirige dans la méthode onAuthenticationFailure().
      *
-     * Exclut /session/login uniquement si PREVARISC_SYMFONY_LOGIN=1 pour éviter une boucle
-     * de redirection infinie quand le formulaire de login natif Symfony est actif.
-     * Avec PREVARISC_SYMFONY_LOGIN=0, la route /session/login est gérée par le legacy Zend.
+     * Exclut /session/login inconditionnellement : que le login Symfony soit activé ou non,
+     * cet authenticator ne doit pas intercepter la page de login (évite les boucles infinies).
+     * Quand PREVARISC_SYMFONY_LOGIN=0, /session/login n'est pas une route Symfony et Zend le gère.
      */
     public function supports(Request $request): bool
     {
-        // Exclure /session/login uniquement quand le login Symfony natif est actif :
-        // sinon cela provoquerait une boucle infinie (plus aucun authenticator ne traiterait le POST).
-        if ($this->symfonyLoginEnabled && '/session/login' === $request->getPathInfo()) {
+        if ('/session/login' === $request->getPathInfo()) {
             return false;
         }
 

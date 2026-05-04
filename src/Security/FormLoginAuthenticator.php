@@ -538,7 +538,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $session = $request->getSession();
         $session->getFlashBag()->add('danger', "Erreur d'authentification : identifiants incorrects.");
 
-        return new RedirectResponse($this->router->generate('session_login'));
+        return new RedirectResponse('/session/login');
     }
 
     /**
@@ -555,7 +555,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
             $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
         }
 
-        return new RedirectResponse($this->router->generate('session_login'));
+        return new RedirectResponse('/session/login');
     }
 
     public function supportsRememberMe(): bool
