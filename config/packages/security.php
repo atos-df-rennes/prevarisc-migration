@@ -40,11 +40,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 ],
                 // Logout géré par le firewall : invalide le token Symfony et la session PHP.
                 // Le nettoyage complémentaire (Zend_Auth, username, phpCAS) est délégué à LogoutHandler.
+                // CSRF non requis pour permettre la déconnexion via lien GET (pages legacy non encore migrées).
                 'logout' => [
-                    'path'                 => 'session_logout',
-                    'success_handler'      => 'App\Security\CasLogoutSuccessHandler',
-                    'csrf_token_generator' => 'security.csrf.token_manager',
-                    'handlers'             => ['App\Security\LogoutHandler'],
+                    'path'            => 'session_logout',
+                    'success_handler' => 'App\Security\CasLogoutSuccessHandler',
+                    'handlers'        => ['App\Security\LogoutHandler'],
                 ],
             ],
         ],

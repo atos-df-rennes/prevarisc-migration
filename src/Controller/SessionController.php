@@ -49,7 +49,7 @@ class SessionController extends AbstractController
      * Le nettoyage complémentaire (Zend_Auth, session username, phpCAS) est
      * délégué à App\Security\LogoutHandler (enregistré dans security.php).
      *
-     * @Route("/session/logout", name="session_logout", methods={"POST"})
+     * @Route("/session/logout", name="session_logout", methods={"GET", "POST"})
      */
     public function logout(): void
     {
