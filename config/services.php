@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\Ldap\Ldap;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -63,6 +64,55 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
+
+    $services->set('App\Security\Md5SaltedEncoder')
+        ->arg('$globalSalt', '%app.security_salt%');
+
+    // Service LDAP partagé : connexion lazy, évite une nouvelle instance à chaque tentative d'auth.
+    // Utilisé uniquement si PREVARISC_LDAP_ENABLED=1.
+    $services->set('app.ldap', Ldap::class)
+        ->factory([Ldap::class, 'create'])
+        ->args([
+            'ext_ldap',
+            ['connection_string' => 'ldap://%app.ldap_host%:%app.ldap_port%'],
+        ]);
+
+    $services->set('App\Security\LogoutHandler')
+        ->arg('$casEnabled', '%app.cas_enabled%');
+
+    $services->set('App\Security\CasLogoutSuccessHandler')
+        ->arg('$casEnabled', '%app.cas_enabled%')
+        ->arg('$casHost', '%app.cas_host%')
+        ->arg('$casPort', '%app.cas_port%')
+        ->arg('$casPublicHost', '%app.cas_public_host%')
+        ->arg('$casPublicPort', '%app.cas_public_port%')
+        ->arg('$casContext', '%app.cas_context%')
+        ->arg('$casNoSsl', '%app.cas_no_ssl%');
+
+    $services->set('App\Security\FormLoginAuthenticator')
+        ->arg('$tokenStorage', ref('security.token_storage'))
+        ->arg('$csrfTokenManager', ref('security.csrf.token_manager'))
+        ->arg('$symfonyLoginEnabled', '%app.symfony_login%')
+        ->arg('$casEnabled', '%app.cas_enabled%')
+        ->arg('$casHost', '%app.cas_host%')
+        ->arg('$casPort', '%app.cas_port%')
+        ->arg('$casPublicHost', '%app.cas_public_host%')
+        ->arg('$casPublicPort', '%app.cas_public_port%')
+        ->arg('$casContext', '%app.cas_context%')
+        ->arg('$casNoServerValidation', '%app.cas_no_server_validation%')
+        ->arg('$casNoSsl', '%app.cas_no_ssl%')
+        ->arg('$casVersion', '%app.cas_version%')
+        ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
+        ->arg('$ldapEnabled', '%app.ldap_enabled%')
+        ->arg('$ldapHost', '%app.ldap_host%')
+        ->arg('$ldapPort', '%app.ldap_port%')
+        ->arg('$ldapUsername', '%app.ldap_username%')
+        ->arg('$ldapPassword', '%app.ldap_password%')
+        ->arg('$ldapBaseDn', '%app.ldap_basedn%')
+        ->arg('$ldapFilter', '%app.ldap_filter%')
+        ->arg('$ldapAccountForm', '%app.ldap_account_form%')
+        ->arg('$enforceSecurity', '%app.enforce_security%')
+        ->arg('$ldap', ref('app.ldap'));
 
     $services->set('App\Service\DataStore\DataStoreFactory')
         ->arg('$adapter', '%app.datastore_adapter%');

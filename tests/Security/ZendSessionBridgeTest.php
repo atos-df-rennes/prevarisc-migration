@@ -70,4 +70,50 @@ class ZendSessionBridgeTest extends TestCase
 
         $this->assertTrue($result);
     }
+
+    public function testWriteAuthenticationCreatesZendAuthStructureWhenAbsente(): void
+    {
+        $identity = ['USERNAME_UTILISATEUR' => 'jdupont', 'ROLE' => 'admin'];
+
+        $this->bridge->writeAuthentication($identity);
+
+        $this->assertSame($identity, $_SESSION['Zend_Auth']['storage']);
+    }
+
+    public function testWriteAuthenticationOverridesExistingStorage(): void
+    {
+        $_SESSION['Zend_Auth'] = ['storage' => ['USERNAME_UTILISATEUR' => 'ancien']];
+        $identity = ['USERNAME_UTILISATEUR' => 'nouveau'];
+
+        $this->bridge->writeAuthentication($identity);
+
+        $this->assertSame($identity, $_SESSION['Zend_Auth']['storage']);
+    }
+
+    public function testWriteAuthenticationPreservesOtherZendAuthKeys(): void
+    {
+        $_SESSION['Zend_Auth'] = ['autreClef' => 'valeur', 'storage' => []];
+        $identity = ['USERNAME_UTILISATEUR' => 'jdupont'];
+
+        $this->bridge->writeAuthentication($identity);
+
+        $this->assertSame('valeur', $_SESSION['Zend_Auth']['autreClef']);
+        $this->assertSame($identity, $_SESSION['Zend_Auth']['storage']);
+    }
+
+    public function testClearAuthenticationRemovesZendAuthFromSession(): void
+    {
+        $_SESSION['Zend_Auth'] = ['storage' => ['USERNAME_UTILISATEUR' => 'jdupont']];
+
+        $this->bridge->clearAuthentication();
+
+        $this->assertArrayNotHasKey('Zend_Auth', $_SESSION);
+    }
+
+    public function testClearAuthenticationIsIdempotentWhenSessionAbsente(): void
+    {
+        $this->bridge->clearAuthentication();
+
+        $this->assertArrayNotHasKey('Zend_Auth', $_SESSION);
+    }
 }
