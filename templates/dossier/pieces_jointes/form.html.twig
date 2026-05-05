@@ -1,0 +1,23 @@
+{# Fragment HTML chargé en AJAX dans la modale d'ajout — pas de layout #}
+<form id="pj-add-form" enctype="multipart/form-data"
+      action="{{ path('dossier_pieces_jointes_add', {id: dossier.id}) }}"
+      method="post">
+
+    <input type="hidden" name="_token" value="{{ csrf_token('dossier_pj_add') }}">
+
+    <div class="form-group">
+        <label for="pj-fichier">Fichier à envoyer</label>
+        <input type="file" name="fichier" id="pj-fichier" class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label for="pj-nom">Libellé de la pièce jointe</label>
+        <input type="text" class="form-control" name="nomFichier" id="pj-nom"
+               placeholder="Laissez vide pour conserver le nom par défaut">
+    </div>
+
+    <div class="form-group">
+        <label for="pj-description">Description</label>
+        <textarea class="form-control" name="descriptionFichier" id="pj-description" rows="4"></textarea>
+    </div>
+</form>

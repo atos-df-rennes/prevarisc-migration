@@ -1,0 +1,90 @@
+{% set pj = dpj.pieceJointe %}
+{% set ext = pj.extension|lower %}
+<tr id="pj-row-{{ pj.id }}">
+    <td>
+        {% if isPlatau and isNew %}
+            <span class="label label-danger">Nouveau !</span><br>
+        {% endif %}
+        <a class="file {{ ext|replace({'.': ''}) }}"
+           href="{{ path('dossier_pieces_jointes_get', {id: dossier.id, idpj: pj.id}) }}"
+           {% if pj.description %}title="{{ pj.description }}"{% endif %}
+           target="_blank">
+            {{ pj.nom }}{{ pj.extension }}
+        </a>
+        {% if isPlatau and pj.identifiantPlatau %}
+            <br><span class="label label-info">{{ pj.identifiantPlatau }}</span>
+        {% endif %}
+    </td>
+
+    <td>
+        {% if pj.description is not empty %}
+            {{ pj.description|nl2br }}
+        {% elseif pj.type or pj.sousType or pj.dateDepot or pj.nature %}
+            {% if pj.type or pj.sousType %}
+                <p>
+                    {{ pj.type }}
+                    {% if pj.type and pj.sousType %} - {% endif %}
+                    {{ pj.sousType }}
+                </p>
+            {% endif %}
+            {% if pj.dateDepot %}
+                <span class="label label-default">
+                    <span class="glyphicon glyphicon-calendar"></span>&nbsp;Déposée le {{ pj.dateDepot|date('d/m/Y') }}
+                </span>
+            {% endif %}
+            {% if pj.nature %}
+                <span class="label label-success {% if pj.dateDepot %}ml-2{% endif %}">
+                    <span class="glyphicon glyphicon-tag"></span>&nbsp;{{ pj.nature }}
+                </span>
+            {% endif %}
+        {% endif %}
+    </td>
+
+    <td>{{ pj.date ? pj.date|date('d/m/Y') : '' }}</td>
+
+    {% if isPlatau %}
+        <td>
+            {% if pj.statut %}
+                {% set statut_name = pj.statut.nomStatut %}
+                {% if statut_name == 'not_exported' %}
+                    <span class="label label-default">{{ pj.statut.nomLisible }}</span>
+                {% elseif statut_name == 'to_be_exported' %}
+                    <span class="label label-info">{{ pj.statut.nomLisible }}</span>
+                {% elseif statut_name == 'awaiting_status' %}
+                    <span class="label label-warning">{{ pj.statut.nomLisible }}</span>
+                {% elseif statut_name == 'exported' %}
+                    <span class="label label-success">{{ pj.statut.nomLisible }}</span>
+                {% elseif statut_name == 'on_error' %}
+                    <span class="label label-danger js-statut-platau" title="{{ pj.messageErreur }}">{{ pj.statut.nomLisible }}</span>
+                    <span class="glyphicon glyphicon-info-sign" style="cursor:pointer" title="Erreur" data-toggle="popover" data-content="{{ pj.messageErreur }}" data-placement="left"></span>
+                    {% if not verrou %}
+                        <button type="button" class="btn btn-xs btn-link btn-retry-platau"
+                                data-url="{{ path('dossier_pieces_jointes_retry_platau', {id: dossier.id, idpj: pj.id}) }}"
+                                data-token="{{ csrf_token('dossier_pj_retry_' ~ pj.id) }}">
+                            Renvoyer
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <span class="label label-warning">Statut inconnu</span>
+                {% endif %}
+            {% else %}
+                <span class="label label-warning">Statut inconnu</span>
+            {% endif %}
+        </td>
+    {% endif %}
+
+    <td>
+        {% set can_delete = not verrou %}
+        {% if can_delete and pj.statut and pj.statut.nomStatut in ['to_be_exported', 'exported', 'awaiting_status'] %}
+            {% set can_delete = false %}
+        {% endif %}
+        {% if can_delete %}
+            <button type="button" class="btn btn-default btn-xs btn-delete-pj"
+                    data-pj-id="{{ pj.id }}"
+                    data-url="{{ path('dossier_pieces_jointes_delete', {id: dossier.id, idpj: pj.id}) }}"
+                    data-token="{{ csrf_token('dossier_pj_delete_' ~ pj.id) }}">
+                <span class="glyphicon glyphicon-trash"></span>
+            </button>
+        {% endif %}
+    </td>
+</tr>
