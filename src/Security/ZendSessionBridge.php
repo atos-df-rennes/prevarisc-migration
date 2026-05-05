@@ -10,7 +10,7 @@ namespace App\Security;
  *
  * @phpstan-type ZendAuth array{
  *   storage: array{
- *     USERNAME_UTILISATEUR: string
+ *     USERNAME_UTILISATEUR?: string
  *   }
  * }
  */
