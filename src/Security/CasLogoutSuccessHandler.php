@@ -27,6 +27,12 @@ class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
     private $casPort;
 
     /** @var string */
+    private $casPublicHost;
+
+    /** @var int */
+    private $casPublicPort;
+
+    /** @var string */
     private $casContext;
 
     /** @var bool */
@@ -36,12 +42,16 @@ class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
         bool $casEnabled,
         string $casHost,
         int $casPort,
+        string $casPublicHost,
+        int $casPublicPort,
         string $casContext,
         bool $casNoSsl
     ) {
         $this->casEnabled = $casEnabled;
         $this->casHost = $casHost;
         $this->casPort = $casPort;
+        $this->casPublicHost = $casPublicHost;
+        $this->casPublicPort = $casPublicPort;
         $this->casContext = $casContext;
         $this->casNoSsl = $casNoSsl;
     }
@@ -51,7 +61,12 @@ class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
         if ($this->casEnabled) {
             $scheme = $this->casNoSsl ? 'http' : 'https';
             $context = ltrim($this->casContext, '/');
-            $casLogoutUrl = sprintf('%s://%s:%d/%s/logout', $scheme, $this->casHost, $this->casPort, $context);
+
+            // Utiliser le hostname public si défini (reverse proxy, Docker) pour que
+            // le navigateur soit redirigé vers une adresse qu'il peut atteindre.
+            $host = !empty($this->casPublicHost) ? $this->casPublicHost : $this->casHost;
+            $port = (!empty($this->casPublicHost) && $this->casPublicPort > 0) ? $this->casPublicPort : $this->casPort;
+            $casLogoutUrl = sprintf('%s://%s:%d/%s/logout', $scheme, $host, $port, $context);
 
             return new RedirectResponse($casLogoutUrl);
         }

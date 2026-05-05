@@ -155,26 +155,30 @@ Niveau de confiance global : ⚠️
   - ⚠️ **À tester** : basculer le flag et vérifier que l'authentification fonctionne dans
     les deux modes.
 
-**10. [Nouveau] Migration transparente MD5 → bcrypt**
-  - `Md5SaltedEncoder::needsRehash()` retourne toujours `true`.
-  - À chaque connexion réussie via MD5, Symfony re-hashe en bcrypt et sauve en base.
-  - ⚠️ **À tester** : connexion avec un compte MD5 → vérifier que `PASSWD_UTILISATEUR`
-    en base passe de `[32 chars]` à `[$2y$...]` après connexion.
+**10. [Transition] Rehachage MD5 → bcrypt intentionnellement désactivé**
+  - `Md5SaltedEncoder::needsRehash()` retourne **toujours `false`** pendant la transition.
+  - `UtilisateurRepository::upgradePassword()` est un **no-op** intentionnel.
+  - Objectif : maintenir la réversibilité vers le mode legacy (`PREVARISC_SYMFONY_LOGIN=0`).
+    Un mot de passe bcrypt est incompatible avec le hachage MD5 attendu par Zend.
+  - ⚠️ **À activer une fois le legacy définitivement retiré** : passer `needsRehash()` à `true`
+    et réactiver le corps de `upgradePassword()`.
+  - ⚠️ **À tester** : vérifier que la modification d'un utilisateur depuis le formulaire admin
+    conserve un hash MD5 (32 chars) et non bcrypt (`$2y$...`).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🔴 LOGIQUE COMPLEXE — vérification approfondie recommandée :
 
-**1. Logout CAS — interception firewall**
+**1. Logout CAS — cleanup via LogoutHandler + CasLogoutSuccessHandler**
   - Legacy : `phpCAS::logout()` dans `logoutAction()`.
-  - Symfony : le firewall intercepte la route `session_logout` pour invalider le token
-    Symfony **avant** d'exécuter le contrôleur. `SessionController::logout()` est ensuite
-    appelé pour le cleanup (Zend session + phpCAS::logout).
-  - 🔴 **Risque** : si la session Symfony est invalidée avant l'exécution du contrôleur,
-    `phpCAS::logout()` doit fonctionner sans session active. phpCAS stocke son état
-    de manière statique — à valider en test d'intégration CAS réel.
-  - À tester : déconnexion depuis un environnement CAS → vérifier que `phpCAS::logout()`
-    est bien appelé et que la redirection vers le serveur CAS s'effectue.
+  - Symfony : le firewall intercepte la route `session_logout` et invalide le token Symfony.
+    Le cleanup complémentaire est délégué à deux handlers :
+    - `LogoutHandler::logout()` : efface `ZendSessionBridge` (session Zend_Auth) et
+      la clé `username` en session Symfony.
+    - `CasLogoutSuccessHandler::onLogoutSuccess()` : redirige vers le serveur CAS pour
+      invalider le TGT si CAS est activé, sinon vers `/session/login`.
+  - ✅ Le contrôleur `SessionController::logout()` n'est PAS appelé (intercepté par le firewall).
+  - À tester : déconnexion depuis un environnement CAS → vérifier la redirection vers CAS.
 
 **2. updateLastActionDate manquant au logout**
   - Legacy (SessionController.php:133) : `$service_user->updateLastActionDate(...)` est
@@ -193,10 +197,11 @@ Scénarios de test prioritaires
 -------------------------------
 
 1. **Formulaire standard** : se connecter avec login/mot de passe MD5 existant →
-   vérifier connexion + migration hash en base + accès aux pages Zend legacy.
+   vérifier connexion + hash en base toujours en MD5 (32 chars) + accès aux pages Zend legacy.
 
-2. **Formulaire après migration** : se reconnecter après migration MD5→bcrypt →
-   vérifier connexion avec le nouveau hash bcrypt.
+2. **Réversibilité** : avec `PREVARISC_SYMFONY_LOGIN=1`, modifier un utilisateur dans
+   l'admin → vérifier que `PASSWD_UTILISATEUR` reste en MD5 → basculer sur `PREVARISC_SYMFONY_LOGIN=0`
+   → vérifier que l'utilisateur peut toujours se connecter via Zend.
 
 3. **Mauvais mot de passe x3** : 3 tentatives → vérifier compteur en base +
    blocage IP si `PREVARISC_ENFORCE_SECURITY=1`.

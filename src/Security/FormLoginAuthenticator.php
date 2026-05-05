@@ -125,6 +125,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
      */
     private $ldapFilter;
 
+    /**
+     * Format du compte LDAP pour le bind direct (fallback sans service-account).
+     * Format sprintf avec %s pour le nom d'utilisateur.
+     * Exemples : '%s@domain.tld' (UPN), 'DOMAIN\%s' (pre-Win2000), '' (pas de transformation).
+     *
+     * @var string
+     */
+    private $ldapAccountForm;
+
     /** @var bool */
     private $enforceSecurity;
 
@@ -182,6 +191,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         string $ldapPassword,
         string $ldapBaseDn,
         string $ldapFilter,
+        string $ldapAccountForm,
         bool $enforceSecurity,
         ?Ldap $ldap = null
     ) {
@@ -211,6 +221,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $this->ldapPassword = $ldapPassword;
         $this->ldapBaseDn = $ldapBaseDn;
         $this->ldapFilter = $ldapFilter;
+        $this->ldapAccountForm = $ldapAccountForm;
         $this->enforceSecurity = $enforceSecurity;
         $this->ldap = $ldap;
     }
@@ -429,7 +440,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
                 }
 
                 // Bind direct (format UPN user@domain ou DN complet)
-                $ldap->bind($credentials['username'], (string) $credentials['password']);
+                // Appliquer ldapAccountForm si configuré (ex: 'DOMAIN\%s' ou '%s@domain.tld')
+                $bindUsername = !empty($this->ldapAccountForm)
+                    ? sprintf($this->ldapAccountForm, $credentials['username'])
+                    : $credentials['username'];
+                $ldap->bind($bindUsername, (string) $credentials['password']);
                 $this->logger->info(sprintf("Auth LDAP (direct): succès pour '%s'", $credentials['username']));
 
                 return true;
@@ -544,7 +559,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
-        if ('/session/login' !== $request->getPathInfo()) {
+        // Ne sauvegarder le target path que pour les requêtes GET non-XHR.
+        // Les requêtes POST/AJAX rejouées en GET après login aboutiraient à un 405.
+        if ('/session/login' !== $request->getPathInfo()
+            && $request->isMethod('GET')
+            && !$request->isXmlHttpRequest()
+        ) {
             $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
         }
 
@@ -574,25 +594,28 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         }
 
         if ($this->casNoSsl) {
-            // Login URL : utilisée par le navigateur → appliquer le hostname public si défini.
-            // En dev, casHost peut être "host.docker.internal" (joignable depuis le conteneur)
-            // tandis que le navigateur accède à CAS via "localhost" — un mismatch de domaine
-            // empêcherait le renvoi du cookie TGT et casserait le SSO.
+            // Forcer http:// sur la login URL et la validation URL
             $loginUrl = str_replace('https://', 'http://', \phpCAS::getServerLoginURL());
-            if (!empty($this->casPublicHost)) {
-                $publicPort = $this->casPublicPort > 0 ? $this->casPublicPort : $this->casPort;
-                $loginUrl = preg_replace(
-                    '#http://[^/]+/#',
-                    sprintf('http://%s:%d/', $this->casPublicHost, $publicPort),
-                    $loginUrl
-                );
-            }
-
             \phpCAS::setServerLoginURL((string) $loginUrl);
 
             // serviceValidate URL : appel serveur→CAS → toujours utiliser casHost (joignable depuis le conteneur)
             $validateUrl = sprintf('http://%s:%d/%s/serviceValidate', $this->casHost, $this->casPort, ltrim($this->casContext, '/'));
             \phpCAS::setServerServiceValidateURL($validateUrl);
+        }
+
+        // Réécriture du hostname public pour la login URL navigateur.
+        // Indépendante du SSL : en prod HTTPS avec reverse proxy, casPublicHost peut différer
+        // de casHost (interne). Sans cette réécriture, le navigateur ne peut pas joindre CAS.
+        if (!empty($this->casPublicHost)) {
+            $currentLoginUrl = \phpCAS::getServerLoginURL();
+            $publicPort = $this->casPublicPort > 0 ? $this->casPublicPort : $this->casPort;
+            $scheme = $this->casNoSsl ? 'http' : 'https';
+            $newLoginUrl = preg_replace(
+                '#https?://[^/]+/#',
+                sprintf('%s://%s:%d/', $scheme, $this->casPublicHost, $publicPort),
+                $currentLoginUrl
+            );
+            \phpCAS::setServerLoginURL((string) $newLoginUrl);
         }
 
         if ($this->casNoServerValidation) {

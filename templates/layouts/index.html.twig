@@ -11,13 +11,13 @@
                     Tableau de bord
                     <small>Profil : {{ app.user.groupe ? app.user.groupe.libelle : '' }}</small>
                 </h2>
-                <span>
+                <div style="display:inline;">
                     Bonjour {{ app.user.informations.prenom }}
                     <form action="{{ path('session_logout') }}" method="post" style="display:inline;">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
                         <button type="submit" class="deconnexion btn btn-link" style="padding:0;vertical-align:baseline;">Déconnexion</button>
                     </form>
-                </span>
+                </div>
                 <a id="reinitBlocOrder" class="btn btn-xs btn-default pull-right" href="#">
                     <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Ré-initialiser les blocs
                 </a>

@@ -84,6 +84,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$casHost', '%app.cas_host%')
         ->arg('$casPort', '%app.cas_port%')
+        ->arg('$casPublicHost', '%app.cas_public_host%')
+        ->arg('$casPublicPort', '%app.cas_public_port%')
         ->arg('$casContext', '%app.cas_context%')
         ->arg('$casNoSsl', '%app.cas_no_ssl%');
 
@@ -108,6 +110,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapPassword', '%app.ldap_password%')
         ->arg('$ldapBaseDn', '%app.ldap_basedn%')
         ->arg('$ldapFilter', '%app.ldap_filter%')
+        ->arg('$ldapAccountForm', '%app.ldap_account_form%')
         ->arg('$enforceSecurity', '%app.enforce_security%')
         ->arg('$ldap', ref('app.ldap'));
 

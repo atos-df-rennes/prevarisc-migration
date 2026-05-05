@@ -108,7 +108,12 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        if ('/session/login' !== $request->getPathInfo()) {
+        // Ne sauvegarder le target path que pour les requêtes GET non-XHR.
+        // Les requêtes POST/AJAX rejouées en GET après login aboutiraient à un 405.
+        if ('/session/login' !== $request->getPathInfo()
+            && $request->isMethod('GET')
+            && !$request->isXmlHttpRequest()
+        ) {
             $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
         }
 

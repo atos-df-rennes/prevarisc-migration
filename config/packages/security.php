@@ -28,6 +28,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'pattern'  => '^/(_(profiler|wdt)|css|images|js)/',
                 'security' => false,
             ],
+            // Firewall dédié pour l'endpoint iCalendar public (abonnements Webcal).
+            // Les clients calendrier (Outlook, Thunderbird, Apple Calendar) ne gèrent pas
+            // les redirections CAS interactives. On bypass totalement la sécurité sur ce path.
+            'ical' => [
+                'pattern'  => '^/api/commissions/icalendar',
+                'security' => false,
+            ],
             'main' => [
                 'anonymous' => 'lazy',
                 'provider'  => 'app_user_provider',
@@ -51,10 +58,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'access_control' => [
             [
                 'path'  => '^/session/login',
-                'roles' => 'IS_AUTHENTICATED_ANONYMOUSLY',
-            ],
-            [
-                'path'  => '^/api/commissions/icalendar',
                 'roles' => 'IS_AUTHENTICATED_ANONYMOUSLY',
             ],
             [
