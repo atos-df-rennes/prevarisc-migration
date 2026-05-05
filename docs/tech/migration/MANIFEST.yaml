@@ -101,6 +101,51 @@ dossier_avis_et_derogations:
     - name: dossier_avis_et_derogations_delete
       path: /dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer
 
+dossier_pieces_jointes:
+  status: done
+  legacy_files:
+    - prevarisc/application/controllers/DossierController.php (pieceJointeAction, getZipAllPjAction)
+    - prevarisc/application/controllers/PieceJointeController.php (indexAction, formAction, addAction, getAction, deleteAction, checkAction, retryExportPlatauAction, displayPjPlatauAction)
+    - prevarisc/application/views/scripts/piece-jointe/index.phtml
+    - prevarisc/application/views/scripts/piece-jointe/form.phtml
+    - prevarisc/application/views/scripts/piece-jointe/display.phtml
+    - prevarisc/application/views/scripts/piece-jointe/export.phtml
+  migrated_files:
+    - prevarisc-migration/src/Controller/DossierPiecesJointesController.php
+    - prevarisc-migration/src/Repository/DossierPieceJointeRepository.php (ajout findAllByDossier)
+    - prevarisc-migration/templates/dossier/pieces_jointes/index.html.twig
+    - prevarisc-migration/templates/dossier/pieces_jointes/_piece_jointe_row.html.twig
+    - prevarisc-migration/templates/dossier/pieces_jointes/form.html.twig
+    - prevarisc-migration/public/js/dossier/pieces-jointes.js
+    - prevarisc-migration/templates/layouts/dossier.html.twig (lien onglet mis à jour)
+  routes:
+    - name: dossier_pieces_jointes
+      path: /dossier/{id}/pieces-jointes
+    - name: dossier_pieces_jointes_form
+      path: /dossier/{id}/pieces-jointes/formulaire
+    - name: dossier_pieces_jointes_add
+      path: /dossier/{id}/pieces-jointes/ajouter
+    - name: dossier_pieces_jointes_get
+      path: /dossier/{id}/pieces-jointes/{idpj}/telecharger
+    - name: dossier_pieces_jointes_delete
+      path: /dossier/{id}/pieces-jointes/{idpj}/supprimer
+    - name: dossier_pieces_jointes_check
+      path: /dossier/{id}/pieces-jointes/{idpj}/verifier
+    - name: dossier_pieces_jointes_zip
+      path: /dossier/{id}/pieces-jointes/telecharger-tout
+    - name: dossier_pieces_jointes_retry_platau
+      path: /dossier/{id}/pieces-jointes/{idpj}/renvoyer-platau
+  notes: |
+    Port direct de 9 actions legacy (DossierController + PieceJointeController type=dossier).
+    Distinction Platau vs standard pour le stockage des fichiers physiques.
+    IS_NEW via NotificationService::PIECES_DOSSIER_NAMESPACE (en base, pas en session).
+    ZIP via ZipArchive + BinaryFileResponse::deleteFileAfterSend(true).
+    Les informations Platau (identifiant, description, type, état) sont affichées si présentes
+    directement dans _piece_jointe_row.html.twig — la gestion des exportables Platau est assurée
+    par le formulaire d'édition du dossier (hors périmètre de cet onglet).
+    Sélection commission (PJ_COMMISSION / pjPassageCommission) omise :
+    handler AJAX absent en legacy, checkbox non rendue dans display.phtml. Noté dans rapport d'écarts.
+
 authentification:
   status: migrated
   legacy_files:
