@@ -54,15 +54,20 @@ class Md5SaltedEncoder implements PasswordEncoderInterface
     }
 
     /**
-     * Indique qu'un re-hash est toujours nécessaire.
-     * Déclenche la migration automatique MD5 → bcrypt à chaque connexion réussie.
+     * Indique qu'aucun re-hash n'est nécessaire pendant la période de transition.
+     *
+     * Retourne false pour bloquer la migration automatique MD5 → bcrypt sur login,
+     * ce qui garantit que le fallback legacy (PREVARISC_SYMFONY_LOGIN=0) reste
+     * opérationnel à tout moment.
+     *
+     * À passer à true (ou supprimer cette méthode) une fois le legacy retiré.
      *
      * @param string $encoded Le hash actuel (ignoré)
      *
-     * @return bool Toujours true
+     * @return bool Toujours false pendant la transition
      */
     public function needsRehash(string $encoded): bool
     {
-        return true;
+        return false;
     }
 }

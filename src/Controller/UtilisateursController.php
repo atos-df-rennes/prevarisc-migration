@@ -7,6 +7,7 @@ use App\Entity\UtilisateurPreferences;
 use App\Form\UtilisateurType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
+use App\Security\Md5SaltedEncoder;
 use App\Service\Avatar;
 use App\Service\Image;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,7 +17,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @Route(requirements={"id"="\d+"})
@@ -40,10 +40,10 @@ class UtilisateursController extends AbstractController
     /** @var Image */
     private $image;
 
-    /** @var UserPasswordEncoderInterface */
+    /** @var Md5SaltedEncoder */
     private $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, Md5SaltedEncoder $passwordEncoder)
     {
         $this->entityManager = $entityManager;
         $this->utilisateurRepository = $utilisateurRepository;
@@ -80,8 +80,9 @@ class UtilisateursController extends AbstractController
             $preferences = new UtilisateurPreferences();
             $preferences->setUtilisateur($utilisateur);
             $utilisateur->setPreferences($preferences);
-            // @fixme migré : utilise désormais l'encodage Symfony (bcrypt) via UserPasswordEncoderInterface
-            $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur, (string) $utilisateur->getPlainPassword()));
+            // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
+            // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
+            $utilisateur->setPassword($this->passwordEncoder->encodePassword((string) $utilisateur->getPlainPassword(), $utilisateur->getSalt()));
 
             $dateDerniereVisite = new \DateTime();
             $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
@@ -131,8 +132,9 @@ class UtilisateursController extends AbstractController
             // On ne re-set pas le password s'il n'a pas été modifié
             // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
             if (null !== $utilisateur->getPlainPassword()) {
-                // @fixme migré : utilise désormais l'encodage Symfony (bcrypt) via UserPasswordEncoderInterface
-                $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur, $utilisateur->getPlainPassword()));
+                // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
+                // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
+                $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur->getPlainPassword(), $utilisateur->getSalt()));
             } elseif (null !== $utilisateur->getPassword() && $utilisateur->getSso()) {
                 $utilisateur->setPassword(null);
             }
