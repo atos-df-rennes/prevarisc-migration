@@ -92,16 +92,25 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
+        $request->getSession()->remove('username');
+
         return new RedirectResponse('/session/login');
     }
 
     /**
      * Called when authentication is needed, but it's not sent.
      * Redirige vers le formulaire de login Zend.
-     * Non appelé pour le moment, la redirection est fait par la méthode onAuthenticationFailure().
+     *
+     * Supprime le marqueur de session `username` pour éviter la boucle d'authentification :
+     * si `username` est présent en session mais que le token Symfony est invalide/absent,
+     * supports() retourne false et l'utilisateur ne peut plus se ré-authentifier.
+     * En supprimant `username` ici, on force un nouveau passage par getCredentials() après
+     * la reconnexion Zend.
      */
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
+        $request->getSession()->remove('username');
+
         return new RedirectResponse('/session/login');
     }
 

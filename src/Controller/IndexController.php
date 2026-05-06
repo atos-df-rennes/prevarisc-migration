@@ -10,6 +10,7 @@ use App\Service\Dashboard\DashboardService;
 use App\Service\FeedService;
 use App\Service\NotificationService;
 use App\Service\PlatauHealthcheckService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,6 +47,9 @@ class IndexController extends AbstractController
     /** @var bool */
     private $platauNoHealthcheck;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         VersionBuilder $versionBuilder,
         DashboardBlocConfig $dashboardBlocConfig,
@@ -55,7 +59,8 @@ class IndexController extends AbstractController
         NotificationService $notificationService,
         PlatauHealthcheckService $platauHealthcheckService,
         bool $deactivatePlatau,
-        bool $platauNoHealthcheck
+        bool $platauNoHealthcheck,
+        LoggerInterface $logger
     ) {
         $this->versionBuilder = $versionBuilder;
         $this->dashboardBlocConfig = $dashboardBlocConfig;
@@ -66,6 +71,7 @@ class IndexController extends AbstractController
         $this->platauHealthcheckService = $platauHealthcheckService;
         $this->deactivatePlatau = $deactivatePlatau;
         $this->platauNoHealthcheck = $platauNoHealthcheck;
+        $this->logger = $logger;
     }
 
     /**
@@ -80,10 +86,21 @@ class IndexController extends AbstractController
 
         foreach ($blocsConfig as $blocId => $blocConfig) {
             if (null === $blocConfig['acl'] || $this->isGranted($blocConfig['acl'])) {
+                try {
+                    $count = $this->dashboardService->getCountForBloc($blocId, $user);
+                } catch (\Exception $e) {
+                    $this->logger->error('Erreur lors du chargement du compteur du bloc dashboard "{bloc}" : {message}', [
+                        'bloc' => $blocId,
+                        'message' => $e->getMessage(),
+                        'exception' => $e,
+                    ]);
+                    $count = 0;
+                }
+
                 $blocs[$blocId] = [
                     'type' => $blocConfig['type'],
                     'title' => $blocConfig['title'],
-                    'count' => $this->dashboardService->getCountForBloc($blocId, $user),
+                    'count' => $count,
                 ];
             }
         }
