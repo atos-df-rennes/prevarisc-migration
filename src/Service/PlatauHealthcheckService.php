@@ -40,35 +40,15 @@ class PlatauHealthcheckService
     /** @var string|null */
     private $pisteClientSecret;
 
-    /** @var bool */
-    private $proxyEnabled;
-
-    /** @var int */
-    private $proxyProtocol;
-
-    /** @var int */
-    private $proxyPort;
-
-    /** @var string */
-    private $proxyHost;
-
-    /** @var string */
-    private $proxyUsername;
-
-    /** @var string */
-    private $proxyPassword;
+    /** @var ProxyConfigurationService */
+    private $proxyConfiguration;
 
     public function __construct(
         string $platauConfigFile,
         string $projectDir,
         string $appEnv,
         LoggerInterface $logger,
-        bool $proxyEnabled,
-        int $proxyProtocol,
-        int $proxyPort,
-        string $proxyHost,
-        string $proxyUsername,
-        string $proxyPassword
+        ProxyConfigurationService $proxyConfiguration
     ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
@@ -76,12 +56,7 @@ class PlatauHealthcheckService
         $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
         $this->appEnv = $appEnv;
         $this->logger = $logger;
-        $this->proxyEnabled = $proxyEnabled;
-        $this->proxyProtocol = $proxyProtocol;
-        $this->proxyPort = $proxyPort;
-        $this->proxyHost = $proxyHost;
-        $this->proxyUsername = $proxyUsername;
-        $this->proxyPassword = $proxyPassword;
+        $this->proxyConfiguration = $proxyConfiguration;
 
         $pisteCredentials = $this->getPisteCredentials();
         if (is_array($pisteCredentials)) {
@@ -324,17 +299,7 @@ class PlatauHealthcheckService
             CURLOPT_RETURNTRANSFER => 1,
         ];
 
-        if ($this->proxyEnabled) {
-            $options[CURLOPT_PROXYTYPE] = $this->proxyProtocol;
-            $options[CURLOPT_PROXYPORT] = $this->proxyPort;
-            $options[CURLOPT_PROXY] = $this->proxyHost;
-
-            if ($this->proxyUsername) {
-                $options[CURLOPT_PROXYUSERPWD] = $this->proxyUsername.':'.$this->proxyPassword;
-            }
-        }
-
-        return $options;
+        return array_replace($options, $this->proxyConfiguration->getCurlOptions());
     }
 
     /**
