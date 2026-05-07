@@ -264,9 +264,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.proxy_enabled', '%env(bool:PREVARISC_PROXY_ENABLED)%');
 
-    $parameters->set('env(PREVARISC_PROXY_PROTOCOL)', '');
+    $parameters->set('env(PREVARISC_PROXY_PROTOCOL)', 0);
 
-    $parameters->set('app.proxy_protocol', '%env(string:PREVARISC_PROXY_PROTOCOL)%');
+    $parameters->set('app.proxy_protocol', '%env(int:PREVARISC_PROXY_PROTOCOL)%');
 
     $parameters->set('env(PREVARISC_PROXY_PORT)', 0);
 
@@ -279,6 +279,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_PROXY_USERNAME)', '');
 
     $parameters->set('app.proxy_username', '%env(string:PREVARISC_PROXY_USERNAME)%');
+
+    $parameters->set('env(PREVARISC_PROXY_PASSWORD)', '');
+
+    $parameters->set('app.proxy_password', '%env(string:PREVARISC_PROXY_PASSWORD)%');
 
     $parameters->set('env(PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE)', 0);
 

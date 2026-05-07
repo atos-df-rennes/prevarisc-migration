@@ -40,14 +40,48 @@ class PlatauHealthcheckService
     /** @var string|null */
     private $pisteClientSecret;
 
-    public function __construct(string $platauConfigFile, string $projectDir, string $appEnv, LoggerInterface $logger)
-    {
+    /** @var bool */
+    private $proxyEnabled;
+
+    /** @var int */
+    private $proxyProtocol;
+
+    /** @var int */
+    private $proxyPort;
+
+    /** @var string */
+    private $proxyHost;
+
+    /** @var string */
+    private $proxyUsername;
+
+    /** @var string */
+    private $proxyPassword;
+
+    public function __construct(
+        string $platauConfigFile,
+        string $projectDir,
+        string $appEnv,
+        LoggerInterface $logger,
+        bool $proxyEnabled,
+        int $proxyProtocol,
+        int $proxyPort,
+        string $proxyHost,
+        string $proxyUsername,
+        string $proxyPassword
+    ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
         $this->platauServiceFilePath = $platauPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, ['src', 'Service', 'PlatauAbstract.php']);
         $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
         $this->appEnv = $appEnv;
         $this->logger = $logger;
+        $this->proxyEnabled = $proxyEnabled;
+        $this->proxyProtocol = $proxyProtocol;
+        $this->proxyPort = $proxyPort;
+        $this->proxyHost = $proxyHost;
+        $this->proxyUsername = $proxyUsername;
+        $this->proxyPassword = $proxyPassword;
 
         $pisteCredentials = $this->getPisteCredentials();
         if (is_array($pisteCredentials)) {
@@ -290,13 +324,13 @@ class PlatauHealthcheckService
             CURLOPT_RETURNTRANSFER => 1,
         ];
 
-        if (filter_var(getenv('PREVARISC_PROXY_ENABLED'), FILTER_VALIDATE_BOOLEAN)) {
-            $options[CURLOPT_PROXYTYPE] = getenv('PREVARISC_PROXY_PROTOCOL');
-            $options[CURLOPT_PROXYPORT] = getenv('PREVARISC_PROXY_PORT');
-            $options[CURLOPT_PROXY] = getenv('PREVARISC_PROXY_HOST');
+        if ($this->proxyEnabled) {
+            $options[CURLOPT_PROXYTYPE] = $this->proxyProtocol;
+            $options[CURLOPT_PROXYPORT] = $this->proxyPort;
+            $options[CURLOPT_PROXY] = $this->proxyHost;
 
-            if (getenv('PREVARISC_PROXY_USERNAME')) {
-                $options[CURLOPT_PROXYUSERPWD] = getenv('PREVARISC_PROXY_USERNAME').':'.getenv('PREVARISC_PROXY_PASSWORD');
+            if ($this->proxyUsername) {
+                $options[CURLOPT_PROXYUSERPWD] = $this->proxyUsername.':'.$this->proxyPassword;
             }
         }
 

@@ -182,3 +182,24 @@ authentification:
       path: /session/login
     - name: session_logout
       path: /session/logout
+
+proxy:
+  status: done
+  legacy_files:
+    - prevarisc/application/controllers/ProxyController.php
+  migrated_files:
+    - prevarisc-migration/src/Controller/ProxyController.php
+    - prevarisc-migration/config/prevarisc.php (ajout PREVARISC_PROXY_PASSWORD / app.proxy_password)
+    - prevarisc-migration/config/services.php (binding ProxyController)
+  updated_at: "2026-05-09"
+  notes: >
+    Port direct de indexAction. Relai HTTP via cURL vers l'URL externe fournie en paramètre GET.
+    Retransmet uniquement le header Content-Type de la réponse externe.
+    Paramètres proxy sortant (PREVARISC_PROXY_ENABLED, _PROTOCOL, _PORT, _HOST, _USERNAME, _PASSWORD)
+    injectés via DI depuis les paramètres Symfony (env vars).
+    Ajout du paramètre manquant PREVARISC_PROXY_PASSWORD dans prevarisc.php.
+    Vérification curl_init() != false ajoutée (sécurité minimale, comportement observable inchangé).
+    $_SERVER['HTTP_REFERER'] → $request->server->get('HTTP_REFERER', '') pour éviter un notice PHP.
+  routes:
+    - name: proxy_index
+      path: /proxy/index

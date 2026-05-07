@@ -123,6 +123,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\Etablissement')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
 
+    $services->set('App\Controller\ProxyController')
+        ->arg('$proxyEnabled', '%app.proxy_enabled%')
+        ->arg('$proxyProtocol', '%app.proxy_protocol%')
+        ->arg('$proxyPort', '%app.proxy_port%')
+        ->arg('$proxyHost', '%app.proxy_host%')
+        ->arg('$proxyUsername', '%app.proxy_username%')
+        ->arg('$proxyPassword', '%app.proxy_password%')
+        ->tag('controller.service_arguments');
+
     $services->set('App\Controller\SearchController')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->tag('controller.service_arguments');
@@ -141,7 +150,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\PlatauHealthcheckService')
         ->arg('$platauConfigFile', '%app.platau_config_file%')
         ->arg('$projectDir', '%kernel.project_dir%')
-        ->arg('$appEnv', '%kernel.environment%');
+        ->arg('$appEnv', '%kernel.environment%')
+        ->arg('$proxyEnabled', '%app.proxy_enabled%')
+        ->arg('$proxyProtocol', '%app.proxy_protocol%')
+        ->arg('$proxyPort', '%app.proxy_port%')
+        ->arg('$proxyHost', '%app.proxy_host%')
+        ->arg('$proxyUsername', '%app.proxy_username%')
+        ->arg('$proxyPassword', '%app.proxy_password%');
 
     $services->set('App\Service\Mail\MailerConfiguration')
         ->arg('$transport', '%app.mail_transport%')
