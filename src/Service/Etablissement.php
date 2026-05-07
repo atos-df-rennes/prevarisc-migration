@@ -2,30 +2,16 @@
 
 namespace App\Service;
 
-use App\Constant\PlacementEtablissementPj;
 use App\Dto\AvisDerogationEtablissement;
-use App\Dto\Historique\Auteur;
-use App\Dto\Historique\DonneeHistorique;
-use App\Dto\Historique\Informations;
-use App\Dto\Historique\LastAvis;
-use App\Dto\Historique\LastInformations;
-use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
-use App\Entity\EtablissementPieceJointe;
 use App\Entity\EtablissementStatut;
 use App\Entity\Genre;
-use App\Entity\PieceJointe;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
-use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
-use App\Repository\PieceJointeRepository;
-use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class Etablissement
 {
@@ -34,12 +20,6 @@ final class Etablissement
 
     /** @var DossierRepository */
     private $dossierRepository;
-
-    /** @var EtablissementPieceJointeRepository */
-    private $etablissementPJRepository;
-
-    /** @var DataStore */
-    private $dataStore;
 
     /** @var AvisDerogationsRepository */
     private $avisDerogationsRepository;
@@ -50,9 +30,6 @@ final class Etablissement
     private $parameterBag;
 
     /** @var LoggerInterface */
-    private $datastoreLogger;
-
-    /** @var LoggerInterface */
     private $logger;
 
     /** @var EntityManagerInterface */
@@ -61,43 +38,22 @@ final class Etablissement
     /** @var TexteApplicable */
     private $texteApplicableService;
 
-    /** @var PieceJointeRepository */
-    private $pieceJointeRepository;
-
-    /** @var Image */
-    private $imageService;
-
-    /** @var Filesystem */
-    private $filesystem;
-
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         AvisDerogationsRepository $avisDerogationsRepository,
-        EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore,
         ParameterBagInterface $parameterBag,
         EntityManagerInterface $entityManager,
-        LoggerInterface $datastoreLogger,
         LoggerInterface $logger,
-        TexteApplicable $texteApplicableService,
-        PieceJointeRepository $pieceJointeRepository,
-        Image $imageService,
-        Filesystem $filesystem
+        TexteApplicable $texteApplicableService
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->etablissementPJRepository = $etablissementPJRepository;
-        $this->dataStore = $dataStore;
         $this->parameterBag = $parameterBag;
         $this->entityManager = $entityManager;
-        $this->datastoreLogger = $datastoreLogger;
         $this->logger = $logger;
         $this->texteApplicableService = $texteApplicableService;
-        $this->pieceJointeRepository = $pieceJointeRepository;
-        $this->imageService = $imageService;
-        $this->filesystem = $filesystem;
     }
 
     /**
@@ -146,226 +102,6 @@ final class Etablissement
         ];
     }
 
-    public function getHistorique(int $id): Informations
-    {
-        $etablissmentInformationsData = $this->etablissementRepository->getHistoriqueInformationsData($id);
-        $etablissementDossiersData = $this->dossierRepository->getHistoriqueDossiersData($id);
-
-        $historiqueInformations = $this->getHistoriqueInformations($etablissmentInformationsData);
-        $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
-        $historiqueInformations->setAvis($historiqueDossiers);
-
-        return $historiqueInformations;
-    }
-
-    /**
-     * Récupère les données d'historique des informations de l'établissement.
-     */
-    private function getHistoriqueInformations(EtablissementEntity $etablissement): Informations
-    {
-        $historique = new Informations();
-        $lastHistorique = new LastInformations();
-
-        foreach ($etablissement->getInformations() as $etablissementInformation) {
-            $statut = $etablissementInformation->getStatut();
-            $type = $etablissementInformation->getType();
-            $categorie = $etablissementInformation->getCategorie();
-            $libelle = $etablissementInformation->getLibelle();
-            $date = $etablissementInformation->getDate();
-            $classe = $etablissementInformation->getClasse();
-            $famille = $etablissementInformation->getFamille();
-            $auteur = $etablissementInformation->getUtilisateur();
-            $infosAuteur = null;
-
-            if (null === $date) {
-                continue;
-            }
-
-            if (null !== $auteur) {
-                $auteurInformations = $auteur->getInformations();
-
-                if (null !== $auteurInformations) {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
-                }
-            }
-
-            if ($historique->isEmpty()) {
-                $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
-                $historique->addStatut($statutHistorique);
-
-                $typeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $type ? $type->getLibelle() : null, $infosAuteur);
-                $historique->addType($typeHistorique);
-
-                $classeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $classe ? $classe->getLibelle() : null, $infosAuteur);
-                $historique->addClasse($classeHistorique);
-
-                $familleHistorique = new DonneeHistorique($date->getTimestamp(), null !== $famille ? $famille->getLibelle() : null, $infosAuteur);
-                $historique->addFamille($familleHistorique);
-
-                $libelleHistorique = new DonneeHistorique($date->getTimestamp(), $libelle, $infosAuteur);
-                $historique->addLibelle($libelleHistorique);
-
-                $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
-                $historique->addCategorie($categorieHistorique);
-
-                $lastHistorique
-                    ->setStatut($statut)
-                    ->setType($type)
-                    ->setCategorie($categorie)
-                    ->setLibelle($libelle)
-                    ->setClasse($classe)
-                    ->setFamille($famille)
-                ;
-            } else {
-                if ($lastHistorique->getStatut() !== $statut) {
-                    $allStatuts = $historique->getStatut();
-                    $currentStatut = end($allStatuts);
-                    \assert(false !== $currentStatut);
-                    $currentStatut->setFin($date->getTimestamp());
-
-                    $lastHistorique->setStatut($statut);
-
-                    $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
-                    $historique->addStatut($statutHistorique);
-                }
-
-                if ($lastHistorique->getType() !== $type) {
-                    $allTypes = $historique->getType();
-                    $currentType = end($allTypes);
-                    \assert(false !== $currentType);
-                    $currentType->setFin($date->getTimestamp());
-
-                    $lastHistorique->setType($type);
-
-                    $typeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $type ? $type->getLibelle() : null, $infosAuteur);
-                    $historique->addType($typeHistorique);
-                }
-
-                if ($lastHistorique->getLibelle() !== $libelle) {
-                    $allLibelles = $historique->getLibelle();
-                    $currentLibelle = end($allLibelles);
-                    \assert(false !== $currentLibelle);
-                    $currentLibelle->setFin($date->getTimestamp());
-
-                    $lastHistorique->setLibelle($libelle);
-
-                    $libelleHistorique = new DonneeHistorique($date->getTimestamp(), $libelle, $infosAuteur);
-                    $historique->addLibelle($libelleHistorique);
-                }
-
-                if ($lastHistorique->getClasse() !== $classe) {
-                    $allClasses = $historique->getClasse();
-                    $currentClasse = end($allClasses);
-                    \assert(false !== $currentClasse);
-                    $currentClasse->setFin($date->getTimestamp());
-
-                    $lastHistorique->setClasse($classe);
-
-                    $classeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $classe ? $classe->getLibelle() : null, $infosAuteur);
-                    $historique->addClasse($classeHistorique);
-                }
-
-                if ($lastHistorique->getFamille() !== $famille) {
-                    $allFamilles = $historique->getFamille();
-                    $currentFamille = end($allFamilles);
-                    \assert(false !== $currentFamille);
-                    $currentFamille->setFin($date->getTimestamp());
-
-                    $lastHistorique->setFamille($famille);
-
-                    $familleHistorique = new DonneeHistorique($date->getTimestamp(), null !== $famille ? $famille->getLibelle() : null, $infosAuteur);
-                    $historique->addFamille($familleHistorique);
-                }
-
-                if ($lastHistorique->getCategorie() !== $categorie) {
-                    $allCategories = $historique->getCategorie();
-                    $currentCategorie = end($allCategories);
-                    \assert(false !== $currentCategorie);
-                    $currentCategorie->setFin($date->getTimestamp());
-
-                    $lastHistorique->setCategorie($categorie);
-
-                    $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
-                    $historique->addCategorie($categorieHistorique);
-                }
-            }
-        }
-
-        return $historique;
-    }
-
-    /**
-     * Récupère les données d'historique des avis de l'établissement.
-     *
-     * @param Dossier[] $dossiers
-     *
-     * @return DonneeHistorique[]
-     */
-    private function getHistoriqueDossiers(array $dossiers): array
-    {
-        if ([] === $dossiers) {
-            return [];
-        }
-
-        $historique = [];
-        $lastHistorique = new LastAvis();
-
-        foreach ($dossiers as $dossier) {
-            $avis = $dossier->getAvisCommission();
-            $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : false);
-            $auteur = $dossier->getCreateur();
-            $infosAuteur = null;
-
-            if (null !== $auteur) {
-                $auteurInformations = $auteur->getInformations();
-
-                if (null !== $auteurInformations) {
-                    $infosAuteur = new Auteur($auteur->getId(), $auteurInformations->getNom().' '.$auteurInformations->getPrenom());
-                }
-            }
-
-            if ([] === $historique) {
-                $avisHistorique = new DonneeHistorique($date, null !== $avis ? $avis->getLibelle() : null, $infosAuteur);
-                $historique[] = $avisHistorique;
-
-                $lastHistorique->setAvis($avis);
-                $lastHistorique->setDate($date);
-            } elseif ($lastHistorique->getAvis() !== $avis) {
-                $currentLastAvis = end($historique);
-                $currentLastAvis->setFin($date);
-
-                $avisHistorique = new DonneeHistorique($date, null !== $avis ? $avis->getLibelle() : null, $infosAuteur);
-                $historique[] = $avisHistorique;
-
-                $lastHistorique
-                    ->setAvis($avis)
-                    ->setDate($date);
-            }
-        }
-
-        return $historique;
-    }
-
-    /**
-     * Récupère le dernier avis de l'établissement à partir de l'historique des dossiers.
-     *
-     * Retourne le libellé du dernier avis si disponible, sinon une chaîne vide.
-     * Cette méthode est utilisée pour déterminer si la case "Diffère l'avis" doit être disabled.
-     */
-    public function getLastAvisLibelle(int $id): string
-    {
-        $etablissementDossiersData = $this->dossierRepository->getHistoriqueDossiersData($id);
-        $historiqueDossiers = $this->getHistoriqueDossiers($etablissementDossiersData);
-
-        if ([] === $historiqueDossiers) {
-            return '';
-        }
-
-        $lastAvis = $historiqueDossiers[count($historiqueDossiers) - 1];
-
-        return $lastAvis->getValeur() ?? '';
-    }
-
     /**
      * Récupère les textes applicables d'un établissement.
      *
@@ -382,75 +118,6 @@ final class Etablissement
         $textesApplicablesValues = $textesApplicablesData->getTextesApplicables()->getValues();
 
         return $this->texteApplicableService->trierParType($textesApplicablesValues);
-    }
-
-    /**
-     * @return array<list{0:EtablissementPieceJointe,1:string,2:string|null}>
-     */
-    public function getPJImages(int $id): array
-    {
-        $images = $this->etablissementPJRepository->getPjByType($id, ['.jpg', '.jpeg', '.png', '.gif']);
-
-        return $this->filtrePJs($images);
-    }
-
-    /**
-     * @return array<list{0:EtablissementPieceJointe,1:string,2:string|null}>
-     */
-    public function getAutresPJs(int $id): array
-    {
-        $pjs = $this->etablissementPJRepository->getPjByType($id, ['.jpg', '.jpeg', '.png', '.gif'], true);
-
-        return $this->filtrePJs($pjs);
-    }
-
-    /**
-     * @param EtablissementPieceJointe[] $pjs
-     *
-     * @return array<list{0:EtablissementPieceJointe,1:string,2:string|null}>
-     */
-    private function filtrePJs(array $pjs): array
-    {
-        $store = $this->dataStore;
-        $pjsFiltrees = array_filter(
-            $pjs,
-            function (EtablissementPieceJointe $pj) use ($store): bool {
-                $path = '';
-
-                if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
-                    $path = $store->getFilePath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
-                }
-
-                if ('' === $path || !is_readable($path)) {
-                    $piece = $pj->getPieceJointe();
-                    $this->datastoreLogger->warning('La pièce jointe n\'est pas accessible en lecture.', [
-                        'path' => $path,
-                        'filename' => $piece instanceof PieceJointe ? $piece->getNom().$piece->getExtension() : 'Nom de la pièce inconnu',
-                    ]);
-                }
-
-                return '' !== $path && is_readable($path);
-            }
-        );
-
-        $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-
-        return array_map(function (EtablissementPieceJointe $pj) use ($store, $imageExtensions): array {
-            $path = '';
-            $miniatureUrl = null;
-
-            if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
-                $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
-
-                if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions)) {
-                    $miniaturePjHelper = clone $pj->getPieceJointe();
-                    $miniaturePjHelper->setExtension('.jpg');
-                    $miniatureUrl = $store->getURLPath($miniaturePjHelper, 'etablissement_miniature', $pj->getEtablissement()->getId());
-                }
-            }
-
-            return [$pj, $path ?? '', $miniatureUrl];
-        }, $pjsFiltrees);
     }
 
     /**
@@ -818,112 +485,6 @@ final class Etablissement
      */
     public function saveDescriptifOriginal(): void
     {
-        $this->entityManager->flush();
-    }
-
-    /**
-     * Ajout d'une pièce jointe pour un établissement.
-     *
-     * @param int $mise_en_avant 0 = liste, 1 = diaporama, 2 = plans
-     *
-     * @throws \Exception
-     */
-    public function addPJ(EtablissementEntity $etablissement, UploadedFile $file, string $name, string $description, int $mise_en_avant): void
-    {
-        $extension = strtolower('.'.$file->getClientOriginalExtension());
-
-        if (in_array($extension, ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'])) {
-            throw new \Exception("Ce type de fichier n'est pas autorisé en upload");
-        }
-
-        $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-        $placement = in_array($mise_en_avant, PlacementEtablissementPj::ALL) && in_array($extension, $imageExtensions)
-            ? $mise_en_avant
-            : PlacementEtablissementPj::LISTE;
-
-        $pieceJointe = new PieceJointe();
-        $pieceJointe->setNom('' === $name ? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) : $name);
-        $pieceJointe->setExtension($extension);
-        $pieceJointe->setDescription('' !== $description ? $description : null);
-        $pieceJointe->setDate(new \DateTime());
-
-        $filePath = null;
-        $miniaturePath = null;
-
-        $this->entityManager->beginTransaction();
-
-        try {
-            $this->entityManager->persist($pieceJointe);
-            $this->entityManager->flush();
-
-            $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $etablissement->getId(), true);
-            $file->move(dirname($filePath), basename($filePath));
-
-            $etablissementPJ = new EtablissementPieceJointe();
-            $etablissementPJ->setEtablissement($etablissement);
-            $etablissementPJ->setPieceJointe($pieceJointe);
-            $etablissementPJ->setPlacement($placement);
-
-            $this->entityManager->persist($etablissementPJ);
-            $this->entityManager->flush();
-
-            if (in_array($extension, $imageExtensions)) {
-                $miniaturePjHelper = clone $pieceJointe;
-                $miniaturePjHelper->setExtension('.jpg');
-                $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId(), true);
-                $this->imageService->resize($filePath, 450)->save($miniaturePath);
-
-                if (!is_file($miniaturePath)) {
-                    throw new \Exception('Cannot create miniature file: '.$miniaturePath);
-                }
-            }
-
-            $this->entityManager->commit();
-        } catch (\Throwable $throwable) {
-            $this->entityManager->rollback();
-
-            if (null !== $miniaturePath && is_file($miniaturePath)) {
-                $this->filesystem->remove($miniaturePath);
-            }
-
-            if (null !== $filePath && is_file($filePath)) {
-                $this->filesystem->remove($filePath);
-            }
-
-            throw new \Exception($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
-        }
-    }
-
-    /**
-     * Suppression d'une pièce jointe d'un établissement.
-     */
-    public function deletePJ(EtablissementEntity $etablissement, int $id_pj): void
-    {
-        $pieceJointe = $this->pieceJointeRepository->find($id_pj);
-        if (null === $pieceJointe) {
-            return;
-        }
-
-        $etablissementPJ = $this->etablissementPJRepository->findOneBy([
-            'etablissement' => $etablissement->getId(),
-            'pieceJointe' => $id_pj,
-        ]);
-
-        if (null === $etablissementPJ) {
-            return;
-        }
-
-        $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $etablissement->getId());
-
-        $miniaturePjHelper = clone $pieceJointe;
-        $miniaturePjHelper->setExtension('.jpg');
-
-        $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId());
-
-        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], 'file_exists'));
-
-        $this->entityManager->remove($etablissementPJ);
-        $this->entityManager->remove($pieceJointe);
         $this->entityManager->flush();
     }
 }

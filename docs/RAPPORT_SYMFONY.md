@@ -364,41 +364,25 @@ class Search
 | **Priorité** | 🟡 Moyenne |
 | **Complexité** | Modérée |
 | **Impact montée version** | SRP, testabilité |
-| **Worktree** | `refactor/etablissement-service-split` |
+| **Branche** | `refactor/etablissement-service-split` |
 
-**Problème :** Le service mélange 6 responsabilités distinctes avec 10 dépendances injectées.
+## ✅ Terminé
 
-**Fichier :** `src/Service/Etablissement.php` (lignes 60-82 — constructeur)
+**Fichiers créés / modifiés :**
 
-```php
-public function __construct(
-    EtablissementRepository $etablissementRepository,
-    DossierRepository $dossierRepository,
-    AvisDerogationsRepository $avisDerogationsRepository,
-    EtablissementPieceJointeRepository $etablissementPJRepository,
-    DataStore $dataStore,
-    ParameterBagInterface $parameterBag,
-    EntityManagerInterface $entityManager,
-    LoggerInterface $datastoreLogger,
-    LoggerInterface $logger,
-    TexteApplicable $texteApplicableService
-)
-```
-
-**Responsabilités mélangées :**
-
-| Responsabilité | Méthodes | Lignes |
+| Fichier | Rôle | Lignes |
 |---|---|---|
-| Historique | `getHistorique()` | 130–336 (206 lignes) |
-| Avis/Dérogations | `getLastAvisLibelle()`, `getAvisDerogations()` | 336–503 |
-| Pièces jointes | `getPJImages()`, `getAutresPJs()` | 371–430 |
-| Descriptif | `getDescriptifOriginal()`, `saveDescriptifOriginal()` | 679–795 |
-| Données pratiques | `calculateDonneesPratiques()` | 593–635 |
-| Visites | `getDatesVisites()` | 91–128 |
+| `src/Service/Etablissement.php` | Résiduel (consultation, descriptif, restore) | 490 |
+| `src/Service/EtablissementHistoriqueService.php` | Historique informations + avis | 250 |
+| `src/Service/EtablissementPieceJointeService.php` | Pièces jointes (CRUD + filtrage) | 232 |
 
-**Solution :** Extraire en services focalisés : `EtablissementHistorique`, `EtablissementPiecesJointes`, `EtablissementDescriptif`.
+**Dépendances extraites de `EtablissementService` :**
+`EtablissementPieceJointeRepository`, `DataStore`, `datastoreLogger`, `PieceJointeRepository`, `Image`, `Filesystem` → portées dans `EtablissementPieceJointeService`.
 
-> **✅ Validé**
+**Consumers mis à jour :**
+- `EtablissementController` : injecte les 3 services
+- `DossierController` : remplace `EtablissementService` par `EtablissementHistoriqueService` (seule méthode utilisée : `getLastAvisLibelle`)
+- `config/services.php` : binding `$datastoreLogger` déplacé vers `EtablissementPieceJointeService`
 
 ---
 
@@ -969,7 +953,7 @@ Les tâches sont ordonnées par priorité puis par dépendances. Chaque worktree
 | 8 | `refactor/twig-asset-paths` | REF-TWIG-01, REF-TWIG-02 | 1-2 | Aucun — risque faible |
 | 9 | `refactor/findall-autocomplete` | REF-REP-02 | 2-3 | Aucun — autocomplete AJAX pour Commune, tolérer le reste |
 | 10 | `refactor/form-datatransformers` | REF-FORM-01 | 2-3 | Aucun |
-| 11 | `refactor/etablissement-service-split` | REF-SVC-02 | 3-4 | Aucun |
+| 11 | ~~`refactor/etablissement-service-split`~~ ✅ | REF-SVC-02 | — | Terminé |
 | 12 | `refactor/services-no-request` | REF-SVC-03 | 1-2 | Aucun — CalendarService en priorité, RessourcesSpecialisees à évaluer |
 | 13 | `refactor/twig-business-logic` | REF-TWIG-03 | 2-3 | Aucun |
 | 14 | `refactor/paramconverter` | REF-CTL-03 | 2-3 | Aucun — exclure ContactController (pattern intentionnel) |
@@ -1015,7 +999,7 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | 🔴 À faire | ~49 find() manuels | `refactor/paramconverter` |
 | REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | ✅ Fait | 3 restants (sérialisation interne, non-réponse) | `refactor/json-responses` |
 | REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ⚠️ Vérifier sur `develop` | 🔴 À faire | `Search.php` = 1386 lignes | `refactor/search-service-split` |
-| REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | `Etablissement.php` = 929 lignes (+134) | `refactor/etablissement-service-split` |
+| REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | 3 services : 490+250+232 lignes | `refactor/etablissement-service-split` |
 | REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | 🔴 À faire | Services injectant Request présents | `refactor/services-no-request` |
 | REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | 🔴 À faire | ~39 méthodes statiques | `refactor/static-to-services` |
 | REF-SVC-05 | Service | Dashboard/Calendar SRP | 🟢 Basse | Modérée | ✅ Validé | 🔴 À faire | Non analysé | `refactor/dashboard-calendar-split` |
@@ -1042,7 +1026,9 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | `src/Controller/Commission/CalendrierDesCommissionsController.php` | 1646 | 5 | 12 |
 | `src/Service/Search.php` | 1386 | 9 | 6 |
 | `src/Repository/DossierRepository.php` | 1491 | 27 | 40+ |
-| `src/Service/Etablissement.php` | 929 | 0 | 14 |
+| `src/Service/Etablissement.php` | 490 | 0 | 7 |
+| `src/Service/EtablissementHistoriqueService.php` | 250 | 0 | 2 |
+| `src/Service/EtablissementPieceJointeService.php` | 232 | 0 | 7 |
 | `src/Controller/DossierController.php` | 776 | 0 | 10 |
 | `src/Service/Dashboard/DashboardService.php` | 635 | 0 | 10+ |
 | `src/Controller/SearchController.php` | 620 | 0 | 6 |
