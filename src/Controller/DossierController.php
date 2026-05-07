@@ -38,7 +38,7 @@ use App\Service\Dossier\DossierCreationService;
 use App\Service\Dossier\DossierSauvegardeService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
-use App\Service\Etablissement;
+use App\Service\EtablissementHistoriqueService;
 use App\Service\Platau\PieceJointeExportService;
 use App\Service\PlatauConsultation;
 use Doctrine\Common\Collections\Collection;
@@ -103,10 +103,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     private $dossierFieldsService;
 
-    /**
-     * @var Etablissement
-     */
-    private $etablissementService;
+    /** @var EtablissementHistoriqueService */
+    private $etablissementHistoriqueService;
 
     /**
      * @var DossierDocumentManquantService
@@ -174,7 +172,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
         EtablissementRepository $etablissementRepository,
         UtilisateurRepository $utilisateurRepository,
         DossierFields $dossierFieldsService,
-        Etablissement $etablissementService,
         DossierDocumentManquantService $documentManquantService,
         PieceJointeExportService $pieceJointeExportService,
         DossierAffectationService $dossierAffectationService,
@@ -188,7 +185,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DescriptifFormHydrator $descriptifFormHydrator,
         DescriptifFormBuilder $descriptifFormBuilder,
         DescriptifFormPersister $descriptifFormPersister,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
+        EtablissementHistoriqueService $etablissementHistoriqueService
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -201,7 +199,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->etablissementRepository = $etablissementRepository;
         $this->utilisateurRepository = $utilisateurRepository;
         $this->dossierFieldsService = $dossierFieldsService;
-        $this->etablissementService = $etablissementService;
         $this->documentManquantService = $documentManquantService;
         $this->pieceJointeExportService = $pieceJointeExportService;
         $this->dossierAffectationService = $dossierAffectationService;
@@ -216,6 +213,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->descriptifFormBuilder = $descriptifFormBuilder;
         $this->descriptifFormPersister = $descriptifFormPersister;
         $this->formFactory = $formFactory;
+        $this->etablissementHistoriqueService = $etablissementHistoriqueService;
     }
 
     /**
@@ -368,7 +366,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $lastAvisEtab = '';
 
         if (null !== $etablissement) {
-            $lastAvisEtab = $this->etablissementService->getLastAvisLibelle($etablissement->getId());
+            $lastAvisEtab = $this->etablissementHistoriqueService->getLastAvisLibelle($etablissement->getId());
         }
 
         return $this->render('dossier/new.html.twig', [
@@ -554,7 +552,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
                 // Récupération du dernier avis via l'historique des dossiers
                 if ($enteteEtab) {
-                    $lastAvisEtab = $this->etablissementService->getLastAvisLibelle($enteteEtab->getId());
+                    $lastAvisEtab = $this->etablissementHistoriqueService->getLastAvisLibelle($enteteEtab->getId());
                 }
             }
         }

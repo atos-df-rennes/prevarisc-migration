@@ -121,7 +121,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\CouchesCarto')
         ->arg('$cache', ref('cache.ign_capabilities'));
 
-    $services->set('App\Service\Etablissement')
+    $services->set('App\Service\Etablissement');
+
+    $services->set('App\Service\EtablissementPieceJointeService')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
 
     $services->set('App\Service\ProxyConfigurationService')
