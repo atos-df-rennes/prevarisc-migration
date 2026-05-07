@@ -4,6 +4,7 @@ namespace App\Controller\Commission;
 
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
+use App\Utils\Date;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -75,7 +76,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             $rawDate = $commLieeTyped['DATE_COMMISSION'];
             $dateStr = is_string($rawDate) ? $rawDate : '';
             $dateLieeObj = \DateTime::createFromFormat('Y-m-d', $dateStr);
-            $recupCommLiees[$idx]['dateFr'] = false !== $dateLieeObj ? $this->formatDateFr($dateLieeObj) : $dateStr;
+            $recupCommLiees[$idx]['dateFr'] = false !== $dateLieeObj ? Date::formatDateFr($dateLieeObj) : $dateStr;
         }
 
         $commission = $dateCommission->getCommission();
@@ -91,7 +92,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
 
         // Formatage de la date principale en français
         $date = $dateCommission->getDate();
-        $dateFr = null !== $date ? $this->formatDateFr($date) : '';
+        $dateFr = null !== $date ? Date::formatDateFr($date) : '';
 
         return $this->render('calendrier_des_commissions/gestionodj.html.twig', [
             'dateCommission' => $dateCommission,
@@ -518,18 +519,6 @@ class CalendrierDesCommissionsOdjController extends AbstractController
         } catch (\Exception $exception) {
             return new JsonResponse(['success' => false, 'message' => 'Erreur inattendue : '.$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    /**
-     * Formate une date en libellé français court (ex: "Lundi 12 Jan 2026").
-     * Port de Zend_Date::get(WEEKDAY DAY_SHORT MONTH_NAME_SHORT YEAR, 'fr').
-     */
-    private function formatDateFr(\DateTimeInterface $date): string
-    {
-        $days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-        $months = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-
-        return $days[(int) $date->format('w')].' '.$date->format('d').' '.$months[(int) $date->format('n')].' '.$date->format('Y');
     }
 
     /**

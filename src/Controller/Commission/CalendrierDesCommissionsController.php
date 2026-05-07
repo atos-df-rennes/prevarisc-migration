@@ -15,6 +15,7 @@ use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use App\Service\Commission\CommissionDatesTransformer;
 use App\Service\DataStore\DataStore;
+use App\Utils\Date;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -332,7 +333,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->render('calendrier_des_commissions/dialog/_date_display.html.twig', [
                 'updateDateComm' => $dateCommission,
-                'dateFormatee' => $this->formatDateFr($dateCommission->getDate() ?? new \DateTime()),
+                'dateFormatee' => Date::formatDateFr($dateCommission->getDate() ?? new \DateTime()),
                 'first' => $first,
             ]);
         }
@@ -351,7 +352,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->render('calendrier_des_commissions/dialog/_date_display.html.twig', [
                 'updateDateComm' => $dateCommission,
-                'dateFormatee' => $this->formatDateFr($dateCommission->getDate() ?? new \DateTime()),
+                'dateFormatee' => Date::formatDateFr($dateCommission->getDate() ?? new \DateTime()),
                 'first' => $first,
             ]);
         }
@@ -371,7 +372,7 @@ class CalendrierDesCommissionsController extends AbstractController
                 return new Response('Erreur format date');
             }
 
-            $dateAjoutee = $this->formatDateFr($date);
+            $dateAjoutee = Date::formatDateFr($date);
             $dateAjouteeInput = $date->format('Y-m-d');
 
             return $this->render('calendrier_des_commissions/dialog/_date_new.html.twig', [
@@ -394,7 +395,7 @@ class CalendrierDesCommissionsController extends AbstractController
             }
 
             $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
-            $nouvelleDate = false !== $date ? $this->formatDateFr($date) : $dateStr;
+            $nouvelleDate = false !== $date ? Date::formatDateFr($date) : $dateStr;
 
             return $this->render('calendrier_des_commissions/dialog/_date_linked.html.twig', [
                 'tabNouvelleDate' => $newDate,
@@ -771,17 +772,5 @@ class CalendrierDesCommissionsController extends AbstractController
             // Le contexte dossier passe show_footer=1 pour afficher les boutons dans la modale Bootstrap.
             'show_footer' => (bool) $request->query->get('show_footer', !$request->isXmlHttpRequest()),
         ]);
-    }
-
-    /**
-     * Formate une date en libellé français court (ex: "Lundi 12 Jan 2026").
-     * Port de Zend_Date::get(WEEKDAY DAY_SHORT MONTH_NAME_SHORT YEAR, 'fr').
-     */
-    private function formatDateFr(\DateTimeInterface $date): string
-    {
-        $days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-        $months = ['', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-
-        return $days[(int) $date->format('w')].' '.$date->format('d').' '.$months[(int) $date->format('n')].' '.$date->format('Y');
     }
 }
