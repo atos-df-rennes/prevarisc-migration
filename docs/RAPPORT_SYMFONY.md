@@ -215,40 +215,18 @@ $isAllowedDeleteEtablissement = $this->authorizationChecker->isGranted('delete_e
 
 ---
 
-### REF-CTL-02 — Méthodes d'action sans return type hint (72 méthodes)
+### REF-CTL-02 — Méthodes d'action sans return type hint
 
 | | |
 |---|---|
 | **Priorité** | 🔴 Haute |
 | **Complexité** | Simple |
 | **Impact montée version** | PHP 8.x strict mode, Symfony 6+ |
-| **Worktree** | `refactor/controller-return-types` |
+| **Worktree** | — |
 
-**Problème :** 72 des 245 méthodes d'action publiques (29,4 %) n'ont pas de return type hint `: Response`. Cela bloque les futures montées strictes.
+**État actuel :** Toutes les méthodes publiques des controllers disposent d'un return type explicite (`: Response`, `: JsonResponse`, `: RedirectResponse`, `: void`, etc.). Le problème initial de 72 méthodes sans type hint a été résolu dans le code en place — aucune action supplémentaire requise.
 
-**Controllers les plus touchés :**
-- `SearchController` — plusieurs méthodes
-- `GroupementController` — plusieurs méthodes
-- `AlerteController` — plusieurs méthodes
-- `GroupeController` — plusieurs méthodes
-
-**Code actuel :**
-```php
-public function index(Request $request)
-{
-    return $this->render('search/index.html.twig', [...]);
-}
-```
-
-**Code cible :**
-```php
-public function index(Request $request): Response
-{
-    return $this->render('search/index.html.twig', [...]);
-}
-```
-
-> **✅ Validé**
+> **✅ Terminé** — Vérifié le 2026-05-07 : 0 méthode sans return type dans `src/Controller/`.
 
 ---
 
@@ -970,7 +948,7 @@ Les tâches sont ordonnées par priorité puis par dépendances. Chaque worktree
 | # | Worktree | Refs | Jours (hors relecture) | Prérequis |
 |---|----------|------|------------------------|-----------|
 | 1 | `refactor/authenticator-migration` | REF-SEC-01 (prep), REF-SEC-02 | 2-3 | Aucun — extraction logique credentials uniquement, pas de migration Guard |
-| 2 | `refactor/controller-return-types` | REF-CTL-02 | 2-3 | Aucun — automatisable avec Rector |
+| 2 | `refactor/controller-return-types` | REF-CTL-02 | — | ✅ Déjà fait — worktree non nécessaire |
 | 3 | `refactor/subscriber-authchecker` | REF-SEC-03 | 0.5 | Aucun |
 | 4 | `refactor/subscriber-isMainRequest` | REF-EVT-01 (todo comments) | 0.5 | Aucun — ajout de commentaires @todo uniquement |
 
@@ -1024,47 +1002,52 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 
 ## 10. Tableau de synthèse
 
-| Ref | Domaine | Problème | Priorité | Complexité | Statut | Worktree |
-|-----|---------|----------|----------|------------|--------|----------|
-| REF-SEC-01 | Sécurité | Guard Authenticator déprécié | 🔴 Haute | Modérée | ✅ Prep SF 4.4 | `refactor/authenticator-migration` |
-| REF-SEC-02 | Sécurité | `$_SESSION` directe | 🟡 Moyenne | Simple | ✅ Validé | `refactor/authenticator-migration` |
-| REF-SEC-03 | Sécurité | Appel direct au Voter | 🟡 Moyenne | Simple | ✅ Validé (via PrivilegeVoter) | `refactor/subscriber-authchecker` |
-| REF-CTL-01 | Controller | Controller 1494 lignes | 🔴 Haute | Complexe | ✅ Validé | `refactor/calendrier-controller-split` |
-| REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Validé | `refactor/controller-return-types` |
-| REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | `refactor/paramconverter` |
-| REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | `refactor/json-responses` |
-| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ⚠️ Vérifier sur `develop` | `refactor/search-service-split` |
-| REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/etablissement-service-split` |
-| REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | `refactor/services-no-request` |
-| REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | `refactor/static-to-services` |
-| REF-SVC-05 | Service | Dashboard/Calendar SRP | 🟢 Basse | Modérée | ✅ Validé | `refactor/dashboard-calendar-split` |
-| REF-REP-01 | Repository | 57 `getConnection()` SQL brut | 🔴 Haute | Complexe | ✅ Validé | `refactor/repositories-querybuilder` |
-| REF-REP-02 | Repository | 29 `findAll()` sans pagination | 🟡 Moyenne | Simple | ✅ Autocomplete AJAX (pas pagination) | `refactor/findall-autocomplete` |
-| REF-REP-03 | Repository | Retours `array<mixed>` | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/repository-dtos` |
-| REF-FORM-01 | Formulaire | DataTransformers manquants | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/form-datatransformers` |
-| REF-FORM-02 | Formulaire | 64 forms sans contraintes | 🟢 Basse | Simple | ✅ Contraintes certaines + @todo | `refactor/form-constraints` |
-| REF-TWIG-01 | Template | Assets hardcodés | 🟡 Moyenne | Simple | ✅ Validé | `refactor/twig-asset-paths` |
-| REF-TWIG-02 | Template | Liens hardcodés | 🟡 Moyenne | Simple | ✅ Routes migrées uniquement | `refactor/twig-asset-paths` |
-| REF-TWIG-03 | Template | Logique métier dans Twig | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/twig-business-logic` |
-| REF-TWIG-04 | Template | JavaScript inline massif | 🟢 Basse | Complexe | ✅ Validé | `refactor/twig-extract-js` |
-| REF-EVT-01 | Subscriber | `isMasterRequest()` déprécié | 🟡 Moyenne | Simple | ✅ Documentation + @todo SF 5.3 | `refactor/subscriber-isMainRequest` |
-| REF-CFG-01 | Config | Guard firewall config | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — traiter lors de la montée SF 5.1+ | — |
+> **Légende Réalisé :** ✅ Fait · ⚠️ Partiel · 🔴 À faire · ❌ N/A  
+> **Légende Statut :** indique si l'approche/solution est validée, pas si elle est implémentée.
+
+| Ref | Domaine | Problème | Priorité | Complexité | Statut | Réalisé | Mesure actuelle | Worktree |
+|-----|---------|----------|----------|------------|--------|---------|-----------------|----------|
+| REF-SEC-01 | Sécurité | Guard Authenticator déprécié | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — migration Guard impossible avant SF 5.1+ et migration complète | ❌ N/A | — | `refactor/authenticator-migration` |
+| REF-SEC-02 | Sécurité | `$_SESSION` directe | 🟡 Moyenne | Simple | ✅ Validé | ✅ Fait | `ZendSessionBridge` encapsule `$_SESSION['Zend_Auth']`; `$_SESSION['phpCAS']` = lib CAS, hors périmètre | `refactor/authenticator-migration` |
+| REF-SEC-03 | Sécurité | Appel direct au Voter | 🟡 Moyenne | Simple | ✅ Validé (via PrivilegeVoter) | ✅ Fait | `isGranted()` via AuthorizationChecker | `refactor/subscriber-authchecker` |
+| REF-CTL-01 | Controller | Controller 1494 lignes | 🔴 Haute | Complexe | ✅ Validé | 🔴 À faire | 1646 lignes (+152 depuis rapport) | `refactor/calendrier-controller-split` |
+| REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Terminé (code déjà correct) | ✅ Fait | 0 méthode sans return type | — |
+| REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | 🔴 À faire | ~49 find() manuels | `refactor/paramconverter` |
+| REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | ✅ Fait | 3 restants (sérialisation interne, non-réponse) | `refactor/json-responses` |
+| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ⚠️ Vérifier sur `develop` | 🔴 À faire | `Search.php` = 1386 lignes | `refactor/search-service-split` |
+| REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | `Etablissement.php` = 929 lignes (+134) | `refactor/etablissement-service-split` |
+| REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | 🔴 À faire | Services injectant Request présents | `refactor/services-no-request` |
+| REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | 🔴 À faire | ~39 méthodes statiques | `refactor/static-to-services` |
+| REF-SVC-05 | Service | Dashboard/Calendar SRP | 🟢 Basse | Modérée | ✅ Validé | 🔴 À faire | Non analysé | `refactor/dashboard-calendar-split` |
+| REF-REP-01 | Repository | 57 `getConnection()` SQL brut | 🔴 Haute | Complexe | ✅ Validé | ⚠️ Partiel | 29 `getConnection()` (était 57, −49 %) | `refactor/repositories-querybuilder` |
+| REF-REP-02 | Repository | 29 `findAll()` sans pagination | 🟡 Moyenne | Simple | ✅ Autocomplete AJAX (pas pagination) | 🔴 À faire | 32 `findAll()` dans controllers/services | `refactor/findall-autocomplete` |
+| REF-REP-03 | Repository | Retours `array<mixed>` | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | 108 fonctions retournant `array` | `refactor/repository-dtos` |
+| REF-FORM-01 | Formulaire | DataTransformers manquants | 🟡 Moyenne | Modérée | ✅ Validé | ⚠️ Partiel | 2 DataTransformers créés (Boolean, DateCommission) | `refactor/form-datatransformers` |
+| REF-FORM-02 | Formulaire | 64 forms sans contraintes | 🟢 Basse | Simple | ✅ Contraintes certaines + @todo | 🔴 À faire | 55 formulaires sans contraintes | `refactor/form-constraints` |
+| REF-TWIG-01 | Template | Assets hardcodés | 🟡 Moyenne | Simple | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
+| REF-TWIG-02 | Template | Liens hardcodés | 🟡 Moyenne | Simple | ✅ Routes migrées uniquement | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
+| REF-TWIG-03 | Template | Logique métier dans Twig | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-business-logic` |
+| REF-TWIG-04 | Template | JavaScript inline massif | 🟢 Basse | Complexe | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-extract-js` |
+| REF-EVT-01 | Subscriber | `isMasterRequest()` déprécié | 🟡 Moyenne | Simple | ✅ Documentation + @todo SF 5.3 | ✅ Fait | 2 occurrences avec `@todo` (SF 4.4 compatible) | `refactor/subscriber-isMainRequest` |
+| REF-CFG-01 | Config | Guard firewall config | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — traiter lors de la montée SF 5.1+ | ❌ N/A | — | — |
 
 ---
 
 ## Annexe A — Métriques des fichiers les plus volumineux
 
+> Dernière mesure : 2026-05-07
+
 | Fichier | Lignes | `getConnection()` | Méthodes publiques |
 |---------|--------|--------------------|--------------------|
-| `src/Repository/DossierRepository.php` | 1491 | 27 | 40+ |
-| `src/Controller/Commission/CalendrierDesCommissionsController.php` | 1494 | 5 | 12 |
+| `src/Controller/Commission/CalendrierDesCommissionsController.php` | 1646 | 5 | 12 |
 | `src/Service/Search.php` | 1386 | 9 | 6 |
-| `src/Service/Etablissement.php` | 795 | 0 | 14 |
+| `src/Repository/DossierRepository.php` | 1491 | 27 | 40+ |
+| `src/Service/Etablissement.php` | 929 | 0 | 14 |
 | `src/Controller/DossierController.php` | 776 | 0 | 10 |
 | `src/Service/Dashboard/DashboardService.php` | 635 | 0 | 10+ |
+| `src/Controller/SearchController.php` | 620 | 0 | 6 |
 | `src/Controller/EtablissementController.php` | 629 | 0 | 8 |
 | `src/Repository/EtablissementRepository.php` | 618 | 8 | 20+ |
-| `src/Controller/SearchController.php` | 598 | 0 | 6 |
 | `src/Service/Commission/CalendarService.php` | 532 | 0 | 15 |
 
 ---
