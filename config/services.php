@@ -26,6 +26,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
+        ->bind('$debugEnabled', '%app.debug%')
         ->bind(FlashBagInterface::class, ref('session.flash_bag'))
     ;
 
@@ -122,6 +123,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Service\Etablissement')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
+
+    $services->set('App\Service\ProxyConfigurationService')
+        ->arg('$proxyEnabled', '%app.proxy_enabled%')
+        ->arg('$proxyProtocol', '%app.proxy_protocol%')
+        ->arg('$proxyPort', '%app.proxy_port%')
+        ->arg('$proxyHost', '%app.proxy_host%')
+        ->arg('$proxyUsername', '%app.proxy_username%')
+        ->arg('$proxyPassword', '%app.proxy_password%');
 
     $services->set('App\Controller\SearchController')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')

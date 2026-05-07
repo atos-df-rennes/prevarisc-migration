@@ -40,14 +40,23 @@ class PlatauHealthcheckService
     /** @var string|null */
     private $pisteClientSecret;
 
-    public function __construct(string $platauConfigFile, string $projectDir, string $appEnv, LoggerInterface $logger)
-    {
+    /** @var ProxyConfigurationService */
+    private $proxyConfiguration;
+
+    public function __construct(
+        string $platauConfigFile,
+        string $projectDir,
+        string $appEnv,
+        LoggerInterface $logger,
+        ProxyConfigurationService $proxyConfiguration
+    ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
         $this->platauServiceFilePath = $platauPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, ['src', 'Service', 'PlatauAbstract.php']);
         $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
         $this->appEnv = $appEnv;
         $this->logger = $logger;
+        $this->proxyConfiguration = $proxyConfiguration;
 
         $pisteCredentials = $this->getPisteCredentials();
         if (is_array($pisteCredentials)) {
@@ -290,17 +299,7 @@ class PlatauHealthcheckService
             CURLOPT_RETURNTRANSFER => 1,
         ];
 
-        if (filter_var(getenv('PREVARISC_PROXY_ENABLED'), FILTER_VALIDATE_BOOLEAN)) {
-            $options[CURLOPT_PROXYTYPE] = getenv('PREVARISC_PROXY_PROTOCOL');
-            $options[CURLOPT_PROXYPORT] = getenv('PREVARISC_PROXY_PORT');
-            $options[CURLOPT_PROXY] = getenv('PREVARISC_PROXY_HOST');
-
-            if (getenv('PREVARISC_PROXY_USERNAME')) {
-                $options[CURLOPT_PROXYUSERPWD] = getenv('PREVARISC_PROXY_USERNAME').':'.getenv('PREVARISC_PROXY_PASSWORD');
-            }
-        }
-
-        return $options;
+        return array_replace($options, $this->proxyConfiguration->getCurlOptions());
     }
 
     /**
