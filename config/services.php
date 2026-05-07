@@ -132,9 +132,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$proxyUsername', '%app.proxy_username%')
         ->arg('$proxyPassword', '%app.proxy_password%');
 
-    $services->set('App\Controller\ProxyController')
-        ->tag('controller.service_arguments');
-
     $services->set('App\Controller\SearchController')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->tag('controller.service_arguments');
