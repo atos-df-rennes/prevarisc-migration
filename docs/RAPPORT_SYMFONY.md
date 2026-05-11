@@ -23,7 +23,7 @@ Le "port direct" depuis Zend a produit un code fonctionnel et bien structuré su
 | Moyenne priorité | 8 |
 | Basse priorité | 4 |
 | Non applicable (SF 4.4) | 1 (REF-CFG-01) |
-| À vérifier sur `develop` | 1 (REF-SVC-01) |
+| Vérifié sur `develop` (REF-SVC-01) | ✅ `Search.php` = 1386 lignes, non découpé |
 | Estimation totale (jours-développeur, hors relecture) | 40–55 jours |
 
 ### Ce qui est déjà bien fait ✅
@@ -197,21 +197,23 @@ $isAllowedDeleteEtablissement = $this->authorizationChecker->isGranted('delete_e
 | **Priorité** | 🔴 Haute |
 | **Complexité** | Complexe |
 | **Impact montée version** | Maintenabilité critique, testabilité nulle |
-| **Worktree** | `refactor/calendrier-controller-split` |
+| **Branche** | `refactor/calendrier-controller-split` → PR #207 ✅ |
 
-**Problème :** Le plus gros controller du projet contient :
+**Problème initial :** Le plus gros controller du projet contenait :
 - Une méthode `dialogComm()` de ~500 lignes avec un mega-switch de 20+ branches
-- 5 appels à `$this->entityManager->getConnection()` pour du SQL brut (lignes 170, 512, 875, 1407, 1451)
+- 5 appels à `$this->entityManager->getConnection()` pour du SQL brut
 - De la logique métier complexe directement dans le controller
 
-**Fichier :** `src/Controller/Commission/CalendrierDesCommissionsController.php`
+## ✅ Terminé — PR #207 (2026-05-07)
 
-**Solution en 3 étapes :**
-1. Extraire chaque branche du switch `dialogComm()` vers des méthodes privées puis vers un service `CalendarCommandHandler`
-2. Migrer les 5 requêtes SQL brutes vers `DateCommissionRepository`
-3. Créer des routes dédiées pour chaque action au lieu du mega-switch
+**Controllers extraits :**
 
-> **✅ Validé**
+| Fichier | Rôle | Lignes |
+|---------|------|--------|
+| `CalendrierDesCommissionsController.php` | Résiduel (vue principale, dialogComm réduit) | 776 |
+| `CalendrierDesCommissionsExportController.php` | Export (PDF, Excel, CSV) | 171 |
+| `CalendrierDesCommissionsOdjController.php` | Ordre du jour | 621 |
+| `CalendrierDesCommissionsPiecesJointesController.php` | Pièces jointes | 177 |
 
 ---
 
@@ -353,7 +355,7 @@ class Search
 2. Extraire les builders SQL en classes dédiées `EtablissementSearchQueryBuilder` et `DossierSearchQueryBuilder`
 3. À terme, migrer vers le QueryBuilder Doctrine si possible (complexité élevée vu la nature des requêtes)
 
-> **⚠️ À vérifier sur `develop`** — Cette analyse a été faite sur la branche courante. Les méthodes d'export ont potentiellement déjà été extraites vers un service dédié sur `develop`. **Vérifier l'état actuel de `Search.php` sur `develop` avant d'initier ce worktree.** Si l'extraction export est déjà faite, la complexité de ce point est réduite.
+> **✅ Vérifié sur `develop`** (2026-05-11) — `Search.php` = 1386 lignes, aucune extraction d'export réalisée. Les 4 méthodes (`etablissements`, `dossiers`, `extractionEtablissements`, `extractionDossiers`) sont toujours dans le fichier monolithique. La complexité du découpage reste pleine.
 
 ---
 
@@ -994,11 +996,11 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | REF-SEC-01 | Sécurité | Guard Authenticator déprécié | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — migration Guard impossible avant SF 5.1+ et migration complète | ❌ N/A | — | `refactor/authenticator-migration` |
 | REF-SEC-02 | Sécurité | `$_SESSION` directe | 🟡 Moyenne | Simple | ✅ Validé | ✅ Fait | `ZendSessionBridge` encapsule `$_SESSION['Zend_Auth']`; `$_SESSION['phpCAS']` = lib CAS, hors périmètre | `refactor/authenticator-migration` |
 | REF-SEC-03 | Sécurité | Appel direct au Voter | 🟡 Moyenne | Simple | ✅ Validé (via PrivilegeVoter) | ✅ Fait | `isGranted()` via AuthorizationChecker | `refactor/subscriber-authchecker` |
-| REF-CTL-01 | Controller | Controller 1494 lignes | 🔴 Haute | Complexe | ✅ Validé | 🔴 À faire | 1646 lignes (+152 depuis rapport) | `refactor/calendrier-controller-split` |
+| REF-CTL-01 | Controller | Controller 1494 lignes | 🔴 Haute | Complexe | ✅ Terminé | ✅ Fait | 4 controllers : 776+621+177+171 lignes · PR #207 | `refactor/calendrier-controller-split` |
 | REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Terminé (code déjà correct) | ✅ Fait | 0 méthode sans return type | — |
 | REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | 🔴 À faire | ~49 find() manuels | `refactor/paramconverter` |
 | REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | ✅ Fait | 3 restants (sérialisation interne, non-réponse) | `refactor/json-responses` |
-| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ⚠️ Vérifier sur `develop` | 🔴 À faire | `Search.php` = 1386 lignes | `refactor/search-service-split` |
+| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ✅ Validé | 🔴 À faire | `Search.php` = 1386 lignes (vérifié sur `develop`) | `refactor/search-service-split` |
 | REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | 3 services : 490+250+232 lignes | `refactor/etablissement-service-split` |
 | REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | 🔴 À faire | Services injectant Request présents | `refactor/services-no-request` |
 | REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | 🔴 À faire | ~39 méthodes statiques | `refactor/static-to-services` |
