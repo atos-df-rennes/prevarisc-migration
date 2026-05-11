@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -15,9 +16,13 @@ class EtablissementSearchService
     /** @var Connection */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /** @var SearchQueryHelper */
+    private $queryHelper;
+
+    public function __construct(Connection $connection, SearchQueryHelper $queryHelper)
     {
         $this->connection = $connection;
+        $this->queryHelper = $queryHelper;
     }
 
     /**
@@ -137,11 +142,11 @@ class EtablissementSearchService
         if (null !== $label) {
             $cleanLabel = trim($label);
             if ('#' === substr($cleanLabel, 0, 1)) {
-                $whereConditions[] = $this->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
+                $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
             } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
-                $whereConditions[] = $this->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);
+                $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);
             } else {
-                $whereConditions[] = $this->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
+                $whereConditions[] = $this->queryHelper->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
             }
 
             $hasAdditionalConditions = true;
@@ -149,68 +154,68 @@ class EtablissementSearchService
 
         // Critères : identifiant
         if (null !== $identifiant) {
-            $whereConditions[] = $this->buildCriteria('NUMEROID_ETABLISSEMENT', $identifiant);
+            $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $identifiant);
             $hasAdditionalConditions = true;
         }
 
         // Critères : genre
         if (null !== $genres) {
-            $whereConditions[] = $this->buildCriteria('genre.ID_GENRE', $genres);
+            $whereConditions[] = $this->queryHelper->buildCriteria('genre.ID_GENRE', $genres);
             $hasAdditionalConditions = true;
         }
 
         // Critères : catégorie
         if (null !== $categories) {
-            $whereConditions[] = $this->buildCriteria('ID_CATEGORIE', $categories);
+            $whereConditions[] = $this->queryHelper->buildCriteria('ID_CATEGORIE', $categories);
             $hasAdditionalConditions = true;
         }
 
         // Critères : classe
         if (null !== $classes) {
-            $whereConditions[] = $this->buildCriteria('ID_CLASSE', $classes);
+            $whereConditions[] = $this->queryHelper->buildCriteria('ID_CLASSE', $classes);
             $hasAdditionalConditions = true;
         }
 
         // Critères : famille
         if (null !== $familles) {
-            $whereConditions[] = $this->buildCriteria('ID_FAMILLE', $familles);
+            $whereConditions[] = $this->queryHelper->buildCriteria('ID_FAMILLE', $familles);
             $hasAdditionalConditions = true;
         }
 
         // Critères : type d'activité
         if (null !== $typesActivites) {
-            $whereConditions[] = $this->buildCriteria('typeactivite.ID_TYPEACTIVITE', $typesActivites);
+            $whereConditions[] = $this->queryHelper->buildCriteria('typeactivite.ID_TYPEACTIVITE', $typesActivites);
             $hasAdditionalConditions = true;
         }
 
         // Critères : avis favorable
         if (null !== $avisFavorable) {
-            $whereConditions[] = $this->buildCriteria('avis.ID_AVIS', $avisFavorable ? 1 : 2);
+            $whereConditions[] = $this->queryHelper->buildCriteria('avis.ID_AVIS', $avisFavorable ? 1 : 2);
             $hasAdditionalConditions = true;
         }
 
         // Critères : statuts
         if (null !== $statuts) {
-            $whereConditions[] = $this->buildCriteria('ID_STATUT', $statuts);
+            $whereConditions[] = $this->queryHelper->buildCriteria('ID_STATUT', $statuts);
             $hasAdditionalConditions = true;
         }
 
         // Critères : local à sommeil
         if (null !== $localSommeil) {
-            $whereConditions[] = $this->buildCriteria('LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', $localSommeil);
+            $whereConditions[] = $this->queryHelper->buildCriteria('LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', $localSommeil);
             $hasAdditionalConditions = true;
         }
 
         // Critères : numéro de rue
         if (null !== $number) {
             $clauses = [];
-            $clauses[] = 'etablissementadresse.NUMERO_ADRESSE='.$this->safeQuote($number);
+            $clauses[] = 'etablissementadresse.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
             if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.NUMERO_ADRESSE='.$this->safeQuote($number);
+                $clauses[] = 'etablissementadressesite.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
             }
 
             if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.NUMERO_ADRESSE='.$this->safeQuote($number);
+                $clauses[] = 'etablissementadressecell.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
             }
 
             $whereConditions[] = '('.implode(' OR ', $clauses).')';
@@ -220,26 +225,26 @@ class EtablissementSearchService
         // Critère : commune et rue
         if (null !== $street) {
             $clauses = [];
-            $clauses[] = 'etablissementadresse.ID_RUE='.$this->safeQuote($street);
+            $clauses[] = 'etablissementadresse.ID_RUE='.$this->queryHelper->safeQuote($street);
             if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.ID_RUE='.$this->safeQuote($street);
+                $clauses[] = 'etablissementadressesite.ID_RUE='.$this->queryHelper->safeQuote($street);
             }
 
             if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.ID_RUE='.$this->safeQuote($street);
+                $clauses[] = 'etablissementadressecell.ID_RUE='.$this->queryHelper->safeQuote($street);
             }
 
             $whereConditions[] = '('.implode(' OR ', $clauses).')';
             $hasAdditionalConditions = true;
         } elseif (null !== $city) {
             $clauses = [];
-            $clauses[] = 'etablissementadresse.NUMINSEE_COMMUNE='.$this->safeQuote($city);
+            $clauses[] = 'etablissementadresse.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
             if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.NUMINSEE_COMMUNE='.$this->safeQuote($city);
+                $clauses[] = 'etablissementadressesite.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
             }
 
             if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.NUMINSEE_COMMUNE='.$this->safeQuote($city);
+                $clauses[] = 'etablissementadressecell.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
             }
 
             $whereConditions[] = '('.implode(' OR ', $clauses).')';
@@ -248,7 +253,7 @@ class EtablissementSearchService
 
         // Critère : commission
         if (null !== $commissions) {
-            $whereConditions[] = $this->buildCriteria('ID_COMMISSION', $commissions);
+            $whereConditions[] = $this->queryHelper->buildCriteria('ID_COMMISSION', $commissions);
             $hasAdditionalConditions = true;
         }
 
@@ -258,14 +263,14 @@ class EtablissementSearchService
             $groupementJoin = '
                 LEFT JOIN groupementcommune ON groupementcommune.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
                 LEFT JOIN groupement ON groupement.ID_GROUPEMENT = groupementcommune.ID_GROUPEMENT AND groupement.ID_GROUPEMENTTYPE = 5';
-            $whereConditions[] = $this->buildCriteria('groupement.ID_GROUPEMENT', $groupementsTerritoriaux);
+            $whereConditions[] = $this->queryHelper->buildCriteria('groupement.ID_GROUPEMENT', $groupementsTerritoriaux);
             $hasAdditionalConditions = true;
         }
 
         // Critères : géolocalisation
         if (null !== $lon && null !== $lat) {
-            $whereConditions[] = $this->buildCriteria('etablissementadresse.LON_ETABLISSEMENTADRESSE', $lon);
-            $whereConditions[] = $this->buildCriteria('etablissementadresse.LAT_ETABLISSEMENTADRESSE', $lat);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LON_ETABLISSEMENTADRESSE', $lon);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LAT_ETABLISSEMENTADRESSE', $lat);
             $hasAdditionalConditions = true;
         }
 
@@ -274,7 +279,7 @@ class EtablissementSearchService
             if (0 === $parent) {
                 $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT IS NULL';
             } else {
-                $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT='.$this->safeQuote((string) $parent);
+                $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT='.$this->queryHelper->safeQuote((string) $parent);
             }
 
             $hasAdditionalConditions = true;
@@ -286,7 +291,7 @@ class EtablissementSearchService
             $preventionnisteJoin = '
                 LEFT JOIN etablissementinformationspreventionniste
                     ON etablissementinformationspreventionniste.ID_ETABLISSEMENTINFORMATIONS = etablissementinformations.ID_ETABLISSEMENTINFORMATIONS';
-            $whereConditions[] = 'etablissementinformationspreventionniste.ID_UTILISATEUR='.$this->safeQuote((string) $preventionniste);
+            $whereConditions[] = 'etablissementinformationspreventionniste.ID_UTILISATEUR='.$this->queryHelper->safeQuote((string) $preventionniste);
             $hasAdditionalConditions = true;
         }
 
@@ -470,69 +475,69 @@ class EtablissementSearchService
         if (null !== $label) {
             $cleanLabel = trim($label);
             if ('#' === substr($cleanLabel, 0, 1)) {
-                $whereConditions[] = $this->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
+                $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
             } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
-                $whereConditions[] = $this->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);
+                $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);
             } else {
-                $whereConditions[] = $this->buildCriteria('etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
+                $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
             }
         }
 
         // Critères : identifiant
         if (null !== $identifiant) {
-            $whereConditions[] = $this->buildCriteria('e.NUMEROID_ETABLISSEMENT', $identifiant);
+            $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $identifiant);
         }
 
         // Critères : genre
         if (null !== $genres) {
-            $whereConditions[] = $this->buildCriteria('genre.ID_GENRE', $genres);
+            $whereConditions[] = $this->queryHelper->buildCriteria('genre.ID_GENRE', $genres);
         }
 
         // Critères : catégorie
         if (null !== $categories) {
-            $whereConditions[] = $this->buildCriteria('categorie.ID_CATEGORIE', $categories);
+            $whereConditions[] = $this->queryHelper->buildCriteria('categorie.ID_CATEGORIE', $categories);
         }
 
         // Critères : classe
         if (null !== $classes) {
-            $whereConditions[] = $this->buildCriteria('etablissementinformations.ID_CLASSE', $classes);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.ID_CLASSE', $classes);
         }
 
         // Critères : famille
         if (null !== $familles) {
-            $whereConditions[] = $this->buildCriteria('etablissementinformations.ID_FAMILLE', $familles);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.ID_FAMILLE', $familles);
         }
 
         // Critères : type d'activité
         if (null !== $typesActivites) {
-            $whereConditions[] = $this->buildCriteria('typeactivite.ID_TYPEACTIVITE', $typesActivites);
+            $whereConditions[] = $this->queryHelper->buildCriteria('typeactivite.ID_TYPEACTIVITE', $typesActivites);
         }
 
         // Critères : avis favorable
         if (null !== $avisFavorable) {
-            $whereConditions[] = $this->buildCriteria('avis.ID_AVIS', $avisFavorable ? 1 : 2);
+            $whereConditions[] = $this->queryHelper->buildCriteria('avis.ID_AVIS', $avisFavorable ? 1 : 2);
         }
 
         // Critères : statuts
         if (null !== $statuts) {
-            $whereConditions[] = $this->buildCriteria('etablissementinformations.ID_STATUT', $statuts);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.ID_STATUT', $statuts);
         }
 
         // Critères : local à sommeil
         if (null !== $localSommeil) {
-            $whereConditions[] = $this->buildCriteria('etablissementinformations.LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', $localSommeil);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', $localSommeil);
         }
 
         // Critères : numéro de rue
         if (null !== $number) {
             $clauses = [];
-            $clauses[] = 'etablissementadresse.NUMERO_ADRESSE='.$this->safeQuote($number);
+            $clauses[] = 'etablissementadresse.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
             if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.NUMERO_ADRESSE='.$this->safeQuote($number);
+                $clauses[] = 'etablissementadressesite.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
             }
 
             if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.NUMERO_ADRESSE='.$this->safeQuote($number);
+                $clauses[] = 'etablissementadressecell.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
             }
 
             $whereConditions[] = '('.implode(' OR ', $clauses).')';
@@ -541,25 +546,25 @@ class EtablissementSearchService
         // Critère : commune et rue
         if (null !== $street) {
             $clauses = [];
-            $clauses[] = 'etablissementadresse.ID_RUE='.$this->safeQuote($street);
+            $clauses[] = 'etablissementadresse.ID_RUE='.$this->queryHelper->safeQuote($street);
             if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.ID_RUE='.$this->safeQuote($street);
+                $clauses[] = 'etablissementadressesite.ID_RUE='.$this->queryHelper->safeQuote($street);
             }
 
             if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.ID_RUE='.$this->safeQuote($street);
+                $clauses[] = 'etablissementadressecell.ID_RUE='.$this->queryHelper->safeQuote($street);
             }
 
             $whereConditions[] = '('.implode(' OR ', $clauses).')';
         } elseif (null !== $city) {
             $clauses = [];
-            $clauses[] = 'etablissementadresse.NUMINSEE_COMMUNE='.$this->safeQuote($city);
+            $clauses[] = 'etablissementadresse.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
             if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.NUMINSEE_COMMUNE='.$this->safeQuote($city);
+                $clauses[] = 'etablissementadressesite.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
             }
 
             if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.NUMINSEE_COMMUNE='.$this->safeQuote($city);
+                $clauses[] = 'etablissementadressecell.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
             }
 
             $whereConditions[] = '('.implode(' OR ', $clauses).')';
@@ -567,18 +572,18 @@ class EtablissementSearchService
 
         // Critère : commission
         if (null !== $commissions) {
-            $whereConditions[] = $this->buildCriteria('commission.ID_COMMISSION', $commissions);
+            $whereConditions[] = $this->queryHelper->buildCriteria('commission.ID_COMMISSION', $commissions);
         }
 
         // Critère : groupement territorial
         if (null !== $groupementsTerritoriaux) {
-            $whereConditions[] = $this->buildCriteria('groupement.ID_GROUPEMENT', $groupementsTerritoriaux);
+            $whereConditions[] = $this->queryHelper->buildCriteria('groupement.ID_GROUPEMENT', $groupementsTerritoriaux);
         }
 
         // Critères : géolocalisation
         if (null !== $lon && null !== $lat) {
-            $whereConditions[] = $this->buildCriteria('etablissementadresse.LON_ETABLISSEMENTADRESSE', $lon);
-            $whereConditions[] = $this->buildCriteria('etablissementadresse.LAT_ETABLISSEMENTADRESSE', $lat);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LON_ETABLISSEMENTADRESSE', $lon);
+            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LAT_ETABLISSEMENTADRESSE', $lat);
         }
 
         // Critères : parent
@@ -586,13 +591,13 @@ class EtablissementSearchService
             if (0 === $parent) {
                 $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT IS NULL';
             } else {
-                $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT='.$this->safeQuote((string) $parent);
+                $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT='.$this->queryHelper->safeQuote((string) $parent);
             }
         }
 
         // Critère : preventionniste
         if (null !== $preventionniste) {
-            $whereConditions[] = 'etablissementinformationspreventionniste.ID_UTILISATEUR='.$this->safeQuote((string) $preventionniste);
+            $whereConditions[] = 'etablissementinformationspreventionniste.ID_UTILISATEUR='.$this->queryHelper->safeQuote((string) $preventionniste);
         }
 
         $sqlFull = $sqlSelect
@@ -610,35 +615,4 @@ class EtablissementSearchService
         ];
     }
 
-    /**
-     * Méthode helper pour construire une condition WHERE.
-     *
-     * @param array<int|string, bool|int|string>|bool|float|int|string $value
-     */
-    private function buildCriteria(string $key, $value, bool $exact = true): string
-    {
-        $parts = [];
-
-        $values = is_array($value) ? $value : [$value];
-
-        foreach ($values as $singleValue) {
-            $stringValue = is_bool($singleValue) ? (string) (int) $singleValue : (string) $singleValue;
-            $quotedVal = $this->safeQuote(
-                $exact ? $stringValue : '%'.$stringValue.'%'
-            );
-            $parts[] = $key.($exact ? '=' : ' LIKE ').$quotedVal;
-        }
-
-        return '('.implode(' OR ', $parts).')';
-    }
-
-    /**
-     * Wraps Connection::quote() to ensure a string return type (DBAL 2.x has untyped quote()).
-     */
-    private function safeQuote(string $value): string
-    {
-        $quoted = $this->connection->quote($value);
-
-        return is_string($quoted) ? $quoted : "'".addslashes($value)."'";
-    }
 }
