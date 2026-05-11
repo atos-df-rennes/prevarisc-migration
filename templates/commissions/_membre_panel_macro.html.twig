@@ -210,6 +210,19 @@
                     {{ form_errors(membre_form.naturesDossier) }}
                 </div>
 
+                <hr/>
+
+                {# Manifestations temporaires #}
+                <div class="form-group">
+                    <label><strong>Manifestations temporaires</strong></label>
+                    <div class="checkbox">
+                        <label>
+                            {{ form_widget(membre_form.manifestation) }}
+                            {{ form_label(membre_form.manifestation) }}
+                        </label>
+                    </div>
+                    {{ form_errors(membre_form.manifestation) }}
+                </div>
             </div>{# /panel-body #}
         </div>{# /panel-collapse #}
     </div>{# /panel #}
