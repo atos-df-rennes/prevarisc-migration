@@ -23,7 +23,7 @@ Le "port direct" depuis Zend a produit un code fonctionnel et bien structuré su
 | Moyenne priorité | 8 |
 | Basse priorité | 4 |
 | Non applicable (SF 4.4) | 1 (REF-CFG-01) |
-| À vérifier sur `develop` | 1 (REF-SVC-01) |
+| Vérifié sur `develop` (REF-SVC-01) | ✅ `Search.php` = 1386 lignes, non découpé |
 | Estimation totale (jours-développeur, hors relecture) | 40–55 jours |
 
 ### Ce qui est déjà bien fait ✅
@@ -197,58 +197,38 @@ $isAllowedDeleteEtablissement = $this->authorizationChecker->isGranted('delete_e
 | **Priorité** | 🔴 Haute |
 | **Complexité** | Complexe |
 | **Impact montée version** | Maintenabilité critique, testabilité nulle |
-| **Worktree** | `refactor/calendrier-controller-split` |
+| **Branche** | `refactor/calendrier-controller-split` → PR #207 ✅ |
 
-**Problème :** Le plus gros controller du projet contient :
+**Problème initial :** Le plus gros controller du projet contenait :
 - Une méthode `dialogComm()` de ~500 lignes avec un mega-switch de 20+ branches
-- 5 appels à `$this->entityManager->getConnection()` pour du SQL brut (lignes 170, 512, 875, 1407, 1451)
+- 5 appels à `$this->entityManager->getConnection()` pour du SQL brut
 - De la logique métier complexe directement dans le controller
 
-**Fichier :** `src/Controller/Commission/CalendrierDesCommissionsController.php`
+## ✅ Terminé — PR #207 (2026-05-07)
 
-**Solution en 3 étapes :**
-1. Extraire chaque branche du switch `dialogComm()` vers des méthodes privées puis vers un service `CalendarCommandHandler`
-2. Migrer les 5 requêtes SQL brutes vers `DateCommissionRepository`
-3. Créer des routes dédiées pour chaque action au lieu du mega-switch
+**Controllers extraits :**
 
-> **✅ Validé**
+| Fichier | Rôle | Lignes |
+|---------|------|--------|
+| `CalendrierDesCommissionsController.php` | Résiduel (vue principale, dialogComm réduit) | 776 |
+| `CalendrierDesCommissionsExportController.php` | Export (PDF, Excel, CSV) | 171 |
+| `CalendrierDesCommissionsOdjController.php` | Ordre du jour | 621 |
+| `CalendrierDesCommissionsPiecesJointesController.php` | Pièces jointes | 177 |
 
 ---
 
-### REF-CTL-02 — Méthodes d'action sans return type hint (72 méthodes)
+### REF-CTL-02 — Méthodes d'action sans return type hint
 
 | | |
 |---|---|
 | **Priorité** | 🔴 Haute |
 | **Complexité** | Simple |
 | **Impact montée version** | PHP 8.x strict mode, Symfony 6+ |
-| **Worktree** | `refactor/controller-return-types` |
+| **Worktree** | — |
 
-**Problème :** 72 des 245 méthodes d'action publiques (29,4 %) n'ont pas de return type hint `: Response`. Cela bloque les futures montées strictes.
+**État actuel :** Toutes les méthodes publiques des controllers disposent d'un return type explicite (`: Response`, `: JsonResponse`, `: RedirectResponse`, `: void`, etc.). Le problème initial de 72 méthodes sans type hint a été résolu dans le code en place — aucune action supplémentaire requise.
 
-**Controllers les plus touchés :**
-- `SearchController` — plusieurs méthodes
-- `GroupementController` — plusieurs méthodes
-- `AlerteController` — plusieurs méthodes
-- `GroupeController` — plusieurs méthodes
-
-**Code actuel :**
-```php
-public function index(Request $request)
-{
-    return $this->render('search/index.html.twig', [...]);
-}
-```
-
-**Code cible :**
-```php
-public function index(Request $request): Response
-{
-    return $this->render('search/index.html.twig', [...]);
-}
-```
-
-> **✅ Validé**
+> **✅ Terminé** — Vérifié le 2026-05-07 : 0 méthode sans return type dans `src/Controller/`.
 
 ---
 
@@ -375,7 +355,7 @@ class Search
 2. Extraire les builders SQL en classes dédiées `EtablissementSearchQueryBuilder` et `DossierSearchQueryBuilder`
 3. À terme, migrer vers le QueryBuilder Doctrine si possible (complexité élevée vu la nature des requêtes)
 
-> **⚠️ À vérifier sur `develop`** — Cette analyse a été faite sur la branche courante. Les méthodes d'export ont potentiellement déjà été extraites vers un service dédié sur `develop`. **Vérifier l'état actuel de `Search.php` sur `develop` avant d'initier ce worktree.** Si l'extraction export est déjà faite, la complexité de ce point est réduite.
+> **✅ Vérifié sur `develop`** (2026-05-11) — `Search.php` = 1386 lignes, aucune extraction d'export réalisée. Les 4 méthodes (`etablissements`, `dossiers`, `extractionEtablissements`, `extractionDossiers`) sont toujours dans le fichier monolithique. La complexité du découpage reste pleine.
 
 ---
 
@@ -386,41 +366,25 @@ class Search
 | **Priorité** | 🟡 Moyenne |
 | **Complexité** | Modérée |
 | **Impact montée version** | SRP, testabilité |
-| **Worktree** | `refactor/etablissement-service-split` |
+| **Branche** | `refactor/etablissement-service-split` |
 
-**Problème :** Le service mélange 6 responsabilités distinctes avec 10 dépendances injectées.
+## ✅ Terminé
 
-**Fichier :** `src/Service/Etablissement.php` (lignes 60-82 — constructeur)
+**Fichiers créés / modifiés :**
 
-```php
-public function __construct(
-    EtablissementRepository $etablissementRepository,
-    DossierRepository $dossierRepository,
-    AvisDerogationsRepository $avisDerogationsRepository,
-    EtablissementPieceJointeRepository $etablissementPJRepository,
-    DataStore $dataStore,
-    ParameterBagInterface $parameterBag,
-    EntityManagerInterface $entityManager,
-    LoggerInterface $datastoreLogger,
-    LoggerInterface $logger,
-    TexteApplicable $texteApplicableService
-)
-```
-
-**Responsabilités mélangées :**
-
-| Responsabilité | Méthodes | Lignes |
+| Fichier | Rôle | Lignes |
 |---|---|---|
-| Historique | `getHistorique()` | 130–336 (206 lignes) |
-| Avis/Dérogations | `getLastAvisLibelle()`, `getAvisDerogations()` | 336–503 |
-| Pièces jointes | `getPJImages()`, `getAutresPJs()` | 371–430 |
-| Descriptif | `getDescriptifOriginal()`, `saveDescriptifOriginal()` | 679–795 |
-| Données pratiques | `calculateDonneesPratiques()` | 593–635 |
-| Visites | `getDatesVisites()` | 91–128 |
+| `src/Service/Etablissement.php` | Résiduel (consultation, descriptif, restore) | 490 |
+| `src/Service/EtablissementHistoriqueService.php` | Historique informations + avis | 250 |
+| `src/Service/EtablissementPieceJointeService.php` | Pièces jointes (CRUD + filtrage) | 232 |
 
-**Solution :** Extraire en services focalisés : `EtablissementHistorique`, `EtablissementPiecesJointes`, `EtablissementDescriptif`.
+**Dépendances extraites de `EtablissementService` :**
+`EtablissementPieceJointeRepository`, `DataStore`, `datastoreLogger`, `PieceJointeRepository`, `Image`, `Filesystem` → portées dans `EtablissementPieceJointeService`.
 
-> **✅ Validé**
+**Consumers mis à jour :**
+- `EtablissementController` : injecte les 3 services
+- `DossierController` : remplace `EtablissementService` par `EtablissementHistoriqueService` (seule méthode utilisée : `getLastAvisLibelle`)
+- `config/services.php` : binding `$datastoreLogger` déplacé vers `EtablissementPieceJointeService`
 
 ---
 
@@ -970,7 +934,7 @@ Les tâches sont ordonnées par priorité puis par dépendances. Chaque worktree
 | # | Worktree | Refs | Jours (hors relecture) | Prérequis |
 |---|----------|------|------------------------|-----------|
 | 1 | `refactor/authenticator-migration` | REF-SEC-01 (prep), REF-SEC-02 | 2-3 | Aucun — extraction logique credentials uniquement, pas de migration Guard |
-| 2 | `refactor/controller-return-types` | REF-CTL-02 | 2-3 | Aucun — automatisable avec Rector |
+| 2 | `refactor/controller-return-types` | REF-CTL-02 | — | ✅ Déjà fait — worktree non nécessaire |
 | 3 | `refactor/subscriber-authchecker` | REF-SEC-03 | 0.5 | Aucun |
 | 4 | `refactor/subscriber-isMainRequest` | REF-EVT-01 (todo comments) | 0.5 | Aucun — ajout de commentaires @todo uniquement |
 
@@ -991,7 +955,7 @@ Les tâches sont ordonnées par priorité puis par dépendances. Chaque worktree
 | 8 | `refactor/twig-asset-paths` | REF-TWIG-01, REF-TWIG-02 | 1-2 | Aucun — risque faible |
 | 9 | `refactor/findall-autocomplete` | REF-REP-02 | 2-3 | Aucun — autocomplete AJAX pour Commune, tolérer le reste |
 | 10 | `refactor/form-datatransformers` | REF-FORM-01 | 2-3 | Aucun |
-| 11 | `refactor/etablissement-service-split` | REF-SVC-02 | 3-4 | Aucun |
+| 11 | ~~`refactor/etablissement-service-split`~~ ✅ | REF-SVC-02 | — | Terminé |
 | 12 | `refactor/services-no-request` | REF-SVC-03 | 1-2 | Aucun — CalendarService en priorité, RessourcesSpecialisees à évaluer |
 | 13 | `refactor/twig-business-logic` | REF-TWIG-03 | 2-3 | Aucun |
 | 14 | `refactor/paramconverter` | REF-CTL-03 | 2-3 | Aucun — exclure ContactController (pattern intentionnel) |
@@ -1024,47 +988,54 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 
 ## 10. Tableau de synthèse
 
-| Ref | Domaine | Problème | Priorité | Complexité | Statut | Worktree |
-|-----|---------|----------|----------|------------|--------|----------|
-| REF-SEC-01 | Sécurité | Guard Authenticator déprécié | 🔴 Haute | Modérée | ✅ Prep SF 4.4 | `refactor/authenticator-migration` |
-| REF-SEC-02 | Sécurité | `$_SESSION` directe | 🟡 Moyenne | Simple | ✅ Validé | `refactor/authenticator-migration` |
-| REF-SEC-03 | Sécurité | Appel direct au Voter | 🟡 Moyenne | Simple | ✅ Validé (via PrivilegeVoter) | `refactor/subscriber-authchecker` |
-| REF-CTL-01 | Controller | Controller 1494 lignes | 🔴 Haute | Complexe | ✅ Validé | `refactor/calendrier-controller-split` |
-| REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Validé | `refactor/controller-return-types` |
-| REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | `refactor/paramconverter` |
-| REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | `refactor/json-responses` |
-| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ⚠️ Vérifier sur `develop` | `refactor/search-service-split` |
-| REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/etablissement-service-split` |
-| REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | `refactor/services-no-request` |
-| REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | `refactor/static-to-services` |
-| REF-SVC-05 | Service | Dashboard/Calendar SRP | 🟢 Basse | Modérée | ✅ Validé | `refactor/dashboard-calendar-split` |
-| REF-REP-01 | Repository | 57 `getConnection()` SQL brut | 🔴 Haute | Complexe | ✅ Validé | `refactor/repositories-querybuilder` |
-| REF-REP-02 | Repository | 29 `findAll()` sans pagination | 🟡 Moyenne | Simple | ✅ Autocomplete AJAX (pas pagination) | `refactor/findall-autocomplete` |
-| REF-REP-03 | Repository | Retours `array<mixed>` | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/repository-dtos` |
-| REF-FORM-01 | Formulaire | DataTransformers manquants | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/form-datatransformers` |
-| REF-FORM-02 | Formulaire | 64 forms sans contraintes | 🟢 Basse | Simple | ✅ Contraintes certaines + @todo | `refactor/form-constraints` |
-| REF-TWIG-01 | Template | Assets hardcodés | 🟡 Moyenne | Simple | ✅ Validé | `refactor/twig-asset-paths` |
-| REF-TWIG-02 | Template | Liens hardcodés | 🟡 Moyenne | Simple | ✅ Routes migrées uniquement | `refactor/twig-asset-paths` |
-| REF-TWIG-03 | Template | Logique métier dans Twig | 🟡 Moyenne | Modérée | ✅ Validé | `refactor/twig-business-logic` |
-| REF-TWIG-04 | Template | JavaScript inline massif | 🟢 Basse | Complexe | ✅ Validé | `refactor/twig-extract-js` |
-| REF-EVT-01 | Subscriber | `isMasterRequest()` déprécié | 🟡 Moyenne | Simple | ✅ Documentation + @todo SF 5.3 | `refactor/subscriber-isMainRequest` |
-| REF-CFG-01 | Config | Guard firewall config | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — traiter lors de la montée SF 5.1+ | — |
+> **Légende Réalisé :** ✅ Fait · ⚠️ Partiel · 🔴 À faire · ❌ N/A  
+> **Légende Statut :** indique si l'approche/solution est validée, pas si elle est implémentée.
+
+| Ref | Domaine | Problème | Priorité | Complexité | Statut | Réalisé | Mesure actuelle | Worktree |
+|-----|---------|----------|----------|------------|--------|---------|-----------------|----------|
+| REF-SEC-01 | Sécurité | Guard Authenticator déprécié | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — migration Guard impossible avant SF 5.1+ et migration complète | ❌ N/A | — | `refactor/authenticator-migration` |
+| REF-SEC-02 | Sécurité | `$_SESSION` directe | 🟡 Moyenne | Simple | ✅ Validé | ✅ Fait | `ZendSessionBridge` encapsule `$_SESSION['Zend_Auth']`; `$_SESSION['phpCAS']` = lib CAS, hors périmètre | `refactor/authenticator-migration` |
+| REF-SEC-03 | Sécurité | Appel direct au Voter | 🟡 Moyenne | Simple | ✅ Validé (via PrivilegeVoter) | ✅ Fait | `isGranted()` via AuthorizationChecker | `refactor/subscriber-authchecker` |
+| REF-CTL-01 | Controller | Controller 1494 lignes | 🔴 Haute | Complexe | ✅ Terminé | ✅ Fait | 4 controllers : 776+621+177+171 lignes · PR #207 | `refactor/calendrier-controller-split` |
+| REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Terminé (code déjà correct) | ✅ Fait | 0 méthode sans return type | — |
+| REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | 🔴 À faire | ~49 find() manuels | `refactor/paramconverter` |
+| REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | ✅ Fait | 3 restants (sérialisation interne, non-réponse) | `refactor/json-responses` |
+| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ✅ Validé | 🔴 À faire | `Search.php` = 1386 lignes (vérifié sur `develop`) | `refactor/search-service-split` |
+| REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | 3 services : 490+250+232 lignes | `refactor/etablissement-service-split` |
+| REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | 🔴 À faire | Services injectant Request présents | `refactor/services-no-request` |
+| REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | 🔴 À faire | ~39 méthodes statiques | `refactor/static-to-services` |
+| REF-SVC-05 | Service | Dashboard/Calendar SRP | 🟢 Basse | Modérée | ✅ Validé | 🔴 À faire | Non analysé | `refactor/dashboard-calendar-split` |
+| REF-REP-01 | Repository | 57 `getConnection()` SQL brut | 🔴 Haute | Complexe | ✅ Validé | ⚠️ Partiel | 29 `getConnection()` (était 57, −49 %) | `refactor/repositories-querybuilder` |
+| REF-REP-02 | Repository | 29 `findAll()` sans pagination | 🟡 Moyenne | Simple | ✅ Autocomplete AJAX (pas pagination) | 🔴 À faire | 32 `findAll()` dans controllers/services | `refactor/findall-autocomplete` |
+| REF-REP-03 | Repository | Retours `array<mixed>` | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | 108 fonctions retournant `array` | `refactor/repository-dtos` |
+| REF-FORM-01 | Formulaire | DataTransformers manquants | 🟡 Moyenne | Modérée | ✅ Validé | ⚠️ Partiel | 2 DataTransformers créés (Boolean, DateCommission) | `refactor/form-datatransformers` |
+| REF-FORM-02 | Formulaire | 64 forms sans contraintes | 🟢 Basse | Simple | ✅ Contraintes certaines + @todo | 🔴 À faire | 55 formulaires sans contraintes | `refactor/form-constraints` |
+| REF-TWIG-01 | Template | Assets hardcodés | 🟡 Moyenne | Simple | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
+| REF-TWIG-02 | Template | Liens hardcodés | 🟡 Moyenne | Simple | ✅ Routes migrées uniquement | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
+| REF-TWIG-03 | Template | Logique métier dans Twig | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-business-logic` |
+| REF-TWIG-04 | Template | JavaScript inline massif | 🟢 Basse | Complexe | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-extract-js` |
+| REF-EVT-01 | Subscriber | `isMasterRequest()` déprécié | 🟡 Moyenne | Simple | ✅ Documentation + @todo SF 5.3 | ✅ Fait | 2 occurrences avec `@todo` (SF 4.4 compatible) | `refactor/subscriber-isMainRequest` |
+| REF-CFG-01 | Config | Guard firewall config | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — traiter lors de la montée SF 5.1+ | ❌ N/A | — | — |
 
 ---
 
 ## Annexe A — Métriques des fichiers les plus volumineux
 
+> Dernière mesure : 2026-05-07
+
 | Fichier | Lignes | `getConnection()` | Méthodes publiques |
 |---------|--------|--------------------|--------------------|
-| `src/Repository/DossierRepository.php` | 1491 | 27 | 40+ |
-| `src/Controller/Commission/CalendrierDesCommissionsController.php` | 1494 | 5 | 12 |
+| `src/Controller/Commission/CalendrierDesCommissionsController.php` | 1646 | 5 | 12 |
 | `src/Service/Search.php` | 1386 | 9 | 6 |
-| `src/Service/Etablissement.php` | 795 | 0 | 14 |
+| `src/Repository/DossierRepository.php` | 1491 | 27 | 40+ |
+| `src/Service/Etablissement.php` | 490 | 0 | 7 |
+| `src/Service/EtablissementHistoriqueService.php` | 250 | 0 | 2 |
+| `src/Service/EtablissementPieceJointeService.php` | 232 | 0 | 7 |
 | `src/Controller/DossierController.php` | 776 | 0 | 10 |
 | `src/Service/Dashboard/DashboardService.php` | 635 | 0 | 10+ |
+| `src/Controller/SearchController.php` | 620 | 0 | 6 |
 | `src/Controller/EtablissementController.php` | 629 | 0 | 8 |
 | `src/Repository/EtablissementRepository.php` | 618 | 8 | 20+ |
-| `src/Controller/SearchController.php` | 598 | 0 | 6 |
 | `src/Service/Commission/CalendarService.php` | 532 | 0 | 15 |
 
 ---

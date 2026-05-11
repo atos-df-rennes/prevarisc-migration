@@ -99,6 +99,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ldap_basedn', '%env(string:PREVARISC_LDAP_BASEDN)%');
 
+    $parameters->set('env(PREVARISC_LDAP_FILTER)', '(uid=%s)');
+
+    // Filtre de recherche LDAP pour retrouver le DN d'un utilisateur dans l'annuaire.
+    // OpenLDAP (défaut) : (uid=%s)
+    // Active Directory  : (sAMAccountName=%s) ou (&(objectClass=user)(sAMAccountName=%s))
+    $parameters->set('app.ldap_filter', '%env(string:PREVARISC_LDAP_FILTER)%');
+
     $parameters->set('env(PREVARISC_SECURITY_KEY)', '');
 
     $parameters->set('app.security_key', '%env(string:PREVARISC_SECURITY_KEY)%');
@@ -207,6 +214,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.cas_port', '%env(int:PREVARISC_CAS_PORT)%');
 
+    // Hostname/port utilisé par le NAVIGATEUR pour accéder à CAS (login URL).
+    // En dev, peut différer de CAS_HOST (utilisé côté serveur pour serviceValidate).
+    // Si vide, on utilise CAS_HOST/CAS_PORT.
+    $parameters->set('env(PREVARISC_CAS_PUBLIC_HOST)', '');
+
+    $parameters->set('app.cas_public_host', '%env(string:PREVARISC_CAS_PUBLIC_HOST)%');
+
+    $parameters->set('env(PREVARISC_CAS_PUBLIC_PORT)', 0);
+
+    $parameters->set('app.cas_public_port', '%env(int:PREVARISC_CAS_PUBLIC_PORT)%');
+
     $parameters->set('env(PREVARISC_CAS_CONTEXT)', '');
 
     $parameters->set('app.cas_context', '%env(string:PREVARISC_CAS_CONTEXT)%');
@@ -214,6 +232,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_CAS_NO_SERVER_VALIDATION)', '');
 
     $parameters->set('app.cas_no_server_validation', '%env(bool:PREVARISC_CAS_NO_SERVER_VALIDATION)%');
+
+    $parameters->set('env(PREVARISC_CAS_NO_SSL)', '');
+
+    $parameters->set('app.cas_no_ssl', '%env(bool:PREVARISC_CAS_NO_SSL)%');
 
     $parameters->set('env(PREVARISC_CAS_VERSION)', '');
 
@@ -223,6 +245,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
 
+    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 0);
+
+    $parameters->set('app.symfony_login', '%env(bool:PREVARISC_SYMFONY_LOGIN)%');
+
+    $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
+
+    // Compte LDAP utilisé par le formulaire legacy Zend (via Zend_Ldap).
+    // Ce paramètre est lu par le code legacy, pas directement par Symfony.
+    // Si PREVARISC_LDAP_ENABLED=1, c'est $ldapUsername (PREVARISC_LDAP_USERNAME) qui est utilisé par Symfony.
+    $parameters->set('app.ldap_account_form', '%env(string:PREVARISC_LDAP_ACCOUNT_FORM)%');
+
     $parameters->set('env(PREVARISC_LOCAL_SOMMEIL_TYPES)', '7;11');
 
     $parameters->set('app.local_sommeil_types', '%env(PREVARISC_LOCAL_SOMMEIL_TYPES)%');
@@ -231,9 +264,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.proxy_enabled', '%env(bool:PREVARISC_PROXY_ENABLED)%');
 
-    $parameters->set('env(PREVARISC_PROXY_PROTOCOL)', '');
+    $parameters->set('env(PREVARISC_PROXY_PROTOCOL)', 0);
 
-    $parameters->set('app.proxy_protocol', '%env(string:PREVARISC_PROXY_PROTOCOL)%');
+    $parameters->set('app.proxy_protocol', '%env(int:PREVARISC_PROXY_PROTOCOL)%');
 
     $parameters->set('env(PREVARISC_PROXY_PORT)', 0);
 
@@ -246,6 +279,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_PROXY_USERNAME)', '');
 
     $parameters->set('app.proxy_username', '%env(string:PREVARISC_PROXY_USERNAME)%');
+
+    $parameters->set('env(PREVARISC_PROXY_PASSWORD)', '');
+
+    $parameters->set('app.proxy_password', '%env(string:PREVARISC_PROXY_PASSWORD)%');
 
     $parameters->set('env(PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE)', 0);
 

@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 /**
  * Authentificateur Guard Symfony basé sur la session Zend héritée.
@@ -22,6 +23,8 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
  */
 class LegacySessionAuthenticator extends AbstractGuardAuthenticator
 {
+    use TargetPathTrait;
+
     /** @var LoggerInterface */
     private $logger;
 
@@ -42,9 +45,17 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
      * On a pas accès à la variable $_SESSION ici.
      * Pour contourner, on laisse passer et on fait la vérification dans la méthode getCredentials().
      * Si l'utilisateur n'est pas connecté on throw une AuthenticationException et on redirige dans la méthode onAuthenticationFailure().
+     *
+     * Exclut /session/login inconditionnellement : que le login Symfony soit activé ou non,
+     * cet authenticator ne doit pas intercepter la page de login (évite les boucles infinies).
+     * Quand PREVARISC_SYMFONY_LOGIN=0, /session/login n'est pas une route Symfony et Zend le gère.
      */
     public function supports(Request $request): bool
     {
+        if ('/session/login' === $request->getPathInfo()) {
+            return false;
+        }
+
         return null === $request->getSession()->get('username');
     }
 
@@ -92,20 +103,39 @@ class LegacySessionAuthenticator extends AbstractGuardAuthenticator
     /**
      * L'authentification est gérée via Zend.
      * Si l'authentification ne fonctionne pas, c'est que l'utilisateur n'est pas connecté.
-     * On le redirige vers le formulaire de login Zend.
+     * Sauvegarde l'URL demandée comme target path pour redirection post-login,
+     * puis redirige vers le formulaire de login.
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
+        // Ne sauvegarder le target path que pour les requêtes GET non-XHR.
+        // Les requêtes POST/AJAX rejouées en GET après login aboutiraient à un 405.
+        if ('/session/login' !== $request->getPathInfo()
+            && $request->isMethod('GET')
+            && !$request->isXmlHttpRequest()
+        ) {
+            $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
+        }
+
+        $request->getSession()->remove('username');
+
         return new RedirectResponse('/session/login');
     }
 
     /**
      * Called when authentication is needed, but it's not sent.
      * Redirige vers le formulaire de login Zend.
-     * Non appelé pour le moment, la redirection est fait par la méthode onAuthenticationFailure().
+     *
+     * Supprime le marqueur de session `username` pour éviter la boucle d'authentification :
+     * si `username` est présent en session mais que le token Symfony est invalide/absent,
+     * supports() retourne false et l'utilisateur ne peut plus se ré-authentifier.
+     * En supprimant `username` ici, on force un nouveau passage par getCredentials() après
+     * la reconnexion Zend.
      */
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
+        $request->getSession()->remove('username');
+
         return new RedirectResponse('/session/login');
     }
 

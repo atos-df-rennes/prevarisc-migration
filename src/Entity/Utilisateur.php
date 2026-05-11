@@ -263,11 +263,16 @@ class Utilisateur implements UserInterface
      * Returning a salt is only needed, if you are not using a modern
      * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
      *
+     * Retourne le username en tant que sel pour l'encodeur MD5 legacy (Md5SaltedEncoder).
+     * Les encodeurs modernes (bcrypt/argon2) ignorent ce champ.
+     *
      * @see UserInterface
      */
     public function getSalt(): ?string
     {
-        return null;
+        // Retourné pour l'encodeur MD5 legacy via migrate_from.
+        // Les encodeurs modernes (bcrypt/argon2) ignorent ce champ.
+        return $this->username;
     }
 
     /**

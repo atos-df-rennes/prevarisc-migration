@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Connexion — Prévarisc</title>
+        <link href="{{ asset('css/bootstrap-3.min.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/main-bs3.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/login.css') }}" rel="stylesheet">
+    </head>
+    <body class="login">
+        <div class="wrapper">
+            <div class="block">
+                <h1 class="text-center">
+                    <img src="{{ asset('images/logo_prevarisc_big.jpg') }}" alt="Prévarisc">
+                </h1>
+
+                <div class="well">
+                    {# ─── Messages flash (erreurs d'authentification depuis onAuthenticationFailure) ─── #}
+                    {% for type, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ type }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {# ─── Erreur retournée par AuthenticationUtils (tentative précédente) ─── #}
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    {% if sso_enabled %}
+                        {# ─── Mode SSO (CAS ou NTLM) : pas de formulaire ─── #}
+                        <p class="text-muted">
+                            <span class="glyphicon glyphicon-lock"></span>
+                            Connexion SSO en cours…
+                        </p>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped active" style="width: 100%;"></div>
+                        </div>
+                    {% else %}
+                        {# ─── Mode formulaire standard ─── #}
+                        <form action="{{ path('session_login') }}" method="post">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                            <div class="form-group">
+                                <input
+                                    type="text"
+                                    id="_username"
+                                    name="_username"
+                                    class="form-control"
+                                    placeholder="Nom d'utilisateur"
+                                    value="{{ last_username }}"
+                                    required
+                                    autofocus
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <input
+                                    type="password"
+                                    id="_password"
+                                    name="_password"
+                                    class="form-control"
+                                    placeholder="Mot de passe"
+                                    required
+                                >
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                Connexion
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>{# /.well #}
+
+                {{ render_esi(controller(
+                    'App\\Controller\\IndexController::footer',
+                )) }}
+            </div>{# /.block #}
+        </div>{# /.wrapper #}
+    </body>
+</html>

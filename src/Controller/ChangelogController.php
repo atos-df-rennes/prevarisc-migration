@@ -68,8 +68,14 @@ class ChangelogController extends AbstractController
         }
 
         $currentVersion = $this->versionService->getCurrentVersion();
-        $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
-        $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;
+
+        try {
+            $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
+            $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;
+        } catch (\Exception $exception) {
+            // La migration ajoutant DERNIERE_VERSION_VUE n'a pas encore été jouée.
+            return new Response('');
+        }
 
         return $this->render('changelog/banner.html.twig', [
             'show' => null !== $currentVersion && $currentVersion !== $derniereVersionVue,

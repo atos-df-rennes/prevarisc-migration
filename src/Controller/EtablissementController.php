@@ -26,6 +26,8 @@ use App\Service\Descriptif\DescriptifFormHydrator;
 use App\Service\Descriptif\DescriptifFormPersister;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
+use App\Service\EtablissementHistoriqueService;
+use App\Service\EtablissementPieceJointeService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -52,6 +54,12 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /** @var EtablissementService */
     private $etablissementService;
+
+    /** @var EtablissementHistoriqueService */
+    private $etablissementHistoriqueService;
+
+    /** @var EtablissementPieceJointeService */
+    private $etablissementPieceJointeService;
 
     /** @var EtablissementRepository */
     private $etablissementRepository;
@@ -149,7 +157,9 @@ class EtablissementController extends AbstractController implements Etablissemen
         bool $descriptifPersonnalise,
         LoggerInterface $logger,
         FormFactoryInterface $formFactory,
-        LoggerInterface $pieceJointeLogger
+        LoggerInterface $pieceJointeLogger,
+        EtablissementHistoriqueService $etablissementHistoriqueService,
+        EtablissementPieceJointeService $etablissementPieceJointeService
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -174,6 +184,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->logger = $logger;
         $this->formFactory = $formFactory;
         $this->pieceJointeLogger = $pieceJointeLogger;
+        $this->etablissementHistoriqueService = $etablissementHistoriqueService;
+        $this->etablissementPieceJointeService = $etablissementPieceJointeService;
     }
 
     /**
@@ -282,7 +294,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function historique(Etablissement $etablissement): Response
     {
-        $historique = $this->etablissementService->getHistorique($etablissement->getId());
+        $historique = $this->etablissementHistoriqueService->getHistorique($etablissement->getId());
 
         return $this->render('etablissement/historique.html.twig', [
             'etablissement' => $etablissement,
@@ -354,8 +366,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function piecesJointes(Etablissement $etablissement): Response
     {
-        $image_pjs = $this->etablissementService->getPJImages($etablissement->getId());
-        $doc_pjs = $this->etablissementService->getAutresPJs($etablissement->getId());
+        $image_pjs = $this->etablissementPieceJointeService->getPJImages($etablissement->getId());
+        $doc_pjs = $this->etablissementPieceJointeService->getAutresPJs($etablissement->getId());
 
         return $this->render('etablissement/pieces_jointes.html.twig', [
             'image_pjs' => $image_pjs,
@@ -373,8 +385,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function editPiecesJointes(Etablissement $etablissement): Response
     {
-        $image_pjs = $this->etablissementService->getPJImages($etablissement->getId());
-        $doc_pjs = $this->etablissementService->getAutresPJs($etablissement->getId());
+        $image_pjs = $this->etablissementPieceJointeService->getPJImages($etablissement->getId());
+        $doc_pjs = $this->etablissementPieceJointeService->getAutresPJs($etablissement->getId());
 
         return $this->render('etablissement/edit_pieces_jointes.html.twig', [
             'image_pjs' => $image_pjs,
@@ -429,7 +441,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $mise_en_avant = is_numeric($miseEnAvantParam) ? (int) $miseEnAvantParam : 0;
 
         try {
-            $this->etablissementService->addPJ($etablissement, $file, $name, $description, $mise_en_avant);
+            $this->etablissementPieceJointeService->addPJ($etablissement, $file, $name, $description, $mise_en_avant);
             $this->addFlash('success', 'La pièce jointe a bien été ajoutée.');
         } catch (\Exception $exception) {
             $this->pieceJointeLogger->error('Erreur lors de l\'ajout d\'une pièce jointe', [
@@ -465,7 +477,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         }
 
         try {
-            $this->etablissementService->deletePJ($etablissement, $idPj);
+            $this->etablissementPieceJointeService->deletePJ($etablissement, $idPj);
             $this->addFlash('success', 'La pièce jointe a bien été supprimée.');
         } catch (\Exception $exception) {
             $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer.');

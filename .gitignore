@@ -20,14 +20,15 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
+###> FOSJSRoutingBundle ###
+public/js/fos_js_routes.js
+###< FOSJSRoutingBundle ###
 
+###> tools ###
 /tools/vendor/
 .php-cs-fixer.cache
 .twig-cs-fixer.cache
+###< tools ###
 
 # Rapports de revue de code (usage local uniquement)
 REVIEW_REPORT.md

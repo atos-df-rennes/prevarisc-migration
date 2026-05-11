@@ -146,6 +146,64 @@ dossier_pieces_jointes:
     Sélection commission (PJ_COMMISSION / pjPassageCommission) omise :
     handler AJAX absent en legacy, checkbox non rendue dans display.phtml. Noté dans rapport d'écarts.
 
+authentification:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/SessionController.php
+    - prevarisc/library/Service/PassAuthAdapater.php
+  migrated_files:
+    - prevarisc-migration/src/Security/FormLoginAuthenticator.php
+    - prevarisc-migration/src/Security/Md5SaltedEncoder.php
+    - prevarisc-migration/src/Security/ZendIdentityBuilder.php
+    - prevarisc-migration/src/Security/ZendSessionBridge.php
+    - prevarisc-migration/src/Security/LegacySessionAuthenticator.php
+    - prevarisc-migration/src/Controller/SessionController.php
+    - prevarisc-migration/src/Entity/Utilisateur.php
+    - prevarisc-migration/src/Controller/UtilisateursController.php
+    - prevarisc-migration/templates/security/login.html.twig
+    - prevarisc-migration/config/packages/security.php
+    - prevarisc-migration/config/prevarisc.php
+    - prevarisc-migration/config/services.php
+    - prevarisc-migration/composer.json
+    - prevarisc-migration/docs/RAPPORT_ECARTS_AUTHENTIFICATION.md
+  updated_at: "2026-05-07"
+  notes: >
+    Authentification Symfony native (Guard) remplaçant LegacySessionAuthenticator.
+    Supporte CAS (phpCAS), NTLM (REMOTE_USER), LDAP (symfony/ldap), formulaire MD5 (dbtable).
+    Rehachage MD5→bcrypt préparé via migrate_from mais désactivé pendant la transition
+    (needsRehash=false, upgradePassword no-op) pour garantir la réversibilité vers Zend.
+    Propagation session Zend_Auth via ZendSessionBridge pour compatibilité legacy.
+    Feature flag PREVARISC_SYMFONY_LOGIN=1 pour activation progressive.
+    Endpoint iCalendar (/api/commissions/icalendar) isolé dans un firewall séparé (security: false).
+    Protections ajoutées : CSRF formulaire, open redirect (chemins relatifs uniquement).
+    Régression connue : updateLastActionDate non appelé au logout (mineur).
+  routes:
+    - name: session_login
+      path: /session/login
+    - name: session_logout
+      path: /session/logout
+
+proxy:
+  status: done
+  legacy_files:
+    - prevarisc/application/controllers/ProxyController.php
+  migrated_files:
+    - prevarisc-migration/src/Controller/ProxyController.php
+    - prevarisc-migration/config/prevarisc.php (ajout PREVARISC_PROXY_PASSWORD / app.proxy_password)
+    - prevarisc-migration/config/services.php (binding ProxyController)
+  updated_at: "2026-05-09"
+  notes: >
+    Port direct de indexAction. Relai HTTP via cURL vers l'URL externe fournie en paramètre GET.
+    Retransmet uniquement le header Content-Type de la réponse externe.
+    Paramètres proxy sortant (PREVARISC_PROXY_ENABLED, _PROTOCOL, _PORT, _HOST, _USERNAME, _PASSWORD)
+    injectés via DI depuis les paramètres Symfony (env vars).
+    Ajout du paramètre manquant PREVARISC_PROXY_PASSWORD dans prevarisc.php.
+    Vérification curl_init() != false ajoutée (sécurité minimale, comportement observable inchangé).
+    $_SERVER['HTTP_REFERER'] → $request->server->get('HTTP_REFERER', '') pour éviter un notice PHP.
+  routes:
+    - name: proxy_index
+      path: /proxy/index
+
 dossier_rapport_generation:
   status: done
   legacy_files:

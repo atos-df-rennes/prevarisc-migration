@@ -39,6 +39,15 @@ $response = $kernel->handle($request);
 $isSymfonyRouteFound = $response->headers->has('X-Symfony-Route-Found');
 
 if (!$isSymfonyRouteFound && true === $response->isNotFound()) {
+    // Le firewall Symfony démarre la session PHP sur chaque requête non-login (via
+    // LegacySessionAuthenticator::supports()). Zend_Session::start() appelé par
+    // Bootstrap::_initAuth() lèverait une exception "session has already been started"
+    // si la session PHP est encore ouverte. On la ferme proprement ici : les données
+    // sont écrites en stockage et Zend peut rouvrir la session avec le même identifiant.
+    if (PHP_SESSION_ACTIVE === session_status()) {
+        session_write_close();
+    }
+
     $prevariscPath = $_SERVER['PREVARISC_PATH'] ?? $_ENV['PREVARISC_PATH'] ?? '/home/prv/current/prevarisc';
 
     require realpath($prevariscPath.'/public/index.php');
