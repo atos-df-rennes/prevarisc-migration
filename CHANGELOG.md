@@ -4,6 +4,29 @@
 
 <!--- END HEADER -->
 
+## [2.8.19](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.18...v2.8.19) (11-05-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+
+##### Calendrier-des-commission
+
+* Permet la génération de documents sur des manifestations temporaires (#209) ([15d4bb](https://github.com/atos-df-rennes/prevarisc-migration/commit/15d4bbe0f89d890c61f9ecded834964955b24e08))
+
+##### Dashboard
+
+* Ajout du bloc dossiers incomplets (#153) ([dbc6cc](https://github.com/atos-df-rennes/prevarisc-migration/commit/dbc6cc4e00ac8b95a1b320a38a199598b6a6d34c))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Dossier
+
+* Autorise les numéros d'intervention non-entiers (#165) ([f1f250](https://github.com/atos-df-rennes/prevarisc-migration/commit/f1f250b8be515d70725676295fb63eabb671e1b2))
+
+
+---
+
 ## [2.8.18](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.17...v2.8.18) (31-03-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
