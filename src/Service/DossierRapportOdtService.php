@@ -64,6 +64,9 @@ class DossierRapportOdtService
     /** @var string */
     private $realDataPath;
 
+    /** @var bool */
+    private $debugEnabled;
+
     /** @var resource|null */
     private $debugFile;
 
@@ -78,7 +81,8 @@ class DossierRapportOdtService
         ListeDocumentConsulteRepository $listeDocRepository,
         DossierRepository $dossierRepository,
         UrlGeneratorInterface $urlGenerator,
-        string $realDataPath
+        string $realDataPath,
+        bool $debugEnabled
     ) {
         $this->em = $em;
         $this->conn = $conn;
@@ -91,6 +95,7 @@ class DossierRapportOdtService
         $this->dossierRepository = $dossierRepository;
         $this->urlGenerator = $urlGenerator;
         $this->realDataPath = $realDataPath;
+        $this->debugEnabled = $debugEnabled;
         $this->debugFile = null;
     }
 
@@ -133,14 +138,13 @@ class DossierRapportOdtService
         /** @var array<string, string|null>|false $rawEtabInfosFetch */
         $rawEtabInfosFetch = $this->conn->fetchAssociative(
             'SELECT ei.*, t.LIBELLE_TYPE, ta.LIBELLE_ACTIVITE, g.LIBELLE_GENRE,
-                    cat.LIBELLE_CATEGORIE, f.LIBELLE_FAMILLE, ac.LIBELLE_COMMUNE
+                    cat.LIBELLE_CATEGORIE, f.LIBELLE_FAMILLE
              FROM etablissementinformations ei
              LEFT JOIN type t ON ei.ID_TYPE = t.ID_TYPE
              LEFT JOIN typeactivite ta ON ei.ID_TYPEACTIVITE = ta.ID_TYPEACTIVITE
              LEFT JOIN genre g ON ei.ID_GENRE = g.ID_GENRE
              LEFT JOIN categorie cat ON ei.ID_CATEGORIE = cat.ID_CATEGORIE
              LEFT JOIN famille f ON ei.ID_FAMILLE = f.ID_FAMILLE
-             LEFT JOIN adressecommune ac ON ei.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
              WHERE ei.ID_ETABLISSEMENT = :idEtab
              ORDER BY ei.ID_ETABLISSEMENTINFORMATIONS DESC LIMIT 1',
             ['idEtab' => $idEtab]
@@ -157,10 +161,13 @@ class DossierRapportOdtService
         /** @var array<string, string|null> $rawEtabInfos */
         $rawEtabInfos = false !== $rawEtabInfosFetch ? $rawEtabInfosFetch : [];
 
-        // Initialisation du debug
-        $debugPath = $this->realDataPath.'/uploads/debug_odt_'.$idDossier.'_'.$idEtab.'.txt';
-        $debugFileHandle = @fopen($debugPath, 'w');
-        $this->debugFile = false !== $debugFileHandle ? $debugFileHandle : null;
+        // Initialisation du debug (port direct de creationdoc.phtml lignes 34-42)
+        $this->debugFile = null;
+        if ($this->debugEnabled) {
+            $debugFileName = 'rapport_dossier_'.$idDossier.'.txt';
+            $debugFileHandle = @fopen(sys_get_temp_dir().DIRECTORY_SEPARATOR.$debugFileName, 'w');
+            $this->debugFile = false !== $debugFileHandle ? $debugFileHandle : null;
+        }
 
         // --- Init Odf ---
         $odf = new \Odf($fichierSelect);
@@ -178,12 +185,14 @@ class DossierRapportOdtService
         $natureDossier = '';
         if (null !== $dossierNature) {
             /** @var array<string, string|null>|false $natureRowFetch */
+            // Port direct de Model_DbTable_DossierNature::getDossierNatureLibelle()
+            // La table `nature` n'existe pas — la jointure est dossiernature → dossiernatureliste
             $natureRowFetch = $this->conn->fetchAssociative(
-                'SELECT LIBELLE_NATURE FROM nature WHERE ID_NATURE = :id',
+                'SELECT LIBELLE_DOSSIERNATURE FROM dossiernatureliste WHERE ID_DOSSIERNATURE = :id',
                 ['id' => $dossierNature]
             );
             if (false !== $natureRowFetch) {
-                $natureDossier = $natureRowFetch['LIBELLE_NATURE'] ?? '';
+                $natureDossier = $natureRowFetch['LIBELLE_DOSSIERNATURE'] ?? '';
             }
         }
 
@@ -320,8 +329,9 @@ class DossierRapportOdtService
         // --- adresse établissement (commune/numInsee) ---
         /** @var array<string, string|null>|false $adresseRowFetch */
         $adresseRowFetch = $this->conn->fetchAssociative(
-            'SELECT ea.NUMERO_ADRESSE, ea.LIBELLE_RUE, ac.LIBELLE_COMMUNE, ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
+            'SELECT ea.NUMERO_ADRESSE, ar.LIBELLE_RUE, ac.LIBELLE_COMMUNE, ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
              FROM etablissementadresse ea
+             JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
              JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
              WHERE ea.ID_ETABLISSEMENT = :id LIMIT 1',
             ['id' => $idEtab]
@@ -776,80 +786,73 @@ class DossierRapportOdtService
         }
 
         // =====================================================================
-        // etabDesc — DESCTECH champs
+        // Champs DESCTECH — colonnes directes de la table etablissement
+        // (le legacy les lit via $this->etabDesc = $model_etablissement->find($idEtab)->current())
         // =====================================================================
-        /** @var array<string, string|null>|false $etabDescRowFetch */
-        $etabDescRowFetch = $this->conn->fetchAssociative(
-            'SELECT * FROM etabledescriptif WHERE ID_ETABLISSEMENT = :id LIMIT 1',
-            ['id' => $idEtab]
-        );
-        /** @var array<string, string|null> $ed */
-        $ed = false !== $etabDescRowFetch ? $etabDescRowFetch : [];
-
-        $this->addChamp($odf, 'historiqueDescriptifEtab', $ed['HISTORIQUE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'descriptifEtab', $ed['DESCRIPTIF_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'derogAccEtab', $ed['DEROGACC_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'surfaceEmpriseSol', $ed['SURFACEEMPRISESOLBATIMENT_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'SHON', $ed['SHON_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'SHOB', $ed['SHOB_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbNiveaux', $ed['NBNIVEAUX_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'PBDN', $ed['PBDN_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'surfaceTotale', $ed['SURFACETOTALE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'surfaceAccessible', $ed['SURFACEACCESSIBLE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbFacadeAccess', $ed['NBFACADEACCESIBLES_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'voieEngin', $ed['VOIEENGINS_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'voieEchelle', $ed['VOIEECHELLE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'espaceLibre', $ed['ESPACELIBRE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'lateralCF', $ed['LATERALCF_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'superposeCF', $ed['SUPERPOSECF_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'visAvis', $ed['VISAVIS_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'structureSF', $ed['STRUCTURESF_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'plancherSF', $ed['PLANCHERSF_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'cloisonnementTrad', ('1' === $ed['CLOISONNEMENTTRAD_DESCTECH']) ? 'Oui' : 'Non');
-        $this->addChamp($odf, 'secteurs', ('1' === $ed['SECTEURS_DESCTECH']) ? 'Oui' : 'Non');
-        $this->addChamp($odf, 'compartiments', ('1' === $ed['COMPARTIMENTS_DESCTECH']) ? 'Oui' : 'Non');
-        $this->addChamp($odf, 'locauxRisquesMoyens', $ed['LOCAUXRISQUESMOYENS_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'locauxRisquesImportants', $ed['LOCAUXRISQUESIMPORTANTS_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'espacesAttentesNombre', $ed['ESPACESATTENTENOMBRE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'espacesAttentesNiveaux', $ed['ESPACESATTENTENIVEAUX_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'desenfNaturel', ('1' === $ed['DESENFNATUREL_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'desenfMecanique', ('1' === $ed['DESENFMECANIQUE_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'desenfCommentaire', $ed['DESENFCOMMENTAIRE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbChaufferie', $ed['NBCHAUFFERIE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'puissanceMaxChauff', $ed['PUISSANCEMAXCHAUFFERIE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbChauff30kw', $ed['NBCHAUFFERIE30KW_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbChauff70kw', $ed['NBCHAUFFERIE70KW_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbChauff2mw', $ed['NBCHAUFFERIE2MW_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'puissTotalChaff', $ed['PUISSANCETOTALCHAUFFERIE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'locGaz', $ed['LOCGAZ_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'locElectricite', $ed['LOCELECTRICITE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'locPhotovoltaique', $ed['LOCPHOTOVOLTAIQUE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'locAutre', $ed['LOCAUTRE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbAscTot', $ed['NBASCENSEURSTOTAL_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbAscAS4', $ed['NBASCENSEURSAS4_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'colSeches', ('1' === $ed['COLSECHEINSTALLE_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'colHumides', $ed['COLHUMIDEINSTALLE_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'RIA', $ed['RIA_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'sprinkleur', $ed['SPRINKLEUR_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'brouillardEau', $ed['BROUILLARDEAU_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'presencePCS', ('1' === $ed['PRESENCEPCS_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'localisationPCS', $ed['LOCALISATIONPCS_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'presenceSSI', ('1' === $ed['PRESENCESSI_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'catSSI', $ed['CATSSI_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'alarmeSSI', $ed['ALARMESSI_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'persQualEL18', ('1' === $ed['PERSQUALEL18_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'persDesignes', ('1' === $ed['PERSDESIGNES_DESCTECH']) ? 'Oui' : '');
-        $this->addChamp($odf, 'nbAgentSecu', $ed['NBAGENTSSECU_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbChefEquipeSecu', $ed['NBCHEFEQUIPESECU_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbChefServSecu', $ed['NBCHEFSERVSECU_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbSp', $ed['NBSP_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'commentaireSp', $ed['COMMENTAIRESP_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'nbPointEau', $ed['NBPOINTEAUNAT_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'volumePointEau', $ed['VOLUMEPOINTEAUNAT_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'commentairePointEauNat', $ed['COMMENTAIREPOINTEAUNAT_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'PI', $ed['PI_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'BI', $ed['BI_DESCTECH'] ?? '');
-        $this->addChamp($odf, 'debitSimultane', $ed['DEBITSIMULTANE_DESCTECH'] ?? '');
+        $this->addChamp($odf, 'historiqueDescriptifEtab', $rawEtab['DESCRIPTIF_HISTORIQUE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'descriptifEtab', $rawEtab['DESCRIPTIF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'derogAccEtab', $rawEtab['DESCRIPTIF_DEROGATIONS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'surfaceEmpriseSol', $rawEtab['DESCTECH_IMPLANTATION_SURFACE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'SHON', $rawEtab['DESCTECH_IMPLANTATION_SHON_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'SHOB', $rawEtab['DESCTECH_IMPLANTATION_SHOB_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbNiveaux', $rawEtab['DESCTECH_IMPLANTATION_NBNIVEAUX_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'PBDN', $rawEtab['DESCTECH_IMPLANTATION_PBDN_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'surfaceTotale', $rawEtab['DESCTECH_IMPLANTATION_SURFACETOTALE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'surfaceAccessible', $rawEtab['DESCTECH_IMPLANTATION_SURFACEACCPUBLIC_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbFacadeAccess', $rawEtab['DESCTECH_DESSERTE_NBFACADELIBRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'voieEngin', $rawEtab['DESCTECH_DESSERTE_VOIEENGIN_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'voieEchelle', $rawEtab['DESCTECH_DESSERTE_VOIEECHELLE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'espaceLibre', $rawEtab['DESCTECH_DESSERTE_ESPACELIBRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'lateralCF', $rawEtab['DESCTECH_ISOLEMENT_LATERALCF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'superposeCF', $rawEtab['DESCTECH_ISOLEMENT_SUPERPOSECF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'visAvis', $rawEtab['DESCTECH_ISOLEMENT_VISAVIS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'structureSF', $rawEtab['DESCTECH_STABILITE_STRUCTURESF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'plancherSF', $rawEtab['DESCTECH_STABILITE_PLANCHERSF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'cloisonnementTrad', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_CLOISONNEMENTTRAD_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'secteurs', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_SECTEURS_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'compartiments', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_COMPARTIMENTS_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'locauxRisquesMoyens', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESMOYENS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locauxRisquesImportants', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'espacesAttentesNombre', $rawEtab['DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'espacesAttentesNiveaux', $rawEtab['DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'desenfNaturel', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'desenfMecanique', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'desenfCommentaire', $rawEtab['DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChaufferie', $rawEtab['DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'puissanceMaxChauff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChauff30kw', $rawEtab['DESCTECH_CHAUFFERIES_NB30KW'] ?? '');
+        $this->addChamp($odf, 'nbChauff70kw', $rawEtab['DESCTECH_CHAUFFERIES_NB70KW'] ?? '');
+        $this->addChamp($odf, 'nbChauff2mw', $rawEtab['DESCTECH_CHAUFFERIES_NB2MW'] ?? '');
+        $this->addChamp($odf, 'puissTotalChaff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSANCETOTALE'] ?? '');
+        $this->addChamp($odf, 'locGaz', $rawEtab['DESCTECH_COUPURENRJ_GAZ_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locElectricite', $rawEtab['DESCTECH_COUPURENRJ_ELEC_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locPhotovoltaique', $rawEtab['DESCTECH_COUPURENRJ_PHOTOVOLTAIQUE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locAutre', $rawEtab['DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbAscTot', $rawEtab['DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbAscAS4', $rawEtab['DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'colSeches', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'colHumides', $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'RIA', $rawEtab['DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'sprinkleur', $rawEtab['DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'brouillardEau', $rawEtab['DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'presencePCS', ('1' === $rawEtab['DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'localisationPCS', $rawEtab['DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'presenceSSI', ('1' === $rawEtab['DESCTECH_SSI_PRESENCE_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'catSSI', $rawEtab['DESCTECH_SSI_CATEGORIE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'alarmeSSI', $rawEtab['DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'persQualEL18', ('1' === $rawEtab['DESCTECH_SERVICESECU_EL18_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'persDesignes', ('1' === $rawEtab['DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'nbAgentSecu', $rawEtab['DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChefEquipeSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChefServSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbSp', $rawEtab['DESCTECH_SERVICESECU_SP_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'commentaireSp', $rawEtab['DESCTECH_SERVICESECU_COMMENTAIRESP_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbPointEau', $rawEtab['DESCTECH_DEFENSE_PTEAU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'volumePointEau', $rawEtab['DESCTECH_DEFENSE_VOLUMEPTEAU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'commentairePointEauNat', $rawEtab['DESCTECH_DEFENSE_PTEAUCOMMENTAIRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'PI', $rawEtab['DESCTECH_DEFENSE_PI_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'BI', $rawEtab['DESCTECH_DEFENSE_BI_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'debitSimultane', $rawEtab['DESCTECH_DEFENSE_DEBITSIMULTANE_ETABLISSEMENT'] ?? '');
 
         // =====================================================================
         // Établissement père
@@ -897,12 +900,9 @@ class DossierRapportOdtService
         // =====================================================================
         // GN (Groupement de Nuit)
         // =====================================================================
-        /** @var array<string, string|null>|false $gnRowFetch */
-        $gnRowFetch = $this->conn->fetchAssociative(
-            'SELECT GN_ETABLISSEMENTINFORMATIONS FROM etablissementinformations WHERE ID_ETABLISSEMENT = :id ORDER BY ID_ETABLISSEMENTINFORMATIONS DESC LIMIT 1',
-            ['id' => $idEtab]
-        );
-        $gn = false !== $gnRowFetch ? (int) ($gnRowFetch['GN_ETABLISSEMENTINFORMATIONS'] ?? '0') : 0;
+        // GN dérivé de ID_GENRE (2 = établissement, 3 = cellule) — la colonne
+        // GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée.
+        $gn = (int) ($rawEtabInfos['ID_GENRE'] ?? '0');
         if (2 === $gn) {
             $this->addChamp($odf, 'gn2', '×');
             $this->addChamp($odf, 'gn3', '');
@@ -1615,11 +1615,7 @@ class DossierRapportOdtService
                 return '';
             }
 
-            $fmt = new \IntlDateFormatter('fr_FR', \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
-            $fmt->setPattern('d MMMM yyyy');
-            $formatted = $fmt->format($date);
-
-            return is_string($formatted) ? $formatted : '';
+            return $this->formatDateLongFr($date);
         }
 
         return $valeur->getStr() ?? $valeur->getLongStr() ?? '';
@@ -1645,12 +1641,9 @@ class DossierRapportOdtService
             return '';
         }
 
-        $fmt = new \IntlDateFormatter('fr_FR', \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-        $fmt->setPattern('d MMM yyyy');
+        $moisCourts = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 
-        $formatted = $fmt->format($dt);
-
-        return is_string($formatted) ? $formatted : '';
+        return $dt->format('j').' '.$moisCourts[(int) $dt->format('n') - 1].' '.$dt->format('Y');
     }
 
     /**
@@ -1658,12 +1651,9 @@ class DossierRapportOdtService
      */
     private function formatDateLongFr(\DateTimeInterface $dt): string
     {
-        $fmt = new \IntlDateFormatter('fr_FR', \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
-        $fmt->setPattern('d MMMM yyyy');
+        $moisLongs = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
-        $formatted = $fmt->format($dt);
-
-        return is_string($formatted) ? $formatted : '';
+        return $dt->format('j').' '.$moisLongs[(int) $dt->format('n') - 1].' '.$dt->format('Y');
     }
 
     /**
