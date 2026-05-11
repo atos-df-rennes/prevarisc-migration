@@ -350,12 +350,18 @@ class Search
 }
 ```
 
-**Solution proposée :**
-1. Scinder en `EtablissementSearchService` et `DossierSearchService`
-2. Extraire les builders SQL en classes dédiées `EtablissementSearchQueryBuilder` et `DossierSearchQueryBuilder`
-3. À terme, migrer vers le QueryBuilder Doctrine si possible (complexité élevée vu la nature des requêtes)
+## ✅ Terminé — branche `refactor/search-service-split` (2026-05-11)
 
-> **✅ Vérifié sur `develop`** (2026-05-11) — `Search.php` = 1386 lignes, aucune extraction d'export réalisée. Les 4 méthodes (`etablissements`, `dossiers`, `extractionEtablissements`, `extractionDossiers`) sont toujours dans le fichier monolithique. La complexité du découpage reste pleine.
+**Services créés :**
+
+| Fichier | Rôle | Méthodes |
+|---------|------|----------|
+| `src/Service/EtablissementSearchService.php` | Recherche + export établissements | `etablissements()`, `extractionEtablissements()` |
+| `src/Service/DossierSearchService.php` | Recherche + export dossiers, liste préventionnistes | `listePrevActifs()`, `dossiers()`, `extractionDossiers()` |
+
+`Search.php` supprimé. `SearchController` mis à jour pour injecter les deux services.
+
+> Note : `buildCriteria()` et `safeQuote()` sont dupliquées (privées) dans chaque service — pas de trait, logique cohérente avec l'encapsulation.
 
 ---
 
@@ -1000,7 +1006,7 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Terminé (code déjà correct) | ✅ Fait | 0 méthode sans return type | — |
 | REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | 🔴 À faire | ~49 find() manuels | `refactor/paramconverter` |
 | REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | ✅ Fait | 3 restants (sérialisation interne, non-réponse) | `refactor/json-responses` |
-| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ✅ Validé | 🔴 À faire | `Search.php` = 1386 lignes (vérifié sur `develop`) | `refactor/search-service-split` |
+| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ✅ Terminé | ✅ Fait | 2 services : `EtablissementSearchService` (≈350 lignes) + `DossierSearchService` (≈665 lignes) | `refactor/search-service-split` |
 | REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | 3 services : 490+250+232 lignes | `refactor/etablissement-service-split` |
 | REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | 🔴 À faire | Services injectant Request présents | `refactor/services-no-request` |
 | REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | 🔴 À faire | ~39 méthodes statiques | `refactor/static-to-services` |
