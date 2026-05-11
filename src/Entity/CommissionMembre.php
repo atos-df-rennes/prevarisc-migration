@@ -159,6 +159,13 @@ class CommissionMembre
      */
     private $typesDossier;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="MANIFESTATION_COMMISSIONMEMBRE", type="boolean", nullable=false, options={"default":false})
+     */
+    private $manifestation;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -166,6 +173,7 @@ class CommissionMembre
         $this->classes = new ArrayCollection();
         $this->naturesDossier = new ArrayCollection();
         $this->typesDossier = new ArrayCollection();
+        $this->manifestation = false;
     }
 
     public function getId(): ?int
@@ -397,6 +405,18 @@ class CommissionMembre
     public function removeTypesDossier(DossierType $typesDossier): self
     {
         $this->typesDossier->removeElement($typesDossier);
+
+        return $this;
+    }
+
+    public function isManifestation(): bool
+    {
+        return $this->manifestation;
+    }
+
+    public function setManifestation(bool $manifestation): self
+    {
+        $this->manifestation = $manifestation;
 
         return $this;
     }
