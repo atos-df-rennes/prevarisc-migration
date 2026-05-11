@@ -152,8 +152,8 @@
             </li>
         {% endif %}
 
-        <li>
-            <a href="{{ '/dossier/rapport/id/' ~ dossier.id }}">
+        <li {% if app.request.get('_route') starts with 'dossier_rapport' %}class="active"{% endif %}>
+            <a href="{{ path('dossier_rapport', {id: dossier.id}) }}">
                 <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                 Rapport
             </a>

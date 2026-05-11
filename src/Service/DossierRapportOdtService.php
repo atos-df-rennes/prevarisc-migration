@@ -1036,12 +1036,11 @@ class DossierRapportOdtService
     /**
      * Remplit un segment de prescription ODT (hors CC).
      *
-     * @param \Odf                                          $odf
      * @param array<int, array<int, array<string, string>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
      * @param int                                           $type        TypePrescription::*
      * @param string                                        $typeContenu 'all' | 'reprises' | 'actuelles'
      */
-    private function addPrescription($odf, array $prescArray, int $type, string $typeContenu): void
+    private function addPrescription(\Odf $odf, array $prescArray, int $type, string $typeContenu): void
     {
         $segName = $this->getPrescriptionSegmentName($type, $typeContenu);
         if ('' === $segName) {
@@ -1267,10 +1266,8 @@ class DossierRapportOdtService
 
     /**
      * Applique les segments cellulesPresc (branche celluleDossier — natures VP/levée CC).
-     *
-     * @param \Odf $odf
      */
-    private function applyCelluleDossier($odf, Dossier $dossier): void
+    private function applyCelluleDossier(\Odf $odf, Dossier $dossier): void
     {
         $affectation = $this->dossierAffectationRepository->findOneBy(['dossier' => $dossier]);
         if (null === $affectation) {
@@ -1325,10 +1322,9 @@ class DossierRapportOdtService
     /**
      * Applique les segments cellulesPresc (branche celluleDossierLevee — natures levée CC).
      *
-     * @param \Odf                       $odf
      * @param array<string, string|null> $rawDossier
      */
-    private function applyCelluleDossierLevee($odf, int $idEtab, int $dossierNature, array $rawDossier): void
+    private function applyCelluleDossierLevee(\Odf $odf, int $idEtab, int $dossierNature, array $rawDossier): void
     {
         /** @var array<int, array<string, string|null>> $enfants */
         $enfants = $this->conn->fetchAllAssociative(
@@ -1421,10 +1417,9 @@ class DossierRapportOdtService
     /**
      * Applique les segments avisDerogations ou avisDerogationsEtablissement.
      *
-     * @param \Odf $odf
      * @param bool $isEtablissement Si true, récupère par établissement (DISPLAY_HISTORIQUE=1)
      */
-    private function applyAvisDerogations($odf, int $idDossier, string $segmentName, bool $isEtablissement, int $idEtab): void
+    private function applyAvisDerogations(\Odf $odf, int $idDossier, string $segmentName, bool $isEtablissement, int $idEtab): void
     {
         try {
             $seg = $odf->setSegment($segmentName);
@@ -1498,10 +1493,8 @@ class DossierRapportOdtService
      * Applique les formulaires (capsules rubriques) dans le document ODT.
      *
      * Port direct de la boucle formulaires de creationdoc.phtml.
-     *
-     * @param \Odf $odf
      */
-    private function applyFormulaires($odf, Dossier $dossier, Etablissement $etablissement): void
+    private function applyFormulaires(\Odf $odf, Dossier $dossier, Etablissement $etablissement): void
     {
         $capsules = [
             NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES => $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES),
