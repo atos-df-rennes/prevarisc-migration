@@ -121,14 +121,13 @@ class DossierRapportController extends AbstractController implements DossierLate
     /**
      * Action AJAX POST de génération des rapports ODT.
      *
-     * @Route("/dossier/generationrapport", name="dossier_generationrapport", methods={"POST"}, defaults={"_dossier_lateral_nav": false})
+     * @Route("/dossier/{id}/rapport/generer", name="dossier_generationrapport", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @IsGranted("ROLE_USER")
+     * @IsGranted("view_doss", subject="dossier")
      */
-    public function generationRapport(Request $request): Response
+    public function generationRapport(Dossier $dossier, Request $request): Response
     {
-        $rawIdDossier = $request->request->get('idDossier', 0);
-        $idDossier = is_scalar($rawIdDossier) ? (int) $rawIdDossier : 0;
+        $idDossier = (int) $dossier->getId();
         $rawFichier = $request->request->get('file', '');
         $fichierSelect = is_scalar($rawFichier) ? (string) $rawFichier : '';
         $repriseCC = $request->request->getBoolean('repriseCC');

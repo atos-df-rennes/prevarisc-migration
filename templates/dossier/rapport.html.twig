@@ -8,8 +8,7 @@
 
 {% block body %}
 <div id="dossier_Pdroite">
-    <form name="etabRapport" id="etabRapport" action="{{ path('dossier_generationrapport') }}" method="POST">
-        <input type="hidden" name="idDossier" value="{{ dossier.id }}" />
+    <form name="etabRapport" id="etabRapport" action="{{ path('dossier_generationrapport', {id: dossier.id}) }}" method="POST">
         <input type="hidden" name="idCommission" value="{{ commission is not null ? commission.id : '' }}" />
 
         <div id="dossierInfos">
@@ -128,12 +127,6 @@
             <hr class="clear"/>
         </div>
 
-        <div class="alert alert-warning" id="alertDiv" style="display:none;">
-            <strong>Attention!</strong> Vous devez selectionner un fichier et au moins un établissement.
-        </div>
-        <div class="alert alert-success" id="successDiv" style="display:none;"></div>
-        <div class="alert alert-danger" id="failDiv" style="display:none;"></div>
-
         <div>
             {% if idTypeActivitePrinc == 29 %}
                 Cochez la case si vous ne souhaitez pas reprendre les prescriptions des cellules
@@ -143,7 +136,7 @@
 
         <br/>
 
-        <input type="generate" class="btn btn-success mb-4" id="test" value="Générer le(s) document(s)">
+        <button type="button" class="btn btn-success mb-4" id="test">Générer le(s) document(s)</button>
     </form>
 </div>
 {% endblock %}
@@ -152,41 +145,45 @@
     {{ parent() }}
     <script type="text/javascript">
         $(document).ready(function(){
-            $("#commission").change(function() {
+            $("#commission").on('change', function() {
                 $(".table").hide();
                 $("#file_"+$(this).val()).show();
-                $('input[name=file]:checked').removeAttr('checked');
+                $('input[name=file]').prop('checked', false);
             });
 
-            $("#test").click(function(){
-                if($('input[name=file]:checked').length == 0 || $("input[name='idEtab[]']:checked").length == 0){
-                    //Si il n'y a pas de fichier ou d'établissement sélectionné
-                    $(".alert").hide();
-                    $("#alertDiv").show();
+            $("#test").on('click', function(){
+                if ($('input[name=file]:checked').length === 0 || $("input[name='idEtab[]']:checked").length === 0) {
+                    $.toast.warning('Vous devez sélectionner un fichier et au moins un établissement.');
                     return false;
-                }else{
-                    $("#alertDiv").hide();
-                    $.ajax({
-                        url: "{{ path('dossier_generationrapport') }}",
-                        data: $("#etabRapport").serialize(),
-                        type:"POST",
-                        beforeSend: function(){
-                            $("#successDiv").html("Génération en cours ... <img src='/images/load.gif' />").show();
-                            $("#test").attr('disabled','disabled');
-                        },
-                        success: function(affichageResultat){
-                            var successMess = "<h3>Génération effectuée avec succès</h3><br/>";
-                            $("#successDiv").html(successMess+affichageResultat);
-                            $("#successDiv").append("Vous pouvez retrouver ce(s) document(s) dans la partie pièces jointes");
-                            $("#test").removeAttr('disabled');
-                        },
-                        error: function(){
-                            $("#failDiv").html("<h3>Erreur lors de la génération du rapport</h3><br/>Si le problème persiste veuillez contacter votre administrateur");
-                            $("#test").removeAttr('disabled');
-                            return false;
-                        }
-                    });
                 }
+
+                const enCoursToastId = $.toast.info(
+                    'Génération en cours... <img src="{{ asset('images/load.gif') }}" alt="" />',
+                    { autoClose: false }
+                );
+                $("#test").prop('disabled', true);
+
+                $.ajax({
+                    url: "{{ path('dossier_generationrapport', {id: dossier.id}) }}",
+                    data: $("#etabRapport").serialize(),
+                    type: "POST",
+                    success: function(affichageResultat) {
+                        $.toast.close(enCoursToastId);
+                        $.toast.success(
+                            affichageResultat + '<br/>Vous pouvez retrouver ce(s) document(s) dans la partie pièces jointes',
+                            { autoClose: false }
+                        );
+                        $("#test").prop('disabled', false);
+                    },
+                    error: function() {
+                        $.toast.close(enCoursToastId);
+                        $.toast.error(
+                            'Erreur lors de la génération du rapport.<br/>Si le problème persiste veuillez contacter votre administrateur.',
+                            { autoClose: false }
+                        );
+                        $("#test").prop('disabled', false);
+                    }
+                });
             });
         });
     </script>

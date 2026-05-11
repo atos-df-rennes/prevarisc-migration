@@ -162,6 +162,9 @@
         info: function(message, options) {
             return showToast('info', message, options);
         },
+        close: function(id) {
+            closeToast($('#' + id));
+        },
         fromResponse: showToastFromResponse
     };
 
