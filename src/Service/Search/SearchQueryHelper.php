@@ -25,6 +25,10 @@ class SearchQueryHelper
      */
     public function buildCriteria(string $key, $value, bool $exact = true): string
     {
+        if ([] === $value) {
+            throw new \InvalidArgumentException('buildCriteria() requires a non-empty value.');
+        }
+
         $parts = [];
 
         $values = is_array($value) ? $value : [$value];
@@ -47,6 +51,10 @@ class SearchQueryHelper
     {
         $quoted = $this->connection->quote($value);
 
-        return is_string($quoted) ? $quoted : "'".addslashes($value)."'";
+        if (!is_string($quoted)) {
+            throw new \RuntimeException('Connection::quote() returned a non-string value — cannot safely quote SQL parameter.');
+        }
+
+        return $quoted;
     }
 }

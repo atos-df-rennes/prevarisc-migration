@@ -361,7 +361,7 @@ class Search
 
 `Search.php` supprimé. `SearchController` mis à jour pour injecter les deux services.
 
-> Note : `buildCriteria()` et `safeQuote()` sont dupliquées (privées) dans chaque service — pas de trait, logique cohérente avec l'encapsulation.
+> Note : `buildCriteria()` et `safeQuote()` sont extraites dans `SearchQueryHelper` (injectable via constructeur) — partagé entre les deux services, couvert par des tests unitaires dédiés.
 
 ---
 
@@ -1006,7 +1006,7 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | REF-CTL-02 | Controller | 72 méthodes sans return type | 🔴 Haute | Simple | ✅ Terminé (code déjà correct) | ✅ Fait | 0 méthode sans return type | — |
 | REF-CTL-03 | Controller | 41 find() manuels | 🟡 Moyenne | Modérée | ⚠️ À analyser au cas par cas | 🔴 À faire | ~49 find() manuels | `refactor/paramconverter` |
 | REF-CTL-04 | Controller | `json_encode()` manuel | 🟢 Basse | Simple | ✅ Validé | ✅ Fait | 3 restants (sérialisation interne, non-réponse) | `refactor/json-responses` |
-| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ✅ Terminé | ✅ Fait | 2 services + `SearchQueryHelper` injectable (9 tests unitaires) · `EtablissementSearchService` (≈350 lignes) + `DossierSearchService` (≈665 lignes) | `refactor/search-service-split` |
+| REF-SVC-01 | Service | Search monolithique SQL brut | 🔴 Haute | Complexe | ✅ Terminé | ✅ Fait | 2 services + `SearchQueryHelper` injectable (12 tests unitaires) · `EtablissementSearchService` (≈350 lignes) + `DossierSearchService` (≈665 lignes) | `refactor/search-service-split` |
 | REF-SVC-02 | Service | Etablissement 795 lignes, SRP | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | 3 services : 490+250+232 lignes | `refactor/etablissement-service-split` |
 | REF-SVC-03 | Service | 5 services avec Request | 🟡 Moyenne | Simple | 💬 À étudier (factory DTO = pattern valide) | 🔴 À faire | Services injectant Request présents | `refactor/services-no-request` |
 | REF-SVC-04 | Service | Classes statiques | 🟢 Basse | Simple | ✅ Validé (quand testabilité requise) | 🔴 À faire | ~39 méthodes statiques | `refactor/static-to-services` |
