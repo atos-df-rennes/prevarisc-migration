@@ -15,7 +15,8 @@ use App\Repository\FamilleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\IghClasseRepository;
-use App\Service\Search as SearchService;
+use App\Service\DossierSearchService;
+use App\Service\EtablissementSearchService;
 use App\Service\SearchExport;
 use App\ValueObject\SearchPagination;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,8 +32,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SearchController extends AbstractController
 {
-    /** @var SearchService */
-    private $searchService;
+    /** @var EtablissementSearchService */
+    private $etablissementSearchService;
+
+    /** @var DossierSearchService */
+    private $dossierSearchService;
 
     /** @var GroupementRepository */
     private $groupementRepository;
@@ -77,7 +81,8 @@ class SearchController extends AbstractController
     private $deactivatePlatau;
 
     public function __construct(
-        SearchService $searchService,
+        EtablissementSearchService $etablissementSearchService,
+        DossierSearchService $dossierSearchService,
         GroupementRepository $groupementRepository,
         CommissionRepository $commissionRepository,
         DossierTypeRepository $dossierTypeRepository,
@@ -93,7 +98,8 @@ class SearchController extends AbstractController
         bool $deactivatePlatau,
         SearchExport $searchExport
     ) {
-        $this->searchService = $searchService;
+        $this->etablissementSearchService = $etablissementSearchService;
+        $this->dossierSearchService = $dossierSearchService;
         $this->groupementRepository = $groupementRepository;
         $this->commissionRepository = $commissionRepository;
         $this->dossierTypeRepository = $dossierTypeRepository;
@@ -129,7 +135,7 @@ class SearchController extends AbstractController
         $DB_commission = $this->commissionRepository->findAllForSearch();
 
         $DB_groupementterritorial = $this->groupementRepository->findTerritoriaux();
-        $liste_prev = $this->searchService->listePrevActifs();
+        $liste_prev = $this->dossierSearchService->listePrevActifs();
 
         // Pré-sélection groupements si premier affichage (pas de paramètre Rechercher)
         /** @var Utilisateur|null $user */
@@ -179,7 +185,7 @@ class SearchController extends AbstractController
                     $preventionniste = null !== $preventionnisteRaw ? (int) $preventionnisteRaw : null;
                     $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
 
-                    $search = $this->searchService->extractionEtablissements(
+                    $search = $this->etablissementSearchService->extractionEtablissements(
                         $label, null, $genres, $categories, $classes, $familles, $types_activites,
                         $avis_favorable, $statuts, $local_sommeil, null, null, null,
                         $city, $street, $number, $commissions, $groupements_territoriaux, $preventionniste
@@ -262,7 +268,7 @@ class SearchController extends AbstractController
                     }
                 }
 
-                $search = $this->searchService->etablissements(
+                $search = $this->etablissementSearchService->etablissements(
                     $label,
                     null,
                     $genres,
@@ -327,7 +333,7 @@ class SearchController extends AbstractController
         $DB_type = $this->dossierTypeRepository->findAll();
         $array_commissions = $this->commissionRepository->getCommissionsAndTypes();
         $DB_groupementterritorial = $this->groupementRepository->findTerritoriaux();
-        $liste_prev = $this->searchService->listePrevActifs();
+        $liste_prev = $this->dossierSearchService->listePrevActifs();
 
         $array_communes = $this->communeRepository->findAllForSearch();
 
@@ -417,7 +423,7 @@ class SearchController extends AbstractController
                     $criteresRecherche['label'] = $this->getStringQueryParam($request, 'label');
                     $criteresRecherche['identifiant'] = null;
 
-                    $search = $this->searchService->extractionDossiers($types, $objet, $num_doc_urba, null, null, $criteresRecherche);
+                    $search = $this->dossierSearchService->extractionDossiers($types, $objet, $num_doc_urba, null, null, $criteresRecherche);
 
                     if ($search['search_metadata']['count'] > 10000) {
                         $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
@@ -513,7 +519,7 @@ class SearchController extends AbstractController
 
                 $criteresRecherche['groupements_territoriaux'] = $groupements_territoriaux;
 
-                $search = $this->searchService->dossiers(
+                $search = $this->dossierSearchService->dossiers(
                     $types,
                     $objet,
                     $num_doc_urba,
@@ -563,7 +569,7 @@ class SearchController extends AbstractController
         $parentIdRaw = $request->request->get('parent', 0);
         $parentId = is_numeric($parentIdRaw) ? (int) $parentIdRaw : 0;
 
-        $search = $this->searchService->etablissements(
+        $search = $this->etablissementSearchService->etablissements(
             null, null, null, null, null, null, null, null, null, null,
             null, null, $parentId, null, null, null, null, null, null,
             100, 1
