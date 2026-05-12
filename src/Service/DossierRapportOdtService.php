@@ -1826,6 +1826,12 @@ class DossierRapportOdtService
             return $this->formatDateLongFr($date);
         }
 
+        if (TypeChamp::NUMBER === $typeId) {
+            $number = $valeur->getNumber();
+
+            return null !== $number ? (string) $number : '';
+        }
+
         return $valeur->getStr() ?? $valeur->getLongStr() ?? '';
     }
 
