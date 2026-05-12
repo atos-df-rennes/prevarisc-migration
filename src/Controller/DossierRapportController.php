@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller\Contract\DossierLateralNavigationInterface;
+use App\Dto\Commission\CommissionOdtDto;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\CommissionRepository;
@@ -70,17 +71,18 @@ class DossierRapportController extends AbstractController implements DossierLate
         $fichierVer = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.'0');
 
         // Liste des commissions avec leur type et leurs fichiers ODT
+        /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
         foreach ($this->commissionRepository->findAllWithType() as $commission) {
             $idCommission = $commission['ID_COMMISSION'];
             $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
-            $listeCommissions[] = [
-                'ID_COMMISSION' => $idCommission,
-                'LIBELLE_COMMISSION' => $commission['LIBELLE_COMMISSION'],
-                'ID_COMMISSIONTYPE' => $commission['ID_COMMISSIONTYPE'],
-                'LIBELLE_COMMISSIONTYPE' => $commission['LIBELLE_COMMISSIONTYPE'],
-                'listeFichier' => $fichiers,
-            ];
+            $listeCommissions[] = new CommissionOdtDto(
+                $idCommission,
+                $commission['LIBELLE_COMMISSION'],
+                $commission['ID_COMMISSIONTYPE'],
+                $commission['LIBELLE_COMMISSIONTYPE'],
+                $fichiers
+            );
         }
 
         // Commission liée au dossier
