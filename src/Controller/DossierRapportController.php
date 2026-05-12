@@ -9,6 +9,7 @@ use App\Service\DossierRapportOdtService;
 use Doctrine\DBAL\Connection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -176,7 +177,8 @@ class DossierRapportController extends AbstractController implements DossierLate
     }
 
     /**
-     * Liste les fichiers ODT d'un répertoire (sans points, dossiers, .gitignore et fichiers non-.odt).
+     * Liste les fichiers ODT d'un répertoire (sans dossiers ni fichiers non-.odt).
+     * Port direct de l'opendir/readdir legacy, remplacé par Symfony Finder (REF-R-05).
      *
      * @return string[]
      */
@@ -186,37 +188,13 @@ class DossierRapportController extends AbstractController implements DossierLate
             return [];
         }
 
-        $dir = opendir($path);
-        if (false === $dir) {
-            return [];
-        }
+        $finder = new Finder();
+        $finder->files()->in($path)->depth('== 0')->name('*.odt')->sortByName();
 
         $fichiers = [];
-        while (false !== ($element = readdir($dir))) {
-            if ('.' === $element) {
-                continue;
-            }
-
-            if ('..' === $element) {
-                continue;
-            }
-
-            if ('.gitignore' === $element) {
-                continue;
-            }
-
-            // M1 : ne lister que les fichiers ODT
-            if ('odt' !== strtolower(pathinfo($element, PATHINFO_EXTENSION))) {
-                continue;
-            }
-
-            if (!is_dir($path.DIRECTORY_SEPARATOR.$element)) {
-                $fichiers[] = $element;
-            }
+        foreach ($finder as $file) {
+            $fichiers[] = $file->getFilename();
         }
-
-        closedir($dir);
-        sort($fichiers);
 
         return $fichiers;
     }
