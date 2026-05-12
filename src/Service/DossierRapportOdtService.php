@@ -446,7 +446,29 @@ class DossierRapportOdtService
         // =====================================================================
         // SEGMENT : listeDocs (documents de visite)
         // =====================================================================
-        $listeDocs = $this->listeDocRepository->getDocVisite();
+        // Port direct legacy : sélection de la liste de docs selon type et nature du dossier
+        // TYPE_DOSSIER 2/3 = visite : RT(20,25)→getDocVisiteRT, VAO(47,48)→getDocVisiteVAO, sinon→getDocVisite
+        // TYPE_DOSSIER 1 = étude : nature 7/19→getDocVisite, sinon→getDocEtude
+        // Autre : pas de docs
+        $dosssierTypeInt = (int) $typeDossierId;
+        $dossierNatureInt = (int) $dossierNature;
+        if (in_array($dosssierTypeInt, [2, 3], true)) {
+            if (in_array($dossierNatureInt, [20, 25], true)) {
+                $listeDocs = $this->listeDocRepository->getDocVisiteRT();
+            } elseif (in_array($dossierNatureInt, [47, 48], true)) {
+                $listeDocs = $this->listeDocRepository->getDocVisiteVAO();
+            } else {
+                $listeDocs = $this->listeDocRepository->getDocVisite();
+            }
+        } elseif (1 === $dosssierTypeInt) {
+            if (in_array($dossierNatureInt, [7, 19], true)) {
+                $listeDocs = $this->listeDocRepository->getDocVisite();
+            } else {
+                $listeDocs = $this->listeDocRepository->getDocEtude();
+            }
+        } else {
+            $listeDocs = [];
+        }
         try {
             $segListeDocs = $odf->setSegment('listeDocs');
             /** @var array<int, array<string, string|null>> $docsConsultes */
@@ -938,13 +960,13 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'RIA', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'sprinkleur', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'brouillardEau', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT']) ? 'Oui' : 'Non');
-        $this->addChamp($odf, 'presencePCS', ('1' === $rawEtab['DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'presencePCS', ('1' === $rawEtab['DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'localisationPCS', $rawEtab['DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'presenceSSI', ('1' === $rawEtab['DESCTECH_SSI_PRESENCE_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'presenceSSI', ('1' === $rawEtab['DESCTECH_SSI_PRESENCE_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'catSSI', $rawEtab['DESCTECH_SSI_CATEGORIE_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'alarmeSSI', $rawEtab['DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'persQualEL18', ('1' === $rawEtab['DESCTECH_SERVICESECU_EL18_ETABLISSEMENT']) ? 'Oui' : '');
-        $this->addChamp($odf, 'persDesignes', ('1' === $rawEtab['DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'persQualEL18', ('1' === $rawEtab['DESCTECH_SERVICESECU_EL18_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'persDesignes', ('1' === $rawEtab['DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'nbAgentSecu', $rawEtab['DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'nbChefEquipeSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'nbChefServSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT'] ?? '');
@@ -1231,40 +1253,52 @@ class DossierRapportOdtService
         try {
             // @phpstan-ignore-next-line
             $segment = $segCellule->{$segName};
-            foreach ($prescArray as $prescriptions) {
-                if (empty($prescriptions)) {
-                    continue;
-                }
-
-                $first = reset($prescriptions);
-                $nbAssoc = count($prescriptions);
-                $nbCpt = $nbAssoc;
-                $textearticle = '';
-                foreach ($prescriptions as $assoc) {
-                    $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
-                    $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
-                    $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
-                    if ($nbCpt > 1) {
-                        $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
-                    } else {
-                        $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
-                    }
-
-                    --$nbCpt;
-                }
-
-                $num = $first['NUM_PRESCRIPTION_DOSSIER'];
-                $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
-                    ? $first['LIBELLE_PRESCRIPTION_DOSSIER']
-                    : $first['PRESCRIPTIONTYPE_LIBELLE'];
+            if (empty($prescArray)) {
+                // Port direct legacy : toujours merger le segment, même vide (sinon BEGIN/END restent verbatim)
                 // @phpstan-ignore-next-line
-                $this->addChamp($segment, 'num', $num);
+                $this->addChamp($segment, 'num', '');
                 // @phpstan-ignore-next-line
-                $this->addChamp($segment, 'libelle', $libelle);
+                $this->addChamp($segment, 'libelle', '');
                 // @phpstan-ignore-next-line
-                $this->addChamp($segment, 'textearticle', $textearticle);
+                $this->addChamp($segment, 'textearticle', '');
                 // @phpstan-ignore-next-line
                 $segment->merge();
+            } else {
+                foreach ($prescArray as $prescriptions) {
+                    if (empty($prescriptions)) {
+                        continue;
+                    }
+
+                    $first = reset($prescriptions);
+                    $nbAssoc = count($prescriptions);
+                    $nbCpt = $nbAssoc;
+                    $textearticle = '';
+                    foreach ($prescriptions as $assoc) {
+                        $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
+                        $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
+                        $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
+                        if ($nbCpt > 1) {
+                            $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
+                        } else {
+                            $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
+                        }
+
+                        --$nbCpt;
+                    }
+
+                    $num = $first['NUM_PRESCRIPTION_DOSSIER'];
+                    $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
+                        ? $first['LIBELLE_PRESCRIPTION_DOSSIER']
+                        : $first['PRESCRIPTIONTYPE_LIBELLE'];
+                    // @phpstan-ignore-next-line
+                    $this->addChamp($segment, 'num', $num);
+                    // @phpstan-ignore-next-line
+                    $this->addChamp($segment, 'libelle', $libelle);
+                    // @phpstan-ignore-next-line
+                    $this->addChamp($segment, 'textearticle', $textearticle);
+                    // @phpstan-ignore-next-line
+                    $segment->merge();
+                }
             }
         } catch (\Exception $exception) {
         }
