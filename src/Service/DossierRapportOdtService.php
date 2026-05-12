@@ -178,7 +178,17 @@ class DossierRapportOdtService
         // --- Type et nature dossier ---
         /** @var array<string, string|null>|false $typeDossierRow */
         $typeDossierRow = $this->dossierRepository->getTypeDossier($idDossier);
-        $typeDossier = false !== $typeDossierRow ? ($typeDossierRow['TYPE_DOSSIER'] ?? '') : '';
+        $typeDossierId = false !== $typeDossierRow ? ($typeDossierRow['TYPE_DOSSIER'] ?? null) : null;
+        $typeDossier = '';
+        if (null !== $typeDossierId) {
+            /** @var array<string, string|null>|false $typeDossierLabelFetch */
+            $typeDossierLabelFetch = $this->conn->fetchAssociative(
+                'SELECT LIBELLE_DOSSIERTYPE FROM dossiertype WHERE ID_DOSSIERTYPE = :id',
+                ['id' => $typeDossierId]
+            );
+            $typeDossier = false !== $typeDossierLabelFetch ? ($typeDossierLabelFetch['LIBELLE_DOSSIERTYPE'] ?? '') : '';
+        }
+
         $this->addChamp($odf, 'typeDossier', $typeDossier);
 
         $dossierNature = $this->dossierRepository->getDossierNatureId($idDossier);
@@ -454,11 +464,16 @@ class DossierRapportOdtService
             foreach ($listeDocs as $doc) {
                 $docId = (int) ($doc->getId() ?? 0);
                 $consulte = $docsConsultesIdx[$docId] ?? null;
+                // Port direct legacy : seuls les documents consultés sont inclus (avec coche "X")
+                if (null === $consulte) {
+                    continue;
+                }
+
                 $this->addChamp($segListeDocs, 'libelledoc', $doc->getLibelle() ?? '');
-                $this->addChamp($segListeDocs, 'exist', null !== $consulte ? 'X' : '');
-                $this->addChamp($segListeDocs, 'refdoc', null !== $consulte ? ($consulte['REF_CONSULTE'] ?? '') : '');
+                $this->addChamp($segListeDocs, 'exist', 'X');
+                $this->addChamp($segListeDocs, 'refdoc', $consulte['REF_CONSULTE'] ?? '');
                 $dateDc = '';
-                if (null !== $consulte && !empty($consulte['DATE_CONSULTE'])) {
+                if (!empty($consulte['DATE_CONSULTE']) && '0000-00-00' !== substr($consulte['DATE_CONSULTE'], 0, 10)) {
                     $dtDc = \DateTime::createFromFormat('Y-m-d', substr($consulte['DATE_CONSULTE'], 0, 10));
                     if ($dtDc instanceof \DateTime) {
                         $dateDc = $dtDc->format('d/m/Y');
@@ -601,7 +616,25 @@ class DossierRapportOdtService
 
         // Commune établissement
         $communeEtab = $adresseRow['LIBELLE_COMMUNE'] ?? '';
-        $etablissementAdresse = trim(($adresseRow['NUMERO_ADRESSE'] ?? '').' '.($adresseRow['LIBELLE_RUE'] ?? ''));
+        // Port direct legacy : adresse = numéro + rue + code postal + commune en majuscules
+        $adresseStr = '';
+        if (!empty($adresseRow['NUMERO_ADRESSE'])) {
+            $adresseStr .= $adresseRow['NUMERO_ADRESSE'].' ';
+        }
+
+        if (!empty($adresseRow['LIBELLE_RUE'])) {
+            $adresseStr .= $adresseRow['LIBELLE_RUE'].' ';
+        }
+
+        if (!empty($adresseRow['CODEPOSTAL_COMMUNE'])) {
+            $adresseStr .= $adresseRow['CODEPOSTAL_COMMUNE'].' ';
+        }
+
+        if (!empty($communeEtab)) {
+            $adresseStr .= strtoupper($communeEtab).' ';
+        }
+
+        $etablissementAdresse = trim($adresseStr);
         $this->addChamp($odf, 'communeEtab', $communeEtab);
         $this->addChamp($odf, 'etablissementAdresse', $etablissementAdresse);
 
@@ -613,8 +646,10 @@ class DossierRapportOdtService
         );
         $this->addChamp($odf, 'numDocUrba', false !== $numDocUrbaRowFetch ? ($numDocUrbaRowFetch['NUM_DOCURBA'] ?? '') : '');
 
-        // Catégorie / Famille
-        $this->addChamp($odf, 'categorieEtab', $rawEtabInfos['LIBELLE_CATEGORIE'] ?? '');
+        // Catégorie / Famille — port direct legacy : seul le premier mot de LIBELLE_CATEGORIE est utilisé
+        $libelleCat = $rawEtabInfos['LIBELLE_CATEGORIE'] ?? '';
+        $categorieParts = '' !== $libelleCat ? explode(' ', $libelleCat) : [];
+        $this->addChamp($odf, 'categorieEtab', !empty($categorieParts) ? $categorieParts[0] : '');
         $this->addChamp($odf, 'familleEtab', $rawEtabInfos['LIBELLE_FAMILLE'] ?? '');
 
         // Effectifs
@@ -656,14 +691,45 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'etatDossier', $etatDossier);
         $this->addChamp($odf, 'idDossier', (string) $idDossier);
 
-        // Téléphones établissement
-        $this->addChamp($odf, 'numTelEtab', $rawEtab['NUMTEL_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'numFaxEtab', $rawEtab['NUMFAX_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'mailEtab', $rawEtab['MAIL_ETABLISSEMENT'] ?? '');
+        // Téléphones établissement — port direct legacy : TELEPHONE_ETABLISSEMENT, FAX_ETABLISSEMENT, COURRIEL_ETABLISSEMENT
+        $this->addChamp($odf, 'numTelEtab', $rawEtab['TELEPHONE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'numFaxEtab', $rawEtab['FAX_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'mailEtab', $rawEtab['COURRIEL_ETABLISSEMENT'] ?? '');
 
         // Périodicité
         $this->addChamp($odf, 'periodiciteEtab', $rawEtabInfos['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? '');
-        $this->addChamp($odf, 'prochaineVisite', '');
+
+        // --- Prochaine visite périodique (port direct legacy Service_Etablissement) ---
+        $prochaineVisite = '';
+        $periodicite = (int) ($rawEtabInfos['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0);
+        if ($periodicite > 0) {
+            /** @var array<string, string|null>|false $lastVpRowFetch */
+            $lastVpRowFetch = $this->conn->fetchAssociative(
+                'SELECT d.DATEVISITE_DOSSIER
+                 FROM dossier d
+                 JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
+                 JOIN dossiernature dn ON d.ID_DOSSIER = dn.ID_DOSSIER
+                 WHERE ed.ID_ETABLISSEMENT = :idEtab
+                   AND (dn.ID_NATURE = 21 OR dn.ID_NATURE = 26)
+                   AND d.DATEVISITE_DOSSIER IS NOT NULL
+                 ORDER BY d.DATEVISITE_DOSSIER DESC LIMIT 1',
+                ['idEtab' => $idEtab]
+            );
+            if (false !== $lastVpRowFetch && !empty($lastVpRowFetch['DATEVISITE_DOSSIER'])) {
+                $dateBase = \DateTime::createFromFormat('Y-m-d', substr($lastVpRowFetch['DATEVISITE_DOSSIER'], 0, 10));
+                if ($dateBase instanceof \DateTime) {
+                    $dateBase->modify('+'.$periodicite.' months');
+                    $moisFr = [
+                        1 => 'janvier', 2 => 'février', 3 => 'mars', 4 => 'avril',
+                        5 => 'mai', 6 => 'juin', 7 => 'juillet', 8 => 'août',
+                        9 => 'septembre', 10 => 'octobre', 11 => 'novembre', 12 => 'décembre',
+                    ];
+                    $prochaineVisite = $moisFr[(int) $dateBase->format('n')].' '.$dateBase->format('Y');
+                }
+            }
+        }
+
+        $this->addChamp($odf, 'prochaineVisite', $prochaineVisite);
 
         // --- Dernière visite périodique ---
         $dateLastVP = '';
@@ -731,10 +797,11 @@ class DossierRapportOdtService
                 $telFixeMaire = $maireRowFetch['TELFIXE_UTILISATEURINFORMATIONS'] ?? '';
                 $telPortMaire = $maireRowFetch['TELPORTABLE_UTILISATEURINFORMATIONS'] ?? '';
                 $numFaxMaire = $maireRowFetch['TELFAX_UTILISATEURINFORMATIONS'] ?? '';
-                $numeroMaire = $maireRowFetch['NUMERO_UTILISATEURINFORMATIONS'] ?? '';
-                $rueMaire = $maireRowFetch['RUE_UTILISATEURINFORMATIONS'] ?? '';
-                $cpMaire = $maireRowFetch['CP_UTILISATEURINFORMATIONS'] ?? '';
-                $villeMaire = $maireRowFetch['VILLE_UTILISATEURINFORMATIONS'] ?? '';
+                // Port direct legacy : colonnes NUMEROADRESSE/RUEADRESSE/CPADRESSE/VILLEADRESSE
+                $numeroMaire = $maireRowFetch['NUMEROADRESSE_UTILISATEURINFORMATIONS'] ?? '';
+                $rueMaire = $maireRowFetch['RUEADRESSE_UTILISATEURINFORMATIONS'] ?? '';
+                $cpMaire = $maireRowFetch['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '';
+                $villeMaire = $maireRowFetch['VILLEADRESSE_UTILISATEURINFORMATIONS'] ?? '';
             }
         }
 
@@ -815,8 +882,8 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'locauxRisquesImportants', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'espacesAttentesNombre', $rawEtab['DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'espacesAttentesNiveaux', $rawEtab['DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'desenfNaturel', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT']) ? 'Oui' : '');
-        $this->addChamp($odf, 'desenfMecanique', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT']) ? 'Oui' : '');
+        $this->addChamp($odf, 'desenfNaturel', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'desenfMecanique', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'desenfCommentaire', $rawEtab['DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'nbChaufferie', $rawEtab['DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'puissanceMaxChauff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT'] ?? '');
@@ -830,11 +897,11 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'locAutre', $rawEtab['DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'nbAscTot', $rawEtab['DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'nbAscAS4', $rawEtab['DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'colSeches', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT']) ? 'Oui' : '');
-        $this->addChamp($odf, 'colHumides', $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'RIA', $rawEtab['DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'sprinkleur', $rawEtab['DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT'] ?? '');
-        $this->addChamp($odf, 'brouillardEau', $rawEtab['DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'colSeches', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'colHumides', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'RIA', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'sprinkleur', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'brouillardEau', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT']) ? 'Oui' : 'Non');
         $this->addChamp($odf, 'presencePCS', ('1' === $rawEtab['DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT']) ? 'Oui' : '');
         $this->addChamp($odf, 'localisationPCS', $rawEtab['DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT'] ?? '');
         $this->addChamp($odf, 'presenceSSI', ('1' === $rawEtab['DESCTECH_SSI_PRESENCE_ETABLISSEMENT']) ? 'Oui' : '');
@@ -962,7 +1029,7 @@ class DossierRapportOdtService
             'idpj' => $pj->getId(),
         ]);
         $libelle = htmlspecialchars($rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', ENT_QUOTES);
-        $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'<a/><br/><br/>';
+        $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'<a/>';
 
         // Sauvegarde ODT
         if (!empty($rawDossier['ID_PLATAU'])) {
@@ -1036,6 +1103,10 @@ class DossierRapportOdtService
     /**
      * Remplit un segment de prescription ODT (hors CC).
      *
+     * Port direct legacy addPrescription() de creationdoc.phtml.
+     * Une ligne ODT par prescription : {num}, {libelle}, {textearticle}
+     * (textearticle = concaténation des paires TEXTE - ARTICLE de tous les articles)
+     *
      * @param array<int, array<int, array<string, string>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
      * @param int                                           $type        TypePrescription::*
      * @param string                                        $typeContenu 'all' | 'reprises' | 'actuelles'
@@ -1050,15 +1121,35 @@ class DossierRapportOdtService
         try {
             $segment = $odf->setSegment($segName);
             foreach ($prescArray as $prescriptions) {
-                foreach ($prescriptions as $assoc) {
-                    $this->addChamp($segment, 'numPresc', $assoc['NUM_PRESCRIPTION_DOSSIER'] ?? '');
-                    $this->addChamp($segment, 'libellePresc', $assoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '');
-                    $this->addChamp($segment, 'prescriptionType', $assoc['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
-                    $this->addChamp($segment, 'libelleTexte', $assoc['LIBELLE_TEXTE'] ?? '');
-                    $this->addChamp($segment, 'libelleArticle', $assoc['LIBELLE_ARTICLE'] ?? '');
-                    $this->addChamp($segment, 'dateLevee', $assoc['DATE_LEVEE'] ?? '');
-                    $segment->merge();
+                if (empty($prescriptions)) {
+                    continue;
                 }
+
+                $first = reset($prescriptions);
+                $nbAssoc = count($prescriptions);
+                $nbCpt = $nbAssoc;
+                $textearticle = '';
+                foreach ($prescriptions as $assoc) {
+                    $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
+                    $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
+                    $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
+                    if ($nbCpt > 1) {
+                        $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
+                    } else {
+                        $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
+                    }
+
+                    --$nbCpt;
+                }
+
+                $num = $first['NUM_PRESCRIPTION_DOSSIER'];
+                $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
+                    ? $first['LIBELLE_PRESCRIPTION_DOSSIER']
+                    : $first['PRESCRIPTIONTYPE_LIBELLE'];
+                $this->addChamp($segment, 'num', $num);
+                $this->addChamp($segment, 'libelle', $libelle);
+                $this->addChamp($segment, 'textearticle', $textearticle);
+                $segment->merge();
             }
 
             $odf->mergeSegment($segment);
@@ -1068,6 +1159,9 @@ class DossierRapportOdtService
 
     /**
      * Remplit un segment de prescription CC (centrecommercial) dans un segment parent.
+     *
+     * Port direct legacy addPrescriptionCC() de creationdoc.phtml.
+     * Une ligne ODT par prescription : {num}, {libelle}, {textearticle}
      *
      * @param \Segment                                      $segCellule  Segment parent (cellulesPresc)
      * @param array<int, array<int, array<string, string>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
@@ -1098,35 +1192,43 @@ class DossierRapportOdtService
             return;
         }
 
-        $nbPrescDossier = 0;
-        foreach ($prescArray as $prescriptions) {
-            $nbPrescDossier += count($prescriptions);
-        }
-
         try {
             // @phpstan-ignore-next-line
             $segment = $segCellule->{$segName};
-            /** @var \Segment $segment */
-            if (0 === $nbPrescDossier) {
-                $this->addChamp($segment, 'numPresc', '');
-                $this->addChamp($segment, 'libellePresc', '');
-                $this->addChamp($segment, 'prescriptionType', '');
-                $this->addChamp($segment, 'libelleTexte', '');
-                $this->addChamp($segment, 'libelleArticle', '');
-                $this->addChamp($segment, 'dateLevee', '');
-                $segment->merge();
-            } else {
-                foreach ($prescArray as $prescriptions) {
-                    foreach ($prescriptions as $assoc) {
-                        $this->addChamp($segment, 'numPresc', $assoc['NUM_PRESCRIPTION_DOSSIER'] ?? '');
-                        $this->addChamp($segment, 'libellePresc', $assoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '');
-                        $this->addChamp($segment, 'prescriptionType', $assoc['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
-                        $this->addChamp($segment, 'libelleTexte', $assoc['LIBELLE_TEXTE'] ?? '');
-                        $this->addChamp($segment, 'libelleArticle', $assoc['LIBELLE_ARTICLE'] ?? '');
-                        $this->addChamp($segment, 'dateLevee', $assoc['DATE_LEVEE'] ?? '');
-                        $segment->merge();
-                    }
+            foreach ($prescArray as $prescriptions) {
+                if (empty($prescriptions)) {
+                    continue;
                 }
+
+                $first = reset($prescriptions);
+                $nbAssoc = count($prescriptions);
+                $nbCpt = $nbAssoc;
+                $textearticle = '';
+                foreach ($prescriptions as $assoc) {
+                    $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
+                    $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
+                    $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
+                    if ($nbCpt > 1) {
+                        $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
+                    } else {
+                        $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
+                    }
+
+                    --$nbCpt;
+                }
+
+                $num = $first['NUM_PRESCRIPTION_DOSSIER'];
+                $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
+                    ? $first['LIBELLE_PRESCRIPTION_DOSSIER']
+                    : $first['PRESCRIPTIONTYPE_LIBELLE'];
+                // @phpstan-ignore-next-line
+                $this->addChamp($segment, 'num', $num);
+                // @phpstan-ignore-next-line
+                $this->addChamp($segment, 'libelle', $libelle);
+                // @phpstan-ignore-next-line
+                $this->addChamp($segment, 'textearticle', $textearticle);
+                // @phpstan-ignore-next-line
+                $segment->merge();
             }
         } catch (\Exception $exception) {
         }

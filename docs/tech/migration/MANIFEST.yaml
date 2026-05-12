@@ -232,7 +232,19 @@ dossier_rapport_generation:
       - Sauvegarde ODT + création PieceJointe/DossierPieceJointe
     - rapport.html.twig : Bootstrap 2→3 complet (row-fluid→row, span2→col-md-2, span10→col-md-10)
     
-    Écarts intentionnels :
-    - prochaineVisite : non porté (pas d'équivalent service migré) — retourne ''
+    Correctifs appliqués (2025-05) :
+    - typeDossier : LIBELLE_DOSSIERTYPE via jointure dossiertype
+    - établissementAdresse : ajout CODEPOSTAL_COMMUNE + LIBELLE_COMMUNE
+    - numTelEtab/numFaxEtab/mailEtab : correction noms colonnes DB
+    - categorieEtab : premier mot uniquement (explode ' ')[0]
+    - prochaineVisite : calcul depuis DATEVISITE + PERIODICITE, format "mois année" FR
+    - desenfNaturel/Mecanique et col sèches/humides/RIA/sprinkleur/brouillardEau : 'Oui'/'Non'
+    - listeDocs : seuls les documents consultés sont affichés (avec coche)
+    - adresse maire : colonnes NUMEROADRESSE/RUEADRESSE/CPADRESSE/VILLEADRESSE
+    - prescriptions : champs num/libelle/textearticle (articles concaténés), mergeSegment correct
+
+    Écarts intentionnels résiduels :
+    - prochaineVisite : option use_date_commission_for_periodicity (config legacy) non portée — utilise DATEVISITE uniquement
+    - withoutLevees() non appelé avant split reprises/actuelles (prescriptions levées peuvent apparaître)
     - descriptionEffectif*/descriptionDegagement* : null (pas d'équivalent)
     - Typo legacy 'prenomDemandeurt' préservée intentionnellement
