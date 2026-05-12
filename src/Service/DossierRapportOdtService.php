@@ -1727,10 +1727,11 @@ class DossierRapportOdtService
                     if (TypeChamp::PARENT === $typeId) {
                         if ($champ->getTableau()) {
                             // Branche tableau : en-têtes de colonnes + segment de lignes
-                            foreach ($champ->getEnfants() as $idx => $enfant) {
+                            // Les labels de colonne utilisent l'idx DB (1-based) comme dans le legacy ($champFils['idx'])
+                            foreach ($champ->getEnfants() as $enfant) {
                                 $this->addChamp(
                                     $odf,
-                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', sprintf('valeur%d', $idx)]),
+                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', (string) ($enfant->getIdx() ?? 0)]),
                                     $enfant->getNom()
                                 );
                             }
@@ -1824,6 +1825,10 @@ class DossierRapportOdtService
             }
 
             return $this->formatDateLongFr($date);
+        }
+
+        if (TypeChamp::TEXTAREA === $typeId) {
+            return $valeur->getLongStr() ?? '';
         }
 
         if (TypeChamp::NUMBER === $typeId) {
