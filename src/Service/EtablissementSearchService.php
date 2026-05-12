@@ -614,5 +614,4 @@ class EtablissementSearchService
             'search_metadata' => ['count' => count($rows)],
         ];
     }
-
 }

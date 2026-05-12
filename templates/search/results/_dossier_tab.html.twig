@@ -47,25 +47,7 @@
         <br/>
 
         {# Badges d'avis #}
-        {% if item.INCOMPLET_DOSSIER == 1 %}
-            <span class='avis' style='background-color: #f89406;'>Dossier incomplet</span>
-        {% elseif item.DIFFEREAVIS_DOSSIER == 1 %}
-            <span class='avis' style='background-color: #3a87ad;'>Avis différé</span>
-        {% elseif item.TYPE_DOSSIER == 5 and item.DATEREP_DOSSIER is not empty %}
-            <span class="avis F">Répondu</span>
-        {% elseif item.TYPE_DOSSIER == 5 and item.DATEREP_DOSSIER is empty %}
-            <span class="avis">Réponse à faire
-                {% if item.DATESDIS_DOSSIER is not empty %}
-                    ({{ format_date_diff(item.DATESDIS_DOSSIER) }})
-                {% endif %}
-            </span>
-        {% elseif item.ID_AVIS == 1 %}
-            <span class="avis F">Favorable {% if item.ID_DOSSIERNATURE in [19, 21, 23, 24, 47, 26, 28, 29, 48] %} à l'exploitation{% endif %}</span>
-        {% elseif item.ID_AVIS == 2 %}
-            <span class="avis D">Défavorable {% if item.ID_DOSSIERNATURE in [19, 21, 23, 24, 47, 26, 28, 29, 48] %} à l'exploitation{% endif %}</span>
-        {% else %}
-            <span class="avis">Avis indisponible</span>
-        {% endif %}
+        {{ item|dossier_avis_badge }}
 
         {# Alerte réception travaux #}
         {% if item.ALERTE_RECEPTION_TRAVAUX > 0 %}
