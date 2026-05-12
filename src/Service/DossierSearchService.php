@@ -763,5 +763,4 @@ class DossierSearchService
             'search_metadata' => ['count' => count($rows)],
         ];
     }
-
 }

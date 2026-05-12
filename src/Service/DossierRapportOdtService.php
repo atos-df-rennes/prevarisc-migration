@@ -1144,6 +1144,34 @@ class DossierRapportOdtService
     }
 
     /**
+     * Construit la chaîne "texte - article" pour une prescription.
+     *
+     * Port direct du bloc partagé entre addPrescription() et addPrescriptionCC()
+     * (creationdoc.phtml).
+     *
+     * @param array<int, array<string, string>> $prescriptions Lignes d'une même prescription
+     */
+    private function buildTextearticle(array $prescriptions): string
+    {
+        $nbCpt = count($prescriptions);
+        $textearticle = '';
+        foreach ($prescriptions as $assoc) {
+            $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
+            $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
+            $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
+            if ($nbCpt > 1) {
+                $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
+            } else {
+                $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
+            }
+
+            --$nbCpt;
+        }
+
+        return $textearticle;
+    }
+
+    /**
      * Retourne le nom du segment ODT pour un type de prescription et un contenu donné.
      *
      * @param int    $type        TypePrescription::*
@@ -1198,21 +1226,7 @@ class DossierRapportOdtService
                 }
 
                 $first = reset($prescriptions);
-                $nbAssoc = count($prescriptions);
-                $nbCpt = $nbAssoc;
-                $textearticle = '';
-                foreach ($prescriptions as $assoc) {
-                    $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
-                    $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
-                    $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
-                    if ($nbCpt > 1) {
-                        $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
-                    } else {
-                        $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
-                    }
-
-                    --$nbCpt;
-                }
+                $textearticle = $this->buildTextearticle($prescriptions);
 
                 $num = $first['NUM_PRESCRIPTION_DOSSIER'];
                 $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
@@ -1284,21 +1298,7 @@ class DossierRapportOdtService
                     }
 
                     $first = reset($prescriptions);
-                    $nbAssoc = count($prescriptions);
-                    $nbCpt = $nbAssoc;
-                    $textearticle = '';
-                    foreach ($prescriptions as $assoc) {
-                        $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
-                        $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
-                        $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
-                        if ($nbCpt > 1) {
-                            $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
-                        } else {
-                            $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
-                        }
-
-                        --$nbCpt;
-                    }
+                    $textearticle = $this->buildTextearticle($prescriptions);
 
                     $num = $first['NUM_PRESCRIPTION_DOSSIER'];
                     $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
