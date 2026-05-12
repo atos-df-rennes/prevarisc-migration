@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
+use App\Entity\Etablissement;
 use App\Service\DossierRapportOdtService;
 use Doctrine\DBAL\Connection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -99,9 +100,13 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idTypeActivitePrinc = null;
         if (!empty($etablissements)) {
             $firstEtab = $etablissements[0];
-            $latestInfos = $firstEtab->getLatestInformations();
-            if (null !== $latestInfos->getTypeActivite()) {
-                $idTypeActivitePrinc = $latestInfos->getTypeActivite()->getId();
+            try {
+                $latestInfos = $firstEtab->getLatestInformations();
+                if (null !== $latestInfos->getTypeActivite()) {
+                    $idTypeActivitePrinc = $latestInfos->getTypeActivite()->getId();
+                }
+            } catch (\OutOfBoundsException $e) {
+                // Établissement sans informations : idTypeActivitePrinc reste null
             }
         }
 
@@ -114,7 +119,6 @@ class DossierRapportController extends AbstractController implements DossierLate
             'listeEtablissement' => $etablissements,
             'idTypeActivitePrinc' => $idTypeActivitePrinc,
             'documentsDataPath' => $this->documentsDataPath,
-            'documentsRealDataPath' => $this->documentsRealDataPath,
         ]);
     }
 
@@ -123,13 +127,32 @@ class DossierRapportController extends AbstractController implements DossierLate
      *
      * @Route("/dossier/{id}/rapport/generer", name="dossier_generationrapport", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @IsGranted("view_doss", subject="dossier")
+     * @IsGranted("edit_doss", subject="dossier")
      */
     public function generationRapport(Dossier $dossier, Request $request): Response
     {
+        // B2 : protection CSRF
+        $csrfToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('dossier_rapport_'.$dossier->getId(), is_string($csrfToken) ? $csrfToken : '')) {
+            return new Response('', Response::HTTP_FORBIDDEN);
+        }
+
         $idDossier = (int) $dossier->getId();
+
+        // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
         $rawFichier = $request->request->get('file', '');
-        $fichierSelect = is_scalar($rawFichier) ? (string) $rawFichier : '';
+        $relativeFile = is_scalar($rawFichier) ? (string) $rawFichier : '';
+        $resolvedPath = realpath($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$relativeFile);
+        if (
+            false === $resolvedPath
+            || 0 !== strpos($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
+            || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
+        ) {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        }
+
+        $fichierSelect = $resolvedPath;
+
         $repriseCC = $request->request->getBoolean('repriseCC');
 
         /** @var string[]|null $idEtabList */
@@ -137,6 +160,12 @@ class DossierRapportController extends AbstractController implements DossierLate
         if (!is_array($idEtabList)) {
             $idEtabList = [];
         }
+
+        // B4 : filtrer les idEtab soumis contre ceux du dossier (IDOR)
+        $allowedIds = array_map(function (Etablissement $e): int { return $e->getId(); }, $dossier->getEtablissements()->toArray());
+        $idEtabList = array_values(array_filter($idEtabList, function ($id) use ($allowedIds): bool {
+            return in_array((int) $id, $allowedIds, true);
+        }));
 
         $html = '';
         foreach ($idEtabList as $etablissementId) {
@@ -147,7 +176,7 @@ class DossierRapportController extends AbstractController implements DossierLate
     }
 
     /**
-     * Liste les fichiers d'un répertoire (sans points, dossiers et .gitignore).
+     * Liste les fichiers ODT d'un répertoire (sans points, dossiers, .gitignore et fichiers non-.odt).
      *
      * @return string[]
      */
@@ -173,6 +202,11 @@ class DossierRapportController extends AbstractController implements DossierLate
             }
 
             if ('.gitignore' === $element) {
+                continue;
+            }
+
+            // M1 : ne lister que les fichiers ODT
+            if ('odt' !== strtolower(pathinfo($element, PATHINFO_EXTENSION))) {
                 continue;
             }
 

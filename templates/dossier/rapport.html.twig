@@ -9,6 +9,7 @@
 {% block body %}
 <div id="dossier_Pdroite">
     <form name="etabRapport" id="etabRapport" action="{{ path('dossier_generationrapport', {id: dossier.id}) }}" method="POST">
+        <input type="hidden" name="_token" value="{{ csrf_token('dossier_rapport_' ~ dossier.id) }}" />
         <input type="hidden" name="idCommission" value="{{ commission is not null ? commission.id : '' }}" />
 
         <div id="dossierInfos">
@@ -77,7 +78,7 @@
                         {% for fichier in fichierVer %}
                             <tr style="height:20px;">
                                 <td>
-                                    <input type="radio" name="file" value="{{ documentsRealDataPath }}/0/{{ fichier }}">
+                                    <input type="radio" name="file" value="0/{{ fichier }}">
                                     <a href="{{ documentsDataPath }}/0/{{ fichier }}">{{ fichier }}</a>
                                 </td>
                             </tr>
@@ -100,7 +101,7 @@
                             {% for file in commission.listeFichier %}
                                 <tr style="height:20px;">
                                     <td>
-                                        <input type="radio" name="file" value="{{ documentsRealDataPath }}/{{ commission.ID_COMMISSION }}/{{ file }}">
+                                        <input type="radio" name="file" value="{{ commission.ID_COMMISSION }}/{{ file }}">
                                         <a href="{{ documentsDataPath }}/{{ commission.ID_COMMISSION }}/{{ file }}">{{ file }}</a>
                                     </td>
                                 </tr>
@@ -122,7 +123,8 @@
         <div>
             {% for i, etab in listeEtablissement %}
                 <input type="checkbox" class="etabCheck" name="idEtab[]" value="{{ etab.id }}" {{ i == 0 ? 'checked' : '' }}>
-                &nbsp;[{{ etab.latestInformations.genre is not null ? etab.latestInformations.genre.libelle : '' }}]&nbsp;{{ etab.latestInformations.libelle }}&nbsp;<br/>
+                {% set latest_infos = etab.latestInformationsOrNull %}
+                &nbsp;[{{ latest_infos is not null and latest_infos.genre is not null ? latest_infos.genre.libelle : '' }}]&nbsp;{{ latest_infos is not null ? latest_infos.libelle : '' }}&nbsp;<br/>
             {% endfor %}
             <hr class="clear"/>
         </div>

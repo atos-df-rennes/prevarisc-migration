@@ -21,7 +21,7 @@ use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Repository\ListeDocumentConsulteRepository;
-use App\Service\DataStore\DataStoreFactory;
+use App\Service\DataStore\DataStore;
 use App\Service\Formulaires\Fusion\ChampNamer;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,8 +41,8 @@ class DossierRapportOdtService
     /** @var Connection */
     private $conn;
 
-    /** @var DataStoreFactory */
-    private $dataStoreFactory;
+    /** @var DataStore */
+    private $dataStore;
 
     /** @var DossierPrescriptionService */
     private $prescriptionService;
@@ -77,7 +77,7 @@ class DossierRapportOdtService
     public function __construct(
         EntityManagerInterface $em,
         Connection $conn,
-        DataStoreFactory $dataStoreFactory,
+        DataStore $dataStore,
         DossierPrescriptionService $prescriptionService,
         DossierAffectationRepository $dossierAffectationRepository,
         DateCommissionRepository $dateCommissionRepository,
@@ -90,7 +90,7 @@ class DossierRapportOdtService
     ) {
         $this->em = $em;
         $this->conn = $conn;
-        $this->dataStoreFactory = $dataStoreFactory;
+        $this->dataStore = $dataStore;
         $this->prescriptionService = $prescriptionService;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
         $this->dateCommissionRepository = $dateCommissionRepository;
@@ -1101,13 +1101,13 @@ class DossierRapportOdtService
             'idpj' => $pj->getId(),
         ]);
         $libelle = htmlspecialchars($rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', ENT_QUOTES);
-        $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'<a/>';
+        $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'</a>';
 
         // Sauvegarde ODT
         if (!empty($rawDossier['ID_PLATAU'])) {
             $chemin = $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
         } else {
-            $chemin = $this->dataStoreFactory->create()->getFilePath($pj, 'dossier', $idDossier, true);
+            $chemin = $this->dataStore->getFilePath($pj, 'dossier', $idDossier, true);
         }
 
         $odf->saveToDisk($chemin);

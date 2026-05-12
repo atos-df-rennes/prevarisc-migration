@@ -714,6 +714,18 @@ class Etablissement
     }
 
     /**
+     * Retourne l'historique le plus récent, ou null si aucune information n'existe.
+     */
+    public function getLatestInformationsOrNull(): ?EtablissementInformations
+    {
+        try {
+            return $this->getLatestInformations();
+        } catch (\OutOfBoundsException $outOfBoundsException) {
+            return null;
+        }
+    }
+
+    /**
      * Retourne l'historique le plus récent.
      */
     public function getLatestInformations(): EtablissementInformations

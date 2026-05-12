@@ -218,7 +218,7 @@ dossier_rapport_generation:
     - name: dossier_rapport
       path: /dossier/{id}/rapport
     - name: dossier_generationrapport
-      path: /dossier/generationrapport
+      path: /dossier/{id}/rapport/generer
   notes: |
     Port direct complet ✅
     - DossierRapportController.php : rapportAction + generationrapportAction
@@ -245,6 +245,5 @@ dossier_rapport_generation:
 
     Écarts intentionnels résiduels :
     - prochaineVisite : option use_date_commission_for_periodicity (config legacy) non portée — utilise DATEVISITE uniquement
-    - withoutLevees() non appelé avant split reprises/actuelles (prescriptions levées peuvent apparaître)
     - descriptionEffectif*/descriptionDegagement* : null (pas d'équivalent)
     - Typo legacy 'prenomDemandeurt' préservée intentionnellement
