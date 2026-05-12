@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,6 +21,37 @@ class AvisDerogationsRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AvisDerogations::class);
+    }
+
+    /**
+     * Retourne les avis et dérogations des dossiers d'une liste d'établissements (parent + enfants)
+     * ayant été indiqués comme historisés — en une seule requête (évite le N+1).
+     *
+     * @param int[] $idsEtablissements
+     *
+     * @return AvisDerogations[]
+     */
+    public function findForEtablissements(array $idsEtablissements): array
+    {
+        if (empty($idsEtablissements)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('a')
+            ->addSelect('d')
+            ->addSelect('e')
+            ->addSelect('dl')
+            ->addSelect('t')
+            ->join('a.dossier', 'd')
+            ->join('d.etablissements', 'e')
+            ->leftJoin('a.dossierLie', 'dl')
+            ->leftJoin('dl.type', 't')
+            ->where('e.id IN (:ids)')
+            ->andWhere('a.displayHistorique = 1')
+            ->setParameter('ids', $idsEtablissements, Connection::PARAM_INT_ARRAY)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     /**

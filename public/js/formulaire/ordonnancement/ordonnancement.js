@@ -3,6 +3,7 @@ window.onload = function() {
     let pendingRequests = 0
     const debounceTimers = {}
 
+    // @fixme: remplacer par le composant toast en conservant le comportement complete de l'Ajax
     const indicator = document.createElement('div')
     indicator.style.cssText = 'display:none; position:fixed; bottom:20px; right:20px; z-index:9999;'
     indicator.innerHTML =

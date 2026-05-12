@@ -1,0 +1,192 @@
+{# Port direct de rapport.phtml — Bootstrap 2→3 appliqué #}
+
+{% extends 'layouts/dossier.html.twig' %}
+
+{% block title %}
+    {{ parent() }} / Rapport
+{% endblock %}
+
+{% block body %}
+<div id="dossier_Pdroite">
+    <form name="etabRapport" id="etabRapport" action="{{ path('dossier_generationrapport', {id: dossier.id}) }}" method="POST">
+        <input type="hidden" name="_token" value="{{ csrf_token('dossier_rapport_' ~ dossier.id) }}" />
+        <input type="hidden" name="idCommission" value="{{ commission is not null ? commission.id : '' }}" />
+
+        <div id="dossierInfos">
+            <h4>Informations sur le dossier</h4>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                Commission concernée
+            </div>
+            <div class="col-md-10">
+                {% if commission is null %}
+                    La commission du dossier n'est pas renseignée<br/><br/>
+                {% else %}
+                    {{ commission.libelle }} ({{ commission.type.libelle }})<br/><br/>
+                {% endif %}
+
+                <i>Vous pouvez utiliser le document d'une autre commission</i><br/>
+
+                {% set id_commission_dossier = commission is not null ? commission.id : null %}
+
+                <select class="form-control" name="commission" id="commission" style="width:450px;">
+                    <option value="0" {{ (id_commission_dossier is null or id_commission_dossier == '' or locked) ? 'selected' : '' }}>
+                        Fichiers disponibles après verrouillage ({{ fichierVer|length }})
+                    </option>
+                    {% if not locked %}
+                        {% set current_type_id = null %}
+                        {% for commission in listeCommissions %}
+                            {% if current_type_id is not null and current_type_id != commission.ID_COMMISSIONTYPE %}
+                                </optgroup>
+                            {% endif %}
+                            {% if current_type_id is null or current_type_id != commission.ID_COMMISSIONTYPE %}
+                                <optgroup label="{{ commission.LIBELLE_COMMISSIONTYPE }}">
+                                {% set current_type_id = commission.ID_COMMISSIONTYPE %}
+                            {% endif %}
+                            <option value="{{ commission.ID_COMMISSION }}" {{ id_commission_dossier == commission.ID_COMMISSION ? 'selected' : '' }}>
+                                {{ commission.LIBELLE_COMMISSION }} ({{ commission.listeFichier|length }})
+                            </option>
+                        {% endfor %}
+                        {% if listeCommissions|length > 0 %}
+                            </optgroup>
+                        {% endif %}
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+
+        <div id="dossierInfos">
+            <h4>Fichiers de la commission</h4>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+                Choisissez un document
+            </div>
+            <div class="col-md-10">
+
+                {# Table des fichiers après verrouillage (commission 0) #}
+                <table id="file_0" class="table table-bordered" style="{{ (id_commission_dossier is null or locked) ? '' : 'display:none' }};">
+                    <thead>
+                        <tr style="height:20px;">
+                            <th>Nom du fichier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fichier in fichierVer %}
+                            <tr style="height:20px;">
+                                <td>
+                                    <input type="radio" name="file" value="0/{{ fichier }}">
+                                    <a href="{{ documentsDataPath }}/0/{{ fichier }}">{{ fichier }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr {{ fichierVer|length > 0 ? 'style="display:none;"' : '' }}>
+                            <td>Aucun fichier pour cette commission</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                {# Tables par commission #}
+                {% for commission in listeCommissions %}
+                    <table id="file_{{ commission.ID_COMMISSION }}" class="table table-bordered" style="{{ (commission.ID_COMMISSION == id_commission_dossier and not locked) ? '' : 'display:none' }};">
+                        <thead>
+                            <tr style="height:20px;">
+                                <th>Nom du fichier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in commission.listeFichier %}
+                                <tr style="height:20px;">
+                                    <td>
+                                        <input type="radio" name="file" value="{{ commission.ID_COMMISSION }}/{{ file }}">
+                                        <a href="{{ documentsDataPath }}/{{ commission.ID_COMMISSION }}/{{ file }}">{{ file }}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            <tr {{ commission.listeFichier|length > 0 ? 'style="display:none;"' : '' }}>
+                                <td>Aucun fichier pour cette commission</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <div id="dossierInfos">
+            <h4>Etablissement(s) concerné(s) pour la génération du rapport</h4>
+        </div>
+
+        <div>
+            {% for i, etab in listeEtablissement %}
+                <input type="checkbox" class="etabCheck" name="idEtab[]" value="{{ etab.id }}" {{ i == 0 ? 'checked' : '' }}>
+                {% set latest_infos = etab.latestInformationsOrNull %}
+                &nbsp;[{{ latest_infos is not null and latest_infos.genre is not null ? latest_infos.genre.libelle : '' }}]&nbsp;{{ latest_infos is not null ? latest_infos.libelle : '' }}&nbsp;<br/>
+            {% endfor %}
+            <hr class="clear"/>
+        </div>
+
+        <div>
+            {% if idTypeActivitePrinc == 29 %}
+                Cochez la case si vous ne souhaitez pas reprendre les prescriptions des cellules
+                <input type="checkbox" name="repriseCC" id="repriseCC"><br/>
+            {% endif %}
+        </div>
+
+        <br/>
+
+        <button type="button" class="btn btn-success mb-4" id="test">Générer le(s) document(s)</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#commission").on('change', function() {
+                $(".table").hide();
+                $("#file_"+$(this).val()).show();
+                $('input[name=file]').prop('checked', false);
+            });
+
+            $("#test").on('click', function(){
+                if ($('input[name=file]:checked').length === 0 || $("input[name='idEtab[]']:checked").length === 0) {
+                    $.toast.warning('Vous devez sélectionner un fichier et au moins un établissement.');
+                    return false;
+                }
+
+                const enCoursToastId = $.toast.info(
+                    'Génération en cours... <img src="{{ asset('images/load.gif') }}" alt="" />',
+                    { autoClose: false }
+                );
+                $("#test").prop('disabled', true);
+
+                $.ajax({
+                    url: "{{ path('dossier_generationrapport', {id: dossier.id}) }}",
+                    data: $("#etabRapport").serialize(),
+                    type: "POST",
+                    success: function(affichageResultat) {
+                        $.toast.close(enCoursToastId);
+                        $.toast.success(
+                            affichageResultat + '<br/>Vous pouvez retrouver ce(s) document(s) dans la partie pièces jointes',
+                            { autoClose: false }
+                        );
+                        $("#test").prop('disabled', false);
+                    },
+                    error: function() {
+                        $.toast.close(enCoursToastId);
+                        $.toast.error(
+                            'Erreur lors de la génération du rapport.<br/>Si le problème persiste veuillez contacter votre administrateur.',
+                            { autoClose: false }
+                        );
+                        $("#test").prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

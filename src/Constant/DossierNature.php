@@ -82,6 +82,30 @@ final class DossierNature
     public const VISITE_PERIODIQUE = [21, 26];
 
     /**
+     * Natures "visite inopinée" (individuelle et groupe).
+     *
+     * @var int[]
+     */
+    public const VISITES_INOPINEES = [24, 29];
+
+    /**
+     * Natures "visite de contrôle" (individuelle et groupe).
+     *
+     * @var int[]
+     */
+    public const VISITES_CONTROLE = [23, 28];
+
+    /**
+     * Natures déclenchant la logique CC (cellulesPresc) dans les rapports ODT :
+     * VISITE_PERIODIQUE (21,26) + VISITES_INOPINEES (24,29) + VISITES_CONTROLE (23,28).
+     *
+     * Legacy : DossierController::$natureCC = [21, 26, 24, 29, 23, 28].
+     *
+     * @var int[]
+     */
+    public const NATURES_CC = [21, 26, 24, 29, 23, 28];
+
+    /**
      * Natures Études avec documents de visite (levées de prescriptions, etc.).
      *
      * @var int[]
