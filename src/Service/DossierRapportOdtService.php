@@ -1635,6 +1635,7 @@ class DossierRapportOdtService
             /** @var array<int, array<string, string|null>> $rows */
             $rows = [];
             if ($isEtablissement) {
+                // Batch : parent + enfants en une seule requête (évite le N+1, port du fix legacy 986f23f).
                 $etabIds = [$idEtab];
                 /** @var array<int, array<string, string|null>> $enfantsFetch */
                 $enfantsFetch = $this->conn->fetchAllAssociative(
@@ -1645,24 +1646,20 @@ class DossierRapportOdtService
                     $etabIds[] = (int) ($enfant['ID_FILS_ETABLISSEMENT'] ?? '0');
                 }
 
-                foreach ($etabIds as $etabId) {
-                    /** @var array<int, array<string, string|null>> $etabRows */
-                    $etabRows = $this->conn->fetchAllAssociative(
-                        'SELECT ad.TYPE, ad.TITRE, ad.OBJET, ad.JUSTIFICATION, ad.ARTICLES_CONCERNES,
-                                ad.MESURES_COMPENSATOIRES_PROPOSEES, ad.ANALYSE_DE_RISQUE, a.LIBELLE_AVIS,
-                                ad.ID_DOSSIER_LIE, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER
-                         FROM avisderogations ad
-                         JOIN dossier d ON ad.ID_DOSSIER = d.ID_DOSSIER
-                         JOIN avis a ON ad.AVIS = a.ID_AVIS
-                         JOIN etablissementdossier ed ON d.ID_DOSSIER = ed.ID_DOSSIER
-                         WHERE ed.ID_ETABLISSEMENT = :idEtab
-                         AND ad.DISPLAY_HISTORIQUE = 1',
-                        ['idEtab' => $etabId]
-                    );
-                    foreach ($etabRows as $r) {
-                        $rows[] = $r;
-                    }
-                }
+                /** @var array<int, array<string, string|null>> $rows */
+                $rows = $this->conn->fetchAllAssociative(
+                    'SELECT ad.TYPE, ad.TITRE, ad.OBJET, ad.JUSTIFICATION, ad.ARTICLES_CONCERNES,
+                            ad.MESURES_COMPENSATOIRES_PROPOSEES, ad.ANALYSE_DE_RISQUE, a.LIBELLE_AVIS,
+                            ad.ID_DOSSIER_LIE, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER
+                     FROM avisderogations ad
+                     JOIN dossier d ON ad.ID_DOSSIER = d.ID_DOSSIER
+                     JOIN avis a ON ad.AVIS = a.ID_AVIS
+                     JOIN etablissementdossier ed ON d.ID_DOSSIER = ed.ID_DOSSIER
+                     WHERE ed.ID_ETABLISSEMENT IN (?)
+                     AND ad.DISPLAY_HISTORIQUE = 1',
+                    [$etabIds],
+                    [Connection::PARAM_INT_ARRAY]
+                );
             } else {
                 /** @var array<int, array<string, string|null>> $rows */
                 $rows = $this->conn->fetchAllAssociative(

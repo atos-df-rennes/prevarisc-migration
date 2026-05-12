@@ -125,13 +125,13 @@ final class Etablissement
      */
     public function getAvisDerogations(EtablissementEntity $etablissement): array
     {
-        $listeAvisDerogationsEtablissement = $this->avisDerogationsRepository->findForEtablissement($etablissement->getId());
-
-        $filsEtablissement = $etablissement->getFils();
-        foreach ($filsEtablissement as $fils) {
-            $listeAvisDerogationsFils = $this->avisDerogationsRepository->findForEtablissement($fils->getId());
-            $listeAvisDerogationsEtablissement = array_merge($listeAvisDerogationsEtablissement, $listeAvisDerogationsFils);
+        // Batch : parent + tous les enfants en une seule requête (évite le N+1).
+        $ids = [$etablissement->getId()];
+        foreach ($etablissement->getFils() as $fils) {
+            $ids[] = (int) $fils->getId();
         }
+
+        $listeAvisDerogationsEtablissement = $this->avisDerogationsRepository->findForEtablissements($ids);
 
         $avisDerogations = [];
         foreach ($listeAvisDerogationsEtablissement as $avisDerogation) {
