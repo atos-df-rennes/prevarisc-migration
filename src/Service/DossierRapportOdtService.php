@@ -469,6 +469,7 @@ class DossierRapportOdtService
         } else {
             $listeDocs = [];
         }
+
         try {
             $segListeDocs = $odf->setSegment('listeDocs');
             /** @var array<int, array<string, string|null>> $docsConsultes */
@@ -1461,53 +1462,50 @@ class DossierRapportOdtService
 
     /**
      * Applique les segments cellulesPresc (branche celluleDossier — natures VP/levée CC).
+     *
+     * Port direct legacy : setSegment + mergeSegment TOUJOURS appelés pour vider le bloc
+     * si aucune cellule trouvée (sinon les markers [!-- BEGIN/END --] restent verbatim).
      */
     private function applyCelluleDossier(\Odf $odf, Dossier $dossier): void
     {
-        $affectation = $this->dossierAffectationRepository->findOneBy(['dossier' => $dossier]);
-        if (null === $affectation) {
-            return;
-        }
-
-        $dateCommission = $affectation->getDateCommission();
-        if (null === $dateCommission) {
-            return;
-        }
-
-        $idDateCommAffect = $dateCommission->getId();
-        if (null === $idDateCommAffect) {
-            return;
-        }
-
-        /** @var array<int, array<string, string|null>> $dossiersNonAffect */
-        $dossiersNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($idDateCommAffect);
-
         try {
             $segCellules = $odf->setSegment('cellulesPresc');
-            foreach ($dossiersNonAffect as $dossCellule) {
-                $idDossCellule = isset($dossCellule['ID_DOSSIER']) ? (int) $dossCellule['ID_DOSSIER'] : 0;
-                $libelleCellule = $dossCellule['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '';
 
-                $this->addChamp($segCellules, 'libelleCellule', $libelleCellule);
+            $affectation = $this->dossierAffectationRepository->findOneBy(['dossier' => $dossier]);
+            if (null !== $affectation) {
+                $dateCommission = $affectation->getDateCommission();
+                if (null !== $dateCommission) {
+                    $idDateCommAffect = $dateCommission->getId();
+                    if (null !== $idDateCommAffect) {
+                        /** @var array<int, array<string, string|null>> $dossiersNonAffect */
+                        $dossiersNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($idDateCommAffect);
+                        foreach ($dossiersNonAffect as $dossCellule) {
+                            $idDossCellule = isset($dossCellule['ID_DOSSIER']) ? (int) $dossCellule['ID_DOSSIER'] : 0;
+                            $libelleCellule = $dossCellule['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '';
 
-                if ($idDossCellule > 0) {
-                    /** @var Dossier|null $dossierCellule */
-                    $dossierCellule = $this->em->find(Dossier::class, $idDossCellule);
-                    if (null !== $dossierCellule) {
-                        foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $typeId) {
-                            $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossierCellule, $typeId);
-                            $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
-                            $prescArray = $this->withoutLevees($prescArray);
-                            $reprises = $this->withoutActuals($prescArray);
-                            $actuelles = $this->withoutPrevious($prescArray);
-                            $this->addPrescriptionCC($segCellules, $prescArray, $typeId, 'all');
-                            $this->addPrescriptionCC($segCellules, $reprises, $typeId, 'reprises');
-                            $this->addPrescriptionCC($segCellules, $actuelles, $typeId, 'actuelles');
+                            $this->addChamp($segCellules, 'libelleCellule', $libelleCellule);
+
+                            if ($idDossCellule > 0) {
+                                /** @var Dossier|null $dossierCellule */
+                                $dossierCellule = $this->em->find(Dossier::class, $idDossCellule);
+                                if (null !== $dossierCellule) {
+                                    foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $typeId) {
+                                        $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossierCellule, $typeId);
+                                        $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
+                                        $prescArray = $this->withoutLevees($prescArray);
+                                        $reprises = $this->withoutActuals($prescArray);
+                                        $actuelles = $this->withoutPrevious($prescArray);
+                                        $this->addPrescriptionCC($segCellules, $prescArray, $typeId, 'all');
+                                        $this->addPrescriptionCC($segCellules, $reprises, $typeId, 'reprises');
+                                        $this->addPrescriptionCC($segCellules, $actuelles, $typeId, 'actuelles');
+                                    }
+                                }
+                            }
+
+                            $segCellules->merge();
                         }
                     }
                 }
-
-                $segCellules->merge();
             }
 
             $odf->mergeSegment($segCellules);
