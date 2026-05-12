@@ -2,7 +2,11 @@
 
 namespace App\Service;
 
+use App\Constant\DossierNature;
+use App\Constant\DossierType;
 use App\Constant\NomInterneCapsule;
+use App\Constant\StatutEtablissement;
+use App\Constant\TypeActivite;
 use App\Constant\TypeChamp;
 use App\Constant\TypePrescription;
 use App\Entity\Champ;
@@ -452,16 +456,16 @@ class DossierRapportOdtService
         // Autre : pas de docs
         $dosssierTypeInt = (int) $typeDossierId;
         $dossierNatureInt = (int) $dossierNature;
-        if (in_array($dosssierTypeInt, [2, 3], true)) {
-            if (in_array($dossierNatureInt, [20, 25], true)) {
+        if (in_array($dosssierTypeInt, DossierType::TYPES_VISITE, true)) {
+            if (in_array($dossierNatureInt, DossierNature::RECEPTIONS_TRAVAUX, true)) {
                 $listeDocs = $this->listeDocRepository->getDocVisiteRT();
-            } elseif (in_array($dossierNatureInt, [47, 48], true)) {
+            } elseif (in_array($dossierNatureInt, DossierNature::VISITE_AVANT_OUVERTURE, true)) {
                 $listeDocs = $this->listeDocRepository->getDocVisiteVAO();
             } else {
                 $listeDocs = $this->listeDocRepository->getDocVisite();
             }
-        } elseif (1 === $dosssierTypeInt) {
-            if (in_array($dossierNatureInt, [7, 19], true)) {
+        } elseif (DossierType::ETUDE === $dosssierTypeInt) {
+            if (in_array($dossierNatureInt, DossierNature::LEVEES, true)) {
                 $listeDocs = $this->listeDocRepository->getDocVisite();
             } else {
                 $listeDocs = $this->listeDocRepository->getDocEtude();
@@ -588,12 +592,10 @@ class DossierRapportOdtService
         // la nature du dossier, afin d'éviter les markers [!-- BEGIN/END --] verbatim.
         // =====================================================================
         $idTypeActivite = (int) ($rawEtabInfos['ID_TYPEACTIVITE'] ?? 0);
-        if (29 === $idTypeActivite && !$repriseCC) {
-            $celluleNatures = [21, 26, 24, 29, 23, 28];
-            $leveeNatures = [7, 19];
-            if (null !== $dossierNature && in_array($dossierNature, $celluleNatures, true)) {
+        if (TypeActivite::CENTRE_COMMERCIAL === $idTypeActivite && !$repriseCC) {
+            if (null !== $dossierNature && in_array($dossierNature, DossierNature::NATURES_CC, true)) {
                 $this->applyCelluleDossier($odf, $dossier);
-            } elseif (null !== $dossierNature && in_array($dossierNature, $leveeNatures, true)) {
+            } elseif (null !== $dossierNature && in_array($dossierNature, DossierNature::LEVEES, true)) {
                 $this->applyCelluleDossierLevee($odf, $idEtab, $dossierNature, $rawDossier);
             } else {
                 // CC mais nature hors listes : vider le bloc cellulesPresc (port direct legacy)
@@ -1548,7 +1550,7 @@ class DossierRapportOdtService
             foreach ($enfants as $enfant) {
                 $idEnfant = (int) ($enfant['ID_ETABLISSEMENT'] ?? '0');
                 $statutEnfant = (int) ($enfant['ID_STATUT'] ?? '0');
-                if (in_array($statutEnfant, [3, 99], true)) {
+                if (in_array($statutEnfant, [StatutEtablissement::FERME, 99], true)) {
                     continue;
                 }
 

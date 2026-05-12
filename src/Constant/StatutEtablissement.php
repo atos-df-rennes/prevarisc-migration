@@ -8,9 +8,15 @@ final class StatutEtablissement
 
     public const OUVERT = 2;
 
+    public const FERME = 3;
+
+    public const ITINERANT_PERIODIQUE = 4;
+
     public const ALL = [
         self::PROJET,
         self::OUVERT,
+        self::FERME,
+        self::ITINERANT_PERIODIQUE,
     ];
 
     /**
