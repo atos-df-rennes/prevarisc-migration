@@ -2,6 +2,8 @@
 
 namespace App\Twig;
 
+use App\Constant\Avis;
+use App\Constant\DossierType;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -42,7 +44,7 @@ class DossierStatusExtension extends AbstractExtension
         }
 
         // Dossier courrier (TYPE_DOSSIER == 5)
-        if (isset($item['TYPE_DOSSIER']) && 5 === $this->mixedToInt($item['TYPE_DOSSIER'])) {
+        if (isset($item['TYPE_DOSSIER']) && DossierType::COURRIER === $this->mixedToInt($item['TYPE_DOSSIER'])) {
             if (!empty($item['DATEREP_DOSSIER'])) {
                 return '<span class="avis F">Répondu</span>';
             }
@@ -61,11 +63,11 @@ class DossierStatusExtension extends AbstractExtension
         $idAvis = isset($item['ID_AVIS']) ? $this->mixedToInt($item['ID_AVIS']) : 0;
         $exploitation = $this->isExploitationNature($item);
 
-        if (1 === $idAvis) {
+        if (Avis::FAVORABLE === $idAvis) {
             return '<span class="avis F">Favorable'.($exploitation ? ' à l\'exploitation' : '').'</span>';
         }
 
-        if (2 === $idAvis) {
+        if (Avis::DEFAVORABLE === $idAvis) {
             return '<span class="avis D">Défavorable'.($exploitation ? ' à l\'exploitation' : '').'</span>';
         }
 
