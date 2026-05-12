@@ -583,14 +583,25 @@ class DossierRapportOdtService
 
         // =====================================================================
         // CELLULES CC
+        // Port direct legacy : if ($this->id_typeactivite == 29) — le bloc cellulesPresc
+        // est TOUJOURS traité (setSegment + mergeSegment) pour les CC, quelle que soit
+        // la nature du dossier, afin d'éviter les markers [!-- BEGIN/END --] verbatim.
         // =====================================================================
-        if (!$repriseCC) {
+        $idTypeActivite = (int) ($rawEtabInfos['ID_TYPEACTIVITE'] ?? 0);
+        if (29 === $idTypeActivite && !$repriseCC) {
             $celluleNatures = [21, 26, 24, 29, 23, 28];
             $leveeNatures = [7, 19];
             if (null !== $dossierNature && in_array($dossierNature, $celluleNatures, true)) {
                 $this->applyCelluleDossier($odf, $dossier);
             } elseif (null !== $dossierNature && in_array($dossierNature, $leveeNatures, true)) {
                 $this->applyCelluleDossierLevee($odf, $idEtab, $dossierNature, $rawDossier);
+            } else {
+                // CC mais nature hors listes : vider le bloc cellulesPresc (port direct legacy)
+                try {
+                    $segCellules = $odf->setSegment('cellulesPresc');
+                    $odf->mergeSegment($segCellules);
+                } catch (\OdfException $odfException) {
+                }
             }
         }
 
