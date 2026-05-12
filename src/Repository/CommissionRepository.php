@@ -24,6 +24,35 @@ class CommissionRepository extends ServiceEntityRepository implements HasContact
     }
 
     /**
+     * Retourne toutes les commissions avec leur type, triées par type puis libellé.
+     * Port direct de la requête SQL inline du DossierRapportController (REF-R-06).
+     *
+     * @return array<int, array{ID_COMMISSION: int, LIBELLE_COMMISSION: string|null, ID_COMMISSIONTYPE: int, LIBELLE_COMMISSIONTYPE: string|null}>
+     */
+    public function findAllWithType(): array
+    {
+        /** @var array<int, array<string, string|null>> $rows */
+        $rows = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            'SELECT c.ID_COMMISSION, c.LIBELLE_COMMISSION, ct.ID_COMMISSIONTYPE, ct.LIBELLE_COMMISSIONTYPE
+             FROM commission c
+             JOIN commissiontype ct ON c.ID_COMMISSIONTYPE = ct.ID_COMMISSIONTYPE
+             ORDER BY ct.ID_COMMISSIONTYPE ASC, c.LIBELLE_COMMISSION ASC'
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
+                'ID_COMMISSION' => (int) ($row['ID_COMMISSION'] ?? '0'),
+                'LIBELLE_COMMISSION' => $row['LIBELLE_COMMISSION'],
+                'ID_COMMISSIONTYPE' => (int) ($row['ID_COMMISSIONTYPE'] ?? '0'),
+                'LIBELLE_COMMISSIONTYPE' => $row['LIBELLE_COMMISSIONTYPE'],
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Retourne les commissions groupées par type.
      * Port de Service_Commission::getCommissionsAndTypes().
      *

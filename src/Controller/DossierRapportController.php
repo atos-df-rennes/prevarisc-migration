@@ -5,8 +5,8 @@ namespace App\Controller;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
+use App\Repository\CommissionRepository;
 use App\Service\DossierRapportOdtService;
-use Doctrine\DBAL\Connection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
@@ -20,9 +20,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
     /**
-     * @var Connection
+     * @var CommissionRepository
      */
-    private $conn;
+    private $commissionRepository;
 
     /**
      * @var DossierRapportOdtService
@@ -44,12 +44,12 @@ class DossierRapportController extends AbstractController implements DossierLate
     private $documentsRealDataPath;
 
     public function __construct(
-        Connection $conn,
+        CommissionRepository $commissionRepository,
         DossierRapportOdtService $odtService,
         string $documentsDataPath,
         string $documentsRealDataPath
     ) {
-        $this->conn = $conn;
+        $this->commissionRepository = $commissionRepository;
         $this->odtService = $odtService;
         $this->documentsDataPath = rtrim($documentsDataPath, '/');
         $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
@@ -70,22 +70,14 @@ class DossierRapportController extends AbstractController implements DossierLate
         $fichierVer = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.'0');
 
         // Liste des commissions avec leur type et leurs fichiers ODT
-        /** @var array<int, array<string, string|null>> $commissionsFlat */
-        $commissionsFlat = $this->conn->fetchAllAssociative(
-            'SELECT c.ID_COMMISSION, c.LIBELLE_COMMISSION, ct.ID_COMMISSIONTYPE, ct.LIBELLE_COMMISSIONTYPE
-             FROM commission c
-             JOIN commissiontype ct ON c.ID_COMMISSIONTYPE = ct.ID_COMMISSIONTYPE
-             ORDER BY ct.ID_COMMISSIONTYPE ASC, c.LIBELLE_COMMISSION ASC'
-        );
-
         $listeCommissions = [];
-        foreach ($commissionsFlat as $commission) {
-            $idCommission = (int) ($commission['ID_COMMISSION'] ?? '0');
+        foreach ($this->commissionRepository->findAllWithType() as $commission) {
+            $idCommission = $commission['ID_COMMISSION'];
             $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
             $listeCommissions[] = [
                 'ID_COMMISSION' => $idCommission,
                 'LIBELLE_COMMISSION' => $commission['LIBELLE_COMMISSION'],
-                'ID_COMMISSIONTYPE' => (int) ($commission['ID_COMMISSIONTYPE'] ?? '0'),
+                'ID_COMMISSIONTYPE' => $commission['ID_COMMISSIONTYPE'],
                 'LIBELLE_COMMISSIONTYPE' => $commission['LIBELLE_COMMISSIONTYPE'],
                 'listeFichier' => $fichiers,
             ];
