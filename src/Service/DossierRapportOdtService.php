@@ -23,6 +23,7 @@ use App\Repository\DossierRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Formulaires\Fusion\ChampNamer;
+use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -261,7 +262,7 @@ class DossierRapportOdtService
         if (!empty($rawDossier['DATERVRAT_DOSSIER'])) {
             $dtRvrat = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DATERVRAT_DOSSIER'], 0, 10));
             if ($dtRvrat instanceof \DateTime) {
-                $dateRvrat = $this->formatDateLongFr($dtRvrat);
+                $dateRvrat = DateFormatterFr::formatLong($dtRvrat);
             }
         }
 
@@ -272,7 +273,7 @@ class DossierRapportOdtService
         if (!empty($rawDossier['DATEDELAIPRESC_DOSSIER'])) {
             $dtDelai = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DATEDELAIPRESC_DOSSIER'], 0, 10));
             if ($dtDelai instanceof \DateTime) {
-                $dateDelaipresc = $this->formatDateLongFr($dtDelai);
+                $dateDelaipresc = DateFormatterFr::formatLong($dtDelai);
             }
         }
 
@@ -320,7 +321,7 @@ class DossierRapportOdtService
             }
 
             if ($dtVisite instanceof \DateTime) {
-                $dateVisite = $this->formatDateLongFr($dtVisite);
+                $dateVisite = DateFormatterFr::formatLong($dtVisite);
                 $heureVisite = $dtVisite->format('H:i');
             }
         }
@@ -329,13 +330,13 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'heureVisite', $heureVisite);
 
         // --- dateGeneration ---
-        $this->addChamp($odf, 'dateGeneration', $this->formatDateLongFr(new \DateTime()));
+        $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong(new \DateTime()));
 
         // --- dateComm ---
-        $this->addChamp($odf, 'dateComm', $this->formatDateLongFrFromStr($rawDossier['DATECOMM_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateComm', DateFormatterFr::formatLongFromStr($rawDossier['DATECOMM_DOSSIER'] ?? null));
 
         // --- dateIncomplet ---
-        $this->addChamp($odf, 'dateIncomplet', $this->formatDateLongFrFromStr($rawDossier['DATEINCOMPLET_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateIncomplet', DateFormatterFr::formatLongFromStr($rawDossier['DATEINCOMPLET_DOSSIER'] ?? null));
 
         // --- demandeurDossier ---
         $this->addChamp($odf, 'demandeurDossier', $rawDossier['DEMANDEUR_DOSSIER'] ?? '');
@@ -610,10 +611,10 @@ class DossierRapportOdtService
         // =====================================================================
         // DATES
         // =====================================================================
-        $this->addChamp($odf, 'dateDepotMairie', $this->formatDateShortFr($rawDossier['DATEMAIRIE_DOSSIER'] ?? null));
-        $this->addChamp($odf, 'dateDepotSec', $this->formatDateShortFr($rawDossier['DATESECRETARIAT_DOSSIER'] ?? null));
-        $this->addChamp($odf, 'dateSDIS', $this->formatDateShortFr($rawDossier['DATESDIS_DOSSIER'] ?? null));
-        $this->addChamp($odf, 'dateCreationDossier', $this->formatDateShortFr($rawDossier['DATEINSERT_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateDepotMairie', DateFormatterFr::formatShort($rawDossier['DATEMAIRIE_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateDepotSec', DateFormatterFr::formatShort($rawDossier['DATESECRETARIAT_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateSDIS', DateFormatterFr::formatShort($rawDossier['DATESDIS_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateCreationDossier', DateFormatterFr::formatShort($rawDossier['DATEINSERT_DOSSIER'] ?? null));
 
         // =====================================================================
         // ÉTABLISSEMENT — informations générales
@@ -826,7 +827,7 @@ class DossierRapportOdtService
                 ]
             );
             if (false !== $lastVpRowFetch) {
-                $dateLastVP = $this->formatDateShortFr($lastVpRowFetch['DATEVISITE_DOSSIER'] ?? null);
+                $dateLastVP = DateFormatterFr::formatShort($lastVpRowFetch['DATEVISITE_DOSSIER'] ?? null);
                 if (!empty($lastVpRowFetch['ID_DOSSIER'])) {
                     /** @var array<string, string|null>|false $avisLastVpRowFetch */
                     $avisLastVpRowFetch = $this->conn->fetchAssociative(
@@ -1685,7 +1686,7 @@ class DossierRapportOdtService
                 $this->addChamp($seg, 'avis', $row['LIBELLE_AVIS'] ?? '');
                 $this->addChamp($seg, 'identifiantdossierleve', $row['ID_DOSSIER_LIE'] ?? '');
                 $dateSource = !empty($row['DATECOMM_DOSSIER']) ? $row['DATECOMM_DOSSIER'] : ($row['DATEVISITE_DOSSIER'] ?? null);
-                $this->addChamp($seg, 'date_avis_derogation', $this->formatDateShortFr($dateSource));
+                $this->addChamp($seg, 'date_avis_derogation', DateFormatterFr::formatShort($dateSource));
                 $seg->merge();
             }
 
@@ -1821,7 +1822,7 @@ class DossierRapportOdtService
                 return '';
             }
 
-            return $this->formatDateLongFr($date);
+            return DateFormatterFr::formatLong($date);
         }
 
         if (TypeChamp::TEXTAREA === $typeId) {
@@ -1835,63 +1836,5 @@ class DossierRapportOdtService
         }
 
         return $valeur->getStr() ?? $valeur->getLongStr() ?? '';
-    }
-
-    /**
-     * Formate une date (string SQL ou null) en format court français : "d MMM yyyy" (ex: "15 janv. 2024").
-     *
-     * @param string|null $dateStr Date au format Y-m-d ou Y-m-d H:i:s
-     */
-    private function formatDateShortFr(?string $dateStr): string
-    {
-        if (null === $dateStr || '' === $dateStr) {
-            return '';
-        }
-
-        $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $dateStr);
-        if (!$dt instanceof \DateTime) {
-            $dt = \DateTime::createFromFormat('Y-m-d', substr($dateStr, 0, 10));
-        }
-
-        if (!$dt instanceof \DateTime) {
-            return '';
-        }
-
-        $moisCourts = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-
-        return $dt->format('j').' '.$moisCourts[(int) $dt->format('n') - 1].' '.$dt->format('Y');
-    }
-
-    /**
-     * Formate un objet DateTime en format long français : "d MMMM yyyy" (ex: "15 janvier 2024").
-     */
-    private function formatDateLongFr(\DateTimeInterface $dt): string
-    {
-        $moisLongs = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-
-        return $dt->format('j').' '.$moisLongs[(int) $dt->format('n') - 1].' '.$dt->format('Y');
-    }
-
-    /**
-     * Formate une chaîne de date SQL en format long français.
-     *
-     * @param string|null $dateStr Date au format Y-m-d ou Y-m-d H:i:s
-     */
-    private function formatDateLongFrFromStr(?string $dateStr): string
-    {
-        if (null === $dateStr || '' === $dateStr) {
-            return '';
-        }
-
-        $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $dateStr);
-        if (!$dt instanceof \DateTime) {
-            $dt = \DateTime::createFromFormat('Y-m-d', substr($dateStr, 0, 10));
-        }
-
-        if (!$dt instanceof \DateTime) {
-            return '';
-        }
-
-        return $this->formatDateLongFr($dt);
     }
 }
