@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49ab5b693952d1a19902b3ff32800a35",
+    "content-hash": "52a5b1321ed45c31ea029d2e3e1ad007",
     "packages": [
         {
             "name": "apereo/phpcas",
@@ -221,6 +221,45 @@
                 }
             ],
             "time": "2025-08-20T19:15:30+00:00"
+        },
+        {
+            "name": "cybermonde/odtphp",
+            "version": "v1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cybermonde/odtphp.git",
+                "reference": "23aba70923ca3c07af15a5600f4072751c1b4a36"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cybermonde/odtphp/zipball/23aba70923ca3c07af15a5600f4072751c1b4a36",
+                "reference": "23aba70923ca3c07af15a5600f4072751c1b4a36",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.4"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "library"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL"
+            ],
+            "description": "ODT document generator",
+            "homepage": "https://github.com/cybermonde/odtphp",
+            "keywords": [
+                "odt",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/cybermonde/odtphp/issues",
+                "source": "https://github.com/cybermonde/odtphp/tree/v1.7"
+            },
+            "time": "2015-06-02T07:28:25+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -7148,6 +7187,7 @@
                     "type": "tidelift"
                 }
             ],
+            "abandoned": true,
             "time": "2022-09-23T06:06:49+00:00"
         },
         {
