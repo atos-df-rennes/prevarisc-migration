@@ -529,6 +529,7 @@ class DossierRapportOdtService
         foreach (array_keys($prescTypesMap) as $typeId) {
             $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossier, $typeId);
             $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
+            $prescArray = $this->withoutLevees($prescArray);
             $reprises = $this->withoutActuals($prescArray);
             $actuelles = $this->withoutPrevious($prescArray);
             $this->addPrescription($odf, $prescArray, $typeId, 'all');
@@ -699,24 +700,59 @@ class DossierRapportOdtService
         // Périodicité
         $this->addChamp($odf, 'periodiciteEtab', $rawEtabInfos['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? '');
 
-        // --- Prochaine visite périodique (port direct legacy Service_Etablissement) ---
+        // --- Prochaine visite périodique (port direct legacy Service_Etablissement::next_visite()) ---
+        // Filtre : VP (TYPE_DOSSIER=2) ou GV (TYPE_DOSSIER=3), avec avis commission rendu,
+        // natures périodiques 21, 26 (+ 47, 48 toujours incluses comme en legacy).
+        // Si PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE=1 : utilise GREATEST(DATECOMM, DATEVISITE).
         $prochaineVisite = '';
         $periodicite = (int) ($rawEtabInfos['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0);
         if ($periodicite > 0) {
-            /** @var array<string, string|null>|false $lastVpRowFetch */
-            $lastVpRowFetch = $this->conn->fetchAssociative(
-                'SELECT d.DATEVISITE_DOSSIER
-                 FROM dossier d
-                 JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
-                 JOIN dossiernature dn ON d.ID_DOSSIER = dn.ID_DOSSIER
-                 WHERE ed.ID_ETABLISSEMENT = :idEtab
-                   AND (dn.ID_NATURE = 21 OR dn.ID_NATURE = 26)
-                   AND d.DATEVISITE_DOSSIER IS NOT NULL
-                 ORDER BY d.DATEVISITE_DOSSIER DESC LIMIT 1',
-                ['idEtab' => $idEtab]
+            $useDateCommission = filter_var(
+                getenv('PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE'),
+                FILTER_VALIDATE_BOOLEAN
             );
-            if (false !== $lastVpRowFetch && !empty($lastVpRowFetch['DATEVISITE_DOSSIER'])) {
-                $dateBase = \DateTime::createFromFormat('Y-m-d', substr($lastVpRowFetch['DATEVISITE_DOSSIER'], 0, 10));
+            if ($useDateCommission) {
+                /** @var array<string, string|null>|false $lastVpRowFetch */
+                $lastVpRowFetch = $this->conn->fetchAssociative(
+                    'SELECT CASE
+                              WHEN d.DATECOMM_DOSSIER >= d.DATEVISITE_DOSSIER THEN d.DATECOMM_DOSSIER
+                              ELSE d.DATEVISITE_DOSSIER
+                            END AS DATE_RELANCE_PERIODICITE
+                     FROM dossier d
+                     JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
+                     JOIN dossiernature dn ON dn.ID_DOSSIER = d.ID_DOSSIER
+                     WHERE ed.ID_ETABLISSEMENT = :idEtab
+                       AND d.TYPE_DOSSIER IN (2, 3)
+                       AND d.AVIS_DOSSIER_COMMISSION > 0
+                       AND dn.ID_NATURE IN (21, 26, 47, 48)
+                     ORDER BY DATE_RELANCE_PERIODICITE DESC LIMIT 1',
+                    ['idEtab' => $idEtab]
+                );
+                $dateRef = (false !== $lastVpRowFetch && !empty($lastVpRowFetch['DATE_RELANCE_PERIODICITE']))
+                    ? $lastVpRowFetch['DATE_RELANCE_PERIODICITE']
+                    : null;
+            } else {
+                /** @var array<string, string|null>|false $lastVpRowFetch */
+                $lastVpRowFetch = $this->conn->fetchAssociative(
+                    'SELECT d.DATEVISITE_DOSSIER
+                     FROM dossier d
+                     JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
+                     JOIN dossiernature dn ON dn.ID_DOSSIER = d.ID_DOSSIER
+                     WHERE ed.ID_ETABLISSEMENT = :idEtab
+                       AND d.TYPE_DOSSIER IN (2, 3)
+                       AND d.AVIS_DOSSIER_COMMISSION > 0
+                       AND dn.ID_NATURE IN (21, 26, 47, 48)
+                       AND d.DATEVISITE_DOSSIER IS NOT NULL
+                     ORDER BY d.DATEVISITE_DOSSIER DESC LIMIT 1',
+                    ['idEtab' => $idEtab]
+                );
+                $dateRef = (false !== $lastVpRowFetch && !empty($lastVpRowFetch['DATEVISITE_DOSSIER']))
+                    ? $lastVpRowFetch['DATEVISITE_DOSSIER']
+                    : null;
+            }
+
+            if (null !== $dateRef) {
+                $dateBase = \DateTime::createFromFormat('Y-m-d', substr($dateRef, 0, 10));
                 if ($dateBase instanceof \DateTime) {
                     $dateBase->modify('+'.$periodicite.' months');
                     $moisFr = [
@@ -1271,6 +1307,29 @@ class DossierRapportOdtService
     }
 
     /**
+     * Supprime les prescriptions ayant une date de levée (DATE_LEVEE non vide).
+     *
+     * Port direct legacy Service_Dossier::withoutLevees().
+     *
+     * @param array<int, array<int, array<string, string>>> $prescArray
+     *
+     * @return array<int, array<int, array<string, string>>>
+     */
+    private function withoutLevees(array $prescArray): array
+    {
+        $result = [];
+        foreach ($prescArray as $i => $prescriptions) {
+            foreach ($prescriptions as $j => $assoc) {
+                if ('' === $assoc['DATE_LEVEE']) {
+                    $result[$i][$j] = $assoc;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Supprime les entrées sans reprise (ID_DOSSIER_REPRISE vide = actuelles seules).
      *
      * @param array<int, array<int, array<string, string>>> $prescArray
@@ -1404,6 +1463,7 @@ class DossierRapportOdtService
                         foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $typeId) {
                             $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossierCellule, $typeId);
                             $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
+                            $prescArray = $this->withoutLevees($prescArray);
                             $reprises = $this->withoutActuals($prescArray);
                             $actuelles = $this->withoutPrevious($prescArray);
                             $this->addPrescriptionCC($segCellules, $prescArray, $typeId, 'all');
@@ -1493,6 +1553,7 @@ class DossierRapportOdtService
                         foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $typeId) {
                             $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossierCellule, $typeId);
                             $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
+                            $prescArray = $this->withoutLevees($prescArray);
                             $reprises = $this->withoutActuals($prescArray);
                             $actuelles = $this->withoutPrevious($prescArray);
                             $this->addPrescriptionCC($segCellules, $prescArray, $typeId, 'all');
