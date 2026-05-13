@@ -32,6 +32,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     'datastore',
                 ],
             ],
+            'rapport' => [
+                'type' => 'rotating_file',
+                'path' => '%kernel.logs_dir%/rapport.log',
+                'level' => 'debug',
+                'max_files' => 1,
+                'channels' => [
+                    'rapport',
+                ],
+            ],
             'console' => [
                 'type' => 'console',
                 'process_psr_3_messages' => false,
@@ -43,6 +52,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ],
         'channels' => [
             'datastore',
+            'rapport',
         ]
     ]);
 };

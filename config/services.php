@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Ldap\Ldap;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -124,6 +126,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\EtablissementPieceJointeService')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
 
+    $services->set('logger.null', NullLogger::class);
+
+    $services->set('App\Service\DossierRapportOdtService')
+        ->arg('$rapportLogger', expr("parameter('app.debug') ? service('monolog.logger.rapport') : service('logger.null')"));
     $services->set('App\Service\ProxyConfigurationService')
         ->arg('$proxyEnabled', '%app.proxy_enabled%')
         ->arg('$proxyProtocol', '%app.proxy_protocol%')

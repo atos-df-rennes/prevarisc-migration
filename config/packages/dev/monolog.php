@@ -15,6 +15,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'channels' => [
                     '!event',
                     '!datastore',
+                    '!rapport',
                 ],
             ],
             'datastore' => [
@@ -24,6 +25,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'max_files' => 5,
                 'channels' => [
                     'datastore',
+                ],
+            ],
+            'rapport' => [
+                'type' => 'rotating_file',
+                'path' => '%kernel.logs_dir%/rapport.log',
+                'level' => 'debug',
+                'max_files' => 1,
+                'channels' => [
+                    'rapport',
                 ],
             ],
             'console' => [
@@ -38,6 +48,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ],
         'channels' => [
             'datastore',
+            'rapport',
         ]
     ]);
 };
