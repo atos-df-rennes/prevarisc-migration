@@ -4,17 +4,26 @@ namespace App\Twig;
 
 use App\Constant\Avis;
 use App\Constant\DossierType;
+use App\Service\DateDiffFormatterService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 class DossierStatusExtension extends AbstractExtension
 {
-    /** @var SearchExtension */
-    private $searchExtension;
+    /**
+     * IDs de natures de dossier correspondant à une nature d'exploitation.
+     * Union des deux templates legacy, normalisée.
+     *
+     * @var int[]
+     */
+    private const EXPLOITATION_NATURE_IDS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
 
-    public function __construct(SearchExtension $searchExtension)
+    /** @var DateDiffFormatterService */
+    private $dateDiffFormatter;
+
+    public function __construct(DateDiffFormatterService $dateDiffFormatter)
     {
-        $this->searchExtension = $searchExtension;
+        $this->dateDiffFormatter = $dateDiffFormatter;
     }
 
     /**
@@ -51,7 +60,7 @@ class DossierStatusExtension extends AbstractExtension
 
             $dateDiff = '';
             if (!empty($item['DATESDIS_DOSSIER'])) {
-                $diff = $this->searchExtension->formatDateDiff($this->mixedToString($item['DATESDIS_DOSSIER']));
+                $diff = $this->dateDiffFormatter->format($this->mixedToString($item['DATESDIS_DOSSIER']));
                 if ('' !== $diff) {
                     $dateDiff = ' ('.htmlspecialchars($diff, ENT_QUOTES, 'UTF-8').')';
                 }
@@ -76,16 +85,13 @@ class DossierStatusExtension extends AbstractExtension
 
     /**
      * Détermine si la nature du dossier correspond à une nature d'exploitation.
-     * Liste des IDs de natures "exploitation" (union des deux templates, normalisée).
      *
      * @param array<string, mixed> $item
      */
     private function isExploitationNature(array $item): bool
     {
-        $exploitationNatureIds = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
-
         return isset($item['ID_DOSSIERNATURE'])
-            && in_array($this->mixedToInt($item['ID_DOSSIERNATURE']), $exploitationNatureIds, true);
+            && in_array($this->mixedToInt($item['ID_DOSSIERNATURE']), self::EXPLOITATION_NATURE_IDS, true);
     }
 
     /**
