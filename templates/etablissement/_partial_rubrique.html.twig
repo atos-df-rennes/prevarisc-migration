@@ -5,37 +5,41 @@
   Variables :
     - prototype (bool)          : true = ligne cachée (modèle JS)
     - rubrique (EtablissementInformationsRubriques|null)
+
+  F3 : noms alignés sur Service/Etablissement.php ($data['RUBRIQUES'][id][...])
+  Le JS remplace [-1] par un timestamp lors du clonage du prototype.
 #}
 {% set is_proto = prototype|default(false) %}
+{% set rub_key = is_proto ? '-1' : (rubrique.id|default(0)) %}
 <tr id="{{ is_proto ? 'prototype_rubrique' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
         <input type="text" placeholder="Ex. : 1530"
-               name="{{ is_proto ? 'RUBRIQUE[-1]' : 'RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.rubrique|default('')) }}"
                style="width: 60px;" />
     </td>
     <td>
         <input type="text" placeholder="Numéro"
-               name="{{ is_proto ? 'NUMERO_RUBRIQUE[-1]' : 'NUMERO_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               name="RUBRIQUES[{{ rub_key }}][NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.numero|default('')) }}"
                style="width: 60px;" />
     </td>
     <td>
         <input type="text" placeholder="Nom"
-               name="{{ is_proto ? 'NOM_RUBRIQUE[-1]' : 'NOM_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               name="RUBRIQUES[{{ rub_key }}][NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.nom|default('')) }}"
                style="width: 140px;" />
     </td>
     <td>
         <input type="text" placeholder="Valeur"
-               name="{{ is_proto ? 'VALEUR_RUBRIQUE[-1]' : 'VALEUR_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               name="RUBRIQUES[{{ rub_key }}][VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.valeur|default('')) }}"
                style="width: 80px;" />
     </td>
     <td>
         <input type="text" placeholder="Classement"
-               name="{{ is_proto ? 'CLASSEMENT_RUBRIQUE[-1]' : 'CLASSEMENT_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.classement|default('')) }}"
                style="width: 80px;" />
     </td>

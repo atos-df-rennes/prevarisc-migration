@@ -16,17 +16,12 @@ abstract class EtablissementVoter extends Voter
 
     /**
      * Attribut permettant de vérifier si l'utilisateur peut créer un établissement.
-     * Un utilisateur authentifié (ayant un groupe) peut créer un établissement.
+     * Le contrôle est délégué au PrivilegeVoter qui vérifie le privilège 'add_etablissement' en BDD.
      */
-    public const CREATE = 'create_ets';
+    public const CREATE = 'add_etablissement';
 
     protected function supports($attribute, $subject): bool
     {
-        // L'attribut CREATE ne nécessite pas de sujet (établissement inexistant à ce stade)
-        if (self::CREATE === $attribute) {
-            return null === $subject;
-        }
-
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION], true)) {
             return false;
         }
@@ -40,11 +35,6 @@ abstract class EtablissementVoter extends Voter
 
         if (!$user instanceof Utilisateur) {
             return false;
-        }
-
-        // Pour la création : tout utilisateur authentifié avec un groupe peut créer
-        if (self::CREATE === $attribute) {
-            return null !== $user->getGroupe();
         }
 
         $userGroupe = $user->getGroupe();

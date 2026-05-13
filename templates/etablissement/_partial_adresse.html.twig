@@ -7,31 +7,34 @@
     - adresse (EtablissementAdresse|null) : mode édition, null en mode ajout
 #}
 {% set is_proto = prototype|default(false) %}
+{# Clé de l'adresse : -1 pour le prototype (remplacé par timestamp JS), id sinon #}
+{% set addr_key = is_proto ? '-1' : (adresse.id|default(0)) %}
 <tr id="{{ is_proto ? 'prototype_adresse' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
+        {# F1 : NUMERO_ADRESSE[id] → ADRESSES[id][NUMERO_ADRESSE] #}
         <input type="text"
-               name="{{ is_proto ? 'NUMERO_ADRESSE[-1]' : 'NUMERO_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               name="ADRESSES[{{ addr_key }}][NUMERO_ADRESSE]"
                value="{{ is_proto ? '' : (adresse.numero|default('')) }}"
                style="width: 60px;" />
     </td>
     <td>
-        {# Voie : champ caché (id) + champ texte visible (autocomplete) #}
+        {# Voie : champ caché (id) = seul champ posté ; champ texte sans name (autocomplete uniquement) #}
+        {# F1 : ID_ADRESSERUE[id] → ADRESSES[id][ID_RUE] #}
         <input type="hidden"
-               name="{{ is_proto ? 'ID_ADRESSERUE[-1]' : 'ID_ADRESSERUE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               name="ADRESSES[{{ addr_key }}][ID_RUE]"
                value="{{ is_proto ? '' : (adresse.rue.id|default('')) }}"
                class="adresse_rue_id" />
         <input type="text"
-               name="{{ is_proto ? '' : '' }}"
                value="{{ is_proto ? '' : (adresse.rue is not null ? adresse.rue.libelle : '') }}"
                placeholder="Voie (autocomplete)…"
                class="adresse_rue_autocomplete"
                style="width: 220px;" />
     </td>
     <td>
-        {# Commune #}
+        {# Commune : F1 : CODEINSEE_ADRESSE[id] → ADRESSES[id][NUMINSEE_COMMUNE] #}
         <input type="hidden"
-               name="{{ is_proto ? 'CODEINSEE_ADRESSE[-1]' : 'CODEINSEE_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               name="ADRESSES[{{ addr_key }}][NUMINSEE_COMMUNE]"
                value="{{ is_proto ? '' : (adresse.commune.codeInsee|default('')) }}"
                class="adresse_commune_id" />
         <span class="adresse_commune_libelle">
@@ -39,13 +42,13 @@
         </span>
     </td>
     <td>
-        {# Coordonnées géographiques #}
+        {# Coordonnées : F1 : COORDONNEES_X → LON, COORDONNEES_Y → LAT #}
         <input type="hidden"
-               name="{{ is_proto ? 'COORDONNEES_X_ADRESSE[-1]' : 'COORDONNEES_X_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               name="ADRESSES[{{ addr_key }}][LON_ETABLISSEMENTADRESSE]"
                value="{{ is_proto ? '' : (adresse.coordonneesX|default('')) }}"
                class="adresse_lon" />
         <input type="hidden"
-               name="{{ is_proto ? 'COORDONNEES_Y_ADRESSE[-1]' : 'COORDONNEES_Y_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               name="ADRESSES[{{ addr_key }}][LAT_ETABLISSEMENTADRESSE]"
                value="{{ is_proto ? '' : (adresse.coordonneesY|default('')) }}"
                class="adresse_lat" />
         {% if not is_proto and adresse.coordonneesX is not null %}

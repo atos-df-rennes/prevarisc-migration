@@ -241,7 +241,12 @@ class PlatauHealthcheckService
             return null;
         }
 
-        /** @var array<string, mixed> $decodedData */
+        /**
+         * json_decode($data, true) retourne array<mixed, mixed> ; on restreint à array<string, mixed>
+         * car les clés JSON sont toujours des chaînes.
+         *
+         * @phpstan-var array<string, mixed> $decodedData
+         */
         return $decodedData;
     }
 
@@ -327,7 +332,12 @@ class PlatauHealthcheckService
             return [];
         }
 
-        /** @var array<string, mixed> $decodedRaw */
+        /**
+         * json_decode($rawContent, true) retourne array<mixed, mixed> ; les clés JSON étant toujours
+         * des chaînes, on restreint à array<string, mixed>.
+         *
+         * @phpstan-var array<string, mixed> $decodedRaw
+         */
         return $decodedRaw;
     }
 

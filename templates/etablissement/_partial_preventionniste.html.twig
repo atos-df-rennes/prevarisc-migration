@@ -10,8 +10,9 @@
 <tr id="{{ is_proto ? 'prototype_preventionniste' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
+        {# F2 : ID_PREVENTIONNISTE → ID_UTILISATEUR (alignement avec Service/Etablissement.php $data['ID_UTILISATEUR']) #}
         <input type="hidden"
-               name="{{ is_proto ? 'ID_PREVENTIONNISTE[-1]' : 'ID_PREVENTIONNISTE[' ~ (prev.id|default(0)) ~ ']' }}"
+               name="{{ is_proto ? 'ID_UTILISATEUR[-1]' : 'ID_UTILISATEUR[' ~ (prev.id|default(0)) ~ ']' }}"
                value="{{ is_proto ? '' : (prev.id|default('')) }}" />
         <span class="prev_libelle">
             {{ is_proto ? '' : (prev is not null ? prev.prenom ~ ' ' ~ prev.nom : '') }}

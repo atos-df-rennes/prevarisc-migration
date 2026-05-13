@@ -5,3 +5,290 @@
 {% block body %}
     {{ include('etablissement/_form.html.twig', {add: true}) }}
 {% endblock %}
+
+{#
+  F6 : le bloc JS était dans _form.html.twig avec {{ parent() }}, ce qui crash quand le template
+  est inclus via include() (pas de chaîne d'héritage → RuntimeError).
+  Solution : déplacer le bloc ici où extends est actif.
+
+  F14 : remplacement des .autocomplete() jQuery par TomSelect (pattern projet,
+  voir templates/etablissement/contacts.html.twig).
+#}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    (function($) {
+        'use strict';
+
+        // Données de référence pour les activités (indexées par type)
+        var activitesParType = {};
+        {% for activite in activites %}
+        if (!activitesParType[{{ activite.type.id }}]) {
+            activitesParType[{{ activite.type.id }}] = [];
+        }
+        activitesParType[{{ activite.type.id }}].push({
+            id: {{ activite.id }},
+            libelle: {{ activite.libelle|json_encode|raw }}
+        });
+        {% endfor %}
+
+        // ——— Masquage/affichage des sections par genre ———
+        function applyGenre(idGenre) {
+            idGenre = parseInt(idGenre, 10);
+
+            // Masquer tous les champs spécifiques
+            $('.champ_icpe, .champ_categorie, .champ_classement, .champ_famille, ' +
+              '.champ_classe, .champ_periodicite, .champ_types, .champ_effectifs, ' +
+              '.champ_effectif_camping, .champ_plans, .champ_commission, ' +
+              '.champ_adresse, .champ_droitpublic, .champ_localsommeil, ' +
+              '.champ_duree_visite, .champs_icpe').hide();
+
+            switch (idGenre) {
+                case 1: // Site
+                    break;
+                case 2: // ERP
+                    $('.champ_categorie, .champ_periodicite, .champ_types, .champ_effectifs, ' +
+                      '.champ_plans, .champ_commission, .champ_adresse, .champ_droitpublic, ' +
+                      '.champ_localsommeil, .champ_duree_visite').show();
+                    break;
+                case 3: // Cellule
+                    $('.champ_types, .champ_effectifs, .champ_plans, .champ_adresse, ' +
+                      '.champ_duree_visite').show();
+                    break;
+                case 4: // Habitation
+                    $('.champ_famille, .champ_adresse').show();
+                    break;
+                case 5: // IGH
+                    $('.champ_classe, .champ_periodicite, .champ_effectifs, .champ_plans, ' +
+                      '.champ_commission, .champ_adresse, .champ_duree_visite').show();
+                    break;
+                case 6: // BUP
+                    $('.champ_icpe, .champ_effectifs, .champs_icpe, .champ_adresse').show();
+                    $('.effectif_public, .effectif_heberge, .effectif_justifiant_classement').hide();
+                    break;
+                case 7: // Camping
+                    $('.champ_effectif_camping, .champ_adresse').show();
+                    break;
+                case 8: // Manifestation temporaire
+                case 9: // IOP
+                    $('.champ_effectifs, .champ_adresse').show();
+                    $('.effectif_heberge, .effectif_justifiant_classement').hide();
+                    break;
+                case 10: // Zone
+                    $('.champ_classement, .champ_adresse').show();
+                    break;
+            }
+        }
+
+        // Appliquer au chargement
+        applyGenre($('#ID_GENRE').val());
+
+        // Appliquer au changement
+        $('#ID_GENRE').on('change', function() {
+            applyGenre($(this).val());
+        });
+
+        // ——— Mise à jour des activités selon le type ———
+        function updateActivites(typeSelect, activiteSelect, currentActiviteId) {
+            var typeId = parseInt($(typeSelect).val(), 10);
+            var $activite = $(activiteSelect);
+            $activite.empty().append('<option value="">—</option>');
+            if (activitesParType[typeId]) {
+                $.each(activitesParType[typeId], function(i, act) {
+                    var selected = currentActiviteId && act.id === currentActiviteId ? ' selected' : '';
+                    $activite.append('<option value="' + act.id + '"' + selected + '>' + act.libelle + '</option>');
+                });
+            }
+        }
+
+        $(document).on('change', '.type_select', function() {
+            var $li = $(this).closest('li');
+            updateActivites(this, $li.find('.activite_select'), null);
+        });
+
+        // ——— Ajout d'une activité secondaire (clone du prototype) ———
+        $('#add_activite_secondaire').on('click', function(e) {
+            e.preventDefault();
+            var ts = Date.now();
+            var $proto = $('#prototype_type_activite').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/-1/gi, ts));
+                }
+            });
+            $('#activite_ul').append($proto);
+        });
+
+        // ——— Ajout d'un plan (clone du prototype) ———
+        $('#add_plan').on('click', function(e) {
+            e.preventDefault();
+            var ts = Date.now();
+            var $proto = $('#prototype_plan').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/-1/gi, ts));
+                }
+            });
+            $('#plans_tbody').append($proto);
+        });
+
+        // ——— Ajout d'une rubrique ICPE (clone du prototype) ———
+        $('#add_rubrique').on('click', function(e) {
+            e.preventDefault();
+            var ts = Date.now();
+            var $proto = $('#prototype_rubrique').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/-1/gi, ts));
+                }
+            });
+            $('#rubriques_tbody').append($proto);
+        });
+
+        // ——— F14 : TomSelect — établissement père ———
+        // Remplace jQuery .autocomplete() ; pattern identique à contacts.html.twig
+        var tsPere = new TomSelect('#pere_autocomplete', {
+            valueField: 'id',
+            labelField: 'libelle',
+            searchField: 'libelle',
+            create: false,
+            maxItems: 1,
+            placeholder: 'Libellé de l\'établissement père…',
+            shouldLoad: function(q) { return q.length >= 2; },
+            load: function(query, callback) {
+                fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(json) {
+                        callback(json.map(function(item) {
+                            return { id: item.id, libelle: item.libelle + ' (' + (item.genre || '?') + ')' };
+                        }));
+                    }).catch(function() { callback(); });
+            },
+            onChange: function(value) {
+                $('input[name="ID_PERE"]').val(value);
+            }
+        });
+
+        // ——— F14 : TomSelect — établissement enfant ———
+        var tsEnfant = new TomSelect('#etablissement_autocomplete', {
+            valueField: 'id',
+            labelField: 'libelle',
+            searchField: 'libelle',
+            create: false,
+            maxItems: 1,
+            placeholder: 'Libellé d\'un établissement enfant…',
+            shouldLoad: function(q) { return q.length >= 2; },
+            load: function(query, callback) {
+                fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(json) {
+                        callback(json.map(function(item) {
+                            return { id: item.id, libelle: item.libelle + ' (' + (item.genre || '?') + ')' };
+                        }));
+                    }).catch(function() { callback(); });
+            },
+            onItemAdd: function(value) {
+                // Ajouter une ligne dans le tableau des enfants
+                var label = tsEnfant.options[value] ? tsEnfant.options[value].libelle : value;
+                var ts = Date.now();
+                var $proto = $('#prototype_enfant').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(value);
+                $proto.find('.enfant_libelle').text(label);
+                $proto.find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#enfants_tbody tr:last').before($proto);
+                tsEnfant.clear();
+                tsEnfant.clearOptions();
+            }
+        });
+
+        // ——— F14 : TomSelect — préventionnistes ———
+        // Utilise api_utilisateurs_search (retourne {id, displayLabel})
+        var tsPrev = new TomSelect('#preventionniste_autocomplete', {
+            valueField: 'id',
+            labelField: 'displayLabel',
+            searchField: 'displayLabel',
+            create: false,
+            maxItems: 1,
+            placeholder: 'Nom du préventionniste…',
+            shouldLoad: function(q) { return q.length >= 3; },
+            load: function(query, callback) {
+                fetch('{{ path('api_utilisateurs_search') }}?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(json) { callback(json); })
+                    .catch(function() { callback(); });
+            },
+            onItemAdd: function(value) {
+                // Ajouter une ligne dans le tableau des préventionnistes
+                var label = tsPrev.options[value] ? tsPrev.options[value].displayLabel : value;
+                var ts = Date.now();
+                var $proto = $('#prototype_preventionniste').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(value);
+                $proto.find('.prev_libelle').text(label);
+                $proto.find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#preventionnistes_tbody tr:last').before($proto);
+                tsPrev.clear();
+                tsPrev.clearOptions();
+            }
+        });
+
+        // ——— Bouton confirmation : appel AJAX defaults_values ———
+        $('#btn_confirmer').on('click', function(e) {
+            e.preventDefault();
+            var formData = {
+                genre: $('#ID_GENRE').val(),
+                type: $('select[name="ID_TYPE"]').first().val(),
+                categorie: $('select[name="ID_CATEGORIE"]').val(),
+                local_sommeil: $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"]:checked').val(),
+                classe: $('select[name="ID_CLASSE"]').val()
+            };
+            $.post('{{ path('api_etablissement_defaults_values') }}', formData, function(data) {
+                // Mettre à jour les valeurs conseillées dans la modale
+                if (data.commission) {
+                    $('#modal_commission_libelle').text(data.commission.LIBELLE_COMMISSION || '—');
+                }
+                if (data.periodicite !== undefined) {
+                    $('#modal_periodicite').text(data.periodicite ? data.periodicite + ' mois' : '—');
+                }
+                if (data.local_sommeil !== undefined) {
+                    $('#modal_local_sommeil').text(data.local_sommeil ? 'Oui' : 'Non');
+                    // Pré-cocher le local à sommeil suggéré
+                    $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"][value="' + (data.local_sommeil ? '1' : '0') + '"]').prop('checked', true);
+                }
+                $('#confirm-modal').modal('show');
+            }, 'json').fail(function() {
+                $('#confirm-modal').modal('show');
+            });
+        });
+
+        // Soumettre le formulaire depuis la modale
+        $('#btn_confirm_submit').on('click', function() {
+            $('#confirm-modal').modal('hide');
+            $('#etablissement').submit();
+        });
+
+    }(jQuery));
+    </script>
+{% endblock %}

@@ -15,6 +15,7 @@ use App\Form\DescriptifOriginalType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\AvisRepository;
 use App\Repository\ClassementRepository;
+use App\Repository\CommissionRepository;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementActiviteRepository;
@@ -84,6 +85,11 @@ class EtablissementController extends AbstractController implements Etablissemen
      * @var CoucheCartoRepository
      */
     private $coucheCartoRepository;
+
+    /**
+     * @var CommissionRepository
+     */
+    private $commissionRepository;
 
     /**
      * @var PeriodiciteRepository
@@ -186,6 +192,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         EntityManagerInterface $entityManager,
         Dossier $dossierService,
         CoucheCartoRepository $coucheCartoRepository,
+        CommissionRepository $commissionRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
         DataStore $dataStore,
@@ -222,6 +229,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->entityManager = $entityManager;
         $this->dossierService = $dossierService;
         $this->coucheCartoRepository = $coucheCartoRepository;
+        $this->commissionRepository = $commissionRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->groupementRepository = $groupementRepository;
         $this->dataStore = $dataStore;
@@ -267,13 +275,13 @@ class EtablissementController extends AbstractController implements Etablissemen
         $categories = $this->categorieRepository->findAll();
         $types = $this->typeRepository->findAll();
         $activites = $this->activiteRepository->findAll();
-        $commissionsEtTypes = $this->coucheCartoRepository->findAll();
+        // F8 : utiliser CommissionRepository::findAll() (coucheCartoRepository était un copier/coller erroné)
+        $commissionsData = $this->commissionRepository->findAll();
         $typesPlans = $this->typePlanRepository->findAll();
         $familles = $this->familleRepository->findAll();
         $ighClasses = $this->ighClasseRepository->findAll();
         $classements = $this->classementRepository->findAllOrderedByLibelle();
         $couchesCartographiques = $this->coucheCartoRepository->findAllOrdered();
-        $commissionsData = []; // getCommissionsAndTypes() est disponible si besoin
 
         // Vérifie si l'utilisateur a le droit de modifier le statut
         $canEditStatut = $this->isGranted('edit_statut');
@@ -285,6 +293,31 @@ class EtablissementController extends AbstractController implements Etablissemen
         $defaultLat = $this->getParameter('app.default_lat');
 
         if ($request->isMethod('POST')) {
+            // F4 : vérification du jeton CSRF
+            if (!$this->isCsrfTokenValid('add_etablissement', $request->request->get('_token'))) {
+                $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
+
+                return $this->render('etablissement/add.html.twig', [
+                    'genres' => $genres,
+                    'statuts' => $statuts,
+                    'avis' => $avis,
+                    'categories' => $categories,
+                    'types' => $types,
+                    'activites' => $activites,
+                    'commissions' => $commissionsData,
+                    'types_plans' => $typesPlans,
+                    'familles' => $familles,
+                    'igh_classes' => $ighClasses,
+                    'classements' => $classements,
+                    'couches_cartographiques' => $couchesCartographiques,
+                    'can_edit_statut' => $canEditStatut,
+                    'key_ign' => $keyIgn,
+                    'geoconcept_url' => $geoconceptUrl,
+                    'default_lon' => $defaultLon,
+                    'default_lat' => $defaultLat,
+                ]);
+            }
+
             /** @var array<string, mixed> $post */
             $post = $request->request->all();
             $rawGenre = $post['ID_GENRE'] ?? null;
@@ -295,7 +328,9 @@ class EtablissementController extends AbstractController implements Etablissemen
                 $user = $this->getUser();
                 $idEtablissement = $this->etablissementService->save($idGenre, $post, $user);
 
-                // Cas particulier : site avec un seul fils → rediriger vers l'édition de l'établissement
+                // Cas particulier : site avec un seul fils → rediriger vers édition legacy
+                // TODO: remplacer par redirectToRoute('etablissement_edit', ['id' => $idEtablissement])
+                //       quand l'action edit sera migrée.
                 if (GenreEtablissement::SITE === $idGenre
                     && isset($post['ID_FILS_ETABLISSEMENT'])
                     && is_array($post['ID_FILS_ETABLISSEMENT'])
@@ -308,15 +343,18 @@ class EtablissementController extends AbstractController implements Etablissemen
                         'Le site a été créé avec un établissement enfant. Pensez à vérifier la fiche de cet établissement.'
                     );
 
-                    return $this->redirectToRoute('etablissement_informations', ['id' => $idEtablissement]);
+                    return $this->redirect('/etablissement/'.$idEtablissement);
                 }
 
-                $this->addFlash('success', 'L\'établissement a bien été créé.');
+                // F9 : message aligné sur le legacy
+                $this->addFlash('success', "L'établissement a bien été ajouté.");
 
                 return $this->redirectToRoute('etablissement_informations', ['id' => $idEtablissement]);
             } catch (\Exception $e) {
+                // F9 : logger l'exception, ne pas exposer $e->getMessage() à l'utilisateur
                 $this->logger->error('Erreur ajout établissement', ['error' => $e->getMessage()]);
-                $this->addFlash('error', 'Une erreur est survenue lors de la création : '.$e->getMessage());
+                // F9 : 'error' → 'danger' + message générique aligné legacy
+                $this->addFlash('danger', "L'établissement n'a pas été ajouté. Veuillez rééssayez.");
             }
         }
 

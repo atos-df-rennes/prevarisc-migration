@@ -926,12 +926,18 @@ final class Etablissement
                         continue;
                     }
 
+                    // F7 : éviter getReference(Commune, '') qui génère une FK invalide
+                    $rawInsee = self::toString($adresseData['NUMINSEE_COMMUNE'] ?? '');
+                    if ('' === $rawInsee) {
+                        continue;
+                    }
+
                     $adresse = new EtablissementAdresse();
                     /** @var AdresseRue $rue */
                     $rue = $em->getReference(AdresseRue::class, $rawRueId);
                     $adresse->setRue($rue);
                     /** @var Commune $commune */
-                    $commune = $em->getReference(Commune::class, self::toString($adresseData['NUMINSEE_COMMUNE'] ?? ''));
+                    $commune = $em->getReference(Commune::class, $rawInsee);
                     $adresse->setCommune($commune);
                     $adresse->setEtablissement($etablissement);
                     $rawNum = self::toString($adresseData['NUMERO_ADRESSE'] ?? '');

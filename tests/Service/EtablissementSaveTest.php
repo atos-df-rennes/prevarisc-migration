@@ -115,7 +115,7 @@ class EtablissementSaveTest extends TestCase
     /**
      * Ajouter un établissement non-cellule comme fils d'un ERP doit lever une exception.
      */
-    public function testSaveErpWithNonCelulleFils_throwsException(): void
+    public function testSaveErpWithNonCelluleFils_throwsException(): void
     {
         $filsZone = $this->createEtablissementWithGenre(GenreEtablissement::ZONE);
         $service = $this->buildService($filsZone);
