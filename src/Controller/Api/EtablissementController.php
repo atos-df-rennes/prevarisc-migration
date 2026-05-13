@@ -4,7 +4,6 @@ namespace App\Controller\Api;
 
 use App\Constant\GenreEtablissement;
 use App\Repository\EtablissementRepository;
-use App\Repository\GroupementRepository;
 use App\Repository\PeriodiciteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,21 +23,16 @@ class EtablissementController extends AbstractController
     /** @var PeriodiciteRepository */
     private $periodiciteRepository;
 
-    /** @var GroupementRepository */
-    private $groupementRepository;
-
     /** @var EntityManagerInterface */
     private $em;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
         PeriodiciteRepository $periodiciteRepository,
-        GroupementRepository $groupementRepository,
         EntityManagerInterface $em
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->periodiciteRepository = $periodiciteRepository;
-        $this->groupementRepository = $groupementRepository;
         $this->em = $em;
     }
 
@@ -161,7 +155,7 @@ class EtablissementController extends AbstractController
 
                 break;
 
-            // ERP
+                // ERP
             case GenreEtablissement::ERP:
                 // Suggestion local à sommeil : false par défaut si non renseigné
                 if (null === $localSommeil) {
@@ -180,7 +174,7 @@ class EtablissementController extends AbstractController
                 }
 
                 // Périodicité selon catégorie/type/local à sommeil
-                if (null !== $categorie && null !== $type && null !== $localSommeil) {
+                if (!in_array(null, [$categorie, $type, $localSommeil], true)) {
                     $periodicite = $this->periodiciteRepository->gn4(
                         $categorie,
                         (string) $type,
@@ -225,7 +219,7 @@ class EtablissementController extends AbstractController
 
                 break;
 
-            // Cellule
+                // Cellule
             case GenreEtablissement::CELLULE:
                 // Préventionnistes de l'établissement parent
                 if (null !== $idEtablissementPere) {
@@ -234,7 +228,7 @@ class EtablissementController extends AbstractController
 
                 break;
 
-            // IGH
+                // IGH
             case GenreEtablissement::IGH:
                 // Périodicité selon classe
                 if (null !== $classe) {
@@ -273,7 +267,7 @@ class EtablissementController extends AbstractController
 
                 break;
 
-            // Autres genres (Habitation, BUP, Camping, Manifestation temporaire, IOP, Zone)
+                // Autres genres (Habitation, BUP, Camping, Manifestation temporaire, IOP, Zone)
             default:
                 // Préventionnistes du site ou des groupements de communes
                 if (null !== $numinsee || null !== $idEtablissementPere) {
@@ -363,9 +357,9 @@ class EtablissementController extends AbstractController
      * Parcourt les types de commission par ordre décroissant de priorité.
      * Vérifie d'abord la commune directe, puis les groupements de communes.
      *
-     * @param string $numinsee    Code INSEE de la commune
-     * @param int    $categorie   Identifiant de la catégorie ERP
-     * @param int    $type        Identifiant du type ERP
+     * @param string $numinsee     Code INSEE de la commune
+     * @param int    $categorie    Identifiant de la catégorie ERP
+     * @param int    $type         Identifiant du type ERP
      * @param int    $localSommeil 1 si local à sommeil, 0 sinon
      *
      * @return array{ID_COMMISSION: int, LIBELLE_COMMISSION: string}|null
@@ -374,7 +368,7 @@ class EtablissementController extends AbstractController
     {
         $conn = $this->em->getConnection();
 
-        /** @var array<int, array<string, mixed>> $types */
+        /** @var list<array{ID_COMMISSIONTYPE: string}> $types */
         $types = $conn->executeQuery(
             'SELECT ID_COMMISSIONTYPE FROM commissiontype ORDER BY ID_COMMISSIONTYPE DESC'
         )->fetchAllAssociative();
@@ -382,7 +376,7 @@ class EtablissementController extends AbstractController
         foreach ($types as $typeRow) {
             $commissionTypeId = (int) $typeRow['ID_COMMISSIONTYPE'];
 
-            /** @var array<int, array<string, mixed>> $results */
+            /** @var list<array{ID_GROUPEMENT: string|null, NUMINSEE_COMMUNE: string|null, ID_COMMISSION: string, LIBELLE_COMMISSION: string}> $results */
             $results = $conn->executeQuery(
                 'SELECT cr.ID_GROUPEMENT, cr.NUMINSEE_COMMUNE, cr.ID_COMMISSION, c.LIBELLE_COMMISSION'
                 .' FROM commissionregle cr'
@@ -398,26 +392,28 @@ class EtablissementController extends AbstractController
             )->fetchAllAssociative();
 
             foreach ($results as $result) {
-                $numinseeCommune = isset($result['NUMINSEE_COMMUNE']) ? (string) $result['NUMINSEE_COMMUNE'] : '';
-                $idGroupement = $result['ID_GROUPEMENT'] ?? null;
+                $numinseeCommune = $result['NUMINSEE_COMMUNE'] ?? '';
+                $idGroupement = $result['ID_GROUPEMENT'];
 
                 if ('' !== $numinseeCommune) {
                     if ($numinseeCommune === $numinsee) {
                         return [
                             'ID_COMMISSION' => (int) $result['ID_COMMISSION'],
-                            'LIBELLE_COMMISSION' => (string) $result['LIBELLE_COMMISSION'],
+                            'LIBELLE_COMMISSION' => $result['LIBELLE_COMMISSION'],
                         ];
                     }
                 } elseif (null !== $idGroupement) {
-                    $count = (int) $conn->executeQuery(
+                    /** @var string|false $countResult */
+                    $countResult = $conn->executeQuery(
                         'SELECT COUNT(*) FROM groupementcommune WHERE ID_GROUPEMENT = ? AND NUMINSEE_COMMUNE = ?',
                         [$idGroupement, $numinsee]
                     )->fetchOne();
+                    $count = (int) $countResult;
 
                     if ($count > 0) {
                         return [
                             'ID_COMMISSION' => (int) $result['ID_COMMISSION'],
-                            'LIBELLE_COMMISSION' => (string) $result['LIBELLE_COMMISSION'],
+                            'LIBELLE_COMMISSION' => $result['LIBELLE_COMMISSION'],
                         ];
                     }
                 }
@@ -434,8 +430,8 @@ class EtablissementController extends AbstractController
      * Parcourt les types de commission (hors type 5) par ordre croissant.
      * Vérifie d'abord la commune directe, puis les groupements de communes.
      *
-     * @param string $numinsee    Code INSEE de la commune
-     * @param int    $classe      Identifiant de la classe IGH
+     * @param string $numinsee     Code INSEE de la commune
+     * @param int    $classe       Identifiant de la classe IGH
      * @param int    $localSommeil 1 si local à sommeil, 0 sinon
      *
      * @return array{ID_COMMISSION: int, LIBELLE_COMMISSION: string}|null
@@ -444,7 +440,7 @@ class EtablissementController extends AbstractController
     {
         $conn = $this->em->getConnection();
 
-        /** @var array<int, array<string, mixed>> $types */
+        /** @var list<array{ID_COMMISSIONTYPE: string}> $types */
         $types = $conn->executeQuery(
             'SELECT ID_COMMISSIONTYPE FROM commissiontype WHERE ID_COMMISSIONTYPE != 5 ORDER BY ID_COMMISSIONTYPE ASC'
         )->fetchAllAssociative();
@@ -452,7 +448,7 @@ class EtablissementController extends AbstractController
         foreach ($types as $typeRow) {
             $commissionTypeId = (int) $typeRow['ID_COMMISSIONTYPE'];
 
-            /** @var array<int, array<string, mixed>> $results */
+            /** @var list<array{ID_GROUPEMENT: string|null, NUMINSEE_COMMUNE: string|null, ID_COMMISSION: string, LIBELLE_COMMISSION: string}> $results */
             $results = $conn->executeQuery(
                 'SELECT cr.ID_GROUPEMENT, cr.NUMINSEE_COMMUNE, cr.ID_COMMISSION, c.LIBELLE_COMMISSION'
                 .' FROM commissionregle cr'
@@ -466,26 +462,28 @@ class EtablissementController extends AbstractController
             )->fetchAllAssociative();
 
             foreach ($results as $result) {
-                $numinseeCommune = isset($result['NUMINSEE_COMMUNE']) ? (string) $result['NUMINSEE_COMMUNE'] : '';
-                $idGroupement = $result['ID_GROUPEMENT'] ?? null;
+                $numinseeCommune = $result['NUMINSEE_COMMUNE'] ?? '';
+                $idGroupement = $result['ID_GROUPEMENT'];
 
                 if ('' !== $numinseeCommune) {
                     if ($numinseeCommune === $numinsee) {
                         return [
                             'ID_COMMISSION' => (int) $result['ID_COMMISSION'],
-                            'LIBELLE_COMMISSION' => (string) $result['LIBELLE_COMMISSION'],
+                            'LIBELLE_COMMISSION' => $result['LIBELLE_COMMISSION'],
                         ];
                     }
                 } elseif (null !== $idGroupement) {
-                    $count = (int) $conn->executeQuery(
+                    /** @var string|false $countResult */
+                    $countResult = $conn->executeQuery(
                         'SELECT COUNT(*) FROM groupementcommune WHERE ID_GROUPEMENT = ? AND NUMINSEE_COMMUNE = ?',
                         [$idGroupement, $numinsee]
                     )->fetchOne();
+                    $count = (int) $countResult;
 
                     if ($count > 0) {
                         return [
                             'ID_COMMISSION' => (int) $result['ID_COMMISSION'],
-                            'LIBELLE_COMMISSION' => (string) $result['LIBELLE_COMMISSION'],
+                            'LIBELLE_COMMISSION' => $result['LIBELLE_COMMISSION'],
                         ];
                     }
                 }

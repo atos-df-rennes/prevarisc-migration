@@ -13,6 +13,7 @@ use App\Service\Etablissement as EtablissementService;
 use App\Service\TexteApplicable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -32,8 +33,6 @@ class EtablissementSaveTest extends TestCase
      *
      * @param Etablissement|null $filsEtablissement Établissement fils retourné par le repo (id=10)
      * @param Etablissement|null $pereEtablissement Établissement père retourné par le repo (id=99)
-     *
-     * @return EtablissementService
      */
     private function buildService(
         ?Etablissement $filsEtablissement = null,
@@ -47,7 +46,7 @@ class EtablissementSaveTest extends TestCase
         $em->method('getConnection')->willReturn($connection);
         // On simule la persistance en affectant l'ID=1 via réflexion
         $em->method('persist')->willReturnCallback(static function ($entity): void {
-            if ($entity instanceof \App\Entity\Etablissement) {
+            if ($entity instanceof Etablissement) {
                 $r = new \ReflectionClass($entity);
                 $p = $r->getProperty('id');
                 $p->setAccessible(true);
@@ -55,16 +54,17 @@ class EtablissementSaveTest extends TestCase
             }
         });
         $em->method('flush');
-        $em->method('getReference')->willReturnCallback(function (string $class, $id) {
+        $em->method('getReference')->willReturnCallback(function (string $class, $id): MockObject {
             return $this->createMock($class);
         });
 
         $etablissementRepo = $this->createMock(EtablissementRepository::class);
         $etablissementRepo->method('find')->willReturnCallback(
-            function ($id) use ($filsEtablissement, $pereEtablissement) {
+            function ($id) use ($filsEtablissement, $pereEtablissement): ?Etablissement {
                 if (null !== $filsEtablissement && 10 === (int) $id) {
                     return $filsEtablissement;
                 }
+
                 if (null !== $pereEtablissement && 99 === (int) $id) {
                     return $pereEtablissement;
                 }
@@ -92,10 +92,6 @@ class EtablissementSaveTest extends TestCase
 
     /**
      * Crée un mock d'établissement avec un genre donné.
-     *
-     * @param int $genreId
-     *
-     * @return Etablissement
      */
     private function createEtablissementWithGenre(int $genreId): Etablissement
     {
@@ -115,7 +111,7 @@ class EtablissementSaveTest extends TestCase
     /**
      * Ajouter un établissement non-cellule comme fils d'un ERP doit lever une exception.
      */
-    public function testSaveErpWithNonCelluleFils_throwsException(): void
+    public function testSaveErpWithNonCelluleFilsThrowsException(): void
     {
         $filsZone = $this->createEtablissementWithGenre(GenreEtablissement::ZONE);
         $service = $this->buildService($filsZone);
@@ -131,7 +127,7 @@ class EtablissementSaveTest extends TestCase
     /**
      * Un site ne peut pas avoir de père — lever une exception.
      */
-    public function testSaveSiteWithPere_throwsException(): void
+    public function testSaveSiteWithPereThrowsException(): void
     {
         $pere = $this->createEtablissementWithGenre(GenreEtablissement::SITE);
         $service = $this->buildService(null, $pere);
@@ -147,7 +143,7 @@ class EtablissementSaveTest extends TestCase
     /**
      * Une cellule avec un père qui n'est pas ERP/IGH doit lever une exception.
      */
-    public function testSaveCelluleWithNonErpPere_throwsException(): void
+    public function testSaveCelluleWithNonErpPereThrowsException(): void
     {
         $pere = $this->createEtablissementWithGenre(GenreEtablissement::HABITATION);
         $service = $this->buildService(null, $pere);
@@ -163,13 +159,13 @@ class EtablissementSaveTest extends TestCase
     /**
      * Un fils de type site ne peut pas être rattaché à un parent — exception.
      */
-    public function testSaveSiteAsFils_throwsException(): void
+    public function testSaveSiteAsFilsThrowsException(): void
     {
         $fils = $this->createEtablissementWithGenre(GenreEtablissement::SITE);
         $service = $this->buildService($fils);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('n\'est pas compatible avec un site');
+        $this->expectExceptionMessage("n'est pas compatible avec un site");
 
         $service->save(GenreEtablissement::SITE, [
             'ID_FILS_ETABLISSEMENT' => ['10'],

@@ -294,7 +294,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         if ($request->isMethod('POST')) {
             // F4 : vérification du jeton CSRF
-            if (!$this->isCsrfTokenValid('add_etablissement', $request->request->get('_token'))) {
+            /** @var string|null $csrfToken */
+            $csrfToken = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('add_etablissement', $csrfToken)) {
                 $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
 
                 return $this->render('etablissement/add.html.twig', [

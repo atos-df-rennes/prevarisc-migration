@@ -1,12 +1,9 @@
-{% extends 'layouts/listing.html.twig' %}
+{% extends 'layouts/etablissement.html.twig' %}
 
 {% block title %}Ajouter un établissement{% endblock %}
 
 {% block body %}
     {{ include('etablissement/_form.html.twig', {add: true}) }}
-{% endblock %}
-
-{% block lateral_navigation %}
 {% endblock %}
 
 {#
