@@ -4,39 +4,18 @@ namespace App\Tests\Service;
 
 use App\Entity\Avis;
 use App\Entity\Dossier;
-use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
-use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
-use App\Repository\PieceJointeRepository;
-use App\Service\DataStore\DataStore;
-use App\Service\Etablissement;
-use App\Service\Image;
-use App\Service\TexteApplicable;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\EtablissementHistoriqueService;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
-final class EtablissementTest extends TestCase
+final class EtablissementHistoriqueServiceTest extends TestCase
 {
     /** @dataProvider lastAvisLibelleProvider */
     public function testGetLastAvisLibelle(array $dossiersDataParams, string $expected): void
     {
         $etablissementRepository = $this->createMock(EtablissementRepository::class);
         $dossierRepository = $this->createMock(DossierRepository::class);
-        $avisDerogationsRepository = $this->createMock(AvisDerogationsRepository::class);
-        $etablissementPJRepository = $this->createMock(EtablissementPieceJointeRepository::class);
-        $dataStore = $this->createMock(DataStore::class);
-        $parameterBag = $this->createMock(ParameterBagInterface::class);
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $datastoreLogger = $this->createMock(LoggerInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $texteApplicableService = $this->createMock(TexteApplicable::class);
-        $pieceJointeRepository = $this->createMock(PieceJointeRepository::class);
-        $imageService = new Image();
-        $filesystem = $this->createMock(Filesystem::class);
 
         // Construire les mocks de dossiers à partir des paramètres
         $dossiersData = [];
@@ -49,20 +28,9 @@ final class EtablissementTest extends TestCase
             ->with(1)
             ->willReturn($dossiersData);
 
-        $service = new Etablissement(
+        $service = new EtablissementHistoriqueService(
             $etablissementRepository,
-            $dossierRepository,
-            $avisDerogationsRepository,
-            $etablissementPJRepository,
-            $dataStore,
-            $parameterBag,
-            $entityManager,
-            $datastoreLogger,
-            $logger,
-            $texteApplicableService,
-            $pieceJointeRepository,
-            $imageService,
-            $filesystem
+            $dossierRepository
         );
 
         $result = $service->getLastAvisLibelle(1);
