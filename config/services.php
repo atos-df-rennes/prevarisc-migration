@@ -48,7 +48,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\DependencyInjection\PrevariscMailerDsnProcessor')
         ->tag('container.env_var_processor');
 
-    $services->set('App\Controller\EtablissementController')
+    $services->set('App\Controller\Etablissement\EtablissementController')
         ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
         ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Prescription;
 
 use App\Entity\PrescriptionArticleListe;
 use App\Form\PrescriptionArticleListeType;

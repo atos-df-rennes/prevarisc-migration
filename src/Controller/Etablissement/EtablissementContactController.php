@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Etablissement;
 
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;

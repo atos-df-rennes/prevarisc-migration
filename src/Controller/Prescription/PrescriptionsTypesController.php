@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Prescription;
 
 use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
