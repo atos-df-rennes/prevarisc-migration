@@ -241,7 +241,7 @@ class PlatauHealthcheckService
             return null;
         }
 
-        /**
+        /*
          * json_decode($data, true) retourne array<mixed, mixed> ; on restreint à array<string, mixed>
          * car les clés JSON sont toujours des chaînes.
          *
@@ -332,7 +332,7 @@ class PlatauHealthcheckService
             return [];
         }
 
-        /**
+        /*
          * json_decode($rawContent, true) retourne array<mixed, mixed> ; les clés JSON étant toujours
          * des chaînes, on restreint à array<string, mixed>.
          *

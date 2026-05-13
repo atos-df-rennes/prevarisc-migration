@@ -165,7 +165,7 @@
                     {% for c in couches_cartographiques %}
                     {
                         url: {{ c.url|json_encode|raw }},
-                        layers: {{ c.layers|json_encode|raw }},
+                        layers: {{ c.layer|json_encode|raw }},
                         nom: {{ c.nom|json_encode|raw }}
                     }{{ not loop.last ? ',' : '' }}
                     {% endfor %}

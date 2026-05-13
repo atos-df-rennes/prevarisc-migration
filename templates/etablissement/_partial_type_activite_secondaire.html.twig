@@ -32,7 +32,7 @@
         {% for activite in activites %}
             <option value="{{ activite.id }}"
                     data-type="{{ activite.type.id }}"
-                {{ (not is_proto and ta is not null and ta.typeActivite is not null and ta.typeActivite.id == activite.id) ? 'selected' : '' }}>
+                {{ (not is_proto and ta is not null and ta.activite is not null and ta.activite.id == activite.id) ? 'selected' : '' }}>
                 {{ activite.libelle }}
             </option>
         {% endfor %}
