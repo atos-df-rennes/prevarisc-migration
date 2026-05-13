@@ -74,13 +74,13 @@ class DossierRapportController extends AbstractController implements DossierLate
         /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
         foreach ($this->commissionRepository->findAllWithType() as $commission) {
-            $idCommission = $commission['ID_COMMISSION'];
+            $idCommission = (int) $commission->getId();
             $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
             $listeCommissions[] = new CommissionOdtDto(
                 $idCommission,
-                $commission['LIBELLE_COMMISSION'],
-                $commission['ID_COMMISSIONTYPE'],
-                $commission['LIBELLE_COMMISSIONTYPE'],
+                $commission->getLibelle(),
+                (int) ($commission->getType() ? $commission->getType()->getId() : 0),
+                $commission->getType() ? $commission->getType()->getLibelle() : null,
                 $fichiers
             );
         }

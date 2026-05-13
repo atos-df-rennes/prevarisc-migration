@@ -72,6 +72,9 @@ class DossierRapportOdtService
     /** @var bool */
     private $debugEnabled;
 
+    /** @var resource|null */
+    private $debugFile;
+
     public function __construct(
         EntityManagerInterface $em,
         Connection $conn,
@@ -206,23 +209,22 @@ class DossierRapportOdtService
         $numInsee = $adresseRow['NUMINSEE_COMMUNE'] ?? null;
 
         // Initialisation du debug (port direct de creationdoc.phtml lignes 34-42)
-        /** @var resource|null $debugFile */
-        $debugFile = null;
+        $this->debugFile = null;
         try {
             if ($this->debugEnabled) {
                 $debugFileName = 'rapport_dossier_'.$idDossier.'.txt';
                 $debugFileHandle = @fopen(sys_get_temp_dir().DIRECTORY_SEPARATOR.$debugFileName, 'w');
-                $debugFile = false !== $debugFileHandle ? $debugFileHandle : null;
+                $this->debugFile = false !== $debugFileHandle ? $debugFileHandle : null;
             }
 
             // --- Init Odf ---
             $odf = new \Odf($fichierSelect);
 
             // --- Champs scalaires du dossier (commission, objet, servInstructeur, avis…) ---
-            $this->fillChampsDossier($odf, $rawDossier, $idDossier, $typeDossierLabel, $natureDossierLabel, $numInsee, $debugFile);
+            $this->fillChampsDossier($odf, $rawDossier, $idDossier, $typeDossierLabel, $natureDossierLabel, $numInsee);
 
             // --- Champs dates du dossier ---
-            $this->fillChampsDatesDossier($odf, $rawDossier, $debugFile);
+            $this->fillChampsDatesDossier($odf, $rawDossier);
 
             // =====================================================================
             // SEGMENT : preventionnistes
@@ -243,9 +245,9 @@ class DossierRapportOdtService
             try {
                 $segPreventionnistes = $odf->setSegment('preventionnistes');
                 foreach ($preventionnisteRows as $prev) {
-                    $this->addChamp($segPreventionnistes, 'grade', $prev['GRADE_UTILISATEURINFORMATIONS'] ?? '', $debugFile);
-                    $this->addChamp($segPreventionnistes, 'nom', $prev['NOM_UTILISATEURINFORMATIONS'] ?? '', $debugFile);
-                    $this->addChamp($segPreventionnistes, 'prenom', $prev['PRENOM_UTILISATEURINFORMATIONS'] ?? '', $debugFile);
+                    $this->addChamp($segPreventionnistes, 'grade', $prev['GRADE_UTILISATEURINFORMATIONS'] ?? '');
+                    $this->addChamp($segPreventionnistes, 'nom', $prev['NOM_UTILISATEURINFORMATIONS'] ?? '');
+                    $this->addChamp($segPreventionnistes, 'prenom', $prev['PRENOM_UTILISATEURINFORMATIONS'] ?? '');
                     $segPreventionnistes->merge();
                     if (!empty($prev['MAIL_UTILISATEURINFORMATIONS'])) {
                         $listeMails[] = $prev['MAIL_UTILISATEURINFORMATIONS'];
@@ -259,7 +261,7 @@ class DossierRapportOdtService
             try {
                 $segPrevTel = $odf->setSegment('preventionnistesTel');
                 foreach ($preventionnisteRows as $prev) {
-                    $this->addChamp($segPrevTel, 'tel', $prev['TELFIXE_UTILISATEURINFORMATIONS'] ?? '', $debugFile);
+                    $this->addChamp($segPrevTel, 'tel', $prev['TELFIXE_UTILISATEURINFORMATIONS'] ?? '');
                     $segPrevTel->merge();
                 }
 
@@ -267,7 +269,7 @@ class DossierRapportOdtService
             } catch (\OdfException $odfException) {
             }
 
-            $this->addChamp($odf, 'listeMailPreventioniste', implode(', ', $listeMails), $debugFile);
+            $this->addChamp($odf, 'listeMailPreventioniste', implode(', ', $listeMails));
 
             // =====================================================================
             // SEGMENT : listeDocs (documents de visite)
@@ -318,9 +320,9 @@ class DossierRapportOdtService
                         continue;
                     }
 
-                    $this->addChamp($segListeDocs, 'libelledoc', $doc->getLibelle() ?? '', $debugFile);
-                    $this->addChamp($segListeDocs, 'exist', 'X', $debugFile);
-                    $this->addChamp($segListeDocs, 'refdoc', $consulte['REF_CONSULTE'] ?? '', $debugFile);
+                    $this->addChamp($segListeDocs, 'libelledoc', $doc->getLibelle() ?? '');
+                    $this->addChamp($segListeDocs, 'exist', 'X');
+                    $this->addChamp($segListeDocs, 'refdoc', $consulte['REF_CONSULTE'] ?? '');
                     $dateDc = '';
                     if (!empty($consulte['DATE_CONSULTE']) && '0000-00-00' !== substr($consulte['DATE_CONSULTE'], 0, 10)) {
                         $dtDc = \DateTime::createFromFormat('Y-m-d', substr($consulte['DATE_CONSULTE'], 0, 10));
@@ -329,7 +331,7 @@ class DossierRapportOdtService
                         }
                     }
 
-                    $this->addChamp($segListeDocs, 'datedoc', $dateDc, $debugFile);
+                    $this->addChamp($segListeDocs, 'datedoc', $dateDc);
                     $segListeDocs->merge();
                 }
 
@@ -348,9 +350,9 @@ class DossierRapportOdtService
                     ['id' => $idDossier]
                 );
                 foreach ($docsAjout as $da) {
-                    $this->addChamp($segDocsAjout, 'exist', 'X', $debugFile);
-                    $this->addChamp($segDocsAjout, 'libelledoc', $da['LIBELLE_DOCAJOUT'] ?? '', $debugFile);
-                    $this->addChamp($segDocsAjout, 'refdoc', $da['REF_DOCAJOUT'] ?? '', $debugFile);
+                    $this->addChamp($segDocsAjout, 'exist', 'X');
+                    $this->addChamp($segDocsAjout, 'libelledoc', $da['LIBELLE_DOCAJOUT'] ?? '');
+                    $this->addChamp($segDocsAjout, 'refdoc', $da['REF_DOCAJOUT'] ?? '');
                     $dateDa = '';
                     if (!empty($da['DATE_DOCAJOUT'])) {
                         $dtDa = \DateTime::createFromFormat('Y-m-d', substr($da['DATE_DOCAJOUT'], 0, 10));
@@ -359,7 +361,7 @@ class DossierRapportOdtService
                         }
                     }
 
-                    $this->addChamp($segDocsAjout, 'datedoc', $dateDa, $debugFile);
+                    $this->addChamp($segDocsAjout, 'datedoc', $dateDa);
                     $segDocsAjout->merge();
                 }
 
@@ -383,7 +385,7 @@ class DossierRapportOdtService
                     ['id' => $idDossier]
                 );
                 foreach ($textesAppl as $ta) {
-                    $this->addChamp($segTexte, 'libelleTexteAppl', $ta['LIBELLE_TEXTESAPPL'] ?? '', $debugFile);
+                    $this->addChamp($segTexte, 'libelleTexteAppl', $ta['LIBELLE_TEXTESAPPL'] ?? '');
                     $segTexte->merge();
                 }
 
@@ -392,19 +394,19 @@ class DossierRapportOdtService
             }
 
             // --- Champs établissement (infos générales, adresse, effectifs, avis) ---
-            $this->fillChampsEtablissement($odf, $rawEtab, $rawEtabInfos, $adresseRow, $rawDossier, $idDossier, $idEtab, $debugFile);
+            $this->fillChampsEtablissement($odf, $rawEtab, $rawEtabInfos, $adresseRow, $rawDossier, $idDossier, $idEtab);
 
             // --- Champs DESCTECH ---
-            $this->fillChampsDescTech($odf, $rawEtab, $debugFile);
+            $this->fillChampsDescTech($odf, $rawEtab);
 
             // --- Maire ---
-            $this->fillChampsMaire($odf, $numInsee, $debugFile);
+            $this->fillChampsMaire($odf, $numInsee);
 
             // --- 11 contacts (DUS, Exploitant, etc.) ---
-            $this->fillChampsContacts($odf, $idDossier, $idEtab, $debugFile);
+            $this->fillChampsContacts($odf, $idDossier, $idEtab);
 
             // --- Établissement père ---
-            $this->fillChampsEtablissementPere($odf, $idEtab, $debugFile);
+            $this->fillChampsEtablissementPere($odf, $idEtab);
 
             // =====================================================================
             // GN (Groupement de Nuit)
@@ -413,20 +415,20 @@ class DossierRapportOdtService
             // GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée.
             $gn = (int) ($rawEtabInfos['ID_GENRE'] ?? '0');
             if (2 === $gn) {
-                $this->addChamp($odf, 'gn2', '×', $debugFile);
-                $this->addChamp($odf, 'gn3', '', $debugFile);
+                $this->addChamp($odf, 'gn2', '×');
+                $this->addChamp($odf, 'gn3', '');
             } elseif (3 === $gn) {
-                $this->addChamp($odf, 'gn2', '', $debugFile);
-                $this->addChamp($odf, 'gn3', '×', $debugFile);
+                $this->addChamp($odf, 'gn2', '');
+                $this->addChamp($odf, 'gn3', '×');
             }
 
             // =====================================================================
             // Effectifs/dégagements (non portés — pas d'équivalent migré)
             // =====================================================================
-            $this->addChamp($odf, 'descriptionEffectifDossier', null, $debugFile);
-            $this->addChamp($odf, 'descriptionDegagementDossier', null, $debugFile);
-            $this->addChamp($odf, 'descriptionEffectifEtablissement', null, $debugFile);
-            $this->addChamp($odf, 'descriptionDegagementEtablissement', null, $debugFile);
+            $this->addChamp($odf, 'descriptionEffectifDossier', null);
+            $this->addChamp($odf, 'descriptionDegagementDossier', null);
+            $this->addChamp($odf, 'descriptionEffectifEtablissement', null);
+            $this->addChamp($odf, 'descriptionDegagementEtablissement', null);
 
             // =====================================================================
             // SEGMENTS : avisDerogations + avisDerogationsEtablissement
@@ -442,9 +444,11 @@ class DossierRapportOdtService
             // --- Création PièceJointe + sauvegarde ODT ---
             return $this->persistPieceJointe($odf, $dossier, $fichierSelect, $rawDossier, $rawEtabInfos, $rawEtab, $idDossier);
         } finally {
-            if (is_resource($debugFile)) {
-                fclose($debugFile);
+            if (is_resource($this->debugFile)) {
+                fclose($this->debugFile);
             }
+
+            $this->debugFile = null;
         }
     }
 
@@ -456,7 +460,6 @@ class DossierRapportOdtService
      * dérogations, docManquant et les libellés typeDossier/natureDossier.
      *
      * @param array<string, string|null> $rawDossier
-     * @param resource|null              $debugFile
      */
     private function fillChampsDossier(
         \Odf $odf,
@@ -464,15 +467,14 @@ class DossierRapportOdtService
         int $idDossier,
         string $typeDossierLabel,
         string $natureDossierLabel,
-        ?string $numInsee,
-        $debugFile = null
+        ?string $numInsee
     ): void {
         // --- dateDuJour ---
-        $this->addChamp($odf, 'dateDuJour', (new \DateTime())->format('d/m/Y'), $debugFile);
+        $this->addChamp($odf, 'dateDuJour', (new \DateTime())->format('d/m/Y'));
 
         // --- Type et nature dossier ---
-        $this->addChamp($odf, 'typeDossier', $typeDossierLabel, $debugFile);
-        $this->addChamp($odf, 'natureDossier', $natureDossierLabel, $debugFile);
+        $this->addChamp($odf, 'typeDossier', $typeDossierLabel);
+        $this->addChamp($odf, 'natureDossier', $natureDossierLabel);
 
         // --- Commission ---
         $commissionInfos = 'Aucune commission';
@@ -487,7 +489,7 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'libelle_commission', $commissionInfos, $debugFile);
+        $this->addChamp($odf, 'libelle_commission', $commissionInfos);
 
         // --- dateCommEntete ---
         $dateCommEntete = 'Indisponible';
@@ -498,29 +500,29 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'date_commEntete', $dateCommEntete, $debugFile);
+        $this->addChamp($odf, 'date_commEntete', $dateCommEntete);
 
         // --- numWinPrev (champ identifiant WinPrev de l'établissement) ---
         // Retiré de fillChampsDossier car nécessite $rawEtab, pas $rawDossier
 
         // --- objetDossier ---
-        $this->addChamp($odf, 'objetDossier', $rawDossier['OBJET_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'objetDossier', $rawDossier['OBJET_DOSSIER'] ?? '');
 
         // --- analyseRisque ---
-        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANALYSERISQUE_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANALYSERISQUE_DOSSIER'] ?? '');
 
         // --- observationDossier ---
-        $this->addChamp($odf, 'observationDossier', $rawDossier['OBSERVATION_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'observationDossier', $rawDossier['OBSERVATION_DOSSIER'] ?? '');
 
         // --- descriptifDossier ---
-        $this->addChamp($odf, 'descriptifDossier', $rawDossier['DESCRIPTIF_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'descriptifDossier', $rawDossier['DESCRIPTIF_DOSSIER'] ?? '');
 
         // --- criticite ---
-        $this->addChamp($odf, 'criticite', $rawDossier['CRITICITE_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'criticite', $rawDossier['CRITICITE_DOSSIER'] ?? '');
 
         // --- horsDelai ---
         $horsDelai = ('1' === $rawDossier['HORSDELAI_DOSSIER']) ? 'Oui' : 'Non';
-        $this->addChamp($odf, 'horsDelai', $horsDelai, $debugFile);
+        $this->addChamp($odf, 'horsDelai', $horsDelai);
 
         // --- docManquant ---
         /** @var array<string, string|null>|false $docManquantRowFetch */
@@ -530,7 +532,7 @@ class DossierRapportOdtService
         );
         /** @var array<string, string|null> $docManquantRow */
         $docManquantRow = false !== $docManquantRowFetch ? $docManquantRowFetch : [];
-        $this->addChamp($odf, 'docManquant', $docManquantRow['DOCMANQUANT'] ?? '', $debugFile);
+        $this->addChamp($odf, 'docManquant', $docManquantRow['DOCMANQUANT'] ?? '');
         $dateDocManquant = '';
         if (!empty($docManquantRow['DATE_DOCSMANQUANT'])) {
             $dt = \DateTime::createFromFormat('Y-m-d', substr($docManquantRow['DATE_DOCSMANQUANT'], 0, 10));
@@ -539,7 +541,7 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'dateDocManquant', $dateDocManquant, $debugFile);
+        $this->addChamp($odf, 'dateDocManquant', $dateDocManquant);
         $dateReceptionDocManquant = '';
         if (!empty($docManquantRow['DATE_RECEPTION_DOC'])) {
             $dt = \DateTime::createFromFormat('Y-m-d', substr($docManquantRow['DATE_RECEPTION_DOC'], 0, 10));
@@ -548,10 +550,10 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'dateReceptionDocManquant', $dateReceptionDocManquant, $debugFile);
+        $this->addChamp($odf, 'dateReceptionDocManquant', $dateReceptionDocManquant);
 
         // --- demandeurDossier ---
-        $this->addChamp($odf, 'demandeurDossier', $rawDossier['DEMANDEUR_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'demandeurDossier', $rawDossier['DEMANDEUR_DOSSIER'] ?? '');
 
         // --- servInstructeur ---
         $servInstructeur = '';
@@ -590,25 +592,24 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'servInstructeur', $servInstructeur, $debugFile);
-        $this->addChamp($odf, 'servInstructeurPrenomContact', $servInstructeurPrenomContact, $debugFile);
-        $this->addChamp($odf, 'servInstructeurNomContact', $servInstructeurNomContact, $debugFile);
-        $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail, $debugFile);
+        $this->addChamp($odf, 'servInstructeur', $servInstructeur);
+        $this->addChamp($odf, 'servInstructeurPrenomContact', $servInstructeurPrenomContact);
+        $this->addChamp($odf, 'servInstructeurNomContact', $servInstructeurNomContact);
+        $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail);
 
         // --- Dérogations dossier ---
-        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLES_DOSSIER'] ?? '', $debugFile);
-        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFICATION_DOSSIER'] ?? '', $debugFile);
-        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENSATOIRES_DOSSIER'] ?? '', $debugFile);
-        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLEMENTAIRES_DOSSIER'] ?? '', $debugFile);
+        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLES_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFICATION_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENSATOIRES_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLEMENTAIRES_DOSSIER'] ?? '');
     }
 
     /**
      * Remplit les champs de dates du dossier (dateVisite, dateComm, dateRvrat, etc.).
      *
      * @param array<string, string|null> $rawDossier
-     * @param resource|null              $debugFile
      */
-    private function fillChampsDatesDossier(\Odf $odf, array $rawDossier, $debugFile = null): void
+    private function fillChampsDatesDossier(\Odf $odf, array $rawDossier): void
     {
         // --- dateRvrat ---
         $dateRvrat = 'Indisponible';
@@ -619,7 +620,7 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'dateRvrat', $dateRvrat, $debugFile);
+        $this->addChamp($odf, 'dateRvrat', $dateRvrat);
 
         // --- dateDelaipresc ---
         $dateDelaipresc = 'Pas de date';
@@ -630,7 +631,7 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'dateDelaipresc', $dateDelaipresc, $debugFile);
+        $this->addChamp($odf, 'dateDelaipresc', $dateDelaipresc);
 
         // --- dateVisite / heureVisite ---
         $dateVisite = '';
@@ -647,25 +648,25 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'dateVisite', $dateVisite, $debugFile);
-        $this->addChamp($odf, 'heureVisite', $heureVisite, $debugFile);
+        $this->addChamp($odf, 'dateVisite', $dateVisite);
+        $this->addChamp($odf, 'heureVisite', $heureVisite);
 
         // --- dateGeneration ---
-        $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong(new \DateTime()), $debugFile);
+        $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong(new \DateTime()));
 
         // --- dateComm ---
-        $this->addChamp($odf, 'dateComm', DateFormatterFr::formatLongFromStr($rawDossier['DATECOMM_DOSSIER'] ?? null), $debugFile);
+        $this->addChamp($odf, 'dateComm', DateFormatterFr::formatLongFromStr($rawDossier['DATECOMM_DOSSIER'] ?? null));
 
         // --- dateIncomplet ---
-        $this->addChamp($odf, 'dateIncomplet', DateFormatterFr::formatLongFromStr($rawDossier['DATEINCOMPLET_DOSSIER'] ?? null), $debugFile);
+        $this->addChamp($odf, 'dateIncomplet', DateFormatterFr::formatLongFromStr($rawDossier['DATEINCOMPLET_DOSSIER'] ?? null));
 
         // =====================================================================
         // DATES (dépôts)
         // =====================================================================
-        $this->addChamp($odf, 'dateDepotMairie', DateFormatterFr::formatShort($rawDossier['DATEMAIRIE_DOSSIER'] ?? null), $debugFile);
-        $this->addChamp($odf, 'dateDepotSec', DateFormatterFr::formatShort($rawDossier['DATESECRETARIAT_DOSSIER'] ?? null), $debugFile);
-        $this->addChamp($odf, 'dateSDIS', DateFormatterFr::formatShort($rawDossier['DATESDIS_DOSSIER'] ?? null), $debugFile);
-        $this->addChamp($odf, 'dateCreationDossier', DateFormatterFr::formatShort($rawDossier['DATEINSERT_DOSSIER'] ?? null), $debugFile);
+        $this->addChamp($odf, 'dateDepotMairie', DateFormatterFr::formatShort($rawDossier['DATEMAIRIE_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateDepotSec', DateFormatterFr::formatShort($rawDossier['DATESECRETARIAT_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateSDIS', DateFormatterFr::formatShort($rawDossier['DATESDIS_DOSSIER'] ?? null));
+        $this->addChamp($odf, 'dateCreationDossier', DateFormatterFr::formatShort($rawDossier['DATEINSERT_DOSSIER'] ?? null));
     }
 
     /**
@@ -676,7 +677,6 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawEtabInfos
      * @param array<string, string|null> $adresseRow
      * @param array<string, string|null> $rawDossier
-     * @param resource|null              $debugFile
      */
     private function fillChampsEtablissement(
         \Odf $odf,
@@ -685,17 +685,16 @@ class DossierRapportOdtService
         array $adresseRow,
         array $rawDossier,
         int $idDossier,
-        int $idEtab,
-        $debugFile = null
+        int $idEtab
     ): void {
         // =====================================================================
         // ÉTABLISSEMENT — informations générales
         // =====================================================================
-        $this->addChamp($odf, 'genreEtab', $rawEtabInfos['LIBELLE_GENRE'] ?? '', $debugFile);
-        $this->addChamp($odf, 'etablissementLibelle', $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', $debugFile);
-        $this->addChamp($odf, 'typeLettreP', $rawEtabInfos['LIBELLE_TYPE'] ?? '', $debugFile);
-        $this->addChamp($odf, 'activiteP', $rawEtabInfos['LIBELLE_ACTIVITE'] ?? '', $debugFile);
-        $this->addChamp($odf, 'numWinPrev', $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '', $debugFile);
+        $this->addChamp($odf, 'genreEtab', $rawEtabInfos['LIBELLE_GENRE'] ?? '');
+        $this->addChamp($odf, 'etablissementLibelle', $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+        $this->addChamp($odf, 'typeLettreP', $rawEtabInfos['LIBELLE_TYPE'] ?? '');
+        $this->addChamp($odf, 'activiteP', $rawEtabInfos['LIBELLE_ACTIVITE'] ?? '');
+        $this->addChamp($odf, 'numWinPrev', $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '');
 
         // Types/activités secondaires
         $typeLettreS = '';
@@ -722,8 +721,8 @@ class DossierRapportOdtService
             $activiteS = implode(', ', $activitesS);
         }
 
-        $this->addChamp($odf, 'typeLettreS', $typeLettreS, $debugFile);
-        $this->addChamp($odf, 'activiteS', $activiteS, $debugFile);
+        $this->addChamp($odf, 'typeLettreS', $typeLettreS);
+        $this->addChamp($odf, 'activiteS', $activiteS);
 
         // Commune établissement
         $communeEtab = $adresseRow['LIBELLE_COMMUNE'] ?? '';
@@ -746,8 +745,8 @@ class DossierRapportOdtService
         }
 
         $etablissementAdresse = trim($adresseStr);
-        $this->addChamp($odf, 'communeEtab', $communeEtab, $debugFile);
-        $this->addChamp($odf, 'etablissementAdresse', $etablissementAdresse, $debugFile);
+        $this->addChamp($odf, 'communeEtab', $communeEtab);
+        $this->addChamp($odf, 'etablissementAdresse', $etablissementAdresse);
 
         // Numéro document d'urbanisme
         /** @var array<string, string|null>|false $numDocUrbaRowFetch */
@@ -755,22 +754,22 @@ class DossierRapportOdtService
             'SELECT NUM_DOCURBA FROM dossierdocurba WHERE ID_DOSSIER = :id',
             ['id' => $idDossier]
         );
-        $this->addChamp($odf, 'numDocUrba', false !== $numDocUrbaRowFetch ? ($numDocUrbaRowFetch['NUM_DOCURBA'] ?? '') : '', $debugFile);
+        $this->addChamp($odf, 'numDocUrba', false !== $numDocUrbaRowFetch ? ($numDocUrbaRowFetch['NUM_DOCURBA'] ?? '') : '');
 
         // Catégorie / Famille — port direct legacy : seul le premier mot de LIBELLE_CATEGORIE est utilisé
         $libelleCat = $rawEtabInfos['LIBELLE_CATEGORIE'] ?? '';
         $categorieParts = '' !== $libelleCat ? explode(' ', $libelleCat) : [];
-        $this->addChamp($odf, 'categorieEtab', !empty($categorieParts) ? $categorieParts[0] : '', $debugFile);
-        $this->addChamp($odf, 'familleEtab', $rawEtabInfos['LIBELLE_FAMILLE'] ?? '', $debugFile);
+        $this->addChamp($odf, 'categorieEtab', !empty($categorieParts) ? $categorieParts[0] : '');
+        $this->addChamp($odf, 'familleEtab', $rawEtabInfos['LIBELLE_FAMILLE'] ?? '');
 
         // Effectifs
         $numPublic = (int) ($rawEtabInfos['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? '0');
         $numPersonnel = (int) ($rawEtabInfos['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? '0');
         $numHeberge = (int) ($rawEtabInfos['EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS'] ?? '0');
-        $this->addChamp($odf, 'numPublic', (string) $numPublic, $debugFile);
-        $this->addChamp($odf, 'numPersonnel', (string) $numPersonnel, $debugFile);
-        $this->addChamp($odf, 'numTotal', (string) ($numPublic + $numPersonnel), $debugFile);
-        $this->addChamp($odf, 'numHeberge', (string) $numHeberge, $debugFile);
+        $this->addChamp($odf, 'numPublic', (string) $numPublic);
+        $this->addChamp($odf, 'numPersonnel', (string) $numPersonnel);
+        $this->addChamp($odf, 'numTotal', (string) ($numPublic + $numPersonnel));
+        $this->addChamp($odf, 'numHeberge', (string) $numHeberge);
 
         // Avis dossier
         $avisDossierRow = null;
@@ -783,7 +782,7 @@ class DossierRapportOdtService
             $avisDossierRow = false !== $avisDossierRowFetch ? $avisDossierRowFetch : null;
         }
 
-        $this->addChamp($odf, 'avisDossier', null !== $avisDossierRow ? ($avisDossierRow['LIBELLE_AVIS'] ?? '') : '', $debugFile);
+        $this->addChamp($odf, 'avisDossier', null !== $avisDossierRow ? ($avisDossierRow['LIBELLE_AVIS'] ?? '') : '');
 
         $avisDossierCommRow = null;
         if (!empty($rawDossier['AVIS_DOSSIER_COMMISSION'])) {
@@ -795,20 +794,20 @@ class DossierRapportOdtService
             $avisDossierCommRow = false !== $avisDossierCommRowFetch ? $avisDossierCommRowFetch : null;
         }
 
-        $this->addChamp($odf, 'avisDossierCommission', null !== $avisDossierCommRow ? ($avisDossierCommRow['LIBELLE_AVIS'] ?? '') : '', $debugFile);
+        $this->addChamp($odf, 'avisDossierCommission', null !== $avisDossierCommRow ? ($avisDossierCommRow['LIBELLE_AVIS'] ?? '') : '');
 
         // Etat dossier
         $etatDossier = ('1' === $rawDossier['INCOMPLET_DOSSIER']) ? 'Incomplet' : 'Complet';
-        $this->addChamp($odf, 'etatDossier', $etatDossier, $debugFile);
-        $this->addChamp($odf, 'idDossier', (string) $idDossier, $debugFile);
+        $this->addChamp($odf, 'etatDossier', $etatDossier);
+        $this->addChamp($odf, 'idDossier', (string) $idDossier);
 
         // Téléphones établissement — port direct legacy : TELEPHONE_ETABLISSEMENT, FAX_ETABLISSEMENT, COURRIEL_ETABLISSEMENT
-        $this->addChamp($odf, 'numTelEtab', $rawEtab['TELEPHONE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'numFaxEtab', $rawEtab['FAX_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'mailEtab', $rawEtab['COURRIEL_ETABLISSEMENT'] ?? '', $debugFile);
+        $this->addChamp($odf, 'numTelEtab', $rawEtab['TELEPHONE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'numFaxEtab', $rawEtab['FAX_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'mailEtab', $rawEtab['COURRIEL_ETABLISSEMENT'] ?? '');
 
         // Périodicité
-        $this->addChamp($odf, 'periodiciteEtab', $rawEtabInfos['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? '', $debugFile);
+        $this->addChamp($odf, 'periodiciteEtab', $rawEtabInfos['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? '');
 
         // --- Prochaine visite périodique (port direct legacy Service_Etablissement::next_visite()) ---
         // Filtre : VP (TYPE_DOSSIER=2) ou GV (TYPE_DOSSIER=3), avec avis commission rendu,
@@ -875,7 +874,7 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'prochaineVisite', $prochaineVisite, $debugFile);
+        $this->addChamp($odf, 'prochaineVisite', $prochaineVisite);
 
         // --- Dernière visite périodique ---
         $dateLastVP = '';
@@ -914,94 +913,91 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'dateLastVP', $dateLastVP, $debugFile);
-        $this->addChamp($odf, 'avisLastVP', $avisLastVP, $debugFile);
+        $this->addChamp($odf, 'dateLastVP', $dateLastVP);
+        $this->addChamp($odf, 'avisLastVP', $avisLastVP);
     }
 
     /**
      * Remplit les champs techniques de l'établissement (DESCTECH).
      *
      * @param array<string, string|null> $rawEtab
-     * @param resource|null              $debugFile
      */
-    private function fillChampsDescTech(\Odf $odf, array $rawEtab, $debugFile = null): void
+    private function fillChampsDescTech(\Odf $odf, array $rawEtab): void
     {
         // =====================================================================
         // Champs DESCTECH — colonnes directes de la table etablissement
         // (le legacy les lit via $this->etabDesc = $model_etablissement->find($idEtab)->current())
         // =====================================================================
-        $this->addChamp($odf, 'historiqueDescriptifEtab', $rawEtab['DESCRIPTIF_HISTORIQUE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'descriptifEtab', $rawEtab['DESCRIPTIF_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'derogAccEtab', $rawEtab['DESCRIPTIF_DEROGATIONS_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'surfaceEmpriseSol', $rawEtab['DESCTECH_IMPLANTATION_SURFACE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'SHON', $rawEtab['DESCTECH_IMPLANTATION_SHON_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'SHOB', $rawEtab['DESCTECH_IMPLANTATION_SHOB_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbNiveaux', $rawEtab['DESCTECH_IMPLANTATION_NBNIVEAUX_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'PBDN', $rawEtab['DESCTECH_IMPLANTATION_PBDN_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'surfaceTotale', $rawEtab['DESCTECH_IMPLANTATION_SURFACETOTALE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'surfaceAccessible', $rawEtab['DESCTECH_IMPLANTATION_SURFACEACCPUBLIC_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbFacadeAccess', $rawEtab['DESCTECH_DESSERTE_NBFACADELIBRE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'voieEngin', $rawEtab['DESCTECH_DESSERTE_VOIEENGIN_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'voieEchelle', $rawEtab['DESCTECH_DESSERTE_VOIEECHELLE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'espaceLibre', $rawEtab['DESCTECH_DESSERTE_ESPACELIBRE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'lateralCF', $rawEtab['DESCTECH_ISOLEMENT_LATERALCF_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'superposeCF', $rawEtab['DESCTECH_ISOLEMENT_SUPERPOSECF_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'visAvis', $rawEtab['DESCTECH_ISOLEMENT_VISAVIS_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'structureSF', $rawEtab['DESCTECH_STABILITE_STRUCTURESF_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'plancherSF', $rawEtab['DESCTECH_STABILITE_PLANCHERSF_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'cloisonnementTrad', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_CLOISONNEMENTTRAD_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'secteurs', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_SECTEURS_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'compartiments', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_COMPARTIMENTS_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'locauxRisquesMoyens', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESMOYENS_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'locauxRisquesImportants', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'espacesAttentesNombre', $rawEtab['DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'espacesAttentesNiveaux', $rawEtab['DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'desenfNaturel', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'desenfMecanique', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'desenfCommentaire', $rawEtab['DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbChaufferie', $rawEtab['DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'puissanceMaxChauff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbChauff30kw', $rawEtab['DESCTECH_CHAUFFERIES_NB30KW'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbChauff70kw', $rawEtab['DESCTECH_CHAUFFERIES_NB70KW'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbChauff2mw', $rawEtab['DESCTECH_CHAUFFERIES_NB2MW'] ?? '', $debugFile);
-        $this->addChamp($odf, 'puissTotalChaff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSANCETOTALE'] ?? '', $debugFile);
-        $this->addChamp($odf, 'locGaz', $rawEtab['DESCTECH_COUPURENRJ_GAZ_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'locElectricite', $rawEtab['DESCTECH_COUPURENRJ_ELEC_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'locPhotovoltaique', $rawEtab['DESCTECH_COUPURENRJ_PHOTOVOLTAIQUE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'locAutre', $rawEtab['DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbAscTot', $rawEtab['DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbAscAS4', $rawEtab['DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'colSeches', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'colHumides', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'RIA', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'sprinkleur', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'brouillardEau', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'presencePCS', ('1' === $rawEtab['DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'localisationPCS', $rawEtab['DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'presenceSSI', ('1' === $rawEtab['DESCTECH_SSI_PRESENCE_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'catSSI', $rawEtab['DESCTECH_SSI_CATEGORIE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'alarmeSSI', $rawEtab['DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'persQualEL18', ('1' === $rawEtab['DESCTECH_SERVICESECU_EL18_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'persDesignes', ('1' === $rawEtab['DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT']) ? 'Oui' : 'Non', $debugFile);
-        $this->addChamp($odf, 'nbAgentSecu', $rawEtab['DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbChefEquipeSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbChefServSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbSp', $rawEtab['DESCTECH_SERVICESECU_SP_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'commentaireSp', $rawEtab['DESCTECH_SERVICESECU_COMMENTAIRESP_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'nbPointEau', $rawEtab['DESCTECH_DEFENSE_PTEAU_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'volumePointEau', $rawEtab['DESCTECH_DEFENSE_VOLUMEPTEAU_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'commentairePointEauNat', $rawEtab['DESCTECH_DEFENSE_PTEAUCOMMENTAIRE_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'PI', $rawEtab['DESCTECH_DEFENSE_PI_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'BI', $rawEtab['DESCTECH_DEFENSE_BI_ETABLISSEMENT'] ?? '', $debugFile);
-        $this->addChamp($odf, 'debitSimultane', $rawEtab['DESCTECH_DEFENSE_DEBITSIMULTANE_ETABLISSEMENT'] ?? '', $debugFile);
+        $this->addChamp($odf, 'historiqueDescriptifEtab', $rawEtab['DESCRIPTIF_HISTORIQUE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'descriptifEtab', $rawEtab['DESCRIPTIF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'derogAccEtab', $rawEtab['DESCRIPTIF_DEROGATIONS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'surfaceEmpriseSol', $rawEtab['DESCTECH_IMPLANTATION_SURFACE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'SHON', $rawEtab['DESCTECH_IMPLANTATION_SHON_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'SHOB', $rawEtab['DESCTECH_IMPLANTATION_SHOB_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbNiveaux', $rawEtab['DESCTECH_IMPLANTATION_NBNIVEAUX_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'PBDN', $rawEtab['DESCTECH_IMPLANTATION_PBDN_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'surfaceTotale', $rawEtab['DESCTECH_IMPLANTATION_SURFACETOTALE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'surfaceAccessible', $rawEtab['DESCTECH_IMPLANTATION_SURFACEACCPUBLIC_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbFacadeAccess', $rawEtab['DESCTECH_DESSERTE_NBFACADELIBRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'voieEngin', $rawEtab['DESCTECH_DESSERTE_VOIEENGIN_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'voieEchelle', $rawEtab['DESCTECH_DESSERTE_VOIEECHELLE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'espaceLibre', $rawEtab['DESCTECH_DESSERTE_ESPACELIBRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'lateralCF', $rawEtab['DESCTECH_ISOLEMENT_LATERALCF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'superposeCF', $rawEtab['DESCTECH_ISOLEMENT_SUPERPOSECF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'visAvis', $rawEtab['DESCTECH_ISOLEMENT_VISAVIS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'structureSF', $rawEtab['DESCTECH_STABILITE_STRUCTURESF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'plancherSF', $rawEtab['DESCTECH_STABILITE_PLANCHERSF_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'cloisonnementTrad', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_CLOISONNEMENTTRAD_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'secteurs', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_SECTEURS_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'compartiments', ('1' === $rawEtab['DESCTECH_DISTRIBUTION_COMPARTIMENTS_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'locauxRisquesMoyens', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESMOYENS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locauxRisquesImportants', $rawEtab['DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'espacesAttentesNombre', $rawEtab['DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'espacesAttentesNiveaux', $rawEtab['DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'desenfNaturel', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'desenfMecanique', ('1' === $rawEtab['DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'desenfCommentaire', $rawEtab['DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChaufferie', $rawEtab['DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'puissanceMaxChauff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChauff30kw', $rawEtab['DESCTECH_CHAUFFERIES_NB30KW'] ?? '');
+        $this->addChamp($odf, 'nbChauff70kw', $rawEtab['DESCTECH_CHAUFFERIES_NB70KW'] ?? '');
+        $this->addChamp($odf, 'nbChauff2mw', $rawEtab['DESCTECH_CHAUFFERIES_NB2MW'] ?? '');
+        $this->addChamp($odf, 'puissTotalChaff', $rawEtab['DESCTECH_CHAUFFERIES_PUISSANCETOTALE'] ?? '');
+        $this->addChamp($odf, 'locGaz', $rawEtab['DESCTECH_COUPURENRJ_GAZ_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locElectricite', $rawEtab['DESCTECH_COUPURENRJ_ELEC_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locPhotovoltaique', $rawEtab['DESCTECH_COUPURENRJ_PHOTOVOLTAIQUE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'locAutre', $rawEtab['DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbAscTot', $rawEtab['DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbAscAS4', $rawEtab['DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'colSeches', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'colHumides', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'RIA', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'sprinkleur', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'brouillardEau', ('1' === $rawEtab['DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'presencePCS', ('1' === $rawEtab['DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'localisationPCS', $rawEtab['DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'presenceSSI', ('1' === $rawEtab['DESCTECH_SSI_PRESENCE_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'catSSI', $rawEtab['DESCTECH_SSI_CATEGORIE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'alarmeSSI', $rawEtab['DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'persQualEL18', ('1' === $rawEtab['DESCTECH_SERVICESECU_EL18_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'persDesignes', ('1' === $rawEtab['DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT']) ? 'Oui' : 'Non');
+        $this->addChamp($odf, 'nbAgentSecu', $rawEtab['DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChefEquipeSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbChefServSecu', $rawEtab['DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbSp', $rawEtab['DESCTECH_SERVICESECU_SP_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'commentaireSp', $rawEtab['DESCTECH_SERVICESECU_COMMENTAIRESP_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'nbPointEau', $rawEtab['DESCTECH_DEFENSE_PTEAU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'volumePointEau', $rawEtab['DESCTECH_DEFENSE_VOLUMEPTEAU_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'commentairePointEauNat', $rawEtab['DESCTECH_DEFENSE_PTEAUCOMMENTAIRE_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'PI', $rawEtab['DESCTECH_DEFENSE_PI_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'BI', $rawEtab['DESCTECH_DEFENSE_BI_ETABLISSEMENT'] ?? '');
+        $this->addChamp($odf, 'debitSimultane', $rawEtab['DESCTECH_DEFENSE_DEBITSIMULTANE_ETABLISSEMENT'] ?? '');
     }
 
     /**
      * Remplit les champs relatifs au maire de la commune de l'établissement.
-     *
-     * @param resource|null $debugFile
      */
-    private function fillChampsMaire(\Odf $odf, ?string $numInsee, $debugFile = null): void
+    private function fillChampsMaire(\Odf $odf, ?string $numInsee): void
     {
         $nomMaire = '';
         $prenomMaire = '';
@@ -1036,24 +1032,22 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'nomMaire', $nomMaire, $debugFile);
-        $this->addChamp($odf, 'prenomMaire', $prenomMaire, $debugFile);
-        $this->addChamp($odf, 'mailMaire', $mailMaire, $debugFile);
-        $this->addChamp($odf, 'telFixeMaire', $telFixeMaire, $debugFile);
-        $this->addChamp($odf, 'telPortMaire', $telPortMaire, $debugFile);
-        $this->addChamp($odf, 'numFaxMaire', $numFaxMaire, $debugFile);
-        $this->addChamp($odf, 'numeroMaire', $numeroMaire, $debugFile);
-        $this->addChamp($odf, 'rueMaire', $rueMaire, $debugFile);
-        $this->addChamp($odf, 'cpMaire', $cpMaire, $debugFile);
-        $this->addChamp($odf, 'villeMaire', $villeMaire, $debugFile);
+        $this->addChamp($odf, 'nomMaire', $nomMaire);
+        $this->addChamp($odf, 'prenomMaire', $prenomMaire);
+        $this->addChamp($odf, 'mailMaire', $mailMaire);
+        $this->addChamp($odf, 'telFixeMaire', $telFixeMaire);
+        $this->addChamp($odf, 'telPortMaire', $telPortMaire);
+        $this->addChamp($odf, 'numFaxMaire', $numFaxMaire);
+        $this->addChamp($odf, 'numeroMaire', $numeroMaire);
+        $this->addChamp($odf, 'rueMaire', $rueMaire);
+        $this->addChamp($odf, 'cpMaire', $cpMaire);
+        $this->addChamp($odf, 'villeMaire', $villeMaire);
     }
 
     /**
      * Remplit les 11 champs contacts du dossier (DUS, Exploitant, RespSecu, etc.).
-     *
-     * @param resource|null $debugFile
      */
-    private function fillChampsContacts(\Odf $odf, int $idDossier, int $idEtab, $debugFile = null): void
+    private function fillChampsContacts(\Odf $odf, int $idDossier, int $idEtab): void
     {
         // =====================================================================
         // CONTACTS (11 contacts)
@@ -1076,28 +1070,26 @@ class DossierRapportOdtService
             $idFonction = (int) $contactDef['idFonction'];
             $prefix = (string) $contactDef['prefix'];
             $contact = $this->getContactInfo($idDossier, $idEtab, $idFonction);
-            $this->addChamp($odf, 'nom'.$prefix, $contact['nom'], $debugFile);
+            $this->addChamp($odf, 'nom'.$prefix, $contact['nom']);
             // Typo legacy préservée pour le demandeur
             if ('Demandeur' === $prefix) {
-                $this->addChamp($odf, 'prenomDemandeurt', $contact['prenom'], $debugFile);
+                $this->addChamp($odf, 'prenomDemandeurt', $contact['prenom']);
             } else {
-                $this->addChamp($odf, 'prenom'.$prefix, $contact['prenom'], $debugFile);
+                $this->addChamp($odf, 'prenom'.$prefix, $contact['prenom']);
             }
 
-            $this->addChamp($odf, 'mail'.$prefix, $contact['mail'], $debugFile);
-            $this->addChamp($odf, 'telFixe'.$prefix, $contact['telFixe'], $debugFile);
-            $this->addChamp($odf, 'telPort'.$prefix, $contact['telPort'], $debugFile);
-            $this->addChamp($odf, 'numFax'.$prefix, $contact['numFax'], $debugFile);
-            $this->addChamp($odf, 'societe'.$prefix, $contact['societe'], $debugFile);
+            $this->addChamp($odf, 'mail'.$prefix, $contact['mail']);
+            $this->addChamp($odf, 'telFixe'.$prefix, $contact['telFixe']);
+            $this->addChamp($odf, 'telPort'.$prefix, $contact['telPort']);
+            $this->addChamp($odf, 'numFax'.$prefix, $contact['numFax']);
+            $this->addChamp($odf, 'societe'.$prefix, $contact['societe']);
         }
     }
 
     /**
      * Remplit les champs de l'établissement père (groupement).
-     *
-     * @param resource|null $debugFile
      */
-    private function fillChampsEtablissementPere(\Odf $odf, int $idEtab, $debugFile = null): void
+    private function fillChampsEtablissementPere(\Odf $odf, int $idEtab): void
     {
         // =====================================================================
         // Établissement père
@@ -1136,11 +1128,11 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'etablissementLibelleP', $etablissementLibelleP, $debugFile);
-        $this->addChamp($odf, 'typeLettrePPere', $typeLettrePPere, $debugFile);
-        $this->addChamp($odf, 'activitePPere', $activitePPere, $debugFile);
-        $this->addChamp($odf, 'categorieEtabPere', $categorieEtabPere, $debugFile);
-        $this->addChamp($odf, 'genrePere', $genrePere, $debugFile);
+        $this->addChamp($odf, 'etablissementLibelleP', $etablissementLibelleP);
+        $this->addChamp($odf, 'typeLettrePPere', $typeLettrePPere);
+        $this->addChamp($odf, 'activitePPere', $activitePPere);
+        $this->addChamp($odf, 'categorieEtabPere', $categorieEtabPere);
+        $this->addChamp($odf, 'genrePere', $genrePere);
     }
 
     /**
@@ -1273,15 +1265,14 @@ class DossierRapportOdtService
      * Wrapper autour de Odf::setVars() avec écriture dans le debug file.
      *
      * @param \Odf|\Segment $odf
-     * @param resource|null $debugFile
      */
-    private function addChamp($odf, string $nomOdf, ?string $variable, $debugFile = null): void
+    private function addChamp($odf, string $nomOdf, ?string $variable): void
     {
         try {
             $odf->setVars($nomOdf, $variable ?? '', true, 'UTF8');
-            if (is_resource($debugFile)) {
+            if (is_resource($this->debugFile)) {
                 $prefix = $odf instanceof \Segment ? '['.$odf->getName().'] ' : '';
-                fwrite($debugFile, $prefix.'{'.$nomOdf.'} : '.json_encode($variable, JSON_UNESCAPED_UNICODE)."\n");
+                fwrite($this->debugFile, $prefix.'{'.$nomOdf.'} : '.json_encode($variable, JSON_UNESCAPED_UNICODE)."\n");
             }
         } catch (\Exception $exception) {
             // Silencieux — variable absente du template ODT
