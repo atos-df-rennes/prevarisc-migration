@@ -1,0 +1,67 @@
+{#
+  _partial_adresse.html.twig
+  Représente une ligne de tableau pour une adresse.
+
+  Variables :
+    - prototype (bool)             : true = ligne cachée utilisée comme modèle JS
+    - adresse (EtablissementAdresse|null) : mode édition, null en mode ajout
+#}
+{% set is_proto = prototype|default(false) %}
+<tr id="{{ is_proto ? 'prototype_adresse' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    <td>
+        <input type="text"
+               name="{{ is_proto ? 'NUMERO_ADRESSE[-1]' : 'NUMERO_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (adresse.numero|default('')) }}"
+               style="width: 60px;" />
+    </td>
+    <td>
+        {# Voie : champ caché (id) + champ texte visible (autocomplete) #}
+        <input type="hidden"
+               name="{{ is_proto ? 'ID_ADRESSERUE[-1]' : 'ID_ADRESSERUE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (adresse.rue.id|default('')) }}"
+               class="adresse_rue_id" />
+        <input type="text"
+               name="{{ is_proto ? '' : '' }}"
+               value="{{ is_proto ? '' : (adresse.rue is not null ? adresse.rue.libelle : '') }}"
+               placeholder="Voie (autocomplete)…"
+               class="adresse_rue_autocomplete"
+               style="width: 220px;" />
+    </td>
+    <td>
+        {# Commune #}
+        <input type="hidden"
+               name="{{ is_proto ? 'CODEINSEE_ADRESSE[-1]' : 'CODEINSEE_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (adresse.commune.codeInsee|default('')) }}"
+               class="adresse_commune_id" />
+        <span class="adresse_commune_libelle">
+            {{ is_proto ? '' : (adresse.commune is not null ? adresse.commune.libelleCommune : '') }}
+        </span>
+    </td>
+    <td>
+        {# Coordonnées géographiques #}
+        <input type="hidden"
+               name="{{ is_proto ? 'COORDONNEES_X_ADRESSE[-1]' : 'COORDONNEES_X_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (adresse.coordonneesX|default('')) }}"
+               class="adresse_lon" />
+        <input type="hidden"
+               name="{{ is_proto ? 'COORDONNEES_Y_ADRESSE[-1]' : 'COORDONNEES_Y_ADRESSE[' ~ (adresse.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (adresse.coordonneesY|default('')) }}"
+               class="adresse_lat" />
+        {% if not is_proto and adresse.coordonneesX is not null %}
+            <span class="label label-success">✓</span>
+        {% else %}
+            <span class="label label-default">—</span>
+        {% endif %}
+    </td>
+    <td>
+        <button type="button" class="btn btn-xs btn-default btn_adresse_geolocalize"
+                data-toggle="modal" data-target="#adresse-modal-ajout"
+                title="Géolocaliser cette adresse">
+            <span class="glyphicon glyphicon-map-marker"></span>
+        </button>
+        <button type="button" class="btn btn-xs btn-danger btn_remove_adresse">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </td>
+</tr>

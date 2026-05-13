@@ -1,0 +1,47 @@
+{#
+  _partial_rubrique.html.twig
+  Ligne de tableau pour une rubrique ICPE (BUP).
+
+  Variables :
+    - prototype (bool)          : true = ligne cachée (modèle JS)
+    - rubrique (EtablissementInformationsRubriques|null)
+#}
+{% set is_proto = prototype|default(false) %}
+<tr id="{{ is_proto ? 'prototype_rubrique' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    <td>
+        <input type="text" placeholder="Ex. : 1530"
+               name="{{ is_proto ? 'RUBRIQUE[-1]' : 'RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (rubrique.rubrique|default('')) }}"
+               style="width: 60px;" />
+    </td>
+    <td>
+        <input type="text" placeholder="Numéro"
+               name="{{ is_proto ? 'NUMERO_RUBRIQUE[-1]' : 'NUMERO_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (rubrique.numero|default('')) }}"
+               style="width: 60px;" />
+    </td>
+    <td>
+        <input type="text" placeholder="Nom"
+               name="{{ is_proto ? 'NOM_RUBRIQUE[-1]' : 'NOM_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (rubrique.nom|default('')) }}"
+               style="width: 140px;" />
+    </td>
+    <td>
+        <input type="text" placeholder="Valeur"
+               name="{{ is_proto ? 'VALEUR_RUBRIQUE[-1]' : 'VALEUR_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (rubrique.valeur|default('')) }}"
+               style="width: 80px;" />
+    </td>
+    <td>
+        <input type="text" placeholder="Classement"
+               name="{{ is_proto ? 'CLASSEMENT_RUBRIQUE[-1]' : 'CLASSEMENT_RUBRIQUE[' ~ (rubrique.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (rubrique.classement|default('')) }}"
+               style="width: 80px;" />
+    </td>
+    <td>
+        <button type="button" class="btn btn-xs btn-danger btn_remove_rubrique">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </td>
+</tr>

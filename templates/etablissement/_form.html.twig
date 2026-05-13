@@ -1,0 +1,769 @@
+{#
+  Formulaire d'ajout / modification d'un établissement.
+
+  Variables attendues :
+    - add (bool)                  : true = mode création, false = mode édition
+    - genres (Genre[])            : tous les genres
+    - statuts (EtablissementStatut[]) : tous les statuts
+    - categories (EtablissementCategorie[]) : toutes les catégories ERP
+    - types (EtablissementType[]) : tous les types ERP
+    - activites (EtablissementActivite[]) : toutes les activités
+    - commissions (array)         : commissions groupées par type (getCommissionsAndTypes())
+    - types_plans (TypePlan[])    : tous les types de plans
+    - familles (Famille[])        : toutes les familles habitation
+    - igh_classes (IghClasse[])   : toutes les classes IGH
+    - classements (Classement[])  : tous les classements zone
+    - couches_cartographiques (CoucheCarto[]) : pour la carte
+    - can_edit_statut (bool)      : droit de modifier le statut
+    - key_ign (string|null)       : clé API IGN
+    - geoconcept_url (string|null): URL Geoconcept
+    - default_lon (float|null)    : longitude par défaut
+    - default_lat (float|null)    : latitude par défaut
+    - etablissement (Etablissement|null) : mode édition uniquement
+#}
+<form id="etablissement"
+      class="{{ add ? 'add' : 'edit' }}"
+      action="{{ add ? path('etablissement_ajouter') : path('etablissement_edit', {id: etablissement.id}) }}"
+      method="post">
+
+    {# ——— Boutons haut de page ——— #}
+    <div class="pull-right">
+        {% if add %}
+            <input type="submit" class="btn btn-success" value="Ajouter l'établissement">
+        {% else %}
+            <div class="btn-group">
+                <a class="btn btn-default" href="{{ path('etablissement_informations', {id: etablissement.id}) }}">Annuler</a>
+                <input type="submit" class="btn btn-success" value="Sauvegarder">
+            </div>
+        {% endif %}
+    </div>
+
+    <h3>{{ add ? "Ajout d'un établissement" : "Modification de l'établissement" }}</h3>
+
+    <div class="row">
+
+        {# ——— Colonne gauche : classement + activités + effectifs + plans + établissements liés ——— #}
+        <div class="col-md-6">
+
+            {# Général #}
+            <h4 class="h4_subtitle">Général</h4>
+            <div>
+                <input style="width: 100%; box-sizing: border-box; height: 2.5em;"
+                       type="text"
+                       placeholder="Libellé de l'établissement"
+                       name="LIBELLE_ETABLISSEMENTINFORMATIONS"
+                       value="{{ add ? '' : (etablissement.latestInformations.libelle|default('')) }}" />
+
+                <dl class="dl-horizontal">
+                    <dt>Identifiant</dt>
+                    <dd>
+                        <input type="text" name="NUMEROID_ETABLISSEMENT" id="NUMEROID_INPUT"
+                               value="{{ add ? '' : (etablissement.numero|default('')) }}" />
+                    </dd>
+
+                    <dt>Statut</dt>
+                    <dd>
+                        <select name="ID_STATUT" {{ can_edit_statut ? '' : 'disabled' }}>
+                            {% for statut in statuts %}
+                                <option value="{{ statut.id }}"
+                                    {{ (not add and etablissement.latestInformations.statut.id == statut.id) ? 'selected' : '' }}>
+                                    {{ statut.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if not can_edit_statut %}
+                            {# Champ caché pour conserver la valeur si select est disabled #}
+                            <input type="hidden" name="ID_STATUT" value="{{ add ? 1 : etablissement.latestInformations.statut.id }}">
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+
+            {# Classement #}
+            <h4 class="h4_subtitle">Classement</h4>
+            <dl class="dl-horizontal">
+                <dt>Genre</dt>
+                <dd>
+                    <select name="ID_GENRE" id="ID_GENRE">
+                        {% for genre in genres %}
+                            <option value="{{ genre.id }}"
+                                {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
+                                {{ genre.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_icpe champs">ICPE ?</dt>
+                <dd class="champ_icpe champs">
+                    <input type="hidden" name="ICPE_ETABLISSEMENTINFORMATIONS" value="0" />
+                    <input type="checkbox" name="ICPE_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.icpe) ? 'checked' : '' }} />
+                </dd>
+
+                <dt class="champ_categorie champs">Catégorie</dt>
+                <dd class="champ_categorie champs">
+                    <select name="ID_CATEGORIE">
+                        <option value="">— Choisir —</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}"
+                                {{ (not add and etablissement.latestInformations.categorie is not null and etablissement.latestInformations.categorie.id == cat.id) ? 'selected' : '' }}>
+                                {{ cat.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_classement champs">Classement</dt>
+                <dd class="champ_classement champs">
+                    <select name="ID_CLASSEMENT">
+                        <option value="">— Choisir —</option>
+                        {% for classement in classements %}
+                            <option value="{{ classement.id }}"
+                                {{ (not add and etablissement.latestInformations.classement is not null and etablissement.latestInformations.classement.id == classement.id) ? 'selected' : '' }}>
+                                {{ classement.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_famille champs">Famille</dt>
+                <dd class="champ_famille champs">
+                    <select name="ID_FAMILLE">
+                        <option value="">— Choisir —</option>
+                        {% for famille in familles %}
+                            <option value="{{ famille.id }}"
+                                {{ (not add and etablissement.latestInformations.famille is not null and etablissement.latestInformations.famille.id == famille.id) ? 'selected' : '' }}>
+                                {{ famille.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_classe champs">Classe IGH</dt>
+                <dd class="champ_classe champs">
+                    <select name="ID_CLASSE">
+                        <option value="">— Choisir —</option>
+                        {% for classe in igh_classes %}
+                            <option value="{{ classe.id }}"
+                                {{ (not add and etablissement.latestInformations.classe is not null and etablissement.latestInformations.classe.id == classe.id) ? 'selected' : '' }}>
+                                {{ classe.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_periodicite champs">Périodicité (mois)</dt>
+                <dd class="champ_periodicite champs">
+                    <input type="number" class="input-small" name="PERIODICITE_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? '' : (etablissement.latestInformations.periodicite|default('')) }}" />
+                </dd>
+            </dl>
+
+            {# Activités (ERP / Cellule) #}
+            <h4 class="champ_types champs h4_subtitle">
+                Activités
+                <a href="#" style="font-size: 0.85em; float: right; font-weight: normal;" id="add_activite_secondaire">
+                    Ajouter un type et une activité secondaire
+                </a>
+            </h4>
+            <dl class="dl-horizontal champ_types champs">
+                <dt>Types &amp; activités</dt>
+                <dd>
+                    <ul id="activite_ul" class="list-unstyled">
+                        {# Activité principale #}
+                        <li>
+                            <select name="ID_TYPE" class="type_select" style="width: 85px">
+                                <option value="">—</option>
+                                {% for type in types %}
+                                    <option value="{{ type.id }}"
+                                        {{ (not add and etablissement.latestInformations.type is not null and etablissement.latestInformations.type.id == type.id) ? 'selected' : '' }}>
+                                        {{ type.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <select name="ID_TYPEACTIVITE" class="activite_select" style="width: 70%">
+                                <option value="">—</option>
+                                {% for activite in activites %}
+                                    <option value="{{ activite.id }}"
+                                            data-type="{{ activite.type.id }}"
+                                        {{ (not add and etablissement.latestInformations.typeActivite is not null and etablissement.latestInformations.typeActivite.id == activite.id) ? 'selected' : '' }}>
+                                        {{ activite.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </li>
+                        {# Prototype pour les activités secondaires (caché, cloné par JS) #}
+                        {{ include('etablissement/_partial_type_activite_secondaire.html.twig', {types: types, activites: activites, prototype: true}) }}
+                        {# Activités secondaires existantes (mode édition) #}
+                        {% if not add %}
+                            {% for ta in etablissement.latestInformations.typesActivitesSecondaires %}
+                                {{ include('etablissement/_partial_type_activite_secondaire.html.twig', {types: types, activites: activites, ta: ta}) }}
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </dd>
+
+                <dt>R143-20 ?</dt>
+                <dd>
+                    <input type="hidden" name="R14320_ETABLISSEMENTINFORMATIONS" value="0" />
+                    <input type="checkbox" name="R14320_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.r14320) ? 'checked' : '' }} />
+                </dd>
+
+                <dt class="champs champ_droitpublic">R143-16 ?</dt>
+                <dd class="champs champ_droitpublic">
+                    <input type="hidden" name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS" value="0" />
+                    <input type="checkbox" name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.droitPublic) ? 'checked' : '' }} />
+                </dd>
+
+                <dt class="champs champ_localsommeil">Local à sommeil ?</dt>
+                <dd class="champs champ_localsommeil">
+                    <label><input type="radio" name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS" value="0" checked /> Non</label>
+                    <label><input type="radio" name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.localSommeil) ? 'checked' : '' }} /> Oui</label>
+                </dd>
+            </dl>
+
+            {# Rubriques ICPE (BUP) #}
+            <h4 class="champs_icpe champs rubrique h4_subtitle">
+                Rubriques ICPE
+                <a href="#" style="font-size: 0.85em; float: right; font-weight: normal;" id="add_rubrique">
+                    Ajouter une rubrique
+                </a>
+            </h4>
+            <table class="table table-condensed champs_icpe champs rubrique">
+                <thead>
+                    <tr>
+                        <th>Rubrique</th><th>Numéro</th><th>Nom</th><th>Valeur</th><th>Classement</th><th></th>
+                    </tr>
+                </thead>
+                <tbody id="rubriques_tbody">
+                    {{ include('etablissement/_partial_rubrique.html.twig', {prototype: true}) }}
+                    {% if not add %}
+                        {% for rubrique in etablissement.latestInformations.rubriquesIcpe %}
+                            {{ include('etablissement/_partial_rubrique.html.twig', {rubrique: rubrique}) }}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {# Effectifs ERP/Cellule/IGH #}
+            <h4 class="champ_effectifs champs h4_subtitle">Effectifs</h4>
+            <dl class="dl-horizontal champ_effectifs champs">
+                <dt class="effectif_public">Public</dt>
+                <dd class="effectif_public">
+                    <input type="number" name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifPublic|default(0)) }}" />
+                </dd>
+                <dt>Personnel</dt>
+                <dd>
+                    <input type="number" name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifPersonnel|default(0)) }}" />
+                </dd>
+                <dt class="effectif_heberge">Dont hébergé</dt>
+                <dd class="effectif_heberge">
+                    <input type="number" name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifHeberge|default(0)) }}" />
+                </dd>
+                <dt class="effectif_justifiant_classement">Justifiant classement</dt>
+                <dd class="effectif_justifiant_classement">
+                    <input type="number" name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifJustifiantClassement|default(0)) }}" />
+                </dd>
+            </dl>
+
+            {# Emplacements camping #}
+            <h4 class="champ_effectif_camping champs h4_subtitle">Emplacements camping</h4>
+            <dl class="dl-horizontal champ_effectif_camping champs">
+                <dt class="effectif_habitation">Mobil-homes</dt>
+                <dd class="effectif_habitation">
+                    <input type="number" name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifHabitation|default(0)) }}" />
+                </dd>
+                <dt class="effectif_caravane">Autocaravanes</dt>
+                <dd class="effectif_caravane">
+                    <input type="number" name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifCaravane|default(0)) }}" />
+                </dd>
+                <dt class="effectif_emplacement_nu">Emplacements nus</dt>
+                <dd class="effectif_emplacement_nu">
+                    <input type="number" name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifEmplacementNu|default(0)) }}" />
+                </dd>
+                <dt class="effectif_autre_camping">Autres</dt>
+                <dd class="effectif_autre_camping">
+                    <input type="number" name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifDivers|default(0)) }}" />
+                </dd>
+            </dl>
+
+            {# Plans #}
+            <h4 class="champ_plans champs h4_subtitle">
+                Plans d'intervention
+                <a href="#" style="font-size: 0.85em; float: right; font-weight: normal;" id="add_plan">
+                    Ajouter un plan
+                </a>
+            </h4>
+            <table class="table table-condensed champ_plans champs">
+                <thead>
+                    <tr>
+                        <th>Type</th><th>Numéro</th><th>Date</th><th>À mettre à jour</th><th></th>
+                    </tr>
+                </thead>
+                <tbody id="plans_tbody">
+                    {{ include('etablissement/_partial_plan.html.twig', {types_plans: types_plans, prototype: true}) }}
+                    {% if not add %}
+                        {% for plan in etablissement.latestInformations.plans %}
+                            {{ include('etablissement/_partial_plan.html.twig', {plan: plan, types_plans: types_plans}) }}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {# Établissements liés #}
+            <h4 class="h4_subtitle etablissements_lies">Établissements liés</h4>
+            <dl class="dl-horizontal etablissements_lies">
+                <dt class="etablissement_pere">Père</dt>
+                <dd class="etablissement_pere">
+                    <input type="text" placeholder="Libellé de l'établissement père…"
+                           id="pere_autocomplete"
+                           style="width: 100%; box-sizing: border-box; height: 2.5em;" />
+                    <input type="hidden" name="ID_PERE"
+                           value="{{ (not add and etablissement.parent is not null) ? etablissement.parent.id : (app.request.query.get('pere')|default('')) }}" />
+                </dd>
+
+                <dt class="etablissements_enfants">Enfants</dt>
+                <dd class="etablissements_enfants">
+                    <table id="etablissements_enfants" class="table table-condensed">
+                        <thead><tr><th>Nom</th><th></th></tr></thead>
+                        <tbody id="enfants_tbody">
+                            {{ include('etablissement/_partial_etablissement_enfant.html.twig', {prototype: true}) }}
+                            {% if not add %}
+                                {% for fils in etablissement.fils %}
+                                    {{ include('etablissement/_partial_etablissement_enfant.html.twig', {fils: fils}) }}
+                                {% endfor %}
+                            {% endif %}
+                            <tr>
+                                <td>
+                                    <input type="text" placeholder="Libellé d'un établissement enfant…"
+                                           id="etablissement_autocomplete" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </dd>
+            </dl>
+
+        </div>{# /col-md-6 gauche #}
+
+        {# ——— Colonne droite : adresse + carte + commission + préventionnistes + téléphone ——— #}
+        <div class="col-md-6">
+
+            {# Adresse #}
+            <h4 class="champ_adresse champs h4_subtitle">
+                Adresse
+                <a style="font-size: 0.85em; float: right; font-weight: normal;"
+                   data-toggle="modal" data-backdrop="static" href="#adresse-modal-ajout">
+                    Ajouter une adresse
+                </a>
+            </h4>
+            <table id="adresses" class="table table-condensed champ_adresse champs">
+                <thead>
+                    <tr><th>Numéro</th><th>Voie</th><th>Commune</th><th>Coord.</th><th></th></tr>
+                </thead>
+                <tbody id="adresses_tbody">
+                    {{ include('etablissement/_partial_adresse.html.twig', {prototype: true}) }}
+                    {% if not add %}
+                        {% for adresse in etablissement.adresses %}
+                            {{ include('etablissement/_partial_adresse.html.twig', {adresse: adresse}) }}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {# Carte IGN / OSM #}
+            <div id="map_edit" style="height: 300px; margin-bottom: 10px;"></div>
+
+            {# Commission #}
+            <h4 class="champ_commission champs h4_subtitle">Commission</h4>
+            <dl class="dl-horizontal champ_commission champs">
+                <dt>Commission</dt>
+                <dd>
+                    <select name="ID_COMMISSION" id="ID_COMMISSION">
+                        <option value="">— Aucune —</option>
+                        {% for commission in commissions %}
+                            <option value="{{ commission.id }}"
+                                {{ (not add and etablissement.latestInformations.commission is not null and etablissement.latestInformations.commission.id == commission.id) ? 'selected' : '' }}>
+                                {{ commission.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+                <dt class="champ_periodicite champs">Périodicité (mois)</dt>
+                <dd class="champ_periodicite champs">
+                    <input type="number" name="PERIODICITE_ETABLISSEMENTINFORMATIONS_RIGHT"
+                           disabled value="" id="periodicite_suggestion"
+                           placeholder="(suggestion)" />
+                </dd>
+            </dl>
+
+            {# Préventionnistes #}
+            <h4 class="h4_subtitle">Préventionnistes</h4>
+            <table class="table table-condensed">
+                <tbody id="preventionnistes_tbody">
+                    {{ include('etablissement/_partial_preventionniste.html.twig', {prototype: true}) }}
+                    {% if not add %}
+                        {% for prev in etablissement.latestInformations.preventionnistes %}
+                            {{ include('etablissement/_partial_preventionniste.html.twig', {prev: prev}) }}
+                        {% endfor %}
+                    {% endif %}
+                    <tr>
+                        <td>
+                            <input type="text" placeholder="Nom du préventionniste…"
+                                   id="preventionniste_autocomplete" />
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {# Informations de contact #}
+            <h4 class="h4_subtitle">Contact</h4>
+            <dl class="dl-horizontal">
+                <dt>Téléphone</dt>
+                <dd>
+                    <input type="text" name="TELEPHONE_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.telephone|default('')) }}" />
+                </dd>
+                <dt>Fax</dt>
+                <dd>
+                    <input type="text" name="FAX_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.fax|default('')) }}" />
+                </dd>
+                <dt>Courriel</dt>
+                <dd>
+                    <input type="email" name="COURRIEL_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.courriel|default('')) }}" />
+                </dd>
+            </dl>
+
+            {# Durée de visite et nb préventionnistes #}
+            <h4 class="champ_duree_visite champs h4_subtitle">Visite</h4>
+            <dl class="dl-horizontal champ_duree_visite champs">
+                <dt>Durée visite</dt>
+                <dd>
+                    <input type="text" name="DUREEVISITE_ETABLISSEMENT" placeholder="HH:MM"
+                           value="{{ add ? '' : (etablissement.dureeVisite is not null ? etablissement.dureeVisite|date('H:i') : '') }}" />
+                </dd>
+                <dt>Nb préventionnistes</dt>
+                <dd>
+                    <input type="number" name="NBPREV_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.nbPrev|default('')) }}" />
+                </dd>
+            </dl>
+
+        </div>{# /col-md-6 droite #}
+
+    </div>{# /row #}
+
+    {# Bouton bas de page #}
+    <div class="row">
+        <div class="col-md-12 text-right" style="margin-top: 15px;">
+            {% if add %}
+                <button type="button" class="btn btn-default" id="btn_confirmer" data-toggle="modal" href="#confirm-modal">
+                    Prévisualiser et confirmer
+                </button>
+                &nbsp;
+                <input type="submit" class="btn btn-success" value="Ajouter l'établissement" id="btn_submit">
+            {% else %}
+                <div class="btn-group">
+                    <a class="btn btn-default" href="{{ path('etablissement_informations', {id: etablissement.id}) }}">Annuler</a>
+                    <input type="submit" class="btn btn-success" value="Sauvegarder">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</form>
+
+{# ——— Modales ——— #}
+{% if add %}
+    {{ include('etablissement/_modal_confirmation.html.twig') }}
+{% endif %}
+{{ include('etablissement/_modal_adresse.html.twig', {
+    key_ign: key_ign,
+    geoconcept_url: geoconcept_url,
+    default_lon: default_lon,
+    default_lat: default_lat,
+    couches_cartographiques: couches_cartographiques,
+}) }}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    (function($) {
+        'use strict';
+
+        // Données de référence pour les activités (indexées par type)
+        var activitesParType = {};
+        {% for activite in activites %}
+        if (!activitesParType[{{ activite.type.id }}]) {
+            activitesParType[{{ activite.type.id }}] = [];
+        }
+        activitesParType[{{ activite.type.id }}].push({
+            id: {{ activite.id }},
+            libelle: {{ activite.libelle|json_encode|raw }}
+        });
+        {% endfor %}
+
+        // ——— Masquage/affichage des sections par genre ———
+        var genreSelectors = {
+            erp:       [2],
+            cellule:   [3],
+            habitation:[4],
+            igh:       [5],
+            bup:       [6],
+            camping:   [7],
+            manif:     [8],
+            iop:       [9],
+            zone:      [10]
+        };
+
+        function applyGenre(idGenre) {
+            idGenre = parseInt(idGenre, 10);
+
+            // Masquer tous les champs spécifiques
+            $('.champ_icpe, .champ_categorie, .champ_classement, .champ_famille, ' +
+              '.champ_classe, .champ_periodicite, .champ_types, .champ_effectifs, ' +
+              '.champ_effectif_camping, .champ_plans, .champ_commission, ' +
+              '.champ_adresse, .champ_droitpublic, .champ_localsommeil, ' +
+              '.champ_duree_visite, .champs_icpe').hide();
+
+            switch (idGenre) {
+                case 1: // Site
+                    break;
+                case 2: // ERP
+                    $('.champ_categorie, .champ_periodicite, .champ_types, .champ_effectifs, ' +
+                      '.champ_plans, .champ_commission, .champ_adresse, .champ_droitpublic, ' +
+                      '.champ_localsommeil, .champ_duree_visite').show();
+                    break;
+                case 3: // Cellule
+                    $('.champ_types, .champ_effectifs, .champ_plans, .champ_adresse, ' +
+                      '.champ_duree_visite').show();
+                    break;
+                case 4: // Habitation
+                    $('.champ_famille, .champ_adresse').show();
+                    break;
+                case 5: // IGH
+                    $('.champ_classe, .champ_periodicite, .champ_effectifs, .champ_plans, ' +
+                      '.champ_commission, .champ_adresse, .champ_duree_visite').show();
+                    break;
+                case 6: // BUP
+                    $('.champ_icpe, .champ_effectifs, .champs_icpe, .champ_adresse').show();
+                    $('.effectif_public, .effectif_heberge, .effectif_justifiant_classement').hide();
+                    break;
+                case 7: // Camping
+                    $('.champ_effectif_camping, .champ_adresse').show();
+                    break;
+                case 8: // Manifestation temporaire
+                case 9: // IOP
+                    $('.champ_effectifs, .champ_adresse').show();
+                    $('.effectif_heberge, .effectif_justifiant_classement').hide();
+                    break;
+                case 10: // Zone
+                    $('.champ_classement, .champ_adresse').show();
+                    break;
+            }
+        }
+
+        // Appliquer au chargement
+        applyGenre($('#ID_GENRE').val());
+
+        // Appliquer au changement
+        $('#ID_GENRE').on('change', function() {
+            applyGenre($(this).val());
+        });
+
+        // ——— Mise à jour des activités selon le type ———
+        function updateActivites(typeSelect, activiteSelect, currentActiviteId) {
+            var typeId = parseInt($(typeSelect).val(), 10);
+            var $activite = $(activiteSelect);
+            $activite.empty().append('<option value="">—</option>');
+            if (activitesParType[typeId]) {
+                $.each(activitesParType[typeId], function(i, act) {
+                    var selected = currentActiviteId && act.id === currentActiviteId ? ' selected' : '';
+                    $activite.append('<option value="' + act.id + '"' + selected + '>' + act.libelle + '</option>');
+                });
+            }
+        }
+
+        $(document).on('change', '.type_select', function() {
+            var $li = $(this).closest('li');
+            updateActivites(this, $li.find('.activite_select'), null);
+        });
+
+        // ——— Ajout d'une activité secondaire (clone du prototype) ———
+        $('#add_activite_secondaire').on('click', function(e) {
+            e.preventDefault();
+            var ts = Date.now();
+            var $proto = $('#prototype_type_activite').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/-1/gi, ts));
+                }
+            });
+            $('#activite_ul').append($proto);
+        });
+
+        // ——— Ajout d'un plan (clone du prototype) ———
+        $('#add_plan').on('click', function(e) {
+            e.preventDefault();
+            var ts = Date.now();
+            var $proto = $('#prototype_plan').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/-1/gi, ts));
+                }
+            });
+            $('#plans_tbody').append($proto);
+        });
+
+        // ——— Ajout d'une rubrique ICPE (clone du prototype) ———
+        $('#add_rubrique').on('click', function(e) {
+            e.preventDefault();
+            var ts = Date.now();
+            var $proto = $('#prototype_rubrique').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/-1/gi, ts));
+                }
+            });
+            $('#rubriques_tbody').append($proto);
+        });
+
+        // ——— Autocomplete établissement père ———
+        $('#pere_autocomplete').autocomplete({
+            minLength: 2,
+            source: function(request, response) {
+                $.getJSON('{{ path('api_etablissements_search') }}', {q: request.term}, function(data) {
+                    response($.map(data, function(item) {
+                        return {label: item.libelle + ' (' + (item.genre || '?') + ')', value: item.libelle, id: item.id};
+                    }));
+                });
+            },
+            select: function(event, ui) {
+                $('input[name="ID_PERE"]').val(ui.item.id);
+            }
+        });
+
+        // ——— Autocomplete établissement enfant ———
+        $('#etablissement_autocomplete').autocomplete({
+            minLength: 2,
+            source: function(request, response) {
+                $.getJSON('{{ path('api_etablissements_search') }}', {q: request.term}, function(data) {
+                    response($.map(data, function(item) {
+                        return {label: item.libelle + ' (' + (item.genre || '?') + ')', value: item.libelle, id: item.id};
+                    }));
+                });
+            },
+            select: function(event, ui) {
+                // Ajouter l'enfant via le partial
+                var ts = Date.now();
+                var $proto = $('#prototype_enfant').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(ui.item.id);
+                $proto.find('.enfant_libelle').text(ui.item.label);
+                $proto.find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#enfants_tbody tr:last').before($proto);
+                $(this).val('');
+                return false;
+            }
+        });
+
+        // ——— Autocomplete préventionnistes ———
+        $('#preventionniste_autocomplete').autocomplete({
+            minLength: 3,
+            source: function(request, response) {
+                $.getJSON('{{ path('api_etablissements_search') }}', {q: request.term, type: 'preventionniste'}, function(data) {
+                    response($.map(data, function(item) {
+                        return {label: item.libelle, value: item.libelle, id: item.id};
+                    }));
+                });
+            },
+            select: function(event, ui) {
+                var ts = Date.now();
+                var $proto = $('#prototype_preventionniste').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(ui.item.id);
+                $proto.find('.prev_libelle').text(ui.item.label);
+                $proto.find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#preventionnistes_tbody tr:last').before($proto);
+                $(this).val('');
+                return false;
+            }
+        });
+
+        {% if add %}
+        // ——— Bouton confirmation : appel AJAX defaults_values ———
+        $('#btn_confirmer').on('click', function(e) {
+            e.preventDefault();
+            var formData = {
+                genre: $('#ID_GENRE').val(),
+                type: $('select[name="ID_TYPE"]').first().val(),
+                categorie: $('select[name="ID_CATEGORIE"]').val(),
+                local_sommeil: $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"]:checked').val(),
+                classe: $('select[name="ID_CLASSE"]').val()
+            };
+            $.post('{{ path('api_etablissement_defaults_values') }}', formData, function(data) {
+                // Mettre à jour les valeurs conseillées dans la modale
+                if (data.commission) {
+                    $('#modal_commission_libelle').text(data.commission.LIBELLE_COMMISSION || '—');
+                }
+                if (data.periodicite !== undefined) {
+                    $('#modal_periodicite').text(data.periodicite ? data.periodicite + ' mois' : '—');
+                }
+                if (data.local_sommeil !== undefined) {
+                    $('#modal_local_sommeil').text(data.local_sommeil ? 'Oui' : 'Non');
+                    // Pré-cocher le local à sommeil suggéré
+                    $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"][value="' + (data.local_sommeil ? '1' : '0') + '"]').prop('checked', true);
+                }
+                $('#confirm-modal').modal('show');
+            }, 'json').fail(function() {
+                $('#confirm-modal').modal('show');
+            });
+        });
+
+        // Soumettre le formulaire depuis la modale
+        $('#btn_confirm_submit').on('click', function() {
+            $('#confirm-modal').modal('hide');
+            $('#etablissement').submit();
+        });
+        {% endif %}
+
+    }(jQuery));
+    </script>
+{% endblock %}

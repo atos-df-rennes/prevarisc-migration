@@ -46,4 +46,17 @@ class ClassementRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    /**
+     * Retourne tous les classements triés par libellé alphabétique.
+     *
+     * @return Classement[]
+     */
+    public function findAllOrderedByLibelle(): array
+    {
+        /** @var Classement[] $result */
+        $result = $this->findBy([], ['libelle' => 'ASC']);
+
+        return $result;
+    }
 }

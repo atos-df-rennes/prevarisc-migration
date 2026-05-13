@@ -1,0 +1,25 @@
+{#
+  _partial_preventionniste.html.twig
+  Ligne de tableau pour un préventionniste lié à l'établissement.
+
+  Variables :
+    - prototype (bool)                        : true = ligne cachée (modèle JS)
+    - prev (Utilisateur|null)                 : préventionniste en mode édition
+#}
+{% set is_proto = prototype|default(false) %}
+<tr id="{{ is_proto ? 'prototype_preventionniste' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    <td>
+        <input type="hidden"
+               name="{{ is_proto ? 'ID_PREVENTIONNISTE[-1]' : 'ID_PREVENTIONNISTE[' ~ (prev.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (prev.id|default('')) }}" />
+        <span class="prev_libelle">
+            {{ is_proto ? '' : (prev is not null ? prev.prenom ~ ' ' ~ prev.nom : '') }}
+        </span>
+    </td>
+    <td>
+        <button type="button" class="btn btn-xs btn-danger btn_remove_preventionniste">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </td>
+</tr>

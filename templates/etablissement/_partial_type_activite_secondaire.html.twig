@@ -1,0 +1,44 @@
+{#
+  _partial_type_activite_secondaire.html.twig
+  Ligne de liste pour un type + activité secondaire.
+
+  Variables :
+    - prototype (bool)           : true = élément caché (modèle JS)
+    - ta (EtablissementInformationsTypesActivitesSecondaires|null)
+    - types (EtablissementType[])
+    - activites (EtablissementActivite[])
+#}
+{% set is_proto = prototype|default(false) %}
+<li id="{{ is_proto ? 'prototype_type_activite' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    {# Type secondaire #}
+    <select name="{{ is_proto ? 'ID_TYPE_SECONDAIRE[-1]' : 'ID_TYPE_SECONDAIRE[' ~ (ta.id|default(0)) ~ ']' }}"
+            class="type_select"
+            style="width: 85px">
+        <option value="">—</option>
+        {% for type in types %}
+            <option value="{{ type.id }}"
+                {{ (not is_proto and ta is not null and ta.type is not null and ta.type.id == type.id) ? 'selected' : '' }}>
+                {{ type.libelle }}
+            </option>
+        {% endfor %}
+    </select>
+
+    {# Activité secondaire #}
+    <select name="{{ is_proto ? 'ID_TYPEACTIVITE_SECONDAIRE[-1]' : 'ID_TYPEACTIVITE_SECONDAIRE[' ~ (ta.id|default(0)) ~ ']' }}"
+            class="activite_select"
+            style="width: 70%">
+        <option value="">—</option>
+        {% for activite in activites %}
+            <option value="{{ activite.id }}"
+                    data-type="{{ activite.type.id }}"
+                {{ (not is_proto and ta is not null and ta.typeActivite is not null and ta.typeActivite.id == activite.id) ? 'selected' : '' }}>
+                {{ activite.libelle }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="button" class="btn btn-xs btn-danger btn_remove_activite_secondaire">
+        <span class="glyphicon glyphicon-remove"></span>
+    </button>
+</li>

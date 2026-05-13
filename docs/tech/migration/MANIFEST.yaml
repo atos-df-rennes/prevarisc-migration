@@ -254,3 +254,69 @@ dossier_rapport_generation:
     - prochaineVisite : option use_date_commission_for_periodicity (config legacy) non portée — utilise DATEVISITE uniquement
     - descriptionEffectif*/descriptionDegagement* : null (pas d'équivalent)
     - Typo legacy 'prenomDemandeurt' préservée intentionnellement
+
+ajout_etablissement:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/EtablissementController.php (indexAction)
+    - prevarisc/application/services/Etablissement.php (save, lignes 898-1347)
+    - prevarisc/application/modules/api/controllers/EtablissementController.php (defaultsValuesAction)
+    - prevarisc/application/modules/api/services/Etablissement.php (getDefaultValues)
+    - prevarisc/application/views/scripts/etablissement/edit.phtml
+  migrated_files:
+    - prevarisc-migration/src/Security/Voter/Etablissement/EtablissementVoter.php (CREATE const + supports null-safe)
+    - prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCreationVoter.php
+    - prevarisc-migration/src/Repository/ClassementRepository.php (findAllOrderedByLibelle)
+    - prevarisc-migration/src/Controller/Api/EtablissementController.php (defaultsValues endpoint)
+    - prevarisc-migration/src/Service/Etablissement.php (save method)
+    - prevarisc-migration/src/Controller/EtablissementController.php (add action)
+    - prevarisc-migration/templates/etablissement/add.html.twig
+    - prevarisc-migration/templates/etablissement/_form.html.twig
+    - prevarisc-migration/templates/etablissement/_partial_adresse.html.twig
+    - prevarisc-migration/templates/etablissement/_partial_plan.html.twig
+    - prevarisc-migration/templates/etablissement/_partial_rubrique.html.twig
+    - prevarisc-migration/templates/etablissement/_partial_type_activite_secondaire.html.twig
+    - prevarisc-migration/templates/etablissement/_partial_etablissement_enfant.html.twig
+    - prevarisc-migration/templates/etablissement/_partial_preventionniste.html.twig
+    - prevarisc-migration/templates/etablissement/_modal_adresse.html.twig
+    - prevarisc-migration/templates/etablissement/_modal_confirmation.html.twig
+  test_files:
+    - prevarisc-migration/tests/Security/Voter/Etablissement/EtablissementCreationVoterTest.php
+    - prevarisc-migration/tests/Service/EtablissementSaveTest.php
+  updated_at: "2026-05-13"
+  routes:
+    - name: etablissement_ajouter
+      path: /etablissement/ajouter
+    - name: api_etablissement_defaults_values
+      path: /api/1.0/etablissement/defaults_values
+  notes: |
+    Port complet de la création d'un établissement (10 genres : site, ERP, cellule,
+    habitation, IGH, BUP, camping, manifestation temporaire, IOP, zone).
+
+    Voter EtablissementCreationVoter (T1) :
+    - Nouvelle constante EtablissementVoter::CREATE = 'create_ets'
+    - EtablissementCreationVoter délègue la logique au voter parent
+    - null-safe dans isSubjectGenreAllowed() pour éviter crash sur sujet null
+
+    API defaults_values (T0) :
+    - Calcul de commission simplifié (lookup établissement père) vs legacy (Model_DbTable_Commission)
+    - Préventionnistes retourne [] (pas d'équivalent Symfony de Model_DbTable_Preventionniste)
+    - Types local à sommeil via paramètre app.local_sommeil_types (env PREVARISC_LOCAL_SOMMEIL_TYPES)
+
+    Service save() (T2) :
+    - Transaction DBAL (getConnection()->beginTransaction()) pour éviter les soucis ORM
+    - Double flush pour NUMEROID (persist → flush → get ID → set NUMEROID → flush)
+    - getReference() pour FK sans requête DB (sauf fils/père qui nécessitent la validation)
+    - Helpers privés toInt/toString/toFloat pour compatibilité PHPStan level 10 avec mixed
+
+    Templates (T5-T8) :
+    - BS2 → BS3 : row-fluid→row, span6→col-md-6, modal hide fade→modal fade
+    - 3 providers de géolocalisation : IGN Géoportail, Geoconcept, Nominatim (OSM)
+    - show/hide des sections par genre en JS inline (switch sur ID_GENRE)
+    - Prototypes cachés clonés par JS pour l'ajout dynamique de lignes
+
+    Écarts intentionnels :
+    - Commission via parent (pas de getCommission(numinsee, cat, type, sommeil) en Symfony)
+    - Préventionnistes API returns [] (pas de getPrev(numinsee, idPere) en Symfony)
+    - Rapport d'écarts complet : docs/tech/migration/ecarts/ajout-etablissement.md
+
