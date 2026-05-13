@@ -377,7 +377,7 @@
             </h4>
             <table id="adresses" class="table table-condensed champ_adresse champs">
                 <thead>
-                    <tr><th>Numéro</th><th>Voie</th><th>Commune</th><th>Coord.</th><th></th></tr>
+                    <tr><th>Localisation</th><th>Type</th><th></th><th></th></tr>
                 </thead>
                 <tbody id="adresses_tbody">
                     {{ include('etablissement/_partial_adresse.html.twig', {prototype: true}) }}
@@ -389,29 +389,24 @@
                 </tbody>
             </table>
 
-            {# Carte IGN / OSM #}
-            <div id="map_edit" style="height: 300px; margin-bottom: 10px;"></div>
-
             {# Commission #}
             <h4 class="champ_commission champs h4_subtitle">Commission</h4>
             <dl class="dl-horizontal champ_commission champs">
                 <dt>Commission</dt>
                 <dd>
-                    <select name="ID_COMMISSION" id="ID_COMMISSION" class="form-control">
+                    <select name="ID_COMMISSION" id="ID_COMMISSION" class="form-control input-xlarge">
                         <option value="">— Aucune —</option>
-                        {% for commission in commissions %}
-                            <option value="{{ commission.id }}"
-                                {{ (not add and etablissement.latestInformations.commission is not null and etablissement.latestInformations.commission.id == commission.id) ? 'selected' : '' }}>
-                                {{ commission.libelle }}
-                            </option>
+                        {% for type_id, group in commissions %}
+                            <optgroup label="{{ group.libelle }}">
+                                {% for commission in group.items %}
+                                    <option value="{{ commission.id }}"
+                                        {{ (not add and etablissement is defined and etablissement is not null and etablissement.latestInformations.commission is not null and etablissement.latestInformations.commission.id == commission.id) ? 'selected' : '' }}>
+                                        {{ commission.libelle }} ({{ group.libelle }})
+                                    </option>
+                                {% endfor %}
+                            </optgroup>
                         {% endfor %}
                     </select>
-                </dd>
-                <dt class="champ_periodicite champs">Périodicité (mois)</dt>
-                <dd class="champ_periodicite champs">
-                    <input type="number" class="form-control" name="PERIODICITE_ETABLISSEMENTINFORMATIONS_RIGHT"
-                           disabled value="" id="periodicite_suggestion"
-                           placeholder="(suggestion)" />
                 </dd>
             </dl>
 
@@ -456,8 +451,8 @@
             </dl>
 
             {# Durée de visite et nb préventionnistes #}
-            <h4 class="champ_duree_visite champs h4_subtitle">Visite</h4>
-            <dl class="dl-horizontal champ_duree_visite champs">
+            <h4 class="champ_donnees_pratiques champs h4_subtitle">Visite</h4>
+            <dl class="dl-horizontal champ_donnees_pratiques champs">
                 <dt>Durée visite</dt>
                 <dd>
                     <input type="text" class="form-control" name="DUREEVISITE_ETABLISSEMENT" placeholder="HH:MM"
@@ -493,15 +488,3 @@
     </div>
 
 </form>
-
-{# ——— Modales ——— #}
-{% if add %}
-    {{ include('etablissement/_modal_confirmation.html.twig') }}
-{% endif %}
-{{ include('etablissement/_modal_adresse.html.twig', {
-    key_ign: key_ign,
-    geoconcept_url: geoconcept_url,
-    default_lon: default_lon,
-    default_lat: default_lat,
-    couches_cartographiques: couches_cartographiques,
-}) }}

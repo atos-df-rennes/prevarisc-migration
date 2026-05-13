@@ -7,6 +7,7 @@ use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
+use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
@@ -275,8 +276,31 @@ class EtablissementController extends AbstractController implements Etablissemen
         $categories = $this->categorieRepository->findAll();
         $types = $this->typeRepository->findAll();
         $activites = $this->activiteRepository->findAll();
-        // F8 : utiliser CommissionRepository::findAll() (coucheCartoRepository était un copier/coller erroné)
-        $commissionsData = $this->commissionRepository->findAll();
+        // JSON des activités au format legacy pour le JS de add.html.twig
+        $activitesJson = [];
+        foreach ($activites as $activite) {
+            $activiteType = $activite->getType();
+            $activitesJson[] = [
+                'ID_TYPE' => $activiteType ? $activiteType->getId() : null,
+                'ID_TYPEACTIVITE' => $activite->getId(),
+                'LIBELLE_ACTIVITE' => $activite->getLibelle(),
+            ];
+        }
+
+        // Commissions groupées par type pour les optgroups du select
+        /** @var array<int, array{libelle: string, items: Commission[]}> $commissionsData */
+        $commissionsData = [];
+        foreach ($this->commissionRepository->findAll() as $commission) {
+            $type = $commission->getType();
+            $typeId = $type ? (int) $type->getId() : 0;
+            $typeLibelle = $type ? (string) $type->getLibelle() : '';
+            if (!isset($commissionsData[$typeId])) {
+                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
+            }
+
+            $commissionsData[$typeId]['items'][] = $commission;
+        }
+
         $typesPlans = $this->typePlanRepository->findAll();
         $familles = $this->familleRepository->findAll();
         $ighClasses = $this->ighClasseRepository->findAll();
@@ -306,6 +330,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                     'categories' => $categories,
                     'types' => $types,
                     'activites' => $activites,
+                    'activites_json' => json_encode($activitesJson),
                     'commissions' => $commissionsData,
                     'types_plans' => $typesPlans,
                     'familles' => $familles,
@@ -367,6 +392,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             'categories' => $categories,
             'types' => $types,
             'activites' => $activites,
+            'activites_json' => json_encode($activitesJson),
             'commissions' => $commissionsData,
             'types_plans' => $typesPlans,
             'familles' => $familles,

@@ -1,69 +1,57 @@
 {#
   _modal_confirmation.html.twig
-  Modale de confirmation avant la création d'un établissement.
-  Affiche les valeurs conseillées (commission, périodicité, local à sommeil)
-  retournées par l'API defaults_values.
-
-  Nécessite les variables suivantes injectées par JS dans les champs de la modale avant son ouverture.
+  Modale de confirmation avec valeurs saisies vs valeurs conseillées.
+  Les labels sont interactifs : cliquer bascule le label-info d'une paire.
 #}
-<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="confirm-modal-label" aria-hidden="true">
+<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
 
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="confirm-modal-label">
-                    <span class="glyphicon glyphicon-info-sign text-info"></span>
-                    Confirmation de la création
-                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 class="modal-title">Confirmation de l'édition</h3>
             </div>
 
             <div class="modal-body">
-
-                <p>Vous êtes sur le point de créer un nouvel établissement. Voici les informations
-                complémentaires suggérées automatiquement à partir des données saisies :</p>
-
-                <table class="table table-condensed">
-                    <tbody>
-                        <tr>
-                            <th scope="row">Commission suggérée</th>
-                            <td id="modal_commission_libelle">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Périodicité suggérée</th>
-                            <td id="modal_periodicite">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Local à sommeil conseillé</th>
-                            <td id="modal_local_sommeil">—</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="alert alert-warning" id="modal_warn_no_data" style="display: none;">
-                    Aucune donnée conseillée n'a pu être calculée pour le genre sélectionné.
-                </div>
-
-                <p class="text-muted" style="font-size: 0.9em;">
-                    Ces valeurs sont des suggestions basées sur le genre, la catégorie et le type
-                    saisis. Vous pouvez les modifier après la création de l'établissement.
-                </p>
-
+                <dl>
+                    <dt>Valeurs conseillées</dt>
+                    <dd>
+                        <ul>
+                            <li id="confirm-modal-commission">
+                                Commission renseignée :
+                                <a href="#" class="label label-info confirm-modal-input">Aucune</a>,
+                                la commission conseillée :
+                                <a href="#" class="label confirm-modal-advisable"></a>
+                            </li>
+                            <li id="confirm-modal-periodicite">
+                                Périodicité renseignée :
+                                <a href="#" class="label label-info confirm-modal-input">Aucune</a>,
+                                la périodicité conseillée :
+                                <a href="#" class="label confirm-modal-advisable"></a>
+                            </li>
+                            <li id="confirm-modal-localsommeil">
+                                Présence de local à sommeil renseignée :
+                                <a href="#" class="label label-info confirm-modal-input"></a>,
+                                la présence conseillée :
+                                <a href="#" class="label confirm-modal-advisable"></a>
+                            </li>
+                            <li id="confirm-modal-preventionnistes">
+                                Préventionnistes affectés :
+                                <a href="#" class="label confirm-modal-input label-info">Aucuns</a>,
+                                les préventionnistes conseillés :
+                                <a href="#" class="label confirm-modal-advisable"></a>
+                            </li>
+                        </ul>
+                    </dd>
+                </dl>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                    Retourner au formulaire
-                </button>
-                <button type="button" class="btn btn-success" id="btn_confirm_submit">
-                    <span class="glyphicon glyphicon-ok"></span>
-                    Confirmer et créer l'établissement
-                </button>
+                <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
+                <input type="submit" value="Confirmer et sauvegarder les changements"
+                       class="btn btn-success" />
             </div>
 
-        </div>{# /modal-content #}
-    </div>{# /modal-dialog #}
-</div>{# /modal #}
+        </div>
+    </div>
+</div>

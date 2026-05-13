@@ -1,312 +1,113 @@
 {#
   _modal_adresse.html.twig
-  Modale de géolocalisation d'une adresse.
-  Supporte 3 fournisseurs : IGN Géoportail, Geoconcept, Nominatim (OSM).
+  Modale d'ajout d'une adresse — formulaire avec autocomplete commune/voie + géolocalisation.
 
   Variables :
-    - key_ign (string|null)        : clé API IGN (si null, IGN désactivé)
-    - geoconcept_url (string|null) : URL de l'API Geoconcept (si null, Geoconcept désactivé)
-    - default_lon (float)          : longitude du centre de carte par défaut
-    - default_lat (float)          : latitude du centre de carte par défaut
-    - couches_cartographiques (CoucheCarto[]) : couches WMS additionnelles
+    - key_ign (string|null)        : clé API IGN
+    - geoconcept_url (string|null) : URL Geoconcept
+    - default_lon (float|null)
+    - default_lat (float|null)
+    - couches_cartographiques (CoucheCarto[])
 #}
-<div id="adresse-modal-ajout" class="modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="adresse-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<form id="adresse-modal-ajout" class="modal fade adresse" tabindex="-1" role="dialog"
+      method="post" action="#">
+    <div class="modal-dialog">
         <div class="modal-content">
 
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="adresse-modal-label">Géolocaliser une adresse</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 class="modal-title">Ajouter une adresse</h3>
             </div>
 
             <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>Ville</dt>
+                    <dd>
+                        <input name="commune_ac" type="text"
+                               class="form-control"
+                               placeholder="Nom de la commune ou code postal ..." />
+                        <input name="code_insee" type="hidden" />
+                        <input name="code_postal" type="hidden" />
+                    </dd>
 
-                {# Onglets de recherche selon les fournisseurs disponibles #}
-                <ul class="nav nav-tabs" id="adresse-modal-tabs">
-                    {% if key_ign is not null and key_ign is not empty %}
-                        <li class="active">
-                            <a href="#tab-ign" data-toggle="tab">Géoportail IGN</a>
-                        </li>
-                    {% endif %}
-                    {% if geoconcept_url is not null and geoconcept_url is not empty %}
-                        <li class="{{ (key_ign is null or key_ign is empty) ? 'active' : '' }}">
-                            <a href="#tab-geoconcept" data-toggle="tab">Geoconcept</a>
-                        </li>
-                    {% endif %}
-                    <li class="{{ (key_ign is null or key_ign is empty) and (geoconcept_url is null or geoconcept_url is empty) ? 'active' : '' }}">
-                        <a href="#tab-nominatim" data-toggle="tab">OpenStreetMap</a>
-                    </li>
-                </ul>
+                    <dt>Voie</dt>
+                    <dd>
+                        <input type="text" name="voie_ac"
+                               class="form-control"
+                               placeholder="Nom de la voie ..." disabled />
+                        <input type="hidden" name="type_voie" />
+                        <input type="hidden" name="voie" />
+                    </dd>
 
-                <div class="tab-content" style="padding-top: 12px;">
+                    <dt>Numéro</dt>
+                    <dd>
+                        <input class="form-control input-small" type="text" name="numero"
+                               placeholder="Numéro ..." disabled />
+                    </dd>
 
-                    {# ——— Géoportail IGN ——— #}
-                    {% if key_ign is not null and key_ign is not empty %}
-                    <div id="tab-ign" class="tab-pane active">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div id="geoportail_searchbar" style="margin-bottom: 8px;">
-                                    <input type="text" id="ign_search_input"
-                                           class="form-control"
-                                           placeholder="Numéro et nom de la voie, commune…" />
-                                    <button type="button" class="btn btn-default" id="ign_search_btn" style="margin-top: 4px;">
-                                        Rechercher via IGN
-                                    </button>
-                                </div>
-                                <div id="viewerDiv" style="height: 350px; border: 1px solid #ccc;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                    <dt>Complément d'adresse</dt>
+                    <dd>
+                        <input type="text" name="complement"
+                               class="form-control"
+                               placeholder="Complément d'adresse" disabled />
+                    </dd>
 
-                    {# ——— Geoconcept ——— #}
-                    {% if geoconcept_url is not null and geoconcept_url is not empty %}
-                    <div id="tab-geoconcept"
-                         class="tab-pane {{ (key_ign is null or key_ign is empty) ? 'active' : '' }}">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div style="margin-bottom: 8px;">
-                                    <input type="text" id="geoconcept_search_input"
-                                           class="form-control"
-                                           placeholder="Numéro et nom de la voie, commune…" />
-                                    <button type="button" class="btn btn-default" id="geoconcept_search_btn" style="margin-top: 4px;">
-                                        Rechercher via Geoconcept
-                                    </button>
-                                </div>
-                                <div id="geoconcept_results" class="list-group" style="max-height: 300px; overflow-y: auto;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                    <dt>Type de l'adresse</dt>
+                    <dd>
+                        <select class="form-control">
+                            <option>Adresse postale</option>
+                        </select>
+                    </dd>
 
-                    {# ——— Nominatim / OSM ——— #}
-                    <div id="tab-nominatim"
-                         class="tab-pane {{ (key_ign is null or key_ign is empty) and (geoconcept_url is null or geoconcept_url is empty) ? 'active' : '' }}">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div style="margin-bottom: 8px;">
-                                    <input type="text" id="nominatim_search_input"
-                                           class="form-control"
-                                           placeholder="Numéro et nom de la voie, commune…" />
-                                    <button type="button" class="btn btn-default" id="nominatim_search_btn" style="margin-top: 4px;">
-                                        Rechercher via OSM
-                                    </button>
-                                </div>
-                                <div id="nominatim_results" class="list-group" style="max-height: 200px; overflow-y: auto;"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <dt>Géolocalisation</dt>
+                    <dd>
+                        {% if key_ign is not null and key_ign is not empty %}
+                            <button type="button" id="geolocme" class="btn btn-sm btn-default">
+                                <span class="glyphicon glyphicon-map-marker"></span>
+                                Géolocaliser cette adresse (Geoportail)
+                            </button>
+                        {% endif %}
+                        {% if geoconcept_url is not null and geoconcept_url is not empty %}
+                            <button type="button" id="geolocme-geoconcept" class="btn btn-sm btn-default">
+                                <span class="glyphicon glyphicon-map-marker"></span>
+                                Géolocaliser cette adresse (Geoconcept)
+                            </button>
+                        {% endif %}
+                        <button type="button" id="geolocme_nominatim" class="btn btn-sm btn-default">
+                            <span class="glyphicon glyphicon-map-marker"></span>
+                            Géolocaliser cette adresse (Nominatim)
+                        </button>
+                        <br/>
+                        <small>Résultat : <span class="result">Inconnu</span></small>
+                    </dd>
 
-                </div>{# /tab-content #}
+                    <dt>Longitude</dt>
+                    <dd>
+                        <input id="addressLongitude" type="text" name="lon"
+                               class="form-control" maxlength="11" />
+                    </dd>
 
-                {# Carte de confirmation #}
-                <div id="adresse_modal_map" style="height: 300px; margin-top: 15px; border: 1px solid #ccc;"></div>
+                    <dt>Latitude</dt>
+                    <dd>
+                        <input id="addressLatitude" type="text" name="lat"
+                               class="form-control" maxlength="10" />
+                    </dd>
+                </dl>
 
-                {# Résumé de la position sélectionnée #}
-                <div id="adresse_modal_info" style="margin-top: 8px; display: none;">
-                    <div class="alert alert-info">
-                        <strong>Position sélectionnée :</strong>
-                        <span id="adresse_modal_coord_display"></span>
-                    </div>
-                </div>
+                {% if key_ign is not null and key_ign is not empty %}
+                    <div id="geoportail-container" style="height: 400px;"></div>
+                {% endif %}
 
-                {# Champs cachés pour recevoir les coordonnées validées #}
-                <input type="hidden" id="adresse_modal_lon" value="" />
-                <input type="hidden" id="adresse_modal_lat" value="" />
-                <input type="hidden" id="adresse_modal_rue_id" value="" />
-                <input type="hidden" id="adresse_modal_commune_code" value="" />
-                <input type="hidden" id="adresse_modal_commune_libelle" value="" />
-
-            </div>{# /modal-body #}
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-success" id="btn_valider_adresse" disabled>
-                    Valider la position
-                </button>
+                {% if geoconcept_url is not null and geoconcept_url is not empty %}
+                    <div id="geoconcept-container" style="height: 400px; width: 100%"></div>
+                {% endif %}
             </div>
 
-        </div>{# /modal-content #}
-    </div>{# /modal-dialog #}
-</div>{# /modal #}
+            <div class="modal-footer">
+                <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
+                <a href="#" data-dismiss="modal" class="btn btn-success" id="submit-adresse">Sauvegarder</a>
+            </div>
 
-<script>
-(function($) {
-    'use strict';
-
-    var defaultLon = {{ default_lon|default(0)|json_encode|raw }};
-    var defaultLat = {{ default_lat|default(0)|json_encode|raw }};
-
-    // Référence vers la ligne d'adresse en cours de géolocalisation
-    var $currentAdresseTr = null;
-
-    // Lorsque la modale est ouverte depuis un bouton de géolocalisation d'une ligne
-    $(document).on('click', '.btn_adresse_geolocalize', function() {
-        $currentAdresseTr = $(this).closest('tr');
-    });
-
-    // ——— Géoportail IGN ———
-    {% if key_ign is not null and key_ign is not empty %}
-    var geolocalisationIGN = null;
-
-    $('#adresse-modal-ajout').on('shown.bs.modal', function() {
-        if (!geolocalisationIGN && typeof Geoportail !== 'undefined') {
-            // Initialisation du SDK IGN OL (via geolocaliseIGN.js)
-            geolocalisationIGN = geolocaliseIGN({
-                div: 'viewerDiv',
-                apiKey: {{ key_ign|json_encode|raw }},
-                lon: defaultLon,
-                lat: defaultLat,
-                zoom: 16,
-                couchesWMS: [
-                    {% for c in couches_cartographiques %}
-                    {
-                        url: {{ c.url|json_encode|raw }},
-                        layers: {{ c.layer|json_encode|raw }},
-                        nom: {{ c.nom|json_encode|raw }}
-                    }{{ not loop.last ? ',' : '' }}
-                    {% endfor %}
-                ],
-                onSelect: function(lon, lat) {
-                    $('#adresse_modal_lon').val(lon);
-                    $('#adresse_modal_lat').val(lat);
-                    $('#adresse_modal_coord_display').text(lat.toFixed(6) + ', ' + lon.toFixed(6));
-                    $('#adresse_modal_info').show();
-                    $('#btn_valider_adresse').prop('disabled', false);
-                }
-            });
-        }
-    });
-
-    $('#ign_search_btn').on('click', function() {
-        var q = $('#ign_search_input').val();
-        if (geolocalisationIGN && q) {
-            geolocalisationIGN.search(q);
-        }
-    });
-    {% endif %}
-
-    // ——— Geoconcept ———
-    {% if geoconcept_url is not null and geoconcept_url is not empty %}
-    var geoconceptUrl = {{ geoconcept_url|json_encode|raw }};
-
-    $('#geoconcept_search_btn').on('click', function() {
-        var q = $('#geoconcept_search_input').val();
-        if (!q) return;
-
-        $.getJSON(geoconceptUrl, {q: q}, function(results) {
-            var $list = $('#geoconcept_results').empty();
-            if (!results || results.length === 0) {
-                $list.html('<div class="list-group-item">Aucun résultat.</div>');
-                return;
-            }
-            $.each(results, function(i, r) {
-                $('<a href="#" class="list-group-item"></a>')
-                    .text(r.label)
-                    .data('lon', r.lon)
-                    .data('lat', r.lat)
-                    .on('click', function(e) {
-                        e.preventDefault();
-                        selectPosition($(this).data('lon'), $(this).data('lat'));
-                    })
-                    .appendTo($list);
-            });
-        });
-    });
-    {% endif %}
-
-    // ——— Nominatim (OSM) ———
-    $('#nominatim_search_btn').on('click', function() {
-        var q = $('#nominatim_search_input').val();
-        if (!q) return;
-
-        $.getJSON('https://nominatim.openstreetmap.org/search', {
-            q: q,
-            format: 'json',
-            limit: 10,
-            countrycodes: 'fr'
-        }, function(results) {
-            var $list = $('#nominatim_results').empty();
-            if (!results || results.length === 0) {
-                $list.html('<div class="list-group-item">Aucun résultat.</div>');
-                return;
-            }
-            $.each(results, function(i, r) {
-                $('<a href="#" class="list-group-item"></a>')
-                    .text(r.display_name)
-                    .on('click', function(e) {
-                        e.preventDefault();
-                        selectPosition(parseFloat(r.lon), parseFloat(r.lat));
-                    })
-                    .appendTo($list);
-            });
-        });
-    });
-
-    // ——— Position sélectionnée (tous fournisseurs) ———
-    function selectPosition(lon, lat) {
-        $('#adresse_modal_lon').val(lon);
-        $('#adresse_modal_lat').val(lat);
-        $('#adresse_modal_coord_display').text(lat.toFixed(6) + ', ' + lon.toFixed(6));
-        $('#adresse_modal_info').show();
-        $('#btn_valider_adresse').prop('disabled', false);
-    }
-
-    // ——— Valider la position : reporter sur la ligne d'adresse en cours ———
-    $('#btn_valider_adresse').on('click', function() {
-        if (!$currentAdresseTr) return;
-
-        var lon = $('#adresse_modal_lon').val();
-        var lat = $('#adresse_modal_lat').val();
-        var communeCode = $('#adresse_modal_commune_code').val();
-        var communeLibelle = $('#adresse_modal_commune_libelle').val();
-        var rueId = $('#adresse_modal_rue_id').val();
-
-        $currentAdresseTr.find('.adresse_lon').val(lon);
-        $currentAdresseTr.find('.adresse_lat').val(lat);
-        if (rueId) {
-            $currentAdresseTr.find('.adresse_rue_id').val(rueId);
-        }
-        if (communeCode) {
-            $currentAdresseTr.find('.adresse_commune_id').val(communeCode);
-            $currentAdresseTr.find('.adresse_commune_libelle').text(communeLibelle);
-        }
-        // Mise à jour de l'icône coord.
-        $currentAdresseTr.find('.label').removeClass('label-default').addClass('label-success').text('✓');
-
-        $('#adresse-modal-ajout').modal('hide');
-
-        // Réinitialiser la modale
-        $('#adresse_modal_lon, #adresse_modal_lat, #adresse_modal_rue_id, #adresse_modal_commune_code, #adresse_modal_commune_libelle').val('');
-        $('#adresse_modal_info').hide();
-        $('#btn_valider_adresse').prop('disabled', true);
-        $currentAdresseTr = null;
-    });
-
-    // ——— Suppression d'une ligne d'adresse ———
-    $(document).on('click', '.btn_remove_adresse', function() {
-        $(this).closest('tr').remove();
-    });
-
-    // ——— Ajout d'une nouvelle ligne d'adresse via la modale ———
-    $(document).on('click', '[href="#adresse-modal-ajout"]:not(.btn_adresse_geolocalize)', function() {
-        // Ajout d'une nouvelle ligne (clone du prototype)
-        var ts = Date.now();
-        var $proto = $('#prototype_adresse').clone()
-            .removeAttr('id')
-            .removeClass('hide prototype');
-        $proto.find('input, select').each(function() {
-            var name = $(this).attr('name');
-            if (name) {
-                $(this).attr('name', name.replace(/\[-1\]/g, '[' + ts + ']'));
-            }
-        });
-        $('#adresses_tbody').append($proto);
-        $currentAdresseTr = $proto;
-    });
-
-}(jQuery));
-</script>
+        </div>
+    </div>
+</form>

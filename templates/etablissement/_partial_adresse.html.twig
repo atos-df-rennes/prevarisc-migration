@@ -3,68 +3,44 @@
   Représente une ligne de tableau pour une adresse.
 
   Variables :
-    - prototype (bool)             : true = ligne cachée utilisée comme modèle JS
+    - prototype (bool)              : true = ligne cachée utilisée comme modèle JS
     - adresse (EtablissementAdresse|null) : mode édition, null en mode ajout
 #}
 {% set is_proto = prototype|default(false) %}
-{# Clé de l'adresse : -1 pour le prototype (remplacé par timestamp JS), id sinon #}
 {% set addr_key = is_proto ? '-1' : (adresse.id|default(0)) %}
-<tr id="{{ is_proto ? 'prototype_adresse' : '' }}"
-    class="{{ is_proto ? 'hide prototype' : '' }}">
+<tr {{ is_proto ? "id='prototype_adresse' class='prototypes hide'" : "class='adresse'" }}>
+    <td id="adresse{{ addr_key }}">
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][NUMINSEE_COMMUNE]"
+               value="{{ is_proto ? '' : (adresse.commune is not null ? adresse.commune.id : '') }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][LON_ETABLISSEMENTADRESSE]"
+               value="{{ is_proto ? '' : (adresse.longitude|default('')) }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][LAT_ETABLISSEMENTADRESSE]"
+               value="{{ is_proto ? '' : (adresse.latitude|default('')) }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][NUMERO_ADRESSE]"
+               value="{{ is_proto ? '' : (adresse.numero|default('')) }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][ID_RUE]"
+               value="{{ is_proto ? '' : (adresse.rue is not null ? adresse.rue.id : '') }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][COMPLEMENT_ADRESSE]"
+               value="{{ is_proto ? '' : (adresse.complement|default('')) }}" />
+        <span>{% if not is_proto and adresse is not null %}{{ [
+            adresse.numero|default(''),
+            adresse.rue is not null ? adresse.rue.libelle : '',
+            adresse.complement|default(''),
+            adresse.commune is not null ? adresse.commune.codePostal : '',
+            adresse.commune is not null ? adresse.commune.libelle : '',
+        ]|join(' ')|trim }}{% endif %}</span>
+    </td>
+    <td>Adresse postale</td>
     <td>
-        {# F1 : NUMERO_ADRESSE[id] → ADRESSES[id][NUMERO_ADRESSE] #}
-        <input type="text" class="form-control"
-               name="ADRESSES[{{ addr_key }}][NUMERO_ADRESSE]"
-               value="{{ is_proto ? '' : (adresse.numero|default('')) }}"
-               style="width: 60px;" />
+        <small>
+            <a class="modifierAdresse" data-id="{{ addr_key }}"
+               data-toggle="modal" data-backdrop="static"
+               href="#adresse-modal-edit">Modifier</a>
+        </small>
     </td>
     <td>
-        {# Voie : champ caché (id) = seul champ posté ; champ texte sans name (autocomplete uniquement) #}
-        {# F1 : ID_ADRESSERUE[id] → ADRESSES[id][ID_RUE] #}
-        <input type="hidden"
-               name="ADRESSES[{{ addr_key }}][ID_RUE]"
-               value="{{ is_proto ? '' : (adresse.rue.id|default('')) }}"
-               class="adresse_rue_id" />
-        <input type="text"
-               value="{{ is_proto ? '' : (adresse.rue is not null ? adresse.rue.libelle : '') }}"
-               placeholder="Voie (autocomplete)…"
-               class="adresse_rue_autocomplete form-control"
-               style="width: 220px;" />
-    </td>
-    <td>
-        {# Commune : F1 : CODEINSEE_ADRESSE[id] → ADRESSES[id][NUMINSEE_COMMUNE] #}
-        <input type="hidden"
-               name="ADRESSES[{{ addr_key }}][NUMINSEE_COMMUNE]"
-               value="{{ is_proto ? '' : (adresse.commune.codeInsee|default('')) }}"
-               class="adresse_commune_id" />
-        <span class="adresse_commune_libelle">
-            {{ is_proto ? '' : (adresse.commune is not null ? adresse.commune.libelleCommune : '') }}
-        </span>
-    </td>
-    <td>
-        {# Coordonnées : F1 : COORDONNEES_X → LON, COORDONNEES_Y → LAT #}
-        <input type="hidden"
-               name="ADRESSES[{{ addr_key }}][LON_ETABLISSEMENTADRESSE]"
-               value="{{ is_proto ? '' : (adresse.coordonneesX|default('')) }}"
-               class="adresse_lon" />
-        <input type="hidden"
-               name="ADRESSES[{{ addr_key }}][LAT_ETABLISSEMENTADRESSE]"
-               value="{{ is_proto ? '' : (adresse.coordonneesY|default('')) }}"
-               class="adresse_lat" />
-        {% if not is_proto and adresse.coordonneesX is not null %}
-            <span class="label label-success">✓</span>
-        {% else %}
-            <span class="label label-default">—</span>
-        {% endif %}
-    </td>
-    <td>
-        <button type="button" class="btn btn-xs btn-default btn_adresse_geolocalize"
-                data-toggle="modal" data-target="#adresse-modal-ajout"
-                title="Géolocaliser cette adresse">
-            <span class="glyphicon glyphicon-map-marker"></span>
-        </button>
-        <button type="button" class="btn btn-xs btn-danger btn_remove_adresse">
-            <span class="glyphicon glyphicon-remove"></span>
-        </button>
+        <small>
+            <a href="#" onclick="$(this).parent().parent().parent().remove(); return false;">Retirer</a>
+        </small>
     </td>
 </tr>
