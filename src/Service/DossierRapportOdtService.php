@@ -28,6 +28,7 @@ use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -71,11 +72,8 @@ class DossierRapportOdtService
     /** @var string */
     private $realDataPath;
 
-    /** @var bool */
-    private $debugEnabled;
-
-    /** @var resource|null */
-    private $debugFile;
+    /** @var LoggerInterface */
+    private $rapportLogger;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -89,7 +87,7 @@ class DossierRapportOdtService
         DossierRepository $dossierRepository,
         UrlGeneratorInterface $urlGenerator,
         string $realDataPath,
-        bool $debugEnabled
+        LoggerInterface $rapportLogger
     ) {
         $this->em = $em;
         $this->conn = $conn;
@@ -102,7 +100,7 @@ class DossierRapportOdtService
         $this->dossierRepository = $dossierRepository;
         $this->urlGenerator = $urlGenerator;
         $this->realDataPath = $realDataPath;
-        $this->debugEnabled = $debugEnabled;
+        $this->rapportLogger = $rapportLogger;
     }
 
     /**
@@ -210,15 +208,9 @@ class DossierRapportOdtService
         $adresseRow = false !== $adresseRowFetch ? $adresseRowFetch : [];
         $numInsee = $adresseRow['NUMINSEE_COMMUNE'] ?? null;
 
-        // Initialisation du debug (port direct de creationdoc.phtml lignes 34-42)
-        $this->debugFile = null;
-        try {
-            if ($this->debugEnabled) {
-                $debugFileName = 'rapport_dossier_'.$idDossier.'.txt';
-                $debugFileHandle = @fopen(sys_get_temp_dir().DIRECTORY_SEPARATOR.$debugFileName, 'w');
-                $this->debugFile = false !== $debugFileHandle ? $debugFileHandle : null;
-            }
+        $this->rapportLogger->debug('Début génération rapport ODT.', ['dossier_id' => $idDossier]);
 
+        try {
             // --- Init Odf ---
             $odf = new \Odf($fichierSelect);
 
@@ -445,12 +437,12 @@ class DossierRapportOdtService
 
             // --- Création PièceJointe + sauvegarde ODT ---
             return $this->persistPieceJointe($odf, $dossier, $fichierSelect, $rawDossier, $rawEtabInfos, $rawEtab, $idDossier);
-        } finally {
-            if (is_resource($this->debugFile)) {
-                fclose($this->debugFile);
-            }
-
-            $this->debugFile = null;
+        } catch (\Exception $exception) {
+            $this->rapportLogger->error('Erreur lors de la génération du rapport ODT.', [
+                'dossier_id' => $idDossier,
+                'exception' => $exception->getMessage(),
+            ]);
+            throw $exception;
         }
     }
 
@@ -1264,7 +1256,7 @@ class DossierRapportOdtService
     // =========================================================================
 
     /**
-     * Wrapper autour de Odf::setVars() avec écriture dans le debug file.
+     * Wrapper autour de Odf::setVars() avec log debug via le canal rapport.
      *
      * @param \Odf|\Segment $odf
      */
@@ -1272,10 +1264,8 @@ class DossierRapportOdtService
     {
         try {
             $odf->setVars($nomOdf, $variable ?? '', true, 'UTF8');
-            if (is_resource($this->debugFile)) {
-                $prefix = $odf instanceof \Segment ? '['.$odf->getName().'] ' : '';
-                fwrite($this->debugFile, $prefix.'{'.$nomOdf.'} : '.json_encode($variable, JSON_UNESCAPED_UNICODE)."\n");
-            }
+            $prefix = $odf instanceof \Segment ? '['.$odf->getName().'] ' : '';
+            $this->rapportLogger->debug($prefix.'{'.$nomOdf.'} : '.json_encode($variable, JSON_UNESCAPED_UNICODE));
         } catch (\Exception $exception) {
             // Silencieux — variable absente du template ODT
         }

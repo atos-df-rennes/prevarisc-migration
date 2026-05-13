@@ -27,6 +27,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ],
         'channels' => [
             'datastore',
+            'rapport',
         ]
     ]);
 };
