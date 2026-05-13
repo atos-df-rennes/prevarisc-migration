@@ -6,6 +6,9 @@
     {{ include('etablissement/_form.html.twig', {add: true}) }}
 {% endblock %}
 
+{% block lateral_navigation %}
+{% endblock %}
+
 {#
   F6 : le bloc JS était dans _form.html.twig avec {{ parent() }}, ce qui crash quand le template
   est inclus via include() (pas de chaîne d'héritage → RuntimeError).
