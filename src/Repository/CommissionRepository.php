@@ -24,6 +24,26 @@ class CommissionRepository extends ServiceEntityRepository implements HasContact
     }
 
     /**
+     * Retourne toutes les commissions avec leur type (eager load), triées par type puis libellé.
+     *
+     * @return Commission[]
+     */
+    public function findAllWithType(): array
+    {
+        /** @var Commission[] $result */
+        $result = $this->createQueryBuilder('c')
+            ->addSelect('ct')
+            ->innerJoin('c.type', 'ct')
+            ->orderBy('ct.id', 'ASC')
+            ->addOrderBy('c.libelle', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $result;
+    }
+
+    /**
      * Retourne les commissions groupées par type.
      * Port de Service_Commission::getCommissionsAndTypes().
      *

@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Controller\Contract\DossierLateralNavigationInterface;
+use App\Dto\Commission\CommissionOdtDto;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
+use App\Repository\CommissionRepository;
 use App\Service\DossierRapportOdtService;
-use Doctrine\DBAL\Connection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,9 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
     /**
-     * @var Connection
+     * @var CommissionRepository
      */
-    private $conn;
+    private $commissionRepository;
 
     /**
      * @var DossierRapportOdtService
@@ -43,12 +45,12 @@ class DossierRapportController extends AbstractController implements DossierLate
     private $documentsRealDataPath;
 
     public function __construct(
-        Connection $conn,
+        CommissionRepository $commissionRepository,
         DossierRapportOdtService $odtService,
         string $documentsDataPath,
         string $documentsRealDataPath
     ) {
-        $this->conn = $conn;
+        $this->commissionRepository = $commissionRepository;
         $this->odtService = $odtService;
         $this->documentsDataPath = rtrim($documentsDataPath, '/');
         $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
@@ -69,25 +71,18 @@ class DossierRapportController extends AbstractController implements DossierLate
         $fichierVer = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.'0');
 
         // Liste des commissions avec leur type et leurs fichiers ODT
-        /** @var array<int, array<string, string|null>> $commissionsFlat */
-        $commissionsFlat = $this->conn->fetchAllAssociative(
-            'SELECT c.ID_COMMISSION, c.LIBELLE_COMMISSION, ct.ID_COMMISSIONTYPE, ct.LIBELLE_COMMISSIONTYPE
-             FROM commission c
-             JOIN commissiontype ct ON c.ID_COMMISSIONTYPE = ct.ID_COMMISSIONTYPE
-             ORDER BY ct.ID_COMMISSIONTYPE ASC, c.LIBELLE_COMMISSION ASC'
-        );
-
+        /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
-        foreach ($commissionsFlat as $commission) {
-            $idCommission = (int) ($commission['ID_COMMISSION'] ?? '0');
+        foreach ($this->commissionRepository->findAllWithType() as $commission) {
+            $idCommission = (int) $commission->getId();
             $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
-            $listeCommissions[] = [
-                'ID_COMMISSION' => $idCommission,
-                'LIBELLE_COMMISSION' => $commission['LIBELLE_COMMISSION'],
-                'ID_COMMISSIONTYPE' => (int) ($commission['ID_COMMISSIONTYPE'] ?? '0'),
-                'LIBELLE_COMMISSIONTYPE' => $commission['LIBELLE_COMMISSIONTYPE'],
-                'listeFichier' => $fichiers,
-            ];
+            $listeCommissions[] = new CommissionOdtDto(
+                $idCommission,
+                $commission->getLibelle(),
+                (int) ($commission->getType() ? $commission->getType()->getId() : 0),
+                $commission->getType() ? $commission->getType()->getLibelle() : null,
+                $fichiers
+            );
         }
 
         // Commission liée au dossier
@@ -176,7 +171,8 @@ class DossierRapportController extends AbstractController implements DossierLate
     }
 
     /**
-     * Liste les fichiers ODT d'un répertoire (sans points, dossiers, .gitignore et fichiers non-.odt).
+     * Liste les fichiers ODT d'un répertoire (sans dossiers ni fichiers non-.odt).
+     * Port direct de l'opendir/readdir legacy, remplacé par Symfony Finder (REF-R-05).
      *
      * @return string[]
      */
@@ -186,37 +182,13 @@ class DossierRapportController extends AbstractController implements DossierLate
             return [];
         }
 
-        $dir = opendir($path);
-        if (false === $dir) {
-            return [];
-        }
+        $finder = new Finder();
+        $finder->files()->in($path)->depth('== 0')->name('*.odt')->sortByName();
 
         $fichiers = [];
-        while (false !== ($element = readdir($dir))) {
-            if ('.' === $element) {
-                continue;
-            }
-
-            if ('..' === $element) {
-                continue;
-            }
-
-            if ('.gitignore' === $element) {
-                continue;
-            }
-
-            // M1 : ne lister que les fichiers ODT
-            if ('odt' !== strtolower(pathinfo($element, PATHINFO_EXTENSION))) {
-                continue;
-            }
-
-            if (!is_dir($path.DIRECTORY_SEPARATOR.$element)) {
-                $fichiers[] = $element;
-            }
+        foreach ($finder as $file) {
+            $fichiers[] = $file->getFilename();
         }
-
-        closedir($dir);
-        sort($fichiers);
 
         return $fichiers;
     }
