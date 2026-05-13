@@ -13,7 +13,7 @@
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
         {# F1 : NUMERO_ADRESSE[id] → ADRESSES[id][NUMERO_ADRESSE] #}
-        <input type="text"
+        <input type="text" class="form-control"
                name="ADRESSES[{{ addr_key }}][NUMERO_ADRESSE]"
                value="{{ is_proto ? '' : (adresse.numero|default('')) }}"
                style="width: 60px;" />
@@ -28,7 +28,7 @@
         <input type="text"
                value="{{ is_proto ? '' : (adresse.rue is not null ? adresse.rue.libelle : '') }}"
                placeholder="Voie (autocomplete)…"
-               class="adresse_rue_autocomplete"
+               class="adresse_rue_autocomplete form-control"
                style="width: 220px;" />
     </td>
     <td>

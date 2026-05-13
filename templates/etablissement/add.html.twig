@@ -17,6 +17,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
+    $(document).ready(function() {
     (function($) {
         'use strict';
 
@@ -290,5 +291,6 @@
         });
 
     }(jQuery));
+    });
     </script>
 {% endblock %}

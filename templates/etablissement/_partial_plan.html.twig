@@ -11,7 +11,7 @@
 <tr id="{{ is_proto ? 'prototype_plan' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
-        <select name="{{ is_proto ? 'ID_TYPEPLAN[-1]' : 'ID_TYPEPLAN[' ~ (plan.id|default(0)) ~ ']' }}">
+        <select class="form-control" name="{{ is_proto ? 'ID_TYPEPLAN[-1]' : 'ID_TYPEPLAN[' ~ (plan.id|default(0)) ~ ']' }}">
             <option value="">— Choisir —</option>
             {% for tp in types_plans %}
                 <option value="{{ tp.id }}"
@@ -22,13 +22,13 @@
         </select>
     </td>
     <td>
-        <input type="text"
+        <input type="text" class="form-control"
                name="{{ is_proto ? 'NUMERO_PLAN[-1]' : 'NUMERO_PLAN[' ~ (plan.id|default(0)) ~ ']' }}"
                value="{{ is_proto ? '' : (plan.numero|default('')) }}"
                style="width: 70px;" />
     </td>
     <td>
-        <input type="date"
+        <input type="date" class="form-control"
                name="{{ is_proto ? 'DATE_PLAN[-1]' : 'DATE_PLAN[' ~ (plan.id|default(0)) ~ ']' }}"
                value="{{ is_proto ? '' : (plan.date is not null ? plan.date|date('Y-m-d') : '') }}" />
     </td>

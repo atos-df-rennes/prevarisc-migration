@@ -14,31 +14,31 @@
 <tr id="{{ is_proto ? 'prototype_rubrique' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
-        <input type="text" placeholder="Ex. : 1530"
+        <input type="text" class="form-control" placeholder="Ex. : 1530"
                name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.rubrique|default('')) }}"
                style="width: 60px;" />
     </td>
     <td>
-        <input type="text" placeholder="Numéro"
+        <input type="text" class="form-control" placeholder="Numéro"
                name="RUBRIQUES[{{ rub_key }}][NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.numero|default('')) }}"
                style="width: 60px;" />
     </td>
     <td>
-        <input type="text" placeholder="Nom"
+        <input type="text" class="form-control" placeholder="Nom"
                name="RUBRIQUES[{{ rub_key }}][NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.nom|default('')) }}"
                style="width: 140px;" />
     </td>
     <td>
-        <input type="text" placeholder="Valeur"
+        <input type="text" class="form-control" placeholder="Valeur"
                name="RUBRIQUES[{{ rub_key }}][VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.valeur|default('')) }}"
                style="width: 80px;" />
     </td>
     <td>
-        <input type="text" placeholder="Classement"
+        <input type="text" class="form-control" placeholder="Classement"
                name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
                value="{{ is_proto ? '' : (rubrique.classement|default('')) }}"
                style="width: 80px;" />

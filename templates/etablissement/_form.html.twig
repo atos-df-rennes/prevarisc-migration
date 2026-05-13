@@ -53,7 +53,7 @@
             {# Général #}
             <h4 class="h4_subtitle">Général</h4>
             <div>
-                <input style="width: 100%; box-sizing: border-box; height: 2.5em;"
+                <input class="form-control"
                        type="text"
                        placeholder="Libellé de l'établissement"
                        name="LIBELLE_ETABLISSEMENTINFORMATIONS"
@@ -62,13 +62,13 @@
                 <dl class="dl-horizontal">
                     <dt>Identifiant</dt>
                     <dd>
-                        <input type="text" name="NUMEROID_ETABLISSEMENT" id="NUMEROID_INPUT"
+                        <input type="text" class="form-control" name="NUMEROID_ETABLISSEMENT" id="NUMEROID_INPUT"
                                value="{{ add ? '' : (etablissement.numero|default('')) }}" />
                     </dd>
 
                     <dt>Statut</dt>
                     <dd>
-                        <select name="ID_STATUT" {{ can_edit_statut ? '' : 'disabled' }}>
+                        <select name="ID_STATUT" class="form-control" {{ can_edit_statut ? '' : 'disabled' }}>
                             {% for statut in statuts %}
                                 <option value="{{ statut.id }}"
                                     {{ (not add and etablissement.latestInformations.statut.id == statut.id) ? 'selected' : '' }}>
@@ -89,7 +89,7 @@
             <dl class="dl-horizontal">
                 <dt>Genre</dt>
                 <dd>
-                    <select name="ID_GENRE" id="ID_GENRE">
+                    <select name="ID_GENRE" id="ID_GENRE" class="form-control">
                         {% for genre in genres %}
                             <option value="{{ genre.id }}"
                                 {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
@@ -108,7 +108,7 @@
 
                 <dt class="champ_categorie champs">Catégorie</dt>
                 <dd class="champ_categorie champs">
-                    <select name="ID_CATEGORIE">
+                    <select name="ID_CATEGORIE" class="form-control">
                         <option value="">— Choisir —</option>
                         {% for cat in categories %}
                             <option value="{{ cat.id }}"
@@ -121,7 +121,7 @@
 
                 <dt class="champ_classement champs">Classement</dt>
                 <dd class="champ_classement champs">
-                    <select name="ID_CLASSEMENT">
+                    <select name="ID_CLASSEMENT" class="form-control">
                         <option value="">— Choisir —</option>
                         {% for classement in classements %}
                             <option value="{{ classement.id }}"
@@ -134,7 +134,7 @@
 
                 <dt class="champ_famille champs">Famille</dt>
                 <dd class="champ_famille champs">
-                    <select name="ID_FAMILLE">
+                    <select name="ID_FAMILLE" class="form-control">
                         <option value="">— Choisir —</option>
                         {% for famille in familles %}
                             <option value="{{ famille.id }}"
@@ -147,7 +147,7 @@
 
                 <dt class="champ_classe champs">Classe IGH</dt>
                 <dd class="champ_classe champs">
-                    <select name="ID_CLASSE">
+                    <select name="ID_CLASSE" class="form-control">
                         <option value="">— Choisir —</option>
                         {% for classe in igh_classes %}
                             <option value="{{ classe.id }}"
@@ -160,7 +160,7 @@
 
                 <dt class="champ_periodicite champs">Périodicité (mois)</dt>
                 <dd class="champ_periodicite champs">
-                    <input type="number" class="input-small" name="PERIODICITE_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="PERIODICITE_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? '' : (etablissement.latestInformations.periodicite|default('')) }}" />
                 </dd>
             </dl>
@@ -178,7 +178,7 @@
                     <ul id="activite_ul" class="list-unstyled">
                         {# Activité principale #}
                         <li>
-                            <select name="ID_TYPE" class="type_select" style="width: 85px">
+                            <select name="ID_TYPE" class="type_select form-control" style="width: 85px">
                                 <option value="">—</option>
                                 {% for type in types %}
                                     <option value="{{ type.id }}"
@@ -187,7 +187,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            <select name="ID_TYPEACTIVITE" class="activite_select" style="width: 70%">
+                            <select name="ID_TYPEACTIVITE" class="activite_select form-control" style="width: 70%">
                                 <option value="">—</option>
                                 {% for activite in activites %}
                                     <option value="{{ activite.id }}"
@@ -259,22 +259,22 @@
             <dl class="dl-horizontal champ_effectifs champs">
                 <dt class="effectif_public">Public</dt>
                 <dd class="effectif_public">
-                    <input type="number" name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifPublic|default(0)) }}" />
                 </dd>
                 <dt>Personnel</dt>
                 <dd>
-                    <input type="number" name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifPersonnel|default(0)) }}" />
                 </dd>
                 <dt class="effectif_heberge">Dont hébergé</dt>
                 <dd class="effectif_heberge">
-                    <input type="number" name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifHeberge|default(0)) }}" />
                 </dd>
                 <dt class="effectif_justifiant_classement">Justifiant classement</dt>
                 <dd class="effectif_justifiant_classement">
-                    <input type="number" name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifJustifiantClassement|default(0)) }}" />
                 </dd>
             </dl>
@@ -284,22 +284,22 @@
             <dl class="dl-horizontal champ_effectif_camping champs">
                 <dt class="effectif_habitation">Mobil-homes</dt>
                 <dd class="effectif_habitation">
-                    <input type="number" name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifHabitation|default(0)) }}" />
                 </dd>
                 <dt class="effectif_caravane">Autocaravanes</dt>
                 <dd class="effectif_caravane">
-                    <input type="number" name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifCaravane|default(0)) }}" />
                 </dd>
                 <dt class="effectif_emplacement_nu">Emplacements nus</dt>
                 <dd class="effectif_emplacement_nu">
-                    <input type="number" name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifEmplacementNu|default(0)) }}" />
                 </dd>
                 <dt class="effectif_autre_camping">Autres</dt>
                 <dd class="effectif_autre_camping">
-                    <input type="number" name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS"
+                    <input type="number" class="form-control" name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifDivers|default(0)) }}" />
                 </dd>
             </dl>
@@ -397,7 +397,7 @@
             <dl class="dl-horizontal champ_commission champs">
                 <dt>Commission</dt>
                 <dd>
-                    <select name="ID_COMMISSION" id="ID_COMMISSION">
+                    <select name="ID_COMMISSION" id="ID_COMMISSION" class="form-control">
                         <option value="">— Aucune —</option>
                         {% for commission in commissions %}
                             <option value="{{ commission.id }}"
@@ -409,7 +409,7 @@
                 </dd>
                 <dt class="champ_periodicite champs">Périodicité (mois)</dt>
                 <dd class="champ_periodicite champs">
-                    <input type="number" name="PERIODICITE_ETABLISSEMENTINFORMATIONS_RIGHT"
+                    <input type="number" class="form-control" name="PERIODICITE_ETABLISSEMENTINFORMATIONS_RIGHT"
                            disabled value="" id="periodicite_suggestion"
                            placeholder="(suggestion)" />
                 </dd>
@@ -440,17 +440,17 @@
             <dl class="dl-horizontal">
                 <dt>Téléphone</dt>
                 <dd>
-                    <input type="text" name="TELEPHONE_ETABLISSEMENT"
+                    <input type="text" class="form-control" name="TELEPHONE_ETABLISSEMENT"
                            value="{{ add ? '' : (etablissement.telephone|default('')) }}" />
                 </dd>
                 <dt>Fax</dt>
                 <dd>
-                    <input type="text" name="FAX_ETABLISSEMENT"
+                    <input type="text" class="form-control" name="FAX_ETABLISSEMENT"
                            value="{{ add ? '' : (etablissement.fax|default('')) }}" />
                 </dd>
                 <dt>Courriel</dt>
                 <dd>
-                    <input type="email" name="COURRIEL_ETABLISSEMENT"
+                    <input type="email" class="form-control" name="COURRIEL_ETABLISSEMENT"
                            value="{{ add ? '' : (etablissement.courriel|default('')) }}" />
                 </dd>
             </dl>
@@ -460,12 +460,12 @@
             <dl class="dl-horizontal champ_duree_visite champs">
                 <dt>Durée visite</dt>
                 <dd>
-                    <input type="text" name="DUREEVISITE_ETABLISSEMENT" placeholder="HH:MM"
+                    <input type="text" class="form-control" name="DUREEVISITE_ETABLISSEMENT" placeholder="HH:MM"
                            value="{{ add ? '' : (etablissement.dureeVisite is not null ? etablissement.dureeVisite|date('H:i') : '') }}" />
                 </dd>
                 <dt>Nb préventionnistes</dt>
                 <dd>
-                    <input type="number" name="NBPREV_ETABLISSEMENT"
+                    <input type="number" class="form-control" name="NBPREV_ETABLISSEMENT"
                            value="{{ add ? '' : (etablissement.nbPrev|default('')) }}" />
                 </dd>
             </dl>
