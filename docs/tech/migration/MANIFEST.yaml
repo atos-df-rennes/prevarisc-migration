@@ -213,7 +213,12 @@ dossier_rapport_generation:
   migrated_files:
     - prevarisc-migration/src/Controller/DossierRapportController.php
     - prevarisc-migration/src/Service/DossierRapportOdtService.php
+    - prevarisc-migration/src/Service/Rapport/PrescriptionArrayHelper.php
+    - prevarisc-migration/src/Service/Formulaires/ValeurResolver.php
     - prevarisc-migration/templates/dossier/rapport.html.twig
+  test_files:
+    - prevarisc-migration/tests/Service/Rapport/PrescriptionArrayHelperTest.php
+    - prevarisc-migration/tests/Service/Formulaires/ValeurResolverTest.php
   routes:
     - name: dossier_rapport
       path: /dossier/{id}/rapport
@@ -231,6 +236,8 @@ dossier_rapport_generation:
       - Avis/dérogations dossier + établissement
       - Sauvegarde ODT + création PieceJointe/DossierPieceJointe
     - rapport.html.twig : Bootstrap 2→3 complet (row-fluid→row, span2→col-md-2, span10→col-md-10)
+    - PrescriptionArrayHelper.php : helpers statiques extraits (withoutLevees, withoutActuals, withoutPrevious, buildTextearticle, getPrescriptionSegmentName) — 12 tests unitaires
+    - ValeurResolver.php : résolution valeur→string extraite de DossierRapportOdtService — 12 tests unitaires
     
     Correctifs appliqués (2025-05) :
     - typeDossier : LIBELLE_DOSSIERTYPE via jointure dossiertype

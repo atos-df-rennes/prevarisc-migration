@@ -23,6 +23,8 @@ use App\Repository\DossierRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Formulaires\Fusion\ChampNamer;
+use App\Service\Formulaires\ValeurResolver;
+use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -1162,9 +1164,9 @@ class DossierRapportOdtService
         foreach (array_keys($prescTypesMap) as $typeId) {
             $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossier, $typeId);
             $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
-            $prescArray = $this->withoutLevees($prescArray);
-            $reprises = $this->withoutActuals($prescArray);
-            $actuelles = $this->withoutPrevious($prescArray);
+            $prescArray = PrescriptionArrayHelper::withoutLevees($prescArray);
+            $reprises = PrescriptionArrayHelper::withoutActuals($prescArray);
+            $actuelles = PrescriptionArrayHelper::withoutPrevious($prescArray);
             $this->addPrescription($odf, $prescArray, $typeId, 'all');
             $this->addPrescription($odf, $reprises, $typeId, 'reprises');
             $this->addPrescription($odf, $actuelles, $typeId, 'actuelles');
@@ -1280,63 +1282,6 @@ class DossierRapportOdtService
     }
 
     /**
-     * Construit la chaîne "texte - article" pour une prescription.
-     *
-     * Port direct du bloc partagé entre addPrescription() et addPrescriptionCC()
-     * (creationdoc.phtml).
-     *
-     * @param array<int, array<string, string>> $prescriptions Lignes d'une même prescription
-     */
-    private function buildTextearticle(array $prescriptions): string
-    {
-        $nbCpt = count($prescriptions);
-        $textearticle = '';
-        foreach ($prescriptions as $assoc) {
-            $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
-            $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
-            $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
-            if ($nbCpt > 1) {
-                $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');
-            } else {
-                $textearticle .= ('' !== $articleT ? $articleT.' ' : ' ');
-            }
-
-            --$nbCpt;
-        }
-
-        return $textearticle;
-    }
-
-    /**
-     * Retourne le nom du segment ODT pour un type de prescription et un contenu donné.
-     *
-     * @param int    $type        TypePrescription::*
-     * @param string $typeContenu 'all' | 'reprises' | 'actuelles'
-     */
-    private function getPrescriptionSegmentName(int $type, string $typeContenu): string
-    {
-        $segNames = [
-            TypePrescription::REGLEMENTAIRE => [
-                'all' => 'listeReg',
-                'reprises' => 'listeRegReprises',
-                'actuelles' => 'listeRegActuelles',
-            ],
-            TypePrescription::EXPLOITATION => [
-                'all' => 'listeExploitation',
-                'reprises' => 'listeExploitationReprises',
-                'actuelles' => 'listeExploitationActuelles',
-            ],
-            TypePrescription::AMELIORATION => [
-                'all' => 'listeAmelioration',
-                'reprises' => 'listeAmeliorationReprises',
-                'actuelles' => 'listeAmeliorationActuelles',
-            ],
-        ];
-
-        return $segNames[$type][$typeContenu] ?? '';
-    }
-
-    /**
      * Remplit un segment de prescription ODT (hors CC).
      *
      * Port direct legacy addPrescription() de creationdoc.phtml.
@@ -1349,7 +1294,7 @@ class DossierRapportOdtService
      */
     private function addPrescription(\Odf $odf, array $prescArray, int $type, string $typeContenu): void
     {
-        $segName = $this->getPrescriptionSegmentName($type, $typeContenu);
+        $segName = PrescriptionArrayHelper::getPrescriptionSegmentName($type, $typeContenu);
         if ('' === $segName) {
             return;
         }
@@ -1362,7 +1307,7 @@ class DossierRapportOdtService
                 }
 
                 $first = reset($prescriptions);
-                $textearticle = $this->buildTextearticle($prescriptions);
+                $textearticle = PrescriptionArrayHelper::buildTextearticle($prescriptions);
 
                 $num = $first['NUM_PRESCRIPTION_DOSSIER'];
                 $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
@@ -1434,7 +1379,7 @@ class DossierRapportOdtService
                     }
 
                     $first = reset($prescriptions);
-                    $textearticle = $this->buildTextearticle($prescriptions);
+                    $textearticle = PrescriptionArrayHelper::buildTextearticle($prescriptions);
 
                     $num = $first['NUM_PRESCRIPTION_DOSSIER'];
                     $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
@@ -1488,71 +1433,6 @@ class DossierRapportOdtService
         $typedResult = $result;
 
         return $typedResult;
-    }
-
-    /**
-     * Supprime les prescriptions ayant une date de levée (DATE_LEVEE non vide).
-     *
-     * Port direct legacy Service_Dossier::withoutLevees().
-     *
-     * @param array<int, array<int, array<string, string>>> $prescArray
-     *
-     * @return array<int, array<int, array<string, string>>>
-     */
-    private function withoutLevees(array $prescArray): array
-    {
-        $result = [];
-        foreach ($prescArray as $i => $prescriptions) {
-            foreach ($prescriptions as $j => $assoc) {
-                if ('' === $assoc['DATE_LEVEE']) {
-                    $result[$i][$j] = $assoc;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Supprime les entrées sans reprise (ID_DOSSIER_REPRISE vide = actuelles seules).
-     *
-     * @param array<int, array<int, array<string, string>>> $prescArray
-     *
-     * @return array<int, array<int, array<string, string>>>
-     */
-    private function withoutActuals(array $prescArray): array
-    {
-        $result = [];
-        foreach ($prescArray as $i => $prescriptions) {
-            foreach ($prescriptions as $j => $assoc) {
-                if (!empty($assoc['ID_DOSSIER_REPRISE'])) {
-                    $result[$i][$j] = $assoc;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Supprime les entrées issues d'une reprise (ID_DOSSIER_REPRISE non vide).
-     *
-     * @param array<int, array<int, array<string, string>>> $prescArray
-     *
-     * @return array<int, array<int, array<string, string>>>
-     */
-    private function withoutPrevious(array $prescArray): array
-    {
-        $result = [];
-        foreach ($prescArray as $i => $prescriptions) {
-            foreach ($prescriptions as $j => $assoc) {
-                if (empty($assoc['ID_DOSSIER_REPRISE'])) {
-                    $result[$i][$j] = $assoc;
-                }
-            }
-        }
-
-        return $result;
     }
 
     /**
@@ -1641,9 +1521,9 @@ class DossierRapportOdtService
                                     foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $typeId) {
                                         $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossierCellule, $typeId);
                                         $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
-                                        $prescArray = $this->withoutLevees($prescArray);
-                                        $reprises = $this->withoutActuals($prescArray);
-                                        $actuelles = $this->withoutPrevious($prescArray);
+                                        $prescArray = PrescriptionArrayHelper::withoutLevees($prescArray);
+                                        $reprises = PrescriptionArrayHelper::withoutActuals($prescArray);
+                                        $actuelles = PrescriptionArrayHelper::withoutPrevious($prescArray);
                                         $this->addPrescriptionCC($segCellules, $prescArray, $typeId, 'all');
                                         $this->addPrescriptionCC($segCellules, $reprises, $typeId, 'reprises');
                                         $this->addPrescriptionCC($segCellules, $actuelles, $typeId, 'actuelles');
@@ -1734,9 +1614,9 @@ class DossierRapportOdtService
                         foreach ([TypePrescription::REGLEMENTAIRE, TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION] as $typeId) {
                             $prescriptions = $this->prescriptionService->getPrescriptionsParType($dossierCellule, $typeId);
                             $prescArray = $this->buildPrescriptionNestedArray($prescriptions);
-                            $prescArray = $this->withoutLevees($prescArray);
-                            $reprises = $this->withoutActuals($prescArray);
-                            $actuelles = $this->withoutPrevious($prescArray);
+                            $prescArray = PrescriptionArrayHelper::withoutLevees($prescArray);
+                            $reprises = PrescriptionArrayHelper::withoutActuals($prescArray);
+                            $actuelles = PrescriptionArrayHelper::withoutPrevious($prescArray);
                             $this->addPrescriptionCC($segCellules, $prescArray, $typeId, 'all');
                             $this->addPrescriptionCC($segCellules, $reprises, $typeId, 'reprises');
                             $this->addPrescriptionCC($segCellules, $actuelles, $typeId, 'actuelles');
@@ -1886,7 +1766,7 @@ class DossierRapportOdtService
                                             $enfantId = $enfant->getId();
                                             /** @var Valeur|null $valeur */
                                             $valeur = null !== $enfantId ? ($ligne[$enfantId] ?? null) : null;
-                                            $val = $this->resolveValeurForFormulaire($enfant->getType(), $valeur);
+                                            $val = ValeurResolver::resolve($enfant->getType(), $valeur);
                                             $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), $val);
                                         }
 
@@ -1907,7 +1787,7 @@ class DossierRapportOdtService
                                 $souschamp = $souschampData['champ'];
                                 /** @var Valeur|null $valeur */
                                 $valeur = $souschampData['valeur'];
-                                $val = $this->resolveValeurForFormulaire($souschamp->getType(), $valeur);
+                                $val = ValeurResolver::resolve($souschamp->getType(), $valeur);
                                 $this->addChamp(
                                     $odf,
                                     ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', $souschamp->getNom() ?? '']),
@@ -1919,7 +1799,7 @@ class DossierRapportOdtService
                         // Branche feuille
                         /** @var Valeur|null $valeur */
                         $valeur = $champData['valeur'] ?? null;
-                        $val = $this->resolveValeurForFormulaire($champ->getType(), $valeur);
+                        $val = ValeurResolver::resolve($champ->getType(), $valeur);
                         $this->addChamp(
                             $odf,
                             ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '']),
@@ -1929,47 +1809,5 @@ class DossierRapportOdtService
                 }
             }
         }
-    }
-
-    /**
-     * Résout la valeur d'un champ formulaire en string selon son type.
-     *
-     * @param \App\Entity\TypeChamp|null $typeChamp Type du champ (entité Doctrine)
-     * @param Valeur|null                $valeur    Valeur Doctrine
-     */
-    private function resolveValeurForFormulaire(?\App\Entity\TypeChamp $typeChamp, ?Valeur $valeur): string
-    {
-        if (null === $valeur) {
-            return '';
-        }
-
-        $typeId = null !== $typeChamp ? $typeChamp->getId() : null;
-
-        if (TypeChamp::CHECKBOX === $typeId) {
-            $checkbox = $valeur->getCheckbox();
-
-            return (true === $checkbox) ? 'Oui' : 'Non';
-        }
-
-        if (TypeChamp::DATE === $typeId) {
-            $date = $valeur->getDate();
-            if (null === $date) {
-                return '';
-            }
-
-            return DateFormatterFr::formatLong($date);
-        }
-
-        if (TypeChamp::TEXTAREA === $typeId) {
-            return $valeur->getLongStr() ?? '';
-        }
-
-        if (TypeChamp::NUMBER === $typeId) {
-            $number = $valeur->getNumber();
-
-            return null !== $number ? (string) $number : '';
-        }
-
-        return $valeur->getStr() ?? $valeur->getLongStr() ?? '';
     }
 }
