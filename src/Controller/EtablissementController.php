@@ -343,7 +343,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                         'Le site a été créé avec un établissement enfant. Pensez à vérifier la fiche de cet établissement.'
                     );
 
-                    return $this->redirect('/etablissement/'.$idEtablissement);
+                    return $this->redirect('/etablissement/edit/id/'.$idEtablissement);
                 }
 
                 // F9 : message aligné sur le legacy
