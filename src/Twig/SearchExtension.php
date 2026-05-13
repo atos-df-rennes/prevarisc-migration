@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Service\DateDiffFormatterService;
 use App\Service\PlatauTempsRestant;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -12,9 +13,13 @@ class SearchExtension extends AbstractExtension
     /** @var PlatauTempsRestant */
     private $platauTempsRestant;
 
-    public function __construct(PlatauTempsRestant $platauTempsRestant)
+    /** @var DateDiffFormatterService */
+    private $dateDiffFormatter;
+
+    public function __construct(PlatauTempsRestant $platauTempsRestant, DateDiffFormatterService $dateDiffFormatter)
     {
         $this->platauTempsRestant = $platauTempsRestant;
+        $this->dateDiffFormatter = $dateDiffFormatter;
     }
 
     /**
@@ -54,35 +59,11 @@ class SearchExtension extends AbstractExtension
     /**
      * Retourne le temps écoulé depuis une date (port de formatDateDiff du legacy).
      * Utilisé pour l'affichage "Réponse à faire (X jours)" sur les dossiers de type courrier.
+     * Délègue à DateDiffFormatterService.
      */
     public function formatDateDiff(string $dateString): string
     {
-        try {
-            $date = new \DateTime(substr($dateString, 0, 10));
-            $now = new \DateTime();
-            $diff = $now->diff($date);
-
-            $parts = [];
-            if ($diff->y > 0) {
-                $parts[] = $diff->y.($diff->y > 1 ? ' ans' : ' an');
-            }
-
-            if ($diff->m > 0) {
-                $parts[] = $diff->m.' mois';
-            }
-
-            if ($diff->d > 0) {
-                $parts[] = $diff->d.($diff->d > 1 ? ' jours' : ' jour');
-            }
-
-            if ([] === $parts) {
-                return "aujourd'hui";
-            }
-
-            return implode(', ', $parts);
-        } catch (\Exception $exception) {
-            return '';
-        }
+        return $this->dateDiffFormatter->format($dateString);
     }
 
     /**
