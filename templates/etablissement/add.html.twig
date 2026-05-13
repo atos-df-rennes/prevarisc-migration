@@ -47,7 +47,8 @@
                 id_etablissement_pere: $("input[name='ID_PERE']").val(),
                 ids_etablissements_enfants: etablissements_enfants
             }, function(data) {
-                if (data.status === 'success' && Object.keys(data.response).length > 0) {
+                // L'API Symfony retourne les données directement (sans wrapper status/response)
+                if (data && Object.keys(data).length > 0) {
                     var preventionnistes = [];
                     var localSommeil = $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"]:checked').val();
 
@@ -68,19 +69,19 @@
                     );
 
                     $('#confirm-modal-commission .confirm-modal-advisable')
-                        .attr('id', data.response.commission ? data.response.commission.ID_COMMISSION : '')
-                        .text(data.response.commission ? data.response.commission.LIBELLE_COMMISSION : '');
-                    $('#confirm-modal-periodicite .confirm-modal-advisable').text(data.response.periodicite);
+                        .attr('id', data.commission ? data.commission.ID_COMMISSION : '')
+                        .text(data.commission ? data.commission.LIBELLE_COMMISSION : '');
+                    $('#confirm-modal-periodicite .confirm-modal-advisable').text(data.periodicite || '');
                     $('#confirm-modal-localsommeil .confirm-modal-advisable').text(
-                        data.response.local_sommeil !== undefined ? (data.response.local_sommeil ? 'Oui' : 'Non') : ''
+                        data.local_sommeil !== undefined ? (data.local_sommeil ? 'Oui' : 'Non') : ''
                     );
 
-                    if (data.response.preventionnistes && data.response.preventionnistes.length > 0) {
+                    if (data.preventionnistes && data.preventionnistes.length > 0) {
                         var prevNoms = [];
                         var prevIds = [];
-                        for (var x in data.response.preventionnistes) {
-                            prevNoms[x] = data.response.preventionnistes[x].nom + ' ' + data.response.preventionnistes[x].prenom;
-                            prevIds[x] = data.response.preventionnistes[x].uid;
+                        for (var x in data.preventionnistes) {
+                            prevNoms[x] = data.preventionnistes[x].nom + ' ' + data.preventionnistes[x].prenom;
+                            prevIds[x] = data.preventionnistes[x].uid;
                         }
                         $('#confirm-modal-preventionnistes .confirm-modal-advisable')
                             .attr('ids', prevIds.toString())

@@ -389,11 +389,32 @@
                 </tbody>
             </table>
 
-            {# Commission #}
-            <h4 class="champ_commission champs h4_subtitle">Commission</h4>
-            <dl class="dl-horizontal champ_commission champs">
-                <dt>Commission</dt>
+            {# Coordonnées — avant Données prévention comme dans le legacy #}
+            <h4 class="h4_subtitle">Coordonnées</h4>
+            <dl class="dl-horizontal">
+                <dt>Téléphone</dt>
                 <dd>
+                    <input type="text" class="form-control" name="TELEPHONE_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.telephone|default('')) }}" />
+                </dd>
+                <dt>Fax</dt>
+                <dd>
+                    <input type="text" class="form-control" name="FAX_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.fax|default('')) }}" />
+                </dd>
+                <dt>Courriel</dt>
+                <dd>
+                    <input type="text" class="form-control" name="COURRIEL_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.courriel|default('')) }}" />
+                </dd>
+            </dl>
+
+            {# Données prévention : Commission + Préventionnistes + Données pratiques dans un seul dl #}
+            <h4 class="h4_subtitle">Données prévention</h4>
+            <dl class="dl-horizontal">
+
+                <dt class="champ_commission champs">Commission</dt>
+                <dd class="champ_commission champs">
                     <select name="ID_COMMISSION" id="ID_COMMISSION" class="form-control input-xlarge">
                         <option value="">— Aucune —</option>
                         {% for type_id, group in commissions %}
@@ -408,83 +429,46 @@
                         {% endfor %}
                     </select>
                 </dd>
-            </dl>
 
-            {# Préventionnistes #}
-            <h4 class="h4_subtitle">Préventionnistes</h4>
-            <table class="table table-condensed">
-                <tbody id="preventionnistes_tbody">
-                    {{ include('etablissement/_partial_preventionniste.html.twig', {prototype: true}) }}
-                    {% if not add %}
-                        {% for prev in etablissement.latestInformations.preventionnistes %}
-                            {{ include('etablissement/_partial_preventionniste.html.twig', {prev: prev}) }}
-                        {% endfor %}
-                    {% endif %}
-                    <tr>
-                        <td>
-                            <input type="text" placeholder="Nom du préventionniste…"
-                                   id="preventionniste_autocomplete" />
-                        </td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
+                <dt>Préventionnistes</dt>
+                <dd class="preventionnistes">
+                    <table id="preventionnistes" class="table table-condensed">
+                        <thead>
+                            <tr><th>Nom</th><th></th></tr>
+                        </thead>
+                        <tbody id="preventionnistes_tbody">
+                            {{ include('etablissement/_partial_preventionniste.html.twig', {prototype: true}) }}
+                            {% if not add %}
+                                {% for prev in etablissement.latestInformations.preventionnistes %}
+                                    {{ include('etablissement/_partial_preventionniste.html.twig', {prev: prev}) }}
+                                {% endfor %}
+                            {% endif %}
+                            <tr>
+                                <td>
+                                    <input type="text" placeholder="Ajouter un préventionniste ..."
+                                           id="preventionniste_autocomplete" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </dd>
 
-            {# Informations de contact #}
-            <h4 class="h4_subtitle">Contact</h4>
-            <dl class="dl-horizontal">
-                <dt>Téléphone</dt>
-                <dd>
-                    <input type="text" class="form-control" name="TELEPHONE_ETABLISSEMENT"
-                           value="{{ add ? '' : (etablissement.telephone|default('')) }}" />
-                </dd>
-                <dt>Fax</dt>
-                <dd>
-                    <input type="text" class="form-control" name="FAX_ETABLISSEMENT"
-                           value="{{ add ? '' : (etablissement.fax|default('')) }}" />
-                </dd>
-                <dt>Courriel</dt>
-                <dd>
-                    <input type="email" class="form-control" name="COURRIEL_ETABLISSEMENT"
-                           value="{{ add ? '' : (etablissement.courriel|default('')) }}" />
-                </dd>
-            </dl>
-
-            {# Durée de visite et nb préventionnistes #}
-            <h4 class="champ_donnees_pratiques champs h4_subtitle">Visite</h4>
-            <dl class="dl-horizontal champ_donnees_pratiques champs">
-                <dt>Durée visite</dt>
-                <dd>
-                    <input type="text" class="form-control" name="DUREEVISITE_ETABLISSEMENT" placeholder="HH:MM"
-                           value="{{ add ? '' : (etablissement.dureeVisite is not null ? etablissement.dureeVisite|date('H:i') : '') }}" />
-                </dd>
-                <dt>Nb préventionnistes</dt>
-                <dd>
+                {# NBPREV en premier, DUREEVISITE en second, type="time" — comme dans le legacy #}
+                <dt class="champ_donnees_pratiques champs">Données pratiques</dt>
+                <dd class="champ_donnees_pratiques champs">
+                    <label>Nb. de préventionnistes/visite</label>
                     <input type="number" class="form-control" name="NBPREV_ETABLISSEMENT"
                            value="{{ add ? '' : (etablissement.nbPrev|default('')) }}" />
+                    <label>Durée d'une visite</label>
+                    <input type="time" class="form-control" name="DUREEVISITE_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.dureeVisite is not null ? etablissement.dureeVisite|date('H:i') : '') }}" />
                 </dd>
+
             </dl>
 
         </div>{# /col-md-6 droite #}
 
     </div>{# /row #}
-
-    {# Bouton bas de page #}
-    <div class="row">
-        <div class="col-md-12 text-right" style="margin-top: 15px;">
-            {% if add %}
-                <button type="button" class="btn btn-default" id="btn_confirmer" data-toggle="modal" href="#confirm-modal">
-                    Prévisualiser et confirmer
-                </button>
-                &nbsp;
-                <input type="submit" class="btn btn-success" value="Ajouter l'établissement" id="btn_submit">
-            {% else %}
-                <div class="btn-group">
-                    <a class="btn btn-default" href="{{ path('etablissement_informations', {id: etablissement.id}) }}">Annuler</a>
-                    <input type="submit" class="btn btn-success" value="Sauvegarder">
-                </div>
-            {% endif %}
-        </div>
-    </div>
 
 </form>
