@@ -262,7 +262,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * Affiche le formulaire d'ajout d'un établissement (GET) et traite la soumission (POST).
      *
-     * @Route("/etablissement/ajouter", name="etablissement_ajouter", methods={"GET","POST"})
+     * @Route("/etablissement/ajouter", name="etablissement_ajouter", methods={"GET","POST"}, defaults={"_etablissement_lateral_nav": false})
      */
     public function add(Request $request): Response
     {
