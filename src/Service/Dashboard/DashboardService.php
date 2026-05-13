@@ -2,6 +2,11 @@
 
 namespace App\Service\Dashboard;
 
+use App\Dto\Repository\DossierAffectationDto;
+use App\Dto\Repository\DossierDashboardDto;
+use App\Dto\Repository\DossierDateCommissionEchuDto;
+use App\Dto\Repository\EtablissementDashboardDto;
+use App\Dto\Repository\NextCommissionDto;
 use App\Entity\Utilisateur;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierRepository;
@@ -230,17 +235,15 @@ class DashboardService
 
         $commissions = [];
         foreach ($prochainesCommissions as $commissiondujour) {
-            $rawHeureDebut = $commissiondujour['HEUREDEB_COMMISSION'] ?? '';
-            $rawHeureFin = $commissiondujour['HEUREFIN_COMMISSION'] ?? '';
-            $heureDebut = is_string($rawHeureDebut) ? $rawHeureDebut : '';
-            $heureFin = is_string($rawHeureFin) ? $rawHeureFin : '';
+            $heureDebut = is_string($commissiondujour->HEUREDEB_COMMISSION) ? $commissiondujour->HEUREDEB_COMMISSION : '';
+            $heureFin = is_string($commissiondujour->HEUREFIN_COMMISSION) ? $commissiondujour->HEUREFIN_COMMISSION : '';
 
             $commissions[] = [
-                'id' => $commissiondujour['ID_DATECOMMISSION'],
-                'LIBELLE_COMMISSION' => $commissiondujour['LIBELLE_COMMISSION'],
-                'LIBELLE_DATECOMMISSION' => $commissiondujour['LIBELLE_DATECOMMISSION'],
-                'ID_COMMISSIONTYPEEVENEMENT' => $commissiondujour['ID_COMMISSIONTYPEEVENEMENT'],
-                'DATE_COMMISSION' => $commissiondujour['DATE_COMMISSION'],
+                'id' => $commissiondujour->ID_DATECOMMISSION,
+                'LIBELLE_COMMISSION' => $commissiondujour->LIBELLE_COMMISSION,
+                'LIBELLE_DATECOMMISSION' => $commissiondujour->LIBELLE_DATECOMMISSION,
+                'ID_COMMISSIONTYPEEVENEMENT' => $commissiondujour->ID_COMMISSIONTYPEEVENEMENT,
+                'DATE_COMMISSION' => $commissiondujour->DATE_COMMISSION,
                 'HEUREDEB_COMMISSION' => $heureDebut,
                 'HEUREFIN_COMMISSION' => $heureFin,
                 'heure' => substr($heureDebut, 0, 5).' - '.substr($heureFin, 0, 5),
@@ -261,24 +264,29 @@ class DashboardService
     }
 
     /**
-     * @param array<string, mixed> $commission
-     *
-     * @return array<int, array<string, mixed>>
+     * @return DossierAffectationDto[]
      */
-    private function getCommissionOdj(array $commission): array
+    private function getCommissionOdj(NextCommissionDto $commission): array
     {
-        $rawId = $commission['ID_DATECOMMISSION'] ?? null;
-        $idDateCommission = is_numeric($rawId) ? (int) $rawId : 0;
+        $idDateCommission = (int) $commission->ID_DATECOMMISSION;
         $dossiersNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($idDateCommission);
         $dossiersAffect = $this->dateCommissionRepository->findDossierAffectForCommission($idDateCommission);
 
-        $odj = array_merge($dossiersNonAffect, $dossiersAffect);
+        /** @var array<int, DossierAffectationDto> $indexed */
+        $indexed = [];
+        foreach ($dossiersNonAffect as $d) {
+            $indexed[(int) $d->ID_DOSSIER] = $d;
+        }
 
-        return array_unique($odj, SORT_REGULAR);
+        foreach ($dossiersAffect as $d) {
+            $indexed[(int) $d->ID_DOSSIER] = $d;
+        }
+
+        return array_values($indexed);
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     private function getERPSuivis(Utilisateur $user): array
     {
@@ -291,14 +299,11 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     private function getERPOuvertsSousAvisDefavorable(): array
     {
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->etablissementRepository->findERPOuvertsSousAvisDefavorable();
-
-        return $result;
+        return $this->etablissementRepository->findERPOuvertsSousAvisDefavorable();
     }
 
     private function getERPOuvertsSousAvisDefavorableCount(): int
@@ -307,14 +312,11 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     private function getERPOuvertsSousAvisDefavorableSuivis(Utilisateur $user): array
     {
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->etablissementRepository->findERPOuvertsSousAvisDefavorable(null, null, (int) $user->getId());
-
-        return $result;
+        return $this->etablissementRepository->findERPOuvertsSousAvisDefavorable(null, null, (int) $user->getId());
     }
 
     private function getERPOuvertsSousAvisDefavorableSuivisCount(Utilisateur $user): int
@@ -323,7 +325,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     private function getERPOuvertsSousAvisDefavorableSurCommune(Utilisateur $user): array
     {
@@ -331,10 +333,7 @@ class DashboardService
             return [];
         }
 
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->etablissementRepository->findERPOuvertsSousAvisDefavorable(null, $user->getNuminsee());
-
-        return $result;
+        return $this->etablissementRepository->findERPOuvertsSousAvisDefavorable(null, $user->getNuminsee());
     }
 
     private function getERPOuvertsSousAvisDefavorableSurCommuneCount(Utilisateur $user): int
@@ -347,14 +346,11 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     private function getERPSansPreventionniste(): array
     {
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->etablissementRepository->findERPSansPreventionniste();
-
-        return $result;
+        return $this->etablissementRepository->findERPSansPreventionniste();
     }
 
     private function getERPSansPreventionnisteCount(): int
@@ -363,7 +359,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     private function getERPOuvertsSansProchainesVisitePeriodiques(Utilisateur $user): array
     {
@@ -380,7 +376,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getDossiersSuivisSansAvis(Utilisateur $user): array
     {
@@ -393,7 +389,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getDossiersSuivisNonVerrouilles(Utilisateur $user): array
     {
@@ -406,17 +402,14 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierDateCommissionEchuDto[]
      */
     private function getDossierDateCommissionEchu(Utilisateur $user): array
     {
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->dossierRepository->findDossierDateCommissionEchu(
+        return $this->dossierRepository->findDossierDateCommissionEchu(
             $this->getCommissionIds($user),
             $this->blocConfig->getDossiersSansAvisDays()
         );
-
-        return $result;
     }
 
     private function getDossierDateCommissionEchuCount(Utilisateur $user): int
@@ -428,14 +421,11 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getDossierAvecAvisDiffere(Utilisateur $user): array
     {
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->dossierRepository->findDossierAvecAvisDiffere($this->getCommissionIds($user));
-
-        return $result;
+        return $this->dossierRepository->findDossierAvecAvisDiffere($this->getCommissionIds($user));
     }
 
     private function getDossierAvecAvisDiffereCount(Utilisateur $user): int
@@ -444,14 +434,11 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getCourrierSansReponse(): array
     {
-        /** @var array<int, array<string, mixed>> $result */
-        $result = $this->dossierRepository->findCourrierSansReponse($this->blocConfig->getCourrierSansReponseDays());
-
-        return $result;
+        return $this->dossierRepository->findCourrierSansReponse($this->blocConfig->getCourrierSansReponseDays());
     }
 
     private function getCourrierSansReponseCount(): int
@@ -463,7 +450,7 @@ class DashboardService
      * Dossiers avec date de levée des prescriptions.
      * Le filtrage (exclusion des natures 7, 19, 46) est géré directement par le repository.
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getLeveePresc(): array
     {
@@ -474,7 +461,7 @@ class DashboardService
      * Dossiers ayant une absence de quorum.
      * Le filtrage (exclusion des types 0 et 5) est géré directement par le repository.
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getAbsenceQuorum(): array
     {
@@ -485,7 +472,7 @@ class DashboardService
      * Dossiers avec statut NPSP (ne peut se prononcer).
      * Le filtrage (exclusion des types 0 et 5) est géré directement par le repository.
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getNpsp(): array
     {
@@ -493,7 +480,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     private function getDossiersIncomplets(): array
     {

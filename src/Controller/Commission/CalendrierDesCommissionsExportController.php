@@ -2,6 +2,7 @@
 
 namespace App\Controller\Commission;
 
+use App\Dto\Repository\DossierAffectationDto;
 use App\Repository\CommissionRepository;
 use App\Repository\DateCommissionRepository;
 use Sabre\VObject\Component\VCalendar;
@@ -138,8 +139,8 @@ class CalendrierDesCommissionsExportController extends AbstractController
 
             $dossieraffecte = $this->dateCommissionRepository->findDossierAffectForCommission($idDateComm);
             if ([] !== $dossieraffecte) {
-                $objetsDossiers = array_filter(array_map(function (array $d): string {
-                    return \is_string($d['OBJET_DOSSIER'] ?? null) ? $d['OBJET_DOSSIER'] : '';
+                $objetsDossiers = array_filter(array_map(function (DossierAffectationDto $d): string {
+                    return \is_string($d->OBJET_DOSSIER) ? $d->OBJET_DOSSIER : '';
                 }, $dossieraffecte));
                 if ([] !== $objetsDossiers) {
                     $description .= ' / Ordre du jour : '.implode('; ', $objetsDossiers);

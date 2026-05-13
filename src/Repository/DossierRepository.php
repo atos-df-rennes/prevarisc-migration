@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
+use App\Dto\Repository\DossierDashboardDto;
+use App\Dto\Repository\DossierDateCommissionEchuDto;
 use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use App\Entity\Etablissement;
@@ -731,7 +733,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      *
      * @param int[] $idsCommission
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDateCommissionEchuDto[]
      */
     public function findDossierDateCommissionEchu(array $idsCommission, int $sinceDays = 10, int $untilDays = 100): array
     {
@@ -808,7 +810,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierDateCommissionEchuDto {
+            return DossierDateCommissionEchuDto::fromArray($row);
+        }, $rows);
     }
 
     /**
@@ -817,7 +821,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      *
      * @param int[] $idsCommission
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findDossierAvecAvisDiffere(array $idsCommission): array
     {
@@ -836,14 +840,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
      * Retourne les courriers sans réponse pour le tableau de bord.
      * Port direct de Model_DbTable_Dossier::listeDesCourrierSansReponse().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findCourrierSansReponse(int $dureeEnJour = 5): array
     {
@@ -863,7 +869,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
@@ -896,7 +904,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
      * pour éviter les requêtes N+1.
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findLeveePresc(): array
     {
@@ -910,7 +918,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return $dossiers;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $dossiers);
     }
 
     /**
@@ -920,7 +930,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
      * pour éviter les requêtes N+1.
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findAbsenceQuorum(): array
     {
@@ -934,7 +944,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return $dossiers;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $dossiers);
     }
 
     /**
@@ -944,7 +956,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Le filtrage est intégré directement en SQL via NOT EXISTS (UNION ALL sur les deux sens du lien)
      * pour éviter les requêtes N+1.
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findNpsp(): array
     {
@@ -958,7 +970,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return $dossiers;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $dossiers);
     }
 
     /**
@@ -1007,7 +1021,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      * Retourne les dossiers incomplets pour le tableau de bord.
      * Port direct de Service_Dashboard::getDossiersIncomplets().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findDossiersIncomplets(): array
     {
@@ -1020,14 +1034,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
      * Retourne les dossiers suivis par un utilisateur et non verrouillés.
      * Port direct de Service_Dashboard::getDossiersSuivisNonVerrouilles().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findDossiersSuivisNonVerrouilles(int $userId): array
     {
@@ -1044,14 +1060,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
      * Retourne les dossiers suivis par un utilisateur et sans avis du rapporteur.
      * Port direct de Service_Dashboard::getDossiersSuivisSansAvis().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierDashboardDto[]
      */
     public function findDossiersSuivisSansAvis(int $userId): array
     {
@@ -1069,7 +1087,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierDashboardDto {
+            return DossierDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
