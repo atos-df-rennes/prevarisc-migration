@@ -1019,7 +1019,7 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | REF-TWIG-01 | Template | Assets hardcodés | 🟡 Moyenne | Simple | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
 | REF-TWIG-02 | Template | Liens hardcodés | 🟡 Moyenne | Simple | ✅ Routes migrées uniquement | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
 | REF-TWIG-03 | Template | Logique métier dans Twig | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | DossierStatusExtension · _dossier_tab ✅ · _dossier ✅ | `refactor/twig-business-logic` |
-| REF-TWIG-04 | Template | JavaScript inline massif | 🟢 Basse | Complexe | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-extract-js` |
+| REF-TWIG-04 | Template | JavaScript inline massif | 🟢 Basse | Complexe | ✅ Validé | ✅ Fait | 4 templates extraits vers public/js/ | `refactor/twig-extract-js` |
 | REF-EVT-01 | Subscriber | `isMasterRequest()` déprécié | 🟡 Moyenne | Simple | ✅ Documentation + @todo SF 5.3 | ✅ Fait | 2 occurrences avec `@todo` (SF 4.4 compatible) | `refactor/subscriber-isMainRequest` |
 | REF-CFG-01 | Config | Guard firewall config | 🔴 Haute | Modérée | ❌ N/A SF 4.4 — traiter lors de la montée SF 5.1+ | ❌ N/A | — | — |
 
