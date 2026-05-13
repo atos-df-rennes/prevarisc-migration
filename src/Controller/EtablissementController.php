@@ -287,10 +287,10 @@ class EtablissementController extends AbstractController implements Etablissemen
         $canEditStatut = $this->isGranted('edit_statut');
 
         // Paramètres de géolocalisation IGN
-        $keyIgn = $this->getParameter('app.key_ign');
+        $keyIgn = $this->getParameter('app.ign_key');
         $geoconceptUrl = $this->getParameter('app.geoconcept_url');
-        $defaultLon = $this->getParameter('app.default_lon');
-        $defaultLat = $this->getParameter('app.default_lat');
+        $defaultLon = $this->getParameter('app.carto_default_lon');
+        $defaultLat = $this->getParameter('app.carto_default_lat');
 
         if ($request->isMethod('POST')) {
             // F4 : vérification du jeton CSRF
