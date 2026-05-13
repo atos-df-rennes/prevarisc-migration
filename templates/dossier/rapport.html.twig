@@ -38,12 +38,12 @@
                     {% if not locked %}
                         {% set current_type_id = null %}
                         {% for commission in listeCommissions %}
-                            {% if current_type_id is not null and current_type_id != commission.idTYPE %}
+                            {% if current_type_id is not null and current_type_id != commission.typeId %}
                                 </optgroup>
                             {% endif %}
-                            {% if current_type_id is null or current_type_id != commission.idTYPE %}
-                                <optgroup label="{{ commission.libelleTYPE }}">
-                                {% set current_type_id = commission.idTYPE %}
+                            {% if current_type_id is null or current_type_id != commission.typeId %}
+                                <optgroup label="{{ commission.typeLibelle }}">
+                                {% set current_type_id = commission.typeId %}
                             {% endif %}
                             <option value="{{ commission.id }}" {{ id_commission_dossier == commission.id ? 'selected' : '' }}>
                                 {{ commission.libelle }} ({{ commission.listeFichier|length }})
