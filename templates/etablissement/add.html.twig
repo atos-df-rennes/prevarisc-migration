@@ -25,8 +25,20 @@
   est inclus via include() (pas de chaîne d'héritage → RuntimeError).
   Solution : déplacer le bloc ici où extends est actif.
 #}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Espacement Bootstrap 3 entre champs du formulaire établissement */
+        form#etablissement dl.dl-horizontal dt,
+        form#etablissement dl.dl-horizontal dd { margin-bottom: 8px; }
+    </style>
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
+    {% if key_ign is not null and key_ign is not empty %}
+        <script src="{{ asset('js/etablissement/edit/geolocaliseIGN.js') }}"></script>
+    {% endif %}
     <script>
     $(document).ready(function() {
 

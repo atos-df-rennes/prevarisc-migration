@@ -109,7 +109,6 @@
                 <dt class="champ_categorie champs">Catégorie</dt>
                 <dd class="champ_categorie champs">
                     <select name="ID_CATEGORIE" class="form-control">
-                        <option value="">— Choisir —</option>
                         {% for cat in categories %}
                             <option value="{{ cat.id }}"
                                 {{ (not add and etablissement.latestInformations.categorie is not null and etablissement.latestInformations.categorie.id == cat.id) ? 'selected' : '' }}>
@@ -122,7 +121,6 @@
                 <dt class="champ_classement champs">Classement</dt>
                 <dd class="champ_classement champs">
                     <select name="ID_CLASSEMENT" class="form-control">
-                        <option value="">— Choisir —</option>
                         {% for classement in classements %}
                             <option value="{{ classement.id }}"
                                 {{ (not add and etablissement.latestInformations.classement is not null and etablissement.latestInformations.classement.id == classement.id) ? 'selected' : '' }}>
@@ -135,7 +133,6 @@
                 <dt class="champ_famille champs">Famille</dt>
                 <dd class="champ_famille champs">
                     <select name="ID_FAMILLE" class="form-control">
-                        <option value="">— Choisir —</option>
                         {% for famille in familles %}
                             <option value="{{ famille.id }}"
                                 {{ (not add and etablissement.latestInformations.famille is not null and etablissement.latestInformations.famille.id == famille.id) ? 'selected' : '' }}>
@@ -148,7 +145,6 @@
                 <dt class="champ_classe champs">Classe IGH</dt>
                 <dd class="champ_classe champs">
                     <select name="ID_CLASSE" class="form-control">
-                        <option value="">— Choisir —</option>
                         {% for classe in igh_classes %}
                             <option value="{{ classe.id }}"
                                 {{ (not add and etablissement.latestInformations.classe is not null and etablissement.latestInformations.classe.id == classe.id) ? 'selected' : '' }}>
@@ -179,7 +175,6 @@
                         {# Activité principale #}
                         <li>
                             <select name="ID_TYPE" class="type_select form-control" style="width: 85px">
-                                <option value="">—</option>
                                 {% for type in types %}
                                     <option value="{{ type.id }}"
                                         {{ (not add and etablissement.latestInformations.type is not null and etablissement.latestInformations.type.id == type.id) ? 'selected' : '' }}>
@@ -188,7 +183,6 @@
                                 {% endfor %}
                             </select>
                             <select name="ID_TYPEACTIVITE" class="activite_select form-control" style="width: 70%">
-                                <option value="">—</option>
                                 {% for activite in activites %}
                                     <option value="{{ activite.id }}"
                                             data-type="{{ activite.type.id }}"
