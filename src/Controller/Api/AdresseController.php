@@ -27,7 +27,7 @@ class AdresseController extends AbstractController
     /**
      * Autocomplete des communes par nom ou code postal.
      *
-     * @Route("/api/1.0/adresse/get_communes", name="api_adresse_get_communes", methods={"GET"})
+     * @Route("/api/2.0/adresse/get_communes", name="api_adresse_get_communes", methods={"GET"})
      */
     public function getCommunes(Request $request): JsonResponse
     {
@@ -58,7 +58,7 @@ class AdresseController extends AbstractController
      * Voies d'une commune pour autocomplete.
      * Accepte GET (autocomplete) et POST (dossier search via AJAX).
      *
-     * @Route("/api/1.0/adresse/get_voies", name="api_adresse_get_voies", methods={"GET", "POST"})
+     * @Route("/api/2.0/adresse/get_voies", name="api_adresse_get_voies", methods={"GET", "POST"})
      */
     public function getVoies(Request $request): JsonResponse
     {
@@ -90,7 +90,7 @@ class AdresseController extends AbstractController
      * Numéros de rue pour une voie donnée.
      * Accepte GET et POST.
      *
-     * @Route("/api/1.0/adresse/get_numeros", name="api_adresse_get_numeros", methods={"GET", "POST"})
+     * @Route("/api/2.0/adresse/get_numeros", name="api_adresse_get_numeros", methods={"GET", "POST"})
      */
     public function getNumeros(Request $request): JsonResponse
     {

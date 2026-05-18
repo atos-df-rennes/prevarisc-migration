@@ -508,7 +508,7 @@
         });
 
         // ——— Autocomplete commune (modales adresse) ———
-        $("input[name='commune_ac']").autocomplete('/api/1.0/adresse/get_communes', {
+        $("input[name='commune_ac']").autocomplete('/api/2.0/adresse/get_communes', {
             minChars: 2,
             cacheLength: 0,
             parse: function(data) {
@@ -533,7 +533,7 @@
         });
 
         // ——— Autocomplete voie (modales adresse) ———
-        $("input[name='voie_ac']").autocomplete('/api/1.0/adresse/get_voies', {
+        $("input[name='voie_ac']").autocomplete('/api/2.0/adresse/get_voies', {
             minChars: 2,
             cacheLength: 0,
             extraParams: {
