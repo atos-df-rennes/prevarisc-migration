@@ -37,6 +37,41 @@ class EtablissementController extends AbstractController
     }
 
     /**
+     * Récupération d'une adresse d'établissement par son ID.
+     * Port de Api_Service_Etablissement::getAdresse.
+     *
+     * @Route("/api/2.0/etablissement/get_adresse", name="api_etablissement_get_adresse", methods={"GET"})
+     */
+    public function getAdresse(Request $request): JsonResponse
+    {
+        /** @var string|null $id */
+        $id = $request->query->get('id');
+
+        if (null === $id || '' === $id) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        $conn = $this->em->getConnection();
+
+        /** @var array<string, mixed>|false $row */
+        $row = $conn->executeQuery(
+            'SELECT ea.*, ac.LIBELLE_COMMUNE, ac.CODEPOSTAL_COMMUNE, ar.LIBELLE_RUE, art.LIBELLE_RUETYPE, art.ABREVIATION_RUETYPE'
+            .' FROM etablissementadresse ea'
+            .' LEFT JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE'
+            .' LEFT JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE AND ea.NUMINSEE_COMMUNE = ar.NUMINSEE_COMMUNE'
+            .' LEFT JOIN adresseruetype art ON ar.ID_RUETYPE = art.ID_RUETYPE'
+            .' WHERE ea.ID_ADRESSE = ?',
+            [(int) $id]
+        )->fetchAssociative();
+
+        if (false === $row) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        return new JsonResponse(['response' => $row]);
+    }
+
+    /**
      * Recherche d'établissements par libellé pour autocomplete.
      *
      * @Route("/api/etablissements/search", name="api_etablissements_search", methods={"GET"})
