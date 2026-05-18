@@ -406,9 +406,7 @@
             }
         });
         $('select.type_select').each(function() {
-            if ($(this).next().find('option').length === 0) {
-                $(this).trigger('change');
-            }
+            $(this).trigger('change');
         });
 
         // ——— TomSelect préventionnistes ———
