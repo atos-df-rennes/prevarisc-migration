@@ -893,6 +893,7 @@ final class Etablissement
                     if (0 === $idTypeSecondaire) {
                         continue;
                     }
+
                     if (0 === $idActiviteSecondaire) {
                         continue;
                     }
