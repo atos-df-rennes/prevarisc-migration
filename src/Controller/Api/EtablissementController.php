@@ -113,7 +113,7 @@ class EtablissementController extends AbstractController
      *
      * Port de Api_Service_Etablissement::getDefaultValues() / Service_Etablissement::getDefaultValues().
      *
-     * @Route("/api/1.0/etablissement/defaults_values", name="api_etablissement_defaults_values", methods={"GET","POST"})
+     * @Route("/api/2.0/etablissement/defaults_values", name="api_etablissement_defaults_values", methods={"GET","POST"})
      */
     public function defaultsValues(Request $request): JsonResponse
     {
