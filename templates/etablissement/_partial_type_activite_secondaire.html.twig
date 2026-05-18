@@ -11,11 +11,12 @@
 {% set is_proto = prototype|default(false) %}
 {% set ta_key = is_proto ? '-1' : (ta.id|default(0)) %}
 <li id="{{ is_proto ? 'prototype_type_activite' : '' }}"
-    class="{{ is_proto ? 'hide prototype' : '' }}">
+    class="{{ is_proto ? 'hide prototype' : '' }}"
+    style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
     {# Type secondaire #}
     <select name="TYPES_ACTIVITES_SECONDAIRES[{{ ta_key }}][ID_TYPE_SECONDAIRE]"
             class="type_select form-control"
-            style="width: 85px">
+            style="width: 85px; flex: 0 0 auto;">
         <option value="">—</option>
         {% for type in types %}
             <option value="{{ type.id }}"
@@ -28,7 +29,7 @@
     {# Activité secondaire #}
     <select name="TYPES_ACTIVITES_SECONDAIRES[{{ ta_key }}][ID_TYPEACTIVITE_SECONDAIRE]"
             class="activite_select form-control"
-            style="width: 70%">
+            style="flex: 1 1 auto;">
         <option value="">—</option>
         {% for activite in activites %}
             <option value="{{ activite.id }}"
@@ -39,7 +40,7 @@
         {% endfor %}
     </select>
 
-    <button type="button" class="btn btn-xs btn-danger btn_remove_activite_secondaire">
+    <button type="button" class="btn btn-xs btn-danger btn_remove_activite_secondaire" style="flex: 0 0 auto;">
         <span class="glyphicon glyphicon-remove"></span>
     </button>
 </li>

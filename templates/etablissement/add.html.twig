@@ -27,6 +27,9 @@
 #}
 {% block stylesheets %}
     {{ parent() }}
+    {% if key_ign is not null and key_ign is not empty %}
+        <link rel="stylesheet" href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" media="all">
+    {% endif %}
     <style>
         /* Espacement Bootstrap 3 entre champs du formulaire établissement */
         form#etablissement dl.dl-horizontal dt,
@@ -37,6 +40,8 @@
 {% block javascripts %}
     {{ parent() }}
     {% if key_ign is not null and key_ign is not empty %}
+        <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
+        <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
         <script src="{{ asset('js/etablissement/edit/geolocaliseIGN.js') }}"></script>
     {% endif %}
     <script>
@@ -305,14 +310,14 @@
                     break;
                 case '2': // ERP
                     $('.champ_categorie, .champ_periodicite, .champ_types, .champ_effectifs, ' +
-                      '.champ_plans, .champ_commission, .champ_adresse, .champ_droitpublic, ' +
+                      '.effectif_public, .champ_plans, .champ_commission, .champ_adresse, .champ_droitpublic, ' +
                       '.champ_localsommeil, .champ_donnees_pratiques').show();
                     if (!$("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']:checked").val()) {
                         $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='0']").prop('checked', true);
                     }
                     break;
                 case '3': // Cellule
-                    $('.champ_types, .champ_effectifs, .champ_plans, .champ_donnees_pratiques').show();
+                    $('.champ_types, .champ_effectifs, .effectif_public, .champ_plans, .champ_donnees_pratiques').show();
                     $('.etablissements_enfants').hide();
                     break;
                 case '4': // Habitation
@@ -320,7 +325,7 @@
                     $('.etablissements_enfants').hide();
                     break;
                 case '5': // IGH
-                    $('.champ_periodicite, .champ_classe, .champ_effectifs, .champ_plans, ' +
+                    $('.champ_periodicite, .champ_classe, .champ_effectifs, .effectif_public, .champ_plans, ' +
                       '.champ_adresse, .champ_commission, .champ_donnees_pratiques').show();
                     $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='1']").prop('checked', false);
                     break;

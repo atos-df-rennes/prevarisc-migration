@@ -175,8 +175,8 @@
                 <dd>
                     <ul id="activite_ul" class="list-unstyled">
                         {# Activité principale #}
-                        <li>
-                            <select name="ID_TYPE" class="type_select form-control" style="width: 85px">
+                        <li style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                            <select name="ID_TYPE" class="type_select form-control" style="width: 85px; flex: 0 0 auto;">
                                 {% for type in types %}
                                     <option value="{{ type.id }}"
                                         {{ (not add and etablissement.latestInformations.type is not null and etablissement.latestInformations.type.id == type.id) ? 'selected' : '' }}>
@@ -184,7 +184,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                            <select name="ID_TYPEACTIVITE" class="activite_select form-control" style="width: 70%">
+                            <select name="ID_TYPEACTIVITE" class="activite_select form-control" style="flex: 1 1 auto;">
                                 {% for activite in activites %}
                                     <option value="{{ activite.id }}"
                                             data-type="{{ activite.type.id }}"

@@ -14,10 +14,13 @@
 <tr id="{{ is_proto ? 'prototype_rubrique' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
-        <input type="text" class="form-control" placeholder="Ex. : 1530"
-               name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]"
-               value="{{ is_proto ? '' : (rubrique.rubrique|default('')) }}"
-               style="width: 60px;" />
+        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]"
+                style="width: auto;">
+            <option value="1" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 1) ? 'selected' : '' }}>Substance</option>
+            <option value="2" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 2) ? 'selected' : '' }}>Activité</option>
+            <option value="3" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 3) ? 'selected' : '' }}>IED</option>
+            <option value="4" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 4) ? 'selected' : '' }}>Produits dangereux</option>
+        </select>
     </td>
     <td>
         <input type="text" class="form-control" placeholder="Numéro"
@@ -38,10 +41,15 @@
                style="width: 80px;" />
     </td>
     <td>
-        <input type="text" class="form-control" placeholder="Classement"
-               name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
-               value="{{ is_proto ? '' : (rubrique.classement|default('')) }}"
-               style="width: 80px;" />
+        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
+                style="width: auto;">
+            <option value="D" {{ (not is_proto and rubrique is not null and rubrique.classement == 'D') ? 'selected' : '' }}>D</option>
+            <option value="DC" {{ (not is_proto and rubrique is not null and rubrique.classement == 'DC') ? 'selected' : '' }}>DC</option>
+            <option value="EN" {{ (not is_proto and rubrique is not null and rubrique.classement == 'EN') ? 'selected' : '' }}>EN</option>
+            <option value="A" {{ (not is_proto and rubrique is not null and rubrique.classement == 'A') ? 'selected' : '' }}>A</option>
+            <option value="SB" {{ (not is_proto and rubrique is not null and rubrique.classement == 'SB') ? 'selected' : '' }}>SB</option>
+            <option value="AS" {{ (not is_proto and rubrique is not null and rubrique.classement == 'AS') ? 'selected' : '' }}>AS</option>
+        </select>
     </td>
     <td>
         <button type="button" class="btn btn-xs btn-danger btn_remove_rubrique">
