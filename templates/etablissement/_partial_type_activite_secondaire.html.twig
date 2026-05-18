@@ -16,7 +16,8 @@
     {# Type secondaire #}
     <select name="TYPES_ACTIVITES_SECONDAIRES[{{ ta_key }}][ID_TYPE_SECONDAIRE]"
             class="type_select form-control"
-            style="width: 85px; flex: 0 0 auto;">
+            style="width: 85px; flex: 0 0 auto;"
+            {{ is_proto ? 'disabled' : '' }}>
         <option value="">—</option>
         {% for type in types %}
             <option value="{{ type.id }}"
@@ -29,7 +30,8 @@
     {# Activité secondaire #}
     <select name="TYPES_ACTIVITES_SECONDAIRES[{{ ta_key }}][ID_TYPEACTIVITE_SECONDAIRE]"
             class="activite_select form-control"
-            style="flex: 1 1 auto;">
+            style="flex: 1 1 auto;"
+            {{ is_proto ? 'disabled' : '' }}>
         <option value="">—</option>
         {% for activite in activites %}
             <option value="{{ activite.id }}"

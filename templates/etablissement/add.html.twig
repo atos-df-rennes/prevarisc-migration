@@ -670,6 +670,7 @@
                 .removeAttr('id')
                 .removeClass('hide prototype');
             $proto.find('input, select').each(function() {
+                $(this).removeAttr('disabled');
                 var name = $(this).attr('name');
                 if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
             });

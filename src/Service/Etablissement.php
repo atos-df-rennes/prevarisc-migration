@@ -888,11 +888,20 @@ final class Etablissement
                         continue;
                     }
 
+                    $idTypeSecondaire = self::toInt($taData['ID_TYPE_SECONDAIRE'] ?? 0);
+                    $idActiviteSecondaire = self::toInt($taData['ID_TYPEACTIVITE_SECONDAIRE'] ?? 0);
+                    if (0 === $idTypeSecondaire) {
+                        continue;
+                    }
+                    if (0 === $idActiviteSecondaire) {
+                        continue;
+                    }
+
                     $ta = new EtablissementInformationsTypesActivitesSecondaires();
                     /** @var EtablissementType $typeSecondaire */
-                    $typeSecondaire = $em->getReference(EtablissementType::class, self::toInt($taData['ID_TYPE_SECONDAIRE'] ?? 0));
+                    $typeSecondaire = $em->getReference(EtablissementType::class, $idTypeSecondaire);
                     /** @var EtablissementActivite $activiteSecondaire */
-                    $activiteSecondaire = $em->getReference(EtablissementActivite::class, self::toInt($taData['ID_TYPEACTIVITE_SECONDAIRE'] ?? 0));
+                    $activiteSecondaire = $em->getReference(EtablissementActivite::class, $idActiviteSecondaire);
                     $ta->setType($typeSecondaire);
                     $ta->setActivite($activiteSecondaire);
                     $ta->setEtablissementInformations($informations);
