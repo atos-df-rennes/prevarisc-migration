@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Prescription;
 
 use App\Entity\PrescriptionReglementaire;
 use App\Form\PrescriptionReglementaireType;

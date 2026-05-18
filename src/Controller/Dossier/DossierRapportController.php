@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Dossier;
 
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Commission\CommissionOdtDto;

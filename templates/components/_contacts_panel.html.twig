@@ -31,104 +31,13 @@
 {{ include('components/_modal_contact_existant.html.twig') }}
 {{ include('contact/_modal_suppression.html.twig') }}
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        // Réinitialiser la modale lors de sa fermeture
-        $('#ajout-contact').on('hidden.bs.modal', function () {
-            $(this).find('.modal-title').html('Ajouter un contact');
-            $(this).find('.modal-body').html('');
-        });
-
-        $('#ajout-contact-existant-bouton').click(function () {
-            $.ajax({
-                url: "{{ url_add_existing }}",
-                success: function (result) {
-                    $('#ajout-contact-existant .modal-body').html(result);
-                    $('#ajout-contact-existant').modal('show');
-
-                    new TomSelect('#add_existing_contacts_contacts', {
-                        valueField: 'id',
-                        labelField: 'name',
-                        searchField: 'name',
-                        plugins: ['remove_button'],
-                        shouldLoad: function(query) {
-                            return query.length > 2;
-                        },
-                        load: function(query, callback) {
-                            const url = Routing.generate('contact_autocomplete', {search: encodeURIComponent(query)});
-                            fetch(url)
-                                .then(response => response.json())
-                                .then(json => {
-                                    callback(json.map(contact => {
-                                        let nameParts = []
-
-                                        if (contact.societe) {
-                                            nameParts.push(contact.societe)
-                                        }
-                                        if (contact.nom) {
-                                            nameParts.push(contact.nom)
-                                        }
-                                        if (contact.prenom) {
-                                            nameParts.push(contact.prenom)
-                                        }
-
-                                        return {
-                                            id: contact.id,
-                                            name: nameParts.join(" ")
-                                        }
-                                    }))
-                                }).catch(() => {
-                                callback()
-                            })
-                        },
-                    })
-                }
-            })
-        })
-
-        $('#ajout-contact-bouton').click(function () {
-            $.ajax({
-                url: "{{ url_add }}",
-                success: function (result) {
-                    $('#ajout-contact .modal-body').html(result);
-                    $('#ajout-contact').modal('show');
-                }
-            })
-        })
-
-        const entityId = "{{ entity_id }}"
-        let contactId
-
-        $('.delete-contact-button').on('click', function () {
-            contactId = $(this).attr('data-contact-id')
-
-            $.ajax({
-                type: "GET",
-                url: Routing.generate('{{ route_delete }}', {id: entityId, contact: contactId}),
-                success: function(html) {
-                    $('#modal-suppression-contact .modal-content').html(html);
-                    $('#modal-suppression-contact').modal('show');
-                },
-                error: function() {
-                    $.toast.error("Erreur lors du chargement du formulaire de suppression.");
-                }
-            });
-        })
-
-        $('.edit-contact-button').on('click', function () {
-            contactId = $(this).attr('data-contact-id')
-
-            $.ajax({
-                url: Routing.generate('contact_edit', {id: contactId, elementLie: '{{ element_lie }}', elementId: entityId}),
-                success: function (result) {
-                    const modalAjout = document.getElementById('ajout-contact')
-                    modalAjout.querySelector('#ajout-contact-label').innerHTML = 'Modifier un contact'
-
-                    modalAjout.querySelector('.modal-body').innerHTML = result
-
-                    $('#ajout-contact').modal('show')
-                }
-            })
-        })
-    })
+<script>
+var CONTACTS_PANEL_CONFIG = {
+    urlAddExisting: "{{ url_add_existing }}",
+    urlAdd: "{{ url_add }}",
+    entityId: "{{ entity_id }}",
+    routeDelete: "{{ route_delete }}",
+    elementLie: "{{ element_lie }}"
+};
 </script>
+<script src="{{ asset('js/contacts-panel.js') }}"></script>

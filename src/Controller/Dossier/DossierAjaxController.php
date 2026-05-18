@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Dossier;
 
 use App\Repository\DossierRepository;
 use App\Service\Dossier as ServiceDossier;
