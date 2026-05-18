@@ -192,7 +192,8 @@
             $node.find('.modifierAdresse').attr('data-id', time);
 
             // Réinitialiser le formulaire modal et fermer
-            $form.find('input[name="commune_ac"], input[name="voie_ac"], input[name="numero"], input[name="complement"]').val('').attr('disabled', true);
+            $form.find('input[name="voie_ac"], input[name="numero"], input[name="complement"]').val('').attr('disabled', true);
+            $form.find('input[name="commune_ac"]').val('');
             $form.find('input[name="code_insee"], input[name="code_postal"], input[name="voie"], input[name="type_voie"], input[name="lon"], input[name="lat"]').val('');
             $form.find('span.result').text('Inconnu');
             $form.find('button.close').trigger('click');
@@ -618,6 +619,21 @@
                         $modal.find('span.result').text('OK');
                         $modal.find("input[name='lon']").val(geolocations[0].lon);
                         $modal.find("input[name='lat']").val(geolocations[0].lat);
+                        {% if key_ign is not null and key_ign is not empty %}
+                        // Centrer la carte et placer le marqueur (iso legacy)
+                        if (typeof viewer !== 'undefined' && viewer !== null) {
+                            var geoContainerId = $modal.find('[id$=geoportail-container]').attr('id');
+                            $modal.find('#' + geoContainerId).css('visibility', 'visible');
+                            viewer.setCenter({
+                                x: parseFloat(geolocations[0].lon),
+                                y: parseFloat(geolocations[0].lat),
+                                projection: 'EPSG:4326'
+                            });
+                            viewer.setZoom(17);
+                            var lonlat = [parseFloat(geolocations[0].lon), parseFloat(geolocations[0].lat)];
+                            putMarkerAt(viewer.getLibMap(), lonlat);
+                        }
+                        {% endif %}
                     } else {
                         $modal.find('span.result').text('Introuvable');
                         $modal.find("input[name='lon']").val(0);
