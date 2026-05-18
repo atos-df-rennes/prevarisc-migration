@@ -235,7 +235,7 @@
                 e.preventDefault();
                 var dataId = $(this).attr('data-id');
                 $.ajax({
-                    url: '/api/2.0/etablissement/get_adresse?id=' + dataId,
+                    url: '{{ path('api_etablissement_get_adresse') }}?id=' + dataId,
                     type: 'get',
                     success: function(result) {
                         if (result === null || result.response === null) {
@@ -279,7 +279,7 @@
             if (data.NUMINSEE_COMMUNE) {
                 $.ajax({
                     type: 'get',
-                    url: '/api/2.0/adresse/get_libelle_commune',
+                    url: '{{ path('api_adresse_get_libelle_commune') }}',
                     data: {code_insee: data.NUMINSEE_COMMUNE},
                     async: false,
                     success: function(r) { data.LIBELLE_COMMUNE = r && r.response ? r.response.LIBELLE_COMMUNE : ''; }
@@ -288,7 +288,7 @@
             if (data.ID_RUE) {
                 $.ajax({
                     type: 'get',
-                    url: '/api/2.0/adresse/get_libelle_rue',
+                    url: '{{ path('api_adresse_get_libelle_rue') }}',
                     data: {idRue: data.ID_RUE},
                     async: false,
                     success: function(r) { data.LIBELLE_RUE = r && r.response ? r.response.LIBELLE_RUE : ''; }
@@ -508,7 +508,7 @@
         });
 
         // ——— Autocomplete commune (modales adresse) ———
-        $("input[name='commune_ac']").autocomplete('/api/2.0/adresse/get_communes', {
+        $("input[name='commune_ac']").autocomplete('{{ path('api_adresse_get_communes') }}', {
             minChars: 2,
             cacheLength: 0,
             parse: function(data) {
@@ -533,7 +533,7 @@
         });
 
         // ——— Autocomplete voie (modales adresse) ———
-        $("input[name='voie_ac']").autocomplete('/api/2.0/adresse/get_voies', {
+        $("input[name='voie_ac']").autocomplete('{{ path('api_adresse_get_voies') }}', {
             minChars: 2,
             cacheLength: 0,
             extraParams: {
