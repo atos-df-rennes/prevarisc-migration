@@ -599,19 +599,19 @@ final class Etablissement
                 $informations->setUtilisateur($user);
             }
 
-            // Remise à zéro des champs genre-spécifiques
-            $informations->setIcpe(false);
-            $informations->setR14320(false);
-            $informations->setDroitPublic(false);
-            $informations->setLocalSommeil(false);
-            $informations->setEffectifPublic(0);
-            $informations->setEffectifPersonnel(0);
-            $informations->setEffectifHeberge(0);
-            $informations->setEffectifJustifiantClassement(0);
-            $informations->setEffectifHabitation(0);
-            $informations->setEffectifCaravane(0);
-            $informations->setEffectifEmplacementNu(0);
-            $informations->setEffectifDivers(0);
+            // Remise à zéro des champs genre-spécifiques (null = non applicable)
+            $informations->setIcpe(null);
+            $informations->setR14320(null);
+            $informations->setDroitPublic(null);
+            $informations->setLocalSommeil(null);
+            $informations->setEffectifPublic(null);
+            $informations->setEffectifPersonnel(null);
+            $informations->setEffectifHeberge(null);
+            $informations->setEffectifJustifiantClassement(null);
+            $informations->setEffectifHabitation(null);
+            $informations->setEffectifCaravane(null);
+            $informations->setEffectifEmplacementNu(null);
+            $informations->setEffectifDivers(null);
 
             // --- Switch genre ---
             switch ($idGenre) {

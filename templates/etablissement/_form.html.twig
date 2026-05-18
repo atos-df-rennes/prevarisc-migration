@@ -53,14 +53,16 @@
             {# Général #}
             <h4 class="h4_subtitle">Général</h4>
             <div>
-                <input class="form-control"
-                       type="text"
-                       placeholder="Libellé de l'établissement"
-                       name="LIBELLE_ETABLISSEMENTINFORMATIONS"
-                       value="{{ add ? '' : (etablissement.latestInformations.libelle|default('')) }}" />
+                <div class="form-group">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Libellé de l'établissement"
+                           name="LIBELLE_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? '' : (etablissement.latestInformations.libelle|default('')) }}" />
+                </div>
 
                 <dl class="dl-horizontal">
-                    <dt>Identifiant</dt>
+                    <dt><label for="NUMEROID_INPUT">Identifiant</label></dt>
                     <dd>
                         <input type="text" class="form-control" name="NUMEROID_ETABLISSEMENT" id="NUMEROID_INPUT"
                                value="{{ add ? '' : (etablissement.numero|default('')) }}" />
@@ -296,6 +298,11 @@
                     <input type="number" class="form-control" name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS"
                            value="{{ add ? 0 : (etablissement.latestInformations.effectifDivers|default(0)) }}" />
                 </dd>
+                <dt class="effectif_total_camping">Total</dt>
+                <dd class="effectif_total_camping">
+                    <input type="text" class="form-control" name="EFFECTIFTOTALCAMPING_ETABLISSEMENTINFORMATIONS"
+                           value="" disabled />
+                </dd>
             </dl>
 
             {# Plans #}
@@ -410,7 +417,6 @@
                 <dt class="champ_commission champs">Commission</dt>
                 <dd class="champ_commission champs">
                     <select name="ID_COMMISSION" id="ID_COMMISSION" class="form-control input-xlarge">
-                        <option value="">— Aucune —</option>
                         {% for type_id, group in commissions %}
                             <optgroup label="{{ group.libelle }}">
                                 {% for commission in group.items %}

@@ -582,6 +582,133 @@
         });
         {% endif %}
 
+        // ——— Géolocalisation Nominatim ———
+        $(document).on('click', '#geolocme_nominatim', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var $modal = $btn.closest('.modal');
+            var numero = $modal.find("input[name='numero']").val() || '';
+            var voie = $modal.find("input[name='voie_ac']").val() || '';
+            var commune = $modal.find("input[name='commune_ac']").val() || '';
+            var codepostal = $modal.find("input[name='code_postal']").val() || '';
+
+            $.ajax({
+                url: '//nominatim.openstreetmap.org/search',
+                dataType: 'json',
+                timeout: 10000,
+                data: {
+                    format: 'json',
+                    limit: 1,
+                    countrycodes: 'FR',
+                    street: numero + ' ' + voie,
+                    city: commune,
+                    postalcode: codepostal
+                },
+                beforeSend: function() {
+                    $btn.text('Géolocalisation en cours ...');
+                },
+                success: function(geolocations) {
+                    $btn.html('<span class="glyphicon glyphicon-map-marker"></span> Géolocaliser cette adresse (Nominatim)');
+                    if (geolocations.length > 0) {
+                        $modal.find('span.result').text('OK');
+                        $modal.find("input[name='lon']").val(geolocations[0].lon);
+                        $modal.find("input[name='lat']").val(geolocations[0].lat);
+                    } else {
+                        $modal.find('span.result').text('Introuvable');
+                        $modal.find("input[name='lon']").val(0);
+                        $modal.find("input[name='lat']").val(0);
+                    }
+                },
+                error: function() {
+                    $btn.text('Serveur de géolocalisation introuvable').attr('disabled', true);
+                }
+            });
+
+            return false;
+        });
+
+        // ——— Total emplacements camping (calcul dynamique) ———
+        function setTotalEmplacementCamping() {
+            var nbHabitation = parseInt($('input[name=EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var nbCaravane = parseInt($('input[name=EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var nbEmplacementNu = parseInt($('input[name=EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var nbAutre = parseInt($('input[name=EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var total = nbHabitation + nbCaravane + nbEmplacementNu + nbAutre;
+            $('input[name=EFFECTIFTOTALCAMPING_ETABLISSEMENTINFORMATIONS]').val(total);
+            return total;
+        }
+        $('input[name=EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS], input[name=EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS], input[name=EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS], input[name=EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS]')
+            .on('keydown keyup change', function() { setTotalEmplacementCamping(); });
+        setTotalEmplacementCamping();
+
+        // ——— Ajout d'une activité secondaire ———
+        $('#add_activite_secondaire').on('click', function(e) {
+            e.preventDefault();
+            var time = Date.now();
+            var $proto = $('#prototype_type_activite').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
+            });
+            $('#activite_ul').append($proto);
+            $proto.find('select.type_select').trigger('change');
+        });
+
+        // ——— Ajout d'une rubrique ICPE ———
+        $('#add_rubrique').on('click', function(e) {
+            e.preventDefault();
+            var time = Date.now();
+            var $proto = $('#prototype_rubrique').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
+            });
+            $('#rubriques_tbody').append($proto);
+        });
+
+        // ——— Ajout d'un plan ———
+        $('#add_plan').on('click', function(e) {
+            e.preventDefault();
+            var time = Date.now();
+            var $proto = $('#prototype_plan').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
+            });
+            $('#plans_tbody').append($proto);
+        });
+
+        // ——— Suppression d'un préventionniste ———
+        $(document).on('click', '.btn_remove_preventionniste', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // ——— Suppression d'un établissement enfant ———
+        $(document).on('click', '.btn_remove_enfant', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // ——— Suppression d'une activité secondaire ———
+        $(document).on('click', '.btn_remove_activite_secondaire', function() {
+            $(this).closest('li').remove();
+        });
+
+        // ——— Suppression d'une rubrique ICPE ———
+        $(document).on('click', '.btn_remove_rubrique', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // ——— Suppression d'un plan ———
+        $(document).on('click', '.btn_remove_plan', function() {
+            $(this).closest('tr').remove();
+        });
+
         {% if geoconcept_url is not null and geoconcept_url is not empty %}
         // Géolocalisation Geoconcept (si configurée)
         // (voir le legacy pour l'initialisation complète — dépend des env vars)

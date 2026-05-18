@@ -21,71 +21,85 @@
 
             <div class="modal-body">
                 <dl class="dl-horizontal">
-                    <dt>Ville</dt>
-                    <dd>
-                        <input name="commune_ac" type="text"
-                               class="form-control"
-                               placeholder="Nom de la commune ou code postal ..." />
-                        <input name="code_insee" type="hidden" />
-                        <input name="code_postal" type="hidden" />
-                    </dd>
+                    <div class="form-group">
+                        <dt>Ville</dt>
+                        <dd>
+                            <input name="commune_ac" type="text"
+                                   class="form-control"
+                                   placeholder="Nom de la commune ou code postal ..." />
+                            <input name="code_insee" type="hidden" />
+                            <input name="code_postal" type="hidden" />
+                        </dd>
+                    </div>
 
-                    <dt>Voie</dt>
-                    <dd>
-                        <input type="text" name="voie_ac"
-                               class="form-control"
-                               placeholder="Nom de la voie ..." disabled />
-                        <input type="hidden" name="type_voie" />
-                        <input type="hidden" name="voie" />
-                    </dd>
+                    <div class="form-group">
+                        <dt>Voie</dt>
+                        <dd>
+                            <input type="text" name="voie_ac"
+                                   class="form-control"
+                                   placeholder="Nom de la voie ..." disabled />
+                            <input type="hidden" name="type_voie" />
+                            <input type="hidden" name="voie" />
+                        </dd>
+                    </div>
 
-                    <dt>Numéro</dt>
-                    <dd>
-                        <input class="form-control input-small" type="text" name="numero"
-                               placeholder="Numéro ..." disabled />
-                    </dd>
+                    <div class="form-group">
+                        <dt>Numéro</dt>
+                        <dd>
+                            <input class="form-control input-small" type="text" name="numero"
+                                   placeholder="Numéro ..." disabled />
+                        </dd>
+                    </div>
 
-                    <dt>Complément d'adresse</dt>
-                    <dd>
-                        <input type="text" name="complement"
-                               class="form-control"
-                               placeholder="Complément d'adresse" disabled />
-                    </dd>
+                    <div class="form-group">
+                        <dt>Complément d'adresse</dt>
+                        <dd>
+                            <input type="text" name="complement"
+                                   class="form-control"
+                                   placeholder="Complément d'adresse" disabled />
+                        </dd>
+                    </div>
 
-                    <dt>Type de l'adresse</dt>
-                    <dd>
-                        <select class="form-control">
-                            <option>Adresse postale</option>
-                        </select>
-                    </dd>
+                    <div class="form-group">
+                        <dt>Type de l'adresse</dt>
+                        <dd>
+                            <select class="form-control">
+                                <option>Adresse postale</option>
+                            </select>
+                        </dd>
+                    </div>
 
-                    <dt>Géolocalisation</dt>
-                    <dd>
-                        {% if key_ign is not null and key_ign is not empty %}
-                            <button type="button" id="geolocme" class="btn btn-sm btn-default">
+                    <div class="form-group">
+                        <dt>Géolocalisation</dt>
+                        <dd>
+                            {% if key_ign is not null and key_ign is not empty %}
+                                <button type="button" id="geolocme" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                    Géolocaliser cette adresse (Geoportail)
+                                </button>
+                            {% endif %}
+                            {% if geoconcept_url is not null and geoconcept_url is not empty %}
+                                <button type="button" id="geolocme-geoconcept" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                    Géolocaliser cette adresse (Geoconcept)
+                                </button>
+                            {% endif %}
+                            <button type="button" id="geolocme_nominatim" class="btn btn-sm btn-default">
                                 <span class="glyphicon glyphicon-map-marker"></span>
-                                Géolocaliser cette adresse (Geoportail)
+                                Géolocaliser cette adresse (Nominatim)
                             </button>
-                        {% endif %}
-                        {% if geoconcept_url is not null and geoconcept_url is not empty %}
-                            <button type="button" id="geolocme-geoconcept" class="btn btn-sm btn-default">
-                                <span class="glyphicon glyphicon-map-marker"></span>
-                                Géolocaliser cette adresse (Geoconcept)
-                            </button>
-                        {% endif %}
-                        <button type="button" id="geolocme_nominatim" class="btn btn-sm btn-default">
-                            <span class="glyphicon glyphicon-map-marker"></span>
-                            Géolocaliser cette adresse (Nominatim)
-                        </button>
-                        <br/>
-                        <small>Résultat : <span class="result">Inconnu</span></small>
-                    </dd>
+                            <br/>
+                            <small>Résultat : <span class="result">Inconnu</span></small>
+                        </dd>
+                    </div>
 
-                    <dt>Longitude</dt>
-                    <dd>
-                        <input id="addressLongitude" type="text" name="lon"
-                               class="form-control" maxlength="11" />
-                    </dd>
+                    <div class="form-group">
+                        <dt>Longitude</dt>
+                        <dd>
+                            <input id="addressLongitude" type="text" name="lon"
+                                   class="form-control" maxlength="11" />
+                        </dd>
+                    </div>
 
                     <dt>Latitude</dt>
                     <dd>

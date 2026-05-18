@@ -76,58 +76,58 @@ class EtablissementInformations
     private $droitPublic;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifHabitation;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifCaravane;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifEmplacementNu;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifDivers;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifPublic;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifPersonnel;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifHeberge;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS", type="integer")
+     * @ORM\Column(name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
      */
     private $effectifJustifiantClassement;
 
@@ -330,7 +330,7 @@ class EtablissementInformations
         return $this->icpe ?? false;
     }
 
-    public function setIcpe(bool $icpe): self
+    public function setIcpe(?bool $icpe): self
     {
         $this->icpe = $icpe;
 
@@ -342,7 +342,7 @@ class EtablissementInformations
         return $this->r14320 ?? false;
     }
 
-    public function setR14320(bool $r14320): self
+    public function setR14320(?bool $r14320): self
     {
         $this->r14320 = $r14320;
 
@@ -354,7 +354,7 @@ class EtablissementInformations
         return $this->droitPublic ?? false;
     }
 
-    public function setDroitPublic(bool $droitPublic): self
+    public function setDroitPublic(?bool $droitPublic): self
     {
         $this->droitPublic = $droitPublic;
 
@@ -366,7 +366,7 @@ class EtablissementInformations
         return $this->effectifHabitation;
     }
 
-    public function setEffectifHabitation(int $effectifHabitation): self
+    public function setEffectifHabitation(?int $effectifHabitation): self
     {
         $this->effectifHabitation = $effectifHabitation;
 
@@ -378,7 +378,7 @@ class EtablissementInformations
         return $this->effectifCaravane;
     }
 
-    public function setEffectifCaravane(int $effectifCaravane): self
+    public function setEffectifCaravane(?int $effectifCaravane): self
     {
         $this->effectifCaravane = $effectifCaravane;
 
@@ -390,7 +390,7 @@ class EtablissementInformations
         return $this->effectifEmplacementNu;
     }
 
-    public function setEffectifEmplacementNu(int $effectifEmplacementNu): self
+    public function setEffectifEmplacementNu(?int $effectifEmplacementNu): self
     {
         $this->effectifEmplacementNu = $effectifEmplacementNu;
 
@@ -402,7 +402,7 @@ class EtablissementInformations
         return $this->effectifDivers;
     }
 
-    public function setEffectifDivers(int $effectifDivers): self
+    public function setEffectifDivers(?int $effectifDivers): self
     {
         $this->effectifDivers = $effectifDivers;
 
@@ -414,7 +414,7 @@ class EtablissementInformations
         return $this->effectifPublic;
     }
 
-    public function setEffectifPublic(int $effectifPublic): self
+    public function setEffectifPublic(?int $effectifPublic): self
     {
         $this->effectifPublic = $effectifPublic;
 
@@ -426,7 +426,7 @@ class EtablissementInformations
         return $this->effectifPersonnel;
     }
 
-    public function setEffectifPersonnel(int $effectifPersonnel): self
+    public function setEffectifPersonnel(?int $effectifPersonnel): self
     {
         $this->effectifPersonnel = $effectifPersonnel;
 
@@ -438,7 +438,7 @@ class EtablissementInformations
         return $this->effectifHeberge;
     }
 
-    public function setEffectifHeberge(int $effectifHeberge): self
+    public function setEffectifHeberge(?int $effectifHeberge): self
     {
         $this->effectifHeberge = $effectifHeberge;
 
@@ -450,7 +450,7 @@ class EtablissementInformations
         return $this->effectifJustifiantClassement;
     }
 
-    public function setEffectifJustifiantClassement(int $effectifJustifiantClassement): self
+    public function setEffectifJustifiantClassement(?int $effectifJustifiantClassement): self
     {
         $this->effectifJustifiantClassement = $effectifJustifiantClassement;
 

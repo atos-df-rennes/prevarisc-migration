@@ -367,7 +367,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 ) {
                     $this->addFlash(
                         'warning',
-                        'Le site a été créé avec un établissement enfant. Pensez à vérifier la fiche de cet établissement.'
+                        "Les droits d'accès au site sont déterminés par les droits d'accès aux établissements qui le compose. Veillez à ajouter des établissements afin de garantir l'accès au site dans Prevarisc."
                     );
 
                     return $this->redirect('/etablissement/edit/id/'.$idEtablissement);
