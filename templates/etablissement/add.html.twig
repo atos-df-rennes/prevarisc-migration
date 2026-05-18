@@ -571,7 +571,7 @@
             autoconf_path: '',
             couches_cartographiques: [
                 {% for c in couches_cartographiques %}
-                {url: {{ c.url|json_encode|raw }}, layers: {{ c.layer|json_encode|raw }}, nom: {{ c.nom|json_encode|raw }}}{{ not loop.last ? ',' : '' }}
+                {type: {{ c.type|json_encode|raw }}, url: {{ c.url|json_encode|raw }}, layer: {{ c.layer|json_encode|raw }}, nom: {{ c.nom|json_encode|raw }}, format: {{ c.format|json_encode|raw }}, transparent: {{ c.transparent ? 1 : 0 }}, ordre: {{ c.ordre|default('null') }}}{{ not loop.last ? ',' : '' }}
                 {% endfor %}
             ]
         };
