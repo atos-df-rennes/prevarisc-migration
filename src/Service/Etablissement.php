@@ -624,10 +624,7 @@ final class Etablissement
                         $informations->setCategorie($cat);
                     }
 
-                    $rawPeriodicite = self::toString($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                    if ('' !== $rawPeriodicite) {
-                        $informations->setPeriodicite(self::toInt($rawPeriodicite));
-                    }
+                    $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
 
                     $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
                     if ('' !== $rawTypeId) {
@@ -667,11 +664,10 @@ final class Etablissement
                         $informations->setCommission($commission);
                     }
 
-                    $etablissement->setNbPrev(
-                        isset($data['NBPREV_ETABLISSEMENT']) ? self::toInt($data['NBPREV_ETABLISSEMENT']) : null
-                    );
+                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
                     if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $duree = \DateTime::createFromFormat('H:i', self::toString($data['DUREEVISITE_ETABLISSEMENT']));
+                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
+                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
                         if ($duree instanceof \DateTime) {
                             $etablissement->setDureeVisite($duree);
                         }
@@ -698,19 +694,16 @@ final class Etablissement
                     $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
                     $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
                     $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $etablissement->setNbPrev(
-                        isset($data['NBPREV_ETABLISSEMENT']) ? self::toInt($data['NBPREV_ETABLISSEMENT']) : null
-                    );
+                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
                     if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $duree = \DateTime::createFromFormat('H:i', self::toString($data['DUREEVISITE_ETABLISSEMENT']));
+                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
+                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
                         if ($duree instanceof \DateTime) {
                             $etablissement->setDureeVisite($duree);
                         }
                     }
 
                     break;
-
-                    // Habitation
                 case GenreEtablissement::HABITATION:
                     $rawFamilleId = self::toString($data['ID_FAMILLE'] ?? '');
                     if ('' !== $rawFamilleId) {
@@ -730,10 +723,7 @@ final class Etablissement
                         $informations->setClasse($classe);
                     }
 
-                    $rawPeriodicite = self::toString($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                    if ('' !== $rawPeriodicite) {
-                        $informations->setPeriodicite(self::toInt($rawPeriodicite));
-                    }
+                    $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
 
                     $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
                     $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
@@ -744,11 +734,10 @@ final class Etablissement
                         $informations->setCommission($commission);
                     }
 
-                    $etablissement->setNbPrev(
-                        isset($data['NBPREV_ETABLISSEMENT']) ? self::toInt($data['NBPREV_ETABLISSEMENT']) : null
-                    );
+                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
                     if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $duree = \DateTime::createFromFormat('H:i', self::toString($data['DUREEVISITE_ETABLISSEMENT']));
+                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
+                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
                         if ($duree instanceof \DateTime) {
                             $etablissement->setDureeVisite($duree);
                         }
