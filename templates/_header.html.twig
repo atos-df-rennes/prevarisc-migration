@@ -19,8 +19,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ path('search_etablissement', {label: '', page: 1}) }}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Rechercher</a></li>
-                        {# @todo: utiliser path('etablissement_add') une fois la route migrée vers Symfony #}
-                        <li><a href='/etablissement/add'><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter</a></li>
+                        <li><a href="{{ path('etablissement_ajouter') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -29,7 +28,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ path('search_dossier', {objet: '', page: 1}) }}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>  Rechercher</a></li>
-                        <li><a href="{{ path('dossier_new') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>  Ajouter</a></li>
+                        <li><a href="{{ path('dossier_new') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Ajouter</a></li>
                     </ul>
                 </li>
                 <li><a href='{{ path('calendrier_des_commissions_index') }}'><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Calendrier</a></li>

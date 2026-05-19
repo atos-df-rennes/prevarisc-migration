@@ -1,0 +1,48 @@
+{#
+  _partial_type_activite_secondaire.html.twig
+  Ligne de liste pour un type + activité secondaire.
+
+  Variables :
+    - prototype (bool)           : true = élément caché (modèle JS)
+    - ta (EtablissementInformationsTypesActivitesSecondaires|null)
+    - types (EtablissementType[])
+    - activites (EtablissementActivite[])
+#}
+{% set is_proto = prototype|default(false) %}
+{% set ta_key = is_proto ? '-1' : (ta.id|default(0)) %}
+<li id="{{ is_proto ? 'prototype_type_activite' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}"
+    style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+    {# Type secondaire #}
+    <select name="TYPES_ACTIVITES_SECONDAIRES[{{ ta_key }}][ID_TYPE_SECONDAIRE]"
+            class="type_select form-control"
+            style="width: 85px; flex: 0 0 auto;"
+            {{ is_proto ? 'disabled' : '' }}>
+        <option value="">—</option>
+        {% for type in types %}
+            <option value="{{ type.id }}"
+                {{ (not is_proto and ta is not null and ta.type is not null and ta.type.id == type.id) ? 'selected' : '' }}>
+                {{ type.libelle }}
+            </option>
+        {% endfor %}
+    </select>
+
+    {# Activité secondaire #}
+    <select name="TYPES_ACTIVITES_SECONDAIRES[{{ ta_key }}][ID_TYPEACTIVITE_SECONDAIRE]"
+            class="activite_select form-control"
+            style="flex: 1 1 auto;"
+            {{ is_proto ? 'disabled' : '' }}>
+        <option value="">—</option>
+        {% for activite in activites %}
+            <option value="{{ activite.id }}"
+                    data-type="{{ activite.type.id }}"
+                {{ (not is_proto and ta is not null and ta.activite is not null and ta.activite.id == activite.id) ? 'selected' : '' }}>
+                {{ activite.libelle }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="button" class="btn btn-xs btn-danger btn_remove_activite_secondaire" style="flex: 0 0 auto;">
+        <span class="glyphicon glyphicon-remove"></span>
+    </button>
+</li>

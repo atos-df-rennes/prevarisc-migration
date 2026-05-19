@@ -1,0 +1,474 @@
+{#
+  Formulaire d'ajout / modification d'un établissement.
+
+  Variables attendues :
+    - add (bool)                  : true = mode création, false = mode édition
+    - genres (Genre[])            : tous les genres
+    - statuts (EtablissementStatut[]) : tous les statuts
+    - categories (EtablissementCategorie[]) : toutes les catégories ERP
+    - types (EtablissementType[]) : tous les types ERP
+    - activites (EtablissementActivite[]) : toutes les activités
+    - commissions (array)         : commissions groupées par type (getCommissionsAndTypes())
+    - types_plans (TypePlan[])    : tous les types de plans
+    - familles (Famille[])        : toutes les familles habitation
+    - igh_classes (IghClasse[])   : toutes les classes IGH
+    - classements (Classement[])  : tous les classements zone
+    - couches_cartographiques (CoucheCarto[]) : pour la carte
+    - can_edit_statut (bool)      : droit de modifier le statut
+    - key_ign (string|null)       : clé API IGN
+    - geoconcept_url (string|null): URL Geoconcept
+    - default_lon (float|null)    : longitude par défaut
+    - default_lat (float|null)    : latitude par défaut
+    - etablissement (Etablissement|null) : mode édition uniquement
+#}
+<form id="etablissement"
+      class="{{ add ? 'add' : 'edit' }}"
+      action="{{ add ? path('etablissement_ajouter') : '#' }}{# TODO(F13): remplacer '#' par path('etablissement_edit', {id: etablissement.id}) quand la route sera migrée #}"
+      method="post">
+
+    {# F4 : jeton CSRF (mode ajout uniquement) #}
+    {% if add %}
+        <input type="hidden" name="_token" value="{{ csrf_token('add_etablissement') }}">
+    {% endif %}
+
+    {# ——— Boutons haut de page ——— #}
+    <div class="pull-right">
+        {% if add %}
+            <input type="submit" class="btn btn-success" value="Ajouter l'établissement">
+        {% else %}
+            <div class="btn-group">
+                <a class="btn btn-default" href="{{ path('etablissement_informations', {id: etablissement.id}) }}">Annuler</a>
+                <input type="submit" class="btn btn-success" value="Sauvegarder">
+            </div>
+        {% endif %}
+    </div>
+
+    <h3>{{ add ? "Ajout d'un établissement" : "Modification de l'établissement" }}</h3>
+
+    <div class="row">
+
+        {# ——— Colonne gauche : classement + activités + effectifs + plans + établissements liés ——— #}
+        <div class="col-lg-6">
+
+            {# Général #}
+            <h4 class="h4_subtitle">Général</h4>
+            <div>
+                <div class="form-group">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Libellé de l'établissement"
+                           name="LIBELLE_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? '' : (etablissement.latestInformations.libelle|default('')) }}" />
+                </div>
+
+                <dl class="dl-horizontal">
+                    <dt><label for="NUMEROID_INPUT">Identifiant</label></dt>
+                    <dd>
+                        <input type="text" class="form-control" name="NUMEROID_ETABLISSEMENT" id="NUMEROID_INPUT"
+                               value="{{ add ? '' : (etablissement.numero|default('')) }}" />
+                    </dd>
+
+                    <dt>Statut</dt>
+                    <dd>
+                        <select name="ID_STATUT" class="form-control" {{ can_edit_statut ? '' : 'disabled' }}>
+                            {% for statut in statuts %}
+                                <option value="{{ statut.id }}"
+                                    {{ (not add and etablissement.latestInformations.statut.id == statut.id) ? 'selected' : '' }}>
+                                    {{ statut.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if not can_edit_statut %}
+                            {# Champ caché pour conserver la valeur si select est disabled #}
+                            <input type="hidden" name="ID_STATUT" value="{{ add ? 1 : etablissement.latestInformations.statut.id }}">
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+
+            {# Classement #}
+            <h4 class="h4_subtitle">Classement</h4>
+            <dl class="dl-horizontal">
+                <dt>Genre</dt>
+                <dd>
+                    <select name="ID_GENRE" id="ID_GENRE" class="form-control">
+                        {% for genre in genres %}
+                            <option value="{{ genre.id }}"
+                                {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
+                                {{ genre.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_icpe champs">ICPE ?</dt>
+                <dd class="champ_icpe champs">
+                    <input type="hidden" name="ICPE_ETABLISSEMENTINFORMATIONS" value="0" />
+                    <input type="checkbox" name="ICPE_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.icpe) ? 'checked' : '' }} />
+                </dd>
+
+                <dt class="champ_categorie champs">Catégorie</dt>
+                <dd class="champ_categorie champs">
+                    <select name="ID_CATEGORIE" class="form-control">
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}"
+                                {{ (not add and etablissement.latestInformations.categorie is not null and etablissement.latestInformations.categorie.id == cat.id) ? 'selected' : '' }}>
+                                {{ cat.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_classement champs">Classement</dt>
+                <dd class="champ_classement champs">
+                    <select name="ID_CLASSEMENT" class="form-control">
+                        {% for classement in classements %}
+                            <option value="{{ classement.id }}"
+                                {{ (not add and etablissement.latestInformations.classement is not null and etablissement.latestInformations.classement.id == classement.id) ? 'selected' : '' }}>
+                                {{ classement.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_famille champs">Famille</dt>
+                <dd class="champ_famille champs">
+                    <select name="ID_FAMILLE" class="form-control">
+                        {% for famille in familles %}
+                            <option value="{{ famille.id }}"
+                                {{ (not add and etablissement.latestInformations.famille is not null and etablissement.latestInformations.famille.id == famille.id) ? 'selected' : '' }}>
+                                {{ famille.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_classe champs">Classe IGH</dt>
+                <dd class="champ_classe champs">
+                    <select name="ID_CLASSE" class="form-control">
+                        {% for classe in igh_classes %}
+                            <option value="{{ classe.id }}"
+                                {{ (not add and etablissement.latestInformations.classe is not null and etablissement.latestInformations.classe.id == classe.id) ? 'selected' : '' }}>
+                                {{ classe.libelle }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt class="champ_periodicite champs">Périodicité (mois)</dt>
+                <dd class="champ_periodicite champs">
+                    <input type="number" class="form-control" name="PERIODICITE_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? '' : (etablissement.latestInformations.periodicite|default('')) }}" />
+                </dd>
+            </dl>
+
+            {# Activités (ERP / Cellule) #}
+            <h4 class="champ_types champs h4_subtitle">
+                Activités
+                <a href="#" style="font-size: 0.85em; float: right; font-weight: normal;" id="add_activite_secondaire">
+                    Ajouter un type et une activité secondaire
+                </a>
+            </h4>
+            <dl class="dl-horizontal champ_types champs">
+                <dt>Types &amp; activités</dt>
+                <dd>
+                    <ul id="activite_ul" class="list-unstyled">
+                        {# Activité principale #}
+                        <li style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                            <select name="ID_TYPE" class="type_select form-control" style="width: 85px; flex: 0 0 auto;">
+                                {% for type in types %}
+                                    <option value="{{ type.id }}"
+                                        {{ (not add and etablissement.latestInformations.type is not null and etablissement.latestInformations.type.id == type.id) ? 'selected' : '' }}>
+                                        {{ type.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <select name="ID_TYPEACTIVITE" class="activite_select form-control" style="flex: 1 1 auto;">
+                                {% for activite in activites %}
+                                    <option value="{{ activite.id }}"
+                                            data-type="{{ activite.type.id }}"
+                                        {{ (not add and etablissement.latestInformations.typeActivite is not null and etablissement.latestInformations.typeActivite.id == activite.id) ? 'selected' : '' }}>
+                                        {{ activite.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </li>
+                        {# Prototype pour les activités secondaires (caché, cloné par JS) #}
+                        {{ include('etablissement/_partial_type_activite_secondaire.html.twig', {types: types, activites: activites, prototype: true}) }}
+                        {# Activités secondaires existantes (mode édition) #}
+                        {% if not add %}
+                            {% for ta in etablissement.latestInformations.typesActivitesSecondaires %}
+                                {{ include('etablissement/_partial_type_activite_secondaire.html.twig', {types: types, activites: activites, ta: ta}) }}
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </dd>
+
+                <dt>R143-20 ?</dt>
+                <dd>
+                    <input type="hidden" name="R14320_ETABLISSEMENTINFORMATIONS" value="0" />
+                    <input type="checkbox" name="R14320_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.r14320) ? 'checked' : '' }} />
+                </dd>
+
+                <dt class="champs champ_droitpublic">R143-16 ?</dt>
+                <dd class="champs champ_droitpublic">
+                    <input type="hidden" name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS" value="0" />
+                    <input type="checkbox" name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.droitPublic) ? 'checked' : '' }} />
+                </dd>
+
+                <dt class="champs champ_localsommeil">Local à sommeil ?</dt>
+                <dd class="champs champ_localsommeil">
+                    <label><input type="radio" name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS" value="0" checked /> Non</label>
+                    <label><input type="radio" name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS" value="1"
+                           {{ (not add and etablissement.latestInformations.localSommeil) ? 'checked' : '' }} /> Oui</label>
+                </dd>
+            </dl>
+
+            {# Rubriques ICPE (BUP) #}
+            <h4 class="champs_icpe champs rubrique h4_subtitle">
+                Rubriques ICPE
+                <a href="#" style="font-size: 0.85em; float: right; font-weight: normal;" id="add_rubrique">
+                    Ajouter une rubrique
+                </a>
+            </h4>
+            <table class="table table-condensed champs_icpe champs rubrique">
+                <thead>
+                    <tr>
+                        <th>Rubrique</th><th>Numéro</th><th>Nom</th><th>Valeur</th><th>Classement</th><th></th>
+                    </tr>
+                </thead>
+                <tbody id="rubriques_tbody">
+                    {{ include('etablissement/_partial_rubrique.html.twig', {prototype: true}) }}
+                    {% if not add %}
+                        {% for rubrique in etablissement.latestInformations.rubriquesIcpe %}
+                            {{ include('etablissement/_partial_rubrique.html.twig', {rubrique: rubrique}) }}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {# Effectifs ERP/Cellule/IGH #}
+            <h4 class="champ_effectifs champs h4_subtitle">Effectifs</h4>
+            <dl class="dl-horizontal champ_effectifs champs">
+                <dt class="effectif_public">Public</dt>
+                <dd class="effectif_public">
+                    <input type="number" class="form-control" name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifPublic|default(0)) }}" />
+                </dd>
+                <dt>Personnel</dt>
+                <dd>
+                    <input type="number" class="form-control" name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifPersonnel|default(0)) }}" />
+                </dd>
+                <dt class="effectif_heberge">Dont hébergé</dt>
+                <dd class="effectif_heberge">
+                    <input type="number" class="form-control" name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifHeberge|default(0)) }}" />
+                </dd>
+                <dt class="effectif_justifiant_classement">Justifiant classement</dt>
+                <dd class="effectif_justifiant_classement">
+                    <input type="number" class="form-control" name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifJustifiantClassement|default(0)) }}" />
+                </dd>
+            </dl>
+
+            {# Emplacements camping #}
+            <h4 class="champ_effectif_camping champs h4_subtitle">Emplacements camping</h4>
+            <dl class="dl-horizontal champ_effectif_camping champs">
+                <dt class="effectif_habitation">Mobil-homes</dt>
+                <dd class="effectif_habitation">
+                    <input type="number" class="form-control" name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifHabitation|default(0)) }}" />
+                </dd>
+                <dt class="effectif_caravane">Autocaravanes</dt>
+                <dd class="effectif_caravane">
+                    <input type="number" class="form-control" name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifCaravane|default(0)) }}" />
+                </dd>
+                <dt class="effectif_emplacement_nu">Emplacements nus</dt>
+                <dd class="effectif_emplacement_nu">
+                    <input type="number" class="form-control" name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifEmplacementNu|default(0)) }}" />
+                </dd>
+                <dt class="effectif_autre_camping">Autres</dt>
+                <dd class="effectif_autre_camping">
+                    <input type="number" class="form-control" name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS"
+                           value="{{ add ? 0 : (etablissement.latestInformations.effectifDivers|default(0)) }}" />
+                </dd>
+                <dt class="effectif_total_camping">Total</dt>
+                <dd class="effectif_total_camping">
+                    <input type="text" class="form-control" name="EFFECTIFTOTALCAMPING_ETABLISSEMENTINFORMATIONS"
+                           value="" disabled />
+                </dd>
+            </dl>
+
+            {# Plans #}
+            <h4 class="champ_plans champs h4_subtitle">
+                Plans d'intervention
+                <a href="#" style="font-size: 0.85em; float: right; font-weight: normal;" id="add_plan">
+                    Ajouter un plan
+                </a>
+            </h4>
+            <table class="table table-condensed champ_plans champs">
+                <thead>
+                    <tr>
+                        <th>Type</th><th>Numéro</th><th>Date</th><th>À mettre à jour</th><th></th>
+                    </tr>
+                </thead>
+                <tbody id="plans_tbody">
+                    {{ include('etablissement/_partial_plan.html.twig', {types_plans: types_plans, prototype: true}) }}
+                    {% if not add %}
+                        {% for plan in etablissement.latestInformations.plans %}
+                            {{ include('etablissement/_partial_plan.html.twig', {plan: plan, types_plans: types_plans}) }}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {# Établissements liés #}
+            <h4 class="h4_subtitle etablissements_lies">Établissements liés</h4>
+            <dl class="dl-horizontal etablissements_lies">
+                <dt class="etablissement_pere">Père</dt>
+                <dd class="etablissement_pere">
+                    <input type="text" placeholder="Libellé de l'établissement père…"
+                           id="pere_autocomplete"
+                           style="width: 100%; box-sizing: border-box; height: 2.5em;" />
+                    <input type="hidden" name="ID_PERE"
+                           value="{{ (not add and etablissement.parent is not null) ? etablissement.parent.id : (app.request.query.get('pere')|default('')) }}" />
+                </dd>
+
+                <dt class="etablissements_enfants">Enfants</dt>
+                <dd class="etablissements_enfants">
+                    <table id="etablissements_enfants" class="table table-condensed">
+                        <thead><tr><th>Nom</th><th></th></tr></thead>
+                        <tbody id="enfants_tbody">
+                            {{ include('etablissement/_partial_etablissement_enfant.html.twig', {prototype: true}) }}
+                            {% if not add %}
+                                {% for fils in etablissement.fils %}
+                                    {{ include('etablissement/_partial_etablissement_enfant.html.twig', {fils: fils}) }}
+                                {% endfor %}
+                            {% endif %}
+                            <tr>
+                                <td>
+                                    <input type="text" placeholder="Libellé d'un établissement enfant…"
+                                           id="etablissement_autocomplete" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </dd>
+            </dl>
+
+        </div>{# /col-lg-6 gauche #}
+
+        {# ——— Colonne droite : adresse + carte + commission + préventionnistes + téléphone ——— #}
+        <div class="col-lg-6">
+
+            {# Adresse #}
+            <h4 class="champ_adresse champs h4_subtitle">
+                Adresse
+                <a style="font-size: 0.85em; float: right; font-weight: normal;"
+                   data-toggle="modal" data-backdrop="static" href="#adresse-modal-ajout">
+                    Ajouter une adresse
+                </a>
+            </h4>
+            <table id="adresses" class="table table-condensed champ_adresse champs">
+                <thead>
+                    <tr><th>Localisation</th><th>Type</th><th></th><th></th></tr>
+                </thead>
+                <tbody id="adresses_tbody">
+                    {{ include('etablissement/_partial_adresse.html.twig', {prototype: true}) }}
+                    {% if not add %}
+                        {% for adresse in etablissement.adresses %}
+                            {{ include('etablissement/_partial_adresse.html.twig', {adresse: adresse}) }}
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            {# Coordonnées — avant Données prévention comme dans le legacy #}
+            <h4 class="h4_subtitle">Coordonnées</h4>
+            <dl class="dl-horizontal">
+                <dt>Téléphone</dt>
+                <dd>
+                    <input type="text" class="form-control" name="TELEPHONE_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.telephone|default('')) }}" />
+                </dd>
+                <dt>Fax</dt>
+                <dd>
+                    <input type="text" class="form-control" name="FAX_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.fax|default('')) }}" />
+                </dd>
+                <dt>Courriel</dt>
+                <dd>
+                    <input type="text" class="form-control" name="COURRIEL_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.courriel|default('')) }}" />
+                </dd>
+            </dl>
+
+            {# Données prévention : Commission + Préventionnistes + Données pratiques dans un seul dl #}
+            <h4 class="h4_subtitle">Données prévention</h4>
+            <dl class="dl-horizontal">
+
+                <dt class="champ_commission champs">Commission</dt>
+                <dd class="champ_commission champs">
+                    <select name="ID_COMMISSION" id="ID_COMMISSION" class="form-control input-xlarge">
+                        {% for type_id, group in commissions %}
+                            <optgroup label="{{ group.libelle }}">
+                                {% for commission in group.items %}
+                                    <option value="{{ commission.id }}"
+                                        {{ (not add and etablissement is defined and etablissement is not null and etablissement.latestInformations.commission is not null and etablissement.latestInformations.commission.id == commission.id) ? 'selected' : '' }}>
+                                        {{ commission.libelle }} ({{ group.libelle }})
+                                    </option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </dd>
+
+                <dt>Préventionnistes</dt>
+                <dd class="preventionnistes">
+                    <table id="preventionnistes" class="table table-condensed">
+                        <thead>
+                            <tr><th>Nom</th><th></th></tr>
+                        </thead>
+                        <tbody id="preventionnistes_tbody">
+                            {{ include('etablissement/_partial_preventionniste.html.twig', {prototype: true}) }}
+                            {% if not add %}
+                                {% for prev in etablissement.latestInformations.preventionnistes %}
+                                    {{ include('etablissement/_partial_preventionniste.html.twig', {prev: prev}) }}
+                                {% endfor %}
+                            {% endif %}
+                            <tr>
+                                <td>
+                                    <input type="text" placeholder="Ajouter un préventionniste ..."
+                                           id="preventionniste_autocomplete" />
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </dd>
+
+                {# NBPREV en premier, DUREEVISITE en second, type="time" — comme dans le legacy #}
+                <dt class="champ_donnees_pratiques champs">Données pratiques</dt>
+                <dd class="champ_donnees_pratiques champs">
+                    <label>Nb. de préventionnistes/visite</label>
+                    <input type="number" class="form-control" name="NBPREV_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.nbPrev|default('')) }}" />
+                    <label>Durée d'une visite</label>
+                    <input type="time" class="form-control" name="DUREEVISITE_ETABLISSEMENT"
+                           value="{{ add ? '' : (etablissement.dureeVisite is not null ? etablissement.dureeVisite|date('H:i') : '') }}" />
+                </dd>
+
+            </dl>
+
+        </div>{# /col-lg-6 droite #}
+
+    </div>{# /row #}
+
+</form>

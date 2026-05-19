@@ -3,21 +3,36 @@
 namespace App\Controller\Etablissement;
 
 use App\Constant\DossierType;
+use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
+use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\Utilisateur;
 use App\Form\DescriptifOriginalType;
 use App\Form\TextesApplicablesEtablissementType;
+use App\Repository\AvisRepository;
+use App\Repository\ClassementRepository;
+use App\Repository\CommissionRepository;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementActiviteRepository;
 use App\Repository\EtablissementAdresseRepository;
+use App\Repository\EtablissementCategorieRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
+use App\Repository\EtablissementStatutRepository;
+use App\Repository\EtablissementTypeRepository;
+use App\Repository\FamilleRepository;
+use App\Repository\GenreRepository;
 use App\Repository\GroupementRepository;
+use App\Repository\IghClasseRepository;
 use App\Repository\PeriodiciteRepository;
+use App\Repository\TypePlanRepository;
+use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Alerte\AlerteService;
 use App\Service\DataStore\DataStore;
 use App\Service\Descriptif as DescriptifService;
@@ -71,6 +86,11 @@ class EtablissementController extends AbstractController implements Etablissemen
      * @var CoucheCartoRepository
      */
     private $coucheCartoRepository;
+
+    /**
+     * @var CommissionRepository
+     */
+    private $commissionRepository;
 
     /**
      * @var PeriodiciteRepository
@@ -134,6 +154,36 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $formFactory;
 
+    /** @var GenreRepository */
+    private $genreRepository;
+
+    /** @var EtablissementStatutRepository */
+    private $statutRepository;
+
+    /** @var AvisRepository */
+    private $avisRepository;
+
+    /** @var EtablissementCategorieRepository */
+    private $categorieRepository;
+
+    /** @var EtablissementTypeRepository */
+    private $typeRepository;
+
+    /** @var EtablissementActiviteRepository */
+    private $activiteRepository;
+
+    /** @var TypePlanRepository */
+    private $typePlanRepository;
+
+    /** @var FamilleRepository */
+    private $familleRepository;
+
+    /** @var IghClasseRepository */
+    private $ighClasseRepository;
+
+    /** @var ClassementRepository */
+    private $classementRepository;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -143,6 +193,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         EntityManagerInterface $entityManager,
         Dossier $dossierService,
         CoucheCartoRepository $coucheCartoRepository,
+        CommissionRepository $commissionRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
         DataStore $dataStore,
@@ -159,7 +210,17 @@ class EtablissementController extends AbstractController implements Etablissemen
         FormFactoryInterface $formFactory,
         LoggerInterface $pieceJointeLogger,
         EtablissementHistoriqueService $etablissementHistoriqueService,
-        EtablissementPieceJointeService $etablissementPieceJointeService
+        EtablissementPieceJointeService $etablissementPieceJointeService,
+        GenreRepository $genreRepository,
+        EtablissementStatutRepository $statutRepository,
+        AvisRepository $avisRepository,
+        EtablissementCategorieRepository $categorieRepository,
+        EtablissementTypeRepository $typeRepository,
+        EtablissementActiviteRepository $activiteRepository,
+        TypePlanRepository $typePlanRepository,
+        FamilleRepository $familleRepository,
+        IghClasseRepository $ighClasseRepository,
+        ClassementRepository $classementRepository
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -169,6 +230,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->entityManager = $entityManager;
         $this->dossierService = $dossierService;
         $this->coucheCartoRepository = $coucheCartoRepository;
+        $this->commissionRepository = $commissionRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->groupementRepository = $groupementRepository;
         $this->dataStore = $dataStore;
@@ -186,6 +248,163 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->pieceJointeLogger = $pieceJointeLogger;
         $this->etablissementHistoriqueService = $etablissementHistoriqueService;
         $this->etablissementPieceJointeService = $etablissementPieceJointeService;
+        $this->genreRepository = $genreRepository;
+        $this->statutRepository = $statutRepository;
+        $this->avisRepository = $avisRepository;
+        $this->categorieRepository = $categorieRepository;
+        $this->typeRepository = $typeRepository;
+        $this->activiteRepository = $activiteRepository;
+        $this->typePlanRepository = $typePlanRepository;
+        $this->familleRepository = $familleRepository;
+        $this->ighClasseRepository = $ighClasseRepository;
+        $this->classementRepository = $classementRepository;
+    }
+
+    /**
+     * Affiche le formulaire d'ajout d'un établissement (GET) et traite la soumission (POST).
+     *
+     * @Route("/etablissement/ajouter", name="etablissement_ajouter", methods={"GET","POST"}, defaults={"_etablissement_lateral_nav": false})
+     */
+    public function add(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted(EtablissementVoter::CREATE);
+
+        // Données de référence pour le formulaire
+        $genres = $this->genreRepository->findAll();
+        $statuts = $this->statutRepository->findAll();
+        $avis = $this->avisRepository->findAll();
+        $categories = $this->categorieRepository->findAll();
+        $types = $this->typeRepository->findAll();
+        $activites = $this->activiteRepository->findAll();
+        // JSON des activités au format legacy pour le JS de add.html.twig
+        $activitesJson = [];
+        foreach ($activites as $activite) {
+            $activiteType = $activite->getType();
+            $activitesJson[] = [
+                'ID_TYPE' => $activiteType ? $activiteType->getId() : null,
+                'ID_TYPEACTIVITE' => $activite->getId(),
+                'LIBELLE_ACTIVITE' => $activite->getLibelle(),
+            ];
+        }
+
+        // Commissions groupées par type pour les optgroups du select
+        /** @var array<int, array{libelle: string, items: Commission[]}> $commissionsData */
+        $commissionsData = [];
+        foreach ($this->commissionRepository->findAll() as $commission) {
+            $type = $commission->getType();
+            $typeId = $type ? (int) $type->getId() : 0;
+            $typeLibelle = $type ? (string) $type->getLibelle() : '';
+            if (!isset($commissionsData[$typeId])) {
+                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
+            }
+
+            $commissionsData[$typeId]['items'][] = $commission;
+        }
+
+        $typesPlans = $this->typePlanRepository->findAll();
+        $familles = $this->familleRepository->findAll();
+        $ighClasses = $this->ighClasseRepository->findAll();
+        $classements = $this->classementRepository->findAllOrderedByLibelle();
+        $couchesCartographiques = $this->coucheCartoRepository->findAllOrdered();
+
+        // Vérifie si l'utilisateur a le droit de modifier le statut
+        $canEditStatut = $this->isGranted('edit_statut');
+
+        // Paramètres de géolocalisation IGN
+        $keyIgn = $this->getParameter('app.ign_key');
+        $geoconceptUrl = $this->getParameter('app.geoconcept_url');
+        $defaultLon = $this->getParameter('app.carto_default_lon');
+        $defaultLat = $this->getParameter('app.carto_default_lat');
+
+        if ($request->isMethod('POST')) {
+            // F4 : vérification du jeton CSRF
+            /** @var string|null $csrfToken */
+            $csrfToken = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('add_etablissement', $csrfToken)) {
+                $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
+
+                return $this->render('etablissement/add.html.twig', [
+                    'genres' => $genres,
+                    'statuts' => $statuts,
+                    'avis' => $avis,
+                    'categories' => $categories,
+                    'types' => $types,
+                    'activites' => $activites,
+                    'activites_json' => json_encode($activitesJson),
+                    'commissions' => $commissionsData,
+                    'types_plans' => $typesPlans,
+                    'familles' => $familles,
+                    'igh_classes' => $ighClasses,
+                    'classements' => $classements,
+                    'couches_cartographiques' => $couchesCartographiques,
+                    'can_edit_statut' => $canEditStatut,
+                    'key_ign' => $keyIgn,
+                    'geoconcept_url' => $geoconceptUrl,
+                    'default_lon' => $defaultLon,
+                    'default_lat' => $defaultLat,
+                ]);
+            }
+
+            /** @var array<string, mixed> $post */
+            $post = $request->request->all();
+            $rawGenre = $post['ID_GENRE'] ?? null;
+            $idGenre = is_scalar($rawGenre) ? (int) $rawGenre : GenreEtablissement::ERP;
+
+            try {
+                /** @var Utilisateur|null $user */
+                $user = $this->getUser();
+                $idEtablissement = $this->etablissementService->save($idGenre, $post, $user);
+
+                // Cas particulier : site avec un seul fils → rediriger vers édition legacy
+                // TODO: remplacer par redirectToRoute('etablissement_edit', ['id' => $idEtablissement])
+                //       quand l'action edit sera migrée.
+                if (GenreEtablissement::SITE === $idGenre
+                    && isset($post['ID_FILS_ETABLISSEMENT'])
+                    && is_array($post['ID_FILS_ETABLISSEMENT'])
+                    && 1 === count(array_filter($post['ID_FILS_ETABLISSEMENT'], static function ($v): bool {
+                        return is_scalar($v) && (int) $v > 0;
+                    }))
+                ) {
+                    $this->addFlash(
+                        'warning',
+                        "Les droits d'accès au site sont déterminés par les droits d'accès aux établissements qui le compose. Veillez à ajouter des établissements afin de garantir l'accès au site dans Prevarisc."
+                    );
+
+                    return $this->redirect('/etablissement/edit/id/'.$idEtablissement);
+                }
+
+                // F9 : message aligné sur le legacy
+                $this->addFlash('success', "L'établissement a bien été ajouté.");
+
+                return $this->redirectToRoute('etablissement_informations', ['id' => $idEtablissement]);
+            } catch (\Exception $e) {
+                // F9 : logger l'exception, ne pas exposer $e->getMessage() à l'utilisateur
+                $this->logger->error('Erreur ajout établissement', ['error' => $e->getMessage()]);
+                // F9 : 'error' → 'danger' + message générique aligné legacy
+                $this->addFlash('danger', "L'établissement n'a pas été ajouté. Veuillez rééssayez.");
+            }
+        }
+
+        return $this->render('etablissement/add.html.twig', [
+            'genres' => $genres,
+            'statuts' => $statuts,
+            'avis' => $avis,
+            'categories' => $categories,
+            'types' => $types,
+            'activites' => $activites,
+            'activites_json' => json_encode($activitesJson),
+            'commissions' => $commissionsData,
+            'types_plans' => $typesPlans,
+            'familles' => $familles,
+            'igh_classes' => $ighClasses,
+            'classements' => $classements,
+            'couches_cartographiques' => $couchesCartographiques,
+            'can_edit_statut' => $canEditStatut,
+            'key_ign' => $keyIgn,
+            'geoconcept_url' => $geoconceptUrl,
+            'default_lon' => $defaultLon,
+            'default_lat' => $defaultLat,
+        ]);
     }
 
     /**

@@ -27,7 +27,7 @@ class AdresseController extends AbstractController
     /**
      * Autocomplete des communes par nom ou code postal.
      *
-     * @Route("/api/1.0/adresse/get_communes", name="api_adresse_get_communes", methods={"GET"})
+     * @Route("/api/2.0/adresse/get_communes", name="api_adresse_get_communes", methods={"GET"})
      */
     public function getCommunes(Request $request): JsonResponse
     {
@@ -58,7 +58,7 @@ class AdresseController extends AbstractController
      * Voies d'une commune pour autocomplete.
      * Accepte GET (autocomplete) et POST (dossier search via AJAX).
      *
-     * @Route("/api/1.0/adresse/get_voies", name="api_adresse_get_voies", methods={"GET", "POST"})
+     * @Route("/api/2.0/adresse/get_voies", name="api_adresse_get_voies", methods={"GET", "POST"})
      */
     public function getVoies(Request $request): JsonResponse
     {
@@ -90,7 +90,7 @@ class AdresseController extends AbstractController
      * Numéros de rue pour une voie donnée.
      * Accepte GET et POST.
      *
-     * @Route("/api/1.0/adresse/get_numeros", name="api_adresse_get_numeros", methods={"GET", "POST"})
+     * @Route("/api/2.0/adresse/get_numeros", name="api_adresse_get_numeros", methods={"GET", "POST"})
      */
     public function getNumeros(Request $request): JsonResponse
     {
@@ -107,6 +107,60 @@ class AdresseController extends AbstractController
         )->fetchAllAssociative();
 
         return new JsonResponse(['response' => $rows]);
+    }
+
+    /**
+     * Récupère le libellé d'une commune par code INSEE.
+     * Port de Api_Service_Adresse::getLibelleCommune.
+     *
+     * @Route("/api/2.0/adresse/get_libelle_commune", name="api_adresse_get_libelle_commune", methods={"GET"})
+     */
+    public function getLibelleCommune(Request $request): JsonResponse
+    {
+        $codeInsee = $this->extractString($request->query->get('code_insee', ''));
+
+        if ('' === $codeInsee) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        /** @var array<string, mixed>|false $row */
+        $row = $this->connection->executeQuery(
+            'SELECT * FROM adressecommune WHERE NUMINSEE_COMMUNE = ?',
+            [$codeInsee]
+        )->fetchAssociative();
+
+        if (false === $row) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        return new JsonResponse(['response' => $row]);
+    }
+
+    /**
+     * Récupère le libellé d'une rue par son ID.
+     * Port de Api_Service_Adresse::getLibelleRue.
+     *
+     * @Route("/api/2.0/adresse/get_libelle_rue", name="api_adresse_get_libelle_rue", methods={"GET"})
+     */
+    public function getLibelleRue(Request $request): JsonResponse
+    {
+        $idRue = $this->extractString($request->query->get('idRue', ''));
+
+        if ('' === $idRue) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        /** @var array<string, mixed>|false $row */
+        $row = $this->connection->executeQuery(
+            'SELECT * FROM adresserue WHERE ID_RUE = ?',
+            [(int) $idRue]
+        )->fetchAssociative();
+
+        if (false === $row) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        return new JsonResponse(['response' => $row]);
     }
 
     /**

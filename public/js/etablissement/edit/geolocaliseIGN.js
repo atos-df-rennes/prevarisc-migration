@@ -11,7 +11,7 @@ function geolocaliseIGN (idModal, options) {
     
     $(`${idModal} #${options.geo_container_id}`).css('visibility', 'hidden');
 
-    $(idModal+' #geolocme').click(function() {
+    $(idModal+' #geolocme').off('click').on('click', function() {
         geocodeAndShowMap()
     });
 
@@ -61,6 +61,9 @@ function geolocaliseIGN (idModal, options) {
             lonlat = updateCoordinates(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
             putMarkerAt(viewer.getLibMap(), lonlat);
         });
+    } else if (idModal.includes('edit')) {
+        // Carte déjà chargée, géolocaliser directement avec les nouvelles données
+        geocodeAndShowMap();
     }
 
     function geocodeAndShowMap() {

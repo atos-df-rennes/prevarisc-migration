@@ -1,0 +1,59 @@
+{#
+  _partial_rubrique.html.twig
+  Ligne de tableau pour une rubrique ICPE (BUP).
+
+  Variables :
+    - prototype (bool)          : true = ligne cachée (modèle JS)
+    - rubrique (EtablissementInformationsRubriques|null)
+
+  F3 : noms alignés sur Service/Etablissement.php ($data['RUBRIQUES'][id][...])
+  Le JS remplace [-1] par un timestamp lors du clonage du prototype.
+#}
+{% set is_proto = prototype|default(false) %}
+{% set rub_key = is_proto ? '-1' : (rubrique.id|default(0)) %}
+<tr id="{{ is_proto ? 'prototype_rubrique' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    <td>
+        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]"
+                style="width: auto;">
+            <option value="1" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 1) ? 'selected' : '' }}>Substance</option>
+            <option value="2" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 2) ? 'selected' : '' }}>Activité</option>
+            <option value="3" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 3) ? 'selected' : '' }}>IED</option>
+            <option value="4" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 4) ? 'selected' : '' }}>Produits dangereux</option>
+        </select>
+    </td>
+    <td>
+        <input type="text" class="form-control" placeholder="Numéro"
+               name="RUBRIQUES[{{ rub_key }}][NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
+               value="{{ is_proto ? '' : (rubrique.numero|default('')) }}"
+               style="width: 60px;" />
+    </td>
+    <td>
+        <input type="text" class="form-control" placeholder="Nom"
+               name="RUBRIQUES[{{ rub_key }}][NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
+               value="{{ is_proto ? '' : (rubrique.nom|default('')) }}"
+               style="width: 140px;" />
+    </td>
+    <td>
+        <input type="text" class="form-control" placeholder="Valeur"
+               name="RUBRIQUES[{{ rub_key }}][VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
+               value="{{ is_proto ? '' : (rubrique.valeur|default('')) }}"
+               style="width: 80px;" />
+    </td>
+    <td>
+        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
+                style="width: auto;">
+            <option value="D" {{ (not is_proto and rubrique is not null and rubrique.classement == 'D') ? 'selected' : '' }}>D</option>
+            <option value="DC" {{ (not is_proto and rubrique is not null and rubrique.classement == 'DC') ? 'selected' : '' }}>DC</option>
+            <option value="EN" {{ (not is_proto and rubrique is not null and rubrique.classement == 'EN') ? 'selected' : '' }}>EN</option>
+            <option value="A" {{ (not is_proto and rubrique is not null and rubrique.classement == 'A') ? 'selected' : '' }}>A</option>
+            <option value="SB" {{ (not is_proto and rubrique is not null and rubrique.classement == 'SB') ? 'selected' : '' }}>SB</option>
+            <option value="AS" {{ (not is_proto and rubrique is not null and rubrique.classement == 'AS') ? 'selected' : '' }}>AS</option>
+        </select>
+    </td>
+    <td>
+        <button type="button" class="btn btn-xs btn-danger btn_remove_rubrique">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </td>
+</tr>

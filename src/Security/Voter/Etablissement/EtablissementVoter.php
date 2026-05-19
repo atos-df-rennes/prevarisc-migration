@@ -14,6 +14,12 @@ abstract class EtablissementVoter extends Voter
 
     public const MODIFICATION = 'edit_ets';
 
+    /**
+     * Attribut permettant de vérifier si l'utilisateur peut créer un établissement.
+     * Le contrôle est délégué au PrivilegeVoter qui vérifie le privilège 'add_etablissement' en BDD.
+     */
+    public const CREATE = 'add_etablissement';
+
     protected function supports($attribute, $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION], true)) {
@@ -37,11 +43,17 @@ abstract class EtablissementVoter extends Voter
     }
 
     /**
+     * Vérifie si le genre de l'établissement sujet correspond au genre attendu.
+     * Retourne false si le sujet n'est pas un établissement (ex: null pour la création).
+     *
      * @phpstan-ignore missingType.parameter
      */
     protected function isSubjectGenreAllowed($subject, int $genreId): bool
     {
-        /** @var Etablissement $subject */
+        if (!$subject instanceof Etablissement) {
+            return false;
+        }
+
         /** @var EtablissementInformations $latestInformations */
         $latestInformations = $subject->getLatestInformations();
         $genre = $latestInformations->getGenre();

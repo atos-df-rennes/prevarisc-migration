@@ -1,0 +1,116 @@
+{#
+  _modal_edit_adresse.html.twig
+  Modale de modification d'une adresse existante.
+
+  Variables :
+    - key_ign (string|null) : clé API IGN
+#}
+<form id="adresse-modal-edit" class="modal fade adresse adresse-modal-edit" tabindex="-1"
+      role="dialog" method="post">
+    <input type="hidden" name="idAdresse" value="" />
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 class="modal-title">Modifier une adresse</h3>
+            </div>
+
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <div class="form-group">
+                        <dt>Ville</dt>
+                        <dd>
+                            <input name="commune_ac" type="text"
+                                   class="form-control"
+                                   placeholder="Nom de la commune ou code postal ..." />
+                            <input name="code_insee" type="hidden" />
+                            <input name="code_postal" type="hidden" />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Voie</dt>
+                        <dd>
+                            <input type="text" name="voie_ac"
+                                   class="form-control"
+                                   placeholder="Nom de la voie ..." disabled />
+                            <input type="hidden" name="type_voie" />
+                            <input type="hidden" name="voie" />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Numéro</dt>
+                        <dd>
+                            <input class="form-control input-small" type="text" name="numero"
+                                   placeholder="Numéro ..." disabled />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Complément d'adresse</dt>
+                        <dd>
+                            <input type="text" name="complement"
+                                   class="form-control"
+                                   placeholder="Complément d'adresse" disabled />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Type de l'adresse</dt>
+                        <dd>
+                            <select class="form-control">
+                                <option>Adresse postale</option>
+                            </select>
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Géolocalisation</dt>
+                        <dd>
+                            {% if key_ign is not null and key_ign is not empty %}
+                                <button type="button" id="geolocme" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                    Géolocaliser cette adresse (Geoportail)
+                                </button>
+                            {% endif %}
+                            <br/>
+                            <small>Résultat : <span class="result">Inconnu</span></small>
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Longitude</dt>
+                        <dd>
+                            <input id="addressLongitude" type="text" name="lon"
+                                   class="form-control" />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Latitude</dt>
+                        <dd>
+                            <input id="addressLatitude" type="text" name="lat"
+                                   class="form-control" />
+                        </dd>
+                    </div>
+                </dl>
+
+                {% if key_ign is not null and key_ign is not empty %}
+                    <div id="edit-geoportail-container" style="height: 400px;"></div>
+                    <style>
+                        .ol-full-screen { right: 9px; top: 49px; }
+                    </style>
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+                <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
+                <button id="submit-adresse-edit" class="btn btn-success">Modifier</button>
+            </div>
+
+        </div>
+    </div>
+</form>

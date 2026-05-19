@@ -1,0 +1,57 @@
+{#
+  _modal_confirmation.html.twig
+  Modale de confirmation avec valeurs saisies vs valeurs conseillées.
+  Les labels sont interactifs : cliquer bascule le label-info d'une paire.
+#}
+<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 class="modal-title">Confirmation de l'édition</h3>
+            </div>
+
+            <div class="modal-body">
+                <dl>
+                    <dt>Valeurs conseillées</dt>
+                    <dd>
+                        <ul>
+                            <li id="confirm-modal-commission">
+                                Commission renseignée :
+                                <a href="#" class="label label-info confirm-modal-input">Aucune</a>,
+                                la commission conseillée :
+                                <a href="#" class="label label-default confirm-modal-advisable"></a>
+                            </li>
+                            <li id="confirm-modal-periodicite">
+                                Périodicité renseignée :
+                                <a href="#" class="label label-info confirm-modal-input">Aucune</a>,
+                                la périodicité conseillée :
+                                <a href="#" class="label label-default confirm-modal-advisable"></a>
+                            </li>
+                            <li id="confirm-modal-localsommeil">
+                                Présence de local à sommeil renseignée :
+                                <a href="#" class="label label-info confirm-modal-input"></a>,
+                                la présence conseillée :
+                                <a href="#" class="label label-default confirm-modal-advisable"></a>
+                            </li>
+                            <li id="confirm-modal-preventionnistes">
+                                Préventionnistes affectés :
+                                <a href="#" class="label confirm-modal-input label-info">Aucuns</a>,
+                                les préventionnistes conseillés :
+                                <a href="#" class="label label-default confirm-modal-advisable"></a>
+                            </li>
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+
+            <div class="modal-footer">
+                <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
+                <input type="submit" value="Confirmer et sauvegarder les changements"
+                       class="btn btn-success" />
+            </div>
+
+        </div>
+    </div>
+</div>

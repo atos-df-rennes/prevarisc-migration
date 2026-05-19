@@ -1,0 +1,127 @@
+{#
+  _modal_adresse.html.twig
+  Modale d'ajout d'une adresse — formulaire avec autocomplete commune/voie + géolocalisation.
+
+  Variables :
+    - key_ign (string|null)        : clé API IGN
+    - geoconcept_url (string|null) : URL Geoconcept
+    - default_lon (float|null)
+    - default_lat (float|null)
+    - couches_cartographiques (CoucheCarto[])
+#}
+<form id="adresse-modal-ajout" class="modal fade adresse" tabindex="-1" role="dialog"
+      method="post" action="#">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 class="modal-title">Ajouter une adresse</h3>
+            </div>
+
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <div class="form-group">
+                        <dt>Ville</dt>
+                        <dd>
+                            <input name="commune_ac" type="text"
+                                   class="form-control"
+                                   placeholder="Nom de la commune ou code postal ..." />
+                            <input name="code_insee" type="hidden" />
+                            <input name="code_postal" type="hidden" />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Voie</dt>
+                        <dd>
+                            <input type="text" name="voie_ac"
+                                   class="form-control"
+                                   placeholder="Nom de la voie ..." disabled />
+                            <input type="hidden" name="type_voie" />
+                            <input type="hidden" name="voie" />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Numéro</dt>
+                        <dd>
+                            <input class="form-control input-small" type="text" name="numero"
+                                   placeholder="Numéro ..." disabled />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Complément d'adresse</dt>
+                        <dd>
+                            <input type="text" name="complement"
+                                   class="form-control"
+                                   placeholder="Complément d'adresse" disabled />
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Type de l'adresse</dt>
+                        <dd>
+                            <select class="form-control">
+                                <option>Adresse postale</option>
+                            </select>
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Géolocalisation</dt>
+                        <dd>
+                            {% if key_ign is not null and key_ign is not empty %}
+                                <button type="button" id="geolocme" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                    Géolocaliser cette adresse (Geoportail)
+                                </button>
+                            {% endif %}
+                            {% if geoconcept_url is not null and geoconcept_url is not empty %}
+                                <button type="button" id="geolocme-geoconcept" class="btn btn-sm btn-default">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                    Géolocaliser cette adresse (Geoconcept)
+                                </button>
+                            {% endif %}
+                            <button type="button" id="geolocme_nominatim" class="btn btn-sm btn-default">
+                                <span class="glyphicon glyphicon-map-marker"></span>
+                                Géolocaliser cette adresse (Nominatim)
+                            </button>
+                            <br/>
+                            <small>Résultat : <span class="result">Inconnu</span></small>
+                        </dd>
+                    </div>
+
+                    <div class="form-group">
+                        <dt>Longitude</dt>
+                        <dd>
+                            <input id="addressLongitude" type="text" name="lon"
+                                   class="form-control" maxlength="11" />
+                        </dd>
+                    </div>
+
+                    <dt>Latitude</dt>
+                    <dd>
+                        <input id="addressLatitude" type="text" name="lat"
+                               class="form-control" maxlength="10" />
+                    </dd>
+                </dl>
+
+                {% if key_ign is not null and key_ign is not empty %}
+                    <div id="geoportail-container" style="height: 400px;"></div>
+                {% endif %}
+
+                {% if geoconcept_url is not null and geoconcept_url is not empty %}
+                    <div id="geoconcept-container" style="height: 400px; width: 100%"></div>
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+                <a href="#" data-dismiss="modal" class="btn btn-default">Annuler</a>
+                <a href="#" data-dismiss="modal" class="btn btn-success" id="submit-adresse">Sauvegarder</a>
+            </div>
+
+        </div>
+    </div>
+</form>

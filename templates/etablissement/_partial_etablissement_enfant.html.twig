@@ -1,0 +1,23 @@
+{#
+  _partial_etablissement_enfant.html.twig
+  Ligne de tableau pour un établissement enfant lié.
+
+  Variables :
+    - prototype (bool)          : true = ligne cachée (modèle JS)
+    - fils (Etablissement|null) : mode édition
+#}
+{% set is_proto = prototype|default(false) %}
+<tr id="{{ is_proto ? 'prototype_enfant' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    <td>
+        <input type="hidden"
+               name="{{ is_proto ? 'ID_FILS_ETABLISSEMENT[-1]' : 'ID_FILS_ETABLISSEMENT[' ~ (fils.id|default(0)) ~ ']' }}"
+               value="{{ is_proto ? '' : (fils.id|default('')) }}" />
+        <span class="enfant_libelle">{{ is_proto ? '' : (fils.latestInformations.libelle|default('')) }}</span>
+    </td>
+    <td>
+        <button type="button" class="btn btn-xs btn-danger btn_remove_enfant">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </td>
+</tr>

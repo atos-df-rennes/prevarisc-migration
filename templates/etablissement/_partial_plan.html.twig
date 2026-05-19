@@ -1,0 +1,50 @@
+{#
+  _partial_plan.html.twig
+  Ligne de tableau pour un plan d'intervention.
+
+  Variables :
+    - prototype (bool)          : true = ligne cachée (modèle JS)
+    - plan (EtablissementInformationsPlan|null)
+    - types_plans (TypePlan[])  : liste des types de plans
+#}
+{% set is_proto = prototype|default(false) %}
+{% set plan_key = is_proto ? '-1' : (plan.id|default(0)) %}
+<tr id="{{ is_proto ? 'prototype_plan' : '' }}"
+    class="{{ is_proto ? 'hide prototype' : '' }}">
+    <td>
+        <select class="form-control" name="PLANS[{{ plan_key }}][ID_TYPEPLAN]">
+            <option value="">— Choisir —</option>
+            {% for tp in types_plans %}
+                <option value="{{ tp.id }}"
+                    {{ (not is_proto and plan is not null and plan.typePlan.id == tp.id) ? 'selected' : '' }}>
+                    {{ tp.libelle }}
+                </option>
+            {% endfor %}
+        </select>
+    </td>
+    <td>
+        <input type="text" class="form-control"
+               name="PLANS[{{ plan_key }}][NUMERO_ETABLISSEMENTPLAN]"
+               value="{{ is_proto ? '' : (plan.numero|default('')) }}"
+               style="width: 70px;" />
+    </td>
+    <td>
+        <input type="date" class="form-control"
+               name="PLANS[{{ plan_key }}][DATE_ETABLISSEMENTPLAN]"
+               value="{{ is_proto ? '' : (plan.date is not null ? plan.date|date('Y-m-d') : '') }}" />
+    </td>
+    <td class="text-center">
+        <input type="hidden"
+               name="PLANS[{{ plan_key }}][MISEAJOUR_ETABLISSEMENTPLAN]"
+               value="0" />
+        <input type="checkbox"
+               name="PLANS[{{ plan_key }}][MISEAJOUR_ETABLISSEMENTPLAN]"
+               value="1"
+               {{ (not is_proto and plan is not null and plan.maj) ? 'checked' : '' }} />
+    </td>
+    <td>
+        <button type="button" class="btn btn-xs btn-danger btn_remove_plan">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </td>
+</tr>

@@ -1,0 +1,46 @@
+{#
+  _partial_adresse.html.twig
+  Représente une ligne de tableau pour une adresse.
+
+  Variables :
+    - prototype (bool)              : true = ligne cachée utilisée comme modèle JS
+    - adresse (EtablissementAdresse|null) : mode édition, null en mode ajout
+#}
+{% set is_proto = prototype|default(false) %}
+{% set addr_key = is_proto ? '-1' : (adresse.id|default(0)) %}
+<tr {{ is_proto ? "id='prototype_adresse' class='prototypes hide'" : "class='adresse'" }}>
+    <td id="adresse{{ addr_key }}">
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][NUMINSEE_COMMUNE]"
+               value="{{ is_proto ? '' : (adresse.commune is not null ? adresse.commune.id : '') }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][LON_ETABLISSEMENTADRESSE]"
+               value="{{ is_proto ? '' : (adresse.longitude|default('')) }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][LAT_ETABLISSEMENTADRESSE]"
+               value="{{ is_proto ? '' : (adresse.latitude|default('')) }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][NUMERO_ADRESSE]"
+               value="{{ is_proto ? '' : (adresse.numero|default('')) }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][ID_RUE]"
+               value="{{ is_proto ? '' : (adresse.rue is not null ? adresse.rue.id : '') }}" />
+        <input type="hidden" name="ADRESSES[{{ addr_key }}][COMPLEMENT_ADRESSE]"
+               value="{{ is_proto ? '' : (adresse.complement|default('')) }}" />
+        <span>{% if not is_proto and adresse is not null %}{{ [
+            adresse.numero|default(''),
+            adresse.rue is not null ? adresse.rue.libelle : '',
+            adresse.complement|default(''),
+            adresse.commune is not null ? adresse.commune.codePostal : '',
+            adresse.commune is not null ? adresse.commune.libelle : '',
+        ]|join(' ')|trim }}{% endif %}</span>
+    </td>
+    <td>Adresse postale</td>
+    <td>
+        <small>
+            <a class="modifierAdresse" data-id="{{ addr_key }}"
+               data-toggle="modal" data-backdrop="static"
+               href="#adresse-modal-edit">Modifier</a>
+        </small>
+    </td>
+    <td>
+        <small>
+            <a href="#" onclick="$(this).parent().parent().parent().remove(); return false;">Retirer</a>
+        </small>
+    </td>
+</tr>
