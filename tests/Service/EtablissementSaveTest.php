@@ -80,7 +80,7 @@ class EtablissementSaveTest extends TestCase
         $avisDerogationsRepo = $this->createMock(AvisDerogationsRepository::class);
         $parameterBag = $this->createMock(ParameterBagInterface::class);
         $texteApplicable = $this->createMock(TexteApplicable::class);
-        $persistenceService = $this->createMock(EtablissementPersistenceService::class);
+        $persistenceService = new EtablissementPersistenceService($etablissementRepo);
         $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
 
         return new EtablissementService(
