@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Constant\CategorieEtablissement;
 use App\Constant\GenreEtablissement;
 use App\Constant\TypeChangement;
 use App\Dto\AvisDerogationEtablissement;
@@ -646,7 +647,7 @@ final class Etablissement
                     }
 
                     // Effectif justifiant classement uniquement pour 5ème catégorie
-                    if ('' !== $rawCategorieId && 5 === self::toInt($rawCategorieId)) {
+                    if ('' !== $rawCategorieId && CategorieEtablissement::CINQUIEME === self::toInt($rawCategorieId)) {
                         $informations->setEffectifJustifiantClassement(
                             self::toInt($data['EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS'] ?? 0)
                         );
@@ -970,7 +971,7 @@ final class Etablissement
                         $informations->setEffectifHeberge(self::toInt($data['EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS'] ?? 0));
                     }
 
-                    if ('' !== $rawCategorieId && 5 === self::toInt($rawCategorieId)) {
+                    if ('' !== $rawCategorieId && CategorieEtablissement::CINQUIEME === self::toInt($rawCategorieId)) {
                         $informations->setEffectifJustifiantClassement(
                             self::toInt($data['EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS'] ?? 0)
                         );

@@ -30,6 +30,9 @@
     {% if key_ign is not null and key_ign is not empty %}
         <link rel="stylesheet" href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" media="all">
     {% endif %}
+    {% if geoconcept_url is not null and geoconcept_url is not empty %}
+        <link rel="stylesheet" href="{{ asset('css/geoconcept/htc.css') }}">
+    {% endif %}
     <style>
         /* Espacement Bootstrap 3 entre champs du formulaire établissement */
         form#etablissement dl.dl-horizontal dt,
@@ -43,6 +46,16 @@
         <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
         <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
         <script src="{{ asset('js/etablissement/edit/geolocaliseIGN.js') }}"></script>
+    {% endif %}
+    {% if geoconcept_url is not null and geoconcept_url is not empty %}
+        <script src="{{ asset('js/geoconcept/OpenLayers.js') }}"></script>
+        <script src="{{ asset('js/geoconcept/proj4js.js') }}"></script>
+        <script src="{{ asset('js/geoconcept/htc-lite.js') }}"></script>
+        {% set geoconcept_projection = parameter('app.geoconcept_projection') %}
+        {% if geoconcept_projection is not empty %}
+            <script src="{{ asset('js/geoconcept/defs/' ~ geoconcept_projection ~ '.js') }}"></script>
+        {% endif %}
+        <script src="{{ asset('js/geoconcept/geoconcept.js') }}"></script>
     {% endif %}
     <script>
     $(document).ready(function() {
@@ -730,8 +743,97 @@
         });
 
         {% if geoconcept_url is not null and geoconcept_url is not empty %}
-        // Géolocalisation Geoconcept (si configurée)
-        // (voir le legacy pour l'initialisation complète — dépend des env vars)
+        // ——— Géolocalisation Geoconcept ———
+        {% set geoconcept_token = parameter('app.geoconcept_token') %}
+        {% set geoconcept_app_id = parameter('app.geoconcept_app_id') %}
+        {% set geoconcept_layer = parameter('app.geoconcept_layer') %}
+        {% set geoconcept_geocoder = parameter('app.geoconcept_geocoder') %}
+
+        {% if geoconcept_token is not empty and geoconcept_app_id is not empty %}
+        initGeoConceptKey({{ geoconcept_app_id|json_encode|raw }}, {{ geoconcept_token|json_encode|raw }});
+        {% endif %}
+
+        var geoconceptMap = initGeoConceptViewer('geoconcept-container',
+            {{ geoconcept_url|json_encode|raw }},
+            {{ geoconcept_layer|json_encode|raw }},
+            [{lat: {{ default_lat|default(0) }}, lon: {{ default_lon|default(0) }}, description: ""}],
+            [
+                {% for c in couches_cartographiques %}
+                {type: {{ c.type|json_encode|raw }}, url: {{ c.url|json_encode|raw }}, layer: {{ c.layer|json_encode|raw }}, nom: {{ c.nom|json_encode|raw }}, format: {{ c.format|json_encode|raw }}, transparent: {{ c.transparent ? 1 : 0 }}, ordre: {{ c.ordre|default('null') }}}{{ not loop.last ? ',' : '' }}
+                {% endfor %}
+            ],
+            function() {
+                var vectorLayers = geoconceptMap.getLayersByClass('OpenLayers.Layer.Vector');
+                if (vectorLayers !== null && vectorLayers.length > 0) {
+                    var vectorLayer = vectorLayers[0];
+                    for (var j = 0; j < vectorLayer.features.length; j++) {
+                        vectorLayer.features[j].destroy();
+                    }
+                }
+
+                OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+                    defaultHandlerOptions: {
+                        'single': true, 'double': false,
+                        'pixelTolerance': 0, 'stopSingle': false, 'stopDouble': false
+                    },
+                    initialize: function(options) {
+                        OpenLayers.Control.prototype.initialize.apply(this, arguments);
+                        this.handlerOptions = OpenLayers.Util.extend({}, this.defaultHandlerOptions);
+                        this.handler = new OpenLayers.Handler.Click(this, {'click': this.trigger}, this.handlerOptions);
+                    },
+                    trigger: function(e) {
+                        var lonlat = geoconceptMap.getLonLatFromViewPortPx(e.xy).transform(
+                            geoconceptMap.getProjection(), new OpenLayers.Projection("EPSG:4326")
+                        );
+                        var $modal = $(e.object.map.div).closest('.modal');
+                        $modal.find("span.result").text("Manuel par clic sur la carte");
+                        $modal.find("input[name='lon']").val(lonlat.lon);
+                        $modal.find("input[name='lat']").val(lonlat.lat);
+                        geoConceptPutMarkerAt(geoconceptMap, geoconceptMap.getLonLatFromViewPortPx(e.xy));
+                    }
+                });
+
+                geoconceptMap.addControl(new OpenLayers.Control.Click({autoActivate: true}));
+            }
+        );
+
+        $(document).on('click', '#geolocme-geoconcept', function(e) {
+            e.preventDefault();
+            var geocoderUrl = {{ geoconcept_geocoder|json_encode|raw }};
+            var $modal = $(this).closest('.modal');
+            var numero = $modal.find("input[name='numero']").val() || '';
+            var voie = $modal.find("input[name='voie_ac']").val() || '';
+            var codepostal = $modal.find("input[name='code_postal']").val() || '';
+            var commune = ($modal.find("input[name='commune_ac']").val() || '').replace(/\(.*\)/g, '');
+
+            if (!commune) {
+                $modal.find("span.result").text("Pas de commune renseignée");
+                return false;
+            }
+            if (!voie) {
+                $modal.find("span.result").text("Pas de voie renseignée");
+                return false;
+            }
+
+            var adresse = '';
+            if (numero) { adresse += numero + ', '; }
+            adresse += voie;
+
+            $modal.find("span.result").text("Géolocalisation en cours...");
+            geoConceptGeocode(geocoderUrl, geoconceptMap, adresse, codepostal, commune, function(result) {
+                if (result) {
+                    $modal.find("span.result").text("Géolocalisée Geoconcept");
+                    $modal.find("input[name='lon']").val(result.x);
+                    $modal.find("input[name='lat']").val(result.y);
+                } else {
+                    $modal.find("span.result").text("Introuvable");
+                    $modal.find("input[name='lon']").val(0);
+                    $modal.find("input[name='lat']").val(0);
+                }
+            });
+
+            return false;
+        });
         {% endif %}
 
     });
