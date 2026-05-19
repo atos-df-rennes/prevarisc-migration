@@ -16,7 +16,7 @@
             <option value="">— Choisir —</option>
             {% for tp in types_plans %}
                 <option value="{{ tp.id }}"
-                    {{ (not is_proto and plan is not null and plan.typePlan.id == tp.id) ? 'selected' : '' }}>
+                    {{ (not is_proto and plan is not null and plan.type.id == tp.id) ? 'selected' : '' }}>
                     {{ tp.libelle }}
                 </option>
             {% endfor %}
@@ -40,7 +40,7 @@
         <input type="checkbox"
                name="PLANS[{{ plan_key }}][MISEAJOUR_ETABLISSEMENTPLAN]"
                value="1"
-               {{ (not is_proto and plan is not null and plan.maj) ? 'checked' : '' }} />
+               {{ (not is_proto and plan is not null and plan.aMettreAJour) ? 'checked' : '' }} />
     </td>
     <td>
         <button type="button" class="btn btn-xs btn-danger btn_remove_plan">
