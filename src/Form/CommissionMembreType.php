@@ -15,6 +15,7 @@ use App\Entity\UtilisateurInformations;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -191,6 +192,11 @@ class CommissionMembreType extends AbstractType
                     ->orderBy('dt.id', 'ASC')
                     ->addOrderBy('n.libelle', 'ASC');
             },
+        ]);
+
+        $builder->add('manifestation', CheckboxType::class, [
+            'label' => 'Inclure les manifestations temporaires',
+            'required' => false,
         ]);
 
         $builder
