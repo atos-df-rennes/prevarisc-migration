@@ -8,8 +8,10 @@ use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementInformationsRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Etablissement as EtablissementService;
+use App\Service\EtablissementPersistenceService;
 use App\Service\TexteApplicable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -78,6 +80,8 @@ class EtablissementSaveTest extends TestCase
         $avisDerogationsRepo = $this->createMock(AvisDerogationsRepository::class);
         $parameterBag = $this->createMock(ParameterBagInterface::class);
         $texteApplicable = $this->createMock(TexteApplicable::class);
+        $persistenceService = $this->createMock(EtablissementPersistenceService::class);
+        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
 
         return new EtablissementService(
             $etablissementRepo,
@@ -86,7 +90,9 @@ class EtablissementSaveTest extends TestCase
             $parameterBag,
             $em,
             $logger,
-            $texteApplicable
+            $texteApplicable,
+            $persistenceService,
+            $informationsRepo
         );
     }
 
