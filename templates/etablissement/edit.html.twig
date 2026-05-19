@@ -1,0 +1,739 @@
+{% extends 'layouts/etablissement.html.twig' %}
+
+{% block title %}Modification de l'établissement{% endblock %}
+
+{% block body %}
+    {{ include('etablissement/_form.html.twig', {add: false}) }}
+
+    {{ include('etablissement/_modal_adresse.html.twig', {
+        key_ign: key_ign,
+        geoconcept_url: geoconcept_url,
+        default_lon: default_lon,
+        default_lat: default_lat,
+        couches_cartographiques: couches_cartographiques,
+    }) }}
+
+    {{ include('etablissement/_modal_edit_adresse.html.twig', {
+        key_ign: key_ign,
+    }) }}
+
+    {{ include('etablissement/_modal_confirmation.html.twig') }}
+{% endblock %}
+
+{#
+  F6 : le bloc JS était dans _form.html.twig avec {{ parent() }}, ce qui crash quand le template
+  est inclus via include() (pas de chaîne d'héritage → RuntimeError).
+  Solution : déplacer le bloc ici où extends est actif.
+#}
+{% block stylesheets %}
+    {{ parent() }}
+    {% if key_ign is not null and key_ign is not empty %}
+        <link rel="stylesheet" href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" media="all">
+    {% endif %}
+    <style>
+        /* Espacement Bootstrap 3 entre champs du formulaire établissement */
+        form#etablissement dl.dl-horizontal dt,
+        form#etablissement dl.dl-horizontal dd { margin-bottom: 8px; }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if key_ign is not null and key_ign is not empty %}
+        <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
+        <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
+        <script src="{{ asset('js/etablissement/edit/geolocaliseIGN.js') }}"></script>
+    {% endif %}
+    <script>
+    $(document).ready(function() {
+
+        // ——— Action à la soumission : appel defaults_values + gestion modale confirmation ———
+        $("form#etablissement input[type='submit']").click(function() {
+            var etablissements_enfants = [];
+            $("table#etablissements_enfants tbody tr.etablissement_enfant").each(function(index) {
+                etablissements_enfants[index] = $(this).find('input[name="ID_FILS_ETABLISSEMENT[]"]').first().val();
+            });
+
+            $.post('{{ path('api_etablissement_defaults_values') }}', {
+                genre: $("select[name='ID_GENRE']").find('option:selected').val(),
+                numinsee: $("#adresses").find('tr.adresse').first().find('input[name$="[NUMINSEE_COMMUNE]"]').val(),
+                type: $("select[name='ID_TYPE']").first().find('option:selected').val(),
+                categorie: $("select[name='ID_CATEGORIE']").find('option:selected').val(),
+                local_sommeil: $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']:checked").val(),
+                classe: $("select[name='ID_CLASSE']").find('option:selected').val(),
+                id_etablissement_pere: $("input[name='ID_PERE']").val(),
+                ids_etablissements_enfants: etablissements_enfants
+            }, function(data) {
+                // L'API Symfony retourne les données directement (sans wrapper status/response)
+                if (data && Object.keys(data).length > 0) {
+                    var preventionnistes = [];
+                    var localSommeil = $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"]:checked').val();
+
+                    $('#confirm-modal-commission .confirm-modal-input').text(
+                        $('select[name="ID_COMMISSION"] option:selected').text().replace(/ \(.*\)/gi, "")
+                    );
+                    $('#confirm-modal-periodicite .confirm-modal-input').text(
+                        $('input[name="PERIODICITE_ETABLISSEMENTINFORMATIONS"]').val()
+                    );
+                    $('#confirm-modal-localsommeil .confirm-modal-input').text(
+                        localSommeil !== undefined ? (localSommeil == 1 ? 'Oui' : 'Non') : ''
+                    );
+                    $('table#preventionnistes tbody tr.preventionniste').each(function(index) {
+                        preventionnistes[index] = $(this).find('td').first().find('span').text();
+                    });
+                    $('#confirm-modal-preventionnistes .confirm-modal-input').text(
+                        preventionnistes.toString() === '' ? 'Aucuns' : preventionnistes.toString()
+                    );
+
+                    $('#confirm-modal-commission .confirm-modal-advisable')
+                        .attr('id', data.commission ? data.commission.ID_COMMISSION : '')
+                        .text(data.commission ? data.commission.LIBELLE_COMMISSION : '');
+                    $('#confirm-modal-periodicite .confirm-modal-advisable').text(data.periodicite || '');
+                    $('#confirm-modal-localsommeil .confirm-modal-advisable').text(
+                        data.local_sommeil !== undefined ? (data.local_sommeil ? 'Oui' : 'Non') : ''
+                    );
+
+                    if (data.preventionnistes && data.preventionnistes.length > 0) {
+                        var prevNoms = [];
+                        var prevIds = [];
+                        for (var x in data.preventionnistes) {
+                            prevNoms[x] = data.preventionnistes[x].nom + ' ' + data.preventionnistes[x].prenom;
+                            prevIds[x] = data.preventionnistes[x].uid;
+                        }
+                        $('#confirm-modal-preventionnistes .confirm-modal-advisable')
+                            .attr('ids', prevIds.toString())
+                            .text(prevNoms.toString());
+                    }
+
+                    $('#confirm-modal').find('li').removeClass('confirm-modal-hide');
+                    $('#confirm-modal').find('li').each(function() {
+                        var inputText = $(this).find('.confirm-modal-input').text().trim();
+                        var advisableText = $(this).find('.confirm-modal-advisable').text().trim();
+                        if (inputText === advisableText || advisableText === '') {
+                            $(this).addClass('confirm-modal-hide');
+                        }
+                    });
+
+                    if ($('#confirm-modal').find('li.confirm-modal-hide').length === 4) {
+                        $("form#etablissement").submit();
+                    } else {
+                        $('#confirm-modal').modal({show: true});
+                    }
+                } else {
+                    $("form#etablissement").submit();
+                }
+            }, 'json').fail(function() {
+                $("form#etablissement").submit();
+            });
+
+            return false;
+        });
+
+        // ——— Labels interactifs dans la modale de confirmation ———
+        $('#confirm-modal a.label').on('click', function() {
+            $(this).parent().find('a.label').toggleClass('label-info label-default');
+        });
+
+        // ——— Prise en compte des valeurs par défaut à la confirmation ———
+        $('#confirm-modal input[type="submit"]').on('click', function() {
+            $('#confirm-modal').find('a.label-info').each(function() {
+                if ($(this).hasClass('confirm-modal-advisable')) {
+                    var $li = $(this).closest('li');
+                    switch ($li.attr('id')) {
+                        case 'confirm-modal-preventionnistes':
+                            $('table#preventionnistes').remove();
+                            var prevIds = $(this).attr('ids').split(',');
+                            for (var x in prevIds) {
+                                $('<input>').attr({type: 'hidden', name: 'ID_UTILISATEUR[]', value: prevIds[x]})
+                                    .appendTo('form#etablissement');
+                            }
+                            break;
+                        case 'confirm-modal-commission':
+                            $('select[name="ID_COMMISSION"]').find('option[value="' + $(this).attr('id') + '"]').attr('selected', true);
+                            break;
+                        case 'confirm-modal-periodicite':
+                            $('input[name="PERIODICITE_ETABLISSEMENTINFORMATIONS"]').val($(this).text());
+                            break;
+                        case 'confirm-modal-localsommeil':
+                            $('input[name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS"][value="1"]').prop('checked', $(this).text() === 'Oui');
+                            break;
+                    }
+                }
+            });
+            $("form#etablissement").submit();
+        });
+
+        // ——— Ajout d'une adresse (bouton Sauvegarder dans la modale d'ajout) ———
+        $(document).on('click', 'form.adresse a#submit-adresse', function() {
+            var time = Date.now();
+            var $form = $(this).closest('form.adresse');
+            var $node = $('#prototype_adresse').clone()
+                .prependTo($('table.champ_adresse tbody'))
+                .removeClass('hide prototypes')
+                .addClass('adresse')
+                .removeAttr('id');
+
+            $node.find('input[name="ADRESSES[-1][LON_ETABLISSEMENTADRESSE]"]').val($form.find('input[name="lon"]').val());
+            $node.find('input[name="ADRESSES[-1][LAT_ETABLISSEMENTADRESSE]"]').val($form.find('input[name="lat"]').val());
+            $node.find('input[name="ADRESSES[-1][NUMERO_ADRESSE]"]').val($form.find('input[name="numero"]').val());
+            $node.find('input[name="ADRESSES[-1][ID_RUE]"]').val($form.find('input[name="voie"]').val());
+            $node.find('input[name="ADRESSES[-1][NUMINSEE_COMMUNE]"]').val($form.find('input[name="code_insee"]').val());
+            $node.find('input[name="ADRESSES[-1][COMPLEMENT_ADRESSE]"]').val($form.find('input[name="complement"]').val());
+            $node.find('span').text(
+                $form.find('input[name="numero"]').val() + ' ' +
+                $form.find('input[name="voie_ac"]').val() + ' ' +
+                $form.find('input[name="code_postal"]').val() + ' ' +
+                $form.find('input[name="commune_ac"]').val()
+            );
+            $node.find('input').each(function() {
+                $(this).attr('name', $(this).attr('name').replace(/-1/gi, time));
+            });
+            $node.find('[id="adresse-1"]').attr('id', 'adresse' + time);
+            $node.find('.modifierAdresse').attr('data-id', time);
+
+            // Réinitialiser le formulaire modal et fermer
+            $form.find('input[name="voie_ac"], input[name="numero"], input[name="complement"]').val('').attr('disabled', true);
+            $form.find('input[name="commune_ac"]').val('');
+            $form.find('input[name="code_insee"], input[name="code_postal"], input[name="voie"], input[name="type_voie"], input[name="lon"], input[name="lat"]').val('');
+            $form.find('span.result').text('Inconnu');
+            $form.find('button.close').trigger('click');
+
+            setTriggerEventModalAdresseEdit();
+            return false;
+        });
+
+        // ——— Modification d'une adresse (bouton Modifier dans la modale edit) ———
+        $('#submit-adresse-edit').on('click', function(e) {
+            e.preventDefault();
+            var $form = $('#adresse-modal-edit');
+            var dataToPush = {};
+            $form.find(':input').each(function() {
+                dataToPush[$(this).attr('name')] = $(this).val();
+            });
+
+            var idAdresse = dataToPush.idAdresse;
+            var nouveauLibelle = (dataToPush.numero || '') + ' ' +
+                (dataToPush.voie_ac || '') + ' ' +
+                (dataToPush.complement || '') + ' ' +
+                (dataToPush.code_postal || '') + ' ' +
+                (dataToPush.commune_ac || '');
+
+            $('#adresse' + idAdresse + ' span').text(nouveauLibelle.trim());
+            $('input[name="ADRESSES[' + idAdresse + '][NUMINSEE_COMMUNE]"]').val(dataToPush.code_insee);
+            $('input[name="ADRESSES[' + idAdresse + '][LON_ETABLISSEMENTADRESSE]"]').val(dataToPush.lon);
+            $('input[name="ADRESSES[' + idAdresse + '][LAT_ETABLISSEMENTADRESSE]"]').val(dataToPush.lat);
+            $('input[name="ADRESSES[' + idAdresse + '][NUMERO_ADRESSE]"]').val(dataToPush.numero);
+            $('input[name="ADRESSES[' + idAdresse + '][ID_RUE]"]').val(dataToPush.voie);
+            $('input[name="ADRESSES[' + idAdresse + '][COMPLEMENT_ADRESSE]"]').val(dataToPush.complement);
+
+            $form.find('button.close').trigger('click');
+        });
+
+        // ——— Fonction pour binder les clics "Modifier" sur les lignes d'adresse ———
+        function setTriggerEventModalAdresseEdit() {
+            $(document).off('click', '.modifierAdresse').on('click', '.modifierAdresse', function(e) {
+                e.preventDefault();
+                var dataId = $(this).attr('data-id');
+                $.ajax({
+                    url: '{{ path('api_etablissement_get_adresse') }}?id=' + dataId,
+                    type: 'get',
+                    success: function(result) {
+                        if (result === null || result.response === null) {
+                            setModalEditAdresseInputValue(getValueOfNewAdresse(dataId), dataId);
+                        } else {
+                            setModalEditAdresseInputValue(result.response, dataId);
+                        }
+                        $('#adresse-modal-edit').modal('show');
+                    }
+                });
+            });
+        }
+
+        function setModalEditAdresseInputValue(data, dataId) {
+            var $form = $('#adresse-modal-edit');
+            $form.find("input[name='commune_ac']").val(data.LIBELLE_COMMUNE || '');
+            $form.find("input[name='voie']").val(data.ID_RUE || '');
+            $form.find("input[name='voie_ac']").removeAttr('disabled').val(data.LIBELLE_RUE || '');
+            $form.find("input[name='numero']").removeAttr('disabled').val(data.NUMERO_ADRESSE || '');
+            $form.find("input[name='complement']").val(data.COMPLEMENT_ADRESSE || '');
+            $form.find("input[name='lon']").val(data.LON_ETABLISSEMENTADRESSE || '');
+            $form.find("input[name='lat']").val(data.LAT_ETABLISSEMENTADRESSE || '');
+            $form.find("input[name='code_insee']").val(data.NUMINSEE_COMMUNE || '');
+            $form.find("input[name='code_postal']").val(data.CODEPOSTAL_COMMUNE || '');
+            $form.find("input[name='idAdresse']").val(dataId);
+        }
+
+        function getValueOfNewAdresse(dataId) {
+            var data = {};
+            $('#adresse' + dataId + ' input').each(function(idx) {
+                var name = $(this).attr('name');
+                if (name) {
+                    var key = name.split('ADRESSES[' + dataId + ']')[1];
+                    if (key) {
+                        key = key.replace(/\[/g, '').replace(/\]/g, '');
+                        data[key] = $(this).val();
+                    }
+                }
+            });
+            // Récupérer libellé commune via AJAX synchrone
+            if (data.NUMINSEE_COMMUNE) {
+                $.ajax({
+                    type: 'get',
+                    url: '{{ path('api_adresse_get_libelle_commune') }}',
+                    data: {code_insee: data.NUMINSEE_COMMUNE},
+                    async: false,
+                    success: function(r) { data.LIBELLE_COMMUNE = r && r.response ? r.response.LIBELLE_COMMUNE : ''; }
+                });
+            }
+            if (data.ID_RUE) {
+                $.ajax({
+                    type: 'get',
+                    url: '{{ path('api_adresse_get_libelle_rue') }}',
+                    data: {idRue: data.ID_RUE},
+                    async: false,
+                    success: function(r) { data.LIBELLE_RUE = r && r.response ? r.response.LIBELLE_RUE : ''; }
+                });
+            }
+            return data;
+        }
+
+        setTriggerEventModalAdresseEdit();
+
+        // ——— Masquage/affichage des sections par genre ———
+        $("select[name='ID_GENRE']").on('change', function() {
+            $('.champs').hide();
+            $('.etablissement_pere, .etablissements_enfants, .etablissements_lies').show();
+            $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='0']").prop('checked', false);
+
+            switch ($(this).find('option:selected').val()) {
+                case '1': // Site
+                    $('.etablissement_pere').hide();
+                    break;
+                case '2': // ERP
+                    $('.champ_categorie, .champ_periodicite, .champ_types, .champ_effectifs, ' +
+                      '.effectif_public, .champ_plans, .champ_commission, .champ_adresse, .champ_droitpublic, ' +
+                      '.champ_localsommeil, .champ_donnees_pratiques').show();
+                    if (!$("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']:checked").val()) {
+                        $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='0']").prop('checked', true);
+                    }
+                    break;
+                case '3': // Cellule
+                    $('.champ_types, .champ_effectifs, .effectif_public, .champ_plans, .champ_donnees_pratiques').show();
+                    $('.etablissements_enfants').hide();
+                    break;
+                case '4': // Habitation
+                    $('.champ_famille, .champ_adresse').show();
+                    $('.etablissements_enfants').hide();
+                    break;
+                case '5': // IGH
+                    $('.champ_periodicite, .champ_classe, .champ_effectifs, .effectif_public, .champ_plans, ' +
+                      '.champ_adresse, .champ_commission, .champ_donnees_pratiques').show();
+                    $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='1']").prop('checked', false);
+                    break;
+                case '6': // BUP
+                    $('.champ_icpe, .champ_effectifs, .champ_plans, .champ_adresse').show();
+                    $('.etablissements_enfants, .effectif_heberge, .effectif_public').hide();
+                    $("input[name='ICPE_ETABLISSEMENTINFORMATIONS']").trigger('change');
+                    $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='1']").prop('checked', false);
+                    break;
+                case '7': // Camping
+                    $('.champ_effectif_camping, .effectif_habitation, .effectif_caravane, ' +
+                      '.effectif_emplacement_nu, .effectif_autre_camping, .effectif_total_camping, ' +
+                      '.champ_adresse, .champ_plans').show();
+                    $('.etablissements_enfants').hide();
+                    break;
+                case '8': // Manifestation temporaire
+                    $('.champ_effectifs, .effectif_public, .champ_adresse, .champ_plans').show();
+                    $('.etablissements_enfants').hide();
+                    break;
+                case '9': // IOP
+                    $('.champ_effectifs, .effectif_public, .champ_adresse, .champ_plans').show();
+                    $('.etablissements_enfants').hide();
+                    break;
+                case '10': // Zone
+                    $('.champ_classement, .champ_adresse').show();
+                    $('.etablissements_lies').hide();
+                    break;
+            }
+        }).trigger('change');
+
+        // ——— Changement de type principal (libellé effectif public) ———
+        $("select[name='ID_TYPE']").on('change', function() {
+            if ($(this).val() == 16) {
+                $('dt.effectif_public').html('Places de stationnement');
+            } else {
+                $('dt.effectif_public').html('Public');
+            }
+        }).trigger('change');
+
+        // ——— Changement de catégorie (effectif 5ème catégorie) ———
+        $("select[name='ID_CATEGORIE']").on('change', function() {
+            if ($(this).val() == 5) {
+                $('.effectif_justifiant_classement').show();
+            } else {
+                $('.effectif_justifiant_classement').hide().find('input').val('');
+            }
+        }).trigger('change');
+
+        // ——— ICPE ———
+        $("input[name='ICPE_ETABLISSEMENTINFORMATIONS']").on('change', function() {
+            if ($(this).is(':checked') && $("select[name='ID_GENRE'] option:selected").val() == 6) {
+                $('.rubrique').show();
+            } else {
+                $('.rubrique').hide();
+            }
+        }).trigger('change');
+
+        // ——— Local à sommeil → effectif hébergé ———
+        $("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']").on('change', function() {
+            if ($("input[name='LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'][value='1']").is(':checked')) {
+                $('.effectif_heberge').show();
+            } else {
+                $('.effectif_heberge').hide();
+            }
+        }).trigger('change');
+
+        // ——— Activités par type ———
+        var activites = {{ activites_json|raw }};
+        $(document).on('change', 'select.type_select', function() {
+            $(this).next().find('option').remove();
+            for (var x in activites) {
+                if (activites[x]['ID_TYPE'] == $(this).val()) {
+                    $(this).next().append(
+                        $('<option />').val(activites[x]['ID_TYPEACTIVITE']).text(activites[x]['LIBELLE_ACTIVITE'])
+                    );
+                }
+            }
+        });
+        $('select.type_select').each(function() {
+            $(this).trigger('change');
+        });
+
+        // ——— TomSelect préventionnistes ———
+        var tsPrev = new TomSelect('#preventionniste_autocomplete', {
+            valueField: 'id',
+            labelField: 'displayLabel',
+            searchField: 'displayLabel',
+            create: false,
+            maxItems: 1,
+            placeholder: 'Nom du préventionniste…',
+            shouldLoad: function(q) { return q.length >= 3; },
+            load: function(query, callback) {
+                fetch('{{ path('api_utilisateurs_search') }}?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(json) { callback(json); })
+                    .catch(function() { callback(); });
+            },
+            onItemAdd: function(value) {
+                var label = tsPrev.options[value] ? tsPrev.options[value].displayLabel : value;
+                var ts = Date.now();
+                var $proto = $('#prototype_preventionniste').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(value);
+                $proto.find('.prev_libelle').text(label);
+                $proto.find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#preventionnistes_tbody tr:last').before($proto);
+                tsPrev.clear();
+                tsPrev.clearOptions();
+            }
+        });
+
+        // ——— TomSelect établissement père ———
+        var tsPere = new TomSelect('#pere_autocomplete', {
+            valueField: 'id',
+            labelField: 'libelle',
+            searchField: 'libelle',
+            create: false,
+            maxItems: 1,
+            placeholder: 'Libellé de l\'établissement père…',
+            shouldLoad: function(q) { return q.length >= 2; },
+            load: function(query, callback) {
+                fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(json) {
+                        callback(json.map(function(item) {
+                            return { id: item.id, libelle: item.libelle + ' (' + (item.genre || '?') + ')' };
+                        }));
+                    }).catch(function() { callback(); });
+            },
+            onChange: function(value) {
+                $('input[name="ID_PERE"]').val(value);
+            }
+        });
+
+        // ——— TomSelect établissement enfant ———
+        var tsEnfant = new TomSelect('#etablissement_autocomplete', {
+            valueField: 'id',
+            labelField: 'libelle',
+            searchField: 'libelle',
+            create: false,
+            maxItems: 1,
+            placeholder: 'Libellé d\'un établissement enfant…',
+            shouldLoad: function(q) { return q.length >= 2; },
+            load: function(query, callback) {
+                fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(json) {
+                        callback(json.map(function(item) {
+                            return { id: item.id, libelle: item.libelle + ' (' + (item.genre || '?') + ')' };
+                        }));
+                    }).catch(function() { callback(); });
+            },
+            onItemAdd: function(value) {
+                var label = tsEnfant.options[value] ? tsEnfant.options[value].libelle : value;
+                var ts = Date.now();
+                var $proto = $('#prototype_enfant').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(value);
+                $proto.find('.enfant_libelle').text(label);
+                $proto.find('input, select').each(function() {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#enfants_tbody tr:last').before($proto);
+                tsEnfant.clear();
+                tsEnfant.clearOptions();
+            }
+        });
+
+        // ——— Autocomplete commune (modales adresse) ———
+        $("input[name='commune_ac']").autocomplete('{{ path('api_adresse_get_communes') }}', {
+            minChars: 2,
+            cacheLength: 0,
+            parse: function(data) {
+                return $.map(data.response, function(row) {
+                    return {data: row, value: row.LIBELLE_COMMUNE, result: row.LIBELLE_COMMUNE};
+                });
+            },
+            formatItem: function(item) {
+                return item.LIBELLE_COMMUNE + ' (' + item.NUMINSEE_COMMUNE + ')';
+            }
+        }).result(function(e, item) {
+            var modalId = $(this).closest('form')[0].id;
+            $('#' + modalId + " input[name='code_insee']").val(item.NUMINSEE_COMMUNE);
+            $('#' + modalId + " input[name='code_postal']").val(item.CODEPOSTAL_COMMUNE);
+            $('#' + modalId + " input[name='voie_ac']").removeAttr('disabled');
+        }).on('click', function() {
+            var modalId = $(this).closest('form')[0].id;
+            $(this).val('');
+            $('#' + modalId + " input[name='voie_ac'], #" + modalId + " input[name='numero'], #" + modalId + " input[name='complement']")
+                .val('').attr('disabled', true).blur();
+            $('#' + modalId + " input[name='voie']").val('').blur();
+        });
+
+        // ——— Autocomplete voie (modales adresse) ———
+        $("input[name='voie_ac']").autocomplete('{{ path('api_adresse_get_voies') }}', {
+            minChars: 2,
+            cacheLength: 0,
+            extraParams: {
+                code_insee: function() {
+                    var $openForm = $('form.adresse.in, form.adresse.show');
+                    return $openForm.find("input[name='code_insee']").val();
+                }
+            },
+            parse: function(data) {
+                return $.map(data.response, function(row) {
+                    return {data: row, value: row.LIBELLE_RUE, result: row.LIBELLE_RUE};
+                });
+            },
+            formatItem: function(item) {
+                return item.LIBELLE_RUE + ' (code insee : ' + item.NUMINSEE_COMMUNE + ')';
+            }
+        }).result(function(e, item) {
+            var modalId = $(this).closest('form')[0].id;
+            $('#' + modalId + " input[name='voie']").val(item.ID_RUE);
+            $('#' + modalId + " input[name='type_voie']").val(item.ID_RUETYPE);
+            $('#' + modalId + " input[name='numero'], #" + modalId + " input[name='complement']").removeAttr('disabled');
+        }).on('click', function() {
+            var modalId = $(this).closest('form')[0].id;
+            $(this).val('');
+            $('#' + modalId + " input[name='numero'], #" + modalId + " input[name='complement']")
+                .val('').attr('disabled', true).blur();
+        });
+
+        // ——— Géolocalisation IGN (si clé disponible) ———
+        {% if key_ign is not null and key_ign is not empty %}
+        var optionsGeo = {
+            geo_container_id: '',
+            key_ign: {{ key_ign|json_encode|raw }},
+            default_lat: {{ default_lat|default(0) }},
+            default_lon: {{ default_lon|default(0) }},
+            autoconf_path: '',
+            couches_cartographiques: [
+                {% for c in couches_cartographiques %}
+                {type: {{ c.type|json_encode|raw }}, url: {{ c.url|json_encode|raw }}, layer: {{ c.layer|json_encode|raw }}, nom: {{ c.nom|json_encode|raw }}, format: {{ c.format|json_encode|raw }}, transparent: {{ c.transparent ? 1 : 0 }}, ordre: {{ c.ordre|default('null') }}}{{ not loop.last ? ',' : '' }}
+                {% endfor %}
+            ]
+        };
+
+        $('#adresse-modal-ajout').on('shown.bs.modal', function() {
+            optionsGeo.geo_container_id = 'geoportail-container';
+            geolocaliseIGN('#adresse-modal-ajout', optionsGeo);
+        });
+
+        $('#adresse-modal-edit').on('shown.bs.modal', function() {
+            optionsGeo.geo_container_id = 'edit-geoportail-container';
+            geolocaliseIGN('#adresse-modal-edit', optionsGeo);
+        });
+        {% endif %}
+
+        // ——— Géolocalisation Nominatim ———
+        $(document).on('click', '#geolocme_nominatim', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var $modal = $btn.closest('.modal');
+            var numero = $modal.find("input[name='numero']").val() || '';
+            var voie = $modal.find("input[name='voie_ac']").val() || '';
+            var commune = $modal.find("input[name='commune_ac']").val() || '';
+            var codepostal = $modal.find("input[name='code_postal']").val() || '';
+
+            $.ajax({
+                url: '//nominatim.openstreetmap.org/search',
+                dataType: 'json',
+                timeout: 10000,
+                data: {
+                    format: 'json',
+                    limit: 1,
+                    countrycodes: 'FR',
+                    street: numero + ' ' + voie,
+                    city: commune,
+                    postalcode: codepostal
+                },
+                beforeSend: function() {
+                    $btn.text('Géolocalisation en cours ...');
+                },
+                success: function(geolocations) {
+                    $btn.html('<span class="glyphicon glyphicon-map-marker"></span> Géolocaliser cette adresse (Nominatim)');
+                    if (geolocations.length > 0) {
+                        $modal.find('span.result').text('OK');
+                        $modal.find("input[name='lon']").val(geolocations[0].lon);
+                        $modal.find("input[name='lat']").val(geolocations[0].lat);
+                        {% if key_ign is not null and key_ign is not empty %}
+                        // Centrer la carte et placer le marqueur (iso legacy)
+                        if (typeof viewer !== 'undefined' && viewer !== null) {
+                            var geoContainerId = $modal.find('[id$=geoportail-container]').attr('id');
+                            $modal.find('#' + geoContainerId).css('visibility', 'visible');
+                            viewer.setCenter({
+                                x: parseFloat(geolocations[0].lon),
+                                y: parseFloat(geolocations[0].lat),
+                                projection: 'EPSG:4326'
+                            });
+                            viewer.setZoom(17);
+                            var lonlat = [parseFloat(geolocations[0].lon), parseFloat(geolocations[0].lat)];
+                            putMarkerAt(viewer.getLibMap(), lonlat);
+                        }
+                        {% endif %}
+                    } else {
+                        $modal.find('span.result').text('Introuvable');
+                        $modal.find("input[name='lon']").val(0);
+                        $modal.find("input[name='lat']").val(0);
+                    }
+                },
+                error: function() {
+                    $btn.text('Serveur de géolocalisation introuvable').attr('disabled', true);
+                }
+            });
+
+            return false;
+        });
+
+        // ——— Total emplacements camping (calcul dynamique) ———
+        function setTotalEmplacementCamping() {
+            var nbHabitation = parseInt($('input[name=EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var nbCaravane = parseInt($('input[name=EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var nbEmplacementNu = parseInt($('input[name=EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var nbAutre = parseInt($('input[name=EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS]').val()) || 0;
+            var total = nbHabitation + nbCaravane + nbEmplacementNu + nbAutre;
+            $('input[name=EFFECTIFTOTALCAMPING_ETABLISSEMENTINFORMATIONS]').val(total);
+            return total;
+        }
+        $('input[name=EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS], input[name=EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS], input[name=EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS], input[name=EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS]')
+            .on('keydown keyup change', function() { setTotalEmplacementCamping(); });
+        setTotalEmplacementCamping();
+
+        // ——— Ajout d'une activité secondaire ———
+        $('#add_activite_secondaire').on('click', function(e) {
+            e.preventDefault();
+            var time = Date.now();
+            var $proto = $('#prototype_type_activite').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                $(this).removeAttr('disabled');
+                var name = $(this).attr('name');
+                if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
+            });
+            $('#activite_ul').append($proto);
+            $proto.find('select.type_select').trigger('change');
+        });
+
+        // ——— Ajout d'une rubrique ICPE ———
+        $('#add_rubrique').on('click', function(e) {
+            e.preventDefault();
+            var time = Date.now();
+            var $proto = $('#prototype_rubrique').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
+            });
+            $('#rubriques_tbody').append($proto);
+        });
+
+        // ——— Ajout d'un plan ———
+        $('#add_plan').on('click', function(e) {
+            e.preventDefault();
+            var time = Date.now();
+            var $proto = $('#prototype_plan').clone()
+                .removeAttr('id')
+                .removeClass('hide prototype');
+            $proto.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) { $(this).attr('name', name.replace(/-1/gi, time)); }
+            });
+            $('#plans_tbody').append($proto);
+        });
+
+        // ——— Suppression d'un préventionniste ———
+        $(document).on('click', '.btn_remove_preventionniste', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // ——— Suppression d'un établissement enfant ———
+        $(document).on('click', '.btn_remove_enfant', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // ——— Suppression d'une activité secondaire ———
+        $(document).on('click', '.btn_remove_activite_secondaire', function() {
+            $(this).closest('li').remove();
+        });
+
+        // ——— Suppression d'une rubrique ICPE ———
+        $(document).on('click', '.btn_remove_rubrique', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // ——— Suppression d'un plan ———
+        $(document).on('click', '.btn_remove_plan', function() {
+            $(this).closest('tr').remove();
+        });
+
+        {% if geoconcept_url is not null and geoconcept_url is not empty %}
+        // Géolocalisation Geoconcept (si configurée)
+        // (voir le legacy pour l'initialisation complète — dépend des env vars)
+        {% endif %}
+
+    });
+    </script>
+{% endblock %}
