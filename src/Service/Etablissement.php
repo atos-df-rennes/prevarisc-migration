@@ -1142,7 +1142,9 @@ final class Etablissement
         $currentStatutId = null !== $currentStatut ? $currentStatut->getId() : null;
         $postStatutId = isset($postData['ID_STATUT']) ? self::toInt($postData['ID_STATUT']) : null;
 
-        if (null !== $currentStatutId && null !== $postStatutId && $currentStatutId !== $postStatutId) {
+        // Utiliser une comparaison non-stricte (==) comme le legacy pour couvrir le cas
+        // où currentStatutId est null et postStatutId est non-null (statut assigné pour la première fois)
+        if ($currentStatutId !== $postStatutId) {
             $alerte = TypeChangement::STATUT;
         }
 
@@ -1161,10 +1163,36 @@ final class Etablissement
         if ($currentCategorieId !== $postCategorieId
             || $currentTypeId !== $postTypeId
             || $currentActiviteId !== $postActiviteId
+            || $this->compareActivitesSecondaires($informations, $postData)
         ) {
             return TypeChangement::CLASSEMENT;
         }
 
         return $alerte;
+    }
+
+    /**
+     * Compare les activités secondaires actuelles de la fiche avec celles soumises.
+     * Retourne true si une activité secondaire a été supprimée (déclenche une alerte classement).
+     *
+     * Port direct de Etablissement::compareActivitesSecondaires() du legacy.
+     *
+     * @param EtablissementInformations $informations La fiche courante
+     * @param array<string, mixed>      $postData     Les données du formulaire POST
+     */
+    private function compareActivitesSecondaires(EtablissementInformations $informations, array $postData): bool
+    {
+        $postActivitesSecondaires = isset($postData['TYPES_ACTIVITES_SECONDAIRES']) && is_array($postData['TYPES_ACTIVITES_SECONDAIRES'])
+            ? $postData['TYPES_ACTIVITES_SECONDAIRES']
+            : [];
+
+        foreach ($informations->getTypesActivitesSecondaires() as $activiteSecondaire) {
+            $id = $activiteSecondaire->getId();
+            if (null !== $id && !array_key_exists($id, $postActivitesSecondaires)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
