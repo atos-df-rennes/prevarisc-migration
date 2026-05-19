@@ -6,7 +6,7 @@
 {% block body %}
     <div id="etablissement">
         <div class="pull-right">
-            <a class="btn btn-default" href="/etablissement/edit/id/{{ etablissement.id }}">Modifier la fiche</a>
+            <a class="btn btn-default" href="{{ path('etablissement_modifier', {id: etablissement.id}) }}">Modifier la fiche</a>
         </div>
 
         <h3>Fiche d'informations générales</h3>
