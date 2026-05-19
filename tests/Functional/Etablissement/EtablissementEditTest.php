@@ -3,7 +3,7 @@
 namespace App\Tests\Functional\Etablissement;
 
 use App\Entity\Etablissement;
-use App\Entity\EtablissementInformations;
+use App\Entity\Genre;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,15 +89,13 @@ final class EtablissementEditTest extends WebTestCase
 
         // Vérifie que le libellé de l'établissement est pré-rempli
         $latestInfo = $etablissement->getLatestInformations();
-        if (null !== $latestInfo) {
-            $libelle = $latestInfo->getLibelle();
-            if (null !== $libelle && '' !== $libelle) {
-                $this->assertStringContainsString(
-                    htmlspecialchars($libelle, ENT_QUOTES),
-                    $content,
-                    'Le libellé existant doit être pré-rempli dans le formulaire'
-                );
-            }
+        $libelle = $latestInfo->getLibelle();
+        if (null !== $libelle && '' !== $libelle) {
+            $this->assertStringContainsString(
+                htmlspecialchars($libelle, ENT_QUOTES),
+                $content,
+                'Le libellé existant doit être pré-rempli dans le formulaire'
+            );
         }
     }
 
@@ -149,18 +147,19 @@ final class EtablissementEditTest extends WebTestCase
 
         // Récupérer un token CSRF valide
         $client->request(Request::METHOD_GET, '/etablissement/'.$etablissement->getId().'/modifier');
+
         $content = $client->getResponse()->getContent();
 
         // Extraire le token CSRF du formulaire
         preg_match('/name="_token"\s+value="([^"]+)"/', $content, $matches);
         if (empty($matches[1])) {
-            $this->markTestSkipped('Impossible d\'extraire le token CSRF');
+            $this->markTestSkipped("Impossible d'extraire le token CSRF");
         }
 
         $csrfToken = $matches[1];
         $latestInfo = $etablissement->getLatestInformations();
         $genre = $latestInfo ? $latestInfo->getGenre() : null;
-        $idGenre = $genre ? (string) $genre->getId() : '2';
+        $idGenre = $genre instanceof Genre ? (string) $genre->getId() : '2';
 
         $client->request(Request::METHOD_POST, '/etablissement/'.$etablissement->getId().'/modifier', [
             '_token' => $csrfToken,
@@ -199,8 +198,6 @@ final class EtablissementEditTest extends WebTestCase
 
     /**
      * Trouve un établissement avec des informations pour les tests.
-     *
-     * @return Etablissement|null
      */
     private function findEtablissementWithInformations(): ?Etablissement
     {

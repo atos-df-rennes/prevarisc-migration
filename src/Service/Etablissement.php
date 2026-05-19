@@ -824,13 +824,13 @@ final class Etablissement
      * Conserve le comportement d'historisation : si une fiche d'informations existe à la date
      * du jour, elle est mise à jour ; sinon, une nouvelle fiche est créée.
      *
-     * @param int                  $idGenre          Identifiant du genre de l'établissement
-     * @param array<string, mixed> $data             Données du formulaire (clés correspondant aux colonnes legacy)
-     * @param int                  $idEtablissement  Identifiant de l'établissement à mettre à jour
-     * @param Utilisateur|null     $user             Utilisateur courant
+     * @param int                  $idGenre         Identifiant du genre de l'établissement
+     * @param array<string, mixed> $data            Données du formulaire (clés correspondant aux colonnes legacy)
+     * @param int                  $idEtablissement Identifiant de l'établissement à mettre à jour
+     * @param Utilisateur|null     $user            Utilisateur courant
      *
      * @throws \InvalidArgumentException Si l'établissement n'existe pas
-     * @throws \Exception En cas d'erreur (la transaction est annulée)
+     * @throws \Exception                En cas d'erreur (la transaction est annulée)
      */
     public function update(int $idGenre, array $data, int $idEtablissement, ?Utilisateur $user = null): void
     {
@@ -874,12 +874,15 @@ final class Etablissement
                 foreach ($informations->getPlans()->toArray() as $plan) {
                     $informations->removePlan($plan);
                 }
+
                 foreach ($informations->getRubriquesIcpe()->toArray() as $rubrique) {
                     $informations->removeRubriqueIcpe($rubrique);
                 }
+
                 foreach ($informations->getTypesActivitesSecondaires()->toArray() as $ta) {
                     $informations->removeTypesActivitesSecondaire($ta);
                 }
+
                 $informations->clearPreventionnistes();
             } else {
                 $informations = new EtablissementInformations();
@@ -891,9 +894,11 @@ final class Etablissement
             foreach ($etablissement->getAdresses()->toArray() as $adresse) {
                 $etablissement->removeAdress($adresse);
             }
+
             foreach ($etablissement->getFils()->toArray() as $fils) {
                 $etablissement->removeFils($fils);
             }
+
             foreach ($etablissement->getParents()->toArray() as $parent) {
                 $etablissement->removeParent($parent);
             }
@@ -1156,7 +1161,7 @@ final class Etablissement
             || $currentTypeId !== $postTypeId
             || $currentActiviteId !== $postActiviteId
         ) {
-            $alerte = TypeChangement::CLASSEMENT;
+            return TypeChangement::CLASSEMENT;
         }
 
         return $alerte;
