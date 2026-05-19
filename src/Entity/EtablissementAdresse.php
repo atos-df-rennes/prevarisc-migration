@@ -72,7 +72,7 @@ class EtablissementAdresse
     /**
      * @var ?AdresseRue
      *
-     * @ORM\OneToOne(targetEntity=AdresseRue::class, cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=AdresseRue::class)
      *
      * @ORM\JoinColumn(name="ID_RUE", referencedColumnName="ID_RUE", nullable=true, options={"unsigned":true})
      */
