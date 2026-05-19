@@ -935,6 +935,18 @@ final class Etablissement
             $informations->setEffectifEmplacementNu(null);
             $informations->setEffectifDivers(null);
 
+            // Remise à zéro des associations genre-spécifiques avant le switch :
+            // nécessaire lorsque $existingInfo existe déjà pour aujourd'hui,
+            // pour éviter de conserver une ancienne valeur si l'utilisateur choisit
+            // l'option vide ("— Choisir —") ou change de genre.
+            $informations->setCategorie(null);
+            $informations->setType(null);
+            $informations->setTypeActivite(null);
+            $informations->setCommission(null);
+            $informations->setFamille(null);
+            $informations->setClasse(null);
+            $informations->setClassement(null);
+
             // --- Switch genre (identique à save) ---
             switch ($idGenre) {
                 case GenreEtablissement::ERP:
