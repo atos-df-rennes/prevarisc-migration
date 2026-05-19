@@ -355,9 +355,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 $user = $this->getUser();
                 $idEtablissement = $this->etablissementService->save($idGenre, $post, $user);
 
-                // Cas particulier : site avec un seul fils → rediriger vers édition legacy
-                // TODO: remplacer par redirectToRoute('etablissement_edit', ['id' => $idEtablissement])
-                //       quand l'action edit sera migrée.
+                // Cas particulier : site avec un seul fils → rediriger vers édition
                 if (GenreEtablissement::SITE === $idGenre
                     && isset($post['ID_FILS_ETABLISSEMENT'])
                     && is_array($post['ID_FILS_ETABLISSEMENT'])
@@ -370,7 +368,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                         "Les droits d'accès au site sont déterminés par les droits d'accès aux établissements qui le compose. Veillez à ajouter des établissements afin de garantir l'accès au site dans Prevarisc."
                     );
 
-                    return $this->redirect('/etablissement/edit/id/'.$idEtablissement);
+                    return $this->redirectToRoute('etablissement_modifier', ['id' => $idEtablissement]);
                 }
 
                 // F9 : message aligné sur le legacy
@@ -405,6 +403,127 @@ class EtablissementController extends AbstractController implements Etablissemen
             'default_lon' => $defaultLon,
             'default_lat' => $defaultLat,
         ]);
+    }
+
+    /**
+     * Affiche le formulaire d'édition d'un établissement (GET) et traite la soumission (POST).
+     *
+     * @Route("/etablissement/{id}/modifier", name="etablissement_modifier", methods={"GET","POST"})
+     *
+     * @IsGranted("edit_ets", subject="etablissement")
+     */
+    public function edit(Request $request, Etablissement $etablissement): Response
+    {
+        // Données de référence pour le formulaire
+        $genres = $this->genreRepository->findAll();
+        $statuts = $this->statutRepository->findAll();
+        $avis = $this->avisRepository->findAll();
+        $categories = $this->categorieRepository->findAll();
+        $types = $this->typeRepository->findAll();
+        $activites = $this->activiteRepository->findAll();
+
+        $activitesJson = [];
+        foreach ($activites as $activite) {
+            $activiteType = $activite->getType();
+            $activitesJson[] = [
+                'ID_TYPE' => $activiteType ? $activiteType->getId() : null,
+                'ID_TYPEACTIVITE' => $activite->getId(),
+                'LIBELLE_ACTIVITE' => $activite->getLibelle(),
+            ];
+        }
+
+        /** @var array<int, array{libelle: string, items: Commission[]}> $commissionsData */
+        $commissionsData = [];
+        foreach ($this->commissionRepository->findAll() as $commission) {
+            $type = $commission->getType();
+            $typeId = $type ? (int) $type->getId() : 0;
+            $typeLibelle = $type ? (string) $type->getLibelle() : '';
+            if (!isset($commissionsData[$typeId])) {
+                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
+            }
+
+            $commissionsData[$typeId]['items'][] = $commission;
+        }
+
+        $typesPlans = $this->typePlanRepository->findAll();
+        $familles = $this->familleRepository->findAll();
+        $ighClasses = $this->ighClasseRepository->findAll();
+        $classements = $this->classementRepository->findAllOrderedByLibelle();
+        $couchesCartographiques = $this->coucheCartoRepository->findAllOrdered();
+
+        $canEditStatut = $this->isGranted('edit_statut');
+
+        $keyIgn = $this->getParameter('app.ign_key');
+        $geoconceptUrl = $this->getParameter('app.geoconcept_url');
+        $defaultLon = $this->getParameter('app.carto_default_lon');
+        $defaultLat = $this->getParameter('app.carto_default_lat');
+
+        $templateParams = [
+            'genres' => $genres,
+            'statuts' => $statuts,
+            'avis' => $avis,
+            'categories' => $categories,
+            'types' => $types,
+            'activites' => $activites,
+            'activites_json' => json_encode($activitesJson),
+            'commissions' => $commissionsData,
+            'types_plans' => $typesPlans,
+            'familles' => $familles,
+            'igh_classes' => $ighClasses,
+            'classements' => $classements,
+            'couches_cartographiques' => $couchesCartographiques,
+            'can_edit_statut' => $canEditStatut,
+            'key_ign' => $keyIgn,
+            'geoconcept_url' => $geoconceptUrl,
+            'default_lon' => $defaultLon,
+            'default_lat' => $defaultLat,
+            'etablissement' => $etablissement,
+        ];
+
+        if ($request->isMethod('POST')) {
+            /** @var string|null $csrfToken */
+            $csrfToken = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('edit_etablissement', $csrfToken)) {
+                $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
+
+                return $this->render('etablissement/edit.html.twig', $templateParams);
+            }
+
+            /** @var array<string, mixed> $post */
+            $post = $request->request->all();
+            $rawGenre = $post['ID_GENRE'] ?? null;
+            $idGenre = is_scalar($rawGenre) ? (int) $rawGenre : 2;
+
+            try {
+                // Vérification des alertes avant modification
+                $typeAlerte = false;
+                if ($this->mailerConfig->isEnabled()) {
+                    $typeAlerte = $this->etablissementService->checkAlerte($etablissement, $post);
+                }
+
+                /** @var Utilisateur|null $user */
+                $user = $this->getUser();
+                $this->etablissementService->update($idGenre, $post, $etablissement->getId(), $user);
+
+                // Gestion des alertes
+                $lienAlerte = '';
+                if (false !== $typeAlerte && $typeAlerte > 0) {
+                    $privilege = AlerteService::PRIVILEGES_CHANGEMENT[$typeAlerte] ?? null;
+                    if (null !== $privilege && $this->isGranted($privilege)) {
+                        $lienAlerte = $this->alerteService->getLink($typeAlerte, $etablissement->getId());
+                    }
+                }
+
+                $this->addFlash('success', 'L\'établissement a bien été mis à jour.'.$lienAlerte);
+
+                return $this->redirectToRoute('etablissement_informations', ['id' => $etablissement->getId()]);
+            } catch (\Exception $e) {
+                $this->logger->error('Erreur modification établissement', ['error' => $e->getMessage()]);
+                $this->addFlash('danger', "L'établissement n'a pas été mis à jour. Veuillez rééssayez.");
+            }
+        }
+
+        return $this->render('etablissement/edit.html.twig', $templateParams);
     }
 
     /**
