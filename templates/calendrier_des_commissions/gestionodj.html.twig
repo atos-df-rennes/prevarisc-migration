@@ -163,11 +163,11 @@
                                          id="{{ dossier_non_affect.ID_DOSSIER }}"
                                          style="padding:5px 0 5px 15px;margin:5px;text-align:left;border:1px solid #9FC6FF;background-color:{{ background }};border-radius:10px 10px;-moz-border-radius:10px 10px; -webkit-border-radius:10px 10px;">
                                         <a href="{{ path('dossier_index', {id: dossier_non_affect.ID_DOSSIER}) }}" style="color:black;">
-                                            {% if dossier_non_affect.infosEtab is defined %}
+                                            {% if dossier_non_affect.infosEtab is not null %}
                                                 {{ dossier_non_affect.infosEtab.informations.LIBELLE_ETABLISSEMENTINFORMATIONS }}
                                             {% endif %}
 
-                                            {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.adresses is defined %}
+                                            {% if dossier_non_affect.infosEtab is not null and dossier_non_affect.infosEtab.adresses is defined %}
                                                 {% set nb_adresse = dossier_non_affect.infosEtab.adresses|length %}
                                                 {% if nb_adresse != 0 %}
                                                     ({% for commune in dossier_non_affect.infosEtab.adresses %}{{ commune.LIBELLE_COMMUNE }}{% if not loop.last %}, {% endif %}{% endfor %})
@@ -178,26 +178,26 @@
                                                 ( adresse non renseignée )
                                             {% endif %}
 
-                                            {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.parents is defined and dossier_non_affect.infosEtab.parents[0] is defined %}
+                                            {% if dossier_non_affect.infosEtab is not null and dossier_non_affect.infosEtab.parents is defined and dossier_non_affect.infosEtab.parents[0] is defined %}
                                                 - {{ dossier_non_affect.infosEtab.parents[0].LIBELLE_ETABLISSEMENTINFORMATIONS }}
                                             {% endif %}
 
                                             <br/>
 
-                                            {% if dossier_non_affect.LIBELLE_DOSSIERNATURE is defined and dossier_non_affect.LIBELLE_DOSSIERNATURE != '' %}
+                                            {% if dossier_non_affect.LIBELLE_DOSSIERNATURE is not empty %}
                                                 {{ dossier_non_affect.LIBELLE_DOSSIERNATURE }}<br/>
                                             {% endif %}
 
-                                            {% if dossier_non_affect.OBJET_DOSSIER is defined and dossier_non_affect.OBJET_DOSSIER != '' %}
+                                            {% if dossier_non_affect.OBJET_DOSSIER is not empty %}
                                                 Objet : {{ dossier_non_affect.OBJET_DOSSIER }}<br/>
                                             {% endif %}
 
-                                            {% if dossier_non_affect.listeDocUrba is defined and dossier_non_affect.listeDocUrba|length > 0 %}
+                                            {% if dossier_non_affect.listeDocUrba is not null and dossier_non_affect.listeDocUrba|length > 0 %}
                                                 Numéro document d'urbanisme :
                                                 {% for doc_urba in dossier_non_affect.listeDocUrba %}{{ doc_urba.NUM_DOCURBA }} . {% endfor %}
                                             {% endif %}
 
-                                            {% if dossier_non_affect.preventionnistes is defined and dossier_non_affect.preventionnistes|length > 0 %}
+                                            {% if dossier_non_affect.preventionnistes is not null and dossier_non_affect.preventionnistes|length > 0 %}
                                                 <br/><span style="font-size:10px;">
                                                 {% for prev in dossier_non_affect.preventionnistes %}
                                                     {{ prev.NOM_UTILISATEURINFORMATIONS }} {{ prev.PRENOM_UTILISATEURINFORMATIONS }}{% if not loop.last %}, {% endif %}
@@ -240,7 +240,7 @@
                                 <a href="{{ path('dossier_index', {id: dossier_non_affect.ID_DOSSIER_AFFECT}) }}" style="color:black;">
                                     {{ dossier_non_affect.LIBELLE_ETABLISSEMENTINFORMATIONS }}
 
-                                    {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.adresses is defined %}
+                                    {% if dossier_non_affect.infosEtab is not null and dossier_non_affect.infosEtab.adresses is defined %}
                                         {% set nb_adresse = dossier_non_affect.infosEtab.adresses|length %}
                                         {% if nb_adresse != 0 %}
                                             ({% for commune in dossier_non_affect.infosEtab.adresses %}{{ commune.LIBELLE_COMMUNE }}{% if not loop.last %}, {% endif %}{% endfor %})
@@ -251,25 +251,25 @@
                                         ( adresse non renseignée )
                                     {% endif %}
 
-                                    {% if dossier_non_affect.infosEtab is defined and dossier_non_affect.infosEtab.parents is defined and dossier_non_affect.infosEtab.parents[0] is defined %}
+                                    {% if dossier_non_affect.infosEtab is not null and dossier_non_affect.infosEtab.parents is defined and dossier_non_affect.infosEtab.parents[0] is defined %}
                                         - {{ dossier_non_affect.infosEtab.parents[0].LIBELLE_ETABLISSEMENTINFORMATIONS }}
                                     {% endif %}
 
                                     <br/>
 
-                                    {% if dossier_non_affect.LIBELLE_DOSSIERNATURE is defined and dossier_non_affect.LIBELLE_DOSSIERNATURE != '' %}
+                                    {% if dossier_non_affect.LIBELLE_DOSSIERNATURE is not empty %}
                                         {{ dossier_non_affect.LIBELLE_DOSSIERNATURE }}<br/>
                                     {% endif %}
 
-                                    {% if dossier_non_affect.OBJET_DOSSIER is defined and dossier_non_affect.OBJET_DOSSIER != '' %}
+                                    {% if dossier_non_affect.OBJET_DOSSIER is not empty %}
                                         Objet : {{ dossier_non_affect.OBJET_DOSSIER }}<br/>
                                     {% endif %}
 
-                                    {% if dossier_non_affect.NUM_DOCURBA is defined and dossier_non_affect.NUM_DOCURBA is not null and dossier_non_affect.NUM_DOCURBA != '' %}
+                                    {% if dossier_non_affect.NUM_DOCURBA is not null and dossier_non_affect.NUM_DOCURBA != '' %}
                                         Numéro document d'urbanisme : {{ dossier_non_affect.NUM_DOCURBA }}
                                     {% endif %}
 
-                                    {% if dossier_non_affect.preventionnistes is defined and dossier_non_affect.preventionnistes|length > 0 %}
+                                    {% if dossier_non_affect.preventionnistes is not null and dossier_non_affect.preventionnistes|length > 0 %}
                                         <span style="font-size:10px;">
                                         {% for prev in dossier_non_affect.preventionnistes %}
                                             {{ prev.NOM_UTILISATEURINFORMATIONS }} {{ prev.PRENOM_UTILISATEURINFORMATIONS }}{% if not loop.last %}, {% endif %}

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\Repository\EtablissementDashboardDto;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
@@ -284,7 +285,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
      *
      * @param int[]|null $commissionIds
      *
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     public function findERPOuvertsSousAvisDefavorable(?array $commissionIds = null, ?string $numInseeCommune = null, ?int $idUtilisateur = null): array
     {
@@ -318,7 +319,9 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return $rows;
+        return array_map(static function (array $row): EtablissementDashboardDto {
+            return EtablissementDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
@@ -327,7 +330,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
      *
      * @param int[] $commissionsUser
      *
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     public function findERPOuvertsSansProchainesVisitePeriodiques(array $commissionsUser): array
     {
@@ -388,14 +391,16 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return $rows;
+        return array_map(static function (array $row): EtablissementDashboardDto {
+            return EtablissementDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
      * Retourne les ERP ouverts sans préventionniste assigné pour le tableau de bord.
      * Port direct de Model_DbTable_Etablissement::listeERPSansPreventionniste().
      *
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     public function findERPSansPreventionniste(): array
     {
@@ -413,7 +418,9 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, []);
 
-        return $rows;
+        return array_map(static function (array $row): EtablissementDashboardDto {
+            return EtablissementDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**
@@ -421,7 +428,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
      * Port direct de Service_Dashboard::getERPSuivis().
      * Union des 4 catégories : ERP 1-4, ERP 5e cat défavorable, ERP 5e cat local sommeil, BUP/IGH/HAB.
      *
-     * @return array<int, array<string, mixed>>
+     * @return EtablissementDashboardDto[]
      */
     public function findERPSuivisByUser(int $idUtilisateur): array
     {
@@ -443,7 +450,9 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idUtilisateur' => $idUtilisateur]);
 
-        return $rows;
+        return array_map(static function (array $row): EtablissementDashboardDto {
+            return EtablissementDashboardDto::fromArray($row);
+        }, $rows);
     }
 
     /**

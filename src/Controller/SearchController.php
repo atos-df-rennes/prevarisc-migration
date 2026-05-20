@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\Repository\DossierSearchResultDto;
 use App\Entity\Utilisateur;
 use App\Repository\AdresseRueRepository;
 use App\Repository\CommissionRepository;
@@ -530,7 +531,7 @@ class SearchController extends AbstractController
                     $criteresRecherche
                 );
 
-                /** @var array<int, array<string, mixed>> $itemsArray */
+                /** @var array<int, DossierSearchResultDto> $itemsArray */
                 $itemsArray = array_values($search['results']);
                 $results = new SearchPagination(
                     $itemsArray,

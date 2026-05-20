@@ -4,6 +4,7 @@ namespace App\Twig;
 
 use App\Constant\Avis;
 use App\Constant\DossierType;
+use App\Dto\Repository\AbstractDossierResultDto;
 use App\Service\DateDiffFormatterService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -38,29 +39,27 @@ class DossierStatusExtension extends AbstractExtension
 
     /**
      * Retourne le badge HTML d'avis pour un dossier dans les résultats de recherche.
-     *
-     * @param array<string, mixed> $item
      */
-    public function renderAvisBadge(array $item): string
+    public function renderAvisBadge(AbstractDossierResultDto $item): string
     {
         // INCOMPLET prioritaire
-        if (isset($item['INCOMPLET_DOSSIER']) && 1 === $this->mixedToInt($item['INCOMPLET_DOSSIER'])) {
+        if (1 === $this->mixedToInt($item->INCOMPLET_DOSSIER)) {
             return '<span class="avis" style="background-color: #f89406;">Dossier incomplet</span>';
         }
 
-        if (isset($item['DIFFEREAVIS_DOSSIER']) && 1 === $this->mixedToInt($item['DIFFEREAVIS_DOSSIER'])) {
+        if (1 === $this->mixedToInt($item->DIFFEREAVIS_DOSSIER)) {
             return '<span class="avis" style="background-color: #3a87ad;">Avis différé</span>';
         }
 
         // Dossier courrier (TYPE_DOSSIER == 5)
-        if (isset($item['TYPE_DOSSIER']) && DossierType::COURRIER === $this->mixedToInt($item['TYPE_DOSSIER'])) {
-            if (!empty($item['DATEREP_DOSSIER'])) {
+        if (DossierType::COURRIER === $this->mixedToInt($item->TYPE_DOSSIER)) {
+            if (!empty($item->DATEREP_DOSSIER)) {
                 return '<span class="avis F">Répondu</span>';
             }
 
             $dateDiff = '';
-            if (!empty($item['DATESDIS_DOSSIER'])) {
-                $diff = $this->dateDiffFormatter->format($this->mixedToString($item['DATESDIS_DOSSIER']));
+            if (!empty($item->DATESDIS_DOSSIER)) {
+                $diff = $this->dateDiffFormatter->format($this->mixedToString($item->DATESDIS_DOSSIER));
                 if ('' !== $diff) {
                     $dateDiff = ' ('.htmlspecialchars($diff, ENT_QUOTES, 'UTF-8').')';
                 }
@@ -69,7 +68,7 @@ class DossierStatusExtension extends AbstractExtension
             return '<span class="avis">Réponse à faire'.$dateDiff.'</span>';
         }
 
-        $idAvis = isset($item['ID_AVIS']) ? $this->mixedToInt($item['ID_AVIS']) : 0;
+        $idAvis = $this->mixedToInt($item->ID_AVIS);
         $exploitation = $this->isExploitationNature($item);
 
         if (Avis::FAVORABLE === $idAvis) {
@@ -85,13 +84,11 @@ class DossierStatusExtension extends AbstractExtension
 
     /**
      * Détermine si la nature du dossier correspond à une nature d'exploitation.
-     *
-     * @param array<string, mixed> $item
      */
-    private function isExploitationNature(array $item): bool
+    private function isExploitationNature(AbstractDossierResultDto $item): bool
     {
-        return isset($item['ID_DOSSIERNATURE'])
-            && in_array($this->mixedToInt($item['ID_DOSSIERNATURE']), self::EXPLOITATION_NATURE_IDS, true);
+        return null !== $item->ID_DOSSIERNATURE
+            && in_array($this->mixedToInt($item->ID_DOSSIERNATURE), self::EXPLOITATION_NATURE_IDS, true);
     }
 
     /**
