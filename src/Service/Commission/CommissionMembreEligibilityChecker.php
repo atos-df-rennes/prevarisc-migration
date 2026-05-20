@@ -27,32 +27,50 @@ class CommissionMembreEligibilityChecker
      */
     public function isDossierConcerneMembre(array $membre, array $dossier): bool
     {
-        // Vérification que les données établissement existent
-        if (!isset($dossier['infosEtab']['informations'])) {
+        /** @var array<string, mixed> $infosEtab */
+        $infosEtab = $dossier['infosEtab'] ?? [];
+        if (!isset($infosEtab['informations'])) {
             return false;
         }
 
-        $informations = $dossier['infosEtab']['informations'];
+        /** @var array<string, mixed> $informations */
+        $informations = $infosEtab['informations'];
+        /** @var array<int|string, array<string, mixed>> $dossierTypes */
+        $dossierTypes = $membre['dossiertypes'] ?? [];
+        /** @var int|string $typeDossier */
+        $typeDossier = $dossier['TYPE_DOSSIER'] ?? 0;
 
-        // Condition sur le type de dossier (obligatoire dans tous les cas)
-        if (empty($membre['dossiertypes'][$dossier['TYPE_DOSSIER']]['ID_COMMISSIONMEMBRE'])) {
+        if (empty($dossierTypes[$typeDossier]['ID_COMMISSIONMEMBRE'])) {
             return false;
         }
 
-        // Condition genre manifestation
-        if (8 == $informations['ID_GENRE'] && !empty($membre['manifestation'])) {
+        /** @var int|string $genreId */
+        $genreId = $informations['ID_GENRE'] ?? 0;
+        if (8 === (int) $genreId && !empty($membre['manifestation'])) {
             return true;
         }
 
-        // Condition catégorie ET type d'activité
+        /** @var array<int|string, array<string, mixed>> $categories */
+        $categories = $membre['categories'] ?? [];
+        /** @var array<int|string, array<string, mixed>> $types */
+        $types = $membre['types'] ?? [];
+        /** @var int|string $categorieId */
+        $categorieId = $informations['ID_CATEGORIE'] ?? 0;
+        /** @var int|string $typeActiviteId */
+        $typeActiviteId = $informations['ID_TYPEACTIVITE'] ?? 0;
+
         if (
-            !empty($membre['categories'][$informations['ID_CATEGORIE']]['ID_COMMISSIONMEMBRE'])
-            && !empty($membre['types'][$informations['ID_TYPEACTIVITE']]['ID_COMMISSIONMEMBRE'])
+            !empty($categories[$categorieId]['ID_COMMISSIONMEMBRE'])
+            && !empty($types[$typeActiviteId]['ID_COMMISSIONMEMBRE'])
         ) {
             return true;
         }
 
-        // Condition classe
-        return !empty($membre['classes'][$informations['ID_CLASSE']]['ID_COMMISSIONMEMBRE']);
+        /** @var array<int|string, array<string, mixed>> $classes */
+        $classes = $membre['classes'] ?? [];
+        /** @var int|string $classeId */
+        $classeId = $informations['ID_CLASSE'] ?? 0;
+
+        return !empty($classes[$classeId]['ID_COMMISSIONMEMBRE']);
     }
 }

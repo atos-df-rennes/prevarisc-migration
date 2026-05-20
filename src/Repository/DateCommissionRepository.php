@@ -443,10 +443,10 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findDossiersForGeneration(int $dateCommId, int $gestionHeures): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $orderBy = 1 === $gestionHeures ? 'dossAffect.HEURE_DEB_AFFECT' : 'dossAffect.ORDRE_AFFECTATION';
+        $orderBy = 1 === $gestionHeures ? 'dossAffect.HEURE_DEB_AFFECT' : 'dossAffect.NUM_DOSSIER';
 
         $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT,
-                       dossAffect.HEURE_FIN_AFFECT, dossAffect.ORDRE_AFFECTATION,
+                       dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER,
                        dossNatListe.LIBELLE_DOSSIERNATURE
                 FROM dossieraffectation dossAffect
                 JOIN dossier doss ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT

@@ -4,27 +4,23 @@ namespace App\Service\Commission;
 
 use App\Constant\AvisCommission;
 use App\Constant\NomInterneCapsule;
-use App\Constant\TypeChamp;
 use App\Constant\TypePrescription;
 use App\Entity\CapsuleRubrique;
-use App\Entity\Champ;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\PieceJointe;
 use App\Entity\Rubrique;
-use App\Entity\Valeur;
 use App\Repository\DateCommissionRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Descriptif;
-use App\Service\Formulaires\Fusion\ChampNamer;
-use App\Service\Formulaires\ValeurResolver;
+use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use Odf;
 use Psr\Log\LoggerInterface;
+use Segment;
 
 /**
  * Service de génération des documents ODT de commission (convocations, ODJ, PV, compte-rendu).
@@ -62,6 +58,9 @@ class CommissionDocumentGenerationService
     /** @var DateCommissionRepository */
     private $dateCommissionRepo;
 
+    /** @var OdtWriter */
+    private $odtWriter;
+
     public function __construct(
         EntityManagerInterface $em,
         Connection $conn,
@@ -70,6 +69,7 @@ class CommissionDocumentGenerationService
         CommissionMembreEligibilityChecker $eligibilityChecker,
         Descriptif $descriptif,
         DateCommissionRepository $dateCommissionRepo,
+        OdtWriter $odtWriter,
         string $courriersMembresRealDataPath,
         string $documentsCommissionRealDataPath
     ) {
@@ -80,6 +80,7 @@ class CommissionDocumentGenerationService
         $this->eligibilityChecker = $eligibilityChecker;
         $this->descriptif = $descriptif;
         $this->dateCommissionRepo = $dateCommissionRepo;
+        $this->odtWriter = $odtWriter;
         $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
         $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
     }
@@ -100,22 +101,36 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $typeCommission = (int) ($commissionInfo['ID_COMMISSIONTYPEEVENEMENT'] ?? 0);
-        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        /** @var int|string $typeCommissionRaw */
+        $typeCommissionRaw = $commissionInfo['ID_COMMISSIONTYPEEVENEMENT'] ?? 0;
+        $typeCommission = (int) $typeCommissionRaw;
+        /** @var int|string $gestionHeuresRaw */
+        $gestionHeuresRaw = $commissionInfo['GESTION_HEURES'] ?? 0;
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresRaw);
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
-        $listeMembres = $this->loadMembresWithCompetences((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
-        $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
+        /** @var int|string $commissionConcerneRaw */
+        $commissionConcerneRaw = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
+        $listeMembres = $this->loadMembresWithCompetences((int) $commissionConcerneRaw);
+        $commissionInfos = $this->getCommissionInfo((int) $commissionConcerneRaw);
         $listeCommunes = $this->buildListeCommunes($listeDossiers);
 
-        $dateComm = (string) ($commissionInfo['DATE_COMMISSION'] ?? '');
-        $heureDeb = (string) ($commissionInfo['HEUREDEB_COMMISSION'] ?? '');
+        /** @var string|null $dateCommRaw */
+        $dateCommRaw = $commissionInfo['DATE_COMMISSION'] ?? '';
+        $dateComm = (string) ($dateCommRaw ?? '');
+        /** @var string|null $heureDebRaw */
+        $heureDebRaw = $commissionInfo['HEUREDEB_COMMISSION'] ?? '';
+        $heureDeb = (string) ($heureDebRaw ?? '');
 
         foreach ($listeMembres as $membre) {
             /** @var array<string, mixed> $membreFile */
             $membreFile = $this->getMembreFirstFile($membre);
-            $membreLabel = (string) ($membreFile['LIBELLE_COMMISSIONMEMBRE'] ?? '');
-            $membreId = (int) ($membreFile['ID_COMMISSIONMEMBRE'] ?? 0);
+            /** @var string|null $membreLabelRaw */
+            $membreLabelRaw = $membreFile['LIBELLE_COMMISSIONMEMBRE'] ?? '';
+            $membreLabel = (string) ($membreLabelRaw ?? '');
+            /** @var int|string $membreIdRaw */
+            $membreIdRaw = $membreFile['ID_COMMISSIONMEMBRE'] ?? 0;
+            $membreId = (int) $membreIdRaw;
 
             // Déterminer le nom du fichier template
             $erreurFile = false;
@@ -125,13 +140,21 @@ class CommissionDocumentGenerationService
                 if (empty($membreFile['COURRIER_CONVOCATIONSALLE'])) {
                     $erreurFile = true;
                 } else {
-                    $nomFichier = $membreFile['ID_COMMISSIONMEMBRE'].'CONVOCATIONSALLE_'.$membreFile['COURRIER_CONVOCATIONSALLE'];
+                    /** @var int|string $membreIdConvRaw */
+                    $membreIdConvRaw = $membreFile['ID_COMMISSIONMEMBRE'] ?? '';
+                    /** @var int|string $courrierSalleRaw */
+                    $courrierSalleRaw = $membreFile['COURRIER_CONVOCATIONSALLE'];
+                    $nomFichier = $membreIdConvRaw.'CONVOCATIONSALLE_'.$courrierSalleRaw;
                 }
             } elseif (2 === $typeCommission || 3 === $typeCommission) {
                 if (empty($membreFile['COURRIER_CONVOCATIONVISITE'])) {
                     $erreurFile = true;
                 } else {
-                    $nomFichier = $membreFile['ID_COMMISSIONMEMBRE'].'CONVOCATIONVISITE_'.$membreFile['COURRIER_CONVOCATIONVISITE'];
+                    /** @var int|string $membreIdConvRaw */
+                    $membreIdConvRaw = $membreFile['ID_COMMISSIONMEMBRE'] ?? '';
+                    /** @var int|string $courrierVisiteRaw */
+                    $courrierVisiteRaw = $membreFile['COURRIER_CONVOCATIONVISITE'];
+                    $nomFichier = $membreIdConvRaw.'CONVOCATIONVISITE_'.$courrierVisiteRaw;
                 }
             }
 
@@ -139,8 +162,10 @@ class CommissionDocumentGenerationService
             $cptConcerne = 0;
             foreach ($listeCommunes as $commune) {
                 foreach ($listeDossiers as $dossierInfos) {
+                    /** @var array<string, mixed> $dInfosEtabConv */
+                    $dInfosEtabConv = $dossierInfos['infosEtab'] ?? [];
                     /** @var array<int, array<string, mixed>> $adresses */
-                    $adresses = $dossierInfos['infosEtab']['adresses'] ?? [];
+                    $adresses = $dInfosEtabConv['adresses'] ?? [];
                     if (
                         count($adresses) > 0
                         && !empty($commune[0])
@@ -243,22 +268,38 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        /** @var int|string $gestionHeuresRawOdj */
+        $gestionHeuresRawOdj = $commissionInfo['GESTION_HEURES'] ?? 0;
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresRawOdj);
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
-        $listeMembres = $this->loadMembresWithCompetences((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
-        $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
+        /** @var int|string $commissionConcerneRawOdj */
+        $commissionConcerneRawOdj = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
+        $listeMembres = $this->loadMembresWithCompetences((int) $commissionConcerneRawOdj);
+        $commissionInfos = $this->getCommissionInfo((int) $commissionConcerneRawOdj);
         $listeCommunes = $this->buildListeCommunes($listeDossiers);
 
-        $dateComm = (string) ($commissionInfo['DATE_COMMISSION'] ?? '');
-        $heureDeb = (string) ($commissionInfo['HEUREDEB_COMMISSION'] ?? '');
+        /** @var string|null $dateCommRawOdj */
+        $dateCommRawOdj = $commissionInfo['DATE_COMMISSION'] ?? '';
+        $dateComm = (string) ($dateCommRawOdj ?? '');
+        /** @var string|null $heureDebRawOdj */
+        $heureDebRawOdj = $commissionInfo['HEUREDEB_COMMISSION'] ?? '';
+        $heureDeb = (string) ($heureDebRawOdj ?? '');
 
         foreach ($listeMembres as $membre) {
             /** @var array<string, mixed> $membreFile */
             $membreFile = $this->getMembreFirstFile($membre);
-            $membreLabel = (string) ($membreFile['LIBELLE_COMMISSIONMEMBRE'] ?? '');
-            $membreId = (int) ($membreFile['ID_COMMISSIONMEMBRE'] ?? 0);
-            $nomFichier = $membreFile['ID_COMMISSIONMEMBRE'].'ODJ_'.$membreFile['COURRIER_ODJ'];
+            /** @var string|null $membreLabelRawOdj */
+            $membreLabelRawOdj = $membreFile['LIBELLE_COMMISSIONMEMBRE'] ?? '';
+            $membreLabel = (string) ($membreLabelRawOdj ?? '');
+            /** @var int|string $membreIdRawOdj */
+            $membreIdRawOdj = $membreFile['ID_COMMISSIONMEMBRE'] ?? 0;
+            $membreId = (int) $membreIdRawOdj;
+            /** @var int|string $membreIdOdjRaw */
+            $membreIdOdjRaw = $membreFile['ID_COMMISSIONMEMBRE'] ?? '';
+            /** @var string|null $courrierOdjRaw */
+            $courrierOdjRaw = $membreFile['COURRIER_ODJ'] ?? '';
+            $nomFichier = $membreIdOdjRaw.'ODJ_'.($courrierOdjRaw ?? '');
             $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
 
             if (!file_exists($templatePath)) {
@@ -335,19 +376,29 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        /** @var int|string $gestionHeuresGen */
+        $gestionHeuresGen = $commissionInfo['GESTION_HEURES'] ?? 0;
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresGen);
         $listeDossiers = $this->enrichDossiers($listeDossiers, true);
 
-        $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
+        /** @var int|string $commissionConcernePvRaw */
+        $commissionConcernePvRaw = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
+        $commissionInfos = $this->getCommissionInfo((int) $commissionConcernePvRaw);
 
-        $dateComm = (string) ($commissionInfo['DATE_COMMISSION'] ?? '');
+        /** @var string|null $dateCommPvRaw */
+        $dateCommPvRaw = $commissionInfo['DATE_COMMISSION'] ?? '';
+        $dateComm = (string) ($dateCommPvRaw ?? '');
 
         // Pour le PV, on boucle sur les membres SANS groupement
-        $membresFiles = $this->loadMembresFilesForPv((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
+        $membresFiles = $this->loadMembresFilesForPv((int) $commissionConcernePvRaw);
 
         foreach ($membresFiles as $membre) {
-            $membreLabel = (string) ($membre['LIBELLE_COMMISSIONMEMBRE'] ?? '');
-            $membreId = (int) ($membre['ID_COMMISSIONMEMBRE'] ?? 0);
+            /** @var string|null $membreLabelPvRaw */
+            $membreLabelPvRaw = $membre['LIBELLE_COMMISSIONMEMBRE'] ?? '';
+            $membreLabel = (string) ($membreLabelPvRaw ?? '');
+            /** @var int|string $membreIdPvRaw */
+            $membreIdPvRaw = $membre['ID_COMMISSIONMEMBRE'] ?? 0;
+            $membreId = (int) $membreIdPvRaw;
 
             if (!empty($membre['ID_GROUPEMENT'])) {
                 $results[] = [
@@ -361,7 +412,11 @@ class CommissionDocumentGenerationService
                 continue;
             }
 
-            $nomFichier = $membre['ID_COMMISSIONMEMBRE'].'PV_'.$membre['COURRIER_PV'];
+            /** @var int|string $membreIdPvRaw2 */
+            $membreIdPvRaw2 = $membre['ID_COMMISSIONMEMBRE'] ?? '';
+            /** @var string|null $courrierPvRaw */
+            $courrierPvRaw = $membre['COURRIER_PV'] ?? '';
+            $nomFichier = $membreIdPvRaw2.'PV_'.($courrierPvRaw ?? '');
             $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
 
             if (!file_exists($templatePath)) {
@@ -423,14 +478,22 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        /** @var int|string $gestionHeuresGen */
+        $gestionHeuresGen = $commissionInfo['GESTION_HEURES'] ?? 0;
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresGen);
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
-        $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
+        /** @var int|string $commissionConcerneCrRaw */
+        $commissionConcerneCrRaw = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
+        $commissionInfos = $this->getCommissionInfo((int) $commissionConcerneCrRaw);
 
-        $dateComm = (string) ($commissionInfo['DATE_COMMISSION'] ?? '');
+        /** @var string|null $dateCommCrRaw */
+        $dateCommCrRaw = $commissionInfo['DATE_COMMISSION'] ?? '';
+        $dateComm = (string) ($dateCommCrRaw ?? '');
 
-        $nomFichier = (string) ($commissionInfos[0]['DOCUMENT_CR'] ?? '');
+        /** @var string|null $docCrRaw */
+        $docCrRaw = $commissionInfos[0]['DOCUMENT_CR'] ?? '';
+        $nomFichier = (string) $docCrRaw;
         if ('' === $nomFichier) {
             $results[] = [
                 'memberId' => 0,
@@ -533,7 +596,9 @@ class CommissionDocumentGenerationService
     private function enrichDossiers(array $listeDossiers, bool $includePrescriptions): array
     {
         foreach ($listeDossiers as $val => $dossier) {
-            $dossierId = (int) $dossier['ID_DOSSIER'];
+            /** @var int|string $dossierIdValue */
+            $dossierIdValue = $dossier['ID_DOSSIER'] ?? 0;
+            $dossierId = (int) $dossierIdValue;
 
             // Préventionnistes
             $listeDossiers[$val]['preventionnistes'] = $this->getPreventionnistes($dossierId);
@@ -546,7 +611,9 @@ class CommissionDocumentGenerationService
                 continue;
             }
 
-            $etabId = (int) $listeEtab[0]['ID_ETABLISSEMENT'];
+            /** @var int|string $etabIdValue */
+            $etabIdValue = $listeEtab[0]['ID_ETABLISSEMENT'] ?? 0;
+            $etabId = (int) $etabIdValue;
             $etablissementInfos = $this->getEtablissementInfos($etabId);
             $listeDossiers[$val]['infosEtab'] = $etablissementInfos;
 
@@ -555,11 +622,13 @@ class CommissionDocumentGenerationService
 
             // Avis dérogations établissement (parent + enfants)
             $idsEtablissements = [$etabId];
-            if (!empty($etablissementInfos['etablissement_lies'])) {
-                $idsEtablissements = array_merge(
-                    $idsEtablissements,
-                    array_column($etablissementInfos['etablissement_lies'], 'ID_ETABLISSEMENT')
-                );
+            /** @var array<int, array<string, mixed>> $etablissementLies */
+            $etablissementLies = $etablissementInfos['etablissement_lies'] ?? [];
+            if (!empty($etablissementLies)) {
+                /** @var array<int, int|string> $etabLiesColumn */
+                $etabLiesColumn = array_column($etablissementLies, 'ID_ETABLISSEMENT');
+                $etabLiesIds = array_map('intval', $etabLiesColumn);
+                $idsEtablissements = array_merge($idsEtablissements, $etabLiesIds);
             }
 
             $listeDossiers[$val]['AVIS_DEROGATIONS_ETABLISSEMENT'] = $this->getAvisDerogationsEtablissements($idsEtablissements);
@@ -592,7 +661,7 @@ class CommissionDocumentGenerationService
      * getChampsForRubrique, getChampsFils) en réutilisant le service partagé
      * avec DossierRapportOdtService.
      *
-     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<array<string, mixed>>}>
+     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}>
      */
     private function loadFormulaires(Dossier $dossier, Etablissement $etablissement): array
     {
@@ -730,7 +799,7 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @param int[] $idsEtablissements
+     * @param array<int, int> $idsEtablissements
      *
      * @return array<int, array<string, mixed>>
      */
@@ -791,7 +860,7 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @return array<int, array<int, array<string, string>>>
+     * @return list<list<array<string, mixed>>>
      */
     private function getPrescriptionsArray(int $dossierId, int $type): array
     {
@@ -812,10 +881,12 @@ class CommissionDocumentGenerationService
             ['id' => $dossierId, 'type' => $type]
         );
 
-        // Grouper par prescription
+        /** @var array<int, list<array<string, mixed>>> $result */
         $result = [];
         foreach ($rows as $row) {
-            $prescId = $row['ID_PRESCRIPTION_DOSSIER'];
+            /** @var int|string $prescIdValue */
+            $prescIdValue = $row['ID_PRESCRIPTION_DOSSIER'] ?? 0;
+            $prescId = (int) $prescIdValue;
             if (!isset($result[$prescId])) {
                 $result[$prescId] = [];
             }
@@ -841,7 +912,9 @@ class CommissionDocumentGenerationService
         );
 
         foreach ($membres as $idx => $membre) {
-            $membreId = (int) $membre['id_membre'];
+            /** @var int|string $membreIdRaw */
+            $membreIdRaw = $membre['id_membre'] ?? 0;
+            $membreId = (int) $membreIdRaw;
 
             // InfosFiles
             $membres[$idx]['infosFiles'] = $this->conn->fetchAllAssociative(
@@ -856,7 +929,9 @@ class CommissionDocumentGenerationService
             );
             $membres[$idx]['categories'] = [];
             foreach ($categories as $cat) {
-                $membres[$idx]['categories'][$cat['ID_CATEGORIE']] = $cat;
+                /** @var int|string $catId */
+                $catId = $cat['ID_CATEGORIE'] ?? 0;
+                $membres[$idx]['categories'][$catId] = $cat;
             }
 
             // Compétences types
@@ -866,7 +941,9 @@ class CommissionDocumentGenerationService
             );
             $membres[$idx]['types'] = [];
             foreach ($types as $t) {
-                $membres[$idx]['types'][$t['ID_TYPEACTIVITE']] = $t;
+                /** @var int|string $typeActiviteId */
+                $typeActiviteId = $t['ID_TYPEACTIVITE'] ?? 0;
+                $membres[$idx]['types'][$typeActiviteId] = $t;
             }
 
             // Compétences classes
@@ -876,7 +953,9 @@ class CommissionDocumentGenerationService
             );
             $membres[$idx]['classes'] = [];
             foreach ($classes as $cl) {
-                $membres[$idx]['classes'][$cl['ID_CLASSE']] = $cl;
+                /** @var int|string $classeId */
+                $classeId = $cl['ID_CLASSE'] ?? 0;
+                $membres[$idx]['classes'][$classeId] = $cl;
             }
 
             // Compétences dossier types
@@ -886,7 +965,9 @@ class CommissionDocumentGenerationService
             );
             $membres[$idx]['dossiertypes'] = [];
             foreach ($dossiertypes as $dt) {
-                $membres[$idx]['dossiertypes'][$dt['ID_DOSSIERTYPE']] = $dt;
+                /** @var int|string $dossierTypeId */
+                $dossierTypeId = $dt['ID_DOSSIERTYPE'] ?? 0;
+                $membres[$idx]['dossiertypes'][$dossierTypeId] = $dt;
             }
 
             // Flag manifestation
@@ -915,25 +996,35 @@ class CommissionDocumentGenerationService
      *
      * @param array<int, array<string, mixed>> $listeDossiers
      *
-     * @return array<int, array<int, mixed>>
+     * @return array<int, array{0: string, 1: array<int, array<string, mixed>>}>
      */
     private function buildListeCommunes(array $listeDossiers): array
     {
         $tabCommune = [];
-        $numCommune = 0;
 
         foreach ($listeDossiers as $ue) {
-            if (!isset($ue['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'])) {
+            /** @var array<string, mixed> $infosEtab */
+            $infosEtab = $ue['infosEtab'] ?? [];
+            /** @var array<int, array<string, mixed>> $adresses */
+            $adresses = $infosEtab['adresses'] ?? [];
+            if (!isset($adresses[0])) {
                 continue;
             }
 
-            $libelleCommune = $ue['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'];
-            $numInsee = $ue['infosEtab']['adresses'][0]['NUMINSEE_COMMUNE'] ?? '';
+            /** @var array<string, string|null> $adresse */
+            $adresse = $adresses[0];
+            /** @var string $libelleCommune */
+            $libelleCommune = $adresse['LIBELLE_COMMUNE'] ?? '';
+            if ('' === $libelleCommune) {
+                continue;
+            }
 
-            // Vérifier si la commune existe déjà
+            /** @var string $numInsee */
+            $numInsee = $adresse['NUMINSEE_COMMUNE'] ?? '';
+
             $existe = false;
             foreach ($tabCommune as $value) {
-                if (isset($value[0]) && $value[0] == $libelleCommune) {
+                if ($value[0] === $libelleCommune) {
                     $existe = true;
 
                     break;
@@ -941,9 +1032,7 @@ class CommissionDocumentGenerationService
             }
 
             if (!$existe) {
-                $communeInfo = $this->getCommuneContactInfo($numInsee);
-                $tabCommune[$numCommune] = [$libelleCommune, $communeInfo];
-                ++$numCommune;
+                $tabCommune[] = [$libelleCommune, $this->getCommuneContactInfo($numInsee)];
             }
         }
 
@@ -969,10 +1058,10 @@ class CommissionDocumentGenerationService
     // ========================================================================
 
     /**
-     * @param array<int, array<string, mixed>> $listeDossiers
-     * @param array<string, mixed>             $membre
-     * @param array<int, array<int, mixed>>    $listeCommunes
-     * @param array<int, array<string, mixed>> $commissionInfos
+     * @param array<int, array<string, mixed>>                                  $listeDossiers
+     * @param array<string, mixed>                                              $membre
+     * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
+     * @param array<int, array<string, mixed>>                                  $commissionInfos
      */
     private function generateConvocationParCommune(
         string $templatePath,
@@ -989,13 +1078,17 @@ class CommissionDocumentGenerationService
 
         foreach ($listeCommunes as $commune) {
             // Infos mairie
-            if (isset($commune[1][0])) {
-                $this->addChamp($villeODF, 'numMairie', $commune[1][0]['NUMEROADRESSE_UTILISATEURINFORMATIONS'] ?? '');
-                $this->addChamp($villeODF, 'rueMairie', $commune[1][0]['RUEADRESSE_UTILISATEURINFORMATIONS'] ?? '');
-                $this->addChamp($villeODF, 'cpMairie', $commune[1][0]['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
+            /** @var array<int, array<string, mixed>> $communeContacts */
+            $communeContacts = $commune[1];
+            if (isset($communeContacts[0])) {
+                /** @var array<string, mixed> $communeContact0 */
+                $communeContact0 = $communeContacts[0];
+                $this->addChamp($villeODF, 'numMairie', $communeContact0['NUMEROADRESSE_UTILISATEURINFORMATIONS'] ?? '');
+                $this->addChamp($villeODF, 'rueMairie', $communeContact0['RUEADRESSE_UTILISATEURINFORMATIONS'] ?? '');
+                $this->addChamp($villeODF, 'cpMairie', $communeContact0['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
             }
 
-            $this->addChamp($villeODF, 'communeMairie', $commune[0] ?? '');
+            $this->addChamp($villeODF, 'communeMairie', (string) $commune[0]);
             $this->addChamp($villeODF, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
 
             $dateDuJour = new \DateTime();
@@ -1011,13 +1104,21 @@ class CommissionDocumentGenerationService
             // Heure début 1er dossier concerné
             $heureDebut = '';
             foreach ($listeDossiers as $dossierInfos) {
+                /** @var array<string, mixed> $dInfosEtab */
+                $dInfosEtab = $dossierInfos['infosEtab'] ?? [];
+                /** @var array<int, array<string, mixed>> $dAdresses */
+                $dAdresses = $dInfosEtab['adresses'] ?? [];
+                /** @var string|null $dLibelleCommune */
+                $dLibelleCommune = $dAdresses[0]['LIBELLE_COMMUNE'] ?? null;
                 if (
-                    count($dossierInfos['infosEtab']['adresses']) > 0
-                    && $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] == $commune[0]
+                    count($dAdresses) > 0
+                    && $dLibelleCommune == $commune[0]
                     && $this->eligibilityChecker->isDossierConcerneMembre($membre, $dossierInfos)
                     && isset($dossierInfos['HEURE_DEB_AFFECT'])
                 ) {
-                    $heureDebutTab = explode(':', $dossierInfos['HEURE_DEB_AFFECT']);
+                    /** @var string $heureDebAffect */
+                    $heureDebAffect = $dossierInfos['HEURE_DEB_AFFECT'];
+                    $heureDebutTab = explode(':', $heureDebAffect);
                     $heureDebut = $heureDebutTab[0].':'.$heureDebutTab[1];
 
                     break;
@@ -1027,15 +1128,24 @@ class CommissionDocumentGenerationService
             $this->addChamp($villeODF, 'heureDeb1erDossier', $heureDebut);
 
             // Segment infosDoss
-            $infosDoss = $villeODF->infosDoss;
+            $infosDossName = 'infosDoss';
+            /** @var \Segment $infosDoss */
+            // @phpstan-ignore-next-line
+            $infosDoss = $villeODF->$infosDossName;
             foreach ($listeDossiers as $dossierInfos) {
+                /** @var array<string, mixed> $dInfosEtab */
+                $dInfosEtab = $dossierInfos['infosEtab'] ?? [];
+                /** @var array<int, array<string, mixed>> $dAdresses */
+                $dAdresses = $dInfosEtab['adresses'] ?? [];
+                /** @var string|null $dLibelleCommune */
+                $dLibelleCommune = $dAdresses[0]['LIBELLE_COMMUNE'] ?? null;
                 if (
-                    count($dossierInfos['infosEtab']['adresses']) > 0
-                    && $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] == $commune[0]
+                    count($dAdresses) > 0
+                    && $dLibelleCommune == $commune[0]
                     && $this->eligibilityChecker->isDossierConcerneMembre($membre, $dossierInfos)
                 ) {
                     $this->fillConvocationDossierInfos($infosDoss, $dossierInfos);
-                    $villeODF->infosDoss->merge();
+                    $infosDoss->merge();
                 }
             }
 
@@ -1044,10 +1154,14 @@ class CommissionDocumentGenerationService
 
         $odf->mergeSegment($villeODF);
 
+        /** @var array<int, array<string, mixed>> $infosFiles */
+        $infosFiles = $membre['infosFiles'] ?? [];
+        /** @var string|null $membreLabelPj */
+        $membreLabelPj = $infosFiles[0]['LIBELLE_COMMISSIONMEMBRE'] ?? '';
         $pj = $this->savePieceJointe(
             $dateCommId,
             'Convocation',
-            'Convocations du membre '.($membre['infosFiles'][0]['LIBELLE_COMMISSIONMEMBRE'] ?? '')
+            'Convocations du membre '.($membreLabelPj ?? '')
         );
 
         $path = $this->dataStore->getFilePath($pj, 'dateCommission', $dateCommId, true);
@@ -1057,10 +1171,10 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @param array<int, array<string, mixed>> $listeDossiers
-     * @param array<string, mixed>             $membre
-     * @param array<int, array<int, mixed>>    $listeCommunes
-     * @param array<int, array<string, mixed>> $commissionInfos
+     * @param array<int, array<string, mixed>>                                  $listeDossiers
+     * @param array<string, mixed>                                              $membre
+     * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
+     * @param array<int, array<string, mixed>>                                  $commissionInfos
      */
     private function generateConvocationParGroupement(
         string $templatePath,
@@ -1072,10 +1186,16 @@ class CommissionDocumentGenerationService
         string $heureDeb,
         int $dateCommId
     ): int {
-        $groupementId = (int) $membre['infosFiles'][0]['ID_GROUPEMENT'];
+        /** @var array<int, array<string, mixed>> $infosFilesGrp */
+        $infosFilesGrp = $membre['infosFiles'] ?? [];
+        /** @var array<string, mixed> $infosFile0 */
+        $infosFile0 = $infosFilesGrp[0] ?? [];
+        /** @var int|string $groupementIdRaw */
+        $groupementIdRaw = $infosFile0['ID_GROUPEMENT'] ?? 0;
+        $groupementId = (int) $groupementIdRaw;
 
         // Récupérer les infos du groupement
-        /** @var array<string, mixed>|false $infosGroupement */
+        /** @var array<string, string|null>|false $infosGroupement */
         $infosGroupement = $this->conn->fetchAssociative(
             'SELECT * FROM groupement WHERE ID_GROUPEMENT = :id',
             ['id' => $groupementId]
@@ -1103,15 +1223,26 @@ class CommissionDocumentGenerationService
         foreach ($listeDossiers as $dossierInfos) {
             $dossierExported = false;
 
+            /** @var array<string, mixed> $dInfosEtab */
+            $dInfosEtab = $dossierInfos['infosEtab'] ?? [];
+            /** @var array<int, array<string, mixed>> $dAdresses */
+            $dAdresses = $dInfosEtab['adresses'] ?? [];
+            /** @var array<string, mixed> $dInformations */
+            $dInformations = $dInfosEtab['informations'] ?? [];
+            /** @var array<string, mixed> $dGeneral */
+            $dGeneral = $dInfosEtab['general'] ?? [];
+
             foreach ($listeVillesGroupement as $villeGrp) {
+                /** @var string|null $dNumInsee */
+                $dNumInsee = $dAdresses[0]['NUMINSEE_COMMUNE'] ?? null;
                 if (
-                    count($dossierInfos['infosEtab']['adresses']) > 0
-                    && $dossierInfos['infosEtab']['adresses'][0]['NUMINSEE_COMMUNE'] == $villeGrp['NUMINSEE_COMMUNE']
+                    count($dAdresses) > 0
+                    && $dNumInsee == $villeGrp['NUMINSEE_COMMUNE']
                     && $this->eligibilityChecker->isDossierConcerneMembre($membre, $dossierInfos)
                 ) {
                     $this->fillConvocationDossierInfos($grpLoop, $dossierInfos);
-                    $this->addChamp($odf, 'nomEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                    $this->addChamp($odf, 'numWinPrev', $dossierInfos['infosEtab']['general']['NUMEROID_ETABLISSEMENT'] ?? '');
+                    $this->addChamp($odf, 'nomEtab', $dInformations['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+                    $this->addChamp($odf, 'numWinPrev', $dGeneral['NUMEROID_ETABLISSEMENT'] ?? '');
                     $dossierExported = true;
 
                     break;
@@ -1125,10 +1256,14 @@ class CommissionDocumentGenerationService
 
         $odf->mergeSegment($grpLoop);
 
+        /** @var array<int, array<string, mixed>> $infosFilesGrp2 */
+        $infosFilesGrp2 = $membre['infosFiles'] ?? [];
+        /** @var string|null $membreLabelGrp */
+        $membreLabelGrp = $infosFilesGrp2[0]['LIBELLE_COMMISSIONMEMBRE'] ?? '';
         $pj = $this->savePieceJointe(
             $dateCommId,
             'Convocation',
-            'Convocations du membre '.($membre['infosFiles'][0]['LIBELLE_COMMISSIONMEMBRE'] ?? '')
+            'Convocations du membre '.($membreLabelGrp ?? '')
         );
 
         $path = $this->dataStore->getFilePath($pj, 'dateCommission', $dateCommId, true);
@@ -1142,90 +1277,113 @@ class CommissionDocumentGenerationService
      *
      * Port direct de retrieveInfoDossier() (generationconvoc.phtml).
      *
-     * @param object               $segment      Segment ODT (Odf ou Segment)
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillConvocationDossierInfos($segment, array $dossierInfos): void
+    private function fillConvocationDossierInfos(\Segment $segment, array $dossierInfos): void
     {
-        $this->addChamp($segment, 'nomEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+        /** @var array<string, mixed> $infosEtab */
+        $infosEtab = $dossierInfos['infosEtab'] ?? [];
+        /** @var array<string, string|null> $informations */
+        $informations = $infosEtab['informations'] ?? [];
+        /** @var array<int, array<string, string|null>> $adresses */
+        $adresses = $infosEtab['adresses'] ?? [];
+        /** @var array<int, array<string, string|null>> $parents */
+        $parents = $infosEtab['parents'] ?? [];
+        /** @var array<string, string|null> $general */
+        $general = $infosEtab['general'] ?? [];
+        /** @var array<int, array<string, mixed>> $listeDocUrbaData */
+        $listeDocUrbaData = $dossierInfos['listeDocUrba'] ?? [];
+        /** @var array<int, array<string, mixed>> $preventionnistes */
+        $preventionnistes = $dossierInfos['preventionnistes'] ?? [];
+        /** @var int|string|null $avisDossierCommission */
+        $avisDossierCommission = $dossierInfos['AVIS_DOSSIER_COMMISSION'] ?? null;
+        /** @var int|string|null $avisDossier */
+        $avisDossier = $dossierInfos['AVIS_DOSSIER'] ?? null;
+
+        /** @var array<string, string|null> $adresseCourante */
+        $adresseCourante = $adresses[0] ?? [];
+
+        $this->addChamp($segment, 'nomEtab', $informations['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
 
         $nomPere = '';
-        if (isset($dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
-            $nomPere = $dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS'];
+        if (isset($parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
+            $nomPere = $parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'];
         }
 
         $this->addChamp($segment, 'nomPereEtab', $nomPere);
-        $this->addChamp($segment, 'idDossier', (string) ($dossierInfos['ID_DOSSIER'] ?? ''));
-        $this->addChamp($segment, 'numWinPrev', $dossierInfos['infosEtab']['general']['NUMEROID_ETABLISSEMENT'] ?? '');
-        $this->addChamp($segment, 'mailEtab', $dossierInfos['infosEtab']['general']['COURRIEL_ETABLISSEMENT'] ?? '');
-        $this->addChamp($segment, 'communeEtab', $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] ?? '');
+        $this->addChamp($segment, 'idDossier', $dossierInfos['ID_DOSSIER'] ?? '');
+        $this->addChamp($segment, 'numWinPrev', $general['NUMEROID_ETABLISSEMENT'] ?? '');
+        $this->addChamp($segment, 'mailEtab', $general['COURRIEL_ETABLISSEMENT'] ?? '');
+        $this->addChamp($segment, 'communeEtab', $adresseCourante['LIBELLE_COMMUNE'] ?? '');
 
-        $adresse = ($dossierInfos['infosEtab']['adresses'][0]['NUMERO_ADRESSE'] ?? '').' ';
-        $adresse .= ($dossierInfos['infosEtab']['adresses'][0]['LIBELLE_RUE'] ?? '').' ';
-        $adresse .= ($dossierInfos['infosEtab']['adresses'][0]['CODEPOSTAL_COMMUNE'] ?? '').' ';
-        $adresse .= ($dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] ?? '');
+        $adresse = ($adresseCourante['NUMERO_ADRESSE'] ?? '').' ';
+        $adresse .= ($adresseCourante['LIBELLE_RUE'] ?? '').' ';
+        $adresse .= ($adresseCourante['CODEPOSTAL_COMMUNE'] ?? '').' ';
+        $adresse .= ($adresseCourante['LIBELLE_COMMUNE'] ?? '');
         $this->addChamp($segment, 'etablissementAdresse', $adresse);
 
-        $this->addChamp($segment, 'categorieEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_CATEGORIE'] ?? '');
-        $this->addChamp($segment, 'typeLettreP', $dossierInfos['infosEtab']['informations']['LIBELLE_TYPE_PRINCIPAL'] ?? '');
+        $this->addChamp($segment, 'categorieEtab', $informations['LIBELLE_CATEGORIE'] ?? '');
+        $this->addChamp($segment, 'typeLettreP', $informations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
         $this->addChamp($segment, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
         $this->addChamp($segment, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
-        $this->addChamp($segment, 'avisDossierCommission', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER_COMMISSION'] ?? null));
-        $this->addChamp($segment, 'avisDossier', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER'] ?? null));
+        $this->addChamp($segment, 'avisDossierCommission', AvisCommission::getLibelle($avisDossierCommission));
+        $this->addChamp($segment, 'avisDossier', AvisCommission::getLibelle($avisDossier));
 
         $heureDebut = '';
-        if (isset($dossierInfos['HEURE_DEB_AFFECT'])) {
-            $heureDebutTab = explode(':', $dossierInfos['HEURE_DEB_AFFECT']);
-            $heureDebut = $heureDebutTab[0].':'.$heureDebutTab[1];
+        /** @var string $heureDebAffect */
+        $heureDebAffect = $dossierInfos['HEURE_DEB_AFFECT'] ?? '';
+        if ('' !== $heureDebAffect) {
+            $heureDebutTab = explode(':', $heureDebAffect);
+            if (count($heureDebutTab) >= 2) {
+                $heureDebut = $heureDebutTab[0].':'.$heureDebutTab[1];
+            }
         }
 
         $this->addChamp($segment, 'heureDebDossier', $heureDebut);
 
         $heureFin = '';
-        if (isset($dossierInfos['HEURE_FIN_AFFECT'])) {
-            $heureFinTab = explode(':', $dossierInfos['HEURE_FIN_AFFECT']);
-            $heureFin = $heureFinTab[0].':'.$heureFinTab[1];
+        /** @var string $heureFinAffect */
+        $heureFinAffect = $dossierInfos['HEURE_FIN_AFFECT'] ?? '';
+        if ('' !== $heureFinAffect) {
+            $heureFinTab = explode(':', $heureFinAffect);
+            if (count($heureFinTab) >= 2) {
+                $heureFin = $heureFinTab[0].':'.$heureFinTab[1];
+            }
         }
 
         $this->addChamp($segment, 'heureFinDossier', $heureFin);
 
         $listeDocUrba = '';
-        if (!empty($dossierInfos['listeDocUrba'])) {
-            foreach ($dossierInfos['listeDocUrba'] as $docurb) {
-                $listeDocUrba .= $docurb['NUM_DOCURBA'].'    ';
-            }
+        foreach ($listeDocUrbaData as $docurb) {
+            /** @var array<string, string|null> $docurb */
+            $listeDocUrba .= ($docurb['NUM_DOCURBA'] ?? '').'    ';
         }
 
         $this->addChamp($segment, 'numDocUrba', $listeDocUrba);
 
-        // Préventionnistes
         $listePreventioniste = [];
         $listeTelPreventioniste = [];
         $listeMailPreventionniste = [];
-        if (isset($dossierInfos['preventionnistes'])) {
-            foreach ($dossierInfos['preventionnistes'] as $preventioniste) {
-                $listePreventioniste[] = ($preventioniste['GRADE_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['NOM_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['PRENOM_UTILISATEURINFORMATIONS'] ?? '');
-                $listeTelPreventioniste[] = $preventioniste['TELFIXE_UTILISATEURINFORMATIONS'] ?? '';
-                $listeMailPreventionniste[] = $preventioniste['MAIL_UTILISATEURINFORMATIONS'] ?? '';
-            }
+        foreach ($preventionnistes as $preventioniste) {
+            /** @var array<string, string|null> $preventioniste */
+            $listePreventioniste[] = ($preventioniste['GRADE_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['NOM_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['PRENOM_UTILISATEURINFORMATIONS'] ?? '');
+            $listeTelPreventioniste[] = ($preventioniste['TELFIXE_UTILISATEURINFORMATIONS'] ?? '');
+            $listeMailPreventionniste[] = ($preventioniste['MAIL_UTILISATEURINFORMATIONS'] ?? '');
         }
 
         $this->addChamp($segment, 'preventionnistes', implode(', ', $listePreventioniste));
         $this->addChamp($segment, 'listeTelPreventioniste', implode(', ', $listeTelPreventioniste));
         $this->addChamp($segment, 'listeMailPreventioniste', implode(', ', $listeMailPreventionniste));
 
-        // Avis dérogations
         $this->fillAvisDerogationsSegment($segment, $dossierInfos);
-
-        // Formulaires personnalisés
         $this->fillFormulairesSegment($segment, $dossierInfos);
     }
 
     /**
-     * @param object                           $odf
-     * @param array<int, array<string, mixed>> $commissionInfos
-     * @param array<string, mixed>             $infosGroupement
-     * @param array<int, array<int, mixed>>    $listeCommunes
+     * @param \Odf|\Segment                                                     $odf
+     * @param array<int, array<string, mixed>>                                  $commissionInfos
+     * @param array<string, string|null>                                        $infosGroupement
+     * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
      */
     private function fillGroupementCommissionInfo($odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
     {
@@ -1243,11 +1401,22 @@ class CommissionDocumentGenerationService
         $this->addChamp($odf, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
         $this->addChamp($odf, 'heureDebutComm', $heureDeb);
 
-        // Liste des maires
         $maires = [];
         foreach ($listeCommunes as $commune) {
-            if (isset($commune[1][0]['NOM_UTILISATEURINFORMATIONS']) && $commune[1][0]['NOM_UTILISATEURINFORMATIONS']) {
-                $maires[] = $commune[1][0]['NOM_UTILISATEURINFORMATIONS'].'  '.$commune[1][0]['PRENOM_UTILISATEURINFORMATIONS'];
+            /** @var array<int, array<string, mixed>> $communeContacts */
+            $communeContacts = $commune[1];
+            if (!isset($communeContacts[0])) {
+                continue;
+            }
+
+            /** @var array<string, mixed> $communeContact */
+            $communeContact = $communeContacts[0];
+            /** @var string $nom */
+            $nom = $communeContact['NOM_UTILISATEURINFORMATIONS'] ?? '';
+            if ('' !== $nom) {
+                /** @var string $prenom */
+                $prenom = $communeContact['PRENOM_UTILISATEURINFORMATIONS'] ?? '';
+                $maires[] = $nom.'  '.$prenom;
             }
         }
 
@@ -1259,10 +1428,10 @@ class CommissionDocumentGenerationService
     // ========================================================================
 
     /**
-     * @param array<int, array<string, mixed>> $listeDossiers
-     * @param array<string, mixed>             $membre
-     * @param array<int, array<int, mixed>>    $listeCommunes
-     * @param array<int, array<string, mixed>> $commissionInfos
+     * @param array<int, array<string, mixed>>                                  $listeDossiers
+     * @param array<string, mixed>                                              $membre
+     * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
+     * @param array<int, array<string, mixed>>                                  $commissionInfos
      */
     private function generateOdjParCommune(
         string $templatePath,
@@ -1279,7 +1448,7 @@ class CommissionDocumentGenerationService
         $membreLoop = $odf->setSegment('membresComm');
 
         foreach ($listeCommunes as $commune) {
-            if (isset($commune[0])) {
+            if ('' !== $commune[0]) {
                 $firstLetter = substr($commune[0], 0, 1);
                 if (in_array($firstLetter, $vowels, true)) {
                     // voyelle → d'
@@ -1287,8 +1456,10 @@ class CommissionDocumentGenerationService
 
                 // consonne → de
 
-                if (isset($commune[1]) && 1 === count($commune[1])) {
-                    foreach ($commune[1] as $info) {
+                /** @var array<int, array<string, mixed>> $communeContactsOdj */
+                $communeContactsOdj = $commune[1];
+                if (1 === count($communeContactsOdj)) {
+                    foreach ($communeContactsOdj as $info) {
                         $this->addChamp($membreLoop, 'numMairie', $info['NUMEROADRESSE_UTILISATEURINFORMATIONS'] ?? '');
                         $this->addChamp($membreLoop, 'rueMairie', $info['RUEADRESSE_UTILISATEURINFORMATIONS'] ?? '');
                         $this->addChamp($membreLoop, 'cpMairie', $info['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
@@ -1315,14 +1486,24 @@ class CommissionDocumentGenerationService
             $this->addChamp($membreLoop, 'heureDebutComm', $heureComm);
 
             // Dossiers de la commune filtrés par compétence
+            $infosDossOdjName = 'infosDoss';
             foreach ($listeDossiers as $dossierInfos) {
+                /** @var array<string, mixed> $dInfosEtabOdj */
+                $dInfosEtabOdj = $dossierInfos['infosEtab'] ?? [];
+                /** @var array<int, array<string, mixed>> $dAdressesOdj */
+                $dAdressesOdj = $dInfosEtabOdj['adresses'] ?? [];
+                /** @var string|null $dLibelleCommuneOdj */
+                $dLibelleCommuneOdj = $dAdressesOdj[0]['LIBELLE_COMMUNE'] ?? null;
                 if (
-                    count($dossierInfos['infosEtab']['adresses']) > 0
-                    && $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] == $commune[0]
+                    count($dAdressesOdj) > 0
+                    && $dLibelleCommuneOdj == $commune[0]
                     && $this->eligibilityChecker->isDossierConcerneMembre($membre, $dossierInfos)
                 ) {
                     $this->fillOdjDossierInfos($membreLoop, $dossierInfos);
-                    $membreLoop->infosDoss->merge();
+                    /** @var \Segment $infosDossOdj */
+                    // @phpstan-ignore-next-line
+                    $infosDossOdj = $membreLoop->$infosDossOdjName;
+                    $infosDossOdj->merge();
                 }
             }
 
@@ -1331,10 +1512,14 @@ class CommissionDocumentGenerationService
 
         $odf->mergeSegment($membreLoop);
 
+        /** @var array<int, array<string, mixed>> $infosFilesOdj */
+        $infosFilesOdj = $membre['infosFiles'] ?? [];
+        /** @var string|null $membreLabelOdj */
+        $membreLabelOdj = $infosFilesOdj[0]['LIBELLE_COMMISSIONMEMBRE'] ?? '';
         $pj = $this->savePieceJointe(
             $dateCommId,
             'Ordre du jour',
-            'Ordre du jour du membre '.($membre['infosFiles'][0]['LIBELLE_COMMISSIONMEMBRE'] ?? '')
+            'Ordre du jour du membre '.($membreLabelOdj ?? '')
         );
 
         $path = $this->dataStore->getFilePath($pj, 'dateCommission', $dateCommId, true);
@@ -1357,9 +1542,15 @@ class CommissionDocumentGenerationService
         string $heureDeb,
         int $dateCommId
     ): int {
-        $groupementId = (int) $membre['infosFiles'][0]['ID_GROUPEMENT'];
+        /** @var array<int, array<string, mixed>> $infosFilesGrpOdj */
+        $infosFilesGrpOdj = $membre['infosFiles'] ?? [];
+        /** @var array<string, mixed> $infosFile0Odj */
+        $infosFile0Odj = $infosFilesGrpOdj[0] ?? [];
+        /** @var int|string $groupementIdRaw */
+        $groupementIdRaw = $infosFile0Odj['ID_GROUPEMENT'] ?? 0;
+        $groupementId = (int) $groupementIdRaw;
 
-        /** @var array<string, mixed>|false $infosGroupement */
+        /** @var array<string, string|null>|false $infosGroupement */
         $infosGroupement = $this->conn->fetchAssociative(
             'SELECT * FROM groupement WHERE ID_GROUPEMENT = :id',
             ['id' => $groupementId]
@@ -1385,18 +1576,24 @@ class CommissionDocumentGenerationService
         $this->addChamp($grpLoop, 'heureDebutComm', $heureDeb);
 
         // Tous les dossiers (pas de filtrage par groupement dans le legacy ODJ groupement)
+        $infosDossGrpName = 'infosDoss';
         foreach ($listeDossiers as $dossierInfos) {
             $this->fillOdjDossierInfos($grpLoop, $dossierInfos);
-            $grpLoop->infosDoss->merge();
+            /** @var \Segment $infosDossGrp */
+            // @phpstan-ignore-next-line
+            $infosDossGrp = $grpLoop->$infosDossGrpName;
+            $infosDossGrp->merge();
         }
 
         $grpLoop->merge();
         $odf->mergeSegment($grpLoop);
 
+        /** @var string|null $membreLabelGrpOdj */
+        $membreLabelGrpOdj = $infosFilesGrpOdj[0]['LIBELLE_COMMISSIONMEMBRE'] ?? '';
         $pj = $this->savePieceJointe(
             $dateCommId,
             'Ordre du jour',
-            'Ordre du jour du membre '.($membre['infosFiles'][0]['LIBELLE_COMMISSIONMEMBRE'] ?? '')
+            'Ordre du jour du membre '.($membreLabelGrpOdj ?? '')
         );
 
         $path = $this->dataStore->getFilePath($pj, 'dateCommission', $dateCommId, true);
@@ -1408,13 +1605,38 @@ class CommissionDocumentGenerationService
     /**
      * Port direct de retrieveInfoDoss() (generationodj.phtml).
      *
-     * @param object               $segment
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillOdjDossierInfos($segment, array $dossierInfos): void
+    private function fillOdjDossierInfos(\Segment $segment, array $dossierInfos): void
     {
+        $infosDossOdjFillName = 'infosDoss';
+        /** @var \Segment $infosDoss */
+        // @phpstan-ignore-next-line
+        $infosDoss = $segment->$infosDossOdjFillName;
+        /** @var array<string, mixed> $infosEtab */
+        $infosEtab = $dossierInfos['infosEtab'] ?? [];
+        /** @var array<string, string|null> $informations */
+        $informations = $infosEtab['informations'] ?? [];
+        /** @var array<int, array<string, string|null>> $adresses */
+        $adresses = $infosEtab['adresses'] ?? [];
+        /** @var array<int, array<string, string|null>> $parents */
+        $parents = $infosEtab['parents'] ?? [];
+        /** @var array<string, string|null> $general */
+        $general = $infosEtab['general'] ?? [];
+        /** @var array<int, array<string, mixed>> $listeDocUrbaData */
+        $listeDocUrbaData = $dossierInfos['listeDocUrba'] ?? [];
+        /** @var array<int, array<string, string|null>> $preventionnistes */
+        $preventionnistes = $dossierInfos['preventionnistes'] ?? [];
+        /** @var int|string $typeDossier */
+        $typeDossier = $dossierInfos['TYPE_DOSSIER'] ?? 0;
+        $typeDossierId = (int) $typeDossier;
+        /** @var int|string|null $avisDossier */
+        $avisDossier = $dossierInfos['AVIS_DOSSIER'] ?? null;
+        /** @var array<string, string|null> $adresseCourante */
+        $adresseCourante = $adresses[0] ?? [];
+
         $typeDossierCourt = 'A';
-        switch ((int) ($dossierInfos['TYPE_DOSSIER'] ?? 0)) {
+        switch ($typeDossierId) {
             case 1:
                 $typeDossierCourt = 'E';
 
@@ -1424,108 +1646,96 @@ class CommissionDocumentGenerationService
                 $typeDossierCourt = 'V';
 
                 break;
-            default:
-                $typeDossierCourt = 'A';
-
-                break;
         }
 
-        $this->addChamp($segment->infosDoss, 'idDossier', (string) ($dossierInfos['ID_DOSSIER'] ?? ''));
-        $this->addChamp($segment->infosDoss, 'avisDossier', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER'] ?? null));
-        $this->addChamp($segment->infosDoss, 'nomEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-        $this->addChamp($segment->infosDoss, 'numWinPrev', $dossierInfos['infosEtab']['general']['NUMEROID_ETABLISSEMENT'] ?? '');
+        $this->addChamp($infosDoss, 'idDossier', $dossierInfos['ID_DOSSIER'] ?? '');
+        $this->addChamp($infosDoss, 'avisDossier', AvisCommission::getLibelle($avisDossier));
+        $this->addChamp($infosDoss, 'nomEtab', $informations['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+        $this->addChamp($infosDoss, 'numWinPrev', $general['NUMEROID_ETABLISSEMENT'] ?? '');
 
         $nomPere = '';
-        if (isset($dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
-            $nomPere = $dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS'];
+        if (isset($parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
+            $nomPere = $parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'];
         }
 
-        $this->addChamp($segment->infosDoss, 'nomPereEtab', $nomPere);
+        $this->addChamp($infosDoss, 'nomPereEtab', $nomPere);
 
-        // Date visite
         $dateVisite = '';
-        try {
-            if (!empty($dossierInfos['DATEVISITE_DOSSIER'])) {
-                $dtVisite = $this->parseDateSql($dossierInfos['DATEVISITE_DOSSIER']);
-                if (null !== $dtVisite) {
-                    $dateVisite = $dtVisite->format('d/m/Y');
-                }
+        /** @var string|null $dateVisiteStr */
+        $dateVisiteStr = $dossierInfos['DATEVISITE_DOSSIER'] ?? null;
+        if (null !== $dateVisiteStr && '' !== $dateVisiteStr) {
+            $dtVisite = $this->parseDateSql($dateVisiteStr);
+            if (null !== $dtVisite) {
+                $dateVisite = $dtVisite->format('d/m/Y');
             }
-        } catch (\Exception $exception) {
-            // Silencieux
         }
 
-        $this->addChamp($segment->infosDoss, 'dateVisite', $dateVisite);
-
-        $this->addChamp($segment->infosDoss, 'categorieEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_CATEGORIE'] ?? '');
-        $this->addChamp($segment->infosDoss, 'typeLettreP', $dossierInfos['infosEtab']['informations']['LIBELLE_TYPE_PRINCIPAL'] ?? '');
-        $this->addChamp($segment->infosDoss, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
-        $this->addChamp($segment->infosDoss, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
-
-        $commune = '';
-        if (count($dossierInfos['infosEtab']['adresses']) > 0) {
-            $commune = $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] ?? '';
-        }
-
-        $this->addChamp($segment->infosDoss, 'communeConcerne', $commune);
+        $this->addChamp($infosDoss, 'dateVisite', $dateVisite);
+        $this->addChamp($infosDoss, 'categorieEtab', $informations['LIBELLE_CATEGORIE'] ?? '');
+        $this->addChamp($infosDoss, 'typeLettreP', $informations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
+        $this->addChamp($infosDoss, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
+        $this->addChamp($infosDoss, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
+        $this->addChamp($infosDoss, 'communeConcerne', $adresseCourante['LIBELLE_COMMUNE'] ?? '');
 
         $adresse = '';
-        if (!empty($dossierInfos['infosEtab']['adresses'])) {
-            $adresse = ($dossierInfos['infosEtab']['adresses'][0]['NUMERO_ADRESSE'] ?? '').' ';
-            $adresse .= ($dossierInfos['infosEtab']['adresses'][0]['LIBELLE_RUE'] ?? '').' ';
-            $adresse .= ($dossierInfos['infosEtab']['adresses'][0]['CODEPOSTAL_COMMUNE'] ?? '').' ';
-            $adresse .= ($dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] ?? '');
+        if (!empty($adresses)) {
+            $adresse = ($adresseCourante['NUMERO_ADRESSE'] ?? '').' ';
+            $adresse .= ($adresseCourante['LIBELLE_RUE'] ?? '').' ';
+            $adresse .= ($adresseCourante['CODEPOSTAL_COMMUNE'] ?? '').' ';
+            $adresse .= ($adresseCourante['LIBELLE_COMMUNE'] ?? '');
         }
 
-        $this->addChamp($segment->infosDoss, 'etablissementAdresse', $adresse);
+        $this->addChamp($infosDoss, 'etablissementAdresse', $adresse);
 
         $heureDebut = '';
-        if (isset($dossierInfos['HEURE_DEB_AFFECT'])) {
-            $heureDebutTab = explode(':', $dossierInfos['HEURE_DEB_AFFECT']);
-            $heureDebut = $heureDebutTab[0].':'.$heureDebutTab[1];
-        }
-
-        $this->addChamp($segment->infosDoss, 'heureDebDossier', $heureDebut);
-
-        $heureFin = '';
-        if (isset($dossierInfos['HEURE_FIN_AFFECT'])) {
-            $heureFinTab = explode(':', $dossierInfos['HEURE_FIN_AFFECT']);
-            $heureFin = $heureFinTab[0].':'.$heureFinTab[1];
-        }
-
-        $this->addChamp($segment->infosDoss, 'heureFinDossier', $heureFin);
-
-        $listeDocUrba = '';
-        if (!empty($dossierInfos['listeDocUrba'])) {
-            foreach ($dossierInfos['listeDocUrba'] as $docurb) {
-                $listeDocUrba .= $docurb['NUM_DOCURBA'].'    ';
+        /** @var string $heureDebAffect */
+        $heureDebAffect = $dossierInfos['HEURE_DEB_AFFECT'] ?? '';
+        if ('' !== $heureDebAffect) {
+            $heureDebutTab = explode(':', $heureDebAffect);
+            if (count($heureDebutTab) >= 2) {
+                $heureDebut = $heureDebutTab[0].':'.$heureDebutTab[1];
             }
         }
 
-        $this->addChamp($segment->infosDoss, 'numDocUrba', $listeDocUrba);
-        $this->addChamp($segment->infosDoss, 'typeDossierCourt', $typeDossierCourt);
+        $this->addChamp($infosDoss, 'heureDebDossier', $heureDebut);
 
-        // Préventionnistes
+        $heureFin = '';
+        /** @var string $heureFinAffect */
+        $heureFinAffect = $dossierInfos['HEURE_FIN_AFFECT'] ?? '';
+        if ('' !== $heureFinAffect) {
+            $heureFinTab = explode(':', $heureFinAffect);
+            if (count($heureFinTab) >= 2) {
+                $heureFin = $heureFinTab[0].':'.$heureFinTab[1];
+            }
+        }
+
+        $this->addChamp($infosDoss, 'heureFinDossier', $heureFin);
+
+        $listeDocUrba = '';
+        foreach ($listeDocUrbaData as $docurb) {
+            /** @var array<string, string|null> $docurb */
+            $listeDocUrba .= ($docurb['NUM_DOCURBA'] ?? '').'    ';
+        }
+
+        $this->addChamp($infosDoss, 'numDocUrba', $listeDocUrba);
+        $this->addChamp($infosDoss, 'typeDossierCourt', $typeDossierCourt);
+
         $listePreventioniste = [];
         $listeTelPreventioniste = [];
         $listeMailPreventionniste = [];
-        if (isset($dossierInfos['preventionnistes'])) {
-            foreach ($dossierInfos['preventionnistes'] as $preventioniste) {
-                $listePreventioniste[] = ($preventioniste['GRADE_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['NOM_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['PRENOM_UTILISATEURINFORMATIONS'] ?? '');
-                $listeTelPreventioniste[] = $preventioniste['TELFIXE_UTILISATEURINFORMATIONS'] ?? '';
-                $listeMailPreventionniste[] = $preventioniste['MAIL_UTILISATEURINFORMATIONS'] ?? '';
-            }
+        foreach ($preventionnistes as $preventioniste) {
+            /** @var array<string, string|null> $preventioniste */
+            $listePreventioniste[] = ($preventioniste['GRADE_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['NOM_UTILISATEURINFORMATIONS'] ?? '').' '.($preventioniste['PRENOM_UTILISATEURINFORMATIONS'] ?? '');
+            $listeTelPreventioniste[] = ($preventioniste['TELFIXE_UTILISATEURINFORMATIONS'] ?? '');
+            $listeMailPreventionniste[] = ($preventioniste['MAIL_UTILISATEURINFORMATIONS'] ?? '');
         }
 
-        $this->addChamp($segment->infosDoss, 'preventionnistes', implode(', ', $listePreventioniste));
-        $this->addChamp($segment->infosDoss, 'listeTelPreventioniste', implode(', ', $listeTelPreventioniste));
-        $this->addChamp($segment->infosDoss, 'listeMailPreventioniste', implode(', ', $listeMailPreventionniste));
+        $this->addChamp($infosDoss, 'preventionnistes', implode(', ', $listePreventioniste));
+        $this->addChamp($infosDoss, 'listeTelPreventioniste', implode(', ', $listeTelPreventioniste));
+        $this->addChamp($infosDoss, 'listeMailPreventioniste', implode(', ', $listeMailPreventionniste));
 
-        // Avis dérogations
-        $this->fillAvisDerogationsOnSubSegment($segment->infosDoss, $dossierInfos);
-
-        // Formulaires personnalisés
-        $this->fillFormulairesSegment($segment->infosDoss, $dossierInfos);
+        $this->fillAvisDerogationsSegment($infosDoss, $dossierInfos);
+        $this->fillFormulairesSegment($infosDoss, $dossierInfos);
     }
 
     // ========================================================================
@@ -1547,12 +1757,23 @@ class CommissionDocumentGenerationService
         $dossInfos = $odf->setSegment('dossierInfos');
 
         foreach ($listeDossiers as $dossierInfos) {
-            $nbAdresse = isset($dossierInfos['infosEtab']['adresses']) ? count($dossierInfos['infosEtab']['adresses']) : 0;
+            /** @var array<string, mixed> $pvInfosEtab */
+            $pvInfosEtab = $dossierInfos['infosEtab'] ?? [];
+            /** @var array<int, array<string, string|null>> $pvAdresses */
+            $pvAdresses = $pvInfosEtab['adresses'] ?? [];
+            /** @var array<string, string|null> $pvInformations */
+            $pvInformations = $pvInfosEtab['informations'] ?? [];
+            /** @var array<string, string|null> $pvGeneral */
+            $pvGeneral = $pvInfosEtab['general'] ?? [];
+            /** @var array<int, array<string, string|null>> $pvParents */
+            $pvParents = $pvInfosEtab['parents'] ?? [];
+
+            $nbAdresse = count($pvAdresses);
             if (0 === $nbAdresse) {
                 continue;
             }
 
-            foreach ($dossierInfos['infosEtab']['adresses'] as $commune) {
+            foreach ($pvAdresses as $commune) {
                 $this->addChamp($dossInfos, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
 
                 if (isset($commune['LIBELLE_COMMUNE'])) {
@@ -1574,28 +1795,39 @@ class CommissionDocumentGenerationService
 
                 // Date visite
                 $dateVisite = null;
-                if (isset($dossierInfos['DATEVISITE_DOSSIER']) && null !== $dossierInfos['DATEVISITE_DOSSIER']) {
-                    $dateVisite = $this->parseDateSql($dossierInfos['DATEVISITE_DOSSIER']);
-                } elseif (isset($dossierInfos['infosEtab']['last_visite']) && null !== $dossierInfos['infosEtab']['last_visite']) {
-                    $dateVisite = $this->parseDateSql($dossierInfos['infosEtab']['last_visite']);
+                /** @var string|null $dateVisitePvRaw */
+                $dateVisitePvRaw = $dossierInfos['DATEVISITE_DOSSIER'] ?? null;
+                if (null !== $dateVisitePvRaw) {
+                    $dateVisite = $this->parseDateSql($dateVisitePvRaw);
+                } elseif (isset($pvInfosEtab['last_visite'])) {
+                    /** @var string $pvLastVisite */
+                    $pvLastVisite = $pvInfosEtab['last_visite'];
+                    $dateVisite = $this->parseDateSql($pvLastVisite);
                 }
 
                 $this->addChamp($dossInfos, 'dateVisite', null !== $dateVisite ? DateFormatterFr::formatLong($dateVisite) : '');
 
                 // Adresse
-                $this->addChamp($dossInfos, 'libelleRue', $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_RUE'] ?? '');
-                $this->addChamp($dossInfos, 'codePostal', $dossierInfos['infosEtab']['adresses'][0]['CODEPOSTAL_COMMUNE'] ?? '');
-                $this->addChamp($dossInfos, 'libelleCommune', $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] ?? '');
+                $pvAdresse0 = $pvAdresses[0] ?? [];
+                $this->addChamp($dossInfos, 'libelleRue', $pvAdresse0['LIBELLE_RUE'] ?? '');
+                $this->addChamp($dossInfos, 'codePostal', $pvAdresse0['CODEPOSTAL_COMMUNE'] ?? '');
+                $this->addChamp($dossInfos, 'libelleCommune', $pvAdresse0['LIBELLE_COMMUNE'] ?? '');
 
                 // Effectif total
-                $effectifPublic = (int) ($dossierInfos['infosEtab']['informations']['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0);
-                $effectifPersonnel = (int) ($dossierInfos['infosEtab']['informations']['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0);
+                /** @var int|string $effectifPublicRaw */
+                $effectifPublicRaw = $pvInformations['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0;
+                /** @var int|string $effectifPersonnelRaw */
+                $effectifPersonnelRaw = $pvInformations['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0;
+                $effectifPublic = (int) $effectifPublicRaw;
+                $effectifPersonnel = (int) $effectifPersonnelRaw;
                 $effectifTotal = $effectifPublic + $effectifPersonnel;
                 $this->addChamp($dossInfos, 'effectifTotal', 0 === $effectifTotal ? 'non renseigné' : (string) $effectifTotal);
 
                 // Type dossier
                 $type = '';
-                switch ((int) ($dossierInfos['TYPE_DOSSIER'] ?? 0)) {
+                /** @var int|string $typeDossierPvRaw */
+                $typeDossierPvRaw = $dossierInfos['TYPE_DOSSIER'] ?? 0;
+                switch ((int) $typeDossierPvRaw) {
                     case 1:
                         $type = 'Étude';
 
@@ -1613,31 +1845,33 @@ class CommissionDocumentGenerationService
                 $this->addChamp($dossInfos, 'typeDossier', $type);
 
                 // Nom parent établissement
-                if (isset($dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
-                    $this->addChamp($dossInfos, 'nomPereEtab', $dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS']);
+                $pvParent0 = $pvParents[0] ?? [];
+                if (isset($pvParent0['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
+                    $this->addChamp($dossInfos, 'nomPereEtab', $pvParent0['LIBELLE_ETABLISSEMENTINFORMATIONS']);
                 } else {
                     $this->addChamp($dossInfos, 'nomPereEtab', '');
                 }
 
-                if (isset($dossierInfos['infosEtab']['informations'])) {
-                    $this->addChamp($dossInfos, 'nomEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                    $this->addChamp($dossInfos, 'categorieEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_CATEGORIE'] ?? '');
-                    $this->addChamp($dossInfos, 'typeEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_TYPE_PRINCIPAL'] ?? '');
-                } else {
-                    $this->addChamp($dossInfos, 'nomEtab', '');
-                    $this->addChamp($dossInfos, 'categorieEtab', '');
-                    $this->addChamp($dossInfos, 'typeEtab', '');
-                }
+                $this->addChamp($dossInfos, 'nomEtab', $pvInformations['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+                $this->addChamp($dossInfos, 'categorieEtab', $pvInformations['LIBELLE_CATEGORIE'] ?? '');
+                $this->addChamp($dossInfos, 'typeEtab', $pvInformations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
 
                 // Avis
-                $this->addChamp($dossInfos, 'avisDossier', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER'] ?? null));
-                $this->addChamp($dossInfos, 'avisDossierCommission', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER_COMMISSION'] ?? null));
+                /** @var int|string|null $avisDossierPvRaw */
+                $avisDossierPvRaw = $dossierInfos['AVIS_DOSSIER'] ?? null;
+                /** @var int|string|null $avisDossierCommPvRaw */
+                $avisDossierCommPvRaw = $dossierInfos['AVIS_DOSSIER_COMMISSION'] ?? null;
+                $this->addChamp($dossInfos, 'avisDossier', AvisCommission::getLibelle($avisDossierPvRaw));
+                $this->addChamp($dossInfos, 'avisDossierCommission', AvisCommission::getLibelle($avisDossierCommPvRaw));
 
                 // Doc urba
                 $listeDocUrba = '';
-                if (!empty($dossierInfos['listeDocUrba'])) {
-                    foreach ($dossierInfos['listeDocUrba'] as $docurb) {
-                        $listeDocUrba .= $docurb['NUM_DOCURBA'].'    ';
+                /** @var array<int, array<string, mixed>> $listeDocUrbaPv */
+                $listeDocUrbaPv = $dossierInfos['listeDocUrba'] ?? [];
+                if (!empty($listeDocUrbaPv)) {
+                    foreach ($listeDocUrbaPv as $docurb) {
+                        /** @var array<string, string|null> $docurb */
+                        $listeDocUrba .= ($docurb['NUM_DOCURBA'] ?? '').'    ';
                     }
                 }
 
@@ -1687,12 +1921,23 @@ class CommissionDocumentGenerationService
         $dossInfos = $odf->setSegment('dossierInfos');
 
         foreach ($listeDossiers as $dossierInfos) {
-            $nbAdresse = isset($dossierInfos['infosEtab']['adresses']) ? count($dossierInfos['infosEtab']['adresses']) : 0;
+            /** @var array<string, mixed> $crInfosEtab */
+            $crInfosEtab = $dossierInfos['infosEtab'] ?? [];
+            /** @var array<int, array<string, string|null>> $crAdresses */
+            $crAdresses = $crInfosEtab['adresses'] ?? [];
+            /** @var array<string, string|null> $crInformations */
+            $crInformations = $crInfosEtab['informations'] ?? [];
+            /** @var array<string, string|null> $crGeneral */
+            $crGeneral = $crInfosEtab['general'] ?? [];
+            /** @var array<int, array<string, string|null>> $crParents */
+            $crParents = $crInfosEtab['parents'] ?? [];
+
+            $nbAdresse = count($crAdresses);
             if (0 === $nbAdresse) {
                 continue;
             }
 
-            foreach ($dossierInfos['infosEtab']['adresses'] as $commune) {
+            foreach ($crAdresses as $commune) {
                 $this->addChamp($dossInfos, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
 
                 if (isset($commune['LIBELLE_COMMUNE'])) {
@@ -1709,36 +1954,47 @@ class CommissionDocumentGenerationService
 
                 // Date visite
                 $dateVisite = null;
-                if (isset($dossierInfos['DATEVISITE_DOSSIER']) && null !== $dossierInfos['DATEVISITE_DOSSIER']) {
-                    $dateVisite = $this->parseDateSql($dossierInfos['DATEVISITE_DOSSIER']);
-                } elseif (isset($dossierInfos['infosEtab']['last_visite']) && null !== $dossierInfos['infosEtab']['last_visite']) {
-                    $dateVisite = $this->parseDateSql($dossierInfos['infosEtab']['last_visite']);
+                /** @var string|null $dateVisiteCrRaw */
+                $dateVisiteCrRaw = $dossierInfos['DATEVISITE_DOSSIER'] ?? null;
+                if (null !== $dateVisiteCrRaw) {
+                    $dateVisite = $this->parseDateSql($dateVisiteCrRaw);
+                } elseif (isset($crInfosEtab['last_visite'])) {
+                    /** @var string $crLastVisite */
+                    $crLastVisite = $crInfosEtab['last_visite'];
+                    $dateVisite = $this->parseDateSql($crLastVisite);
                 }
 
                 $this->addChamp($dossInfos, 'dateVisite', null !== $dateVisite ? DateFormatterFr::formatLong($dateVisite) : '');
 
                 // Adresse
-                $this->addChamp($dossInfos, 'libelleRue', $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_RUE'] ?? '');
-                $this->addChamp($dossInfos, 'codePostal', $dossierInfos['infosEtab']['adresses'][0]['CODEPOSTAL_COMMUNE'] ?? '');
+                $crAdresse0 = $crAdresses[0] ?? [];
+                $this->addChamp($dossInfos, 'libelleRue', $crAdresse0['LIBELLE_RUE'] ?? '');
+                $this->addChamp($dossInfos, 'codePostal', $crAdresse0['CODEPOSTAL_COMMUNE'] ?? '');
 
                 // numWinPrev
                 try {
-                    $dossInfos->setVars('numWinPrev', $dossierInfos['infosEtab']['general']['NUMEROID_ETABLISSEMENT'] ?? '', true, 'UTF-8');
+                    $dossInfos->setVars('numWinPrev', $crGeneral['NUMEROID_ETABLISSEMENT'] ?? '', true, 'UTF-8');
                 } catch (\Exception $e) {
                     // Silencieux
                 }
 
-                $this->addChamp($dossInfos, 'libelleCommune', $dossierInfos['infosEtab']['adresses'][0]['LIBELLE_COMMUNE'] ?? '');
+                $this->addChamp($dossInfos, 'libelleCommune', $crAdresse0['LIBELLE_COMMUNE'] ?? '');
 
                 // Effectif total
-                $effectifPublic = (int) ($dossierInfos['infosEtab']['informations']['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0);
-                $effectifPersonnel = (int) ($dossierInfos['infosEtab']['informations']['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0);
+                /** @var int|string $crEffPublicRaw */
+                $crEffPublicRaw = $crInformations['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0;
+                /** @var int|string $crEffPersonnelRaw */
+                $crEffPersonnelRaw = $crInformations['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0;
+                $effectifPublic = (int) $crEffPublicRaw;
+                $effectifPersonnel = (int) $crEffPersonnelRaw;
                 $effectifTotal = $effectifPublic + $effectifPersonnel;
                 $this->addChamp($dossInfos, 'effectifTotal', 0 === $effectifTotal ? 'non renseigné' : (string) $effectifTotal);
 
                 // Type dossier
                 $type = '';
-                switch ((int) ($dossierInfos['TYPE_DOSSIER'] ?? 0)) {
+                /** @var int|string $typeDossierCrRaw */
+                $typeDossierCrRaw = $dossierInfos['TYPE_DOSSIER'] ?? 0;
+                switch ((int) $typeDossierCrRaw) {
                     case 1:
                         $type = 'Étude';
 
@@ -1756,31 +2012,33 @@ class CommissionDocumentGenerationService
                 $this->addChamp($dossInfos, 'typeDossier', $type);
 
                 // Nom parent établissement
-                if (isset($dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
-                    $this->addChamp($dossInfos, 'nomPereEtab', $dossierInfos['infosEtab']['parents'][0]['LIBELLE_ETABLISSEMENTINFORMATIONS']);
+                $crParent0 = $crParents[0] ?? [];
+                if (isset($crParent0['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
+                    $this->addChamp($dossInfos, 'nomPereEtab', $crParent0['LIBELLE_ETABLISSEMENTINFORMATIONS']);
                 } else {
                     $this->addChamp($dossInfos, 'nomPereEtab', '');
                 }
 
-                if (isset($dossierInfos['infosEtab']['informations'])) {
-                    $this->addChamp($dossInfos, 'nomEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-                    $this->addChamp($dossInfos, 'categorieEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_CATEGORIE'] ?? '');
-                    $this->addChamp($dossInfos, 'typeEtab', $dossierInfos['infosEtab']['informations']['LIBELLE_TYPE_PRINCIPAL'] ?? '');
-                } else {
-                    $this->addChamp($dossInfos, 'nomEtab', '');
-                    $this->addChamp($dossInfos, 'categorieEtab', '');
-                    $this->addChamp($dossInfos, 'typeEtab', '');
-                }
+                $this->addChamp($dossInfos, 'nomEtab', $crInformations['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+                $this->addChamp($dossInfos, 'categorieEtab', $crInformations['LIBELLE_CATEGORIE'] ?? '');
+                $this->addChamp($dossInfos, 'typeEtab', $crInformations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
 
                 // Avis
-                $this->addChamp($dossInfos, 'avisDossier', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER'] ?? null));
-                $this->addChamp($dossInfos, 'avisDossierCommission', AvisCommission::getLibelle($dossierInfos['AVIS_DOSSIER_COMMISSION'] ?? null));
+                /** @var int|string|null $avisDossierCrRaw */
+                $avisDossierCrRaw = $dossierInfos['AVIS_DOSSIER'] ?? null;
+                /** @var int|string|null $avisDossierCommCrRaw */
+                $avisDossierCommCrRaw = $dossierInfos['AVIS_DOSSIER_COMMISSION'] ?? null;
+                $this->addChamp($dossInfos, 'avisDossier', AvisCommission::getLibelle($avisDossierCrRaw));
+                $this->addChamp($dossInfos, 'avisDossierCommission', AvisCommission::getLibelle($avisDossierCommCrRaw));
 
                 // Doc urba
                 $listeDocUrba = '';
-                if (!empty($dossierInfos['listeDocUrba'])) {
-                    foreach ($dossierInfos['listeDocUrba'] as $docurb) {
-                        $listeDocUrba .= $docurb['NUM_DOCURBA'].'    ';
+                /** @var array<int, array<string, mixed>> $listeDocUrbaCr */
+                $listeDocUrbaCr = $dossierInfos['listeDocUrba'] ?? [];
+                if (!empty($listeDocUrbaCr)) {
+                    foreach ($listeDocUrbaCr as $docurb) {
+                        /** @var array<string, string|null> $docurb */
+                        $listeDocUrba .= ($docurb['NUM_DOCURBA'] ?? '').'    ';
                     }
                 }
 
@@ -1815,76 +2073,55 @@ class CommissionDocumentGenerationService
     // ========================================================================
 
     /**
-     * Remplit le segment avisDerogations directement sur un segment parent.
-     *
-     * @param object               $segment
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillAvisDerogationsSegment($segment, array $dossierInfos): void
+    private function fillAvisDerogationsSegment(\Segment $segment, array $dossierInfos): void
     {
-        // Avis dérogations dossier
+        /** @var string $avisDerogationsPropName */
+        $avisDerogationsPropName = 'avisDerogations';
+        /** @var \Segment|null $avisDerogations */
         $avisDerogations = null;
         try {
-            $avisDerogations = $segment->avisDerogations;
+            $avisDerogationsRaw = $segment->$avisDerogationsPropName;
+            if ($avisDerogationsRaw instanceof \Segment) {
+                $avisDerogations = $avisDerogationsRaw;
+            }
+
+            // @phpstan-ignore-next-line
         } catch (\Exception $exception) {
-            // Segment absent du template
         }
 
         if (null !== $avisDerogations) {
-            $this->fillDerogationSegmentData($avisDerogations, $dossierInfos['AVIS_DEROGATIONS'] ?? []);
+            /** @var array<int, array<string, string|null>> $derogations */
+            $derogations = $dossierInfos['AVIS_DEROGATIONS'] ?? [];
+            $this->fillDerogationSegmentData($avisDerogations, $derogations);
         }
 
-        // Avis dérogations établissement
+        /** @var string $avisDerogationsEtabPropName */
+        $avisDerogationsEtabPropName = 'avisDerogationsEtablissement';
+        /** @var \Segment|null $avisDerogationsEtablissement */
         $avisDerogationsEtablissement = null;
         try {
-            $avisDerogationsEtablissement = $segment->avisDerogationsEtablissement;
+            $avisDerogationsEtabRaw = $segment->$avisDerogationsEtabPropName;
+            if ($avisDerogationsEtabRaw instanceof \Segment) {
+                $avisDerogationsEtablissement = $avisDerogationsEtabRaw;
+            }
+
+            // @phpstan-ignore-next-line
         } catch (\Exception $exception) {
-            // Segment absent du template
         }
 
         if (null !== $avisDerogationsEtablissement) {
-            $this->fillDerogationSegmentData($avisDerogationsEtablissement, $dossierInfos['AVIS_DEROGATIONS_ETABLISSEMENT'] ?? []);
+            /** @var array<int, array<string, string|null>> $derogationsEtab */
+            $derogationsEtab = $dossierInfos['AVIS_DEROGATIONS_ETABLISSEMENT'] ?? [];
+            $this->fillDerogationSegmentData($avisDerogationsEtablissement, $derogationsEtab);
         }
     }
 
     /**
-     * Remplit les dérogations sur un sous-segment (infosDoss).
-     *
-     * @param object               $parentSegment
-     * @param array<string, mixed> $dossierInfos
+     * @param array<int, array<string, string|null>> $derogations
      */
-    private function fillAvisDerogationsOnSubSegment($parentSegment, array $dossierInfos): void
-    {
-        // Avis dérogations dossier
-        $avisDerogations = null;
-        try {
-            $avisDerogations = $parentSegment->avisDerogations;
-        } catch (\Exception $exception) {
-            // Segment absent du template
-        }
-
-        if (null !== $avisDerogations) {
-            $this->fillDerogationSegmentData($avisDerogations, $dossierInfos['AVIS_DEROGATIONS'] ?? []);
-        }
-
-        // Avis dérogations établissement
-        $avisDerogationsEtablissement = null;
-        try {
-            $avisDerogationsEtablissement = $parentSegment->avisDerogationsEtablissement;
-        } catch (\Exception $exception) {
-            // Segment absent du template
-        }
-
-        if (null !== $avisDerogationsEtablissement) {
-            $this->fillDerogationSegmentData($avisDerogationsEtablissement, $dossierInfos['AVIS_DEROGATIONS_ETABLISSEMENT'] ?? []);
-        }
-    }
-
-    /**
-     * @param object                           $derogationSegment
-     * @param array<int, array<string, mixed>> $derogations
-     */
-    private function fillDerogationSegmentData($derogationSegment, array $derogations): void
+    private function fillDerogationSegmentData(\Segment $derogationSegment, array $derogations): void
     {
         if (!empty($derogations)) {
             foreach ($derogations as $avisDerogation) {
@@ -1896,13 +2133,17 @@ class CommissionDocumentGenerationService
                 $this->addChamp($derogationSegment, 'mesures_compensatoires_proposees', $avisDerogation['MESURES_COMPENSATOIRES_PROPOSEES'] ?? '');
                 $this->addChamp($derogationSegment, 'analyse_de_risque', $avisDerogation['ANALYSE_DE_RISQUE'] ?? '');
                 $this->addChamp($derogationSegment, 'avis', $avisDerogation['LIBELLE_AVIS'] ?? '');
-                $this->addChamp($derogationSegment, 'identifiantdossierleve', (string) ($avisDerogation['ID_DOSSIER_LIE'] ?? ''));
+                $this->addChamp($derogationSegment, 'identifiantdossierleve', $avisDerogation['ID_DOSSIER_LIE'] ?? '');
 
                 $date = null;
-                if (!empty($avisDerogation['DATECOMM_DOSSIER'])) {
-                    $date = DateFormatterFr::formatShort($avisDerogation['DATECOMM_DOSSIER']);
-                } elseif (!empty($avisDerogation['DATEVISITE_DOSSIER'])) {
-                    $date = DateFormatterFr::formatShort($avisDerogation['DATEVISITE_DOSSIER']);
+                /** @var string|null $dateCommDossier */
+                $dateCommDossier = $avisDerogation['DATECOMM_DOSSIER'] ?? null;
+                /** @var string|null $dateVisiteDossier */
+                $dateVisiteDossier = $avisDerogation['DATEVISITE_DOSSIER'] ?? null;
+                if (null !== $dateCommDossier && '' !== $dateCommDossier) {
+                    $date = DateFormatterFr::formatShort($dateCommDossier);
+                } elseif (null !== $dateVisiteDossier && '' !== $dateVisiteDossier) {
+                    $date = DateFormatterFr::formatShort($dateVisiteDossier);
                 }
 
                 $this->addChamp($derogationSegment, 'date_avis_derogation', $date ?? '');
@@ -1930,10 +2171,9 @@ class CommissionDocumentGenerationService
      *
      * Port direct de addPrescription() (generationpv.phtml).
      *
-     * @param object               $odfSegment
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillPrescriptionsSegment($odfSegment, array $dossierInfos): void
+    private function fillPrescriptionsSegment(\Segment $odfSegment, array $dossierInfos): void
     {
         $prescriptionTypes = [
             ['key' => 'prescriptionReglDossier', 'type' => TypePrescription::REGLEMENTAIRE, 'contenu' => 'default'],
@@ -1948,91 +2188,98 @@ class CommissionDocumentGenerationService
         ];
 
         foreach ($prescriptionTypes as $pType) {
-            $listePrescription = $dossierInfos[$pType['key']] ?? [];
-            $this->addPrescription($listePrescription, $pType['type'], $odfSegment, $pType['contenu']);
+            /** @var string $key */
+            $key = $pType['key'];
+            /** @var int $prescriptionType */
+            $prescriptionType = $pType['type'];
+            /** @var string $contenu */
+            $contenu = $pType['contenu'];
+            /** @var list<list<array<string, string|null>>> $listePrescription */
+            $listePrescription = $dossierInfos[$key] ?? [];
+            $this->addPrescription($listePrescription, $prescriptionType, $odfSegment, $contenu);
         }
     }
 
     /**
      * Port direct de addPrescription() (generationpv.phtml).
      *
-     * @param array<int, array<int, array<string, string>>> $listePrescription
-     * @param object                                        $odf
-     * @param string                                        $typeContenu       'default', 'reprises', 'actuelles'
+     * @param list<list<array<string, string|null>>> $listePrescription
+     * @param string                                 $typeContenu       'default', 'reprises', 'actuelles'
      */
-    private function addPrescription(array $listePrescription, int $type, $odf, string $typeContenu): void
+    private function addPrescription(array $listePrescription, int $type, \Segment $odf, string $typeContenu): void
     {
+        $segmentName = $this->getPrescriptionSegmentNameLegacy($type, $typeContenu);
+        /** @var \Segment|null $prescription */
+        $prescription = null;
+
         try {
-            $segmentName = $this->getPrescriptionSegmentNameLegacy($type, $typeContenu);
-            $prescription = null;
-
-            try {
-                $prescription = $odf->$segmentName;
-            } catch (\Exception $e) {
-                // Segment absent du template
+            $prescriptionRaw = $odf->$segmentName;
+            if ($prescriptionRaw instanceof \Segment) {
+                $prescription = $prescriptionRaw;
             }
 
-            if (null === $prescription) {
-                return;
-            }
+            // @phpstan-ignore-next-line
+        } catch (\Exception $exception) {
+        }
 
-            $nbPrescDossier = count($listePrescription);
+        if (null === $prescription) {
+            return;
+        }
 
-            if ($nbPrescDossier > 0) {
-                for ($i = 0; $i < $nbPrescDossier; ++$i) {
-                    $nbAssoc = count($listePrescription[$i]);
-                    $cpt = true;
-                    $textearticle = '';
-                    $nbCpt = $nbAssoc;
+        $nbPrescDossier = count($listePrescription);
 
-                    for ($j = 0; $j < $nbAssoc; ++$j) {
-                        $articleT = $listePrescription[$i][$j]['LIBELLE_ARTICLE'] ?? '';
-                        $texteT = $listePrescription[$i][$j]['LIBELLE_TEXTE'] ?? '';
+        if ($nbPrescDossier > 0) {
+            for ($i = 0; $i < $nbPrescDossier; ++$i) {
+                $nbAssoc = count($listePrescription[$i]);
+                $cpt = true;
+                $textearticle = '';
+                $nbCpt = $nbAssoc;
 
-                        if ('' !== $texteT) {
-                            $textearticle .= $texteT.' - ';
-                        } else {
-                            $textearticle .= ' - ';
-                        }
+                for ($j = 0; $j < $nbAssoc; ++$j) {
+                    $articleT = (string) ($listePrescription[$i][$j]['LIBELLE_ARTICLE'] ?? '');
+                    $texteT = (string) ($listePrescription[$i][$j]['LIBELLE_TEXTE'] ?? '');
 
-                        if ($nbCpt > 1) {
-                            if ('' !== $articleT) {
-                                $textearticle .= $articleT.', ';
-                            } else {
-                                $textearticle .= ', ';
-                            }
-                        } elseif ('' !== $articleT) {
-                            $textearticle .= $articleT.' ';
-                        } else {
-                            $textearticle .= ' ';
-                        }
-
-                        if ($cpt) {
-                            $this->addChamp($prescription, 'num', $listePrescription[$i][0]['NUM_PRESCRIPTION_DOSSIER'] ?? '');
-
-                            if ('' === ($listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
-                                $this->addChamp($prescription, 'libelle', $listePrescription[$i][0]['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
-                            } else {
-                                $this->addChamp($prescription, 'libelle', $listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER']);
-                            }
-
-                            $cpt = false;
-                        }
-
-                        --$nbCpt;
+                    if ('' !== $texteT) {
+                        $textearticle .= $texteT.' - ';
+                    } else {
+                        $textearticle .= ' - ';
                     }
 
-                    $this->addChamp($prescription, 'textearticle', $textearticle);
-                    $prescription->merge();
+                    if ($nbCpt > 1) {
+                        if ('' !== $articleT) {
+                            $textearticle .= $articleT.', ';
+                        } else {
+                            $textearticle .= ', ';
+                        }
+                    } elseif ('' !== $articleT) {
+                        $textearticle .= $articleT.' ';
+                    } else {
+                        $textearticle .= ' ';
+                    }
+
+                    if ($cpt) {
+                        $this->addChamp($prescription, 'num', $listePrescription[$i][0]['NUM_PRESCRIPTION_DOSSIER'] ?? '');
+
+                        if ('' === (string) ($listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
+                            $this->addChamp($prescription, 'libelle', $listePrescription[$i][0]['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
+                        } else {
+                            $this->addChamp($prescription, 'libelle', $listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '');
+                        }
+
+                        $cpt = false;
+                    }
+
+                    --$nbCpt;
                 }
-            } else {
-                $this->addChamp($prescription, 'num', '');
-                $this->addChamp($prescription, 'libelle', '');
-                $this->addChamp($prescription, 'textearticle', '');
+
+                $this->addChamp($prescription, 'textearticle', $textearticle);
                 $prescription->merge();
             }
-        } catch (\Exception $exception) {
-            // OdfException silencieuse — comme le legacy
+        } else {
+            $this->addChamp($prescription, 'num', '');
+            $this->addChamp($prescription, 'libelle', '');
+            $this->addChamp($prescription, 'textearticle', '');
+            $prescription->merge();
         }
     }
 
@@ -2063,106 +2310,13 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * Remplit les formulaires personnalisés dans un segment ODT.
-     *
-     * Port du même algorithme que DossierRapportOdtService::applyFormulaires() mais
-     * adapté aux segments imbriqués (accès via magic getter `->$segName` au lieu de
-     * `setSegment()` réservé à la racine \Odf).
-     *
-     * @param object               $segment
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillFormulairesSegment($segment, array $dossierInfos): void
+    private function fillFormulairesSegment(\Segment $segment, array $dossierInfos): void
     {
-        /** @var array<string, array{capsule: mixed, rubriques: array<int, array<string, mixed>>}> $formulaires */
+        /** @var array<string, array{capsule: mixed, rubriques: array<int, array{rubrique: Rubrique, champs: array<int, array<string, mixed>>}>}> $formulaires */
         $formulaires = $dossierInfos['FORMULAIRES'] ?? [];
-
-        foreach ($formulaires as $nomInterne => $data) {
-            if (null === $data['capsule']) {
-                continue;
-            }
-
-            foreach ($data['rubriques'] as $rubriqueData) {
-                /** @var Rubrique $rubrique */
-                $rubrique = $rubriqueData['rubrique'];
-
-                foreach ($rubriqueData['champs'] as $champData) {
-                    /** @var Champ $champ */
-                    $champ = $champData['champ'];
-                    $typeId = null !== $champ->getType() ? $champ->getType()->getId() : null;
-
-                    if (TypeChamp::PARENT === $typeId) {
-                        if ($champ->getTableau()) {
-                            // Entêtes de colonnes
-                            foreach ($champ->getEnfants() as $enfant) {
-                                $this->addChamp(
-                                    $segment,
-                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', (string) ($enfant->getIdx() ?? 0)]),
-                                    $enfant->getNom()
-                                );
-                            }
-
-                            // Segment tableau (via magic getter sur segment imbriqué)
-                            $segName = ChampNamer::getLoopName($nomInterne.' '.($rubrique->getNom() ?? '').' '.($champ->getNom() ?? '').' valeurs');
-                            $segmentTableau = null;
-                            try {
-                                $segmentTableau = $segment->$segName;
-                            } catch (\Exception $e) {
-                                // Segment absent du template
-                            }
-
-                            if (null !== $segmentTableau) {
-                                /** @var array<int, array<int, Valeur|null>> $lignes */
-                                $lignes = $champData['lignes'] ?? [];
-                                if (0 === count($lignes)) {
-                                    foreach ($champ->getEnfants() as $idx => $enfant) {
-                                        $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), '');
-                                    }
-
-                                    $segmentTableau->merge();
-                                } else {
-                                    foreach ($lignes as $ligne) {
-                                        foreach ($champ->getEnfants() as $idx => $enfant) {
-                                            $enfantId = $enfant->getId();
-                                            /** @var Valeur|null $valeur */
-                                            $valeur = null !== $enfantId ? ($ligne[$enfantId] ?? null) : null;
-                                            $val = ValeurResolver::resolve($enfant->getType(), $valeur);
-                                            $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), $val);
-                                        }
-
-                                        $segmentTableau->merge();
-                                    }
-                                }
-                            }
-                        } else {
-                            // Parent non-tableau : sous-champs directs
-                            foreach ($champData['sous_champs'] ?? [] as $souschampData) {
-                                /** @var Champ $souschamp */
-                                $souschamp = $souschampData['champ'];
-                                /** @var Valeur|null $valeur */
-                                $valeur = $souschampData['valeur'];
-                                $val = ValeurResolver::resolve($souschamp->getType(), $valeur);
-                                $this->addChamp(
-                                    $segment,
-                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', $souschamp->getNom() ?? '']),
-                                    $val
-                                );
-                            }
-                        }
-                    } else {
-                        // Champ feuille
-                        /** @var Valeur|null $valeur */
-                        $valeur = $champData['valeur'] ?? null;
-                        $val = ValeurResolver::resolve($champ->getType(), $valeur);
-                        $this->addChamp(
-                            $segment,
-                            ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '']),
-                            $val
-                        );
-                    }
-                }
-            }
-        }
+        $this->odtWriter->applyFormulairesToSegment($segment, $formulaires);
     }
 
     // ========================================================================
@@ -2170,22 +2324,18 @@ class CommissionDocumentGenerationService
     // ========================================================================
 
     /**
-     * Ajoute un champ à un segment ODT avec gestion d'erreur silencieuse.
-     *
-     * Port direct de setVars() / addChamp() du legacy.
-     *
-     * @param object $odf      Odf ou Segment
-     * @param string $nomOdf   Nom du champ dans le template
-     * @param mixed  $variable Valeur à injecter (sera convertie en string)
+     * @param \Odf|\Segment $odf
+     * @param mixed         $variable
      */
     private function addChamp($odf, string $nomOdf, $variable): void
     {
-        try {
-            $value = (null === $variable) ? '' : (string) $variable;
-            $odf->setVars($nomOdf, $value, true, 'UTF8'); // @phpstan-ignore-line
-        } catch (\Exception $exception) {
-            // Silencieux — variable absente du template ODT
+        if (null === $variable) {
+            $this->odtWriter->setVariable($odf, $nomOdf, null);
+
+            return;
         }
+
+        $this->odtWriter->setVariable($odf, $nomOdf, is_scalar($variable) ? (string) $variable : '');
     }
 
     /**

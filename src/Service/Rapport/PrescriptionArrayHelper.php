@@ -20,16 +20,16 @@ final class PrescriptionArrayHelper
      *
      * Port direct legacy Service_Dossier::withoutLevees().
      *
-     * @param array<int, array<int, array<string, string>>> $prescArray
+     * @param array<int, array<int, array<string, mixed>>> $prescArray
      *
-     * @return array<int, array<int, array<string, string>>>
+     * @return array<int, array<int, array<string, mixed>>>
      */
     public static function withoutLevees(array $prescArray): array
     {
         $result = [];
         foreach ($prescArray as $i => $prescriptions) {
             foreach ($prescriptions as $j => $assoc) {
-                if ('' === $assoc['DATE_LEVEE']) {
+                if ('' === ($assoc['DATE_LEVEE'] ?? '')) {
                     $result[$i][$j] = $assoc;
                 }
             }
@@ -41,9 +41,9 @@ final class PrescriptionArrayHelper
     /**
      * Supprime les entrées sans reprise (ID_DOSSIER_REPRISE vide = actuelles seules).
      *
-     * @param array<int, array<int, array<string, string>>> $prescArray
+     * @param array<int, array<int, array<string, mixed>>> $prescArray
      *
-     * @return array<int, array<int, array<string, string>>>
+     * @return array<int, array<int, array<string, mixed>>>
      */
     public static function withoutActuals(array $prescArray): array
     {
@@ -62,9 +62,9 @@ final class PrescriptionArrayHelper
     /**
      * Supprime les entrées issues d'une reprise (ID_DOSSIER_REPRISE non vide).
      *
-     * @param array<int, array<int, array<string, string>>> $prescArray
+     * @param array<int, array<int, array<string, mixed>>> $prescArray
      *
-     * @return array<int, array<int, array<string, string>>>
+     * @return array<int, array<int, array<string, mixed>>>
      */
     public static function withoutPrevious(array $prescArray): array
     {
@@ -86,15 +86,16 @@ final class PrescriptionArrayHelper
      * Port direct du bloc partagé entre addPrescription() et addPrescriptionCC()
      * (creationdoc.phtml).
      *
-     * @param array<int, array<string, string>> $prescriptions Lignes d'une même prescription
+     * @param array<int, array<string, mixed>> $prescriptions Lignes d'une même prescription
      */
     public static function buildTextearticle(array $prescriptions): string
     {
         $nbCpt = count($prescriptions);
         $textearticle = '';
         foreach ($prescriptions as $assoc) {
-            $texteT = $assoc['LIBELLE_TEXTE'] ?? '';
-            $articleT = $assoc['LIBELLE_ARTICLE'] ?? '';
+            /** @var array<string, string|null> $assoc */
+            $texteT = (string) ($assoc['LIBELLE_TEXTE'] ?? '');
+            $articleT = (string) ($assoc['LIBELLE_ARTICLE'] ?? '');
             $textearticle .= ('' !== $texteT ? $texteT.' - ' : ' - ');
             if ($nbCpt > 1) {
                 $textearticle .= ('' !== $articleT ? $articleT.', ' : ', ');

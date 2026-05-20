@@ -7,23 +7,18 @@ use App\Constant\DossierType;
 use App\Constant\NomInterneCapsule;
 use App\Constant\StatutEtablissement;
 use App\Constant\TypeActivite;
-use App\Constant\TypeChamp;
 use App\Constant\TypePrescription;
-use App\Entity\Champ;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\Etablissement;
 use App\Entity\PieceJointe;
 use App\Entity\PrescriptionDossier;
-use App\Entity\Rubrique;
-use App\Entity\Valeur;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
-use App\Service\Formulaires\Fusion\ChampNamer;
-use App\Service\Formulaires\ValeurResolver;
+use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
@@ -75,6 +70,9 @@ class DossierRapportOdtService
     /** @var LoggerInterface */
     private $rapportLogger;
 
+    /** @var OdtWriter */
+    private $odtWriter;
+
     public function __construct(
         EntityManagerInterface $em,
         Connection $conn,
@@ -86,6 +84,7 @@ class DossierRapportOdtService
         ListeDocumentConsulteRepository $listeDocRepository,
         DossierRepository $dossierRepository,
         UrlGeneratorInterface $urlGenerator,
+        OdtWriter $odtWriter,
         string $realDataPath,
         LoggerInterface $rapportLogger
     ) {
@@ -99,6 +98,7 @@ class DossierRapportOdtService
         $this->listeDocRepository = $listeDocRepository;
         $this->dossierRepository = $dossierRepository;
         $this->urlGenerator = $urlGenerator;
+        $this->odtWriter = $odtWriter;
         $this->realDataPath = $realDataPath;
         $this->rapportLogger = $rapportLogger;
     }
@@ -1256,19 +1256,11 @@ class DossierRapportOdtService
     // =========================================================================
 
     /**
-     * Wrapper autour de Odf::setVars() avec log debug via le canal rapport.
-     *
      * @param \Odf|\Segment $odf
      */
     private function addChamp($odf, string $nomOdf, ?string $variable): void
     {
-        try {
-            $odf->setVars($nomOdf, $variable ?? '', true, 'UTF8');
-            $prefix = $odf instanceof \Segment ? '['.$odf->getName().'] ' : '';
-            $this->rapportLogger->debug($prefix.'{'.$nomOdf.'} : '.json_encode($variable, JSON_UNESCAPED_UNICODE));
-        } catch (\Exception $exception) {
-            // Silencieux — variable absente du template ODT
-        }
+        $this->odtWriter->setVariable($odf, $nomOdf, $variable, $this->rapportLogger);
     }
 
     /**
@@ -1278,9 +1270,9 @@ class DossierRapportOdtService
      * Une ligne ODT par prescription : {num}, {libelle}, {textearticle}
      * (textearticle = concaténation des paires TEXTE - ARTICLE de tous les articles)
      *
-     * @param array<int, array<int, array<string, string>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
-     * @param int                                           $type        TypePrescription::*
-     * @param string                                        $typeContenu 'all' | 'reprises' | 'actuelles'
+     * @param array<int, array<int, array<string, mixed>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
+     * @param int                                          $type        TypePrescription::*
+     * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
      */
     private function addPrescription(\Odf $odf, array $prescArray, int $type, string $typeContenu): void
     {
@@ -1296,13 +1288,14 @@ class DossierRapportOdtService
                     continue;
                 }
 
+                /** @var array<string, string|null> $first */
                 $first = reset($prescriptions);
                 $textearticle = PrescriptionArrayHelper::buildTextearticle($prescriptions);
 
-                $num = $first['NUM_PRESCRIPTION_DOSSIER'];
-                $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
-                    ? $first['LIBELLE_PRESCRIPTION_DOSSIER']
-                    : $first['PRESCRIPTIONTYPE_LIBELLE'];
+                $num = (string) ($first['NUM_PRESCRIPTION_DOSSIER'] ?? '');
+                $libelle = ('' !== (string) ($first['LIBELLE_PRESCRIPTION_DOSSIER'] ?? ''))
+                    ? (string) ($first['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')
+                    : (string) ($first['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
                 $this->addChamp($segment, 'num', $num);
                 $this->addChamp($segment, 'libelle', $libelle);
                 $this->addChamp($segment, 'textearticle', $textearticle);
@@ -1320,10 +1313,10 @@ class DossierRapportOdtService
      * Port direct legacy addPrescriptionCC() de creationdoc.phtml.
      * Une ligne ODT par prescription : {num}, {libelle}, {textearticle}
      *
-     * @param \Segment                                      $segCellule  Segment parent (cellulesPresc)
-     * @param array<int, array<int, array<string, string>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
-     * @param int                                           $type        TypePrescription::*
-     * @param string                                        $typeContenu 'all' | 'reprises' | 'actuelles'
+     * @param \Segment                                     $segCellule  Segment parent (cellulesPresc)
+     * @param array<int, array<int, array<string, mixed>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
+     * @param int                                          $type        TypePrescription::*
+     * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
      */
     private function addPrescriptionCC($segCellule, array $prescArray, int $type, string $typeContenu): void
     {
@@ -1368,13 +1361,14 @@ class DossierRapportOdtService
                         continue;
                     }
 
+                    /** @var array<string, string|null> $first */
                     $first = reset($prescriptions);
                     $textearticle = PrescriptionArrayHelper::buildTextearticle($prescriptions);
 
-                    $num = $first['NUM_PRESCRIPTION_DOSSIER'];
-                    $libelle = ('' !== $first['LIBELLE_PRESCRIPTION_DOSSIER'])
-                        ? $first['LIBELLE_PRESCRIPTION_DOSSIER']
-                        : $first['PRESCRIPTIONTYPE_LIBELLE'];
+                    $num = (string) ($first['NUM_PRESCRIPTION_DOSSIER'] ?? '');
+                    $libelle = ('' !== (string) ($first['LIBELLE_PRESCRIPTION_DOSSIER'] ?? ''))
+                        ? (string) ($first['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')
+                        : (string) ($first['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
                     // @phpstan-ignore-next-line
                     $this->addChamp($segment, 'num', $num);
                     // @phpstan-ignore-next-line
@@ -1700,11 +1694,6 @@ class DossierRapportOdtService
         }
     }
 
-    /**
-     * Applique les formulaires (capsules rubriques) dans le document ODT.
-     *
-     * Port direct de la boucle formulaires de creationdoc.phtml.
-     */
     private function applyFormulaires(\Odf $odf, Dossier $dossier, Etablissement $etablissement): void
     {
         $capsules = [
@@ -1714,90 +1703,6 @@ class DossierRapportOdtService
             NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT => $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT),
         ];
 
-        foreach ($capsules as $nomInterne => $data) {
-            if (null === $data['capsule']) {
-                continue;
-            }
-
-            foreach ($data['rubriques'] as $rubriqueData) {
-                /** @var Rubrique $rubrique */
-                $rubrique = $rubriqueData['rubrique'];
-                foreach ($rubriqueData['champs'] as $champData) {
-                    /** @var Champ $champ */
-                    $champ = $champData['champ'];
-                    $typeId = null !== $champ->getType() ? $champ->getType()->getId() : null;
-
-                    if (TypeChamp::PARENT === $typeId) {
-                        if ($champ->getTableau()) {
-                            // Branche tableau : en-têtes de colonnes + segment de lignes
-                            // Les labels de colonne utilisent l'idx DB (1-based) comme dans le legacy ($champFils['idx'])
-                            foreach ($champ->getEnfants() as $enfant) {
-                                $this->addChamp(
-                                    $odf,
-                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', (string) ($enfant->getIdx() ?? 0)]),
-                                    $enfant->getNom()
-                                );
-                            }
-
-                            $segName = ChampNamer::getLoopName($nomInterne.' '.($rubrique->getNom() ?? '').' '.($champ->getNom() ?? '').' valeurs');
-                            try {
-                                $segmentTableau = $odf->setSegment($segName);
-                                /** @var array<int, array<int, Valeur|null>> $lignes */
-                                $lignes = $champData['lignes'] ?? [];
-                                if (0 === count($lignes)) {
-                                    foreach ($champ->getEnfants() as $idx => $enfant) {
-                                        $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), '');
-                                    }
-
-                                    $segmentTableau->merge();
-                                } else {
-                                    foreach ($lignes as $ligne) {
-                                        foreach ($champ->getEnfants() as $idx => $enfant) {
-                                            $enfantId = $enfant->getId();
-                                            /** @var Valeur|null $valeur */
-                                            $valeur = null !== $enfantId ? ($ligne[$enfantId] ?? null) : null;
-                                            $val = ValeurResolver::resolve($enfant->getType(), $valeur);
-                                            $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), $val);
-                                        }
-
-                                        $segmentTableau->merge();
-                                    }
-                                }
-
-                                $odf->mergeSegment($segmentTableau);
-                            } catch (\Exception $e) {
-                            }
-                        } else {
-                            // Branche non-tableau : sous-champs directs
-                            /** @var array<mixed> $sousChamps */
-                            $sousChamps = $champData['sous_champs'] ?? [];
-                            foreach ($sousChamps as $souschampData) {
-                                /** @var array{champ: Champ, valeur: Valeur|null} $souschampData */
-                                /** @var Champ $souschamp */
-                                $souschamp = $souschampData['champ'];
-                                /** @var Valeur|null $valeur */
-                                $valeur = $souschampData['valeur'];
-                                $val = ValeurResolver::resolve($souschamp->getType(), $valeur);
-                                $this->addChamp(
-                                    $odf,
-                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', $souschamp->getNom() ?? '']),
-                                    $val
-                                );
-                            }
-                        }
-                    } else {
-                        // Branche feuille
-                        /** @var Valeur|null $valeur */
-                        $valeur = $champData['valeur'] ?? null;
-                        $val = ValeurResolver::resolve($champ->getType(), $valeur);
-                        $this->addChamp(
-                            $odf,
-                            ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '']),
-                            $val
-                        );
-                    }
-                }
-            }
-        }
+        $this->odtWriter->applyFormulairesToOdf($odf, $capsules);
     }
 }
