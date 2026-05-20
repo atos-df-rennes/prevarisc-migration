@@ -2,17 +2,17 @@
 describe('Authentification', () => {
     it('Identifiants valides → redirection vers l\'accueil', () => {
         cy.visit('/session/login');
-        cy.get('[name=prevarisc_login_username]').type(Cypress.env('username'));
-        cy.get('[name=prevarisc_login_passwd]').type(Cypress.env('password'));
-        cy.get('#Connexion').click();
+        cy.get('[name=_username]').type(Cypress.env('username'));
+        cy.get('[name=_password]').type(Cypress.env('password'));
+        cy.contains('button', 'Connexion').click();
         cy.contains('Bonjour ROOT').should('exist');
     });
 
     it('Identifiants invalides → message d\'erreur affiché', () => {
         cy.visit('/session/login');
-        cy.get('[name=prevarisc_login_username]').type('wrongUser');
-        cy.get('[name=prevarisc_login_passwd]').type('wrongPass');
-        cy.get('#Connexion').click();
+        cy.get('[name=_username]').type('wrongUser');
+        cy.get('[name=_password]').type('wrongPass');
+        cy.contains('button', 'Connexion').click();
         cy.contains('Erreur d\'authentification').should('exist');
     });
 });

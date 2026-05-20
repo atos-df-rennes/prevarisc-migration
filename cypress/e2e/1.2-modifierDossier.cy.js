@@ -15,7 +15,8 @@ describe('Dossier — modification', () => {
         cy.contains('Modifier le dossier').click();
 
         const newObjet = `Dossier Test ${Date.now()}`;
-        cy.get('[name="OBJET_DOSSIER"]').clear().type(newObjet);
+        cy.get('[name="OBJET_DOSSIER"]').clear();
+        cy.get('[name="OBJET_DOSSIER"]').type(newObjet);
         cy.get('input[type="submit"][value="Sauvegarder"]').click();
 
         cy.get('#OBJET').find('.right.value').should('contain', newObjet)
