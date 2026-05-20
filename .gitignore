@@ -30,5 +30,11 @@ public/js/fos_js_routes.js
 .twig-cs-fixer.cache
 ###< tools ###
 
+###> Cypress ###
+/node_modules/
+/cypress/screenshots/
+/cypress/videos/
+###< Cypress ###
+
 # Rapports de revue de code (usage local uniquement)
 REVIEW_REPORT.md
