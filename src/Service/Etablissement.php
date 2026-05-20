@@ -776,7 +776,7 @@ final class Etablissement
             $informations->setFamille(null);
             $informations->setClasse(null);
             $informations->setClassement(null);
-            $informations->setPeriodicite(0);
+            $informations->setPeriodicite(null);
 
             // --- Hydratation genre-spécifique ---
             $this->hydrateInformations($informations, $etablissement, $idGenre, $data, $em);
