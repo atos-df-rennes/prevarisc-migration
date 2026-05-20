@@ -1,0 +1,162 @@
+<?php
+
+namespace App\Controller\Commission;
+
+use App\Entity\DateCommission;
+use App\Service\Commission\CommissionDocumentGenerationService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * Génération des documents de commission (convocation, ODJ, PV, compte-rendu).
+ *
+ * @IsGranted("ROLE_USER")
+ */
+class CalendrierDesCommissionsGenerationController extends AbstractController
+{
+    /** @var CommissionDocumentGenerationService */
+    private $generationService;
+
+    public function __construct(CommissionDocumentGenerationService $generationService)
+    {
+        $this->generationService = $generationService;
+    }
+
+    /**
+     * Génère les convocations pour une date de commission.
+     *
+     * @Route("/commission/calendrier/{dateCommId}/generation/convocation", name="commission_calendrier_generation_convocation", requirements={"dateCommId"="\d+"}, methods={"POST"})
+     */
+    public function generationConvocation(int $dateCommId, Request $request): Response
+    {
+        $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_convocation');
+        if (null !== $errorResponse) {
+            return $errorResponse;
+        }
+
+        $results = $this->generationService->generateConvocations($dateCommId);
+
+        return $this->buildJsonResponse($results, 'convocation(s)');
+    }
+
+    /**
+     * Génère les ordres du jour pour une date de commission.
+     *
+     * @Route("/commission/calendrier/{dateCommId}/generation/odj", name="commission_calendrier_generation_odj", requirements={"dateCommId"="\d+"}, methods={"POST"})
+     */
+    public function generationOdj(int $dateCommId, Request $request): Response
+    {
+        $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_odj');
+        if (null !== $errorResponse) {
+            return $errorResponse;
+        }
+
+        $results = $this->generationService->generateOrdreDuJour($dateCommId);
+
+        return $this->buildJsonResponse($results, 'ordre(s) du jour');
+    }
+
+    /**
+     * Génère les procès-verbaux pour une date de commission.
+     *
+     * @Route("/commission/calendrier/{dateCommId}/generation/pv", name="commission_calendrier_generation_pv", requirements={"dateCommId"="\d+"}, methods={"POST"})
+     */
+    public function generationPv(int $dateCommId, Request $request): Response
+    {
+        $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_pv');
+        if (null !== $errorResponse) {
+            return $errorResponse;
+        }
+
+        $results = $this->generationService->generateProcesVerbal($dateCommId);
+
+        return $this->buildJsonResponse($results, 'procès-verbal/verbaux');
+    }
+
+    /**
+     * Génère le compte-rendu pour une date de commission.
+     *
+     * @Route("/commission/calendrier/{dateCommId}/generation/compte-rendu", name="commission_calendrier_generation_compte_rendu", requirements={"dateCommId"="\d+"}, methods={"POST"})
+     */
+    public function generationCompteRendu(int $dateCommId, Request $request): Response
+    {
+        $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_compte_rendu');
+        if (null !== $errorResponse) {
+            return $errorResponse;
+        }
+
+        $results = $this->generationService->generateCompteRendu($dateCommId);
+
+        return $this->buildJsonResponse($results, 'compte-rendu');
+    }
+
+    /**
+     * Valide la requête (CSRF + existence dateCommission).
+     *
+     * @return JsonResponse|null null si la validation est OK, une réponse d'erreur sinon
+     */
+    private function validateRequest(int $dateCommId, Request $request, string $csrfId): ?JsonResponse
+    {
+        /** @var string $token */
+        $token = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid($csrfId.'_'.$dateCommId, $token)) {
+            return new JsonResponse([
+                'success' => false,
+                'summary' => 'Token de sécurité invalide.',
+                'results' => [],
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        /** @var DateCommission|null $dateCommission */
+        $dateCommission = $this->getDoctrine()->getManager()->find(DateCommission::class, $dateCommId);
+        if (null === $dateCommission) {
+            return new JsonResponse([
+                'success' => false,
+                'summary' => 'Date de commission introuvable.',
+                'results' => [],
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return null;
+    }
+
+    /**
+     * Construit la réponse JSON récapitulative.
+     *
+     * @param array<int, array{memberId: int, memberLabel: string, status: string, message: string, pieceJointeId: int|null}> $results
+     */
+    private function buildJsonResponse(array $results, string $documentType): JsonResponse
+    {
+        $successCount = 0;
+        $errorCount = 0;
+
+        foreach ($results as $result) {
+            if ('success' === $result['status']) {
+                ++$successCount;
+            } else {
+                ++$errorCount;
+            }
+        }
+
+        $success = 0 === $errorCount && $successCount > 0;
+
+        if (0 === $successCount && 0 === $errorCount) {
+            $summary = 'Aucun document à générer.';
+        } elseif ($success) {
+            $summary = sprintf('%d %s généré(s) avec succès.', $successCount, $documentType);
+        } else {
+            $summary = sprintf('%d généré(s), %d erreur(s).', $successCount, $errorCount);
+        }
+
+        return new JsonResponse([
+            'success' => $success,
+            'summary' => $summary,
+            'results' => $results,
+        ]);
+    }
+}

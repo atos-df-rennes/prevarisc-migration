@@ -1,2 +1,571 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^PHPDoc tag @var with type string is not subtype of native type non\-falsy\-string\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Controller/CouchesCartographiquesController.php
+
+		-
+			message: '#^Access to an undefined property Segment\:\:\$infosDoss\.$#'
+			identifier: property.notFound
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$avisDerogations\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$avisDerogationsEtablissement\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$infosDoss\.$#'
+			identifier: property.notFound
+			count: 21
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 13
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between ''Convocations du…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between ''Ordre du jour du…'' and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''    '' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''  '' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 9
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''CONVOCATIONSALLE_'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''CONVOCATIONVISITE_'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''ODJ_'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between mixed and ''PV_'' results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 11
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Binary operation "\.\=" between non\-falsy\-string and mixed results in an error\.$#'
+			identifier: assignOp.invalid
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Call to an undefined method object\:\:merge\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''CHAMPS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''CODEPOSTAL_COMMUNE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''COURRIEL_ETABLISSEMENT'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''CPADRESSE_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''FILS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''GRADE_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''ID_GROUPEMENT'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''LIBELLE_CATEGORIE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''LIBELLE_COMMISSIONMEMBRE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''LIBELLE_COMMUNE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 12
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''LIBELLE_ETABLISSEMENTINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 9
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''LIBELLE_RUE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''LIBELLE_TYPE_PRINCIPAL'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''MAIL_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NOM'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 6
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NOM_INTERNE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NOM_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NUMEROADRESSE_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NUMEROID_ETABLISSEMENT'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NUMERO_ADRESSE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NUMINSEE_COMMUNE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''NUM_DOCURBA'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''PRENOM_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''RUBRIQUES'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''RUEADRESSE_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''TELFIXE_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''TYPE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 5
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''VALEUR'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''VILLEADRESSE_UTILISATEURINFORMATIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''adresses'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 20
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''general'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 5
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''idx'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''informations'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 13
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''last_visite'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''parents'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''tableau'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 33
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot call method merge\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 7
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 33
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 14
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Dead catch \- Exception is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 6
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:getPrescriptionsArray\(\) should return array\<int, array\<int, array\<string, string\>\>\> but returns list\<list\<array\<string, mixed\>\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Offset 0 on array\{mixed, array\<int, array\<string, mixed\>\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$avis of static method App\\Constant\\AvisCommission\:\:getLibelle\(\) expects int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 7
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$capsuleRubrique of static method App\\Service\\Formulaires\\Fusion\\ChampNamer\:\:getFullFusionName\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$dateStr of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:parseDateSql\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$dateStr of static method App\\Utils\\DateFormatterFr\:\:formatShort\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$derogationSegment of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:fillDerogationSegmentData\(\) expects object, mixed given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$idsEtablissements of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:getAvisDerogationsEtablissements\(\) expects array\<int\>, list given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$listePrescription of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:addPrescription\(\) expects array\<int, array\<int, array\<string, string\>\>\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$nomInterne of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:getRubriquesForCapsule\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$numInsee of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:getCommuneContactInfo\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$odf of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:addChamp\(\) expects object, mixed given\.$#'
+			identifier: argument.type
+			count: 28
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$parentSegment of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:fillAvisDerogationsOnSubSegment\(\) expects object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$segment of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:fillConvocationDossierInfos\(\) expects object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$segment of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:fillFormulairesSegment\(\) expects object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$string of function substr expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$value of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:formatDateFormulaire\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#1 \$var of function count expects array\|Countable, mixed given\.$#'
+			identifier: argument.type
+			count: 9
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#2 \$derogations of method App\\Service\\Commission\\CommissionDocumentGenerationService\:\:fillDerogationSegmentData\(\) expects array\<int, array\<string, mixed\>\>, mixed given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#2 \$options of static method App\\Service\\Formulaires\\Fusion\\ChampNamer\:\:getFullFusionName\(\) expects array\<string\>, array\<int, mixed\> given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#2 \$str of function explode expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Parameter \#2 \$value of method Segment\:\:setVars\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Possibly invalid array key type mixed\.$#'
+			identifier: offsetAccess.invalidOffset
+			count: 7
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between null and mixed will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 4
+			path: src/Service/Commission/CommissionDocumentGenerationService.php
+
+		-
+			message: '#^Cannot access offset ''ID_CATEGORIE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Cannot access offset ''ID_CLASSE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Cannot access offset ''ID_COMMISSIONMEMBRE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Cannot access offset ''ID_GENRE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Cannot access offset ''ID_TYPEACTIVITE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Cannot access offset ''informations'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Cannot access offset mixed on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Service/Commission/CommissionMembreEligibilityChecker.php
+
+		-
+			message: '#^Method App\\Service\\PlatauHealthcheckService\:\:getPisteTokenData\(\) should return array\<string, mixed\> but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/PlatauHealthcheckService.php
+
+		-
+			message: '#^Method App\\Service\\PlatauHealthcheckService\:\:requestPisteToken\(\) should return array\<string, mixed\>\|null but returns array\<mixed, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Service/PlatauHealthcheckService.php

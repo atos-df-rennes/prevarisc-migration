@@ -223,93 +223,116 @@ $(document).ready(function() {
         });
     });
 
-    // Génération de documents : appel des routes legacy en attendant la migration de cette fonctionnalité
-    $("#createConvoc").click(function() {
-        if ($("#external-events").children("div").children("div").length == 0) {
-            $.ajax({
-                url: "/calendrier-des-commissions/generationconvoc",
-                data: "dateCommId=" + $("#dateCommId").val(),
-                type: "POST",
-                beforeSend: function() {
-                    $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
-                },
-                success: function(affichageResultat) {
-                    $("#infoGeneration").html(affichageResultat);
-                },
-                error: function() {
-                    $("#infoGeneration").html("Une erreur s'est produite");
-                    return false;
-                }
+    // Génération de documents de commission (Symfony)
+    function generateDocument(url, csrfToken, documentLabel) {
+        if ($("#external-events").children("div").children("div").length !== 0) {
+            $.toast({
+                heading: 'Attention',
+                text: "Certains dossiers prévus n'ont pas été placés dans le calendrier.",
+                icon: 'warning',
+                position: 'top-right',
+                hideAfter: 5000
             });
-        } else {
-            $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
+            return;
         }
+
+        $.toast({
+            heading: 'Génération en cours',
+            text: 'Création ' + documentLabel + ', veuillez patienter…',
+            icon: 'info',
+            position: 'top-right',
+            hideAfter: false,
+            loader: true,
+            loaderBg: '#3b8bba'
+        });
+
+        $.ajax({
+            url: url,
+            data: { _token: csrfToken },
+            type: "POST",
+            dataType: "json",
+            success: function(response) {
+                $('.jq-toast-wrap').remove();
+
+                if (response.success) {
+                    $.toast({
+                        heading: 'Succès',
+                        text: response.summary,
+                        icon: 'success',
+                        position: 'top-right',
+                        hideAfter: 5000
+                    });
+                } else {
+                    var details = [];
+                    if (response.results) {
+                        for (var i = 0; i < response.results.length; i++) {
+                            var r = response.results[i];
+                            if (r.status === 'error') {
+                                details.push(r.message);
+                            }
+                        }
+                    }
+                    $.toast({
+                        heading: response.summary || 'Erreurs lors de la génération',
+                        text: details.length > 0 ? details.join('<br>') : '',
+                        icon: 'warning',
+                        position: 'top-right',
+                        hideAfter: 8000
+                    });
+                }
+
+                // Rafraîchir l'onglet pièces jointes si la modale est ouverte
+                if ($('#modal-pieces-jointes').hasClass('in')) {
+                    $('#modal-pieces-jointes .modal-body').load(GESTIONODJ_CONFIG.urlPiecesJointes);
+                }
+            },
+            error: function(xhr) {
+                $('.jq-toast-wrap').remove();
+                var msg = "Une erreur s'est produite lors de la génération.";
+                if (xhr.responseJSON && xhr.responseJSON.summary) {
+                    msg = xhr.responseJSON.summary;
+                }
+                $.toast({
+                    heading: 'Erreur',
+                    text: msg,
+                    icon: 'error',
+                    position: 'top-right',
+                    hideAfter: 5000
+                });
+            }
+        });
+    }
+
+    $("#createConvoc").click(function() {
+        generateDocument(
+            GESTIONODJ_CONFIG.urlGenerationConvoc,
+            GESTIONODJ_CONFIG.csrfTokenConvoc,
+            'des convocations'
+        );
     });
 
     $("#createOdj").click(function() {
-        if ($("#external-events").children("div").children("div").length == 0) {
-            $.ajax({
-                url: "/calendrier-des-commissions/generationodj",
-                data: "dateCommId=" + $("#dateCommId").val(),
-                type: "POST",
-                beforeSend: function() {
-                    $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
-                },
-                success: function(affichageResultat) {
-                    $("#infoGeneration").html(affichageResultat);
-                },
-                error: function() {
-                    $("#infoGeneration").html("Une erreur s'est produite");
-                    return false;
-                }
-            });
-        } else {
-            $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
-        }
+        generateDocument(
+            GESTIONODJ_CONFIG.urlGenerationOdj,
+            GESTIONODJ_CONFIG.csrfTokenOdj,
+            "de l'ordre du jour"
+        );
     });
 
     $("#createPv").click(function() {
-        if ($("#external-events").children("div").children("div").length == 0) {
-            $.ajax({
-                url: "/calendrier-des-commissions/generationpv",
-                data: "dateCommId=" + $("#dateCommId").val(),
-                type: "POST",
-                beforeSend: function() {
-                    $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
-                },
-                success: function(affichageResultat) {
-                    $("#infoGeneration").html(affichageResultat);
-                },
-                error: function() {
-                    $("#infoGeneration").html("Une erreur s'est produite");
-                    return false;
-                }
-            });
-        } else {
-            $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
-        }
+        generateDocument(
+            GESTIONODJ_CONFIG.urlGenerationPv,
+            GESTIONODJ_CONFIG.csrfTokenPv,
+            'du procès-verbal'
+        );
     });
 
     $("#creationCompteRendu").click(function() {
-        if ($("#external-events").children("div").children("div").length == 0) {
-            $.ajax({
-                url: "/calendrier-des-commissions/generationcompterendu",
-                data: "dateCommId=" + $("#dateCommId").val(),
-                type: "POST",
-                beforeSend: function() {
-                    $("#infoGeneration").html("Création en cours, veuillez patienter   <img src='/images/load.gif' />");
-                },
-                success: function(affichageResultat) {
-                    $("#infoGeneration").html(affichageResultat);
-                },
-                error: function() {
-                    $("#infoGeneration").html("Une erreur s'est produite");
-                    return false;
-                }
-            });
-        } else {
-            $("#infoGeneration").html("<span id='notif' class='ui-state-error' style='padding: 0.3em;'>Certains dossiers prévus n'ont pas été placés dans le calendrier</span><br/><br/><br/>");
-        }
+        generateDocument(
+            GESTIONODJ_CONFIG.urlGenerationCompteRendu,
+            GESTIONODJ_CONFIG.csrfTokenCompteRendu,
+            'du compte-rendu'
+        );
     });
 
     $(".heures").click(function() {

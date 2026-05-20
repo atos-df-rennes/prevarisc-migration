@@ -69,7 +69,16 @@
         urlAffecteDoss: "{{ path('calendrier_des_commissions_affecte_doss_odj') }}",
         urlResizeOdj: "{{ path('calendrier_des_commissions_resize_odj') }}",
         urlGestionHeures: "{{ path('calendrier_des_commissions_gestion_heures') }}",
-        urlChangementOrdre: "{{ path('calendrier_des_commissions_changement_ordre') }}"
+        urlChangementOrdre: "{{ path('calendrier_des_commissions_changement_ordre') }}",
+        urlGenerationConvoc: "{{ path('commission_calendrier_generation_convocation', {dateCommId: dateCommission.id}) }}",
+        urlGenerationOdj: "{{ path('commission_calendrier_generation_odj', {dateCommId: dateCommission.id}) }}",
+        urlGenerationPv: "{{ path('commission_calendrier_generation_pv', {dateCommId: dateCommission.id}) }}",
+        urlGenerationCompteRendu: "{{ path('commission_calendrier_generation_compte_rendu', {dateCommId: dateCommission.id}) }}",
+        urlPiecesJointes: "{{ path('calendrier_des_commissions_pieces_jointes', {id: dateCommission.id}) }}",
+        csrfTokenConvoc: "{{ csrf_token('generation_convocation_' ~ dateCommission.id) }}",
+        csrfTokenOdj: "{{ csrf_token('generation_odj_' ~ dateCommission.id) }}",
+        csrfTokenPv: "{{ csrf_token('generation_pv_' ~ dateCommission.id) }}",
+        csrfTokenCompteRendu: "{{ csrf_token('generation_compte_rendu_' ~ dateCommission.id) }}"
     };
     </script>
     <script src="{{ asset('js/gestionodj.js') }}"></script>
@@ -132,9 +141,6 @@
             </tr></table>
             <br/><br/>
         {% endif %}
-
-        <div id="infoGeneration"></div>
-        <br/>
 
         {% if dateCommission.gestionHeures %}
             {# Mode horaire : calendrier FullCalendar + panneau dossiers non affectés #}
