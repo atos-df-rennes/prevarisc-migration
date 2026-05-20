@@ -1,9 +1,9 @@
 {% extends 'layouts/etablissement.html.twig' %}
 
-{% block title %}Ajouter un établissement{% endblock %}
+{% block title %}{% if add %}Ajouter un établissement{% else %}Modification de l'établissement{% endif %}{% endblock %}
 
 {% block body %}
-    {{ include('etablissement/_form.html.twig', {add: true}) }}
+    {{ include('etablissement/_form.html.twig', {add: add}) }}
 
     {{ include('etablissement/_modal_adresse.html.twig', {
         key_ign: key_ign,

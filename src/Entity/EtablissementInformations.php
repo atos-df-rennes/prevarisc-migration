@@ -48,7 +48,7 @@ class EtablissementInformations
     private $localSommeil;
 
     /**
-     * @var int
+     * @var ?int
      *
      * @ORM\Column(name="PERIODICITE_ETABLISSEMENTINFORMATIONS", type="smallint", nullable=true)
      */
@@ -318,7 +318,7 @@ class EtablissementInformations
         return $this->periodicite;
     }
 
-    public function setPeriodicite(int $periodicite): self
+    public function setPeriodicite(?int $periodicite): self
     {
         $this->periodicite = $periodicite;
 

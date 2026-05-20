@@ -7,31 +7,19 @@ use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
-use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
 use App\Entity\Utilisateur;
 use App\Form\DescriptifOriginalType;
 use App\Form\TextesApplicablesEtablissementType;
-use App\Repository\AvisRepository;
-use App\Repository\ClassementRepository;
-use App\Repository\CommissionRepository;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
-use App\Repository\EtablissementActiviteRepository;
 use App\Repository\EtablissementAdresseRepository;
-use App\Repository\EtablissementCategorieRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\EtablissementRepository;
-use App\Repository\EtablissementStatutRepository;
-use App\Repository\EtablissementTypeRepository;
-use App\Repository\FamilleRepository;
-use App\Repository\GenreRepository;
 use App\Repository\GroupementRepository;
-use App\Repository\IghClasseRepository;
 use App\Repository\PeriodiciteRepository;
-use App\Repository\TypePlanRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Alerte\AlerteService;
 use App\Service\DataStore\DataStore;
@@ -41,6 +29,7 @@ use App\Service\Descriptif\DescriptifFormHydrator;
 use App\Service\Descriptif\DescriptifFormPersister;
 use App\Service\Dossier;
 use App\Service\Etablissement as EtablissementService;
+use App\Service\EtablissementFormDataLoader;
 use App\Service\EtablissementHistoriqueService;
 use App\Service\EtablissementPieceJointeService;
 use App\Service\Mail\MailerConfiguration;
@@ -86,11 +75,6 @@ class EtablissementController extends AbstractController implements Etablissemen
      * @var CoucheCartoRepository
      */
     private $coucheCartoRepository;
-
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
 
     /**
      * @var PeriodiciteRepository
@@ -154,35 +138,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     private $formFactory;
 
-    /** @var GenreRepository */
-    private $genreRepository;
-
-    /** @var EtablissementStatutRepository */
-    private $statutRepository;
-
-    /** @var AvisRepository */
-    private $avisRepository;
-
-    /** @var EtablissementCategorieRepository */
-    private $categorieRepository;
-
-    /** @var EtablissementTypeRepository */
-    private $typeRepository;
-
-    /** @var EtablissementActiviteRepository */
-    private $activiteRepository;
-
-    /** @var TypePlanRepository */
-    private $typePlanRepository;
-
-    /** @var FamilleRepository */
-    private $familleRepository;
-
-    /** @var IghClasseRepository */
-    private $ighClasseRepository;
-
-    /** @var ClassementRepository */
-    private $classementRepository;
+    /** @var EtablissementFormDataLoader */
+    private $formDataLoader;
 
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
@@ -193,7 +150,6 @@ class EtablissementController extends AbstractController implements Etablissemen
         EntityManagerInterface $entityManager,
         Dossier $dossierService,
         CoucheCartoRepository $coucheCartoRepository,
-        CommissionRepository $commissionRepository,
         PeriodiciteRepository $periodiciteRepository,
         GroupementRepository $groupementRepository,
         DataStore $dataStore,
@@ -211,16 +167,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         LoggerInterface $pieceJointeLogger,
         EtablissementHistoriqueService $etablissementHistoriqueService,
         EtablissementPieceJointeService $etablissementPieceJointeService,
-        GenreRepository $genreRepository,
-        EtablissementStatutRepository $statutRepository,
-        AvisRepository $avisRepository,
-        EtablissementCategorieRepository $categorieRepository,
-        EtablissementTypeRepository $typeRepository,
-        EtablissementActiviteRepository $activiteRepository,
-        TypePlanRepository $typePlanRepository,
-        FamilleRepository $familleRepository,
-        IghClasseRepository $ighClasseRepository,
-        ClassementRepository $classementRepository
+        EtablissementFormDataLoader $formDataLoader
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -230,7 +177,6 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->entityManager = $entityManager;
         $this->dossierService = $dossierService;
         $this->coucheCartoRepository = $coucheCartoRepository;
-        $this->commissionRepository = $commissionRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->groupementRepository = $groupementRepository;
         $this->dataStore = $dataStore;
@@ -248,16 +194,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->pieceJointeLogger = $pieceJointeLogger;
         $this->etablissementHistoriqueService = $etablissementHistoriqueService;
         $this->etablissementPieceJointeService = $etablissementPieceJointeService;
-        $this->genreRepository = $genreRepository;
-        $this->statutRepository = $statutRepository;
-        $this->avisRepository = $avisRepository;
-        $this->categorieRepository = $categorieRepository;
-        $this->typeRepository = $typeRepository;
-        $this->activiteRepository = $activiteRepository;
-        $this->typePlanRepository = $typePlanRepository;
-        $this->familleRepository = $familleRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->classementRepository = $classementRepository;
+        $this->formDataLoader = $formDataLoader;
     }
 
     /**
@@ -269,52 +206,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     {
         $this->denyAccessUnlessGranted(EtablissementVoter::CREATE);
 
-        // Données de référence pour le formulaire
-        $genres = $this->genreRepository->findAll();
-        $statuts = $this->statutRepository->findAll();
-        $avis = $this->avisRepository->findAll();
-        $categories = $this->categorieRepository->findAll();
-        $types = $this->typeRepository->findAll();
-        $activites = $this->activiteRepository->findAll();
-        // JSON des activités au format legacy pour le JS de add.html.twig
-        $activitesJson = [];
-        foreach ($activites as $activite) {
-            $activiteType = $activite->getType();
-            $activitesJson[] = [
-                'ID_TYPE' => $activiteType ? $activiteType->getId() : null,
-                'ID_TYPEACTIVITE' => $activite->getId(),
-                'LIBELLE_ACTIVITE' => $activite->getLibelle(),
-            ];
-        }
-
-        // Commissions groupées par type pour les optgroups du select
-        /** @var array<int, array{libelle: string, items: Commission[]}> $commissionsData */
-        $commissionsData = [];
-        foreach ($this->commissionRepository->findAll() as $commission) {
-            $type = $commission->getType();
-            $typeId = $type ? (int) $type->getId() : 0;
-            $typeLibelle = $type ? (string) $type->getLibelle() : '';
-            if (!isset($commissionsData[$typeId])) {
-                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
-            }
-
-            $commissionsData[$typeId]['items'][] = $commission;
-        }
-
-        $typesPlans = $this->typePlanRepository->findAll();
-        $familles = $this->familleRepository->findAll();
-        $ighClasses = $this->ighClasseRepository->findAll();
-        $classements = $this->classementRepository->findAllOrderedByLibelle();
-        $couchesCartographiques = $this->coucheCartoRepository->findAllOrdered();
-
-        // Vérifie si l'utilisateur a le droit de modifier le statut
-        $canEditStatut = $this->isGranted('edit_statut');
-
-        // Paramètres de géolocalisation IGN
-        $keyIgn = $this->getParameter('app.ign_key');
-        $geoconceptUrl = $this->getParameter('app.geoconcept_url');
-        $defaultLon = $this->getParameter('app.carto_default_lon');
-        $defaultLat = $this->getParameter('app.carto_default_lat');
+        $templateParams = $this->formDataLoader->load() + ['add' => true];
 
         if ($request->isMethod('POST')) {
             // F4 : vérification du jeton CSRF
@@ -323,26 +215,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             if (!$this->isCsrfTokenValid('add_etablissement', $csrfToken)) {
                 $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
 
-                return $this->render('etablissement/add.html.twig', [
-                    'genres' => $genres,
-                    'statuts' => $statuts,
-                    'avis' => $avis,
-                    'categories' => $categories,
-                    'types' => $types,
-                    'activites' => $activites,
-                    'activites_json' => json_encode($activitesJson, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
-                    'commissions' => $commissionsData,
-                    'types_plans' => $typesPlans,
-                    'familles' => $familles,
-                    'igh_classes' => $ighClasses,
-                    'classements' => $classements,
-                    'couches_cartographiques' => $couchesCartographiques,
-                    'can_edit_statut' => $canEditStatut,
-                    'key_ign' => $keyIgn,
-                    'geoconcept_url' => $geoconceptUrl,
-                    'default_lon' => $defaultLon,
-                    'default_lat' => $defaultLat,
-                ]);
+                return $this->render('etablissement/form.html.twig', $templateParams);
             }
 
             /** @var array<string, mixed> $post */
@@ -383,26 +256,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             }
         }
 
-        return $this->render('etablissement/add.html.twig', [
-            'genres' => $genres,
-            'statuts' => $statuts,
-            'avis' => $avis,
-            'categories' => $categories,
-            'types' => $types,
-            'activites' => $activites,
-            'activites_json' => json_encode($activitesJson, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
-            'commissions' => $commissionsData,
-            'types_plans' => $typesPlans,
-            'familles' => $familles,
-            'igh_classes' => $ighClasses,
-            'classements' => $classements,
-            'couches_cartographiques' => $couchesCartographiques,
-            'can_edit_statut' => $canEditStatut,
-            'key_ign' => $keyIgn,
-            'geoconcept_url' => $geoconceptUrl,
-            'default_lon' => $defaultLon,
-            'default_lat' => $defaultLat,
-        ]);
+        return $this->render('etablissement/form.html.twig', $templateParams);
     }
 
     /**
@@ -414,69 +268,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     public function edit(Request $request, Etablissement $etablissement): Response
     {
-        // Données de référence pour le formulaire
-        $genres = $this->genreRepository->findAll();
-        $statuts = $this->statutRepository->findAll();
-        $avis = $this->avisRepository->findAll();
-        $categories = $this->categorieRepository->findAll();
-        $types = $this->typeRepository->findAll();
-        $activites = $this->activiteRepository->findAll();
-
-        $activitesJson = [];
-        foreach ($activites as $activite) {
-            $activiteType = $activite->getType();
-            $activitesJson[] = [
-                'ID_TYPE' => $activiteType ? $activiteType->getId() : null,
-                'ID_TYPEACTIVITE' => $activite->getId(),
-                'LIBELLE_ACTIVITE' => $activite->getLibelle(),
-            ];
-        }
-
-        /** @var array<int, array{libelle: string, items: Commission[]}> $commissionsData */
-        $commissionsData = [];
-        foreach ($this->commissionRepository->findAll() as $commission) {
-            $type = $commission->getType();
-            $typeId = $type ? (int) $type->getId() : 0;
-            $typeLibelle = $type ? (string) $type->getLibelle() : '';
-            if (!isset($commissionsData[$typeId])) {
-                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
-            }
-
-            $commissionsData[$typeId]['items'][] = $commission;
-        }
-
-        $typesPlans = $this->typePlanRepository->findAll();
-        $familles = $this->familleRepository->findAll();
-        $ighClasses = $this->ighClasseRepository->findAll();
-        $classements = $this->classementRepository->findAllOrderedByLibelle();
-        $couchesCartographiques = $this->coucheCartoRepository->findAllOrdered();
-
-        $canEditStatut = $this->isGranted('edit_statut');
-
-        $keyIgn = $this->getParameter('app.ign_key');
-        $geoconceptUrl = $this->getParameter('app.geoconcept_url');
-        $defaultLon = $this->getParameter('app.carto_default_lon');
-        $defaultLat = $this->getParameter('app.carto_default_lat');
-
-        $templateParams = [
-            'genres' => $genres,
-            'statuts' => $statuts,
-            'avis' => $avis,
-            'categories' => $categories,
-            'types' => $types,
-            'activites' => $activites,
-            'activites_json' => json_encode($activitesJson, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
-            'commissions' => $commissionsData,
-            'types_plans' => $typesPlans,
-            'familles' => $familles,
-            'igh_classes' => $ighClasses,
-            'classements' => $classements,
-            'couches_cartographiques' => $couchesCartographiques,
-            'can_edit_statut' => $canEditStatut,
-            'key_ign' => $keyIgn,
-            'geoconcept_url' => $geoconceptUrl,
-            'default_lon' => $defaultLon,
-            'default_lat' => $defaultLat,
+        $templateParams = $this->formDataLoader->load() + [
+            'add' => false,
             'etablissement' => $etablissement,
         ];
 
@@ -486,7 +279,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             if (!$this->isCsrfTokenValid('edit_etablissement', $csrfToken)) {
                 $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
 
-                return $this->render('etablissement/edit.html.twig', $templateParams);
+                return $this->render('etablissement/form.html.twig', $templateParams);
             }
 
             /** @var array<string, mixed> $post */
@@ -523,7 +316,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             }
         }
 
-        return $this->render('etablissement/edit.html.twig', $templateParams);
+        return $this->render('etablissement/form.html.twig', $templateParams);
     }
 
     /**
