@@ -101,7 +101,7 @@
                     $('#confirm-modal-commission .confirm-modal-advisable')
                         .attr('id', data.commission ? data.commission.ID_COMMISSION : '')
                         .text(data.commission ? data.commission.LIBELLE_COMMISSION : '');
-                    $('#confirm-modal-periodicite .confirm-modal-advisable').text(data.periodicite || '');
+                    $('#confirm-modal-periodicite .confirm-modal-advisable').text(data.periodicite !== undefined && data.periodicite !== null ? data.periodicite : '');
                     $('#confirm-modal-localsommeil .confirm-modal-advisable').text(
                         data.local_sommeil !== undefined ? (data.local_sommeil ? 'Oui' : 'Non') : ''
                     );
@@ -442,7 +442,8 @@
                 var ts = Date.now();
                 var $proto = $('#prototype_preventionniste').clone()
                     .removeAttr('id')
-                    .removeClass('hide prototype');
+                    .removeClass('hide prototype')
+                    .addClass('preventionniste');
                 $proto.find('input[type="hidden"]').val(value);
                 $proto.find('.prev_libelle').text(label);
                 $proto.find('input, select').each(function() {
