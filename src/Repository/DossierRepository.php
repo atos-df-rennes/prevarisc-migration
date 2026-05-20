@@ -6,6 +6,7 @@ use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Dto\Repository\DossierDashboardDto;
 use App\Dto\Repository\DossierDateCommissionEchuDto;
+use App\Dto\Repository\DossierPlatauDto;
 use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use App\Entity\Etablissement;
@@ -1180,7 +1181,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      *
      * @param \DateTimeInterface $lastVisitDate Date de dernière visite de la page (pour IS_NEW)
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierPlatauDto[]
      */
     public function findDossiersPlatauSansEtablissement(\DateTimeInterface $lastVisitDate): array
     {
@@ -1209,14 +1210,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierPlatauDto {
+            return DossierPlatauDto::fromArray($row);
+        }, $rows);
     }
 
     /**
      * Retourne les dossiers Plat'AU avec des pièces jointes en erreur d'envoi.
      * Port direct de Service_Dashboard::getDossiersPlatauPjsEnErreur().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierPlatauDto[]
      */
     public function findDossiersPlatauPjsEnErreur(): array
     {
@@ -1240,7 +1243,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierPlatauDto {
+            return DossierPlatauDto::fromArray($row);
+        }, $rows);
     }
 
     /**
@@ -1249,7 +1254,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      *
      * @param \DateTimeInterface $lastPiecesVisitDate Date de dernière visite de la page pièces jointes
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierPlatauDto[]
      */
     public function findDossiersPlatauNouvellesPjs(\DateTimeInterface $lastPiecesVisitDate): array
     {
@@ -1276,7 +1281,9 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return $rows;
+        return array_map(static function (array $row): DossierPlatauDto {
+            return DossierPlatauDto::fromArray($row);
+        }, $rows);
     }
 
     /**

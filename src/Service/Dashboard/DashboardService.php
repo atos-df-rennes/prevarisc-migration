@@ -5,6 +5,7 @@ namespace App\Service\Dashboard;
 use App\Dto\Repository\DossierAffectationDto;
 use App\Dto\Repository\DossierDashboardDto;
 use App\Dto\Repository\DossierDateCommissionEchuDto;
+use App\Dto\Repository\DossierPlatauDto;
 use App\Dto\Repository\EtablissementDashboardDto;
 use App\Dto\Repository\NextCommissionDto;
 use App\Entity\Utilisateur;
@@ -493,7 +494,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierPlatauDto[]
      */
     private function getDossiersPlatauSansEtablissement(Utilisateur $user): array
     {
@@ -503,7 +504,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierPlatauDto[]
      */
     private function getDossiersPlatauPjsEnErreur(): array
     {
@@ -511,7 +512,7 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return DossierPlatauDto[]
      */
     private function getDossiersPlatauNouvellesPjs(Utilisateur $user): array
     {
