@@ -76,11 +76,11 @@ final class DossierAffectationDto extends AbstractDossierResultDto
     {
         $dto = new self();
         $dto->fillCommonFields($row);
-        $dto->ID_DOSSIER_AFFECT = self::toInt($row['ID_DOSSIER_AFFECT'] ?? null);
-        $dto->HEURE_DEB_AFFECT = self::toStr($row['HEURE_DEB_AFFECT'] ?? null);
-        $dto->HEURE_FIN_AFFECT = self::toStr($row['HEURE_FIN_AFFECT'] ?? null);
-        $dto->NUM_DOSSIER = self::toInt($row['NUM_DOSSIER'] ?? null);
-        $dto->ID_DATECOMMISSION_AFFECT = self::toInt($row['ID_DATECOMMISSION_AFFECT'] ?? null);
+        $dto->ID_DOSSIER_AFFECT = SqlTypeHelper::toInt($row['ID_DOSSIER_AFFECT'] ?? null);
+        $dto->HEURE_DEB_AFFECT = SqlTypeHelper::toStr($row['HEURE_DEB_AFFECT'] ?? null);
+        $dto->HEURE_FIN_AFFECT = SqlTypeHelper::toStr($row['HEURE_FIN_AFFECT'] ?? null);
+        $dto->NUM_DOSSIER = SqlTypeHelper::toInt($row['NUM_DOSSIER'] ?? null);
+        $dto->ID_DATECOMMISSION_AFFECT = SqlTypeHelper::toInt($row['ID_DATECOMMISSION_AFFECT'] ?? null);
 
         return $dto;
     }

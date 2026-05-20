@@ -79,58 +79,18 @@ final class NextCommissionDto
     public static function fromArray(array $row): self
     {
         $dto = new self();
-        $dto->ID_DATECOMMISSION = self::toInt($row['ID_DATECOMMISSION'] ?? null);
-        $dto->DATE_COMMISSION = self::toStr($row['DATE_COMMISSION'] ?? null);
-        $dto->HEUREDEB_COMMISSION = self::toStr($row['HEUREDEB_COMMISSION'] ?? null);
-        $dto->HEUREFIN_COMMISSION = self::toStr($row['HEUREFIN_COMMISSION'] ?? null);
-        $dto->LIBELLE_DATECOMMISSION = self::toStr($row['LIBELLE_DATECOMMISSION'] ?? null);
-        $dto->GESTION_HEURES = self::toInt($row['GESTION_HEURES'] ?? null);
-        $dto->DATECOMMISSION_LIEES = self::toInt($row['DATECOMMISSION_LIEES'] ?? null);
-        $dto->ID_COMMISSIONTYPEEVENEMENT = self::toInt($row['ID_COMMISSIONTYPEEVENEMENT'] ?? null);
-        $dto->COMMISSION_CONCERNE = self::toInt($row['COMMISSION_CONCERNE'] ?? null);
-        $dto->ID_COMMISSION = self::toInt($row['ID_COMMISSION'] ?? null);
-        $dto->LIBELLE_COMMISSION = self::toStr($row['LIBELLE_COMMISSION'] ?? null);
+        $dto->ID_DATECOMMISSION = SqlTypeHelper::toInt($row['ID_DATECOMMISSION'] ?? null);
+        $dto->DATE_COMMISSION = SqlTypeHelper::toStr($row['DATE_COMMISSION'] ?? null);
+        $dto->HEUREDEB_COMMISSION = SqlTypeHelper::toStr($row['HEUREDEB_COMMISSION'] ?? null);
+        $dto->HEUREFIN_COMMISSION = SqlTypeHelper::toStr($row['HEUREFIN_COMMISSION'] ?? null);
+        $dto->LIBELLE_DATECOMMISSION = SqlTypeHelper::toStr($row['LIBELLE_DATECOMMISSION'] ?? null);
+        $dto->GESTION_HEURES = SqlTypeHelper::toInt($row['GESTION_HEURES'] ?? null);
+        $dto->DATECOMMISSION_LIEES = SqlTypeHelper::toInt($row['DATECOMMISSION_LIEES'] ?? null);
+        $dto->ID_COMMISSIONTYPEEVENEMENT = SqlTypeHelper::toInt($row['ID_COMMISSIONTYPEEVENEMENT'] ?? null);
+        $dto->COMMISSION_CONCERNE = SqlTypeHelper::toInt($row['COMMISSION_CONCERNE'] ?? null);
+        $dto->ID_COMMISSION = SqlTypeHelper::toInt($row['ID_COMMISSION'] ?? null);
+        $dto->LIBELLE_COMMISSION = SqlTypeHelper::toStr($row['LIBELLE_COMMISSION'] ?? null);
 
         return $dto;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private static function toInt($value): ?int
-    {
-        if (\is_int($value)) {
-            return $value;
-        }
-
-        if (\is_string($value)) {
-            return (int) $value;
-        }
-
-        if (\is_float($value)) {
-            return (int) $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private static function toStr($value): ?string
-    {
-        if (\is_string($value)) {
-            return $value;
-        }
-
-        if (\is_int($value)) {
-            return (string) $value;
-        }
-
-        if (\is_float($value)) {
-            return (string) $value;
-        }
-
-        return null;
     }
 }

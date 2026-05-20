@@ -225,84 +225,44 @@ final class EtablissementDashboardDto
     public static function fromArray(array $row): self
     {
         $dto = new self();
-        $dto->ID_ETABLISSEMENT = self::toInt($row['ID_ETABLISSEMENT'] ?? null);
-        $dto->NUMEROID_ETABLISSEMENT = self::toStr($row['NUMEROID_ETABLISSEMENT'] ?? null);
-        $dto->DUREEVISITE_ETABLISSEMENT = self::toInt($row['DUREEVISITE_ETABLISSEMENT'] ?? null);
-        $dto->NBPREV_ETABLISSEMENT = self::toInt($row['NBPREV_ETABLISSEMENT'] ?? null);
-        $dto->NB_ENFANTS = self::toInt($row['NB_ENFANTS'] ?? null);
-        $dto->PRESENCE_ECHEANCIER_TRAVAUX = self::toInt($row['PRESENCE_ECHEANCIER_TRAVAUX'] ?? null);
-        $dto->ID_ETABLISSEMENTINFORMATIONS = self::toInt($row['ID_ETABLISSEMENTINFORMATIONS'] ?? null);
-        $dto->LIBELLE_ETABLISSEMENTINFORMATIONS = self::toStr($row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? null);
-        $dto->DATE_ETABLISSEMENTINFORMATIONS = self::toStr($row['DATE_ETABLISSEMENTINFORMATIONS'] ?? null);
-        $dto->LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS = self::toInt($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? null);
-        $dto->PERIODICITE_ETABLISSEMENTINFORMATIONS = self::toInt($row['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? null);
-        $dto->ID_STATUT = self::toInt($row['ID_STATUT'] ?? null);
-        $dto->ID_TYPE = self::toInt($row['ID_TYPE'] ?? null);
-        $dto->ID_CATEGORIE = self::toInt($row['ID_CATEGORIE'] ?? null);
-        $dto->ID_GENRE = self::toInt($row['ID_GENRE'] ?? null);
-        $dto->ID_COMMISSION = self::toInt($row['ID_COMMISSION'] ?? null);
-        $dto->DATEVISITE_DOSSIER = self::toStr($row['DATEVISITE_DOSSIER'] ?? null);
-        $dto->DATECOMM_DOSSIER = self::toStr($row['DATECOMM_DOSSIER'] ?? null);
-        $dto->DATEINSERT_DOSSIER = self::toStr($row['DATEINSERT_DOSSIER'] ?? null);
-        $dto->DIFFEREAVIS_DOSSIER = self::toInt($row['DIFFEREAVIS_DOSSIER'] ?? null);
-        $dto->ID_AVIS = self::toInt($row['ID_AVIS'] ?? null);
-        $dto->LIBELLE_AVIS = self::toStr($row['LIBELLE_AVIS'] ?? null);
-        $dto->LIBELLE_TYPE = self::toStr($row['LIBELLE_TYPE'] ?? null);
-        $dto->LIBELLE_GENRE = self::toStr($row['LIBELLE_GENRE'] ?? null);
-        $dto->pere = self::toInt($row['pere'] ?? null);
-        $dto->ID_FILS_ETABLISSEMENT = self::toInt($row['ID_FILS_ETABLISSEMENT'] ?? null);
-        $dto->ID_UTILISATEUR = self::toInt($row['ID_UTILISATEUR'] ?? null);
-        $dto->NUMINSEE_COMMUNE = self::toStr($row['NUMINSEE_COMMUNE'] ?? null);
-        $dto->LON_ETABLISSEMENTADRESSE = self::toStr($row['LON_ETABLISSEMENTADRESSE'] ?? null);
-        $dto->LAT_ETABLISSEMENTADRESSE = self::toStr($row['LAT_ETABLISSEMENTADRESSE'] ?? null);
-        $dto->ID_ADRESSE = self::toInt($row['ID_ADRESSE'] ?? null);
-        $dto->ID_RUE = self::toInt($row['ID_RUE'] ?? null);
-        $dto->LIBELLE_COMMUNE_ADRESSE_DEFAULT = self::toStr($row['LIBELLE_COMMUNE_ADRESSE_DEFAULT'] ?? null);
-        $dto->ID_RUE_SITE = self::toInt($row['ID_RUE_SITE'] ?? null);
-        $dto->LIBELLE_COMMUNE_ADRESSE_SITE = self::toStr($row['LIBELLE_COMMUNE_ADRESSE_SITE'] ?? null);
-        $dto->ID_RUE_CELL = self::toInt($row['ID_RUE_CELL'] ?? null);
-        $dto->LIBELLE_COMMUNE_ADRESSE_CELLULE = self::toStr($row['LIBELLE_COMMUNE_ADRESSE_CELLULE'] ?? null);
+        $dto->ID_ETABLISSEMENT = SqlTypeHelper::toInt($row['ID_ETABLISSEMENT'] ?? null);
+        $dto->NUMEROID_ETABLISSEMENT = SqlTypeHelper::toStr($row['NUMEROID_ETABLISSEMENT'] ?? null);
+        $dto->DUREEVISITE_ETABLISSEMENT = SqlTypeHelper::toInt($row['DUREEVISITE_ETABLISSEMENT'] ?? null);
+        $dto->NBPREV_ETABLISSEMENT = SqlTypeHelper::toInt($row['NBPREV_ETABLISSEMENT'] ?? null);
+        $dto->NB_ENFANTS = SqlTypeHelper::toInt($row['NB_ENFANTS'] ?? null);
+        $dto->PRESENCE_ECHEANCIER_TRAVAUX = SqlTypeHelper::toInt($row['PRESENCE_ECHEANCIER_TRAVAUX'] ?? null);
+        $dto->ID_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toInt($row['ID_ETABLISSEMENTINFORMATIONS'] ?? null);
+        $dto->LIBELLE_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toStr($row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? null);
+        $dto->DATE_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toStr($row['DATE_ETABLISSEMENTINFORMATIONS'] ?? null);
+        $dto->LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toInt($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? null);
+        $dto->PERIODICITE_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toInt($row['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? null);
+        $dto->ID_STATUT = SqlTypeHelper::toInt($row['ID_STATUT'] ?? null);
+        $dto->ID_TYPE = SqlTypeHelper::toInt($row['ID_TYPE'] ?? null);
+        $dto->ID_CATEGORIE = SqlTypeHelper::toInt($row['ID_CATEGORIE'] ?? null);
+        $dto->ID_GENRE = SqlTypeHelper::toInt($row['ID_GENRE'] ?? null);
+        $dto->ID_COMMISSION = SqlTypeHelper::toInt($row['ID_COMMISSION'] ?? null);
+        $dto->DATEVISITE_DOSSIER = SqlTypeHelper::toStr($row['DATEVISITE_DOSSIER'] ?? null);
+        $dto->DATECOMM_DOSSIER = SqlTypeHelper::toStr($row['DATECOMM_DOSSIER'] ?? null);
+        $dto->DATEINSERT_DOSSIER = SqlTypeHelper::toStr($row['DATEINSERT_DOSSIER'] ?? null);
+        $dto->DIFFEREAVIS_DOSSIER = SqlTypeHelper::toInt($row['DIFFEREAVIS_DOSSIER'] ?? null);
+        $dto->ID_AVIS = SqlTypeHelper::toInt($row['ID_AVIS'] ?? null);
+        $dto->LIBELLE_AVIS = SqlTypeHelper::toStr($row['LIBELLE_AVIS'] ?? null);
+        $dto->LIBELLE_TYPE = SqlTypeHelper::toStr($row['LIBELLE_TYPE'] ?? null);
+        $dto->LIBELLE_GENRE = SqlTypeHelper::toStr($row['LIBELLE_GENRE'] ?? null);
+        $dto->pere = SqlTypeHelper::toInt($row['pere'] ?? null);
+        $dto->ID_FILS_ETABLISSEMENT = SqlTypeHelper::toInt($row['ID_FILS_ETABLISSEMENT'] ?? null);
+        $dto->ID_UTILISATEUR = SqlTypeHelper::toInt($row['ID_UTILISATEUR'] ?? null);
+        $dto->NUMINSEE_COMMUNE = SqlTypeHelper::toStr($row['NUMINSEE_COMMUNE'] ?? null);
+        $dto->LON_ETABLISSEMENTADRESSE = SqlTypeHelper::toStr($row['LON_ETABLISSEMENTADRESSE'] ?? null);
+        $dto->LAT_ETABLISSEMENTADRESSE = SqlTypeHelper::toStr($row['LAT_ETABLISSEMENTADRESSE'] ?? null);
+        $dto->ID_ADRESSE = SqlTypeHelper::toInt($row['ID_ADRESSE'] ?? null);
+        $dto->ID_RUE = SqlTypeHelper::toInt($row['ID_RUE'] ?? null);
+        $dto->LIBELLE_COMMUNE_ADRESSE_DEFAULT = SqlTypeHelper::toStr($row['LIBELLE_COMMUNE_ADRESSE_DEFAULT'] ?? null);
+        $dto->ID_RUE_SITE = SqlTypeHelper::toInt($row['ID_RUE_SITE'] ?? null);
+        $dto->LIBELLE_COMMUNE_ADRESSE_SITE = SqlTypeHelper::toStr($row['LIBELLE_COMMUNE_ADRESSE_SITE'] ?? null);
+        $dto->ID_RUE_CELL = SqlTypeHelper::toInt($row['ID_RUE_CELL'] ?? null);
+        $dto->LIBELLE_COMMUNE_ADRESSE_CELLULE = SqlTypeHelper::toStr($row['LIBELLE_COMMUNE_ADRESSE_CELLULE'] ?? null);
 
         return $dto;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private static function toInt($value): ?int
-    {
-        if (\is_int($value)) {
-            return $value;
-        }
-
-        if (\is_string($value)) {
-            return (int) $value;
-        }
-
-        if (\is_float($value)) {
-            return (int) $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private static function toStr($value): ?string
-    {
-        if (\is_string($value)) {
-            return $value;
-        }
-
-        if (\is_int($value)) {
-            return (string) $value;
-        }
-
-        if (\is_float($value)) {
-            return (string) $value;
-        }
-
-        return null;
     }
 }

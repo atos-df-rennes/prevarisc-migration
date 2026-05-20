@@ -112,67 +112,23 @@ abstract class AbstractDossierResultDto
      */
     protected function fillCommonFields(array $row): void
     {
-        $this->ID_DOSSIER = self::toInt($row['ID_DOSSIER'] ?? null);
-        $this->TYPE_DOSSIER = self::toInt($row['TYPE_DOSSIER'] ?? null);
-        $this->INCOMPLET_DOSSIER = self::toInt($row['INCOMPLET_DOSSIER'] ?? null);
-        $this->DIFFEREAVIS_DOSSIER = self::toInt($row['DIFFEREAVIS_DOSSIER'] ?? null);
-        $this->VERROU_DOSSIER = self::toInt($row['VERROU_DOSSIER'] ?? null);
-        $this->OBJET_DOSSIER = self::toStr($row['OBJET_DOSSIER'] ?? null);
-        $this->DATECOMM_DOSSIER = self::toStr($row['DATECOMM_DOSSIER'] ?? null);
-        $this->DATEVISITE_DOSSIER = self::toStr($row['DATEVISITE_DOSSIER'] ?? null);
-        $this->DATEINSERT_DOSSIER = self::toStr($row['DATEINSERT_DOSSIER'] ?? null);
-        $this->DATEREP_DOSSIER = self::toStr($row['DATEREP_DOSSIER'] ?? null);
-        $this->DATESDIS_DOSSIER = self::toStr($row['DATESDIS_DOSSIER'] ?? null);
-        $this->ID_PLATAU = self::toStr($row['ID_PLATAU'] ?? null);
-        $this->LIBELLE_DOSSIERNATURE = self::toStr($row['LIBELLE_DOSSIERNATURE'] ?? null);
-        $this->ID_DOSSIERNATURE = self::toInt($row['ID_DOSSIERNATURE'] ?? null);
-        $this->LIBELLE_DOSSIERTYPE = self::toStr($row['LIBELLE_DOSSIERTYPE'] ?? null);
-        $this->ID_AVIS = self::toInt($row['ID_AVIS'] ?? null);
-        $this->LIBELLE_ETABLISSEMENTINFORMATIONS = self::toStr($row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? null);
-        $this->DATE_REPONSE_ATTENDUE = self::toStr($row['DATE_REPONSE_ATTENDUE'] ?? null);
-    }
-
-    /**
-     * Convertit une valeur mixte en int ou null de façon sûre pour PHPStan niveau 10.
-     *
-     * @param mixed $value
-     */
-    protected static function toInt($value): ?int
-    {
-        if (\is_int($value)) {
-            return $value;
-        }
-
-        if (\is_string($value)) {
-            return (int) $value;
-        }
-
-        if (\is_float($value)) {
-            return (int) $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * Convertit une valeur mixte en string ou null de façon sûre pour PHPStan niveau 10.
-     *
-     * @param mixed $value
-     */
-    protected static function toStr($value): ?string
-    {
-        if (\is_string($value)) {
-            return $value;
-        }
-
-        if (\is_int($value)) {
-            return (string) $value;
-        }
-
-        if (\is_float($value)) {
-            return (string) $value;
-        }
-
-        return null;
+        $this->ID_DOSSIER = SqlTypeHelper::toInt($row['ID_DOSSIER'] ?? null);
+        $this->TYPE_DOSSIER = SqlTypeHelper::toInt($row['TYPE_DOSSIER'] ?? null);
+        $this->INCOMPLET_DOSSIER = SqlTypeHelper::toInt($row['INCOMPLET_DOSSIER'] ?? null);
+        $this->DIFFEREAVIS_DOSSIER = SqlTypeHelper::toInt($row['DIFFEREAVIS_DOSSIER'] ?? null);
+        $this->VERROU_DOSSIER = SqlTypeHelper::toInt($row['VERROU_DOSSIER'] ?? null);
+        $this->OBJET_DOSSIER = SqlTypeHelper::toStr($row['OBJET_DOSSIER'] ?? null);
+        $this->DATECOMM_DOSSIER = SqlTypeHelper::toStr($row['DATECOMM_DOSSIER'] ?? null);
+        $this->DATEVISITE_DOSSIER = SqlTypeHelper::toStr($row['DATEVISITE_DOSSIER'] ?? null);
+        $this->DATEINSERT_DOSSIER = SqlTypeHelper::toStr($row['DATEINSERT_DOSSIER'] ?? null);
+        $this->DATEREP_DOSSIER = SqlTypeHelper::toStr($row['DATEREP_DOSSIER'] ?? null);
+        $this->DATESDIS_DOSSIER = SqlTypeHelper::toStr($row['DATESDIS_DOSSIER'] ?? null);
+        $this->ID_PLATAU = SqlTypeHelper::toStr($row['ID_PLATAU'] ?? null);
+        $this->LIBELLE_DOSSIERNATURE = SqlTypeHelper::toStr($row['LIBELLE_DOSSIERNATURE'] ?? null);
+        $this->ID_DOSSIERNATURE = SqlTypeHelper::toInt($row['ID_DOSSIERNATURE'] ?? null);
+        $this->LIBELLE_DOSSIERTYPE = SqlTypeHelper::toStr($row['LIBELLE_DOSSIERTYPE'] ?? null);
+        $this->ID_AVIS = SqlTypeHelper::toInt($row['ID_AVIS'] ?? null);
+        $this->LIBELLE_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toStr($row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? null);
+        $this->DATE_REPONSE_ATTENDUE = SqlTypeHelper::toStr($row['DATE_REPONSE_ATTENDUE'] ?? null);
     }
 }

@@ -94,20 +94,20 @@ final class DossierDashboardDto extends AbstractDossierResultDto
     {
         $dto = new self();
         $dto->fillCommonFields($row);
-        $dto->NB_PJ = self::toInt($row['NB_PJ'] ?? null);
-        $dto->NB_DOSS_LIES = self::toInt($row['NB_DOSS_LIES'] ?? null);
-        $dto->NB_URBA = self::toStr($row['NB_URBA'] ?? null);
-        $dto->ALERTE_RECEPTION_TRAVAUX = self::toInt($row['ALERTE_RECEPTION_TRAVAUX'] ?? null);
-        $dto->ECHEANCIER_TRAVAUX = self::toInt($row['ECHEANCIER_TRAVAUX'] ?? null);
-        $dto->ID_DOSSIER1 = self::toInt($row['ID_DOSSIER1'] ?? null);
-        $dto->ID_DOSSIER2 = self::toInt($row['ID_DOSSIER2'] ?? null);
-        $dto->NUM_DOCURBA = self::toStr($row['NUM_DOCURBA'] ?? null);
-        $dto->LIBELLE_AVIS = self::toStr($row['LIBELLE_AVIS'] ?? null);
-        $dto->ID_UTILISATEUR = self::toInt($row['ID_UTILISATEUR'] ?? null);
-        $dto->ID_ETABLISSEMENT = self::toInt($row['ID_ETABLISSEMENT'] ?? null);
-        $dto->ID_TYPE = self::toInt($row['ID_TYPE'] ?? null);
-        $dto->LIBELLE_TYPE = self::toStr($row['LIBELLE_TYPE'] ?? null);
-        $dto->LIBELLE_GENRE = self::toStr($row['LIBELLE_GENRE'] ?? null);
+        $dto->NB_PJ = SqlTypeHelper::toInt($row['NB_PJ'] ?? null);
+        $dto->NB_DOSS_LIES = SqlTypeHelper::toInt($row['NB_DOSS_LIES'] ?? null);
+        $dto->NB_URBA = SqlTypeHelper::toStr($row['NB_URBA'] ?? null);
+        $dto->ALERTE_RECEPTION_TRAVAUX = SqlTypeHelper::toInt($row['ALERTE_RECEPTION_TRAVAUX'] ?? null);
+        $dto->ECHEANCIER_TRAVAUX = SqlTypeHelper::toInt($row['ECHEANCIER_TRAVAUX'] ?? null);
+        $dto->ID_DOSSIER1 = SqlTypeHelper::toInt($row['ID_DOSSIER1'] ?? null);
+        $dto->ID_DOSSIER2 = SqlTypeHelper::toInt($row['ID_DOSSIER2'] ?? null);
+        $dto->NUM_DOCURBA = SqlTypeHelper::toStr($row['NUM_DOCURBA'] ?? null);
+        $dto->LIBELLE_AVIS = SqlTypeHelper::toStr($row['LIBELLE_AVIS'] ?? null);
+        $dto->ID_UTILISATEUR = SqlTypeHelper::toInt($row['ID_UTILISATEUR'] ?? null);
+        $dto->ID_ETABLISSEMENT = SqlTypeHelper::toInt($row['ID_ETABLISSEMENT'] ?? null);
+        $dto->ID_TYPE = SqlTypeHelper::toInt($row['ID_TYPE'] ?? null);
+        $dto->LIBELLE_TYPE = SqlTypeHelper::toStr($row['LIBELLE_TYPE'] ?? null);
+        $dto->LIBELLE_GENRE = SqlTypeHelper::toStr($row['LIBELLE_GENRE'] ?? null);
 
         return $dto;
     }
