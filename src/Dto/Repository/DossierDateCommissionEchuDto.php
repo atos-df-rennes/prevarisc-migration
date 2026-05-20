@@ -7,81 +7,11 @@ namespace App\Dto\Repository;
 /**
  * DTO pour DossierRepository::findDossierDateCommissionEchu().
  *
- * Contient les colonnes dashboard (via AbstractDossierResultDto) + les colonnes
- * de buildSearchDossierBaseSql() + les colonnes dossieraffectation et datecommission.
+ * Hérite de DossierDashboardDto (colonnes buildSearchDossierBaseSql) et ajoute
+ * les colonnes dossieraffectation et datecommission.
  */
-final class DossierDateCommissionEchuDto extends AbstractDossierResultDto
+final class DossierDateCommissionEchuDto extends DossierDashboardDto
 {
-    /**
-     * @var int|null
-     */
-    public $NB_PJ;
-
-    /**
-     * @var int|null
-     */
-    public $NB_DOSS_LIES;
-
-    /**
-     * @var string|null
-     */
-    public $NB_URBA;
-
-    /**
-     * @var int|null
-     */
-    public $ALERTE_RECEPTION_TRAVAUX;
-
-    /**
-     * @var int|null
-     */
-    public $ECHEANCIER_TRAVAUX;
-
-    /**
-     * @var int|null
-     */
-    public $ID_DOSSIER1;
-
-    /**
-     * @var int|null
-     */
-    public $ID_DOSSIER2;
-
-    /**
-     * @var string|null
-     */
-    public $NUM_DOCURBA;
-
-    /**
-     * @var string|null
-     */
-    public $LIBELLE_AVIS;
-
-    /**
-     * @var int|null
-     */
-    public $ID_UTILISATEUR;
-
-    /**
-     * @var int|null
-     */
-    public $ID_ETABLISSEMENT;
-
-    /**
-     * @var int|null
-     */
-    public $ID_TYPE;
-
-    /**
-     * @var string|null
-     */
-    public $LIBELLE_TYPE;
-
-    /**
-     * @var string|null
-     */
-    public $LIBELLE_GENRE;
-
     /**
      * @var string|null
      */
@@ -156,26 +86,13 @@ final class DossierDateCommissionEchuDto extends AbstractDossierResultDto
      * Construit un DossierDateCommissionEchuDto depuis une ligne SQL brute.
      *
      * @param array<string, mixed> $row
+     *
+     * @return self
      */
-    public static function fromArray(array $row): self
+    public static function fromArray(array $row)
     {
-        $dto = new self();
-        $dto->fillCommonFields($row);
-        // Champs de DossierDashboardDto
-        $dto->NB_PJ = SqlTypeHelper::toInt($row['NB_PJ'] ?? null);
-        $dto->NB_DOSS_LIES = SqlTypeHelper::toInt($row['NB_DOSS_LIES'] ?? null);
-        $dto->NB_URBA = SqlTypeHelper::toStr($row['NB_URBA'] ?? null);
-        $dto->ALERTE_RECEPTION_TRAVAUX = SqlTypeHelper::toInt($row['ALERTE_RECEPTION_TRAVAUX'] ?? null);
-        $dto->ECHEANCIER_TRAVAUX = SqlTypeHelper::toInt($row['ECHEANCIER_TRAVAUX'] ?? null);
-        $dto->ID_DOSSIER1 = SqlTypeHelper::toInt($row['ID_DOSSIER1'] ?? null);
-        $dto->ID_DOSSIER2 = SqlTypeHelper::toInt($row['ID_DOSSIER2'] ?? null);
-        $dto->NUM_DOCURBA = SqlTypeHelper::toStr($row['NUM_DOCURBA'] ?? null);
-        $dto->LIBELLE_AVIS = SqlTypeHelper::toStr($row['LIBELLE_AVIS'] ?? null);
-        $dto->ID_UTILISATEUR = SqlTypeHelper::toInt($row['ID_UTILISATEUR'] ?? null);
-        $dto->ID_ETABLISSEMENT = SqlTypeHelper::toInt($row['ID_ETABLISSEMENT'] ?? null);
-        $dto->ID_TYPE = SqlTypeHelper::toInt($row['ID_TYPE'] ?? null);
-        $dto->LIBELLE_TYPE = SqlTypeHelper::toStr($row['LIBELLE_TYPE'] ?? null);
-        $dto->LIBELLE_GENRE = SqlTypeHelper::toStr($row['LIBELLE_GENRE'] ?? null);
+        /** @var self $dto */
+        $dto = parent::fromArray($row);
         // Champs spécifiques commission/affectation
         $dto->HEURE_DEB_AFFECT = SqlTypeHelper::toStr($row['HEURE_DEB_AFFECT'] ?? null);
         $dto->HEURE_FIN_AFFECT = SqlTypeHelper::toStr($row['HEURE_FIN_AFFECT'] ?? null);
