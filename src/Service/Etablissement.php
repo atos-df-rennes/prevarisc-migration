@@ -609,178 +609,8 @@ final class Etablissement
             $informations->setEffectifEmplacementNu(null);
             $informations->setEffectifDivers(null);
 
-            // --- Switch genre ---
-            switch ($idGenre) {
-                // ERP
-                case GenreEtablissement::ERP:
-                    $rawCategorieId = self::toString($data['ID_CATEGORIE'] ?? '');
-                    if ('' !== $rawCategorieId) {
-                        /** @var EtablissementCategorie $cat */
-                        $cat = $em->getReference(EtablissementCategorie::class, self::toInt($rawCategorieId));
-                        $informations->setCategorie($cat);
-                    }
-
-                    $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
-                    if ('' !== $rawTypeId) {
-                        /** @var EtablissementType $typeEnt */
-                        $typeEnt = $em->getReference(EtablissementType::class, self::toInt($rawTypeId));
-                        $informations->setType($typeEnt);
-                    }
-
-                    $rawActiviteId = self::toString($data['ID_TYPEACTIVITE'] ?? '');
-                    if ('' !== $rawActiviteId) {
-                        /** @var EtablissementActivite $activite */
-                        $activite = $em->getReference(EtablissementActivite::class, self::toInt($rawActiviteId));
-                        $informations->setTypeActivite($activite);
-                    }
-
-                    $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
-                    $informations->setDroitPublic(!empty($data['DROITPUBLIC_ETABLISSEMENTINFORMATIONS']));
-                    $localSommeil = !empty($data['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']);
-                    $informations->setLocalSommeil($localSommeil);
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    if ($localSommeil) {
-                        $informations->setEffectifHeberge(self::toInt($data['EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    }
-
-                    // Effectif justifiant classement uniquement pour 5ème catégorie
-                    if ('' !== $rawCategorieId && CategorieEtablissement::CINQUIEME === self::toInt($rawCategorieId)) {
-                        $informations->setEffectifJustifiantClassement(
-                            self::toInt($data['EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS'] ?? 0)
-                        );
-                    }
-
-                    $rawCommissionId = self::toString($data['ID_COMMISSION'] ?? '');
-                    if ('' !== $rawCommissionId) {
-                        /** @var Commission $commission */
-                        $commission = $em->getReference(Commission::class, self::toInt($rawCommissionId));
-                        $informations->setCommission($commission);
-                    }
-
-                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
-                    if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
-                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
-                        if ($duree instanceof \DateTime) {
-                            $etablissement->setDureeVisite($duree);
-                        }
-                    }
-
-                    break;
-
-                    // Cellule
-                case GenreEtablissement::CELLULE:
-                    $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
-                    if ('' !== $rawTypeId) {
-                        /** @var EtablissementType $typeEnt */
-                        $typeEnt = $em->getReference(EtablissementType::class, self::toInt($rawTypeId));
-                        $informations->setType($typeEnt);
-                    }
-
-                    $rawActiviteId = self::toString($data['ID_TYPEACTIVITE'] ?? '');
-                    if ('' !== $rawActiviteId) {
-                        /** @var EtablissementActivite $activite */
-                        $activite = $em->getReference(EtablissementActivite::class, self::toInt($rawActiviteId));
-                        $informations->setTypeActivite($activite);
-                    }
-
-                    $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
-                    if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
-                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
-                        if ($duree instanceof \DateTime) {
-                            $etablissement->setDureeVisite($duree);
-                        }
-                    }
-
-                    break;
-                case GenreEtablissement::HABITATION:
-                    $rawFamilleId = self::toString($data['ID_FAMILLE'] ?? '');
-                    if ('' !== $rawFamilleId) {
-                        /** @var Famille $famille */
-                        $famille = $em->getReference(Famille::class, self::toInt($rawFamilleId));
-                        $informations->setFamille($famille);
-                    }
-
-                    break;
-
-                    // IGH
-                case GenreEtablissement::IGH:
-                    $rawClasseId = self::toString($data['ID_CLASSE'] ?? '');
-                    if ('' !== $rawClasseId) {
-                        /** @var IghClasse $classe */
-                        $classe = $em->getReference(IghClasse::class, self::toInt($rawClasseId));
-                        $informations->setClasse($classe);
-                    }
-
-                    $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $rawCommissionId = self::toString($data['ID_COMMISSION'] ?? '');
-                    if ('' !== $rawCommissionId) {
-                        /** @var Commission $commission */
-                        $commission = $em->getReference(Commission::class, self::toInt($rawCommissionId));
-                        $informations->setCommission($commission);
-                    }
-
-                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
-                    if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
-                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
-                        if ($duree instanceof \DateTime) {
-                            $etablissement->setDureeVisite($duree);
-                        }
-                    }
-
-                    break;
-
-                    // BUP
-                case GenreEtablissement::BUP:
-                    $informations->setIcpe(!empty($data['ICPE_ETABLISSEMENTINFORMATIONS']));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    break;
-
-                    // Camping
-                case GenreEtablissement::CAMPING:
-                    $informations->setEffectifCaravane(self::toInt($data['EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifHabitation(self::toInt($data['EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifEmplacementNu(self::toInt($data['EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifDivers(self::toInt($data['EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    break;
-
-                    // Manifestation temporaire — fall-through vers IOP
-                case GenreEtablissement::MANIFESTATION_TEMPORAIRE:
-                    // IOP
-                case GenreEtablissement::IOP:
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    break;
-
-                    // Zone
-                case GenreEtablissement::ZONE:
-                    $rawClassementId = self::toString($data['ID_CLASSEMENT'] ?? '');
-                    if ('' !== $rawClassementId) {
-                        /** @var Classement $classement */
-                        $classement = $em->getReference(Classement::class, self::toInt($rawClassementId));
-                        $informations->setClassement($classement);
-                    }
-
-                    break;
-
-                    // Site (case 1) et autres genres : aucun champ spécifique
-                default:
-                    break;
-            }
+            // --- Hydratation genre-spécifique ---
+            $this->hydrateInformations($informations, $etablissement, $idGenre, $data, $em);
 
             $em->persist($informations);
 
@@ -946,170 +776,10 @@ final class Etablissement
             $informations->setFamille(null);
             $informations->setClasse(null);
             $informations->setClassement(null);
+            $informations->setPeriodicite(0);
 
-            // --- Switch genre (identique à save) ---
-            switch ($idGenre) {
-                case GenreEtablissement::ERP:
-                    $rawCategorieId = self::toString($data['ID_CATEGORIE'] ?? '');
-                    if ('' !== $rawCategorieId) {
-                        /** @var EtablissementCategorie $cat */
-                        $cat = $em->getReference(EtablissementCategorie::class, self::toInt($rawCategorieId));
-                        $informations->setCategorie($cat);
-                    }
-
-                    $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
-                    if ('' !== $rawTypeId) {
-                        /** @var EtablissementType $typeEnt */
-                        $typeEnt = $em->getReference(EtablissementType::class, self::toInt($rawTypeId));
-                        $informations->setType($typeEnt);
-                    }
-
-                    $rawActiviteId = self::toString($data['ID_TYPEACTIVITE'] ?? '');
-                    if ('' !== $rawActiviteId) {
-                        /** @var EtablissementActivite $activite */
-                        $activite = $em->getReference(EtablissementActivite::class, self::toInt($rawActiviteId));
-                        $informations->setTypeActivite($activite);
-                    }
-
-                    $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
-                    $informations->setDroitPublic(!empty($data['DROITPUBLIC_ETABLISSEMENTINFORMATIONS']));
-                    $localSommeil = !empty($data['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']);
-                    $informations->setLocalSommeil($localSommeil);
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    if ($localSommeil) {
-                        $informations->setEffectifHeberge(self::toInt($data['EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    }
-
-                    if ('' !== $rawCategorieId && CategorieEtablissement::CINQUIEME === self::toInt($rawCategorieId)) {
-                        $informations->setEffectifJustifiantClassement(
-                            self::toInt($data['EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS'] ?? 0)
-                        );
-                    }
-
-                    $rawCommissionId = self::toString($data['ID_COMMISSION'] ?? '');
-                    if ('' !== $rawCommissionId) {
-                        /** @var Commission $commission */
-                        $commission = $em->getReference(Commission::class, self::toInt($rawCommissionId));
-                        $informations->setCommission($commission);
-                    }
-
-                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
-                    if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
-                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
-                        if ($duree instanceof \DateTime) {
-                            $etablissement->setDureeVisite($duree);
-                        }
-                    }
-
-                    break;
-
-                case GenreEtablissement::CELLULE:
-                    $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
-                    if ('' !== $rawTypeId) {
-                        /** @var EtablissementType $typeEnt */
-                        $typeEnt = $em->getReference(EtablissementType::class, self::toInt($rawTypeId));
-                        $informations->setType($typeEnt);
-                    }
-
-                    $rawActiviteId = self::toString($data['ID_TYPEACTIVITE'] ?? '');
-                    if ('' !== $rawActiviteId) {
-                        /** @var EtablissementActivite $activite */
-                        $activite = $em->getReference(EtablissementActivite::class, self::toInt($rawActiviteId));
-                        $informations->setTypeActivite($activite);
-                    }
-
-                    $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
-                    if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
-                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
-                        if ($duree instanceof \DateTime) {
-                            $etablissement->setDureeVisite($duree);
-                        }
-                    }
-
-                    break;
-
-                case GenreEtablissement::HABITATION:
-                    $rawFamilleId = self::toString($data['ID_FAMILLE'] ?? '');
-                    if ('' !== $rawFamilleId) {
-                        /** @var Famille $famille */
-                        $famille = $em->getReference(Famille::class, self::toInt($rawFamilleId));
-                        $informations->setFamille($famille);
-                    }
-
-                    break;
-
-                case GenreEtablissement::IGH:
-                    $rawClasseId = self::toString($data['ID_CLASSE'] ?? '');
-                    if ('' !== $rawClasseId) {
-                        /** @var IghClasse $classe */
-                        $classe = $em->getReference(IghClasse::class, self::toInt($rawClasseId));
-                        $informations->setClasse($classe);
-                    }
-
-                    $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $rawCommissionId = self::toString($data['ID_COMMISSION'] ?? '');
-                    if ('' !== $rawCommissionId) {
-                        /** @var Commission $commission */
-                        $commission = $em->getReference(Commission::class, self::toInt($rawCommissionId));
-                        $informations->setCommission($commission);
-                    }
-
-                    $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
-                    if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
-                        $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
-                        $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
-                        if ($duree instanceof \DateTime) {
-                            $etablissement->setDureeVisite($duree);
-                        }
-                    }
-
-                    break;
-
-                case GenreEtablissement::BUP:
-                    $informations->setIcpe(!empty($data['ICPE_ETABLISSEMENTINFORMATIONS']));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    break;
-
-                case GenreEtablissement::CAMPING:
-                    $informations->setEffectifCaravane(self::toInt($data['EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifHabitation(self::toInt($data['EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifEmplacementNu(self::toInt($data['EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifDivers(self::toInt($data['EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    break;
-
-                case GenreEtablissement::MANIFESTATION_TEMPORAIRE:
-                case GenreEtablissement::IOP:
-                    $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
-                    $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
-
-                    break;
-
-                case GenreEtablissement::ZONE:
-                    $rawClassementId = self::toString($data['ID_CLASSEMENT'] ?? '');
-                    if ('' !== $rawClassementId) {
-                        /** @var Classement $classement */
-                        $classement = $em->getReference(Classement::class, self::toInt($rawClassementId));
-                        $informations->setClassement($classement);
-                    }
-
-                    break;
-
-                default:
-                    break;
-            }
+            // --- Hydratation genre-spécifique ---
+            $this->hydrateInformations($informations, $etablissement, $idGenre, $data, $em);
 
             $em->persist($informations);
 
@@ -1130,6 +800,189 @@ final class Etablissement
             $connection->rollBack();
             $this->logger->error('Erreur mise à jour établissement', ['error' => $exception->getMessage()]);
             throw $exception;
+        }
+    }
+
+    /**
+     * Hydrate les champs genre-spécifiques d'une fiche d'informations.
+     *
+     * Logique commune à la création (save) et la mise à jour (update) d'un établissement.
+     *
+     * @param EtablissementInformations $informations  La fiche d'informations à hydrater
+     * @param EtablissementEntity       $etablissement L'entité établissement (pour nbPrev / dureeVisite)
+     * @param int                       $idGenre       Identifiant du genre
+     * @param array<string, mixed>      $data          Données du formulaire
+     * @param EntityManagerInterface    $em            EntityManager (pour getReference)
+     */
+    private function hydrateInformations(
+        EtablissementInformations $informations,
+        EtablissementEntity $etablissement,
+        int $idGenre,
+        array $data,
+        EntityManagerInterface $em
+    ): void {
+        switch ($idGenre) {
+            case GenreEtablissement::ERP:
+                $rawCategorieId = self::toString($data['ID_CATEGORIE'] ?? '');
+                if ('' !== $rawCategorieId) {
+                    /** @var EtablissementCategorie $cat */
+                    $cat = $em->getReference(EtablissementCategorie::class, self::toInt($rawCategorieId));
+                    $informations->setCategorie($cat);
+                }
+
+                $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
+
+                $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
+                if ('' !== $rawTypeId) {
+                    /** @var EtablissementType $typeEnt */
+                    $typeEnt = $em->getReference(EtablissementType::class, self::toInt($rawTypeId));
+                    $informations->setType($typeEnt);
+                }
+
+                $rawActiviteId = self::toString($data['ID_TYPEACTIVITE'] ?? '');
+                if ('' !== $rawActiviteId) {
+                    /** @var EtablissementActivite $activite */
+                    $activite = $em->getReference(EtablissementActivite::class, self::toInt($rawActiviteId));
+                    $informations->setTypeActivite($activite);
+                }
+
+                $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
+                $informations->setDroitPublic(!empty($data['DROITPUBLIC_ETABLISSEMENTINFORMATIONS']));
+                $localSommeil = !empty($data['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS']);
+                $informations->setLocalSommeil($localSommeil);
+                $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                if ($localSommeil) {
+                    $informations->setEffectifHeberge(self::toInt($data['EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                }
+
+                // Effectif justifiant classement uniquement pour 5ème catégorie
+                if ('' !== $rawCategorieId && CategorieEtablissement::CINQUIEME === self::toInt($rawCategorieId)) {
+                    $informations->setEffectifJustifiantClassement(
+                        self::toInt($data['EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS'] ?? 0)
+                    );
+                }
+
+                $rawCommissionId = self::toString($data['ID_COMMISSION'] ?? '');
+                if ('' !== $rawCommissionId) {
+                    /** @var Commission $commission */
+                    $commission = $em->getReference(Commission::class, self::toInt($rawCommissionId));
+                    $informations->setCommission($commission);
+                }
+
+                $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
+                if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
+                    $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
+                    $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
+                    if ($duree instanceof \DateTime) {
+                        $etablissement->setDureeVisite($duree);
+                    }
+                }
+
+                break;
+
+            case GenreEtablissement::CELLULE:
+                $rawTypeId = self::toString($data['ID_TYPE'] ?? '');
+                if ('' !== $rawTypeId) {
+                    /** @var EtablissementType $typeEnt */
+                    $typeEnt = $em->getReference(EtablissementType::class, self::toInt($rawTypeId));
+                    $informations->setType($typeEnt);
+                }
+
+                $rawActiviteId = self::toString($data['ID_TYPEACTIVITE'] ?? '');
+                if ('' !== $rawActiviteId) {
+                    /** @var EtablissementActivite $activite */
+                    $activite = $em->getReference(EtablissementActivite::class, self::toInt($rawActiviteId));
+                    $informations->setTypeActivite($activite);
+                }
+
+                $informations->setR14320(!empty($data['R14320_ETABLISSEMENTINFORMATIONS']));
+                $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
+                if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
+                    $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
+                    $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
+                    if ($duree instanceof \DateTime) {
+                        $etablissement->setDureeVisite($duree);
+                    }
+                }
+
+                break;
+
+            case GenreEtablissement::HABITATION:
+                $rawFamilleId = self::toString($data['ID_FAMILLE'] ?? '');
+                if ('' !== $rawFamilleId) {
+                    /** @var Famille $famille */
+                    $famille = $em->getReference(Famille::class, self::toInt($rawFamilleId));
+                    $informations->setFamille($famille);
+                }
+
+                break;
+
+            case GenreEtablissement::IGH:
+                $rawClasseId = self::toString($data['ID_CLASSE'] ?? '');
+                if ('' !== $rawClasseId) {
+                    /** @var IghClasse $classe */
+                    $classe = $em->getReference(IghClasse::class, self::toInt($rawClasseId));
+                    $informations->setClasse($classe);
+                }
+
+                $informations->setPeriodicite(self::toInt($data['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? 0));
+
+                $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $rawCommissionId = self::toString($data['ID_COMMISSION'] ?? '');
+                if ('' !== $rawCommissionId) {
+                    /** @var Commission $commission */
+                    $commission = $em->getReference(Commission::class, self::toInt($rawCommissionId));
+                    $informations->setCommission($commission);
+                }
+
+                $etablissement->setNbPrev(self::toInt($data['NBPREV_ETABLISSEMENT'] ?? 0));
+                if (!empty($data['DUREEVISITE_ETABLISSEMENT'])) {
+                    $raw = self::toString($data['DUREEVISITE_ETABLISSEMENT']);
+                    $duree = \DateTime::createFromFormat('H:i', $raw) ?: \DateTime::createFromFormat('G:i', $raw);
+                    if ($duree instanceof \DateTime) {
+                        $etablissement->setDureeVisite($duree);
+                    }
+                }
+
+                break;
+
+            case GenreEtablissement::BUP:
+                $informations->setIcpe(!empty($data['ICPE_ETABLISSEMENTINFORMATIONS']));
+                $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
+
+                break;
+
+            case GenreEtablissement::CAMPING:
+                $informations->setEffectifCaravane(self::toInt($data['EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifHabitation(self::toInt($data['EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifEmplacementNu(self::toInt($data['EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifDivers(self::toInt($data['EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS'] ?? 0));
+
+                break;
+
+            case GenreEtablissement::MANIFESTATION_TEMPORAIRE:
+            case GenreEtablissement::IOP:
+                $informations->setEffectifPublic(self::toInt($data['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? 0));
+                $informations->setEffectifPersonnel(self::toInt($data['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? 0));
+
+                break;
+
+            case GenreEtablissement::ZONE:
+                $rawClassementId = self::toString($data['ID_CLASSEMENT'] ?? '');
+                if ('' !== $rawClassementId) {
+                    /** @var Classement $classement */
+                    $classement = $em->getReference(Classement::class, self::toInt($rawClassementId));
+                    $informations->setClassement($classement);
+                }
+
+                break;
+
+            default:
+                break;
         }
     }
 
