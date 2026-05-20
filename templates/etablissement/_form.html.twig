@@ -23,12 +23,14 @@
 #}
 <form id="etablissement"
       class="{{ add ? 'add' : 'edit' }}"
-      action="{{ add ? path('etablissement_ajouter') : '#' }}{# TODO(F13): remplacer '#' par path('etablissement_edit', {id: etablissement.id}) quand la route sera migrée #}"
+      action="{{ add ? path('etablissement_ajouter') : path('etablissement_modifier', {id: etablissement.id}) }}"
       method="post">
 
-    {# F4 : jeton CSRF (mode ajout uniquement) #}
+    {# F4 : jeton CSRF #}
     {% if add %}
         <input type="hidden" name="_token" value="{{ csrf_token('add_etablissement') }}">
+    {% else %}
+        <input type="hidden" name="_token" value="{{ csrf_token('edit_etablissement') }}">
     {% endif %}
 
     {# ——— Boutons haut de page ——— #}

@@ -582,6 +582,16 @@ class EtablissementInformations
     }
 
     /**
+     * Supprime tous les préventionnistes de la fiche (actifs et inactifs).
+     */
+    public function clearPreventionnistes(): self
+    {
+        $this->preventionnistes->clear();
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, EtablissementInformationsPlan>
      */
     public function getPlans(): Collection
