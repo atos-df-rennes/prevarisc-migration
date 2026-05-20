@@ -59,8 +59,9 @@ commission_generation_documents:
     - prevarisc-migration/src/Constant/AvisCommission.php
     - prevarisc-migration/public/js/gestionodj.js
     - prevarisc-migration/templates/calendrier_des_commissions/gestionodj.html.twig
-  updated_at: "2026-05-30"
+  updated_at: "2026-05-20"
   notes: >
+    PHPStan niveau 10 : 0 erreur (CommissionDocumentGenerationService, CommissionMembreEligibilityChecker).
     Migration complète des 4 actions de génération de documents ODT de commission
     (convocation, ordre du jour, procès-verbal, compte-rendu).
     Architecture : service dédié CommissionDocumentGenerationService (DBAL reads, Doctrine writes),
@@ -287,6 +288,7 @@ dossier_rapport_generation:
     - listeDocs : seuls les documents consultés sont affichés (avec coche)
     - adresse maire : colonnes NUMEROADRESSE/RUEADRESSE/CPADRESSE/VILLEADRESSE
     - prescriptions : champs num/libelle/textearticle (articles concaténés), mergeSegment correct
+    - PHPStan niveau 10 : 0 erreur (DossierRapportOdtService, PrescriptionArrayHelper)
 
     Écarts intentionnels résiduels :
     - prochaineVisite : option use_date_commission_for_periodicity (config legacy) non portée — utilise DATEVISITE uniquement
