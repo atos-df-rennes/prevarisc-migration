@@ -123,8 +123,9 @@ describe('Génération documents de commission — structure réponse', () => {
         // Le toast doit apparaître (succès ou erreur selon les données en base)
         cy.get('#createConvoc').click();
 
-        // Vérifie qu'un toast apparaît dans les 10 secondes
-        cy.get('.jq-toast-wrap', { timeout: 10000 }).should('exist');
-        cy.get('.jq-toast-single').should('exist');
+        // Vérifie qu'une notification toast apparaît dans les 10 secondes
+        // La classe toast-notification est ajoutée par toast-notifications.js
+        cy.get('.toast-notification', { timeout: 10000 }).should('exist');
+        cy.get('.alert', { timeout: 10000 }).should('exist');
     });
 });

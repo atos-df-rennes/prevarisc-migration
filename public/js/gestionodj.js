@@ -226,25 +226,11 @@ $(document).ready(function() {
     // Génération de documents de commission (Symfony)
     function generateDocument(url, csrfToken, documentLabel) {
         if ($("#external-events").children("div").children("div").length !== 0) {
-            $.toast({
-                heading: 'Attention',
-                text: "Certains dossiers prévus n'ont pas été placés dans le calendrier.",
-                icon: 'warning',
-                position: 'top-right',
-                hideAfter: 5000
-            });
+            $.toast.warning("Certains dossiers prévus n'ont pas été placés dans le calendrier.");
             return;
         }
 
-        $.toast({
-            heading: 'Génération en cours',
-            text: 'Création ' + documentLabel + ', veuillez patienter…',
-            icon: 'info',
-            position: 'top-right',
-            hideAfter: false,
-            loader: true,
-            loaderBg: '#3b8bba'
-        });
+        $.toast.info('Création ' + documentLabel + ', veuillez patienter…');
 
         $.ajax({
             url: url,
@@ -252,33 +238,23 @@ $(document).ready(function() {
             type: "POST",
             dataType: "json",
             success: function(response) {
-                $('.jq-toast-wrap').remove();
-
                 if (response.success) {
-                    $.toast({
-                        heading: 'Succès',
-                        text: response.summary,
-                        icon: 'success',
-                        position: 'top-right',
-                        hideAfter: 5000
-                    });
+                    $.toast.success(response.summary);
                 } else {
                     var details = [];
                     if (response.results) {
                         for (var i = 0; i < response.results.length; i++) {
                             var r = response.results[i];
                             if (r.status === 'error') {
-                                details.push(r.message);
+                                details.push(r.memberLabel + ' : ' + r.message);
                             }
                         }
                     }
-                    $.toast({
-                        heading: response.summary || 'Erreurs lors de la génération',
-                        text: details.length > 0 ? details.join('<br>') : '',
-                        icon: 'warning',
-                        position: 'top-right',
-                        hideAfter: 8000
-                    });
+                    var message = response.summary;
+                    if (details.length > 0) {
+                        message += '\n' + details.join('\n');
+                    }
+                    $.toast.warning(message);
                 }
 
                 // Rafraîchir l'onglet pièces jointes si la modale est ouverte
@@ -287,18 +263,11 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                $('.jq-toast-wrap').remove();
                 var msg = "Une erreur s'est produite lors de la génération.";
                 if (xhr.responseJSON && xhr.responseJSON.summary) {
                     msg = xhr.responseJSON.summary;
                 }
-                $.toast({
-                    heading: 'Erreur',
-                    text: msg,
-                    icon: 'error',
-                    position: 'top-right',
-                    hideAfter: 5000
-                });
+                $.toast.error(msg);
             }
         });
     }
