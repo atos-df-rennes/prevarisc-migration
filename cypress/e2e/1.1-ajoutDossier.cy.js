@@ -5,18 +5,26 @@ describe('Dossier — ajout', () => {
     });
 
     it('Formulaire valide → dossier créé avec les bonnes valeurs', () => {
-        const date = Date.now()
+        const timestamp = Date.now()
+        const objet = `Dossier Test ${timestamp}`
+        const today = new Date().toISOString().split('T')[0]
 
         cy.visit('/dossier/ajouter')
         // Symfony form fields: id pattern is dossier_{fieldName}
-        cy.get('#dossier_type').select('1');
-        cy.get('#dossier_nature').select('1');
-        cy.get('#dossier_objet').type(`Dossier Test ${date}`);
-        cy.contains('button', 'Créer le dossier').click();
+        cy.get('#dossier_type').select('1')
+        cy.get('#dossier_nature').select('1')
+        // Utiliser .type() (pas .invoke('val')) pour déclencher les événements browser
+        cy.get('#dossier_dateInsert').type(today)
+        cy.get('#dossier_objet').type(objet)
 
-        // Fiche dossier: values are in .right.value divs, no IDs
+        cy.contains('button', 'Créer le dossier').click()
+
+        // Vérifier la redirection vers la fiche du dossier (URL pattern: /dossier/{id})
+        cy.url({ timeout: 10000 }).should('match', /\/dossier\/\d+/)
+
+        // Fiche dossier: les valeurs sont affichées dans des .right.value
         cy.contains('Étude').should('exist')
         cy.contains('Permis de construire (PC)').should('exist')
-        cy.contains(`Dossier Test ${date}`).should('exist')
+        cy.contains(objet).should('exist')
     });
 });

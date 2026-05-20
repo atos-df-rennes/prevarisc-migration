@@ -5,20 +5,28 @@ describe('Dossier — modification', () => {
     })
 
     it('Libellé modifié → fiche dossier affiche la nouvelle valeur', () => {
-        // Navigate directly to avoid brittle href-based selectors on legacy nav links
         cy.visit('/rechercher/dossier')
-        cy.get('input[name="objet"]').type('Dossier Test');
+        cy.get('input[name="objet"]').type('Dossier Test')
         // Two submit buttons exist (header + page) — target the page submit specifically
-        cy.get('input[type="submit"][name="Rechercher"]').click();
-        cy.contains('Dossier Test').should('exist');
-        cy.contains('Dossier Test').click();
-        cy.contains('Modifier le dossier').click();
+        cy.get('input[type="submit"][name="Rechercher"]').click()
 
-        const newObjet = `Dossier Test ${Date.now()}`;
-        cy.get('[name="OBJET_DOSSIER"]').clear();
-        cy.get('[name="OBJET_DOSSIER"]').type(newObjet);
-        cy.get('input[type="submit"][value="Sauvegarder"]').click();
+        // Les résultats dossier sont affichés dans un <table> (contrairement aux établissements
+        // qui utilisent ul.recherche_liste). Chaque ligne contient un lien href="/dossier/{id}"
+        // dans la colonne td.doss-nom. On sélectionne le premier résultat.
+        cy.get('table.table td.doss-nom a[href*="/dossier/"]', { timeout: 10000 }).first().click()
 
-        cy.get('#OBJET').find('.right.value').should('contain', newObjet)
+        cy.contains('Modifier le dossier').click()
+        cy.url().should('include', '/modifier')
+
+        const newObjet = `Dossier Test Modifié ${Date.now()}`
+        // Le champ objet est une <textarea id="dossier_objet"> (TextareaType Symfony)
+        cy.get('#dossier_objet').clear()
+        cy.get('#dossier_objet').type(newObjet)
+        cy.contains('button', 'Sauvegarder').click()
+
+        // Vérifier la redirection vers la fiche et la valeur modifiée
+        cy.url({ timeout: 10000 }).should('match', /\/dossier\/\d+/)
+        cy.contains(newObjet).should('exist')
     });
 });
+
