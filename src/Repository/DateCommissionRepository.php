@@ -430,4 +430,34 @@ class DateCommissionRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+    /**
+     * Retourne tous les dossiers affectés à une dateCommission pour la génération de documents.
+     *
+     * Port direct des queries getDossiersInfosByHour / getDossiersInfosByOrder du legacy.
+     * Contrairement à findDossierAffectForCommission, ne filtre pas sur la présence d'heure :
+     * retourne tous les dossiers affectés, triés selon le mode de gestion des heures.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function findDossiersForGeneration(int $dateCommId, int $gestionHeures): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $orderBy = 1 === $gestionHeures ? 'dossAffect.HEURE_DEB_AFFECT' : 'dossAffect.ORDRE_AFFECTATION';
+
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT,
+                       dossAffect.HEURE_FIN_AFFECT, dossAffect.ORDRE_AFFECTATION,
+                       dossNatListe.LIBELLE_DOSSIERNATURE
+                FROM dossieraffectation dossAffect
+                JOIN dossier doss ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
+                LEFT JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
+                LEFT JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
+                WHERE dossAffect.ID_DATECOMMISSION_AFFECT = :dateCommId
+                ORDER BY '.$orderBy;
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative($sql, ['dateCommId' => $dateCommId]);
+
+        return $rows;
+    }
 }

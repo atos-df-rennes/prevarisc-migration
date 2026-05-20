@@ -3,11 +3,22 @@
 namespace App\Service\Commission;
 
 use App\Constant\AvisCommission;
+use App\Constant\NomInterneCapsule;
+use App\Constant\TypeChamp;
 use App\Constant\TypePrescription;
+use App\Entity\CapsuleRubrique;
+use App\Entity\Champ;
 use App\Entity\DateCommission;
+use App\Entity\Dossier;
+use App\Entity\Etablissement;
 use App\Entity\PieceJointe;
+use App\Entity\Rubrique;
+use App\Entity\Valeur;
+use App\Repository\DateCommissionRepository;
 use App\Service\DataStore\DataStore;
+use App\Service\Descriptif;
 use App\Service\Formulaires\Fusion\ChampNamer;
+use App\Service\Formulaires\ValeurResolver;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
@@ -45,12 +56,20 @@ class CommissionDocumentGenerationService
     /** @var string */
     private $documentsCommissionRealDataPath;
 
+    /** @var Descriptif */
+    private $descriptif;
+
+    /** @var DateCommissionRepository */
+    private $dateCommissionRepo;
+
     public function __construct(
         EntityManagerInterface $em,
         Connection $conn,
         DataStore $dataStore,
         LoggerInterface $logger,
         CommissionMembreEligibilityChecker $eligibilityChecker,
+        Descriptif $descriptif,
+        DateCommissionRepository $dateCommissionRepo,
         string $courriersMembresRealDataPath,
         string $documentsCommissionRealDataPath
     ) {
@@ -59,6 +78,8 @@ class CommissionDocumentGenerationService
         $this->dataStore = $dataStore;
         $this->logger = $logger;
         $this->eligibilityChecker = $eligibilityChecker;
+        $this->descriptif = $descriptif;
+        $this->dateCommissionRepo = $dateCommissionRepo;
         $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
         $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
     }
@@ -80,15 +101,15 @@ class CommissionDocumentGenerationService
         }
 
         $typeCommission = (int) ($commissionInfo['ID_COMMISSIONTYPEEVENEMENT'] ?? 0);
-        $listeDossiers = $this->loadDossiers($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
         $listeMembres = $this->loadMembresWithCompetences((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
         $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
         $listeCommunes = $this->buildListeCommunes($listeDossiers);
 
-        $dateComm = isset($listeDossiers[0]) ? (string) ($listeDossiers[0]['DATE_COMMISSION'] ?? '') : '';
-        $heureDeb = isset($listeDossiers[0]) ? (string) ($listeDossiers[0]['HEUREDEB_COMMISSION'] ?? '') : '';
+        $dateComm = (string) ($commissionInfo['DATE_COMMISSION'] ?? '');
+        $heureDeb = (string) ($commissionInfo['HEUREDEB_COMMISSION'] ?? '');
 
         foreach ($listeMembres as $membre) {
             /** @var array<string, mixed> $membreFile */
@@ -222,15 +243,15 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $listeDossiers = $this->loadDossiers($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
         $listeMembres = $this->loadMembresWithCompetences((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
         $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
         $listeCommunes = $this->buildListeCommunes($listeDossiers);
 
-        $dateComm = isset($listeDossiers[0]) ? (string) ($listeDossiers[0]['DATE_COMMISSION'] ?? '') : '';
-        $heureDeb = isset($listeDossiers[0]) ? (string) ($listeDossiers[0]['HEUREDEB_COMMISSION'] ?? '') : '';
+        $dateComm = (string) ($commissionInfo['DATE_COMMISSION'] ?? '');
+        $heureDeb = (string) ($commissionInfo['HEUREDEB_COMMISSION'] ?? '');
 
         foreach ($listeMembres as $membre) {
             /** @var array<string, mixed> $membreFile */
@@ -314,7 +335,7 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $listeDossiers = $this->loadDossiers($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
         $listeDossiers = $this->enrichDossiers($listeDossiers, true);
 
         $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
@@ -402,7 +423,7 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $listeDossiers = $this->loadDossiers($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) ($commissionInfo['GESTION_HEURES'] ?? 0));
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
         $commissionInfos = $this->getCommissionInfo((int) ($commissionInfo['COMMISSION_CONCERNE'] ?? 0));
@@ -503,27 +524,6 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * Charge les dossiers affectés à une dateCommission.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function loadDossiers(int $dateCommId, int $gestionHeures): array
-    {
-        $orderBy = 1 === $gestionHeures ? 'da.HEURE_DEB' : 'da.ORDRE_AFFECTATION';
-
-        return $this->conn->fetchAllAssociative(
-            'SELECT da.*, d.*, dnl.LIBELLE_DOSSIERNATURE
-             FROM dossieraffectation da
-             JOIN dossier d ON da.ID_DOSSIER = d.ID_DOSSIER
-             LEFT JOIN dossiernature dn ON d.ID_DOSSIER = dn.ID_DOSSIER
-             LEFT JOIN dossiernatureliste dnl ON dn.ID_DOSSIERNATURE = dnl.ID_DOSSIERNATURE
-             WHERE da.ID_DATECOMMISSION_AFFECT = :dateCommId
-             ORDER BY '.$orderBy,
-            ['dateCommId' => $dateCommId]
-        );
-    }
-
-    /**
      * Enrichit les dossiers avec établissement, avis dérogations, prescriptions, formulaires.
      *
      * @param array<int, array<string, mixed>> $listeDossiers
@@ -572,11 +572,36 @@ class CommissionDocumentGenerationService
                 $listeDossiers[$val] = $this->enrichWithPrescriptions($listeDossiers[$val], $dossierId);
             }
 
-            // Formulaires personnalisés
-            $listeDossiers[$val]['FORMULAIRES'] = $this->getFormulaires($dossierId, $etabId);
+            // Formulaires personnalisés via Descriptif service
+            $dossierEntity = $this->em->find(Dossier::class, $dossierId);
+            $etabEntity = $this->em->find(Etablissement::class, $etabId);
+            if (null !== $dossierEntity && null !== $etabEntity) {
+                $listeDossiers[$val]['FORMULAIRES'] = $this->loadFormulaires($dossierEntity, $etabEntity);
+            } else {
+                $listeDossiers[$val]['FORMULAIRES'] = [];
+            }
         }
 
         return array_values($listeDossiers);
+    }
+
+    /**
+     * Charge les formulaires personnalisés via le service Descriptif.
+     *
+     * Remplace les 4 méthodes DBAL (getFormulaires, getRubriquesForCapsule,
+     * getChampsForRubrique, getChampsFils) en réutilisant le service partagé
+     * avec DossierRapportOdtService.
+     *
+     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<array<string, mixed>>}>
+     */
+    private function loadFormulaires(Dossier $dossier, Etablissement $etablissement): array
+    {
+        return [
+            NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES => $this->descriptif->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES),
+            NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT => $this->descriptif->getForEtablissement($etablissement, NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT),
+            NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER => $this->descriptif->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER),
+            NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT => $this->descriptif->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT),
+        ];
     }
 
     /**
@@ -799,155 +824,6 @@ class CommissionDocumentGenerationService
         }
 
         return array_values($result);
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getFormulaires(int $dossierId, int $etabId): array
-    {
-        // Récupère les capsules rubriques et leurs champs
-        $capsules = $this->conn->fetchAllAssociative(
-            'SELECT * FROM capsulerubrique ORDER BY ID_CAPSULERUBRIQUE'
-        );
-
-        foreach ($capsules as $idx => $capsule) {
-            $nomInterne = $capsule['NOM_INTERNE'] ?? '';
-            $capsules[$idx]['RUBRIQUES'] = $this->getRubriquesForCapsule($nomInterne, $dossierId, $etabId);
-        }
-
-        return $capsules;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>|string
-     */
-    private function getRubriquesForCapsule(string $nomInterne, int $dossierId, int $etabId)
-    {
-        // Déterminer l'objet lié selon le nomInterne
-        switch ($nomInterne) {
-            case 'descriptifVerificationsTechniques':
-            case 'effectifsDegagementsDossier':
-                $objectId = $dossierId;
-                $objectType = 'Dossier';
-
-                break;
-            case 'descriptifEtablissement':
-            case 'effectifsDegagementsEtablissement':
-                $objectId = $etabId;
-                $objectType = 'Etablissement';
-
-                break;
-            default:
-                return '';
-        }
-
-        $rubriques = $this->conn->fetchAllAssociative(
-            'SELECT r.* FROM rubrique r
-             JOIN capsulerubrique cr ON r.ID_CAPSULERUBRIQUE = cr.ID_CAPSULERUBRIQUE
-             WHERE cr.NOM_INTERNE = :nomInterne
-             ORDER BY r.ID_RUBRIQUE',
-            ['nomInterne' => $nomInterne]
-        );
-
-        foreach ($rubriques as $rIdx => $rubrique) {
-            $rubriques[$rIdx]['CHAMPS'] = $this->getChampsForRubrique(
-                (int) $rubrique['ID_RUBRIQUE'],
-                $objectId,
-                $objectType
-            );
-        }
-
-        return $rubriques;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getChampsForRubrique(int $rubriqueId, int $objectId, string $objectType): array
-    {
-        $champs = $this->conn->fetchAllAssociative(
-            'SELECT c.*, tc.LIBELLE as TYPE
-             FROM champ c
-             JOIN typechamp tc ON c.ID_TYPECHAMP = tc.ID_TYPECHAMP
-             WHERE c.ID_RUBRIQUE = :rubriqueId AND c.ID_PARENT IS NULL
-             ORDER BY c.ORDRE',
-            ['rubriqueId' => $rubriqueId]
-        );
-
-        foreach ($champs as $cIdx => $champ) {
-            $champId = (int) $champ['ID_CHAMP'];
-
-            // Récupérer la valeur
-            /** @var array<string, mixed>|false $valeur */
-            $valeur = $this->conn->fetchAssociative(
-                'SELECT v.* FROM valeur v
-                 WHERE v.ID_CHAMP = :champId AND v.ID_OBJET = :objectId AND v.TYPE_OBJET = :objectType',
-                ['champId' => $champId, 'objectId' => $objectId, 'objectType' => $objectType]
-            );
-            $champs[$cIdx]['VALEUR'] = false !== $valeur ? ($valeur['VALEUR'] ?? null) : null;
-            $champs[$cIdx]['tableau'] = (int) ($champ['TABLEAU'] ?? 0);
-
-            if ('Parent' === $champ['TYPE']) {
-                $champs[$cIdx]['FILS'] = $this->getChampsFils($champId, $objectId, $objectType);
-            }
-        }
-
-        return $champs;
-    }
-
-    /**
-     * @return array<int|string, mixed>
-     */
-    private function getChampsFils(int $parentId, int $objectId, string $objectType): array
-    {
-        $fils = $this->conn->fetchAllAssociative(
-            'SELECT c.*, tc.LIBELLE as TYPE
-             FROM champ c
-             JOIN typechamp tc ON c.ID_TYPECHAMP = tc.ID_TYPECHAMP
-             WHERE c.ID_PARENT = :parentId
-             ORDER BY c.ORDRE',
-            ['parentId' => $parentId]
-        );
-
-        $result = [];
-        foreach ($fils as $idx => $f) {
-            /** @var array<string, mixed>|false $valeur */
-            $valeur = $this->conn->fetchAssociative(
-                'SELECT v.* FROM valeur v
-                 WHERE v.ID_CHAMP = :champId AND v.ID_OBJET = :objectId AND v.TYPE_OBJET = :objectType',
-                ['champId' => (int) $f['ID_CHAMP'], 'objectId' => $objectId, 'objectType' => $objectType]
-            );
-            $f['VALEUR'] = false !== $valeur ? ($valeur['VALEUR'] ?? null) : null;
-            $f['idx'] = $f['NOM'] ?? (string) $idx;
-            $result[$idx] = $f;
-        }
-
-        // Récupérer les valeurs tableau si parent est un tableau
-        $valeursTableau = $this->conn->fetchAllAssociative(
-            'SELECT vt.*, c.NOM, tc.LIBELLE as TYPE
-             FROM valeurtableau vt
-             JOIN champ c ON vt.ID_CHAMP = c.ID_CHAMP
-             JOIN typechamp tc ON c.ID_TYPECHAMP = tc.ID_TYPECHAMP
-             WHERE c.ID_PARENT = :parentId AND vt.ID_OBJET = :objectId AND vt.TYPE_OBJET = :objectType
-             ORDER BY vt.LIGNE, c.ORDRE',
-            ['parentId' => $parentId, 'objectId' => $objectId, 'objectType' => $objectType]
-        );
-
-        // Grouper par ligne
-        $lignes = [];
-        foreach ($valeursTableau as $vt) {
-            $ligne = (int) $vt['LIGNE'];
-            if (!isset($lignes[$ligne])) {
-                $lignes[$ligne] = [];
-            }
-
-            $lignes[$ligne][] = $vt;
-        }
-
-        $result['VALEURS'] = array_values($lignes);
-
-        return $result;
     }
 
     /**
@@ -2189,131 +2065,99 @@ class CommissionDocumentGenerationService
     /**
      * Remplit les formulaires personnalisés dans un segment ODT.
      *
-     * Port direct de la logique formulaires des templates legacy.
+     * Port du même algorithme que DossierRapportOdtService::applyFormulaires() mais
+     * adapté aux segments imbriqués (accès via magic getter `->$segName` au lieu de
+     * `setSegment()` réservé à la racine \Odf).
      *
      * @param object               $segment
      * @param array<string, mixed> $dossierInfos
      */
     private function fillFormulairesSegment($segment, array $dossierInfos): void
     {
-        if (!isset($dossierInfos['FORMULAIRES'])) {
-            return;
-        }
+        /** @var array<string, array{capsule: mixed, rubriques: array<int, array<string, mixed>>}> $formulaires */
+        $formulaires = $dossierInfos['FORMULAIRES'] ?? [];
 
-        foreach ($dossierInfos['FORMULAIRES'] as $formulaire) {
-            if (!is_array($formulaire['RUBRIQUES'] ?? null)) {
+        foreach ($formulaires as $nomInterne => $data) {
+            if (null === $data['capsule']) {
                 continue;
             }
 
-            $nomInterne = $formulaire['NOM_INTERNE'] ?? '';
+            foreach ($data['rubriques'] as $rubriqueData) {
+                /** @var Rubrique $rubrique */
+                $rubrique = $rubriqueData['rubrique'];
 
-            foreach ($formulaire['RUBRIQUES'] as $rubrique) {
-                $rubriqueNom = $rubrique['NOM'] ?? '';
+                foreach ($rubriqueData['champs'] as $champData) {
+                    /** @var Champ $champ */
+                    $champ = $champData['champ'];
+                    $typeId = null !== $champ->getType() ? $champ->getType()->getId() : null;
 
-                if (!isset($rubrique['CHAMPS'])) {
-                    continue;
-                }
-
-                foreach ($rubrique['CHAMPS'] as $champ) {
-                    if ('Parent' === ($champ['TYPE'] ?? '')) {
-                        if (1 === (int) ($champ['tableau'] ?? 0)) {
-                            // Tableau : entêtes
-                            if (isset($champ['FILS']) && is_array($champ['FILS'])) {
-                                foreach ($champ['FILS'] as $idx => $champFils) {
-                                    if (is_int($idx)) {
-                                        $this->addChamp(
-                                            $segment,
-                                            ChampNamer::getFullFusionName(
-                                                $nomInterne,
-                                                [$rubriqueNom, $champ['NOM'] ?? '', $champFils['idx'] ?? '']
-                                            ),
-                                            $champFils['NOM'] ?? ''
-                                        );
-                                    }
-                                }
-
-                                // Segment tableau valeurs
-                                $nomFusion = ChampNamer::getLoopName(
-                                    $nomInterne.' '.$rubriqueNom.' '.($champ['NOM'] ?? '').' valeurs'
+                    if (TypeChamp::PARENT === $typeId) {
+                        if ($champ->getTableau()) {
+                            // Entêtes de colonnes
+                            foreach ($champ->getEnfants() as $enfant) {
+                                $this->addChamp(
+                                    $segment,
+                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', (string) ($enfant->getIdx() ?? 0)]),
+                                    $enfant->getNom()
                                 );
+                            }
 
-                                $segmentTableau = null;
-                                try {
-                                    $segmentTableau = $segment->$nomFusion;
-                                } catch (\Exception $e) {
-                                    // Segment absent
-                                }
+                            // Segment tableau (via magic getter sur segment imbriqué)
+                            $segName = ChampNamer::getLoopName($nomInterne.' '.($rubrique->getNom() ?? '').' '.($champ->getNom() ?? '').' valeurs');
+                            $segmentTableau = null;
+                            try {
+                                $segmentTableau = $segment->$segName;
+                            } catch (\Exception $e) {
+                                // Segment absent du template
+                            }
 
-                                if (null !== $segmentTableau) {
-                                    $valeurs = $champ['FILS']['VALEURS'] ?? [];
-                                    if (0 === count($valeurs)) {
-                                        foreach (array_keys($champ['FILS']) as $index) {
-                                            if (is_int($index)) {
-                                                $this->addChamp($segmentTableau, sprintf('valeur%d', $index), '');
-                                            }
+                            if (null !== $segmentTableau) {
+                                /** @var array<int, array<int, Valeur|null>> $lignes */
+                                $lignes = $champData['lignes'] ?? [];
+                                if (0 === count($lignes)) {
+                                    foreach ($champ->getEnfants() as $idx => $enfant) {
+                                        $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), '');
+                                    }
+
+                                    $segmentTableau->merge();
+                                } else {
+                                    foreach ($lignes as $ligne) {
+                                        foreach ($champ->getEnfants() as $idx => $enfant) {
+                                            $enfantId = $enfant->getId();
+                                            /** @var Valeur|null $valeur */
+                                            $valeur = null !== $enfantId ? ($ligne[$enfantId] ?? null) : null;
+                                            $val = ValeurResolver::resolve($enfant->getType(), $valeur);
+                                            $this->addChamp($segmentTableau, sprintf('valeur%d', $idx), $val);
                                         }
 
                                         $segmentTableau->merge();
-                                    } else {
-                                        foreach ($valeurs as $ligne) {
-                                            $idxCol = 0;
-                                            foreach ($ligne as $col) {
-                                                $valCol = $col['VALEUR'] ?? '';
-                                                if ('Case à cocher' === ($col['TYPE'] ?? '')) {
-                                                    $valCol = boolval($valCol) ? 'Oui' : 'Non';
-                                                } elseif ('Date' === ($col['TYPE'] ?? '')) {
-                                                    $valCol = $this->formatDateFormulaire($valCol);
-                                                }
-
-                                                $this->addChamp($segmentTableau, sprintf('valeur%d', $idxCol), $valCol);
-                                                ++$idxCol;
-                                            }
-
-                                            $segmentTableau->merge();
-                                        }
                                     }
                                 }
                             }
-                        } elseif (isset($champ['FILS']) && is_array($champ['FILS'])) {
-                            // Parent non-tableau : champs fils simples
-                            foreach ($champ['FILS'] as $champFils) {
-                                if (!is_array($champFils)) {
-                                    continue;
-                                }
-
-                                $valeurFils = $champFils['VALEUR'] ?? '';
-                                if ('Case à cocher' === ($champFils['TYPE'] ?? '')) {
-                                    $valeurFils = boolval($valeurFils) ? 'Oui' : 'Non';
-                                } elseif ('Date' === ($champFils['TYPE'] ?? '')) {
-                                    $valeurFils = $this->formatDateFormulaire($valeurFils);
-                                }
-
+                        } else {
+                            // Parent non-tableau : sous-champs directs
+                            foreach ($champData['sous_champs'] ?? [] as $souschampData) {
+                                /** @var Champ $souschamp */
+                                $souschamp = $souschampData['champ'];
+                                /** @var Valeur|null $valeur */
+                                $valeur = $souschampData['valeur'];
+                                $val = ValeurResolver::resolve($souschamp->getType(), $valeur);
                                 $this->addChamp(
                                     $segment,
-                                    ChampNamer::getFullFusionName(
-                                        $nomInterne,
-                                        [$rubriqueNom, $champ['NOM'] ?? '', $champFils['NOM'] ?? '']
-                                    ),
-                                    $valeurFils
+                                    ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '', $souschamp->getNom() ?? '']),
+                                    $val
                                 );
                             }
                         }
                     } else {
-                        // Champ simple
-                        $valeur = $champ['VALEUR'] ?? '';
-                        if ('Case à cocher' === ($champ['TYPE'] ?? '')) {
-                            $valeur = boolval($valeur) ? 'Oui' : 'Non';
-                        } elseif ('Date' === ($champ['TYPE'] ?? '')) {
-                            $valeur = $this->formatDateFormulaire($valeur);
-                        }
-
+                        // Champ feuille
+                        /** @var Valeur|null $valeur */
+                        $valeur = $champData['valeur'] ?? null;
+                        $val = ValeurResolver::resolve($champ->getType(), $valeur);
                         $this->addChamp(
                             $segment,
-                            ChampNamer::getFullFusionName(
-                                $nomInterne,
-                                [$rubriqueNom, $champ['NOM'] ?? '']
-                            ),
-                            $valeur
+                            ChampNamer::getFullFusionName($nomInterne, [$rubrique->getNom() ?? '', $champ->getNom() ?? '']),
+                            $val
                         );
                     }
                 }
@@ -2404,24 +2248,5 @@ class CommissionDocumentGenerationService
         }
 
         return $dt instanceof \DateTime ? $dt : null;
-    }
-
-    /**
-     * Formate une date de formulaire (dd/MM/yyyy) en format long français.
-     *
-     * @param string|null $value
-     */
-    private function formatDateFormulaire($value): string
-    {
-        if (null === $value || '' === $value) {
-            return '';
-        }
-
-        $dt = \DateTime::createFromFormat('d/m/Y', $value);
-        if (!$dt instanceof \DateTime) {
-            return (string) $value;
-        }
-
-        return DateFormatterFr::formatLong($dt);
     }
 }

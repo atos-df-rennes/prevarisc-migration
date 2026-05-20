@@ -230,7 +230,7 @@ $(document).ready(function() {
             return;
         }
 
-        $.toast.info('Création ' + documentLabel + ', veuillez patienter…');
+        var enCoursToastId = $.toast.info('Création ' + documentLabel + ', veuillez patienter…', { autoClose: false });
 
         $.ajax({
             url: url,
@@ -238,6 +238,7 @@ $(document).ready(function() {
             type: "POST",
             dataType: "json",
             success: function(response) {
+                $.toast.close(enCoursToastId);
                 if (response.success) {
                     $.toast.success(response.summary);
                 } else {
@@ -256,13 +257,9 @@ $(document).ready(function() {
                     }
                     $.toast.warning(message);
                 }
-
-                // Rafraîchir l'onglet pièces jointes si la modale est ouverte
-                if ($('#modal-pieces-jointes').hasClass('in')) {
-                    $('#modal-pieces-jointes .modal-body').load(GESTIONODJ_CONFIG.urlPiecesJointes);
-                }
             },
             error: function(xhr) {
+                $.toast.close(enCoursToastId);
                 var msg = "Une erreur s'est produite lors de la génération.";
                 if (xhr.responseJSON && xhr.responseJSON.summary) {
                     msg = xhr.responseJSON.summary;
