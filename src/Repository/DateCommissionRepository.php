@@ -440,19 +440,26 @@ class DateCommissionRepository extends ServiceEntityRepository
      *
      * @return array<int, array<string, mixed>>
      */
-    public function findDossiersForGeneration(int $dateCommId, int $gestionHeures): array
+    public function findDossiersForGeneration(int $dateCommId, int $gestionHeures, bool $filterNullHeure = false): array
     {
         $conn = $this->getEntityManager()->getConnection();
         $orderBy = 1 === $gestionHeures ? 'dossAffect.HEURE_DEB_AFFECT' : 'dossAffect.NUM_DOSSIER';
+
+        $heureFilter = '';
+        if ($filterNullHeure && 1 === $gestionHeures) {
+            $heureFilter = 'AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL';
+        }
 
         $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT,
                        dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER,
                        dossNatListe.LIBELLE_DOSSIERNATURE
                 FROM dossieraffectation dossAffect
                 JOIN dossier doss ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
-                LEFT JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
-                LEFT JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
+                JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
+                JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
                 WHERE dossAffect.ID_DATECOMMISSION_AFFECT = :dateCommId
+                '.$heureFilter.'
+                GROUP BY doss.ID_DOSSIER
                 ORDER BY '.$orderBy;
 
         /** @var array<int, array<string, mixed>> $rows */

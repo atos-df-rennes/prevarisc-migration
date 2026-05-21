@@ -384,7 +384,7 @@ class CommissionDocumentGenerationService
 
         /** @var int|string $gestionHeuresGen */
         $gestionHeuresGen = $commissionInfo['GESTION_HEURES'] ?? 0;
-        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresGen);
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresGen, true);
         $listeDossiers = $this->enrichDossiers($listeDossiers, true);
 
         /** @var int|string $commissionConcernePvRaw */
@@ -486,7 +486,7 @@ class CommissionDocumentGenerationService
 
         /** @var int|string $gestionHeuresGen */
         $gestionHeuresGen = $commissionInfo['GESTION_HEURES'] ?? 0;
-        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresGen);
+        $listeDossiers = $this->dateCommissionRepo->findDossiersForGeneration($dateCommId, (int) $gestionHeuresGen, true);
         $listeDossiers = $this->enrichDossiers($listeDossiers, false);
 
         /** @var int|string $commissionConcerneCrRaw */
