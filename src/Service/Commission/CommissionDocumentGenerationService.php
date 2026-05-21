@@ -14,6 +14,7 @@ use App\Entity\Rubrique;
 use App\Repository\DateCommissionRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Descriptif;
+use App\Service\DossierPrescriptionService;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
@@ -61,6 +62,9 @@ class CommissionDocumentGenerationService
     /** @var OdtWriter */
     private $odtWriter;
 
+    /** @var DossierPrescriptionService */
+    private $prescriptionService;
+
     public function __construct(
         EntityManagerInterface $em,
         Connection $conn,
@@ -70,6 +74,7 @@ class CommissionDocumentGenerationService
         Descriptif $descriptif,
         DateCommissionRepository $dateCommissionRepo,
         OdtWriter $odtWriter,
+        DossierPrescriptionService $prescriptionService,
         string $courriersMembresRealDataPath,
         string $documentsCommissionRealDataPath
     ) {
@@ -81,6 +86,7 @@ class CommissionDocumentGenerationService
         $this->descriptif = $descriptif;
         $this->dateCommissionRepo = $dateCommissionRepo;
         $this->odtWriter = $odtWriter;
+        $this->prescriptionService = $prescriptionService;
         $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
         $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
     }
@@ -646,7 +652,7 @@ class CommissionDocumentGenerationService
 
             // Prescriptions (PV uniquement)
             if ($includePrescriptions) {
-                $listeDossiers[$val] = $this->enrichWithPrescriptions($listeDossiers[$val], $dossierId);
+                $listeDossiers[$val] = $this->enrichWithPrescriptions($listeDossiers[$val], $dossierEntity);
             }
 
             // Formulaires personnalisés via Descriptif service
@@ -849,62 +855,30 @@ class CommissionDocumentGenerationService
      *
      * @return array<string, mixed>
      */
-    private function enrichWithPrescriptions(array $dossier, int $dossierId): array
+    private function enrichWithPrescriptions(array $dossier, Dossier $dossierEntity): array
     {
-        $regles = $this->getPrescriptionsArray($dossierId, TypePrescription::REGLEMENTAIRE);
+        $regles = PrescriptionArrayHelper::buildNestedArray(
+            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::REGLEMENTAIRE)
+        );
         $dossier['prescriptionReglDossier'] = PrescriptionArrayHelper::withoutLevees($regles);
         $dossier['prescriptionReglDossierReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionReglDossier']);
         $dossier['prescriptionReglDossierActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionReglDossier']);
 
-        $exploitation = $this->getPrescriptionsArray($dossierId, TypePrescription::EXPLOITATION);
+        $exploitation = PrescriptionArrayHelper::buildNestedArray(
+            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::EXPLOITATION)
+        );
         $dossier['prescriptionExploitation'] = PrescriptionArrayHelper::withoutLevees($exploitation);
         $dossier['prescriptionExploitationReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionExploitation']);
         $dossier['prescriptionExploitationActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionExploitation']);
 
-        $amelioration = $this->getPrescriptionsArray($dossierId, TypePrescription::AMELIORATION);
+        $amelioration = PrescriptionArrayHelper::buildNestedArray(
+            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::AMELIORATION)
+        );
         $dossier['prescriptionAmelioration'] = PrescriptionArrayHelper::withoutLevees($amelioration);
         $dossier['prescriptionAmeliorationReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionAmelioration']);
         $dossier['prescriptionAmeliorationActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionAmelioration']);
 
         return $dossier;
-    }
-
-    /**
-     * @return list<list<array<string, mixed>>>
-     */
-    private function getPrescriptionsArray(int $dossierId, int $type): array
-    {
-        $rows = $this->conn->fetchAllAssociative(
-            'SELECT pd.ID_PRESCRIPTION_DOSSIER, pd.NUM_PRESCRIPTION_DOSSIER,
-                    pd.LIBELLE_PRESCRIPTION_DOSSIER, pd.DATE_LEVEE,
-                    pd.ID_DOSSIER_REPRISE,
-                    pt.PRESCRIPTIONTYPE_LIBELLE,
-                    pda.ID_PRESCRIPTIONARTICLELISTE, pda.ID_PRESCRIPTIONTEXTELISTE,
-                    pal.LIBELLE_ARTICLE, ptl.LIBELLE_TEXTE
-             FROM prescriptiondossier pd
-             LEFT JOIN prescriptiontype pt ON pd.ID_PRESCRIPTIONTYPE = pt.ID_PRESCRIPTIONTYPE
-             LEFT JOIN prescriptiondossierassociation pda ON pd.ID_PRESCRIPTION_DOSSIER = pda.ID_PRESCRIPTION_DOSSIER
-             LEFT JOIN prescriptionarticleliste pal ON pda.ID_PRESCRIPTIONARTICLELISTE = pal.ID_PRESCRIPTIONARTICLELISTE
-             LEFT JOIN prescriptiontexteliste ptl ON pda.ID_PRESCRIPTIONTEXTELISTE = ptl.ID_PRESCRIPTIONTEXTELISTE
-             WHERE pd.ID_DOSSIER = :id AND pd.TYPE_PRESCRIPTION_DOSSIER = :type
-             ORDER BY pd.NUM_PRESCRIPTION_DOSSIER, pda.ID_PRESCRIPTIONDOSSIERASSOCIATION',
-            ['id' => $dossierId, 'type' => $type]
-        );
-
-        /** @var array<int, list<array<string, mixed>>> $result */
-        $result = [];
-        foreach ($rows as $row) {
-            /** @var int|string $prescIdValue */
-            $prescIdValue = $row['ID_PRESCRIPTION_DOSSIER'] ?? 0;
-            $prescId = (int) $prescIdValue;
-            if (!isset($result[$prescId])) {
-                $result[$prescId] = [];
-            }
-
-            $result[$prescId][] = $row;
-        }
-
-        return array_values($result);
     }
 
     /**

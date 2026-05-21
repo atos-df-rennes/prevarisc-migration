@@ -1393,30 +1393,7 @@ class DossierRapportOdtService
      */
     private function buildPrescriptionNestedArray(array $prescriptions): array
     {
-        /** @var array<int, array<int, array<string, string>>> $result */
-        $result = [];
-        foreach ($prescriptions as $i => $p) {
-            foreach ($p->getEffectiveAssociations() as $j => $assoc) {
-                $prescType = $p->getPrescriptionType();
-                $dateLevee = $p->getDateLevee();
-                $reprise = $p->getDossierReprise();
-                $repriseId = (null !== $reprise && null !== $reprise->getId()) ? (string) $reprise->getId() : '';
-                $result[$i][$j] = [
-                    'NUM_PRESCRIPTION_DOSSIER' => null !== $p->getNumero() ? (string) $p->getNumero() : '',
-                    'LIBELLE_PRESCRIPTION_DOSSIER' => $p->getLibelle() ?? '',
-                    'PRESCRIPTIONTYPE_LIBELLE' => null !== $prescType ? ($prescType->getLibelle() ?? '') : '',
-                    'LIBELLE_TEXTE' => null !== $assoc->getTexte() ? ($assoc->getTexte()->getLibelle() ?? '') : '',
-                    'LIBELLE_ARTICLE' => null !== $assoc->getArticle() ? ($assoc->getArticle()->getLibelle() ?? '') : '',
-                    'DATE_LEVEE' => null !== $dateLevee ? $dateLevee->format('d/m/Y') : '',
-                    'ID_DOSSIER_REPRISE' => $repriseId,
-                ];
-            }
-        }
-
-        /** @var array<int, array<int, array<string, string>>> $typedResult */
-        $typedResult = $result;
-
-        return $typedResult;
+        return PrescriptionArrayHelper::buildNestedArray($prescriptions);
     }
 
     /**

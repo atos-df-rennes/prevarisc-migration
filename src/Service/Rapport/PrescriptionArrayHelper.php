@@ -3,6 +3,7 @@
 namespace App\Service\Rapport;
 
 use App\Constant\TypePrescription;
+use App\Entity\PrescriptionDossier;
 
 /**
  * Helpers statiques de manipulation des tableaux de prescriptions pour la génération ODT.
@@ -136,5 +137,42 @@ final class PrescriptionArrayHelper
         ];
 
         return $segNames[$type][$typeContenu] ?? '';
+    }
+
+    /**
+     * Convertit un tableau de PrescriptionDossier en tableau imbriqué pour la génération ODT.
+     *
+     * Port direct de DossierRapportOdtService::buildPrescriptionNestedArray().
+     *
+     * @param PrescriptionDossier[] $prescriptions
+     *
+     * @return array<int, array<int, array<string, string>>>
+     */
+    public static function buildNestedArray(array $prescriptions): array
+    {
+        /** @var array<int, array<int, array<string, string>>> $result */
+        $result = [];
+        foreach ($prescriptions as $i => $p) {
+            foreach ($p->getEffectiveAssociations() as $j => $assoc) {
+                $prescType = $p->getPrescriptionType();
+                $dateLevee = $p->getDateLevee();
+                $reprise = $p->getDossierReprise();
+                $repriseId = (null !== $reprise && null !== $reprise->getId()) ? (string) $reprise->getId() : '';
+                $result[$i][$j] = [
+                    'NUM_PRESCRIPTION_DOSSIER' => null !== $p->getNumero() ? (string) $p->getNumero() : '',
+                    'LIBELLE_PRESCRIPTION_DOSSIER' => $p->getLibelle() ?? '',
+                    'PRESCRIPTIONTYPE_LIBELLE' => null !== $prescType ? ($prescType->getLibelle() ?? '') : '',
+                    'LIBELLE_TEXTE' => null !== $assoc->getTexte() ? ($assoc->getTexte()->getLibelle() ?? '') : '',
+                    'LIBELLE_ARTICLE' => null !== $assoc->getArticle() ? ($assoc->getArticle()->getLibelle() ?? '') : '',
+                    'DATE_LEVEE' => null !== $dateLevee ? $dateLevee->format('d/m/Y') : '',
+                    'ID_DOSSIER_REPRISE' => $repriseId,
+                ];
+            }
+        }
+
+        /** @var array<int, array<int, array<string, string>>> $typedResult */
+        $typedResult = $result;
+
+        return $typedResult;
     }
 }
