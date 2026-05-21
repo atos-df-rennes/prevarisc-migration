@@ -680,9 +680,11 @@ class CommissionDocumentGenerationService
     {
         return $this->conn->fetchAllAssociative(
             'SELECT ui.*
-             FROM utilisateurinformations ui
-             JOIN dossierpreventionniste dp ON ui.ID_UTILISATEURINFORMATIONS = dp.ID_UTILISATEURINFORMATIONS
-             WHERE dp.ID_DOSSIER = :id',
+             FROM dossierpreventionniste dp
+             JOIN utilisateur u ON dp.ID_PREVENTIONNISTE = u.ID_UTILISATEUR
+             JOIN utilisateurinformations ui ON u.ID_UTILISATEURINFORMATIONS = ui.ID_UTILISATEURINFORMATIONS
+             WHERE dp.ID_DOSSIER = :id
+             GROUP BY u.ID_UTILISATEUR',
             ['id' => $dossierId]
         );
     }
@@ -789,11 +791,13 @@ class CommissionDocumentGenerationService
     private function getAvisDerogationsFromDossier(int $dossierId): array
     {
         return $this->conn->fetchAllAssociative(
-            'SELECT ad.*, a.LIBELLE_AVIS, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER, ad.ID_DOSSIER_LIE
-             FROM avisderogation ad
-             LEFT JOIN avis a ON ad.ID_AVIS = a.ID_AVIS
-             LEFT JOIN dossier d ON ad.ID_DOSSIER_LIE = d.ID_DOSSIER
-             WHERE ad.ID_DOSSIER = :id',
+            'SELECT ad.*, d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
+                    a.LIBELLE_AVIS, dl.TYPE_DOSSIER, dl.OBJET_DOSSIER
+             FROM avisderogations ad
+             JOIN dossier d ON ad.ID_DOSSIER = d.ID_DOSSIER
+             JOIN avis a ON ad.AVIS = a.ID_AVIS
+             LEFT JOIN dossier dl ON ad.ID_DOSSIER_LIE = dl.ID_DOSSIER
+             WHERE d.ID_DOSSIER = :id',
             ['id' => $dossierId]
         );
     }
@@ -812,13 +816,16 @@ class CommissionDocumentGenerationService
         $placeholders = implode(',', array_fill(0, count($idsEtablissements), '?'));
 
         return $this->conn->fetchAllAssociative(
-            'SELECT ad.*, a.LIBELLE_AVIS, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER, ad.ID_DOSSIER_LIE
-             FROM avisderogation ad
-             LEFT JOIN avis a ON ad.ID_AVIS = a.ID_AVIS
-             LEFT JOIN dossier d ON ad.ID_DOSSIER_LIE = d.ID_DOSSIER
-             JOIN etablissementdossier ed ON ad.ID_DOSSIER = ed.ID_DOSSIER
-             WHERE ed.ID_ETABLISSEMENT IN ('.$placeholders.')
-               AND ad.ID_DOSSIER != ed.ID_DOSSIER',
+            'SELECT d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
+                    ad.*, a.LIBELLE_AVIS, d2.TYPE_DOSSIER
+             FROM dossier d
+             JOIN etablissementdossier ed ON d.ID_DOSSIER = ed.ID_DOSSIER
+             JOIN etablissement e ON ed.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+             JOIN avisderogations ad ON d.ID_DOSSIER = ad.ID_DOSSIER
+             JOIN avis a ON a.ID_AVIS = ad.AVIS
+             LEFT JOIN dossier d2 ON d2.ID_DOSSIER = ad.ID_DOSSIER_LIE
+             WHERE e.ID_ETABLISSEMENT IN ('.$placeholders.')
+               AND ad.DISPLAY_HISTORIQUE = 1',
             $idsEtablissements
         );
     }
@@ -936,7 +943,7 @@ class CommissionDocumentGenerationService
 
             // Compétences types
             $types = $this->conn->fetchAllAssociative(
-                'SELECT * FROM commissionmembretype WHERE ID_COMMISSIONMEMBRE = :id',
+                'SELECT * FROM commissionmembretypeactivite WHERE ID_COMMISSIONMEMBRE = :id',
                 ['id' => $membreId]
             );
             $membres[$idx]['types'] = [];
