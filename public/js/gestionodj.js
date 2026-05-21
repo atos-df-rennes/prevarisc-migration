@@ -240,7 +240,7 @@ $(document).ready(function() {
             success: function(response) {
                 $.toast.close(enCoursToastId);
                 if (response.success) {
-                    $.toast.success(response.summary);
+                    $.toast.success(response.summary, { autoClose: false });
                 } else {
                     var details = [];
                     if (response.results) {
@@ -255,7 +255,7 @@ $(document).ready(function() {
                     if (details.length > 0) {
                         message += '\n' + details.join('\n');
                     }
-                    $.toast.warning(message);
+                    $.toast.warning(message, { autoClose: false });
                 }
             },
             error: function(xhr) {
@@ -264,7 +264,7 @@ $(document).ready(function() {
                 if (xhr.responseJSON && xhr.responseJSON.summary) {
                     msg = xhr.responseJSON.summary;
                 }
-                $.toast.error(msg);
+                $.toast.error(msg, { autoClose: false });
             }
         });
     }
