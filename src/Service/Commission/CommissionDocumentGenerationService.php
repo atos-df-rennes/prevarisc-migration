@@ -182,7 +182,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Le membre : '.$membreLabel." n'a aucun document renseigné ou il n'a pas les droits pour ces dossiers",
+                    'message' => 'Le membre '.$membreLabel." n'a aucun document renseigné ou n'a pas les droits pour ces dossiers",
                     'pieceJointeId' => null,
                 ];
 
@@ -196,7 +196,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Le fichier template pour le membre : '.$membreLabel." n'existe pas",
+                    'message' => 'Le membre '.$membreLabel." n'a pas de fichier template renseigné",
                     'pieceJointeId' => null,
                 ];
 
@@ -234,7 +234,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'success',
-                    'message' => 'La convocation pour le membre : '.$membreLabel.' a bien été générée',
+                    'message' => 'Le document a bien été généré pour le membre '.$membreLabel,
                     'pieceJointeId' => $pjId,
                 ];
             } catch (\Exception $e) {
@@ -243,7 +243,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Erreur lors de la génération pour le membre : '.$membreLabel.' - '.$e->getMessage(),
+                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération : '.$e->getMessage(),
                     'pieceJointeId' => null,
                 ];
             }
@@ -307,7 +307,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Le fichier pour le membre : '.$membreLabel." n'a pas été renseigné",
+                    'message' => 'Le membre '.$membreLabel." n'a pas de fichier renseigné",
                     'pieceJointeId' => null,
                 ];
 
@@ -342,7 +342,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'success',
-                    'message' => "L'ordre du jour pour le membre : ".$membreLabel.' a bien été généré',
+                    'message' => 'Le document a bien été généré pour le membre '.$membreLabel,
                     'pieceJointeId' => $pjId,
                 ];
             } catch (\Exception $e) {
@@ -351,7 +351,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Erreur lors de la génération pour le membre : '.$membreLabel.' - '.$e->getMessage(),
+                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération : '.$e->getMessage(),
                     'pieceJointeId' => null,
                 ];
             }
@@ -405,7 +405,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => sprintf("Le fichier pour le membre : %s n'a pas été renseigné", $membreLabel),
+                    'message' => 'Le membre '.$membreLabel." n'a pas de fichier renseigné",
                     'pieceJointeId' => null,
                 ];
 
@@ -424,7 +424,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => sprintf("Le fichier pour le membre : %s n'a pas été renseigné", $membreLabel),
+                    'message' => 'Le membre '.$membreLabel." n'a pas de fichier renseigné",
                     'pieceJointeId' => null,
                 ];
 
@@ -444,7 +444,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'success',
-                    'message' => 'Le PV a été généré avec succès',
+                    'message' => 'Le document a bien été généré pour le membre '.$membreLabel,
                     'pieceJointeId' => $pjId,
                 ];
             } catch (\Exception $e) {
@@ -453,7 +453,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => sprintf('Erreur lors de la génération PV pour le membre : %s - ', $membreLabel).$e->getMessage(),
+                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération : '.$e->getMessage(),
                     'pieceJointeId' => null,
                 ];
             }
@@ -533,7 +533,7 @@ class CommissionDocumentGenerationService
                 'memberId' => 0,
                 'memberLabel' => '',
                 'status' => 'success',
-                'message' => 'Le compte rendu a été généré avec succès',
+                'message' => 'Le document a bien été généré',
                 'pieceJointeId' => $pjId,
             ];
         } catch (\Exception $exception) {
@@ -600,20 +600,28 @@ class CommissionDocumentGenerationService
             $dossierIdValue = $dossier['ID_DOSSIER'] ?? 0;
             $dossierId = (int) $dossierIdValue;
 
-            // Préventionnistes
-            $listeDossiers[$val]['preventionnistes'] = $this->getPreventionnistes($dossierId);
-
-            // Établissement lié au dossier
-            $listeEtab = $this->getEtablissementDossier($dossierId);
-            if (empty($listeEtab)) {
+            // Charger l'entité Dossier tôt pour utiliser les relations Doctrine
+            $dossierEntity = $this->em->find(Dossier::class, $dossierId);
+            if (null === $dossierEntity) {
                 unset($listeDossiers[$val]);
 
                 continue;
             }
 
-            /** @var int|string $etabIdValue */
-            $etabIdValue = $listeEtab[0]['ID_ETABLISSEMENT'] ?? 0;
-            $etabId = (int) $etabIdValue;
+            // Préventionnistes via relation Doctrine (évite les erreurs de jointure SQL)
+            $listeDossiers[$val]['preventionnistes'] = $this->getPreventionnistesFromEntity($dossierEntity);
+
+            // Établissement lié au dossier
+            $etablissements = $dossierEntity->getEtablissements();
+            if ($etablissements->isEmpty()) {
+                unset($listeDossiers[$val]);
+
+                continue;
+            }
+
+            /** @var Etablissement $etabEntity */
+            $etabEntity = $etablissements->first();
+            $etabId = (int) $etabEntity->getId();
             $etablissementInfos = $this->getEtablissementInfos($etabId);
             $listeDossiers[$val]['infosEtab'] = $etablissementInfos;
 
@@ -642,13 +650,7 @@ class CommissionDocumentGenerationService
             }
 
             // Formulaires personnalisés via Descriptif service
-            $dossierEntity = $this->em->find(Dossier::class, $dossierId);
-            $etabEntity = $this->em->find(Etablissement::class, $etabId);
-            if (null !== $dossierEntity && null !== $etabEntity) {
-                $listeDossiers[$val]['FORMULAIRES'] = $this->loadFormulaires($dossierEntity, $etabEntity);
-            } else {
-                $listeDossiers[$val]['FORMULAIRES'] = [];
-            }
+            $listeDossiers[$val]['FORMULAIRES'] = $this->loadFormulaires($dossierEntity, $etabEntity);
         }
 
         return array_values($listeDossiers);
@@ -674,32 +676,29 @@ class CommissionDocumentGenerationService
     }
 
     /**
+     * Récupère les préventionnistes via les relations Doctrine (plus fiable que SQL brut).
+     *
      * @return array<int, array<string, mixed>>
      */
-    private function getPreventionnistes(int $dossierId): array
+    private function getPreventionnistesFromEntity(Dossier $dossier): array
     {
-        return $this->conn->fetchAllAssociative(
-            'SELECT ui.*
-             FROM dossierpreventionniste dp
-             JOIN utilisateur u ON dp.ID_PREVENTIONNISTE = u.ID_UTILISATEUR
-             JOIN utilisateurinformations ui ON u.ID_UTILISATEURINFORMATIONS = ui.ID_UTILISATEURINFORMATIONS
-             WHERE dp.ID_DOSSIER = :id
-             GROUP BY u.ID_UTILISATEUR',
-            ['id' => $dossierId]
-        );
-    }
+        $result = [];
+        foreach ($dossier->getPreventionnistes() as $utilisateur) {
+            $infos = $utilisateur->getInformations();
+            if (null === $infos) {
+                continue;
+            }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getEtablissementDossier(int $dossierId): array
-    {
-        return $this->conn->fetchAllAssociative(
-            'SELECT ed.ID_ETABLISSEMENT
-             FROM etablissementdossier ed
-             WHERE ed.ID_DOSSIER = :id',
-            ['id' => $dossierId]
-        );
+            $result[] = [
+                'GRADE_UTILISATEURINFORMATIONS' => $infos->getGrade(),
+                'NOM_UTILISATEURINFORMATIONS' => $infos->getNom(),
+                'PRENOM_UTILISATEURINFORMATIONS' => $infos->getPrenom(),
+                'TELFIXE_UTILISATEURINFORMATIONS' => $infos->getTelephoneFixe(),
+                'MAIL_UTILISATEURINFORMATIONS' => $infos->getMail(),
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -718,7 +717,7 @@ class CommissionDocumentGenerationService
             return [];
         }
 
-        // Infos détaillées (dernière version)
+        // Infos détaillées (dernière version par DATE comme le legacy)
         /** @var array<string, mixed>|false $informations */
         $informations = $this->conn->fetchAssociative(
             'SELECT ei.*, cat.LIBELLE_CATEGORIE, ta.LIBELLE_ACTIVITE, g.LIBELLE_GENRE,
@@ -729,7 +728,11 @@ class CommissionDocumentGenerationService
              LEFT JOIN genre g ON ei.ID_GENRE = g.ID_GENRE
              LEFT JOIN type t ON ei.ID_TYPE = t.ID_TYPE
              WHERE ei.ID_ETABLISSEMENT = :id
-             ORDER BY ei.ID_ETABLISSEMENTINFORMATIONS DESC LIMIT 1',
+               AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
+                   SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
+                   FROM etablissementinformations ei2
+                   WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
+               )',
             ['id' => $etabId]
         );
 
@@ -978,7 +981,7 @@ class CommissionDocumentGenerationService
             }
 
             // Flag manifestation
-            $membres[$idx]['manifestation'] = !empty($membre['MANIFESTATION']);
+            $membres[$idx]['manifestation'] = !empty($membre['MANIFESTATION_COMMISSIONMEMBRE']);
         }
 
         return $membres;

@@ -239,23 +239,34 @@ $(document).ready(function() {
             dataType: "json",
             success: function(response) {
                 $.toast.close(enCoursToastId);
-                if (response.success) {
-                    $.toast.success(response.summary, { autoClose: false });
-                } else {
-                    var details = [];
-                    if (response.results) {
-                        for (var i = 0; i < response.results.length; i++) {
-                            var r = response.results[i];
-                            if (r.status === 'error') {
-                                details.push(r.memberLabel + ' : ' + r.message);
-                            }
+
+                var successLines = [];
+                var errorLines = [];
+
+                if (response.results) {
+                    for (var i = 0; i < response.results.length; i++) {
+                        var r = response.results[i];
+                        var text = r.memberLabel
+                            ? r.message.replace(r.memberLabel, '<strong>' + r.memberLabel + '</strong>')
+                            : r.message;
+                        if (r.status === 'success') {
+                            successLines.push(text);
+                        } else if (r.status === 'error') {
+                            errorLines.push(text);
                         }
                     }
-                    var message = response.summary;
-                    if (details.length > 0) {
-                        message += '\n' + details.join('\n');
-                    }
-                    $.toast.warning(message, { autoClose: false });
+                }
+
+                if (successLines.length > 0) {
+                    $.toast.success(successLines.join('<br>'), { autoClose: false });
+                }
+
+                if (errorLines.length > 0) {
+                    $.toast.warning(errorLines.join('<br>'), { autoClose: false });
+                }
+
+                if (successLines.length === 0 && errorLines.length === 0) {
+                    $.toast.info(response.summary, { autoClose: false });
                 }
             },
             error: function(xhr) {

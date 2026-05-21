@@ -40,7 +40,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
         $results = $this->generationService->generateConvocations($dateCommId);
 
-        return $this->buildJsonResponse($results, 'convocation(s)');
+        return $this->buildJsonResponse($results);
     }
 
     /**
@@ -57,7 +57,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
         $results = $this->generationService->generateOrdreDuJour($dateCommId);
 
-        return $this->buildJsonResponse($results, 'ordre(s) du jour');
+        return $this->buildJsonResponse($results);
     }
 
     /**
@@ -74,7 +74,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
         $results = $this->generationService->generateProcesVerbal($dateCommId);
 
-        return $this->buildJsonResponse($results, 'procès-verbal/verbaux');
+        return $this->buildJsonResponse($results);
     }
 
     /**
@@ -91,7 +91,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
         $results = $this->generationService->generateCompteRendu($dateCommId);
 
-        return $this->buildJsonResponse($results, 'compte-rendu');
+        return $this->buildJsonResponse($results);
     }
 
     /**
@@ -130,31 +130,11 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
      *
      * @param array<int, array{memberId: int, memberLabel: string, status: string, message: string, pieceJointeId: int|null}> $results
      */
-    private function buildJsonResponse(array $results, string $documentType): JsonResponse
+    private function buildJsonResponse(array $results): JsonResponse
     {
-        $successCount = 0;
-        $errorCount = 0;
-
-        foreach ($results as $result) {
-            if ('success' === $result['status']) {
-                ++$successCount;
-            } else {
-                ++$errorCount;
-            }
-        }
-
-        $success = 0 === $errorCount && $successCount > 0;
-
-        if (0 === $successCount && 0 === $errorCount) {
-            $summary = 'Aucun document à générer.';
-        } elseif ($success) {
-            $summary = sprintf('%d %s généré(s) avec succès.', $successCount, $documentType);
-        } else {
-            $summary = sprintf('%d généré(s), %d erreur(s).', $successCount, $errorCount);
-        }
+        $summary = empty($results) ? 'Aucun document à générer.' : '';
 
         return new JsonResponse([
-            'success' => $success,
             'summary' => $summary,
             'results' => $results,
         ]);
