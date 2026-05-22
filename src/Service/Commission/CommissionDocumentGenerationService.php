@@ -3,6 +3,7 @@
 namespace App\Service\Commission;
 
 use App\Constant\AvisCommission;
+use App\Constant\CommissionTypeEvenement;
 use App\Constant\NomInterneCapsule;
 use App\Constant\TypePrescription;
 use App\Entity\CapsuleRubrique;
@@ -18,7 +19,6 @@ use App\Service\DossierPrescriptionService;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Segment;
@@ -34,9 +34,6 @@ class CommissionDocumentGenerationService
 {
     /** @var EntityManagerInterface */
     private $em;
-
-    /** @var Connection */
-    private $conn;
 
     /** @var DataStore */
     private $dataStore;
@@ -65,9 +62,11 @@ class CommissionDocumentGenerationService
     /** @var DossierPrescriptionService */
     private $prescriptionService;
 
+    /** @var CommissionDataProvider */
+    private $dataProvider;
+
     public function __construct(
         EntityManagerInterface $em,
-        Connection $conn,
         DataStore $dataStore,
         LoggerInterface $logger,
         CommissionMembreEligibilityChecker $eligibilityChecker,
@@ -75,11 +74,11 @@ class CommissionDocumentGenerationService
         DateCommissionRepository $dateCommissionRepo,
         OdtWriter $odtWriter,
         DossierPrescriptionService $prescriptionService,
+        CommissionDataProvider $dataProvider,
         string $courriersMembresRealDataPath,
         string $documentsCommissionRealDataPath
     ) {
         $this->em = $em;
-        $this->conn = $conn;
         $this->dataStore = $dataStore;
         $this->logger = $logger;
         $this->eligibilityChecker = $eligibilityChecker;
@@ -87,6 +86,7 @@ class CommissionDocumentGenerationService
         $this->dateCommissionRepo = $dateCommissionRepo;
         $this->odtWriter = $odtWriter;
         $this->prescriptionService = $prescriptionService;
+        $this->dataProvider = $dataProvider;
         $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
         $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
     }
@@ -102,7 +102,7 @@ class CommissionDocumentGenerationService
     {
         $results = [];
 
-        $commissionInfo = $this->getDateCommissionInfo($dateCommId);
+        $commissionInfo = $this->dataProvider->getDateCommissionInfo($dateCommId);
         if (null === $commissionInfo) {
             return $results;
         }
@@ -117,8 +117,12 @@ class CommissionDocumentGenerationService
 
         /** @var int|string $commissionConcerneRaw */
         $commissionConcerneRaw = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
-        $listeMembres = $this->loadMembresWithCompetences((int) $commissionConcerneRaw);
-        $commissionInfos = $this->getCommissionInfo((int) $commissionConcerneRaw);
+        $listeMembres = $this->dataProvider->loadMembresWithCompetences((int) $commissionConcerneRaw);
+        $commissionInfos = $this->dataProvider->getCommissionInfo((int) $commissionConcerneRaw);
+        if (null === $commissionInfos) {
+            return $results;
+        }
+
         $listeCommunes = $this->buildListeCommunes($listeDossiers);
 
         /** @var string|null $dateCommRaw */
@@ -142,7 +146,7 @@ class CommissionDocumentGenerationService
             $erreurFile = false;
             $nomFichier = '';
 
-            if (1 === $typeCommission) {
+            if (CommissionTypeEvenement::TYPE_COMMISSION_SALLE === $typeCommission) {
                 if (empty($membreFile['COURRIER_CONVOCATIONSALLE'])) {
                     $erreurFile = true;
                 } else {
@@ -152,7 +156,7 @@ class CommissionDocumentGenerationService
                     $courrierSalleRaw = $membreFile['COURRIER_CONVOCATIONSALLE'];
                     $nomFichier = $membreIdConvRaw.'CONVOCATIONSALLE_'.$courrierSalleRaw;
                 }
-            } elseif (2 === $typeCommission || 3 === $typeCommission) {
+            } elseif (CommissionTypeEvenement::TYPE_VISITE === $typeCommission || CommissionTypeEvenement::TYPE_GROUPE_VISITE === $typeCommission) {
                 if (empty($membreFile['COURRIER_CONVOCATIONVISITE'])) {
                     $erreurFile = true;
                 } else {
@@ -249,7 +253,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération : '.$e->getMessage(),
+                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération du document',
                     'pieceJointeId' => null,
                 ];
             }
@@ -269,7 +273,7 @@ class CommissionDocumentGenerationService
     {
         $results = [];
 
-        $commissionInfo = $this->getDateCommissionInfo($dateCommId);
+        $commissionInfo = $this->dataProvider->getDateCommissionInfo($dateCommId);
         if (null === $commissionInfo) {
             return $results;
         }
@@ -281,8 +285,12 @@ class CommissionDocumentGenerationService
 
         /** @var int|string $commissionConcerneRawOdj */
         $commissionConcerneRawOdj = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
-        $listeMembres = $this->loadMembresWithCompetences((int) $commissionConcerneRawOdj);
-        $commissionInfos = $this->getCommissionInfo((int) $commissionConcerneRawOdj);
+        $listeMembres = $this->dataProvider->loadMembresWithCompetences((int) $commissionConcerneRawOdj);
+        $commissionInfos = $this->dataProvider->getCommissionInfo((int) $commissionConcerneRawOdj);
+        if (null === $commissionInfos) {
+            return $results;
+        }
+
         $listeCommunes = $this->buildListeCommunes($listeDossiers);
 
         /** @var string|null $dateCommRawOdj */
@@ -357,7 +365,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération : '.$e->getMessage(),
+                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération du document',
                     'pieceJointeId' => null,
                 ];
             }
@@ -377,7 +385,7 @@ class CommissionDocumentGenerationService
     {
         $results = [];
 
-        $commissionInfo = $this->getDateCommissionInfo($dateCommId);
+        $commissionInfo = $this->dataProvider->getDateCommissionInfo($dateCommId);
         if (null === $commissionInfo) {
             return $results;
         }
@@ -389,14 +397,17 @@ class CommissionDocumentGenerationService
 
         /** @var int|string $commissionConcernePvRaw */
         $commissionConcernePvRaw = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
-        $commissionInfos = $this->getCommissionInfo((int) $commissionConcernePvRaw);
+        $commissionInfos = $this->dataProvider->getCommissionInfo((int) $commissionConcernePvRaw);
+        if (null === $commissionInfos) {
+            return $results;
+        }
 
         /** @var string|null $dateCommPvRaw */
         $dateCommPvRaw = $commissionInfo['DATE_COMMISSION'] ?? '';
         $dateComm = (string) ($dateCommPvRaw ?? '');
 
         // Pour le PV, on boucle sur les membres SANS groupement
-        $membresFiles = $this->loadMembresFilesForPv((int) $commissionConcernePvRaw);
+        $membresFiles = $this->dataProvider->loadMembresFilesForPv((int) $commissionConcernePvRaw);
 
         foreach ($membresFiles as $membre) {
             /** @var string|null $membreLabelPvRaw */
@@ -459,7 +470,7 @@ class CommissionDocumentGenerationService
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
                     'status' => 'error',
-                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération : '.$e->getMessage(),
+                    'message' => 'Le membre '.$membreLabel.' : erreur lors de la génération du document',
                     'pieceJointeId' => null,
                 ];
             }
@@ -479,7 +490,7 @@ class CommissionDocumentGenerationService
     {
         $results = [];
 
-        $commissionInfo = $this->getDateCommissionInfo($dateCommId);
+        $commissionInfo = $this->dataProvider->getDateCommissionInfo($dateCommId);
         if (null === $commissionInfo) {
             return $results;
         }
@@ -491,14 +502,17 @@ class CommissionDocumentGenerationService
 
         /** @var int|string $commissionConcerneCrRaw */
         $commissionConcerneCrRaw = $commissionInfo['COMMISSION_CONCERNE'] ?? 0;
-        $commissionInfos = $this->getCommissionInfo((int) $commissionConcerneCrRaw);
+        $commissionInfos = $this->dataProvider->getCommissionInfo((int) $commissionConcerneCrRaw);
+        if (null === $commissionInfos) {
+            return $results;
+        }
 
         /** @var string|null $dateCommCrRaw */
         $dateCommCrRaw = $commissionInfo['DATE_COMMISSION'] ?? '';
         $dateComm = (string) ($dateCommCrRaw ?? '');
 
         /** @var string|null $docCrRaw */
-        $docCrRaw = $commissionInfos[0]['DOCUMENT_CR'] ?? '';
+        $docCrRaw = $commissionInfos['DOCUMENT_CR'] ?? '';
         $nomFichier = (string) $docCrRaw;
         if ('' === $nomFichier) {
             $results[] = [
@@ -548,7 +562,7 @@ class CommissionDocumentGenerationService
                 'memberId' => 0,
                 'memberLabel' => '',
                 'status' => 'error',
-                'message' => 'Erreur lors de la génération du compte-rendu - '.$exception->getMessage(),
+                'message' => 'Erreur lors de la génération du compte-rendu',
                 'pieceJointeId' => null,
             ];
         }
@@ -557,43 +571,15 @@ class CommissionDocumentGenerationService
     }
 
     // ========================================================================
-    // PRIVATE — Chargement des données
+    // PRIVATE — Enrichissement des données
     // ========================================================================
 
     /**
-     * @return array<string, mixed>|null
-     */
-    private function getDateCommissionInfo(int $dateCommId): ?array
-    {
-        /** @var array<string, mixed>|false $row */
-        $row = $this->conn->fetchAssociative(
-            'SELECT dc.*, c.ID_COMMISSIONTYPE
-             FROM datecommission dc
-             JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
-             WHERE dc.ID_DATECOMMISSION = :id',
-            ['id' => $dateCommId]
-        );
-
-        if (false === $row) {
-            return null;
-        }
-
-        return $row;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getCommissionInfo(int $commissionId): array
-    {
-        return $this->conn->fetchAllAssociative(
-            'SELECT * FROM commission WHERE ID_COMMISSION = :id',
-            ['id' => $commissionId]
-        );
-    }
-
-    /**
      * Enrichit les dossiers avec établissement, avis dérogations, prescriptions, formulaires.
+     *
+     * Utilise un chargement en deux passes pour éviter les problèmes N+1 :
+     * 1. Collecte des IDs et pré-chargement batch des données DBAL
+     * 2. Assemblage par dossier
      *
      * @param array<int, array<string, mixed>> $listeDossiers
      *
@@ -601,12 +587,36 @@ class CommissionDocumentGenerationService
      */
     private function enrichDossiers(array $listeDossiers, bool $includePrescriptions): array
     {
-        foreach ($listeDossiers as $val => $dossier) {
-            /** @var int|string $dossierIdValue */
-            $dossierIdValue = $dossier['ID_DOSSIER'] ?? 0;
-            $dossierId = (int) $dossierIdValue;
+        if (empty($listeDossiers)) {
+            return [];
+        }
 
-            // Charger l'entité Dossier tôt pour utiliser les relations Doctrine
+        // ── Passe 1 : Collecter IDs et charger entités ──────────────────────────
+        $dossierIds = [];
+        foreach ($listeDossiers as $dossier) {
+            /** @var int|string $rawDossierId */
+            $rawDossierId = $dossier['ID_DOSSIER'] ?? 0;
+            $dossierIds[] = (int) $rawDossierId;
+        }
+
+        // Pré-charger toutes les entités Dossier en une seule requête (popule l'identity map)
+        $this->em->createQueryBuilder()
+            ->select('d')
+            ->from(Dossier::class, 'd')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $dossierIds)
+            ->getQuery()
+            ->getResult();
+
+        // Premier passage : collecter les IDs d'établissements
+        /** @var array<int, array{dossierKey: int, dossierId: int, dossierEntity: Dossier, etabId: int, etabEntity: Etablissement}> $validDossiers */
+        $validDossiers = [];
+        $allEtabIds = [];
+
+        foreach ($listeDossiers as $val => $dossier) {
+            /** @var int|string $rawDossierIdLoop */
+            $rawDossierIdLoop = $dossier['ID_DOSSIER'] ?? 0;
+            $dossierId = (int) $rawDossierIdLoop;
             $dossierEntity = $this->em->find(Dossier::class, $dossierId);
             if (null === $dossierEntity) {
                 unset($listeDossiers[$val]);
@@ -614,10 +624,6 @@ class CommissionDocumentGenerationService
                 continue;
             }
 
-            // Préventionnistes via relation Doctrine (évite les erreurs de jointure SQL)
-            $listeDossiers[$val]['preventionnistes'] = $this->getPreventionnistesFromEntity($dossierEntity);
-
-            // Établissement lié au dossier
             $etablissements = $dossierEntity->getEtablissements();
             if ($etablissements->isEmpty()) {
                 unset($listeDossiers[$val]);
@@ -628,11 +634,53 @@ class CommissionDocumentGenerationService
             /** @var Etablissement $etabEntity */
             $etabEntity = $etablissements->first();
             $etabId = (int) $etabEntity->getId();
-            $etablissementInfos = $this->getEtablissementInfos($etabId);
-            $listeDossiers[$val]['infosEtab'] = $etablissementInfos;
+            $allEtabIds[] = $etabId;
 
-            // Avis dérogations du dossier
-            $listeDossiers[$val]['AVIS_DEROGATIONS'] = $this->getAvisDerogationsFromDossier($dossierId);
+            $validDossiers[] = [
+                'dossierKey' => $val,
+                'dossierId' => $dossierId,
+                'dossierEntity' => $dossierEntity,
+                'etabId' => $etabId,
+                'etabEntity' => $etabEntity,
+            ];
+        }
+
+        if (empty($validDossiers)) {
+            return [];
+        }
+
+        // ── Passe 2 : Chargement batch des données DBAL ─────────────────────────
+        $validDossierIds = array_column($validDossiers, 'dossierId');
+
+        // Batch : avis dérogations par dossier
+        $allAvisDerogations = $this->dataProvider->batchGetAvisDerogationsFromDossiers($validDossierIds);
+
+        // Batch : documents d'urbanisme par dossier
+        $allDocUrba = $this->dataProvider->batchGetDocUrba($validDossierIds);
+
+        // Batch : informations établissements
+        $allEtabInfos = $this->dataProvider->batchGetEtablissementInfos($allEtabIds);
+
+        // ── Passe 3 : Assemblage par dossier ─────────────────────────────────────
+        foreach ($validDossiers as $entry) {
+            $val = $entry['dossierKey'];
+            $dossierId = $entry['dossierId'];
+            $dossierEntity = $entry['dossierEntity'];
+            $etabId = $entry['etabId'];
+            $etabEntity = $entry['etabEntity'];
+
+            /** @var array<string, mixed> $currentDossier */
+            $currentDossier = $listeDossiers[$val];
+
+            // Préventionnistes via relation Doctrine
+            $currentDossier['preventionnistes'] = $this->getPreventionnistesFromEntity($dossierEntity);
+
+            // Établissement infos (depuis le batch)
+            $etablissementInfos = $allEtabInfos[$etabId] ?? [];
+            $currentDossier['infosEtab'] = $etablissementInfos;
+
+            // Avis dérogations du dossier (depuis le batch)
+            $currentDossier['AVIS_DEROGATIONS'] = $allAvisDerogations[$dossierId] ?? [];
 
             // Avis dérogations établissement (parent + enfants)
             $idsEtablissements = [$etabId];
@@ -645,21 +693,59 @@ class CommissionDocumentGenerationService
                 $idsEtablissements = array_merge($idsEtablissements, $etabLiesIds);
             }
 
-            $listeDossiers[$val]['AVIS_DEROGATIONS_ETABLISSEMENT'] = $this->getAvisDerogationsEtablissements($idsEtablissements);
+            $currentDossier['AVIS_DEROGATIONS_ETABLISSEMENT'] = $this->dataProvider->getAvisDerogationsEtablissements($idsEtablissements);
 
-            // Documents d'urbanisme
-            $listeDossiers[$val]['listeDocUrba'] = $this->getDocUrba($dossierId);
+            // Documents d'urbanisme (depuis le batch)
+            $currentDossier['listeDocUrba'] = $allDocUrba[$dossierId] ?? [];
 
             // Prescriptions (PV uniquement)
             if ($includePrescriptions) {
-                $listeDossiers[$val] = $this->enrichWithPrescriptions($listeDossiers[$val], $dossierEntity);
+                $currentDossier = $this->enrichWithPrescriptions($currentDossier, $dossierEntity);
             }
 
             // Formulaires personnalisés via Descriptif service
-            $listeDossiers[$val]['FORMULAIRES'] = $this->loadFormulaires($dossierEntity, $etabEntity);
+            $currentDossier['FORMULAIRES'] = $this->loadFormulaires($dossierEntity, $etabEntity);
+
+            $listeDossiers[$val] = $currentDossier;
         }
 
-        return array_values($listeDossiers);
+        /** @var array<int, array<string, mixed>> $result */
+        $result = array_values($listeDossiers);
+
+        return $result;
+    }
+
+    /**
+     * Enrichit un dossier avec les prescriptions par type.
+     *
+     * @param array<string, mixed> $dossier
+     *
+     * @return array<string, mixed>
+     */
+    private function enrichWithPrescriptions(array $dossier, Dossier $dossierEntity): array
+    {
+        $regles = PrescriptionArrayHelper::buildNestedArray(
+            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::REGLEMENTAIRE)
+        );
+        $dossier['prescriptionReglDossier'] = PrescriptionArrayHelper::withoutLevees($regles);
+        $dossier['prescriptionReglDossierReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionReglDossier']);
+        $dossier['prescriptionReglDossierActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionReglDossier']);
+
+        $exploitation = PrescriptionArrayHelper::buildNestedArray(
+            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::EXPLOITATION)
+        );
+        $dossier['prescriptionExploitation'] = PrescriptionArrayHelper::withoutLevees($exploitation);
+        $dossier['prescriptionExploitationReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionExploitation']);
+        $dossier['prescriptionExploitationActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionExploitation']);
+
+        $amelioration = PrescriptionArrayHelper::buildNestedArray(
+            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::AMELIORATION)
+        );
+        $dossier['prescriptionAmelioration'] = PrescriptionArrayHelper::withoutLevees($amelioration);
+        $dossier['prescriptionAmeliorationReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionAmelioration']);
+        $dossier['prescriptionAmeliorationActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionAmelioration']);
+
+        return $dossier;
     }
 
     /**
@@ -708,274 +794,6 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    private function getEtablissementInfos(int $etabId): array
-    {
-        // Infos générales
-        /** @var array<string, mixed>|false $general */
-        $general = $this->conn->fetchAssociative(
-            'SELECT * FROM etablissement WHERE ID_ETABLISSEMENT = :id',
-            ['id' => $etabId]
-        );
-
-        if (false === $general) {
-            return [];
-        }
-
-        // Infos détaillées (dernière version par DATE comme le legacy)
-        /** @var array<string, mixed>|false $informations */
-        $informations = $this->conn->fetchAssociative(
-            'SELECT ei.*, cat.LIBELLE_CATEGORIE, ta.LIBELLE_ACTIVITE, g.LIBELLE_GENRE,
-                    t.LIBELLE_TYPE as LIBELLE_TYPE_PRINCIPAL
-             FROM etablissementinformations ei
-             LEFT JOIN categorie cat ON ei.ID_CATEGORIE = cat.ID_CATEGORIE
-             LEFT JOIN typeactivite ta ON ei.ID_TYPEACTIVITE = ta.ID_TYPEACTIVITE
-             LEFT JOIN genre g ON ei.ID_GENRE = g.ID_GENRE
-             LEFT JOIN type t ON ei.ID_TYPE = t.ID_TYPE
-             WHERE ei.ID_ETABLISSEMENT = :id
-               AND ei.DATE_ETABLISSEMENTINFORMATIONS = (
-                   SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
-                   FROM etablissementinformations ei2
-                   WHERE ei2.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-               )',
-            ['id' => $etabId]
-        );
-
-        // Adresses
-        $adresses = $this->conn->fetchAllAssociative(
-            'SELECT ea.NUMERO_ADRESSE, ar.LIBELLE_RUE, ac.LIBELLE_COMMUNE,
-                    ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
-             FROM etablissementadresse ea
-             JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
-             JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
-             WHERE ea.ID_ETABLISSEMENT = :id',
-            ['id' => $etabId]
-        );
-
-        // Parents
-        $parents = $this->conn->fetchAllAssociative(
-            'SELECT ei.LIBELLE_ETABLISSEMENTINFORMATIONS
-             FROM etablissementlie el
-             JOIN etablissementinformations ei ON el.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
-             WHERE el.ID_FILS_ETABLISSEMENT = :id
-             ORDER BY ei.ID_ETABLISSEMENTINFORMATIONS DESC',
-            ['id' => $etabId]
-        );
-
-        // Établissements liés (enfants)
-        $etablissementLies = $this->conn->fetchAllAssociative(
-            'SELECT el.ID_FILS_ETABLISSEMENT as ID_ETABLISSEMENT
-             FROM etablissementlie el
-             WHERE el.ID_ETABLISSEMENT = :id',
-            ['id' => $etabId]
-        );
-
-        // Dernière visite
-        /** @var array<string, mixed>|false $lastVisite */
-        $lastVisite = $this->conn->fetchAssociative(
-            'SELECT d.DATEVISITE_DOSSIER
-             FROM dossier d
-             JOIN etablissementdossier ed ON d.ID_DOSSIER = ed.ID_DOSSIER
-             WHERE ed.ID_ETABLISSEMENT = :id
-               AND d.TYPE_DOSSIER IN (2,3)
-               AND d.DATEVISITE_DOSSIER IS NOT NULL
-             ORDER BY d.DATEVISITE_DOSSIER DESC LIMIT 1',
-            ['id' => $etabId]
-        );
-
-        return [
-            'general' => $general,
-            'informations' => false !== $informations ? $informations : [],
-            'adresses' => $adresses,
-            'parents' => $parents,
-            'etablissement_lies' => $etablissementLies,
-            'last_visite' => false !== $lastVisite ? $lastVisite['DATEVISITE_DOSSIER'] : null,
-        ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getAvisDerogationsFromDossier(int $dossierId): array
-    {
-        return $this->conn->fetchAllAssociative(
-            'SELECT ad.*, d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
-                    a.LIBELLE_AVIS, dl.TYPE_DOSSIER, dl.OBJET_DOSSIER
-             FROM avisderogations ad
-             JOIN dossier d ON ad.ID_DOSSIER = d.ID_DOSSIER
-             JOIN avis a ON ad.AVIS = a.ID_AVIS
-             LEFT JOIN dossier dl ON ad.ID_DOSSIER_LIE = dl.ID_DOSSIER
-             WHERE d.ID_DOSSIER = :id',
-            ['id' => $dossierId]
-        );
-    }
-
-    /**
-     * @param array<int, int> $idsEtablissements
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function getAvisDerogationsEtablissements(array $idsEtablissements): array
-    {
-        if (empty($idsEtablissements)) {
-            return [];
-        }
-
-        $placeholders = implode(',', array_fill(0, count($idsEtablissements), '?'));
-
-        return $this->conn->fetchAllAssociative(
-            'SELECT d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
-                    ad.*, a.LIBELLE_AVIS, d2.TYPE_DOSSIER
-             FROM dossier d
-             JOIN etablissementdossier ed ON d.ID_DOSSIER = ed.ID_DOSSIER
-             JOIN etablissement e ON ed.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-             JOIN avisderogations ad ON d.ID_DOSSIER = ad.ID_DOSSIER
-             JOIN avis a ON a.ID_AVIS = ad.AVIS
-             LEFT JOIN dossier d2 ON d2.ID_DOSSIER = ad.ID_DOSSIER_LIE
-             WHERE e.ID_ETABLISSEMENT IN ('.$placeholders.')
-               AND ad.DISPLAY_HISTORIQUE = 1',
-            $idsEtablissements
-        );
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getDocUrba(int $dossierId): array
-    {
-        return $this->conn->fetchAllAssociative(
-            'SELECT * FROM dossierdocurba WHERE ID_DOSSIER = :id',
-            ['id' => $dossierId]
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $dossier
-     *
-     * @return array<string, mixed>
-     */
-    private function enrichWithPrescriptions(array $dossier, Dossier $dossierEntity): array
-    {
-        $regles = PrescriptionArrayHelper::buildNestedArray(
-            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::REGLEMENTAIRE)
-        );
-        $dossier['prescriptionReglDossier'] = PrescriptionArrayHelper::withoutLevees($regles);
-        $dossier['prescriptionReglDossierReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionReglDossier']);
-        $dossier['prescriptionReglDossierActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionReglDossier']);
-
-        $exploitation = PrescriptionArrayHelper::buildNestedArray(
-            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::EXPLOITATION)
-        );
-        $dossier['prescriptionExploitation'] = PrescriptionArrayHelper::withoutLevees($exploitation);
-        $dossier['prescriptionExploitationReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionExploitation']);
-        $dossier['prescriptionExploitationActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionExploitation']);
-
-        $amelioration = PrescriptionArrayHelper::buildNestedArray(
-            $this->prescriptionService->getPrescriptionsParType($dossierEntity, TypePrescription::AMELIORATION)
-        );
-        $dossier['prescriptionAmelioration'] = PrescriptionArrayHelper::withoutLevees($amelioration);
-        $dossier['prescriptionAmeliorationReprises'] = PrescriptionArrayHelper::withoutActuals($dossier['prescriptionAmelioration']);
-        $dossier['prescriptionAmeliorationActuelles'] = PrescriptionArrayHelper::withoutPrevious($dossier['prescriptionAmelioration']);
-
-        return $dossier;
-    }
-
-    /**
-     * Charge les membres avec leurs compétences (catégories, types, classes, dossiertypes).
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function loadMembresWithCompetences(int $commissionId): array
-    {
-        $membres = $this->conn->fetchAllAssociative(
-            'SELECT cm.ID_COMMISSIONMEMBRE as id_membre, cm.*
-             FROM commissionmembre cm
-             WHERE cm.ID_COMMISSION = :id',
-            ['id' => $commissionId]
-        );
-
-        foreach ($membres as $idx => $membre) {
-            /** @var int|string $membreIdRaw */
-            $membreIdRaw = $membre['id_membre'] ?? 0;
-            $membreId = (int) $membreIdRaw;
-
-            // InfosFiles
-            $membres[$idx]['infosFiles'] = $this->conn->fetchAllAssociative(
-                'SELECT * FROM commissionmembre WHERE ID_COMMISSIONMEMBRE = :id',
-                ['id' => $membreId]
-            );
-
-            // Compétences catégories
-            $categories = $this->conn->fetchAllAssociative(
-                'SELECT * FROM commissionmembrecategorie WHERE ID_COMMISSIONMEMBRE = :id',
-                ['id' => $membreId]
-            );
-            $membres[$idx]['categories'] = [];
-            foreach ($categories as $cat) {
-                /** @var int|string $catId */
-                $catId = $cat['ID_CATEGORIE'] ?? 0;
-                $membres[$idx]['categories'][$catId] = $cat;
-            }
-
-            // Compétences types
-            $types = $this->conn->fetchAllAssociative(
-                'SELECT * FROM commissionmembretypeactivite WHERE ID_COMMISSIONMEMBRE = :id',
-                ['id' => $membreId]
-            );
-            $membres[$idx]['types'] = [];
-            foreach ($types as $t) {
-                /** @var int|string $typeActiviteId */
-                $typeActiviteId = $t['ID_TYPEACTIVITE'] ?? 0;
-                $membres[$idx]['types'][$typeActiviteId] = $t;
-            }
-
-            // Compétences classes
-            $classes = $this->conn->fetchAllAssociative(
-                'SELECT * FROM commissionmembreclasse WHERE ID_COMMISSIONMEMBRE = :id',
-                ['id' => $membreId]
-            );
-            $membres[$idx]['classes'] = [];
-            foreach ($classes as $cl) {
-                /** @var int|string $classeId */
-                $classeId = $cl['ID_CLASSE'] ?? 0;
-                $membres[$idx]['classes'][$classeId] = $cl;
-            }
-
-            // Compétences dossier types
-            $dossiertypes = $this->conn->fetchAllAssociative(
-                'SELECT * FROM commissionmembredossiertype WHERE ID_COMMISSIONMEMBRE = :id',
-                ['id' => $membreId]
-            );
-            $membres[$idx]['dossiertypes'] = [];
-            foreach ($dossiertypes as $dt) {
-                /** @var int|string $dossierTypeId */
-                $dossierTypeId = $dt['ID_DOSSIERTYPE'] ?? 0;
-                $membres[$idx]['dossiertypes'][$dossierTypeId] = $dt;
-            }
-
-            // Flag manifestation
-            $membres[$idx]['manifestation'] = !empty($membre['MANIFESTATION_COMMISSIONMEMBRE']);
-        }
-
-        return $membres;
-    }
-
-    /**
-     * Charge les membres (sans groupement) pour le PV.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function loadMembresFilesForPv(int $commissionId): array
-    {
-        return $this->conn->fetchAllAssociative(
-            'SELECT * FROM commissionmembre
-             WHERE ID_COMMISSION = :id AND ID_GROUPEMENT IS NULL',
-            ['id' => $commissionId]
-        );
-    }
-
-    /**
      * Construit la liste des communes à partir des dossiers.
      *
      * @param array<int, array<string, mixed>> $listeDossiers
@@ -1016,25 +834,11 @@ class CommissionDocumentGenerationService
             }
 
             if (!$existe) {
-                $tabCommune[] = [$libelleCommune, $this->getCommuneContactInfo($numInsee)];
+                $tabCommune[] = [$libelleCommune, $this->dataProvider->getCommuneContactInfo($numInsee)];
             }
         }
 
         return $tabCommune;
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function getCommuneContactInfo(string $numInsee): array
-    {
-        return $this->conn->fetchAllAssociative(
-            'SELECT ui.*
-             FROM utilisateurinformations ui
-             JOIN adressecommune ac ON ac.ID_UTILISATEURINFORMATIONS = ui.ID_UTILISATEURINFORMATIONS
-             WHERE ac.NUMINSEE_COMMUNE = :numInsee',
-            ['numInsee' => $numInsee]
-        );
     }
 
     // ========================================================================
@@ -1045,7 +849,7 @@ class CommissionDocumentGenerationService
      * @param array<int, array<string, mixed>>                                  $listeDossiers
      * @param array<string, mixed>                                              $membre
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
-     * @param array<int, array<string, mixed>>                                  $commissionInfos
+     * @param array<string, mixed>                                              $commissionInfos
      */
     private function generateConvocationParCommune(
         string $templatePath,
@@ -1073,7 +877,7 @@ class CommissionDocumentGenerationService
             }
 
             $this->addChamp($villeODF, 'communeMairie', (string) $commune[0]);
-            $this->addChamp($villeODF, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
+            $this->addChamp($villeODF, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
             $dateDuJour = new \DateTime();
             $this->addChamp($villeODF, 'date', $dateDuJour->format('d/m/Y'));
@@ -1081,9 +885,7 @@ class CommissionDocumentGenerationService
             $dateCommObj = $this->parseDateSql($dateComm);
             $this->addChamp($villeODF, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
 
-            $heureCommTab = explode(':', $heureDeb);
-            $heureComm = $heureCommTab[0].':'.$heureCommTab[1];
-            $this->addChamp($villeODF, 'heureDebutComm', $heureComm);
+            $this->addChamp($villeODF, 'heureDebutComm', $this->formatHeure($heureDeb));
 
             // Heure début 1er dossier concerné
             $heureDebut = '';
@@ -1102,8 +904,7 @@ class CommissionDocumentGenerationService
                 ) {
                     /** @var string $heureDebAffect */
                     $heureDebAffect = $dossierInfos['HEURE_DEB_AFFECT'];
-                    $heureDebutTab = explode(':', $heureDebAffect);
-                    $heureDebut = $heureDebutTab[0].':'.$heureDebutTab[1];
+                    $heureDebut = $this->formatHeure($heureDebAffect);
 
                     break;
                 }
@@ -1158,7 +959,7 @@ class CommissionDocumentGenerationService
      * @param array<int, array<string, mixed>>                                  $listeDossiers
      * @param array<string, mixed>                                              $membre
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
-     * @param array<int, array<string, mixed>>                                  $commissionInfos
+     * @param array<string, mixed>                                              $commissionInfos
      */
     private function generateConvocationParGroupement(
         string $templatePath,
@@ -1180,7 +981,7 @@ class CommissionDocumentGenerationService
 
         // Récupérer les infos du groupement
         /** @var array<string, string|null>|false $infosGroupement */
-        $infosGroupement = $this->conn->fetchAssociative(
+        $infosGroupement = $this->em->getConnection()->fetchAssociative(
             'SELECT * FROM groupement WHERE ID_GROUPEMENT = :id',
             ['id' => $groupementId]
         );
@@ -1189,7 +990,7 @@ class CommissionDocumentGenerationService
         }
 
         // Récupérer les communes du groupement
-        $listeVillesGroupement = $this->conn->fetchAllAssociative(
+        $listeVillesGroupement = $this->em->getConnection()->fetchAllAssociative(
             'SELECT ac.NUMINSEE_COMMUNE
              FROM groupementcommune gc
              JOIN adressecommune ac ON gc.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
@@ -1365,13 +1166,13 @@ class CommissionDocumentGenerationService
 
     /**
      * @param \Odf|\Segment                                                     $odf
-     * @param array<int, array<string, mixed>>                                  $commissionInfos
+     * @param array<string, mixed>                                              $commissionInfos
      * @param array<string, string|null>                                        $infosGroupement
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
      */
     private function fillGroupementCommissionInfo($odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
     {
-        $this->addChamp($odf, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
+        $this->addChamp($odf, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
         $dateDuJour = new \DateTime();
         $this->addChamp($odf, 'date', $dateDuJour->format('d/m/Y'));
@@ -1415,7 +1216,7 @@ class CommissionDocumentGenerationService
      * @param array<int, array<string, mixed>>                                  $listeDossiers
      * @param array<string, mixed>                                              $membre
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
-     * @param array<int, array<string, mixed>>                                  $commissionInfos
+     * @param array<string, mixed>                                              $commissionInfos
      */
     private function generateOdjParCommune(
         string $templatePath,
@@ -1457,7 +1258,7 @@ class CommissionDocumentGenerationService
                 }
             }
 
-            $this->addChamp($membreLoop, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
+            $this->addChamp($membreLoop, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
             $dateDuJour = new \DateTime();
             $this->addChamp($membreLoop, 'date', $dateDuJour->format('d/m/Y'));
@@ -1465,9 +1266,7 @@ class CommissionDocumentGenerationService
             $dateCommObj = $this->parseDateSql($dateComm);
             $this->addChamp($membreLoop, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
 
-            $heureCommTab = explode(':', $heureDeb);
-            $heureComm = $heureCommTab[0].':'.$heureCommTab[1];
-            $this->addChamp($membreLoop, 'heureDebutComm', $heureComm);
+            $this->addChamp($membreLoop, 'heureDebutComm', $this->formatHeure($heureDeb));
 
             // Dossiers de la commune filtrés par compétence
             $infosDossOdjName = 'infosDoss';
@@ -1515,7 +1314,7 @@ class CommissionDocumentGenerationService
     /**
      * @param array<int, array<string, mixed>> $listeDossiers
      * @param array<string, mixed>             $membre
-     * @param array<int, array<string, mixed>> $commissionInfos
+     * @param array<string, mixed>             $commissionInfos
      */
     private function generateOdjParGroupement(
         string $templatePath,
@@ -1535,7 +1334,7 @@ class CommissionDocumentGenerationService
         $groupementId = (int) $groupementIdRaw;
 
         /** @var array<string, string|null>|false $infosGroupement */
-        $infosGroupement = $this->conn->fetchAssociative(
+        $infosGroupement = $this->em->getConnection()->fetchAssociative(
             'SELECT * FROM groupement WHERE ID_GROUPEMENT = :id',
             ['id' => $groupementId]
         );
@@ -1546,7 +1345,7 @@ class CommissionDocumentGenerationService
         $odf = new \Odf($templatePath);
         $grpLoop = $odf->setSegment('grpLoop');
 
-        $this->addChamp($grpLoop, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
+        $this->addChamp($grpLoop, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
         $dateDuJour = new \DateTime();
         $this->addChamp($grpLoop, 'date', $dateDuJour->format('d/m/Y'));
@@ -1728,7 +1527,7 @@ class CommissionDocumentGenerationService
 
     /**
      * @param array<int, array<string, mixed>> $listeDossiers
-     * @param array<int, array<string, mixed>> $commissionInfos
+     * @param array<string, mixed>             $commissionInfos
      */
     private function generatePvForMembre(
         string $templatePath,
@@ -1758,7 +1557,7 @@ class CommissionDocumentGenerationService
             }
 
             foreach ($pvAdresses as $commune) {
-                $this->addChamp($dossInfos, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
+                $this->addChamp($dossInfos, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
                 if (isset($commune['LIBELLE_COMMUNE'])) {
                     $this->addChamp($dossInfos, 'communeDossier', $commune['LIBELLE_COMMUNE']);
@@ -1888,7 +1687,7 @@ class CommissionDocumentGenerationService
 
     /**
      * @param array<int, array<string, mixed>> $listeDossiers
-     * @param array<int, array<string, mixed>> $commissionInfos
+     * @param array<string, mixed>             $commissionInfos
      */
     private function generateCompteRenduDocument(
         string $templatePath,
@@ -1922,7 +1721,7 @@ class CommissionDocumentGenerationService
             }
 
             foreach ($crAdresses as $commune) {
-                $this->addChamp($dossInfos, 'commissionNom', $commissionInfos[0]['LIBELLE_COMMISSION'] ?? '');
+                $this->addChamp($dossInfos, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
                 if (isset($commune['LIBELLE_COMMUNE'])) {
                     $this->addChamp($dossInfos, 'communeDossier', $commune['LIBELLE_COMMUNE']);
@@ -2354,15 +2153,15 @@ class CommissionDocumentGenerationService
         $pj->setDate($now);
 
         $this->em->persist($pj);
-        $this->em->flush();
 
         // Lier à la dateCommission
         /** @var DateCommission|null $dateCommission */
         $dateCommission = $this->em->find(DateCommission::class, $dateCommId);
         if (null !== $dateCommission) {
             $dateCommission->addPiecesJointe($pj);
-            $this->em->flush();
         }
+
+        $this->em->flush();
 
         return $pj;
     }
@@ -2382,5 +2181,24 @@ class CommissionDocumentGenerationService
         }
 
         return $dt instanceof \DateTime ? $dt : null;
+    }
+
+    /**
+     * Formate une heure brute (HH:MM ou HH:MM:SS) en HH:MM.
+     *
+     * Retourne une chaîne vide si l'entrée est nulle, vide ou mal formée.
+     */
+    private function formatHeure(?string $time): string
+    {
+        if (null === $time || '' === $time) {
+            return '';
+        }
+
+        $parts = explode(':', $time);
+        if (count($parts) < 2) {
+            return '';
+        }
+
+        return $parts[0].':'.$parts[1];
     }
 }

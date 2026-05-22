@@ -28,6 +28,14 @@ function toLocalISOString(date) {
         + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
 }
 
+/* ── Helper échappement HTML ─────────────────────────────────────────────── */
+function escapeHtml(str) {
+    if (!str) { return ''; }
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+
 $(document).ready(function() {
     $('#external-events div.external-event').each(function() {
         // Création d'un objet Event (FullCalendar v1)
@@ -246,9 +254,11 @@ $(document).ready(function() {
                 if (response.results) {
                     for (var i = 0; i < response.results.length; i++) {
                         var r = response.results[i];
-                        var text = r.memberLabel
-                            ? r.message.replace(r.memberLabel, '<strong>' + r.memberLabel + '</strong>')
-                            : r.message;
+                        var safeLabel = escapeHtml(r.memberLabel);
+                        var safeMessage = escapeHtml(r.message);
+                        var text = safeLabel
+                            ? safeMessage.replace(safeLabel, '<strong>' + safeLabel + '</strong>')
+                            : safeMessage;
                         if (r.status === 'success') {
                             successLines.push(text);
                         } else if (r.status === 'error') {

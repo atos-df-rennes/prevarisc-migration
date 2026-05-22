@@ -2,6 +2,8 @@
 
 namespace App\Service\Commission;
 
+use App\Constant\GenreEtablissement;
+
 /**
  * Détermine si un dossier concerne un membre de commission.
  *
@@ -46,7 +48,7 @@ class CommissionMembreEligibilityChecker
 
         /** @var int|string $genreId */
         $genreId = $informations['ID_GENRE'] ?? 0;
-        if (8 === (int) $genreId && !empty($membre['manifestation'])) {
+        if (GenreEtablissement::MANIFESTATION_TEMPORAIRE === (int) $genreId && !empty($membre['manifestation'])) {
             return true;
         }
 
