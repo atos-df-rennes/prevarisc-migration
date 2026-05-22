@@ -331,10 +331,12 @@ class DescriptifCopier
      */
     public function matchRubriqueByNom(array $rubriques, string $nom): ?array
     {
+        $normalizedNom = $this->normalizeString($nom);
+
         foreach ($rubriques as $item) {
             /** @var Rubrique $rubrique */
             $rubrique = $item['rubrique'];
-            if ($rubrique->getNom() === $nom) {
+            if ($this->normalizeString((string) $rubrique->getNom()) === $normalizedNom) {
                 return $item;
             }
         }
@@ -351,10 +353,12 @@ class DescriptifCopier
      */
     public function matchChampByNom(array $champs, string $nom): ?array
     {
+        $normalizedNom = $this->normalizeString($nom);
+
         foreach ($champs as $champData) {
             /** @var Champ $champ */
             $champ = $champData['champ'];
-            if ($champ->getNom() === $nom) {
+            if ($this->normalizeString((string) $champ->getNom()) === $normalizedNom) {
                 return $champData;
             }
         }
@@ -369,12 +373,22 @@ class DescriptifCopier
      */
     private function matchChampByNomInArray(array $enfants, string $nom): ?Champ
     {
+        $normalizedNom = $this->normalizeString($nom);
+
         foreach ($enfants as $enfant) {
-            if ($enfant->getNom() === $nom) {
+            if ($this->normalizeString((string) $enfant->getNom()) === $normalizedNom) {
                 return $enfant;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Normalise une chaîne en remplaçant les séquences d'espaces par un espace simple.
+     */
+    private function normalizeString(string $str): string
+    {
+        return (string) preg_replace('/\s+/', ' ', trim($str));
     }
 }

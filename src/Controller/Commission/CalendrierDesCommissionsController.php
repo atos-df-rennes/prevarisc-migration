@@ -505,7 +505,7 @@ class CalendrierDesCommissionsController extends AbstractController
         foreach ($listeDossiers as $dossier) {
             $conn->executeStatement(
                 'UPDATE dossier SET DATECOMM_DOSSIER = NULL WHERE ID_DOSSIER = :id',
-                ['id' => is_numeric($dossier['ID_DOSSIER']) ? (int) $dossier['ID_DOSSIER'] : 0]
+                ['id' => is_numeric($dossier->ID_DOSSIER) ? (int) $dossier->ID_DOSSIER : 0]
             );
         }
 

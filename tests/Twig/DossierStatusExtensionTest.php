@@ -4,6 +4,7 @@ namespace App\Tests\Twig;
 
 use App\Constant\Avis;
 use App\Constant\DossierType;
+use App\Dto\Repository\DossierSearchResultDto;
 use App\Service\DateDiffFormatterService;
 use App\Twig\DossierStatusExtension;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,7 +30,7 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDossierIncompletRetourneOrangeBadge(): void
     {
-        $result = $this->extension->renderAvisBadge(['INCOMPLET_DOSSIER' => 1]);
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray(['INCOMPLET_DOSSIER' => 1]));
 
         $this->assertSame(
             '<span class="avis" style="background-color: #f89406;">Dossier incomplet</span>',
@@ -39,10 +40,10 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDossierIncompletEstPrioritaireSurDiffere(): void
     {
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'INCOMPLET_DOSSIER' => 1,
             'DIFFEREAVIS_DOSSIER' => 1,
-        ]);
+        ]));
 
         $this->assertStringContainsString('Dossier incomplet', $result);
     }
@@ -53,7 +54,7 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testAvisDiffereRetourneBlueBadge(): void
     {
-        $result = $this->extension->renderAvisBadge(['DIFFEREAVIS_DOSSIER' => 1]);
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray(['DIFFEREAVIS_DOSSIER' => 1]));
 
         $this->assertSame(
             '<span class="avis" style="background-color: #3a87ad;">Avis différé</span>',
@@ -67,10 +68,10 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testCourrierReponduRetourneRepondu(): void
     {
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'TYPE_DOSSIER' => DossierType::COURRIER,
             'DATEREP_DOSSIER' => '2023-01-15',
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis F">Répondu</span>', $result);
     }
@@ -83,11 +84,11 @@ class DossierStatusExtensionTest extends TestCase
     {
         $this->dateDiffFormatter->expects($this->never())->method('format');
 
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'TYPE_DOSSIER' => DossierType::COURRIER,
             'DATEREP_DOSSIER' => '',
             'DATESDIS_DOSSIER' => '',
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis">Réponse à faire</span>', $result);
     }
@@ -104,11 +105,11 @@ class DossierStatusExtensionTest extends TestCase
             ->with('2022-06-01 00:00:00')
             ->willReturn('3 mois, 5 jours');
 
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'TYPE_DOSSIER' => DossierType::COURRIER,
             'DATEREP_DOSSIER' => '',
             'DATESDIS_DOSSIER' => '2022-06-01 00:00:00',
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis">Réponse à faire (3 mois, 5 jours)</span>', $result);
     }
@@ -120,11 +121,11 @@ class DossierStatusExtensionTest extends TestCase
             ->method('format')
             ->willReturn('');
 
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'TYPE_DOSSIER' => DossierType::COURRIER,
             'DATEREP_DOSSIER' => '',
             'DATESDIS_DOSSIER' => '2022-06-01 00:00:00',
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis">Réponse à faire</span>', $result);
     }
@@ -135,20 +136,20 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testFavorableSansExploitationRetourneFavorable(): void
     {
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::FAVORABLE,
             'ID_DOSSIERNATURE' => 1, // 1 n'est pas dans la liste exploitation
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis F">Favorable</span>', $result);
     }
 
     public function testFavorableAvecExploitationRetourneFavorableExploitation(): void
     {
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::FAVORABLE,
             'ID_DOSSIERNATURE' => 7, // 7 est dans la liste exploitation
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis F">Favorable à l\'exploitation</span>', $result);
     }
@@ -159,20 +160,20 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDefavorableSansExploitationRetourneDefavorable(): void
     {
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::DEFAVORABLE,
             'ID_DOSSIERNATURE' => 1, // hors liste exploitation
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis D">Défavorable</span>', $result);
     }
 
     public function testDefavorableAvecExploitationRetourneDefavorableExploitation(): void
     {
-        $result = $this->extension->renderAvisBadge([
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::DEFAVORABLE,
             'ID_DOSSIERNATURE' => 16, // 16 est dans la liste exploitation
-        ]);
+        ]));
 
         $this->assertSame('<span class="avis D">Défavorable à l\'exploitation</span>', $result);
     }
@@ -183,14 +184,14 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testFallbackRetourneAvisIndisponible(): void
     {
-        $result = $this->extension->renderAvisBadge([]);
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([]));
 
         $this->assertSame('<span class="avis">Avis indisponible</span>', $result);
     }
 
     public function testFallbackAvecAvisInconnuRetourneAvisIndisponible(): void
     {
-        $result = $this->extension->renderAvisBadge(['ID_AVIS' => 99]);
+        $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray(['ID_AVIS' => 99]));
 
         $this->assertSame('<span class="avis">Avis indisponible</span>', $result);
     }

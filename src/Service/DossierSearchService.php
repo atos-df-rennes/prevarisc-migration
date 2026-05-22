@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\Repository\DossierSearchResultDto;
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
 
@@ -51,7 +52,7 @@ class DossierSearchService
      * @param array<int|string, int|string>|null $types
      * @param array<string, mixed>|null          $criterias
      *
-     * @return array{results: array<int|string, array<string, mixed>>, search_metadata: array{count: int, current_page: int}}
+     * @return array{results: array<string, DossierSearchResultDto>, search_metadata: array{count: int, current_page: int}}
      */
     public function dossiers(
         ?array $types,
@@ -378,14 +379,14 @@ class DossierSearchService
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->connection->executeQuery($paginatedSql)->fetchAllAssociative();
 
-        // Index par ID_DOSSIER (comme le legacy)
-        /** @var array<string, array<string, mixed>> $newResults */
+        // Index par ID_DOSSIER (comme le legacy), mappé vers DTO
+        /** @var array<string, DossierSearchResultDto> $newResults */
         $newResults = [];
         foreach ($rows as $row) {
             $dossierIdValue = $row['ID_DOSSIER'];
             $dossierIdStr = is_int($dossierIdValue) || is_string($dossierIdValue) ? (string) $dossierIdValue : '';
             if ('' !== $dossierIdStr) {
-                $newResults[$dossierIdStr] = $row;
+                $newResults[$dossierIdStr] = DossierSearchResultDto::fromArray($row);
             }
         }
 
@@ -414,11 +415,11 @@ class DossierSearchService
                 if (null !== $prevDossId && (is_string($prevDossId) || is_int($prevDossId))) {
                     $dossId = (string) $prevDossId;
                     if (isset($newResults[$dossId])) {
-                        $existingPrevList = isset($newResults[$dossId]['PREVENTIONNISTES']) && is_array($newResults[$dossId]['PREVENTIONNISTES'])
-                            ? $newResults[$dossId]['PREVENTIONNISTES']
+                        $existingPrevList = \is_array($newResults[$dossId]->PREVENTIONNISTES)
+                            ? $newResults[$dossId]->PREVENTIONNISTES
                             : [];
                         $existingPrevList[] = $prev;
-                        $newResults[$dossId]['PREVENTIONNISTES'] = $existingPrevList;
+                        $newResults[$dossId]->PREVENTIONNISTES = $existingPrevList;
                     }
                 }
             }
@@ -441,11 +442,11 @@ class DossierSearchService
                 if (null !== $pjDossId && (is_string($pjDossId) || is_int($pjDossId))) {
                     $dossId = (string) $pjDossId;
                     if (isset($newResults[$dossId])) {
-                        $existingPjList = isset($newResults[$dossId]['PIECESJOINTES']) && is_array($newResults[$dossId]['PIECESJOINTES'])
-                            ? $newResults[$dossId]['PIECESJOINTES']
+                        $existingPjList = \is_array($newResults[$dossId]->PIECESJOINTES)
+                            ? $newResults[$dossId]->PIECESJOINTES
                             : [];
                         $existingPjList[] = $pj;
-                        $newResults[$dossId]['PIECESJOINTES'] = $existingPjList;
+                        $newResults[$dossId]->PIECESJOINTES = $existingPjList;
                     }
                 }
             }

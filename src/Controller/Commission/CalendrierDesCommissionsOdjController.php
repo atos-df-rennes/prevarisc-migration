@@ -2,6 +2,7 @@
 
 namespace App\Controller\Commission;
 
+use App\Dto\Repository\DossierAffectationDto;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Utils\Date;
@@ -132,9 +133,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
 
         // 1er passage : enrichissement établissement + doc urba ; unset si aucun établissement (port direct)
         foreach ($listeDossiersAffect as $val => $ue) {
-            /** @var array<string, mixed> $ueTyped */
-            $ueTyped = $ue;
-            $idDossier = is_numeric($ueTyped['ID_DOSSIER']) ? (int) $ueTyped['ID_DOSSIER'] : 0;
+            $idDossier = (int) $ue->ID_DOSSIER;
 
             /** @var array<int, array<string, mixed>> $listeEtab */
             $listeEtab = $conn->fetchAllAssociative(
@@ -146,8 +145,8 @@ class CalendrierDesCommissionsOdjController extends AbstractController
 
             if ([] !== $listeEtab) {
                 $idEtab = is_numeric($listeEtab[0]['ID_ETABLISSEMENT']) ? (int) $listeEtab[0]['ID_ETABLISSEMENT'] : 0;
-                $listeDossiersAffect[$val]['infosEtab'] = $this->loadEtablissementInfos($idEtab);
-                $listeDossiersAffect[$val]['listeDocUrba'] = $conn->fetchAllAssociative(
+                $listeDossiersAffect[$val]->infosEtab = $this->loadEtablissementInfos($idEtab);
+                $listeDossiersAffect[$val]->listeDocUrba = $conn->fetchAllAssociative(
                     'SELECT NUM_DOCURBA FROM dossierdocurba WHERE ID_DOSSIER = :id',
                     ['id' => $idDossier]
                 );
@@ -160,10 +159,8 @@ class CalendrierDesCommissionsOdjController extends AbstractController
         $color = null;
         $items = [];
         foreach ($listeDossiersAffect as $dossierAffect) {
-            /** @var array<string, mixed> $dossierAffectTyped */
-            $dossierAffectTyped = $dossierAffect;
             /** @var array<string, mixed> $infosEtab */
-            $infosEtab = isset($dossierAffectTyped['infosEtab']) ? (array) $dossierAffectTyped['infosEtab'] : [];
+            $infosEtab = null !== $dossierAffect->infosEtab ? (array) $dossierAffect->infosEtab : [];
             /** @var array<string, mixed> $informations */
             $informations = isset($infosEtab['informations']) ? (array) $infosEtab['informations'] : [];
             /** @var array<int, array<string, mixed>> $adresses */
@@ -172,11 +169,11 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             $parents = isset($infosEtab['parents']) ? (array) $infosEtab['parents'] : [];
 
             // Extraction typée des champs scalaires
-            $idDossier = is_numeric($dossierAffectTyped['ID_DOSSIER']) ? (int) $dossierAffectTyped['ID_DOSSIER'] : 0;
-            $libelleDossierNature = is_string($dossierAffectTyped['LIBELLE_DOSSIERNATURE']) ? $dossierAffectTyped['LIBELLE_DOSSIERNATURE'] : '';
-            $objetDossier = is_string($dossierAffectTyped['OBJET_DOSSIER']) ? $dossierAffectTyped['OBJET_DOSSIER'] : '';
-            $heureDebAffect = is_string($dossierAffectTyped['HEURE_DEB_AFFECT']) ? $dossierAffectTyped['HEURE_DEB_AFFECT'] : '';
-            $heureFinAffect = is_string($dossierAffectTyped['HEURE_FIN_AFFECT']) ? $dossierAffectTyped['HEURE_FIN_AFFECT'] : '';
+            $idDossier = (int) $dossierAffect->ID_DOSSIER;
+            $libelleDossierNature = is_string($dossierAffect->LIBELLE_DOSSIERNATURE) ? $dossierAffect->LIBELLE_DOSSIERNATURE : '';
+            $objetDossier = is_string($dossierAffect->OBJET_DOSSIER) ? $dossierAffect->OBJET_DOSSIER : '';
+            $heureDebAffect = is_string($dossierAffect->HEURE_DEB_AFFECT) ? $dossierAffect->HEURE_DEB_AFFECT : '';
+            $heureFinAffect = is_string($dossierAffect->HEURE_FIN_AFFECT) ? $dossierAffect->HEURE_FIN_AFFECT : '';
             $libelleEtab = isset($informations['LIBELLE_ETABLISSEMENTINFORMATIONS']) && is_string($informations['LIBELLE_ETABLISSEMENTINFORMATIONS'])
                 ? $informations['LIBELLE_ETABLISSEMENTINFORMATIONS'] : '';
 
@@ -213,7 +210,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             }
 
             /** @var array<int, array<string, mixed>> $listeDocUrba */
-            $listeDocUrba = isset($dossierAffectTyped['listeDocUrba']) ? (array) $dossierAffectTyped['listeDocUrba'] : [];
+            $listeDocUrba = null !== $dossierAffect->listeDocUrba ? (array) $dossierAffect->listeDocUrba : [];
             if (count($listeDocUrba) > 0) {
                 $affichage .= ' - Doc urbanisme : ';
                 foreach ($listeDocUrba as $docUrba) {
@@ -237,9 +234,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
                 $affichage .= ' ('.$nom0.' '.$prenom0.')';
             }
 
-            if (0 == $dossierAffectTyped['VERROU_DOSSIER']) {
+            if (0 == $dossierAffect->VERROU_DOSSIER) {
                 $color = '#e2a420';
-            } elseif (1 == $dossierAffectTyped['VERROU_DOSSIER']) {
+            } elseif (1 == $dossierAffect->VERROU_DOSSIER) {
                 $color = '#83bff6';
             }
 
@@ -525,18 +522,16 @@ class CalendrierDesCommissionsOdjController extends AbstractController
      * Enrichit un tableau de dossiers bruts avec infosEtab, listeDocUrba et preventionnistes.
      * Port du bloc d'enrichissement inline de gestionodjAction().
      *
-     * @param array<int, array<string, mixed>> $dossiers
+     * @param DossierAffectationDto[] $dossiers
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierAffectationDto[]
      */
     private function enrichDossiers(array $dossiers): array
     {
         $conn = $this->entityManager->getConnection();
 
         foreach ($dossiers as $val => $ue) {
-            /** @var array<string, mixed> $ueTyped */
-            $ueTyped = $ue;
-            $idDossier = is_numeric($ueTyped['ID_DOSSIER']) ? (int) $ueTyped['ID_DOSSIER'] : 0;
+            $idDossier = (int) $ue->ID_DOSSIER;
 
             /** @var array<int, array<string, mixed>> $listeEtab */
             $listeEtab = $conn->fetchAllAssociative(
@@ -548,12 +543,12 @@ class CalendrierDesCommissionsOdjController extends AbstractController
 
             if ([] !== $listeEtab) {
                 $idEtab = is_numeric($listeEtab[0]['ID_ETABLISSEMENT']) ? (int) $listeEtab[0]['ID_ETABLISSEMENT'] : 0;
-                $dossiers[$val]['infosEtab'] = $this->loadEtablissementInfos($idEtab);
-                $dossiers[$val]['listeDocUrba'] = $conn->fetchAllAssociative(
+                $dossiers[$val]->infosEtab = $this->loadEtablissementInfos($idEtab);
+                $dossiers[$val]->listeDocUrba = $conn->fetchAllAssociative(
                     'SELECT NUM_DOCURBA FROM dossierdocurba WHERE ID_DOSSIER = :id',
                     ['id' => $idDossier]
                 );
-                $dossiers[$val]['preventionnistes'] = $conn->fetchAllAssociative(
+                $dossiers[$val]->preventionnistes = $conn->fetchAllAssociative(
                     'SELECT ui.NOM_UTILISATEURINFORMATIONS, ui.PRENOM_UTILISATEURINFORMATIONS
                      FROM dossierpreventionniste dp
                      JOIN utilisateur u ON dp.ID_PREVENTIONNISTE = u.ID_UTILISATEUR

@@ -8,7 +8,7 @@ namespace App\ValueObject;
  */
 class SearchPagination
 {
-    /** @var array<int|string, array<string, mixed>> */
+    /** @var array<int|string, mixed> */
     private $items;
 
     /** @var int */
@@ -21,7 +21,7 @@ class SearchPagination
     private $itemsPerPage;
 
     /**
-     * @param array<int|string, array<string, mixed>> $items
+     * @param array<int|string, mixed> $items
      */
     public function __construct(array $items, int $totalCount, int $currentPage, int $itemsPerPage)
     {
@@ -32,7 +32,7 @@ class SearchPagination
     }
 
     /**
-     * @return array<int|string, array<string, mixed>>
+     * @return array<int|string, mixed>
      */
     public function getItems(): array
     {

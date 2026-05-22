@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\Dto\Repository\DossierAffectationDto;
+use App\Dto\Repository\NextCommissionDto;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -81,7 +83,7 @@ class DateCommissionRepository extends ServiceEntityRepository
      *
      * @param int[] $commissionIds
      *
-     * @return array<int, array<string, mixed>>
+     * @return NextCommissionDto[]
      */
     public function findNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp): array
     {
@@ -107,7 +109,9 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($select, $params, $types);
 
-        return $rows;
+        return array_map(static function (array $row): NextCommissionDto {
+            return NextCommissionDto::fromArray($row);
+        }, $rows);
     }
 
     /**
@@ -144,7 +148,7 @@ class DateCommissionRepository extends ServiceEntityRepository
      * Retourne les dossiers affectés (avec horaire précisé) à une date de commission (ODJ).
      * Port direct de Model_DbTable_DossierAffectation::getDossierAffect().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierAffectationDto[]
      */
     public function findDossierAffectForCommission(int $idDateCommission): array
     {
@@ -171,14 +175,16 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
 
-        return $rows;
+        return array_map(static function (array $row): DossierAffectationDto {
+            return DossierAffectationDto::fromArray($row);
+        }, $rows);
     }
 
     /**
      * Retourne les dossiers non-affectés (sans horaire précisé) à une date de commission (ODJ).
      * Port direct de Model_DbTable_DossierAffectation::getDossierNonAffect().
      *
-     * @return array<int, array<string, mixed>>
+     * @return DossierAffectationDto[]
      */
     public function findDossierNonAffectForCommission(int $idDateCommission): array
     {
@@ -206,7 +212,9 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
 
-        return $rows;
+        return array_map(static function (array $row): DossierAffectationDto {
+            return DossierAffectationDto::fromArray($row);
+        }, $rows);
     }
 
     /**

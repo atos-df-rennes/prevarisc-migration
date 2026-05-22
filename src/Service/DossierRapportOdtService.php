@@ -1467,11 +1467,10 @@ class DossierRapportOdtService
                 if (null !== $dateCommission) {
                     $idDateCommAffect = $dateCommission->getId();
                     if (null !== $idDateCommAffect) {
-                        /** @var array<int, array<string, string|null>> $dossiersNonAffect */
                         $dossiersNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($idDateCommAffect);
                         foreach ($dossiersNonAffect as $dossCellule) {
-                            $idDossCellule = isset($dossCellule['ID_DOSSIER']) ? (int) $dossCellule['ID_DOSSIER'] : 0;
-                            $libelleCellule = $dossCellule['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '';
+                            $idDossCellule = (int) $dossCellule->ID_DOSSIER;
+                            $libelleCellule = $dossCellule->LIBELLE_ETABLISSEMENTINFORMATIONS ?? '';
 
                             $this->addChamp($segCellules, 'libelleCellule', $libelleCellule);
 

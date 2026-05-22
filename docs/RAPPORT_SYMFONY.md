@@ -643,7 +643,19 @@ public function findDossierAvecAvisDiffere(array $idsCommission): array
 }
 ```
 
-> **✅ Validé**
+> **✅ Fait** — Implémenté dans `refactor/repository-dtos` (commit `00bc773`).
+>
+> **Architecture choisie :**
+> - `AbstractDossierResultDto` : base abstraite avec 19 champs communs dossier + helpers `toInt()`/`toStr()` compatibles PHPStan niveau 10
+> - `DossierDashboardDto` (final) : 8 méthodes dashboard DossierRepository
+> - `DossierDateCommissionEchuDto` (final) : findDossierDateCommissionEchu() avec champs commission/affectation
+> - `DossierAffectationDto` (final) : findDossierAffect/NonAffectForCommission, propriétés nullable pour enrichissement contrôleur
+> - `EtablissementDashboardDto` (final) : 4 méthodes findERP*
+> - `NextCommissionDto` (final) : findNextCommissionsForDashboard
+>
+> Propriétés SCREAMING_SNAKE_CASE pour correspondre aux colonnes SQL et accès Twig sans modifier les templates.
+> Déduplication ID-based en remplacement de `array_unique(SORT_REGULAR)` cassé avec objets.
+> PHPStan niveau 10 : 0 erreur. CS-Fixer + Rector : 0 issue.
 
 ---
 
@@ -1013,7 +1025,7 @@ Les tâches complexes (REF-CTL-01, REF-REP-01, REF-SVC-01) sont à réserver à 
 | REF-SVC-05 | Service | Dashboard/Calendar SRP | 🟢 Basse | Modérée | ✅ Validé | 🔴 À faire | Non analysé | `refactor/dashboard-calendar-split` |
 | REF-REP-01 | Repository | 57 `getConnection()` SQL brut | 🔴 Haute | Complexe | ✅ Validé | ⚠️ Partiel | 29 `getConnection()` (était 57, −49 %) | `refactor/repositories-querybuilder` |
 | REF-REP-02 | Repository | 29 `findAll()` sans pagination | 🟡 Moyenne | Simple | ✅ Autocomplete AJAX (pas pagination) | 🔴 À faire | 32 `findAll()` dans controllers/services | `refactor/findall-autocomplete` |
-| REF-REP-03 | Repository | Retours `array<mixed>` | 🟡 Moyenne | Modérée | ✅ Validé | 🔴 À faire | 108 fonctions retournant `array` | `refactor/repository-dtos` |
+| REF-REP-03 | Repository | Retours `array<mixed>` | 🟡 Moyenne | Modérée | ✅ Validé | ✅ Fait | 16 méthodes → 6 DTOs typés (AbstractDossierResultDto + 5 concrets), PHPStan niveau 10 ✅ | `refactor/repository-dtos` |
 | REF-FORM-01 | Formulaire | DataTransformers manquants | 🟡 Moyenne | Modérée | ✅ Validé | ⚠️ Partiel | 2 DataTransformers créés (Boolean, DateCommission) | `refactor/form-datatransformers` |
 | REF-FORM-02 | Formulaire | 64 forms sans contraintes | 🟢 Basse | Simple | ✅ Contraintes certaines + @todo | 🔴 À faire | 55 formulaires sans contraintes | `refactor/form-constraints` |
 | REF-TWIG-01 | Template | Assets hardcodés | 🟡 Moyenne | Simple | ✅ Validé | 🔴 À faire | Non re-mesuré | `refactor/twig-asset-paths` |
