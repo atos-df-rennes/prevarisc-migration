@@ -14,6 +14,7 @@ use App\Entity\Utilisateur;
 use App\Form\DataTransformer\DateCommissionTransformer;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierPieceJointeRepository;
+use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -392,20 +393,14 @@ class DossierType extends AbstractType
                 'required' => false,
             ])
             // Préventionnistes (multiselect avec AJAX)
-            // Utilise 'choices' au lieu de 'query_builder' pour ne charger que les entités nécessaires
-            // En création : tableau vide (AJAX uniquement)
-            // En édition : uniquement les préventionnistes déjà sélectionnés
-            ->add('preventionnistes', EntityType::class, [
-                'label' => 'Préventionniste(s) du dossier',
-                'class' => Utilisateur::class,
-                'choices' => $options['is_edit'] && $options['data'] instanceof Dossier
+            // En création : tableau vide (aucune présélection, ajout uniquement via AJAX)
+            // En édition : présélection des préventionnistes déjà affectés (actifs et inactifs)
+            // La validation en soumission est gérée par le listener PRE_SUBMIT ci-dessous
+            ->add('preventionnistes', EntityType::class, $this->buildPreventionnistesOptions(
+                $options['is_edit'] && $options['data'] instanceof Dossier
                     ? $options['data']->getPreventionnistes()->toArray()
-                    : [],
-                'choice_label' => 'displayLabel',
-                'multiple' => true,
-                'required' => false,
-                'attr' => ['class' => 'tomselect-ajax'],
-            ])
+                    : []
+            ))
         ;
 
         if ($options['is_edit']) {
@@ -442,6 +437,39 @@ class DossierType extends AbstractType
 
         // Ajout du transformer pour dateCommission (stockée en string dd/mm/yyyy)
         $builder->get('dateCommission')->addModelTransformer(new DateCommissionTransformer());
+
+        // PRE_SUBMIT : Reconstruire les choix valides pour le champ preventionnistes
+        // Permet de valider les IDs soumis via TomSelect AJAX sans charger tous les préventionnistes en HTML
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $data = $event->getData();
+            $form = $event->getForm();
+
+            if (!is_array($data)) {
+                return;
+            }
+
+            // IDs soumis par TomSelect (dédoublonnés et castés en int)
+            $submittedIds = isset($data['preventionnistes']) && is_array($data['preventionnistes'])
+                ? array_values(array_unique(array_filter(array_map(
+                    static function ($id): int { return is_scalar($id) ? (int) $id : 0; },
+                    $data['preventionnistes']
+                ))))
+                : [];
+
+            // IDs déjà affectés au dossier (pour conserver les inactifs)
+            $dossier = $form->getData();
+            $existingIds = $dossier instanceof Dossier
+                ? array_values(array_unique($dossier->getPreventionnistes()->map(
+                    static function (Utilisateur $u): int { return (int) $u->getId(); }
+                )->toArray()))
+                : [];
+
+            /** @var UtilisateurRepository $repo */
+            $repo = $this->entityManager->getRepository(Utilisateur::class);
+            $validChoices = $repo->findValidPreventionnistesForSubmit($submittedIds, $existingIds);
+
+            $form->add('preventionnistes', EntityType::class, $this->buildPreventionnistesOptions($validChoices));
+        });
 
         // PRE_SUBMIT : Recalculer les natures disponibles en fonction du type sélectionné
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
@@ -557,5 +585,28 @@ class DossierType extends AbstractType
         ]);
 
         $resolver->setAllowedTypes('is_edit', 'bool');
+    }
+
+    /**
+     * Retourne les options communes du champ EntityType pour les préventionnistes.
+     *
+     * Factorisé pour éviter la duplication entre le rendu initial (GET)
+     * et la reconstruction en PRE_SUBMIT (POST).
+     *
+     * @param Utilisateur[] $choices Liste des utilisateurs à proposer comme options
+     *
+     * @return array<string, mixed>
+     */
+    private function buildPreventionnistesOptions(array $choices): array
+    {
+        return [
+            'label' => 'Préventionniste(s) du dossier',
+            'class' => Utilisateur::class,
+            'choices' => $choices,
+            'choice_label' => 'displayLabel',
+            'multiple' => true,
+            'required' => false,
+            'attr' => ['class' => 'tomselect-ajax'],
+        ];
     }
 }

@@ -127,11 +127,10 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
 
     /**
      * Crée un QueryBuilder pour récupérer les préventionnistes.
-     * Utilisé dans les formulaires avec EntityType.
+     * Utilisé dans les formulaires avec EntityType (ex: GroupementType).
      */
     public function createPreventionnistesQueryBuilder(): QueryBuilder
     {
-        // @todo: utiliser la mécanique d'affichage des actifs + sélectionnés mises en place sur l'édition de dossier
         return $this->createQueryBuilder('u')
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')
@@ -139,6 +138,48 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
             ->orderBy('i.nom', 'ASC')
             ->addOrderBy('i.prenom', 'ASC');
+    }
+
+    /**
+     * Trouve les préventionnistes valides pour la validation du formulaire dossier.
+     *
+     * Règle métier :
+     * - Les IDs soumis qui correspondent à un préventionniste actif sont acceptés (nouveau choix)
+     * - Les IDs soumis qui correspondent à un préventionniste déjà affecté sont acceptés (conservation, même inactif)
+     *
+     * @param int[] $submittedIds IDs soumis par le formulaire (via TomSelect)
+     * @param int[] $existingIds  IDs des préventionnistes déjà affectés au dossier
+     *
+     * @return Utilisateur[]
+     */
+    public function findValidPreventionnistesForSubmit(array $submittedIds, array $existingIds = []): array
+    {
+        if (empty($submittedIds)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('u')
+            ->innerJoin('u.informations', 'i')
+            ->innerJoin('i.fonction', 'f')
+            ->where('f.id = :fonction')
+            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->andWhere('u.id IN (:submittedIds)')
+            ->setParameter('submittedIds', $submittedIds)
+            ->orderBy('i.nom', 'ASC')
+            ->addOrderBy('i.prenom', 'ASC');
+
+        if (!empty($existingIds)) {
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    'u.actif = true',
+                    $qb->expr()->in('u.id', ':existingIds')
+                )
+            )->setParameter('existingIds', $existingIds);
+        } else {
+            $qb->andWhere('u.actif = true');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**
