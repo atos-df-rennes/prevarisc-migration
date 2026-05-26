@@ -248,7 +248,7 @@ class Dossier
     /**
      * @var Collection<int, DossierDocumentUrbanisme>
      *
-     * @ORM\OneToMany(targetEntity=DossierDocumentUrbanisme::class, mappedBy="dossier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=DossierDocumentUrbanisme::class, mappedBy="dossier", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $documentsUrbanisme;
 
