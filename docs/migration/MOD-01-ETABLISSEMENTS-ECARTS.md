@@ -11,51 +11,51 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 61 (RG-ETB-001 à RG-ETB-061) |
-| Écarts spec ↔ Symfony | 3 |
+| Écarts spec ↔ Symfony | 3 (3 traités ✅) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 2 |
-| Impact critique | 1 (propagation périodicité) |
+| Écarts Symfony ↔ Legacy | 2 (2 comblés ✅) |
+| Impact critique | 0 |
 
 ---
 
 ## Écarts détaillés
 
-### Écart 1 — Suppression d'un établissement non migrée
+### Écart 1 — Suppression d'un établissement ✅ Migré
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ETB-018, RG-ETB-019 |
 | **Spec** | Soft-delete de l'établissement + suppression en cascade de tous les dossiers liés |
-| **Symfony** | Pas d'action `delete` — seul `restore()` existe dans `ElementsSupprimesController`. La suppression reste gérée par le legacy via Strangler Pattern. |
+| **Symfony (avant)** | Pas d'action `delete` — seul `restore()` existait dans `ElementsSupprimesController`. La suppression restait gérée par le legacy via Strangler Pattern. |
 | **Legacy** | `deleteAction()` dans `EtablissementController` appelle `$service_dossier->deleteByEtab()` (soft-delete cascade dossiers) puis `$this->serviceEtablissement->delete()`. |
-| **Impact** | Faible — la suppression fonctionne via le fallback Zend. À migrer ultérieurement. |
-| **Fichiers concernés** | `prevarisc/application/controllers/EtablissementController.php:568`, `prevarisc-migration/src/Controller/ElementsSupprimesController.php` |
+| **Solution** | Ajout de `Dossier::deleteByEtablissement()` (DBAL bulk update), `Etablissement::delete()`, et de l'action `deleteEtablissement` dans `EtablissementController`. Template `informations.html.twig` mis à jour pour utiliser un formulaire POST vers la nouvelle route Symfony avec protection CSRF. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Service/Dossier.php`, `prevarisc-migration/src/Service/Etablissement.php`, `prevarisc-migration/src/Controller/Etablissement/EtablissementController.php`, `prevarisc-migration/templates/etablissement/informations.html.twig` |
 
 ---
 
-### Écart 2 — Identifiant Winprev jamais auto-calculé
+### Écart 2 — Identifiant Winprev jamais auto-calculé ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ETB-002, RG-ETB-003 |
-| **Spec** | Formule automatique `[genre][INSEE 6 chiffres][rang 5 chiffres]-[rang cellule 3 chiffres]-[commission]` |
-| **Symfony** | Le champ `NUMEROID_ETABLISSEMENT` est lu et affiché (rapports ODT, recherche) mais jamais auto-calculé à la création. |
-| **Legacy** | Pas d'auto-génération non plus — stocke la valeur fournie par l'utilisateur ou fallback sur `ID_ETABLISSEMENT`. |
-| **Impact** | Écart de spécification vs implémentation des DEUX côtés. La spec décrit un comportement jamais implémenté ; l'identifiant est vraisemblablement saisi manuellement ou hérité d'un import historique. |
-| **Fichiers concernés** | `prevarisc/application/services/Etablissement.php:1049`, `prevarisc-migration/src/Entity/Etablissement.php:72` |
+| **Spec (avant)** | Formule automatique `[genre][INSEE 6 chiffres][rang 5 chiffres]-[rang cellule 3 chiffres]-[commission]` |
+| **Legacy** | Pas d'auto-génération — stocke la valeur fournie par l'utilisateur ou fallback sur `ID_ETABLISSEMENT`. |
+| **Symfony** | Le champ `NUMEROID_ETABLISSEMENT` est lu et affiché (rapports ODT, recherche) mais jamais auto-calculé. |
+| **Décision** | Écart de spécification historique. La spec a été mise à jour pour refléter le comportement réel de l'application : l'identifiant Winprev est saisi manuellement ou hérité d'un import historique, et n'est pas généré automatiquement. Aucune modification de code requise. |
+| **Fichiers modifiés** | `prevarisc-migration/docs/specs/MOD-01-ETABLISSEMENTS.md` (RG-ETB-002, RG-ETB-003) |
 
 ---
 
-### Écart 3 — Propagation de la périodicité aux cellules enfants (écriture)
+### Écart 3 — Propagation de la périodicité aux cellules enfants (écriture) ✅ Corrigé
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ETB-028, RG-ETB-061 |
 | **Spec** | Quand la périodicité d'un ERP/IGH parent change, elle doit se propager aux cellules enfants |
-| **Symfony** | La **catégorie** est bien propagée aux cellules (`EtablissementPersistenceService::persistFils()` et `persistPere()`), mais **PAS la périodicité**. |
+| **Symfony (avant)** | La **catégorie** était bien propagée aux cellules (`EtablissementPersistenceService::persistFils()` et `persistPere()`), mais **PAS la périodicité**. |
 | **Legacy** | `recalcEnfants()` propage catégorie ET périodicité à toutes les cellules du parent lors de la sauvegarde. |
-| **Impact** | **Moyen à élevé** — Un utilisateur qui modifie la périodicité d'un ERP parent dans Symfony ne verra pas les cellules enfants mises à jour, contrairement au legacy. Peut entraîner des incohérences dans le calcul des relances de visite. |
-| **Fichiers concernés** | `prevarisc/application/services/Etablissement.php` (méthode `recalcEnfants`), `prevarisc-migration/src/Service/EtablissementPersistenceService.php:280-284` |
+| **Solution** | Ajout de `setPeriodicite()` dans `persistEtablissementsLies()` et `persistPere()` de `EtablissementPersistenceService`, en parallèle du `setCategorie()` existant. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Service/EtablissementPersistenceService.php` |
 
 ---
 

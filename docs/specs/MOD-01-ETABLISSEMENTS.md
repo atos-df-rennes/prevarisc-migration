@@ -44,7 +44,7 @@ Chaque établissement possède les données d'identification suivantes :
 
 - **Libellé** : nom courant de l'établissement (ex. : « Centre commercial Les Halles »).
 - **Identifiant numérique** : numéro attribué automatiquement à la création, modifiable manuellement.
-- **Identifiant Winprev** : code généré automatiquement selon le format `[genre][code commune][rang]-[rang cellule]-[commission]`. Exemple : `E350238000042-000-5`.
+- **Identifiant Winprev** : code correspondant au format `[genre][code commune][rang]-[rang cellule]-[commission]`. Exemple : `E350238000042-000-5`. Ce code est saisi manuellement ou hérité d'un import historique ; il n'est **pas généré automatiquement** par l'application.
 - **Genre** : classification principale (site, ERP, cellule, habitation, IGH, BUP, camping, manifestation temporaire, IOP, zone).
 - **Statut** : état courant de l'établissement (ex. : ouvert, fermé, projet). Le changement de statut est soumis à une permission spécifique.
 
@@ -312,9 +312,9 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-001** — Chaque établissement possède un identifiant unique attribué automatiquement à la création. L'utilisateur peut le remplacer par un identifiant personnalisé. Si aucun identifiant n'est saisi, l'identifiant technique interne est utilisé.
 
-**RG-ETB-002** — L'identifiant Winprev est calculé automatiquement selon la formule : `[lettre du genre][code INSEE commune sur 6 chiffres][rang sur la commune sur 5 chiffres]-[rang cellule sur 3 chiffres]-[identifiant commission]`. Exemple pour un ERP : `E350238000042-000-5`.
+**RG-ETB-002** — L'identifiant Winprev suit le format : `[lettre du genre][code INSEE commune sur 6 chiffres][rang sur la commune sur 5 chiffres]-[rang cellule sur 3 chiffres]-[identifiant commission]`. Exemple pour un ERP : `E350238000042-000-5`. Cet identifiant n'est **pas calculé automatiquement** : il est saisi manuellement ou hérité d'un import historique.
 
-**RG-ETB-003** — La lettre du genre dans l'identifiant Winprev suit la correspondance : Site=S, ERP=E, Cellule=B, Habitation=H, IGH=G, BUP=I.
+**RG-ETB-003** — La lettre du genre dans l'identifiant Winprev suit la correspondance : Site=S, ERP=E, Cellule=B, Habitation=H, IGH=G, BUP=I. Cette correspondance est documentée à titre informatif ; l'application ne génère pas automatiquement cet identifiant.
 
 ### Classement et genre
 
