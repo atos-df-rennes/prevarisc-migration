@@ -885,4 +885,46 @@ class EtablissementController extends AbstractController implements Etablissemen
             'rubriques' => $data['rubriques'],
         ]);
     }
+
+    /**
+     * Supprime logiquement un établissement et tous ses dossiers associés (RG-ETB-018, RG-ETB-019).
+     *
+     * @Route("/etablissement/{id}/supprimer", name="etablissement_supprimer", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
+     *
+     * @IsGranted("delete_etablissement")
+     */
+    public function deleteEtablissement(Etablissement $etablissement, Request $request): Response
+    {
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_etablissement_'.$etablissement->getId(), is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('etablissement_informations', ['id' => $etablissement->getId()]);
+        }
+
+        try {
+            /** @var Utilisateur $user */
+            $user = $this->getUser();
+
+            // Suppression logique des dossiers liés (RG-ETB-019)
+            $this->dossierService->deleteByEtablissement($etablissement, $user);
+
+            // Suppression logique de l'établissement (RG-ETB-018)
+            $this->etablissementService->delete($etablissement, $user);
+
+            $this->addFlash('success', "L'établissement a bien été supprimé.");
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur suppression établissement', [
+                'etablissement_id' => $etablissement->getId(),
+                'exception' => $exception->getMessage(),
+            ]);
+            $this->addFlash('danger', "L'établissement n'a pas été supprimé. Veuillez réessayer.");
+
+            return $this->redirectToRoute('etablissement_informations', ['id' => $etablissement->getId()]);
+        }
+
+        // @todo Décommissionnement legacy : remplacer par redirectToRoute('search_etablissement')
+        // Ce passage par le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
+        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target=/rechercher/etablissement?label=');
+    }
 }
