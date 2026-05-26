@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Dossier as DossierEntity;
+use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,6 +49,30 @@ final class Dossier
         $dossier->setDeletedBy(null);
 
         $this->entityManager->flush();
+    }
+
+    /**
+     * Effectue la suppression logique de tous les dossiers non encore supprimés
+     * associés à un établissement (RG-ETB-019).
+     *
+     * Utilise une mise à jour SQL directe pour éviter de charger toutes les entités en mémoire.
+     */
+    public function deleteByEtablissement(EtablissementEntity $etablissement, Utilisateur $user): void
+    {
+        $date = (new \DateTime())->format('Y-m-d');
+        $conn = $this->entityManager->getConnection();
+
+        $conn->executeStatement(
+            'UPDATE dossier d
+             INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
+             SET d.DATESUPPRESSION_DOSSIER = :date, d.DELETED_BY = :userId
+             WHERE ed.ID_ETABLISSEMENT = :etabId AND d.DATESUPPRESSION_DOSSIER IS NULL',
+            [
+                'date' => $date,
+                'userId' => $user->getId(),
+                'etabId' => $etablissement->getId(),
+            ]
+        );
     }
 
     public function nombreNouvellesPiecesJointes(DossierEntity $dossier): int

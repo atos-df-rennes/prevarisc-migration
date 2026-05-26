@@ -384,6 +384,20 @@ final class Etablissement
     }
 
     /**
+     * Effectue la suppression logique d'un établissement (RG-ETB-018).
+     *
+     * Enregistre la date de suppression et l'auteur. L'établissement n'apparaît plus
+     * dans les recherches ni dans les fiches liées.
+     */
+    public function delete(EtablissementEntity $etablissement, Utilisateur $user): void
+    {
+        $etablissement->setDateSuppression(new \DateTime());
+        $etablissement->setDeletedBy($user);
+
+        $this->entityManager->flush();
+    }
+
+    /**
      * Retourne les données du descriptif original (champs fixes) d'un établissement,
      * groupées par section pour l'affichage.
      *
