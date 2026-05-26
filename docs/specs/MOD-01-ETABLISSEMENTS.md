@@ -372,7 +372,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-027** — Un ERP, une habitation, un IGH, un BUP, un camping, une manifestation ou un IOP a pour père un site.
 
-**RG-ETB-028** — Lorsqu'un ERP parent est modifié, la **catégorie** de ses cellules enfants est automatiquement mise à jour pour correspondre à celle du parent.
+**RG-ETB-028** — ~~Lorsqu'un ERP parent est modifié, la **catégorie** de ses cellules enfants est automatiquement mise à jour pour correspondre à celle du parent.~~ **Non implémenté** : la fonction `recalcEnfants()` prévue à cet effet existe dans le code legacy (`Model_DbTable_Etablissement`) mais n'est jamais appelée. La catégorie des cellules n'est donc pas recalculée automatiquement lors de la modification d'un ERP parent, ni dans le legacy ni dans la migration Symfony.
 
 **RG-ETB-029** — Lorsqu'une cellule est créée ou rattachée à un ERP, elle hérite automatiquement de la **catégorie** de son parent.
 
@@ -476,7 +476,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-060** — Un **recalcul global des périodicités** peut être appliqué en masse sur tous les établissements, en mettant à jour la périodicité de la dernière fiche d'informations de chaque établissement à partir du référentiel GN4.
 
-**RG-ETB-061** — Lors de la modification d'un ERP parent, la **périodicité** de ses cellules enfants est mise à jour pour correspondre à celle du parent (si l'option d'historisation est activée, une nouvelle fiche est créée pour chaque enfant).
+**RG-ETB-061** — ~~Lors de la modification d'un ERP parent, la **périodicité** de ses cellules enfants est mise à jour pour correspondre à celle du parent.~~ **Non implémenté** : identique à RG-ETB-028, la fonction `recalcEnfants()` du legacy prévoyait cette propagation mais n'est jamais appelée. La périodicité des cellules n'est donc pas recalculée automatiquement lors de la modification d'un ERP parent.
 
 ---
 

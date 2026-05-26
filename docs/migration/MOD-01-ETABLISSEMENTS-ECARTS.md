@@ -46,16 +46,16 @@
 
 ---
 
-### Écart 3 — Propagation de la périodicité aux cellules enfants (écriture) ✅ Corrigé
+### Écart 3 — Propagation de la périodicité/catégorie aux cellules enfants ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ETB-028, RG-ETB-061 |
-| **Spec** | Quand la périodicité d'un ERP/IGH parent change, elle doit se propager aux cellules enfants |
-| **Symfony (avant)** | La **catégorie** était bien propagée aux cellules (`EtablissementPersistenceService::persistFils()` et `persistPere()`), mais **PAS la périodicité**. |
-| **Legacy** | `recalcEnfants()` propage catégorie ET périodicité à toutes les cellules du parent lors de la sauvegarde. |
-| **Solution** | Ajout de `setPeriodicite()` dans `persistEtablissementsLies()` et `persistPere()` de `EtablissementPersistenceService`, en parallèle du `setCategorie()` existant. |
-| **Fichiers modifiés** | `prevarisc-migration/src/Service/EtablissementPersistenceService.php` |
+| **Spec (avant)** | Propagation automatique de la catégorie et de la périodicité aux cellules enfants lors de la modification d'un ERP/IGH parent |
+| **Legacy** | La fonction `recalcEnfants()` dans `Model_DbTable_Etablissement` prévoyait cette propagation, mais elle n'est **jamais appelée** dans le code legacy. |
+| **Symfony (avant)** | La catégorie était propagée dans `EtablissementPersistenceService::persistEtablissementsLies()` et `persistPere()`, mais **pas la périodicité**. Ce code reproduisait un comportement absent du legacy. |
+| **Décision** | Suppression des blocs de propagation (catégorie ET périodicité) dans `EtablissementPersistenceService` pour aligner le comportement Symfony sur le legacy réel. La spec a été mise à jour pour documenter que `recalcEnfants()` existait mais n'a jamais été utilisée. Aucune régression fonctionnelle : ni le legacy ni Symfony ne propagent ces valeurs. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Service/EtablissementPersistenceService.php`, `prevarisc-migration/src/Service/Etablissement.php`, `prevarisc-migration/docs/specs/MOD-01-ETABLISSEMENTS.md` (RG-ETB-028, RG-ETB-061) |
 
 ---
 
@@ -66,7 +66,7 @@
 | RG-ETB-004 à 017 | Création / Modification (formulaire, genres, validations) | ✅ Aligné |
 | RG-ETB-020/021 | Restauration (retrait soft-delete) | ✅ Aligné |
 | RG-ETB-022 à 027 | Hiérarchie site/ERP/cellule (validation père/fils) | ✅ Aligné |
-| RG-ETB-028 (catégorie) | Propagation catégorie parent → cellules | ✅ Aligné |
+| RG-ETB-028, RG-ETB-061 | Propagation catégorie/périodicité parent → cellules lors de modification | ✅ Aligné (ni legacy ni Symfony ne propagent : `recalcEnfants()` définie mais jamais appelée dans le legacy) |
 | RG-ETB-030/031 | Adresse site = enfant max effectif ; cellule = parent racine | ✅ Aligné (`EtablissementAdresseRepository::get()`) |
 | RG-ETB-032 à 038 | Sous-onglets (plans, activités, descriptifs) | ✅ Aligné |
 | RG-ETB-039 à 041 | Historisation (nouvelle fiche à chaque modification) | ✅ Aligné |
@@ -78,6 +78,4 @@
 
 ## Recommandations
 
-1. **Priorité haute** : Implémenter la propagation de la périodicité aux cellules dans `EtablissementPersistenceService` (équivalent de `recalcEnfants()`) pour combler l'écart n°3.
-2. **Priorité basse** : La suppression d'établissement (écart n°1) peut rester dans le legacy tant que la migration complète n'est pas planifiée.
-3. **Information** : L'écart n°2 (Winprev ID) est un écart de spec historique — à clarifier avec le métier si une auto-génération est réellement attendue.
+Tous les écarts ont été traités. Aucune action complémentaire requise sur ce module.
