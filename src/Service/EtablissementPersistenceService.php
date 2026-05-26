@@ -241,7 +241,7 @@ final class EtablissementPersistenceService
      *
      * @throws \InvalidArgumentException si la compatibilité des genres n'est pas respectée
      */
-    public function persistEtablissementsLies(int $idGenre, EtablissementEntity $etablissement, EtablissementInformations $informations, array $data): void
+    public function persistEtablissementsLies(int $idGenre, EtablissementEntity $etablissement, array $data): void
     {
         if (!empty($data['ID_FILS_ETABLISSEMENT']) && is_array($data['ID_FILS_ETABLISSEMENT'])) {
             foreach ($data['ID_FILS_ETABLISSEMENT'] as $idFils) {
@@ -276,12 +276,6 @@ final class EtablissementPersistenceService
                 }
 
                 $etablissement->addFils($fils);
-
-                // Propagation de la catégorie aux cellules
-                if (GenreEtablissement::CELLULE === $filsGenreId) {
-                    $filsInfo = $fils->getLatestInformations();
-                    $filsInfo->setCategorie($informations->getCategorie());
-                }
             }
         }
     }
@@ -293,7 +287,7 @@ final class EtablissementPersistenceService
      *
      * @throws \InvalidArgumentException si la compatibilité des genres n'est pas respectée
      */
-    public function persistPere(int $idGenre, EtablissementEntity $etablissement, EtablissementInformations $informations, array $data): void
+    public function persistPere(int $idGenre, EtablissementEntity $etablissement, array $data): void
     {
         if (!empty($data['ID_PERE'])) {
             $idPere = self::toInt($data['ID_PERE']);
@@ -319,12 +313,6 @@ final class EtablissementPersistenceService
                 }
 
                 $etablissement->addParent($pere);
-
-                // Propagation de la catégorie de l'ERP/IGH parent vers la cellule
-                if (GenreEtablissement::CELLULE === $idGenre) {
-                    $pereCategorie = $pere->getLatestInformations()->getCategorie();
-                    $informations->setCategorie($pereCategorie);
-                }
             }
         }
     }

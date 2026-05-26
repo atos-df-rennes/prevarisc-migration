@@ -630,10 +630,10 @@ final class Etablissement
             $this->persistenceService->persistAdresses($idGenre, $etablissement, $data, $em);
 
             // --- Établissements fils ---
-            $this->persistenceService->persistEtablissementsLies($idGenre, $etablissement, $informations, $data);
+            $this->persistenceService->persistEtablissementsLies($idGenre, $etablissement, $data);
 
             // --- Père de l'établissement ---
-            $this->persistenceService->persistPere($idGenre, $etablissement, $informations, $data);
+            $this->persistenceService->persistPere($idGenre, $etablissement, $data);
 
             $em->flush();
             $connection->commit();
@@ -789,8 +789,8 @@ final class Etablissement
             $this->persistenceService->persistPlans($idGenre, $informations, $data, $em);
             $this->persistenceService->persistActivitesSecondaires($idGenre, $informations, $data, $em);
             $this->persistenceService->persistAdresses($idGenre, $etablissement, $data, $em);
-            $this->persistenceService->persistEtablissementsLies($idGenre, $etablissement, $informations, $data);
-            $this->persistenceService->persistPere($idGenre, $etablissement, $informations, $data);
+            $this->persistenceService->persistEtablissementsLies($idGenre, $etablissement, $data);
+            $this->persistenceService->persistPere($idGenre, $etablissement, $data);
 
             $em->flush();
             $connection->commit();
