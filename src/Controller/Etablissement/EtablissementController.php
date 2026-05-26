@@ -925,6 +925,6 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         // @todo Décommissionnement legacy : remplacer par redirectToRoute('search_etablissement')
         // Ce passage par le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
-        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target=/rechercher/etablissement');
+        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target=/rechercher/etablissement?label=');
     }
 }
