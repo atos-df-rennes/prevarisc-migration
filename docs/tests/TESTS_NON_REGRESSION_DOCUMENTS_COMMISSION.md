@@ -36,69 +36,69 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 1 | `numMairie` | Numéro de rue de la mairie de la commune | [ ] |
-| 2 | `rueMairie` | Rue de la mairie | [ ] |
-| 3 | `cpMairie` | Code postal de la mairie | [ ] |
-| 4 | `communeMairie` | Nom de la commune | [ ] |
-| 5 | `commissionNom` | Nom de la commission (ex : CCDSA Rennes) | [ ] |
-| 6 | `date` | Date du jour au format JJ/MM/AAAA | [ ] |
-| 7 | `dateCommission` | Date de la commission au format JJ/MM/AAAA | [ ] |
-| 8 | `heureDebutComm` | Heure de début HH:MM | [ ] |
-| 9 | `heureDeb1erDossier` | Heure du 1er dossier de la commune HH:MM | [ ] |
+| 1 | `numMairie` | Numéro de rue de la mairie de la commune | [x]      |
+| 2 | `rueMairie` | Rue de la mairie | [x]      |
+| 3 | `cpMairie` | Code postal de la mairie | [x]      |
+| 4 | `communeMairie` | Nom de la commune | [x]      |
+| 5 | `commissionNom` | Nom de la commission (ex : CCDSA Rennes) | [x]      |
+| 6 | `date` | Date du jour au format JJ/MM/AAAA | [x]      |
+| 7 | `dateCommission` | Date de la commission au format JJ/MM/AAAA | [x]      |
+| 8 | `heureDebutComm` | Heure de début HH:MM | [x]      |
+| 9 | `heureDeb1erDossier` | Heure du 1er dossier de la commune HH:MM | [x]      |
 
 #### Champs par dossier (segment répété pour chaque dossier de la commune)
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 10 | `nomEtab` | Nom de l'établissement | [ ] |
-| 11 | `nomPereEtab` | Nom de l'établissement parent (vide si aucun) | [ ] |
-| 12 | `idDossier` | Identifiant numérique du dossier | [ ] |
-| 13 | `numWinPrev` | Numéro WinPrev de l'établissement | [ ] |
-| 14 | `mailEtab` | Email de l'établissement | [ ] |
-| 15 | `communeEtab` | Nom de la commune de l'établissement | [ ] |
-| 16 | `etablissementAdresse` | Adresse complète (n° rue CP commune) | [ ] |
-| 17 | `categorieEtab` | Catégorie (ex : 1ère catégorie) | [ ] |
-| 18 | `typeLettreP` | Type principal (ex : M) | [ ] |
-| 19 | `natureDossier` | Nature du dossier (ex : Construction neuve) | [ ] |
-| 20 | `objetDossier` | Objet du dossier | [ ] |
-| 21 | `avisDossier` | "Favorable", "Défavorable" ou vide | [ ] |
-| 22 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide | [ ] |
-| 23 | `heureDebDossier` | Heure de début du dossier HH:MM | [ ] |
-| 24 | `heureFinDossier` | Heure de fin du dossier HH:MM | [ ] |
-| 25 | `numDocUrba` | Numéro(s) de permis (vide si aucun) | [ ] |
-| 26 | `preventionnistes` | "Grade Nom Prénom, ..." | [ ] |
-| 27 | `listeTelPreventioniste` | Téléphone(s) séparés par virgule | [ ] |
-| 28 | `listeMailPreventioniste` | Email(s) séparés par virgule | [ ] |
+| 10 | `nomEtab` | Nom de l'établissement | [x]      |
+| 11 | `nomPereEtab` | Nom de l'établissement parent (vide si aucun) | [x]      |
+| 12 | `idDossier` | Identifiant numérique du dossier | [x]      |
+| 13 | `numWinPrev` | Numéro WinPrev de l'établissement | [x]      |
+| 14 | `mailEtab` | Email de l'établissement | [x]      |
+| 15 | `communeEtab` | Nom de la commune de l'établissement | [x]      |
+| 16 | `etablissementAdresse` | Adresse complète (n° rue CP commune) | [x]      |
+| 17 | `categorieEtab` | Catégorie (ex : 1ère catégorie) | [x]      |
+| 18 | `typeLettreP` | Type principal (ex : M) | [x]      |
+| 19 | `natureDossier` | Nature du dossier (ex : Construction neuve) | [x]      |
+| 20 | `objetDossier` | Objet du dossier | [x]      |
+| 21 | `avisDossier` | "Favorable", "Défavorable" ou vide | [x]      |
+| 22 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide | [x]      |
+| 23 | `heureDebDossier` | Heure de début du dossier HH:MM | [x]      |
+| 24 | `heureFinDossier` | Heure de fin du dossier HH:MM | [x]      |
+| 25 | `numDocUrba` | Numéro(s) de permis (vide si aucun) | [x]      |
+| 26 | `preventionnistes` | "Grade Nom Prénom, ..." | [x]      |
+| 27 | `listeTelPreventioniste` | Téléphone(s) séparés par virgule | [x]      |
+| 28 | `listeMailPreventioniste` | Email(s) séparés par virgule | [x]      |
 
 #### Avis/dérogations dossier (segment répété par avis)
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 29 | `type` | Type d'avis (ex : Dérogation) | [ ] |
-| 30 | `titre` | Titre | [ ] |
-| 31 | `objet` | Objet | [ ] |
-| 32 | `justification` | Justification | [ ] |
-| 33 | `articles_concernes` | Articles concernés | [ ] |
-| 34 | `mesures_compensatoires_proposees` | Mesures compensatoires | [ ] |
-| 35 | `analyse_de_risque` | Analyse de risque | [ ] |
-| 36 | `avis` | Libellé de l'avis | [ ] |
-| 37 | `identifiantdossierleve` | ID du dossier levé (vide si aucun) | [ ] |
-| 38 | `date_avis_derogation` | Date de la commission ou de visite de l'avis | [ ] |
+| 29 | `type` | Type d'avis (ex : Dérogation) | [x]      |
+| 30 | `titre` | Titre | [x]      |
+| 31 | `objet` | Objet | [x]      |
+| 32 | `justification` | Justification | [x]      |
+| 33 | `articles_concernes` | Articles concernés | [x]      |
+| 34 | `mesures_compensatoires_proposees` | Mesures compensatoires | [x]      |
+| 35 | `analyse_de_risque` | Analyse de risque | [x]      |
+| 36 | `avis` | Libellé de l'avis | [x]      |
+| 37 | `identifiantdossierleve` | ID du dossier levé (vide si aucun) | [x]      |
+| 38 | `date_avis_derogation` | Date de la commission ou de visite de l'avis | [x]      |
 
 #### Avis/dérogations établissement (mêmes 10 champs, source = établissement)
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 39 | `type` | Type d'avis établissement | [ ] |
-| 40 | `titre` | Titre | [ ] |
-| 41 | `objet` | Objet | [ ] |
-| 42 | `justification` | Justification | [ ] |
-| 43 | `articles_concernes` | Articles concernés | [ ] |
-| 44 | `mesures_compensatoires_proposees` | Mesures compensatoires | [ ] |
-| 45 | `analyse_de_risque` | Analyse de risque | [ ] |
-| 46 | `avis` | Libellé de l'avis | [ ] |
-| 47 | `identifiantdossierleve` | ID dossier levé | [ ] |
-| 48 | `date_avis_derogation` | Date de l'avis établissement | [ ] |
+| 39 | `type` | Type d'avis établissement | [x]      |
+| 40 | `titre` | Titre | [x]      |
+| 41 | `objet` | Objet | [x]      |
+| 42 | `justification` | Justification | [x]      |
+| 43 | `articles_concernes` | Articles concernés | [x]      |
+| 44 | `mesures_compensatoires_proposees` | Mesures compensatoires | [x]      |
+| 45 | `analyse_de_risque` | Analyse de risque | [x]      |
+| 46 | `avis` | Libellé de l'avis | [x]      |
+| 47 | `identifiantdossierleve` | ID dossier levé | [x]      |
+| 48 | `date_avis_derogation` | Date de l'avis établissement | [x]      |
 
 ---
 
@@ -108,15 +108,15 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 49 | `commissionNom` | Nom de la commission | [ ] |
-| 50 | `date` | Date du jour JJ/MM/AAAA | [ ] |
-| 51 | `communeGrp` | Ville du groupement | [ ] |
-| 52 | `numGrp` | Numéro de rue du groupement | [ ] |
-| 53 | `rueGrp` | Rue du groupement | [ ] |
-| 54 | `cpGrp` | Code postal du groupement | [ ] |
-| 55 | `dateCommission` | Date de la commission JJ/MM/AAAA | [ ] |
-| 56 | `heureDebutComm` | Heure de début HH:MM | [ ] |
-| 57 | `maires` | Noms des maires concernés (liste) | [ ] |
+| 49 | `commissionNom` | Nom de la commission | [x]      |
+| 50 | `date` | Date du jour JJ/MM/AAAA | [x]      |
+| 51 | `communeGrp` | Ville du groupement | [x]      |
+| 52 | `numGrp` | Numéro de rue du groupement | [x]      |
+| 53 | `rueGrp` | Rue du groupement | [x]      |
+| 54 | `cpGrp` | Code postal du groupement | [x]      |
+| 55 | `dateCommission` | Date de la commission JJ/MM/AAAA | [x]      |
+| 56 | `heureDebutComm` | Heure de début HH:MM | [x]      |
+| 57 | `maires` | Noms des maires concernés (liste) | [x]      |
 
 > Les champs par dossier (#10 à #48) s'appliquent également dans ce cas.
 
