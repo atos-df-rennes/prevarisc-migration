@@ -979,10 +979,14 @@ class CommissionDocumentGenerationService
         $groupementIdRaw = $infosFile0['ID_GROUPEMENT'] ?? 0;
         $groupementId = (int) $groupementIdRaw;
 
-        // Récupérer les infos du groupement
+        // Récupérer les infos du groupement avec les informations utilisateur (adresse, etc.)
+        // Port direct du legacy Model_DbTable_Groupement::get() qui fait un joinLeft sur utilisateurinformations
         /** @var array<string, string|null>|false $infosGroupement */
         $infosGroupement = $this->em->getConnection()->fetchAssociative(
-            'SELECT * FROM groupement WHERE ID_GROUPEMENT = :id',
+            'SELECT groupement.*, utilisateurinformations.*
+             FROM groupement
+             LEFT JOIN utilisateurinformations ON utilisateurinformations.ID_UTILISATEURINFORMATIONS = groupement.ID_UTILISATEURINFORMATIONS
+             WHERE groupement.ID_GROUPEMENT = :id',
             ['id' => $groupementId]
         );
         if (false === $infosGroupement) {
@@ -1003,6 +1007,8 @@ class CommissionDocumentGenerationService
         $this->fillGroupementCommissionInfo($odf, $commissionInfos, $heureDeb, $dateComm, $infosGroupement, $listeCommunes);
 
         $grpLoop = $odf->setSegment('grpLoop');
+        // Port direct du legacy (generationconvoc.phtml, lignes 170 et 175) : retrieveInfoGroupementCommission est appelée
+        // deux fois — une fois sur l'ODF (balises hors segment) et une fois sur le segment grpLoop (balises à l'intérieur).
         $this->fillGroupementCommissionInfo($grpLoop, $commissionInfos, $heureDeb, $dateComm, $infosGroupement, $listeCommunes);
 
         foreach ($listeDossiers as $dossierInfos) {
@@ -1333,9 +1339,13 @@ class CommissionDocumentGenerationService
         $groupementIdRaw = $infosFile0Odj['ID_GROUPEMENT'] ?? 0;
         $groupementId = (int) $groupementIdRaw;
 
+        // Port direct du legacy Model_DbTable_Groupement::get() qui fait un joinLeft sur utilisateurinformations
         /** @var array<string, string|null>|false $infosGroupement */
         $infosGroupement = $this->em->getConnection()->fetchAssociative(
-            'SELECT * FROM groupement WHERE ID_GROUPEMENT = :id',
+            'SELECT groupement.*, utilisateurinformations.*
+             FROM groupement
+             LEFT JOIN utilisateurinformations ON utilisateurinformations.ID_UTILISATEURINFORMATIONS = groupement.ID_UTILISATEURINFORMATIONS
+             WHERE groupement.ID_GROUPEMENT = :id',
             ['id' => $groupementId]
         );
         if (false === $infosGroupement) {
