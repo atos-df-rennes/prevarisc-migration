@@ -236,26 +236,26 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 ### 3.1 — Champs standards par dossier (segment `dossierInfos`)
 
-| # | Champ ODT | Valeur attendue | Résultat |
-|---|-----------|----------------|----------|
-| 1 | `commissionNom` | Nom de la commission | [ ] |
-| 2 | `communeDossier` | Commune de l'établissement | [ ] |
-| 3 | `objetDossier` | Objet du dossier | [ ] |
-| 4 | `natureDossier` | Nature du dossier | [ ] |
-| 5 | `dateCommission` | Date au format **"JJ mois AAAA"** (ex : "22 mai 2026") | [ ] |
-| 6 | `dateVisite` | Date de visite **"JJ mois AAAA"** ou vide | [ ] |
-| 7 | `libelleRue` | Rue de l'établissement | [ ] |
-| 8 | `codePostal` | Code postal | [ ] |
-| 9 | `libelleCommune` | Commune | [ ] |
-| 10 | `effectifTotal` | Somme effectif public + personnel (ex : "215") | [ ] |
-| 11 | `typeDossier` | "Étude", "Visite de commission" ou "Groupe de visite" | [ ] |
-| 12 | `nomPereEtab` | Nom établissement parent (vide si aucun) | [ ] |
-| 13 | `nomEtab` | Nom de l'établissement | [ ] |
-| 14 | `categorieEtab` | Catégorie | [ ] |
-| 15 | `typeEtab` | Type principal | [ ] |
-| 16 | `avisDossier` | "Favorable", "Défavorable" ou vide | [ ] |
-| 17 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide | [ ] |
-| 18 | `numDocUrba` | Numéros permis | [ ] |
+| #  | Champ ODT               | Valeur attendue                                       | Résultat |
+|----|-------------------------|-------------------------------------------------------|----------|
+| 1  | `commissionNom`         | Nom de la commission                                  | [x]      |
+| 2  | `communeDossier`        | Commune de l'établissement                            | [x]      |
+| 3  | `objetDossier`          | Objet du dossier                                      | [x]      |
+| 4  | `natureDossier`         | Nature du dossier                                     | [x]      |
+| 5  | `dateCommission`        | Date au format **"JJ mois AAAA"** (ex : "22 mai 2026") | [x]      |
+| 6  | `dateVisite`            | Date de visite **"JJ mois AAAA"** ou vide             | [x]      |
+| 7  | `libelleRue`            | Rue de l'établissement                                | [x]      |
+| 8  | `codePostal`            | Code postal                                           | [x]      |
+| 9  | `libelleCommune`        | Commune                                               | [x]      |
+| 10 | `effectifTotal`         | Somme effectif public + personnel (ex : "215")        | [x]      |
+| 11 | `typeDossier`           | "Étude", "Visite de commission" ou "Groupe de visite" | [x]      |
+| 12 | `nomPereEtab`           | Nom établissement parent (vide si aucun)              | [x]      |
+| 13 | `nomEtab`               | Nom de l'établissement                                | [x]      |
+| 14 | `categorieEtab`         | Catégorie                                             | [x]      |
+| 15 | `typeEtab`              | Type principal                                        | [x]      |
+| 16 | `avisDossier`           | "Favorable", "Défavorable" ou vide                    | [x]      |
+| 17 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide                    | [x]      |
+| 18 | `numDocUrba`            | Numéros permis                                        | [x]      |
 
 > Avis/dérogations dossier et établissement : mêmes 10 champs que la convocation.
 
@@ -269,27 +269,27 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Segment ODT | Champ | Valeur attendue | Résultat |
 |---|-------------|-------|----------------|----------|
-| 19 | `listeReg` (toutes) | `num` | Numéro de la prescription | [ ] |
-| 20 | `listeReg` | `libelle` | Libellé (personnalisé ou type si vide) | [ ] |
-| 21 | `listeReg` | `textearticle` | Texte des articles associés | [ ] |
-| 22 | `listeRegReprises` | `num`, `libelle`, `textearticle` | Uniquement les prescriptions reprises | [ ] |
-| 23 | `listeRegActuelles` | `num`, `libelle`, `textearticle` | Uniquement les nouvelles prescriptions | [ ] |
+| 19 | `listeReg` (toutes) | `num` | Numéro de la prescription | [x]      |
+| 20 | `listeReg` | `libelle` | Libellé (personnalisé ou type si vide) | [x]      |
+| 21 | `listeReg` | `textearticle` | Texte des articles associés | [x]      |
+| 22 | `listeRegReprises` | `num`, `libelle`, `textearticle` | Uniquement les prescriptions reprises | [x]      |
+| 23 | `listeRegActuelles` | `num`, `libelle`, `textearticle` | Uniquement les nouvelles prescriptions | [x]      |
 
 #### Prescriptions exploitation
 
 | # | Segment ODT | Champ | Valeur attendue | Résultat |
 |---|-------------|-------|----------------|----------|
-| 24 | `listeExploitation` | `num`, `libelle`, `textearticle` | Toutes les prescriptions exploitation | [ ] |
-| 25 | `listeExploitationReprises` | idem | Reprises | [ ] |
-| 26 | `listeExploitationActuelles` | idem | Nouvelles | [ ] |
+| 24 | `listeExploitation` | `num`, `libelle`, `textearticle` | Toutes les prescriptions exploitation | [x]      |
+| 25 | `listeExploitationReprises` | idem | Reprises | [x]      |
+| 26 | `listeExploitationActuelles` | idem | Nouvelles | [x]      |
 
 #### Prescriptions amélioration
 
 | # | Segment ODT | Champ | Valeur attendue | Résultat |
 |---|-------------|-------|----------------|----------|
-| 27 | `listeAmelioration` | `num`, `libelle`, `textearticle` | Toutes les prescriptions amélioration | [ ] |
-| 28 | `listeAmeliorationReprises` | idem | Reprises | [ ] |
-| 29 | `listeAmeliorationActuelles` | idem | Nouvelles | [ ] |
+| 27 | `listeAmelioration` | `num`, `libelle`, `textearticle` | Toutes les prescriptions amélioration | [x]      |
+| 28 | `listeAmeliorationReprises` | idem | Reprises | [x]      |
+| 29 | `listeAmeliorationActuelles` | idem | Nouvelles | [x]      |
 
 ---
 
@@ -297,9 +297,9 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Effectif public | Effectif personnel | Valeur `effectifTotal` attendue | Résultat |
 |---|----------------|-------------------|-------------------------------|----------|
-| 30 | 200 | 15 | "215" | [ ] |
-| 31 | 0 | 0 | "non renseigné" | [ ] |
-| 32 | 0 | 10 | "10" | [ ] |
+| 30 | 200 | 15 | "215" | [x]      |
+| 31 | 0 | 0 | "non renseigné" | [x]      |
+| 32 | 0 | 10 | "10" | [x]      |
 
 ---
 
@@ -307,9 +307,9 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Valeur `dateVisite` attendue | Résultat |
 |---|-----------|------------------------------|----------|
-| 33 | `DATEVISITE_DOSSIER` renseignée | Date du dossier (format long) | [ ] |
-| 34 | `DATEVISITE_DOSSIER` null, `last_visite` établissement renseigné | Date de la dernière visite établissement | [ ] |
-| 35 | Aucune date disponible | Champ vide | [ ] |
+| 33 | `DATEVISITE_DOSSIER` renseignée | Date du dossier (format long) | [x]      |
+| 34 | `DATEVISITE_DOSSIER` null, `last_visite` établissement renseigné | Date de la dernière visite établissement | [x]      |
+| 35 | Aucune date disponible | Champ vide | [x]      |
 
 ---
 
@@ -317,8 +317,8 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Valeur `libelle` attendue | Résultat |
 |---|-----------|--------------------------|----------|
-| 36 | `LIBELLE_PRESCRIPTION_DOSSIER` renseigné | Libellé personnalisé | [ ] |
-| 37 | `LIBELLE_PRESCRIPTION_DOSSIER` vide | `PRESCRIPTIONTYPE_LIBELLE` (libellé du type) | [ ] |
+| 36 | `LIBELLE_PRESCRIPTION_DOSSIER` renseigné | Libellé personnalisé | [x]      |
+| 37 | `LIBELLE_PRESCRIPTION_DOSSIER` vide | `PRESCRIPTIONTYPE_LIBELLE` (libellé du type) | [x]      |
 
 ---
 
@@ -326,8 +326,8 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Comportement attendu | Résultat |
 |---|-----------|---------------------|----------|
-| 38 | Aucun membre sans groupement (`ID_GROUPEMENT IS NULL`) | Pas de document généré, message d'erreur | [ ] |
-| 39 | Dossier sans prescription | Segments présents avec champs vides (pas de placeholder) | [ ] |
+| 38 | Aucun membre sans groupement (`ID_GROUPEMENT IS NULL`) | Pas de document généré, message d'erreur | [x]      |
+| 39 | Dossier sans prescription | Segments présents avec champs vides (pas de placeholder) | [x]      |
 
 ---
 
@@ -457,7 +457,7 @@ Après chaque génération, vérifier dans **Pièces jointes > date de commissio
 |---|----------|---------------|-----------|----------|
 | 23 | Convocation | "Convocation" | .odt | [x]      |
 | 24 | O.D.J. | "Ordre du jour" | .odt | [x]      |
-| 25 | P.V. | "P.V." | .odt | [ ]      |
+| 25 | P.V. | "P.V." | .odt | [x]      |
 | 26 | Compte-rendu | "Compte rendu" | .odt | [x]      |
 | 27 | Tous | Le fichier ODT est téléchargeable et ouvrable | — | [x]      |
 
