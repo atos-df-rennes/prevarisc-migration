@@ -1240,13 +1240,6 @@ class CommissionDocumentGenerationService
 
         foreach ($listeCommunes as $commune) {
             if ('' !== $commune[0]) {
-                $firstLetter = substr($commune[0], 0, 1);
-                if (in_array($firstLetter, $vowels, true)) {
-                    // voyelle → d'
-                }
-
-                // consonne → de
-
                 /** @var array<int, array<string, mixed>> $communeContactsOdj */
                 $communeContactsOdj = $commune[1];
                 if (1 === count($communeContactsOdj)) {
