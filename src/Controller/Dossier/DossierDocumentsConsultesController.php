@@ -84,6 +84,10 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      */
     public function addDocumentConsulte(Request $request, Dossier $dossier, ListeDocumentConsulte $documentConsultable): Response
     {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
+        }
+
         $documentConsulte = new DossierDocumentConsulte();
         $documentConsulte->setDossier($dossier);
         $documentConsulte->setDocument((string) $documentConsultable->getId());
@@ -124,6 +128,10 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      */
     public function deleteDocumentConsulte(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
     {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
+        }
+
         if ($documentConsulte->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
@@ -153,6 +161,10 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      */
     public function editDocumentConsulte(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
     {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
+        }
+
         if ($documentConsulte->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
@@ -193,6 +205,10 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      */
     public function deleteDocumentAjoute(Request $request, Dossier $dossier, ListeDocumentAjoute $documentAjoute): Response
     {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
+        }
+
         if ($documentAjoute->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
@@ -226,6 +242,10 @@ class DossierDocumentsConsultesController extends AbstractController implements 
      */
     public function editDocumentAjoute(Request $request, Dossier $dossier, ?ListeDocumentAjoute $documentAjoute = null): Response
     {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
+        }
+
         $isNew = null === $documentAjoute;
 
         if ($isNew) {
