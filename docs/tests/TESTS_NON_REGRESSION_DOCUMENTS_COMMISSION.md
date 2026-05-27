@@ -338,36 +338,36 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 ### 4.1 — Champ global
 
-| # | Champ ODT | Valeur attendue | Résultat |
-|---|-----------|----------------|----------|
-| 1 | `dateGeneration` | Date du jour au format **"JJ mois AAAA"** (ex : "22 mai 2026") | [ ] |
+| # | Champ ODT        | Valeur attendue                                                | Résultat |
+|---|------------------|----------------------------------------------------------------|----------|
+| 1 | `dateGeneration` | Date du jour au format **"JJ mois AAAA"** (ex : "22 mai 2026") | [x]      |
 
 ---
 
 ### 4.2 — Champs par dossier (segment `dossierInfos`)
 
-| # | Champ ODT | Valeur attendue | Résultat |
-|---|-----------|----------------|----------|
-| 2 | `commissionNom` | Nom de la commission | [ ] |
-| 3 | `communeDossier` | Commune de l'établissement | [ ] |
-| 4 | `objetDossier` | Objet du dossier | [ ] |
-| 5 | `natureDossier` | Nature du dossier | [ ] |
-| 6 | `observationDossier` | Observation saisie sur le dossier ⚠️ | [ ] |
-| 7 | `dateCommission` | Date au format **"JJ mois AAAA"** | [ ] |
-| 8 | `dateVisite` | Date de visite **"JJ mois AAAA"** ou vide | [ ] |
-| 9 | `libelleRue` | Rue de l'établissement | [ ] |
-| 10 | `codePostal` | Code postal | [ ] |
-| 11 | `numWinPrev` | Numéro WinPrev | [ ] |
-| 12 | `libelleCommune` | Commune | [ ] |
-| 13 | `effectifTotal` | Somme effectif public + personnel | [ ] |
-| 14 | `typeDossier` | "Étude", "Visite de commission" ou "Groupe de visite" | [ ] |
-| 15 | `nomPereEtab` | Nom établissement parent (vide si aucun) | [ ] |
-| 16 | `nomEtab` | Nom de l'établissement | [ ] |
-| 17 | `categorieEtab` | Catégorie | [ ] |
-| 18 | `typeEtab` | Type principal | [ ] |
-| 19 | `avisDossier` | "Favorable", "Défavorable" ou vide | [ ] |
-| 20 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide | [ ] |
-| 21 | `numDocUrba` | Numéros permis | [ ] |
+| #  | Champ ODT               | Valeur attendue                                        | Résultat |
+|----|-------------------------|--------------------------------------------------------|----------|
+| 2  | `commissionNom`         | Nom de la commission                                   | [x]      |
+| 3  | `communeDossier`        | Commune de l'établissement                             | [x]      |
+| 4  | `objetDossier`          | Objet du dossier                                       | [x]      |
+| 5  | `natureDossier`         | Nature du dossier                                      | [x]      |
+| 6  | `observationDossier`    | Observation saisie sur le dossier ⚠️                   | [x]      |
+| 7  | `dateCommission`        | Date au format **"JJ mois AAAA"**                      | [x]      |
+| 8  | `dateVisite`            | Date de visite **"JJ mois AAAA"** ou vide              | [x]      |
+| 9  | `libelleRue`            | Rue de l'établissement                                 | [x]      |
+| 10 | `codePostal`            | Code postal                                            | [x]      |
+| 11 | `numWinPrev`            | Numéro WinPrev                                         | [x]      |
+| 12 | `libelleCommune`        | Commune                                                | [x]      |
+| 13 | `effectifTotal`         | Somme effectif public + personnel                      | [x]      |
+| 14 | `typeDossier`           | "Étude", "Visite de commission" ou "Groupe de visite"x | [ ]      |
+| 15 | `nomPereEtab`           | Nom établissement parent (vide si aucun)               | [x]      |
+| 16 | `nomEtab`               | Nom de l'établissement                                 | [x]      |
+| 17 | `categorieEtab`         | Catégorie                                              | [x]      |
+| 18 | `typeEtab`              | Type principal                                         | [x]      |
+| 19 | `avisDossier`           | "Favorable", "Défavorable" ou vide                     | [x]      |
+| 20 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide                     | [x]      |
+| 21 | `numDocUrba`            | Numéros permis                                         | [x]      |
 
 > Avis/dérogations dossier et établissement : mêmes 10 champs que la convocation.
 
@@ -377,8 +377,8 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Comportement attendu | Résultat |
 |---|-----------|---------------------|----------|
-| 22 | Observation renseignée | Texte affiché intégralement dans `observationDossier` | [ ] |
-| 23 | Observation vide | Champ vide, pas de placeholder | [ ] |
+| 22 | Observation renseignée | Texte affiché intégralement dans `observationDossier` | [x]      |
+| 23 | Observation vide | Champ vide, pas de placeholder | [x]      |
 
 ---
 
@@ -386,8 +386,8 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Comportement attendu | Résultat |
 |---|-----------|---------------------|----------|
-| 24 | `DOCUMENT_CR` non configuré pour la commission | Message "Le fichier de compte rendu pour la commission n'existe pas" | [ ] |
-| 25 | Dossier sans adresse établissement | Le dossier est ignoré dans le document | [ ] |
+| 24 | `DOCUMENT_CR` non configuré pour la commission | Message "Le fichier de compte rendu pour la commission n'existe pas" | [x]      |
+| 25 | Dossier sans adresse établissement | Le dossier est ignoré dans le document | [x]      |
 
 ---
 
@@ -418,14 +418,14 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Cas | Comportement attendu | Résultat |
 |---|-----|---------------------|----------|
-| 9 | 1 seul avis/dérogation sur le dossier | 1 occurrence du segment avec toutes les données | [ ] |
-| 10 | N avis/dérogations sur le dossier | N occurrences du segment | [ ] |
-| 11 | Aucun avis/dérogation dossier | Segment présent avec tous les champs vides | [ ] |
-| 12 | Avis avec date de commission | `date_avis_derogation` = date de commission | [ ] |
-| 13 | Avis avec date de visite (pas de commission) | `date_avis_derogation` = date de visite | [ ] |
-| 14 | Avis sans aucune date | `date_avis_derogation` vide | [ ] |
-| 15 | N avis/dérogations sur l'établissement | N occurrences du segment `avisDerogationsEtablissement` | [ ] |
-| 16 | Aucun avis établissement | Segment présent avec tous les champs vides | [ ] |
+| 9 | 1 seul avis/dérogation sur le dossier | 1 occurrence du segment avec toutes les données | [x]      |
+| 10 | N avis/dérogations sur le dossier | N occurrences du segment | [x]      |
+| 11 | Aucun avis/dérogation dossier | Segment présent avec tous les champs vides | [x]      |
+| 12 | Avis avec date de commission | `date_avis_derogation` = date de commission | [x]      |
+| 13 | Avis avec date de visite (pas de commission) | `date_avis_derogation` = date de visite | [x]      |
+| 14 | Avis sans aucune date | `date_avis_derogation` vide | [x]      |
+| 15 | N avis/dérogations sur l'établissement | N occurrences du segment `avisDerogationsEtablissement` | [x]      |
+| 16 | Aucun avis établissement | Segment présent avec tous les champs vides | [x]      |
 
 ---
 
@@ -433,9 +433,9 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Cas | Comportement attendu | Résultat |
 |---|-----|---------------------|----------|
-| 17 | Établissement seul (sans parent) | `nomPereEtab` vide | [ ] |
-| 18 | Établissement enfant avec parent | `nomPereEtab` = nom de l'établissement parent | [ ] |
-| 19 | Établissements liés avec avis sur les enfants | `avisDerogationsEtablissement` inclut les avis de TOUS les établissements liés | [ ] |
+| 17 | Établissement seul (sans parent) | `nomPereEtab` vide | [x]      |
+| 18 | Établissement enfant avec parent | `nomPereEtab` = nom de l'établissement parent | [x]      |
+| 19 | Établissements liés avec avis sur les enfants | `avisDerogationsEtablissement` inclut les avis de TOUS les établissements liés | [x]      |
 
 ---
 
@@ -456,9 +456,9 @@ Après chaque génération, vérifier dans **Pièces jointes > date de commissio
 | # | Document | Nom PJ attendu | Extension | Résultat |
 |---|----------|---------------|-----------|----------|
 | 23 | Convocation | "Convocation" | .odt | [x]      |
-| 24 | O.D.J. | "Ordre du jour" | .odt | [ ]      |
+| 24 | O.D.J. | "Ordre du jour" | .odt | [x]      |
 | 25 | P.V. | "P.V." | .odt | [ ]      |
-| 26 | Compte-rendu | "Compte rendu" | .odt | [ ]      |
+| 26 | Compte-rendu | "Compte rendu" | .odt | [x]      |
 | 27 | Tous | Le fichier ODT est téléchargeable et ouvrable | — | [x]      |
 
 ---
