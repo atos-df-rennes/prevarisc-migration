@@ -250,6 +250,7 @@ $(document).ready(function() {
 
                 var successLines = [];
                 var errorLines = [];
+                var warningLines = [];
 
                 if (response.results) {
                     for (var i = 0; i < response.results.length; i++) {
@@ -263,6 +264,8 @@ $(document).ready(function() {
                             successLines.push(text);
                         } else if (r.status === 'error') {
                             errorLines.push(text);
+                        } else if (r.status === 'warning') {
+                            warningLines.push(text);
                         }
                     }
                 }
@@ -275,7 +278,11 @@ $(document).ready(function() {
                     $.toast.warning(errorLines.join('<br>'), { autoClose: false });
                 }
 
-                if (successLines.length === 0 && errorLines.length === 0) {
+                if (warningLines.length > 0) {
+                    $.toast.warning(warningLines.join('<br>'), { autoClose: false });
+                }
+
+                if (successLines.length === 0 && errorLines.length === 0 && warningLines.length === 0) {
                     $.toast.info(response.summary, { autoClose: false });
                 }
             },

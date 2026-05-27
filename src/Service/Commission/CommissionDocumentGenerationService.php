@@ -330,7 +330,7 @@ class CommissionDocumentGenerationService
 
             try {
                 if (empty($membreFile['ID_GROUPEMENT'])) {
-                    $pjId = $this->generateOdjParCommune(
+                    $odjResult = $this->generateOdjParCommune(
                         $templatePath,
                         $listeDossiers,
                         $membre,
@@ -340,6 +340,9 @@ class CommissionDocumentGenerationService
                         $heureDeb,
                         $dateCommId
                     );
+                    $pjId = $odjResult['pjId'];
+                    /** @var string[] $communesWithoutContact */
+                    $communesWithoutContact = $odjResult['communesWithoutContact'];
                 } else {
                     $pjId = $this->generateOdjParGroupement(
                         $templatePath,
@@ -350,6 +353,7 @@ class CommissionDocumentGenerationService
                         $heureDeb,
                         $dateCommId
                     );
+                    $communesWithoutContact = [];
                 }
 
                 $results[] = [
@@ -359,6 +363,16 @@ class CommissionDocumentGenerationService
                     'message' => 'Le document a bien été généré pour le membre '.$membreLabel,
                     'pieceJointeId' => $pjId,
                 ];
+
+                foreach ($communesWithoutContact as $communeName) {
+                    $results[] = [
+                        'memberId' => $membreId,
+                        'memberLabel' => '',
+                        'status' => 'warning',
+                        'message' => 'Le contact de la commune '.$communeName." n'a pas été renseigné",
+                        'pieceJointeId' => null,
+                    ];
+                }
             } catch (\Exception $e) {
                 $this->logger->error('Erreur génération ODJ membre '.$membreLabel, ['exception' => $e]);
                 $results[] = [
@@ -1223,6 +1237,8 @@ class CommissionDocumentGenerationService
      * @param array<string, mixed>                                              $membre
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
      * @param array<string, mixed>                                              $commissionInfos
+     *
+     * @return array{pjId: int, communesWithoutContact: string[]}
      */
     private function generateOdjParCommune(
         string $templatePath,
@@ -1233,10 +1249,11 @@ class CommissionDocumentGenerationService
         string $dateComm,
         string $heureDeb,
         int $dateCommId
-    ): int {
+    ): array {
         $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'A', 'E', 'I', 'O', 'U', 'Y'];
         $odf = new \Odf($templatePath);
         $membreLoop = $odf->setSegment('membresComm');
+        $communesWithoutContact = [];
 
         foreach ($listeCommunes as $commune) {
             if ('' !== $commune[0]) {
@@ -1254,6 +1271,7 @@ class CommissionDocumentGenerationService
                     $this->addChamp($membreLoop, 'rueMairie', '');
                     $this->addChamp($membreLoop, 'cpMairie', '');
                     $this->addChamp($membreLoop, 'communeMairie', '');
+                    $communesWithoutContact[] = (string) $commune[0];
                 }
             }
 
@@ -1307,7 +1325,7 @@ class CommissionDocumentGenerationService
         $path = $this->dataStore->getFilePath($pj, 'dateCommission', $dateCommId, true);
         $odf->saveToDisk($path);
 
-        return (int) $pj->getId();
+        return ['pjId' => (int) $pj->getId(), 'communesWithoutContact' => $communesWithoutContact];
     }
 
     /**
