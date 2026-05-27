@@ -153,7 +153,7 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findDossierAffectForCommission(int $idDateCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
             FROM dossier doss
             JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
             JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
@@ -167,6 +167,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                     FROM etablissementinformations ei
                     WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
                 )
+            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
             WHERE dateComm.ID_DATECOMMISSION = :idDateCommission
             AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL
             AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL
@@ -189,7 +190,7 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findDossierNonAffectForCommission(int $idDateCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
             FROM dossier doss
             JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
             JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
@@ -203,6 +204,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                     FROM etablissementinformations ei
                     WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
                 )
+            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
             WHERE dateComm.ID_DATECOMMISSION = :idDateCommission
             AND dossAffect.HEURE_DEB_AFFECT IS NULL
             AND dossAffect.HEURE_FIN_AFFECT IS NULL
