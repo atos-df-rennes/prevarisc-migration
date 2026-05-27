@@ -2007,8 +2007,8 @@ class CommissionDocumentGenerationService
     /**
      * Port direct de addPrescription() (generationpv.phtml).
      *
-     * @param list<list<array<string, string|null>>> $listePrescription
-     * @param string                                 $typeContenu       'default', 'reprises', 'actuelles'
+     * @param array<int, array<int, array<string, string|null>>> $listePrescription Tableau issu de withoutLevees/withoutActuals/withoutPrevious (clés non nécessairement séquentielles)
+     * @param string                                             $typeContenu       'default', 'reprises', 'actuelles'
      */
     private function addPrescription(array $listePrescription, int $type, \Segment $odf, string $typeContenu): void
     {
@@ -2030,47 +2030,33 @@ class CommissionDocumentGenerationService
             return;
         }
 
-        $nbPrescDossier = count($listePrescription);
+        if (!empty($listePrescription)) {
+            foreach ($listePrescription as $prescRow) {
+                if (empty($prescRow)) {
+                    continue;
+                }
 
-        if ($nbPrescDossier > 0) {
-            for ($i = 0; $i < $nbPrescDossier; ++$i) {
-                $nbAssoc = count($listePrescription[$i]);
-                $cpt = true;
+                // Port direct : num et libelle viennent du premier élément du groupe
+                /** @var array<string, string|null> $firstAssoc */
+                $firstAssoc = reset($prescRow) ?: [];
+                $this->addChamp($prescription, 'num', (string) ($firstAssoc['NUM_PRESCRIPTION_DOSSIER'] ?? ''));
+                if ('' === (string) ($firstAssoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
+                    $this->addChamp($prescription, 'libelle', (string) ($firstAssoc['PRESCRIPTIONTYPE_LIBELLE'] ?? ''));
+                } else {
+                    $this->addChamp($prescription, 'libelle', (string) ($firstAssoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? ''));
+                }
+
+                $nbCpt = count($prescRow);
                 $textearticle = '';
-                $nbCpt = $nbAssoc;
+                foreach ($prescRow as $assoc) {
+                    $articleT = (string) ($assoc['LIBELLE_ARTICLE'] ?? '');
+                    $texteT = (string) ($assoc['LIBELLE_TEXTE'] ?? '');
 
-                for ($j = 0; $j < $nbAssoc; ++$j) {
-                    $articleT = (string) ($listePrescription[$i][$j]['LIBELLE_ARTICLE'] ?? '');
-                    $texteT = (string) ($listePrescription[$i][$j]['LIBELLE_TEXTE'] ?? '');
-
-                    if ('' !== $texteT) {
-                        $textearticle .= $texteT.' - ';
-                    } else {
-                        $textearticle .= ' - ';
-                    }
-
+                    $textearticle .= '' !== $texteT ? $texteT.' - ' : ' - ';
                     if ($nbCpt > 1) {
-                        if ('' !== $articleT) {
-                            $textearticle .= $articleT.', ';
-                        } else {
-                            $textearticle .= ', ';
-                        }
-                    } elseif ('' !== $articleT) {
-                        $textearticle .= $articleT.' ';
+                        $textearticle .= '' !== $articleT ? $articleT.', ' : ', ';
                     } else {
-                        $textearticle .= ' ';
-                    }
-
-                    if ($cpt) {
-                        $this->addChamp($prescription, 'num', $listePrescription[$i][0]['NUM_PRESCRIPTION_DOSSIER'] ?? '');
-
-                        if ('' === (string) ($listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
-                            $this->addChamp($prescription, 'libelle', $listePrescription[$i][0]['PRESCRIPTIONTYPE_LIBELLE'] ?? '');
-                        } else {
-                            $this->addChamp($prescription, 'libelle', $listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '');
-                        }
-
-                        $cpt = false;
+                        $textearticle .= '' !== $articleT ? $articleT.' ' : ' ';
                     }
 
                     --$nbCpt;
