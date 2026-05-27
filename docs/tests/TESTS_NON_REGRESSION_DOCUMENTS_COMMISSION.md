@@ -225,7 +225,7 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Comportement attendu | Résultat |
 |---|-----------|---------------------|----------|
-| 40 | Commune sans contact mairie renseigné | Message d'avertissement affiché | ✅      |
+| 40 | Commune sans contact mairie renseigné | Message d'avertissement affiché | [x]      |
 | 41 | Dossier sans date de visite | Champ `dateVisite` vide | [x]      |
 
 ---
