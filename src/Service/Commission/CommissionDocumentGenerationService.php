@@ -367,7 +367,7 @@ class CommissionDocumentGenerationService
                 foreach ($communesWithoutContact as $communeName) {
                     $results[] = [
                         'memberId' => $membreId,
-                        'memberLabel' => '',
+                        'memberLabel' => $communeName,
                         'status' => 'warning',
                         'message' => 'Le contact de la commune '.$communeName." n'a pas été renseigné",
                         'pieceJointeId' => null,
