@@ -15,9 +15,9 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 - [x] Au moins 2 dossiers affectés à la commission, dans des communes différentes
 - [x] Chaque dossier a un établissement avec : adresse complète, catégorie, type, effectifs public ET personnel
 - [x] Au moins 1 préventionniste affecté à chaque dossier (avec grade, tél, mail)
-- [ ] Au moins 1 avis/dérogation sur le **dossier**
-- [ ] Au moins 1 avis/dérogation sur l'**établissement**
-- [ ] Au moins 1 dossier avec un permis de construire (numéro doc urbanisme)
+- [x] Au moins 1 avis/dérogation sur le **dossier**
+- [x] Au moins 1 avis/dérogation sur l'**établissement**
+- [x] Au moins 1 dossier avec un permis de construire (numéro doc urbanisme)
 - [x] Un établissement avec un **établissement parent** renseigné
 - [x] La commission configurée avec `GESTION_HEURES = 1` (heures par dossier)
 - [x] Le document CR configuré pour la commission (`DOCUMENT_CR`)
@@ -129,7 +129,7 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 | # | Vérification | Résultat |
 |---|-------------|----------|
 | 58 | Le bon template de visite est utilisé (pas le template salle) | [x]      |
-| 59 | Tous les champs #1 à #57 s'affichent correctement | [ ]      |
+| 59 | Tous les champs #1 à #57 s'affichent correctement | [x]      |
 
 ---
 
@@ -141,10 +141,10 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 | 61 | Aucun membre dans la commission | Message "Aucun membre renseigné" | [x]      |
 | 62 | Dossier sans établissement | Dossier ignoré (non inclus dans le document) | [x]      |
 | 63 | Email établissement vide | Champ `mailEtab` vide, pas de placeholder `{mailEtab}` | [x]      |
-| 64 | Aucun permis de construire | Champ `numDocUrba` vide | [ ]      |
+| 64 | Aucun permis de construire | Champ `numDocUrba` vide | [x]      |
 | 65 | Aucun préventionniste | Champs `preventionnistes`, `listeTelPreventioniste`, `listeMailPreventioniste` vides | [x]      |
-| 66 | Dossier sans avis/dérogation | Segment présent avec champs vides (pas de placeholder) | [ ]      |
-| 67 | Pas de membre par groupement | Pas de section groupement dans le document | [ ]      |
+| 66 | Dossier sans avis/dérogation | Segment présent avec champs vides (pas de placeholder) | [x]      |
+| 67 | Pas de membre par groupement | Pas de section groupement dans le document | [x]      |
 
 ---
 
@@ -158,38 +158,38 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 1 | `numMairie` | Numéro adresse mairie | [ ] |
-| 2 | `rueMairie` | Rue de la mairie | [ ] |
-| 3 | `cpMairie` | Code postal de la mairie | [ ] |
-| 4 | `communeMairie` | Ville de la mairie (champ `VILLEADRESSE`) | [ ] |
-| 5 | `commissionNom` | Nom de la commission | [ ] |
-| 6 | `date` | Date du jour JJ/MM/AAAA | [ ] |
-| 7 | `dateCommission` | Date de la commission JJ/MM/AAAA | [ ] |
-| 8 | `heureDebutComm` | Heure de début HH:MM | [ ] |
+| 1 | `numMairie` | Numéro adresse mairie | [x]      |
+| 2 | `rueMairie` | Rue de la mairie | [x]      |
+| 3 | `cpMairie` | Code postal de la mairie | [x]      |
+| 4 | `communeMairie` | Ville de la mairie (champ `VILLEADRESSE`) | [x]      |
+| 5 | `commissionNom` | Nom de la commission | [x]      |
+| 6 | `date` | Date du jour JJ/MM/AAAA | [x]      |
+| 7 | `dateCommission` | Date de la commission JJ/MM/AAAA | [x]      |
+| 8 | `heureDebutComm` | Heure de début HH:MM | [x]      |
 
 #### Champs par dossier (segment `infosDoss`, répété par dossier)
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 9 | `idDossier` | ID du dossier | [ ] |
-| 10 | `avisDossier` | "Favorable", "Défavorable" ou vide | [ ] |
-| 11 | `nomEtab` | Nom de l'établissement | [ ] |
-| 12 | `numWinPrev` | Numéro WinPrev | [ ] |
-| 13 | `nomPereEtab` | Nom établissement parent (vide si aucun) | [ ] |
-| 14 | `dateVisite` | Date de visite JJ/MM/AAAA (vide si aucune) | [ ] |
-| 15 | `categorieEtab` | Catégorie | [ ] |
-| 16 | `typeLettreP` | Type principal | [ ] |
-| 17 | `natureDossier` | Nature du dossier | [ ] |
-| 18 | `objetDossier` | Objet du dossier | [ ] |
-| 19 | `communeConcerne` | Commune de l'établissement | [ ] |
-| 20 | `etablissementAdresse` | Adresse complète (n° rue CP commune) | [ ] |
-| 21 | `heureDebDossier` | Heure de début HH:MM | [ ] |
-| 22 | `heureFinDossier` | Heure de fin HH:MM | [ ] |
-| 23 | `numDocUrba` | Numéros permis (vide si aucun) | [ ] |
-| 24 | `typeDossierCourt` | "E" (Étude), "V" (Visite/Groupe), "A" (autre) | [ ] |
-| 25 | `preventionnistes` | "Grade Nom Prénom, ..." | [ ] |
-| 26 | `listeTelPreventioniste` | Téléphone(s) | [ ] |
-| 27 | `listeMailPreventioniste` | Email(s) | [ ] |
+| 9 | `idDossier` | ID du dossier | [x]      |
+| 10 | `avisDossier` | "Favorable", "Défavorable" ou vide | [x]      |
+| 11 | `nomEtab` | Nom de l'établissement | [x]      |
+| 12 | `numWinPrev` | Numéro WinPrev | [x]      |
+| 13 | `nomPereEtab` | Nom établissement parent (vide si aucun) | [x]      |
+| 14 | `dateVisite` | Date de visite JJ/MM/AAAA (vide si aucune) | [x]      |
+| 15 | `categorieEtab` | Catégorie | [x]      |
+| 16 | `typeLettreP` | Type principal | [x]      |
+| 17 | `natureDossier` | Nature du dossier | [x]      |
+| 18 | `objetDossier` | Objet du dossier | [x]      |
+| 19 | `communeConcerne` | Commune de l'établissement | [x]      |
+| 20 | `etablissementAdresse` | Adresse complète (n° rue CP commune) | [x]      |
+| 21 | `heureDebDossier` | Heure de début HH:MM | [x]      |
+| 22 | `heureFinDossier` | Heure de fin HH:MM | [x]      |
+| 23 | `numDocUrba` | Numéros permis (vide si aucun) | [x]      |
+| 24 | `typeDossierCourt` | "E" (Étude), "V" (Visite/Groupe), "A" (autre) | [x]      |
+| 25 | `preventionnistes` | "Grade Nom Prénom, ..." | [x]      |
+| 26 | `listeTelPreventioniste` | Téléphone(s) | [x]      |
+| 27 | `listeMailPreventioniste` | Email(s) | [x]      |
 
 > Avis/dérogations dossier (#29→#38 de la convocation) et établissement (#39→#48) : mêmes champs, même vérification.
 
@@ -199,14 +199,14 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Champ ODT | Valeur attendue | Résultat |
 |---|-----------|----------------|----------|
-| 28 | `commissionNom` | Nom de la commission | [ ] |
-| 29 | `date` | Date du jour | [ ] |
-| 30 | `communeGrp` | Ville du groupement | [ ] |
-| 31 | `numGrp` | Numéro de rue du groupement | [ ] |
-| 32 | `rueGrp` | Rue du groupement | [ ] |
-| 33 | `cpGrp` | Code postal du groupement | [ ] |
-| 34 | `dateCommission` | Date de la commission | [ ] |
-| 35 | `heureDebutComm` | Heure de début | [ ] |
+| 28 | `commissionNom` | Nom de la commission | [x] |
+| 29 | `date` | Date du jour | [x] |
+| 30 | `communeGrp` | Ville du groupement | [x] |
+| 31 | `numGrp` | Numéro de rue du groupement | [x] |
+| 32 | `rueGrp` | Rue du groupement | [x] |
+| 33 | `cpGrp` | Code postal du groupement | [x] |
+| 34 | `dateCommission` | Date de la commission | [x] |
+| 35 | `heureDebutComm` | Heure de début | [x] |
 
 ---
 
@@ -214,10 +214,10 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Configuration | Vérification | Résultat |
 |---|--------------|-------------|----------|
-| 36 | `GESTION_HEURES = 1` | `heureDebDossier` et `heureFinDossier` affichent les heures | [ ] |
-| 37 | `GESTION_HEURES = 0` | `heureDebDossier` et `heureFinDossier` sont vides | [ ] |
-| 38 | `GESTION_HEURES = 1` | L'ordre des dossiers respecte l'ordre chronologique | [ ] |
-| 39 | `GESTION_HEURES = 0` | L'ordre des dossiers respecte l'ordre de l'ODJ | [ ] |
+| 36 | `GESTION_HEURES = 1` | `heureDebDossier` et `heureFinDossier` affichent les heures | [x]      |
+| 37 | `GESTION_HEURES = 0` | `heureDebDossier` et `heureFinDossier` sont vides | [x]      |
+| 38 | `GESTION_HEURES = 1` | L'ordre des dossiers respecte l'ordre chronologique | [x]      |
+| 39 | `GESTION_HEURES = 0` | L'ordre des dossiers respecte l'ordre de l'ODJ | [x]      |
 
 ---
 
@@ -225,8 +225,8 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Situation | Comportement attendu | Résultat |
 |---|-----------|---------------------|----------|
-| 40 | Commune sans contact mairie renseigné | Message d'avertissement affiché | [ ] |
-| 41 | Dossier sans date de visite | Champ `dateVisite` vide | [ ] |
+| 40 | Commune sans contact mairie renseigné | Message d'avertissement affiché | ✅      |
+| 41 | Dossier sans date de visite | Champ `dateVisite` vide | [x]      |
 
 ---
 
