@@ -44,6 +44,45 @@ calendrier_des_commissions:
     - name: api_icalendar_sync
       path: /api/1.0/calendar
 
+commission_generation_documents:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/CalendrierDesCommissionsController.php (generationconvocAction, generationodjAction, generationpvAction, generationcompterenduAction)
+    - prevarisc/application/views/scripts/calendrier-des-commissions/generationconvoc.phtml
+    - prevarisc/application/views/scripts/calendrier-des-commissions/generationodj.phtml
+    - prevarisc/application/views/scripts/calendrier-des-commissions/generationpv.phtml
+    - prevarisc/application/views/scripts/calendrier-des-commissions/generationcompterendu.phtml
+  migrated_files:
+    - prevarisc-migration/src/Controller/Commission/CalendrierDesCommissionsGenerationController.php
+    - prevarisc-migration/src/Service/Commission/CommissionDocumentGenerationService.php
+    - prevarisc-migration/src/Service/Commission/CommissionMembreEligibilityChecker.php
+    - prevarisc-migration/src/Constant/AvisCommission.php
+    - prevarisc-migration/public/js/gestionodj.js
+    - prevarisc-migration/templates/calendrier_des_commissions/gestionodj.html.twig
+  updated_at: "2026-05-20"
+  notes: >
+    PHPStan niveau 10 : 0 erreur (CommissionDocumentGenerationService, CommissionMembreEligibilityChecker).
+    Migration complète des 4 actions de génération de documents ODT de commission
+    (convocation, ordre du jour, procès-verbal, compte-rendu).
+    Architecture : service dédié CommissionDocumentGenerationService (DBAL reads, Doctrine writes),
+    CommissionMembreEligibilityChecker pour le filtrage des compétences membres,
+    AvisCommission pour le mapping avis → libellé.
+    Réutilisation de PrescriptionArrayHelper, ChampNamer, DataStore, DateFormatterFr existants.
+    Frontend : remplacement #infoGeneration div par toast notifications,
+    rafraîchissement modale pièces jointes après génération.
+    Gestion groupement incluse (convocation + ODJ).
+    Réponse JSON par membre avec détail status/message/pieceJointeId.
+    CSRF par action + dateCommId.
+  routes:
+    - name: commission_calendrier_generation_convocation
+      path: /commission/calendrier/{dateCommId}/generation/convocation
+    - name: commission_calendrier_generation_odj
+      path: /commission/calendrier/{dateCommId}/generation/odj
+    - name: commission_calendrier_generation_pv
+      path: /commission/calendrier/{dateCommId}/generation/pv
+    - name: commission_calendrier_generation_compte_rendu
+      path: /commission/calendrier/{dateCommId}/generation/compte-rendu
+
 etablissement_pieces_jointes_gestion:
   status: migrated
   legacy_files:
@@ -249,6 +288,7 @@ dossier_rapport_generation:
     - listeDocs : seuls les documents consultés sont affichés (avec coche)
     - adresse maire : colonnes NUMEROADRESSE/RUEADRESSE/CPADRESSE/VILLEADRESSE
     - prescriptions : champs num/libelle/textearticle (articles concaténés), mergeSegment correct
+    - PHPStan niveau 10 : 0 erreur (DossierRapportOdtService, PrescriptionArrayHelper)
 
     Écarts intentionnels résiduels :
     - prochaineVisite : option use_date_commission_for_periodicity (config legacy) non portée — utilise DATEVISITE uniquement

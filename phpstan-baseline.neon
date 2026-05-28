@@ -1,2 +1,19 @@
 parameters:
-	ignoreErrors: []
+    ignoreErrors:
+        -
+            message: '#^PHPDoc tag @var with type string is not subtype of native type non\-falsy\-string\.$#'
+            identifier: varTag.nativeType
+            count: 1
+            path: src/Controller/CouchesCartographiquesController.php
+
+        -
+            message: '#^Method App\\Service\\PlatauHealthcheckService\:\:getPisteTokenData\(\) should return array\<string, mixed\> but returns array\<mixed, mixed\>\.$#'
+            identifier: return.type
+            count: 1
+            path: src/Service/PlatauHealthcheckService.php
+
+        -
+            message: '#^Method App\\Service\\PlatauHealthcheckService\:\:requestPisteToken\(\) should return array\<string, mixed\>\|null but returns array\<mixed, mixed\>\.$#'
+            identifier: return.type
+            count: 1
+            path: src/Service/PlatauHealthcheckService.php
