@@ -4,6 +4,73 @@
 
 <!--- END HEADER -->
 
+## [2.10.0-rc.2](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.19...v2.10.0-rc.2) (28-05-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances
+
+* Sert les routes dans un fichier statique au lieu de faire une requête (#205) ([0d1f3b](https://github.com/atos-df-rennes/prevarisc-migration/commit/0d1f3bbd66efa3f79193f76aa6ab8fd4e4e164cd))
+
+##### Accueil
+
+* Optimisation des requêtes des blocs (#194) ([93b3db](https://github.com/atos-df-rennes/prevarisc-migration/commit/93b3db8b9fbf635d7225ae65b2bba067c68dc72d))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+##### Accueil
+
+* Erreur 500 / boucle d'authentification / assets non chargés (#204) ([643a14](https://github.com/atos-df-rennes/prevarisc-migration/commit/643a14db9e41d316523991f48ad620e1d770c2e9))
+
+##### Dossier
+
+* La sauvegarde des documents d'urbanisme n'étaient pas prise en compte (#224) ([3d1f5b](https://github.com/atos-df-rennes/prevarisc-migration/commit/3d1f5bf4a2a1c24c20694b1268442e807490a55d))
+* Correction sur la sauvegarde des préventionnistes (#223) ([4cd8d6](https://github.com/atos-df-rennes/prevarisc-migration/commit/4cd8d6ae3198c033a11bbb46f07bacab3c5bb74e))
+* Les renvois de pec et d'avis Plat'AU n'étaient pas pris en compte (#202) ([ff2191](https://github.com/atos-df-rennes/prevarisc-migration/commit/ff2191d58e99931ee42e3c6c78b02282a99d7b33))
+
+##### Etablissement
+
+* Supprimer la propagation catégorie/périodicité aux cellules (#225) ([ec6cdb](https://github.com/atos-df-rennes/prevarisc-migration/commit/ec6cdb935eb54c0502dd56abb7826536ca9e7039))
+* Ordonne les établissements liés via leur libellé ([d4248f](https://github.com/atos-df-rennes/prevarisc-migration/commit/d4248fe82fef370608bb08292cd9f455296e976e))
+* Ne prend en compte que les utilisateurs actifs ([f3a57d](https://github.com/atos-df-rennes/prevarisc-migration/commit/f3a57ddc9074bde1df75359185b051ed1fafae1d))
+
+##### Formulaires
+
+* Supprime les espaces superflus lors de la recherche des champs par nom (#222) ([76b7fc](https://github.com/atos-df-rennes/prevarisc-migration/commit/76b7fcaaba322791b53e4331a406f98497f85f06))
+
+##### Recherche
+
+* Affichage d'un dossier sans établissement (#196) ([7f0b4c](https://github.com/atos-df-rennes/prevarisc-migration/commit/7f0b4cf22157a237bdddb7c87a6828fb4e675224))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style
+
+* Affichage de sélection des villes pour les groupements de communes plus repsonsive (#199) ([a85aaa](https://github.com/atos-df-rennes/prevarisc-migration/commit/a85aaa120ad6807619ec81a9297fe9cedf2557c8))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration
+
+* Fonctionnement avec un proxy (#206) ([7a9c67](https://github.com/atos-df-rennes/prevarisc-migration/commit/7a9c672bb3baba3aa83d58b58f9dc26735d8ccd0))
+* Authentification (#201) ([296994](https://github.com/atos-df-rennes/prevarisc-migration/commit/296994d9195a02711bddd46fecd7c0b80f2f1c83))
+* Suppression du menu Statistiques inutilisé (#197) ([554764](https://github.com/atos-df-rennes/prevarisc-migration/commit/55476411c5e3210c1b7fd0fe5a276c5aa1f9f359))
+
+##### Calendrier-des-commissions
+
+* Génération des documents de commission (#221) ([19bd3c](https://github.com/atos-df-rennes/prevarisc-migration/commit/19bd3c5876fe9c1fb56cd0f66538a5d489076361))
+* Affichage et gestion des ordres du jour (#187) ([b7e296](https://github.com/atos-df-rennes/prevarisc-migration/commit/b7e2967f53b2c5d9a629507b7c3799ec96992c80))
+
+##### Dossier
+
+* Génération du rapport (#203) ([93c27d](https://github.com/atos-df-rennes/prevarisc-migration/commit/93c27d061bd72660e1b7486ced2f6229043defea))
+* Onglet Pièces Jointes (#200) ([43b60a](https://github.com/atos-df-rennes/prevarisc-migration/commit/43b60a1e22cfa69188263f7384c1a623566d35a0))
+* Avis et dérogations (#192) ([c059c2](https://github.com/atos-df-rennes/prevarisc-migration/commit/c059c2d6dcac5820f25b3b361047d4ec17bc49ad))
+
+##### Etablissement
+
+* Suppression logique d'un établissement (#226) ([127209](https://github.com/atos-df-rennes/prevarisc-migration/commit/127209838c7a878ea15ded68ecea3fff5b9090e8))
+* édition d'un établissement (#218) ([2ad97d](https://github.com/atos-df-rennes/prevarisc-migration/commit/2ad97d115d8553570056260c829d8128de913a92))
+* Ajout d'un établissement (#215) ([1fa3b4](https://github.com/atos-df-rennes/prevarisc-migration/commit/1fa3b4b0c3f667aa8e6d196b3f73d25085708fac))
+* Gestion des pièces jointes (#190) ([9a5aa0](https://github.com/atos-df-rennes/prevarisc-migration/commit/9a5aa0eaa167b76217b7185e7277452e9124650f))
+
+
+---
+
 ## [2.10.0-rc.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.18...v2.10.0-rc.1) (27-04-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
