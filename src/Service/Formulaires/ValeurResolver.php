@@ -27,16 +27,20 @@ final class ValeurResolver
      */
     public static function resolve(?TypeChampEntity $typeChamp, ?Valeur $valeur): string
     {
-        if (null === $valeur) {
-            return '';
-        }
-
         $typeId = null !== $typeChamp ? $typeChamp->getId() : null;
 
         if (TypeChamp::CHECKBOX === $typeId) {
+            if (null === $valeur) {
+                return 'Non';
+            }
+
             $checkbox = $valeur->getCheckbox();
 
             return (true === $checkbox) ? 'Oui' : 'Non';
+        }
+
+        if (null === $valeur) {
+            return '';
         }
 
         if (TypeChamp::DATE === $typeId) {

@@ -23,6 +23,14 @@ final class ValeurResolverTest extends TestCase
         self::assertSame('', ValeurResolver::resolve($typeChamp, null));
     }
 
+    public function testRetourneNonSiValeurNulleAvecTypeChampCheckbox(): void
+    {
+        $typeChamp = $this->createMock(TypeChampEntity::class);
+        $typeChamp->method('getId')->willReturn(TypeChamp::CHECKBOX);
+
+        self::assertSame('Non', ValeurResolver::resolve($typeChamp, null));
+    }
+
     public function testCheckboxVraiRetourneOui(): void
     {
         $typeChamp = $this->createMock(TypeChampEntity::class);
