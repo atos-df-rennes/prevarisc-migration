@@ -123,6 +123,23 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\CouchesCarto')
         ->arg('$cache', ref('cache.ign_capabilities'));
 
+    $services->set('App\Service\EtablissementSearchService')
+        ->arg('$searchCache', ref('cache.search'));
+
+    $services->set('App\Service\DossierSearchService')
+        ->arg('$searchCache', ref('cache.search'));
+
+    $services->set('App\Controller\TableauDesPeriodicitesController')
+        ->arg('$searchCache', ref('cache.search'))
+        ->tag('controller.service_arguments');
+
+    $services->set('App\Controller\ElementsSupprimesController')
+        ->arg('$searchCache', ref('cache.search'))
+        ->tag('controller.service_arguments');
+
+    $services->set('App\Service\Dossier\DossierSauvegardeService')
+        ->arg('$searchCache', ref('cache.search'));
+
     $services->set('App\Service\EtablissementPieceJointeService')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
 

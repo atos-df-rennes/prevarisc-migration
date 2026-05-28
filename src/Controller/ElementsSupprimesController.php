@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")
@@ -41,21 +41,21 @@ class ElementsSupprimesController extends AbstractController
      */
     private $dossierService;
 
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
+    /** @var TagAwareCacheInterface */
+    private $searchCache;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
         DossierRepository $dossierRepository,
         EtablissementService $etablissementService,
         DossierService $dossierService,
-        UrlGeneratorInterface $urlGenerator
+        TagAwareCacheInterface $searchCache
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
         $this->etablissementService = $etablissementService;
         $this->dossierService = $dossierService;
-        $this->urlGenerator = $urlGenerator;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -82,9 +82,12 @@ class ElementsSupprimesController extends AbstractController
         $this->dossierService->restore($id);
         $this->addFlash('success', 'Le dossier a bien été rétabli.');
 
-        // @todo Décommissionnement legacy : remplacer par return $this->redirect($request->headers->get('referer'));
-        // Cette redirection via le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
-        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$request->headers->get('referer'));
+        $this->searchCache->invalidateTags(['search']);
+
+        /** @var string $referer */
+        $referer = $request->headers->get('referer', $this->generateUrl('admin_elements_supprimes'));
+
+        return $this->redirect($referer);
     }
 
     /**
@@ -97,10 +100,8 @@ class ElementsSupprimesController extends AbstractController
         $this->etablissementService->restore($id);
         $this->addFlash('success', 'L\'établissement a bien été rétabli.');
 
-        // @todo Décommissionnement legacy : remplacer par return $this->redirectToRoute('admin_elements_supprimes');
-        // Cette redirection via le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
-        $target = $this->urlGenerator->generate('admin_elements_supprimes');
+        $this->searchCache->invalidateTags(['search']);
 
-        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$target);
+        return $this->redirectToRoute('admin_elements_supprimes');
     }
 }

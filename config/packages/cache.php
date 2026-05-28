@@ -11,6 +11,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'cache.ign_capabilities' => [
                     'adapter' => 'cache.adapter.filesystem',
                 ],
+                'cache.search' => [
+                    'adapter' => 'cache.adapter.filesystem',
+                    'tags' => true,
+                ],
             ],
         ],
     ]);
