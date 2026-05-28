@@ -346,28 +346,28 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 ### 4.2 — Champs par dossier (segment `dossierInfos`)
 
-| #  | Champ ODT               | Valeur attendue                                        | Résultat |
-|----|-------------------------|--------------------------------------------------------|----------|
-| 2  | `commissionNom`         | Nom de la commission                                   | [x]      |
-| 3  | `communeDossier`        | Commune de l'établissement                             | [x]      |
-| 4  | `objetDossier`          | Objet du dossier                                       | [x]      |
-| 5  | `natureDossier`         | Nature du dossier                                      | [x]      |
-| 6  | `observationDossier`    | Observation saisie sur le dossier ⚠️                   | [x]      |
-| 7  | `dateCommission`        | Date au format **"JJ mois AAAA"**                      | [x]      |
-| 8  | `dateVisite`            | Date de visite **"JJ mois AAAA"** ou vide              | [x]      |
-| 9  | `libelleRue`            | Rue de l'établissement                                 | [x]      |
-| 10 | `codePostal`            | Code postal                                            | [x]      |
-| 11 | `numWinPrev`            | Numéro WinPrev                                         | [x]      |
-| 12 | `libelleCommune`        | Commune                                                | [x]      |
-| 13 | `effectifTotal`         | Somme effectif public + personnel                      | [x]      |
-| 14 | `typeDossier`           | "Étude", "Visite de commission" ou "Groupe de visite"x | [ ]      |
-| 15 | `nomPereEtab`           | Nom établissement parent (vide si aucun)               | [x]      |
-| 16 | `nomEtab`               | Nom de l'établissement                                 | [x]      |
-| 17 | `categorieEtab`         | Catégorie                                              | [x]      |
-| 18 | `typeEtab`              | Type principal                                         | [x]      |
-| 19 | `avisDossier`           | "Favorable", "Défavorable" ou vide                     | [x]      |
-| 20 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide                     | [x]      |
-| 21 | `numDocUrba`            | Numéros permis                                         | [x]      |
+| #  | Champ ODT               | Valeur attendue                                       | Résultat |
+|----|-------------------------|-------------------------------------------------------|----------|
+| 2  | `commissionNom`         | Nom de la commission                                  | [x]      |
+| 3  | `communeDossier`        | Commune de l'établissement                            | [x]      |
+| 4  | `objetDossier`          | Objet du dossier                                      | [x]      |
+| 5  | `natureDossier`         | Nature du dossier                                     | [x]      |
+| 6  | `observationDossier`    | Observation saisie sur le dossier ⚠️                  | [x]      |
+| 7  | `dateCommission`        | Date au format **"JJ mois AAAA"**                     | [x]      |
+| 8  | `dateVisite`            | Date de visite **"JJ mois AAAA"** ou vide             | [x]      |
+| 9  | `libelleRue`            | Rue de l'établissement                                | [x]      |
+| 10 | `codePostal`            | Code postal                                           | [x]      |
+| 11 | `numWinPrev`            | Numéro WinPrev                                        | [x]      |
+| 12 | `libelleCommune`        | Commune                                               | [x]      |
+| 13 | `effectifTotal`         | Somme effectif public + personnel                     | [x]      |
+| 14 | `typeDossier`           | "Étude", "Visite de commission" ou "Groupe de visite" | [x]      |
+| 15 | `nomPereEtab`           | Nom établissement parent (vide si aucun)              | [x]      |
+| 16 | `nomEtab`               | Nom de l'établissement                                | [x]      |
+| 17 | `categorieEtab`         | Catégorie                                             | [x]      |
+| 18 | `typeEtab`              | Type principal                                        | [x]      |
+| 19 | `avisDossier`           | "Favorable", "Défavorable" ou vide                    | [x]      |
+| 20 | `avisDossierCommission` | "Favorable", "Défavorable" ou vide                    | [x]      |
+| 21 | `numDocUrba`            | Numéros permis                                        | [x]      |
 
 > Avis/dérogations dossier et établissement : mêmes 10 champs que la convocation.
 
@@ -403,14 +403,14 @@ Avant de commencer, s'assurer que la commission de test dispose de :
 
 | # | Type de champ | Comportement attendu | Résultat |
 |---|---------------|---------------------|----------|
-| 1 | Champ texte simple | Valeur affichée telle quelle | [ ] |
-| 2 | Case à cocher = cochée | Affiche **"Oui"** | [ ] |
-| 3 | Case à cocher = non cochée | Affiche **"Non"** | [ ] |
-| 4 | Champ date renseigné | Format "JJ mois AAAA" (ex : "22 mai 2026") | [ ] |
-| 5 | Champ date vide | Champ vide | [ ] |
-| 6 | Champ Parent sans tableau — enfants renseignés | Valeurs des champs enfants affichées | [ ] |
-| 7 | Champ Parent avec tableau — données renseignées | Chaque ligne dans `valeur0`, `valeur1`... | [ ] |
-| 8 | Champ Parent avec tableau — tableau vide | Ligne avec `valeur0`, `valeur1`... vides | [ ] |
+| 1 | Champ texte simple | Valeur affichée telle quelle | [x]      |
+| 2 | Case à cocher = cochée | Affiche **"Oui"** | [x]      |
+| 3 | Case à cocher = non cochée | Affiche **"Non"** | [x]      |
+| 4 | Champ date renseigné | Format "JJ mois AAAA" (ex : "22 mai 2026") | [x]      |
+| 5 | Champ date vide | Champ vide | [x]      |
+| 6 | Champ Parent sans tableau — enfants renseignés | Valeurs des champs enfants affichées | [x]      |
+| 7 | Champ Parent avec tableau — données renseignées | Chaque ligne dans `valeur0`, `valeur1`... | [x]      |
+| 8 | Champ Parent avec tableau — tableau vide | Ligne avec `valeur0`, `valeur1`... vides | [x]      |
 
 ---
 
