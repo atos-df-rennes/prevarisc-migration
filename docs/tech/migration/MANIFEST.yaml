@@ -320,3 +320,45 @@ ajout_etablissement:
     - Préventionnistes API returns [] (pas de getPrev(numinsee, idPere) en Symfony)
     - Rapport d'écarts complet : docs/tech/migration/ecarts/ajout-etablissement.md
 
+
+recherche:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/SearchController.php
+    - prevarisc/application/services/Search.php
+    - prevarisc/application/views/scripts/search/
+  migrated_files:
+    - prevarisc-migration/src/Controller/SearchController.php
+    - prevarisc-migration/src/Service/EtablissementSearchService.php
+    - prevarisc-migration/src/Service/DossierSearchService.php
+    - prevarisc-migration/src/Service/Dossier/DossierSauvegardeService.php
+    - prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php
+    - prevarisc-migration/src/Controller/ElementsSupprimesController.php
+    - prevarisc-migration/src/Dto/Repository/DossierSearchResultDto.php
+    - prevarisc-migration/config/packages/cache.php
+    - prevarisc-migration/config/services.php
+    - prevarisc-migration/templates/search/
+    - prevarisc-migration/docs/specs/MOD-06-RECHERCHE.md
+    - prevarisc-migration/docs/migration/MOD-06-RECHERCHE-ECARTS.md
+  updated_at: "2026-05-23"
+  notes: >
+    Migration du module de recherche (établissements + dossiers + exports).
+
+    Cache (Écart 1) :
+    - Pool cache.search dédié (TagAwareCacheInterface, tags: true)
+    - Clé md5(serialize(func_get_args())) identique au legacy
+    - Tag `search` sur chaque entrée, invalidateTags(['search']) sur
+      TableauDesPeriodicitesController, ElementsSupprimesController, DossierSauvegardeService
+    - Aucune modification du dépôt legacy requise
+
+    Code mort supprimé (Écarts 2 et 3) :
+    - Filtres dateCommission*/dateVisite* : jamais transmis par le formulaire ni le contrôleur,
+      code de traitement supprimé dans DossierSearchService
+    - NB_DOSS_LIES + classe slide : dépliage des dossiers liés inopérant en legacy
+      (ligne slide mal positionnée), non porté par design ; sous-requête et propriété DTO supprimées
+
+    Écart documenté (Écart 4) :
+    - RG-RCH-034 : établissementinformationsactuel utilisé dans les deux implémentations,
+      le legacy fait autorité, écart documenté dans la spec
+
+    Rapport d'écarts : docs/migration/MOD-06-RECHERCHE-ECARTS.md
