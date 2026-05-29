@@ -245,7 +245,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
 
-    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 0);
+    // @todo: Variable à retirer une fois le legacy retiré
+    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 1);
 
     $parameters->set('app.symfony_login', '%env(bool:PREVARISC_SYMFONY_LOGIN)%');
 
