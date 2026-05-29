@@ -238,6 +238,7 @@
                 <ul class="list-unstyled">
                     {% for groupement in groupements_de_communes %}
                         <li>
+                            {# @todo: à migrer ou supprimer #}
                             <a href="/groupement/view?id={{ (groupement|first).id }}">{{ (groupement|first).libelle }} ({{ groupement.libelle }})</a>
                         </li>
                     {% endfor %}
