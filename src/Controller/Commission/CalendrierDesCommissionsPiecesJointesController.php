@@ -8,11 +8,14 @@ use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -139,6 +142,35 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
         } catch (\Exception $exception) {
             return new JsonResponse(['success' => false, 'message' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Téléchargement d'une pièce jointe d'une date de commission.
+     *
+     * Port direct de PieceJointeController::getAction() (type=dateCommission).
+     *
+     * @Route("/commissions/calendrier/pieces-jointes/{id}/telecharger/{idPj}", name="calendrier_des_commissions_pj_telecharger", methods={"GET"}, requirements={"id"="\d+", "idPj"="\d+"})
+     *
+     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idPj"})
+     */
+    public function download(DateCommission $dateCommission, PieceJointe $pj): Response
+    {
+        if (!$dateCommission->getPiecesJointes()->contains($pj)) {
+            throw $this->createNotFoundException("Cette pièce jointe n'appartient pas à cette date de commission.");
+        }
+
+        $filePath = $this->dataStore->getFilePath($pj, 'dateCommission', (int) $dateCommission->getId());
+        if (!is_readable($filePath)) {
+            throw $this->createNotFoundException('Fichier introuvable ou illisible.');
+        }
+
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $pj->getNom().$pj->getExtension()
+        );
+
+        return $response;
     }
 
     /**
