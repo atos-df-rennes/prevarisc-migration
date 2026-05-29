@@ -4,6 +4,7 @@ namespace App\Service\DataStore;
 
 use App\Entity\PieceJointe;
 use App\Repository\EtablissementRepository;
+use App\Constant\DataStoreObjectTypes;
 
 /**
  * This class abstract the data access to the repository.
@@ -11,7 +12,7 @@ use App\Repository\EtablissementRepository;
 class HashedFileDataStore extends SimpleFileDataStore
 {
     /** @var string[] */
-    protected $nonHashedTypes = ['document', 'courrier', 'avatar'];
+    protected $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;
 
     /**
      * @param array<string>|null $options
@@ -24,7 +25,7 @@ class HashedFileDataStore extends SimpleFileDataStore
     ) {
         parent::__construct($etablissementRepository, $dataPath, $realDataPath, $options);
 
-        $this->types = ['dateCommission' => 'commission'];
+        $this->types = [DataStoreObjectTypes::DATE_COMMISSION => 'commission'];
 
         $this->format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
     }
