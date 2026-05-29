@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Génération des documents de commission (convocation, ODJ, PV, compte-rendu).
  *
- * @IsGranted("ROLE_USER")
+ * @IsGranted("generation_doc_com")
  */
 class CalendrierDesCommissionsGenerationController extends AbstractController
 {
