@@ -4,6 +4,7 @@ namespace App\Service\DataStore;
 
 use App\Entity\PieceJointe;
 use App\Repository\EtablissementRepository;
+use App\Constant\DataStoreObjectTypes;
 
 /**
  * Cette classe abstrait l'accès aux données du dépôt.
@@ -37,13 +38,13 @@ class SimpleFileDataStore implements DataStore
         ?array $options = null
     ) {
         $this->types = [
-            'etablissement' => 'pieces-jointes',
-            'etablissement_miniature' => 'etablissement_miniature',
-            'dossier' => 'pieces-jointes',
-            'dateCommission' => 'documents_commission',
-            'document' => 'documents',
-            'courrier' => 'courriers',
-            'avatar' => 'avatars',
+            DataStoreObjectTypes::ETABLISSEMENT => 'pieces-jointes',
+            DataStoreObjectTypes::ETABLISSEMENT_MINIATURE => 'etablissement_miniature',
+            DataStoreObjectTypes::DOSSIER => 'pieces-jointes',
+            DataStoreObjectTypes::DATE_COMMISSION => 'documents_commission',
+            DataStoreObjectTypes::DOCUMENT => 'documents',
+            DataStoreObjectTypes::COURRIER => 'courriers',
+            DataStoreObjectTypes::AVATAR => 'avatars',
         ];
 
         if (isset($options['fileFormat'])) {
@@ -100,11 +101,11 @@ class SimpleFileDataStore implements DataStore
         $etablissement = $this->etablissementRepository->find($linkedObjectId);
         // Logique pour déterminer le %NUMEROID_ETABLISSEMENT%
         switch ($linkedObjectType) {
-            case 'etablissement':
+            case DataStoreObjectTypes::ETABLISSEMENT:
                 // Logique pour récupérer le numéro d'établissement
                 $tokens[] = null !== $etablissement ? $etablissement->getId() : $linkedObjectId;
                 break;
-            case 'dossier':
+            case DataStoreObjectTypes::DOSSIER:
                 // Logique pour récupérer le numéro d'établissement à partir du dossier
                 $dossiers = null !== $etablissement ? $etablissement->getDossiers() : [];
                 $default_numeroid = [];
