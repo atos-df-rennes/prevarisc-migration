@@ -96,12 +96,13 @@ PREVARISC_CACHE_DIR | Répertoire des fichiers de cache si cache filesystem | R�
 PREVARISC_SECURITY_SALT | Chaine utilisée pour le cryptage des mots de passe utilisateur | Chaine alphanumérique de longueur 32 (exemple : 7aec3ab8e8d025c19e8fc8b6e0d75227 salt utilisé par défaut)
 PREVARISC_CALENDAR_REFRESH_TIME | [FACULTATIF] L'intervale de temps entre chaque rafraichissement de la synchronisation des calendriers | durée en format ISO 8601 (exemple : "PT5M" utilisé par défaut pour un rafraichissement tous les 5 minutes)
 PREVARISC_LDAP_ENABLED | [FACULTATIF] Activation de la connexion des utilisateurs via LDAP | 1 ou 0
-PREVARISC_LDAP_HOST | [FACULTATIF] Adresse du serveur LDAP | Adresse IP
-PREVARISC_LDAP_USERNAME | [FACULTATIF] Nom d'utilisateur à utiliser lors de la connexion au LDAP | Chaine de caractères
-PREVARISC_LDAP_PORT | [FACULTATIF] Port de connexion au LDAP | Entier
-PREVARISC_LDAP_PASSWORD | [FACULTATIF] Mot de passe de connexion au LDAP | Chaine de caractères
-PREVARISC_LDAP_BASEDN | [FACULTATIF] Chaine de selection afin de trouver les utilisateurs dans le LDAP | Chaine de caractères (exemple : DC=sdisxx,DC=fr)
-PREVARISC_LDAP_ACCOUNT_FORM | [FACULTATIF] Format des comptes LDAP à utiliser, par défaut domaine\login   | Entier voir class Zend_Ldap
+PREVARISC_LDAP_HOST | [FACULTATIF] Adresse du serveur LDAP | Adresse IP ou nom de domaine
+PREVARISC_LDAP_PORT | [FACULTATIF] Port de connexion au LDAP, 389 par défaut | Entier
+PREVARISC_LDAP_USERNAME | [FACULTATIF] DN ou UPN du compte de service LDAP pour rechercher le DN de l'utilisateur. Pour Active Directory : utiliser le format UPN (ex: svc-prevarisc@sdis85.com) ou le DN complet (ex: CN=Svc Prevarisc,CN=Users,DC=sdis85,DC=com). Si vide, passe directement au bind direct. | Chaine de caractères
+PREVARISC_LDAP_PASSWORD | [FACULTATIF] Mot de passe du compte de service LDAP | Chaine de caractères
+PREVARISC_LDAP_BASEDN | [FACULTATIF] DN de base pour la recherche des utilisateurs dans l'annuaire | Chaine de caractères (exemple : DC=sdisxx,DC=fr)
+PREVARISC_LDAP_FILTER | [FACULTATIF] Filtre de recherche LDAP pour trouver le DN d'un utilisateur. Par défaut (uid=%s) pour OpenLDAP. Pour Active Directory, utiliser (sAMAccountName=%s) | Chaine de caractères (exemple : (sAMAccountName=%s))
+PREVARISC_LDAP_ACCOUNT_FORM | [FACULTATIF] Format du compte pour le bind direct (fallback si le compte de service n'est pas configuré ou si l'utilisateur n'est pas trouvé). Utilise sprintf, %s est remplacé par le login. Pour Active Directory sans compte de service : %s@sdis85.com ou DOMAIN\%s. Si vide, le login est utilisé tel quel. | Chaine de caractères (exemple : %s@sdis85.com)
 PREVARISC_DEBUG_ENABLED | [FACULTATIF] Activation du mode debug | 1 ou 0
 PREVARISC_PLUGIN_IGNKEY | [FACULTATIF] Clés IGN pour afficher la carte séparées par des ",' | Valeur alphanumérique (exemple : essentiels,adresse,administratif,cartes,cartovecto)
 PREVARISC_IGN_AUTOCONF | [FACULTATIF] Fichier d'autoconfiguration pour obtenir les métadonnées de la carte | Chemin relatif au dossier public/ vers le fichier (exemple : /ign/prevarisc/customConfig.json)

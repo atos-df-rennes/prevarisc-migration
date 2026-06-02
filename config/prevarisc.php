@@ -252,9 +252,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
 
-    // Compte LDAP utilisé par le formulaire legacy Zend (via Zend_Ldap).
-    // Ce paramètre est lu par le code legacy, pas directement par Symfony.
-    // Si PREVARISC_LDAP_ENABLED=1, c'est $ldapUsername (PREVARISC_LDAP_USERNAME) qui est utilisé par Symfony.
+    // Format du compte utilisateur pour le bind direct LDAP (fallback si le bind service-account échoue
+    // ou si l'utilisateur n'est pas trouvé via le filtre).
+    // Utilise sprintf : %s est remplacé par le login saisi.
+    // Exemples : '%s@sdis85.com' (UPN Active Directory), 'DOMAIN\%s' (pre-Win2000).
+    // Si vide, le login est utilisé tel quel (convient pour OpenLDAP avec uid).
     $parameters->set('app.ldap_account_form', '%env(string:PREVARISC_LDAP_ACCOUNT_FORM)%');
 
     $parameters->set('env(PREVARISC_LOCAL_SOMMEIL_TYPES)', '7;11');

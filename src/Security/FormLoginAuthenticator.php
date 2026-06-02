@@ -419,24 +419,34 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
                 // Tentative de bind en deux étapes si un compte de service est configuré :
                 // 1) Bind service account → 2) Recherche DN utilisateur → 3) Bind utilisateur
+                // Le bloc est isolé dans son propre try/catch : un échec du bind service account
+                // (ex. username non valide comme un simple CN sans domaine) n'avorte pas le
+                // fallback direct bind ci-dessous.
                 if (!empty($this->ldapUsername) && !empty($this->ldapBaseDn)) {
-                    $ldap->bind($this->ldapUsername, $this->ldapPassword);
-                    $escapedUser = str_replace(['\\', '*', '(', ')', "\0"], ['\\5c', '\\2a', '\\28', '\\29', '\\00'], $credentials['username']);
-                    $query = $ldap->query($this->ldapBaseDn, sprintf($this->ldapFilter, $escapedUser));
-                    /** @var Entry[] $results */
-                    $results = $query->execute();
+                    try {
+                        $ldap->bind($this->ldapUsername, $this->ldapPassword);
+                        $escapedUser = str_replace(['\\', '*', '(', ')', "\0"], ['\\5c', '\\2a', '\\28', '\\29', '\\00'], $credentials['username']);
+                        $query = $ldap->query($this->ldapBaseDn, sprintf($this->ldapFilter, $escapedUser));
+                        /** @var Entry[] $results */
+                        $results = $query->execute();
 
-                    if (count($results) > 0) {
-                        $entry = $results[0];
-                        $ldap->bind($entry->getDn(), (string) $credentials['password']);
-                        $this->logger->info(sprintf("Auth LDAP (service-account): succès pour '%s'", $credentials['username']));
+                        if (count($results) > 0) {
+                            $entry = $results[0];
+                            $ldap->bind($entry->getDn(), (string) $credentials['password']);
+                            $this->logger->info(sprintf("Auth LDAP (service-account): succès pour '%s'", $credentials['username']));
 
-                        return true;
+                            return true;
+                        }
+
+                        $this->logger->notice('Auth LDAP: utilisateur non trouvé dans l\'annuaire, fallback direct bind', [
+                            'username' => $credentials['username'],
+                        ]);
+                    } catch (\Exception $e) {
+                        $this->logger->notice('Auth LDAP: bind service account échoué, fallback direct bind', [
+                            'service_account' => $this->ldapUsername,
+                            'exception' => $e->getMessage(),
+                        ]);
                     }
-
-                    $this->logger->notice('Auth LDAP: utilisateur non trouvé dans l\'annuaire, fallback direct bind', [
-                        'username' => $credentials['username'],
-                    ]);
                 }
 
                 // Bind direct (format UPN user@domain ou DN complet)
