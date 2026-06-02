@@ -99,11 +99,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ldap_basedn', '%env(string:PREVARISC_LDAP_BASEDN)%');
 
-    $parameters->set('env(PREVARISC_LDAP_FILTER)', '(uid=%s)');
+    $parameters->set('env(PREVARISC_LDAP_FILTER)', '(sAMAccountName=%s)');
 
     // Filtre de recherche LDAP pour retrouver le DN d'un utilisateur dans l'annuaire.
-    // OpenLDAP (défaut) : (uid=%s)
-    // Active Directory  : (sAMAccountName=%s) ou (&(objectClass=user)(sAMAccountName=%s))
+    // Active Directory (défaut) : (sAMAccountName=%s) — iso legacy Zend (bindRequiresDn=false)
+    // OpenLDAP                  : (uid=%s)
     $parameters->set('app.ldap_filter', '%env(string:PREVARISC_LDAP_FILTER)%');
 
     $parameters->set('env(PREVARISC_SECURITY_KEY)', '');
