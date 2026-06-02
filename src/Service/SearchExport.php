@@ -108,7 +108,12 @@ class SearchExport
             $this->writeTextCell($sheet, 22, $ligne, $row['LIBELLE_GENRE'] ?? '');
             $this->writeTextCell($sheet, 23, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
             $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
-            $this->writeTextCell($sheet, 25, $ligne, $row['FACTDANGE_DOSSIER'] ?? '');
+
+            $facteurDeCriticite = $row['FACTDANGE_DOSSIER'] ?? '';
+            if ((int) $row['ID_AVIS'] !== 2) {
+                $facteurDeCriticite = '';
+            }
+            $this->writeTextCell($sheet, 25, $ligne, $facteurDeCriticite);
 
             ++$ligne;
         }
