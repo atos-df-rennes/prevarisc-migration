@@ -409,7 +409,7 @@ class EtablissementSearchService
                 AND ed.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
             ) AS DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF,
             etablissementinformations.*,
-            dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
+            dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER, dossier.FACTDANGE_DOSSIER,
             avis.ID_AVIS, avis.LIBELLE_AVIS,
             categorie.LIBELLE_CATEGORIE,
             type.LIBELLE_TYPE,

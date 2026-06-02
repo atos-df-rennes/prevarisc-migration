@@ -34,9 +34,9 @@ class SearchExport
         $styleArray = [
             'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
         ];
-        $sheet->getStyle('A1:X1')->applyFromArray($styleArray);
-        $sheet->getStyle('A1:X1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:X1')->getFont()->setSize(11)->setBold(true);
+        $sheet->getStyle('A1:Y1')->applyFromArray($styleArray);
+        $sheet->getStyle('A1:Y1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:Y1')->getFont()->setSize(11)->setBold(true);
 
         $sheet->setCellValueByColumnAndRow(1, 1, 'Commune');
         $sheet->setCellValueByColumnAndRow(2, 1, 'Catégorie');
@@ -62,6 +62,7 @@ class SearchExport
         $sheet->setCellValueByColumnAndRow(22, 1, 'Genre');
         $sheet->setCellValueByColumnAndRow(23, 1, 'Préventionniste');
         $sheet->setCellValueByColumnAndRow(24, 1, 'Présence de locaux à sommeil');
+        $sheet->setCellValueByColumnAndRow(25, 1, 'Facteur de criticité');
 
         $ligne = 2;
         foreach ($rows as $row) {
@@ -107,6 +108,7 @@ class SearchExport
             $this->writeTextCell($sheet, 22, $ligne, $row['LIBELLE_GENRE'] ?? '');
             $this->writeTextCell($sheet, 23, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
             $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
+            $this->writeTextCell($sheet, 25, $ligne, $row['FACTDANGE_DOSSIER'] ?? '');
 
             ++$ligne;
         }
