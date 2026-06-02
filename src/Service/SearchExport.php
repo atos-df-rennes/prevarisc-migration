@@ -109,9 +109,11 @@ class SearchExport
             $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
 
             $facteurDeCriticite = $row['FACTDANGE_DOSSIER'] ?? '';
-            if ((int) $row['ID_AVIS'] !== 2) {
+            $idAvis = is_numeric($row['ID_AVIS'] ?? null) ? (int) $row['ID_AVIS'] : 0;
+            if (2 !== $idAvis) {
                 $facteurDeCriticite = '';
             }
+
             $this->writeTextCell($sheet, 24, $ligne, $facteurDeCriticite);
 
             $this->writeTextCell($sheet, 25, $ligne, $row['GROUPEMENTS'] ?? '');
