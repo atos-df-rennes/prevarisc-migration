@@ -267,7 +267,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_PROXY_PROTOCOL)', 0);
 
-    $parameters->set('app.proxy_protocol', '%env(int:PREVARISC_PROXY_PROTOCOL)%');
+    // @fixme: La variable a pour valeur "HTTP", ce qui n'est pas correct mais fonctionne avec le legacy car (int) "HTTP" = 0
+    // Modifier l'env var processor pour utiliser int après modification de la configuration chez tous les SDIS
+    $parameters->set('app.proxy_protocol', '%env(string:PREVARISC_PROXY_PROTOCOL)%');
 
     $parameters->set('env(PREVARISC_PROXY_PORT)', 0);
 

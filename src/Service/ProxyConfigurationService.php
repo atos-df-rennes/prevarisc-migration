@@ -11,6 +11,9 @@ class ProxyConfigurationService
     /** @var bool */
     private $proxyEnabled;
 
+    // @fixme: La variable a pour valeur "HTTP", ce qui n'est pas correct mais fonctionne avec le legacy car (int) "HTTP" = 0
+    // Modifier l'env var processor pour utiliser int après modification de la configuration chez tous les SDIS
+    // + constructeur et suppression du cast (int)
     /** @var int */
     private $proxyProtocol;
 
@@ -27,18 +30,18 @@ class ProxyConfigurationService
     private $proxyPassword;
 
     /**
-     * @param int $proxyProtocol Constante cURL : 0 = CURLPROXY_HTTP, 5 = CURLPROXY_SOCKS5
+     * @param string $proxyProtocol Constante cURL : 0 = CURLPROXY_HTTP, 5 = CURLPROXY_SOCKS5 -> Legacy = "HTTP", à corriger
      */
     public function __construct(
         bool $proxyEnabled,
-        int $proxyProtocol,
+        string $proxyProtocol,
         int $proxyPort,
         string $proxyHost,
         string $proxyUsername,
         string $proxyPassword
     ) {
         $this->proxyEnabled = $proxyEnabled;
-        $this->proxyProtocol = $proxyProtocol;
+        $this->proxyProtocol = (int) $proxyProtocol;
         $this->proxyPort = $proxyPort;
         $this->proxyHost = $proxyHost;
         $this->proxyUsername = $proxyUsername;
