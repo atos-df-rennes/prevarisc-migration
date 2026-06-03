@@ -78,12 +78,6 @@ class DossierContactController extends AbstractController implements DossierLate
      */
     public function addContact(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            $this->addFlash('warning', 'Le dossier est verrouillé.');
-
-            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
-        }
-
         $contact = new UtilisateurInformations();
 
         $form = $this->createForm(ContactType::class, $contact, [
@@ -116,12 +110,6 @@ class DossierContactController extends AbstractController implements DossierLate
      */
     public function addExistingContact(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            $this->addFlash('warning', 'Le dossier est verrouillé.');
-
-            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
-        }
-
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
             throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");
         }
@@ -168,12 +156,6 @@ class DossierContactController extends AbstractController implements DossierLate
         Dossier $dossier,
         UtilisateurInformations $contact
     ): Response {
-        if ($dossier->hasVerrou()) {
-            $this->addFlash('warning', 'Le dossier est verrouillé.');
-
-            return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
-        }
-
         if (!$dossier->getContacts()->contains($contact)) {
             $this->addFlash('warning', "Le contact n'appartient pas à ce dossier.");
 

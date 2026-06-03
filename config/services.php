@@ -6,12 +6,13 @@ use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Ldap\Ldap;
+
 use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
-    $containerConfigurator->import(__DIR__ . '/prevarisc.php');
-    $containerConfigurator->import(__DIR__ . '/platau.php');
+    $containerConfigurator->import(__DIR__.'/prevarisc.php');
+    $containerConfigurator->import(__DIR__.'/platau.php');
 
     $services = $containerConfigurator->services();
 
@@ -32,16 +33,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind(FlashBagInterface::class, ref('session.flash_bag'))
     ;
 
-
-    $services->load('App\\', __DIR__ . '/../src/')
+    $services->load('App\\', __DIR__.'/../src/')
         ->exclude([
-        __DIR__ . '/../src/DependencyInjection/',
-        __DIR__ . '/../src/Entity/',
-        __DIR__ . '/../src/Enum/',
-        __DIR__ . '/../src/Kernel.php',
-    ]);
+            __DIR__.'/../src/DependencyInjection/',
+            __DIR__.'/../src/Entity/',
+            __DIR__.'/../src/Enum/',
+            __DIR__.'/../src/Kernel.php',
+        ]);
 
-    $services->load('App\Controller\\', __DIR__ . '/../src/Controller/')
+    $services->load('App\Controller\\', __DIR__.'/../src/Controller/')
         ->tag('controller.service_arguments');
 
     // Environment Variable Processor pour construire MAILER_DSN depuis PREVARISC_MAIL_*
@@ -145,6 +145,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Controller\IndexController')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%')
+        ->tag('controller.service_arguments');
+
+    $services->set('App\Controller\Dossier\DossierController')
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->tag('controller.service_arguments');
 
     $services->set('App\Service\Dashboard\DashboardBlocConfig')

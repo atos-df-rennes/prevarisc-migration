@@ -131,6 +131,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     private $logger;
 
+    /** @var bool */
+    private $deactivatePlatau;
+
     /** @var DossierService */
     private $dossierService;
 
@@ -186,7 +189,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DescriptifFormBuilder $descriptifFormBuilder,
         DescriptifFormPersister $descriptifFormPersister,
         FormFactoryInterface $formFactory,
-        EtablissementHistoriqueService $etablissementHistoriqueService
+        EtablissementHistoriqueService $etablissementHistoriqueService,
+        bool $deactivatePlatau = false
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -204,6 +208,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierAffectationService = $dossierAffectationService;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
         $this->logger = $logger;
+        $this->deactivatePlatau = $deactivatePlatau;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
         $this->dossierCreationService = $dossierCreationService;
@@ -231,6 +236,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
             && !$dossier->isIncomplet()
             && !$dossier->hasNePeutSePrononcer()
         ;
+
+        if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
+            throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
+        }
 
         $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
 
@@ -399,6 +408,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DocumentConsulteTransferService $documentConsulteTransferService,
         bool $mailEnabled
     ): Response {
+        // Vérification Plat'AU désactivé
+        if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
+            throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
+        }
+
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
         $this->documentManquantService->organizeDocumentsManquants($dossier);
 
