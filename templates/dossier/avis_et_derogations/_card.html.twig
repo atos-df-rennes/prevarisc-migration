@@ -12,9 +12,7 @@
      data-csrf-token="{{ csrf_token('delete_avis_derogation_' ~ avisDerogation.id) }}">
     <div class="panel-heading clearfix">
         <strong>{{ avisDerogation.type }} — {{ avisDerogation.titre }}</strong>
-        {% if not dossier.verrou %}
         <button type="button" class="close pull-right js-delete-avis-derogation" aria-label="Supprimer">&times;</button>
-        {% endif %}
     </div>
     <div class="panel-body">
         <div class="row">
@@ -45,7 +43,6 @@
             </div>
         </div>
     </div>
-    {% if not dossier.verrou %}
     <div class="panel-footer text-right">
         <a href="{{ path('dossier_avis_et_derogations_edit', {id: dossier.id, avisDerogationId: avisDerogation.id}) }}"
            class="btn btn-default btn-xs">
@@ -53,5 +50,4 @@
             Modifier
         </a>
     </div>
-    {% endif %}
 </div>

@@ -122,7 +122,7 @@ class DossierRapportController extends AbstractController implements DossierLate
      *
      * @Route("/dossier/{id}/rapport/generer", name="dossier_generationrapport", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_dossier_lateral_nav": false})
      *
-     * @IsGranted("edit_doss", subject="dossier")
+     * @IsGranted("edit_doss_ignore_verrou", subject="dossier")
      */
     public function generationRapport(Dossier $dossier, Request $request): Response
     {

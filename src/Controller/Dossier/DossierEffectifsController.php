@@ -111,7 +111,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      *        methods={"POST"},
      *        defaults={"_dossier_lateral_nav": false})
      *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function copierEffectifsDegagementsEtablissement(
         Dossier $dossier,
@@ -170,7 +170,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      *        methods={"POST"},
      *        defaults={"_dossier_lateral_nav": false})
      *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function recupererEffectifsDegagementsEtablissement(
         Dossier $dossier,
@@ -231,7 +231,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      *        methods={"GET"},
      *        defaults={"_dossier_lateral_nav": false})
      *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function effectifsDegagementsModalReprise(Dossier $dossier): Response
     {
@@ -263,7 +263,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      *        methods={"POST"},
      *        defaults={"_dossier_lateral_nav": false})
      *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function reprendreEffectifsDegagementsDepuisEtude(
         Dossier $dossier,
@@ -322,7 +322,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      *
      * @Route("/dossier/{id}/effectifs-degagements/modifier", name="dossier_effectifs_degagements_edit", methods={"GET", "POST"})
      *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function editEffectifsDegagements(Dossier $dossier, Request $request): Response
     {

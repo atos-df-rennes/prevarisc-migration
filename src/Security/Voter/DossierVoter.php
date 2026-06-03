@@ -16,6 +16,13 @@ class DossierVoter extends Voter
 
     public const MODIFICATION = 'edit_doss';
 
+    /**
+     * Vérifie le privilège edit_doss sans tenir compte du verrouillage.
+     * Utilisé pour les actions qui, dans le legacy, ne sont pas bloquées par le verrou
+     * (textes applicables, vérifications techniques, effectifs/dégagements, avis/dérogations, génération rapport).
+     */
+    public const MODIFICATION_IGNORE_VERROU = 'edit_doss_ignore_verrou';
+
     public const VERROUILLAGE = 'verrouillage_dossier';
 
     /**
@@ -41,7 +48,7 @@ class DossierVoter extends Voter
 
     protected function supports($attribute, $subject): bool
     {
-        if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::VERROUILLAGE], true)) {
+        if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::MODIFICATION_IGNORE_VERROU, self::VERROUILLAGE], true)) {
             return false;
         }
 
@@ -109,6 +116,10 @@ class DossierVoter extends Voter
 
         if (self::MODIFICATION === $attribute) {
             return $this->canEdit($subject, $userPrivileges, $resourcesById, $natureDossierId);
+        }
+
+        if (self::MODIFICATION_IGNORE_VERROU === $attribute) {
+            return $this->canView(self::MODIFICATION, $userPrivileges, $resourcesById, $natureDossierId);
         }
 
         return $this->canView($attribute, $userPrivileges, $resourcesById, $natureDossierId);

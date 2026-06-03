@@ -88,9 +88,11 @@
                             <div class="col-xs-4">{{ doc.libelle }}</div>
                             <div class="col-xs-8">
                                 <div class="col-xs-4 col-xs-offset-8">
+                                    {% if not dossier.verrou %}
                                     <a href="{{ path('dossier_documents_consultes_add', {id: dossier.id, idDocumentConsultable: doc.id}) }}" class="btn btn-default btn-sm">
                                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                                     </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </li>
