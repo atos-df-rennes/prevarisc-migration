@@ -450,8 +450,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
                 }
 
                 // Bind direct (format UPN user@domain ou DN complet)
-                // Appliquer ldapAccountForm si configuré (ex: 'DOMAIN\%s' ou '%s@domain.tld')
-                $bindUsername = !empty($this->ldapAccountForm)
+                // Appliquer ldapAccountForm uniquement si le format contient un placeholder %s
+                // (ex: '%s@domain.tld', 'DOMAIN\%s'). Les valeurs legacy sans %s (ex: '1')
+                // sont ignorées — elles servaient de sentinel dans Zend_Ldap et n'ont pas
+                // d'équivalent dans le composant Symfony.
+                $bindUsername = (false !== strpos($this->ldapAccountForm, '%s'))
                     ? sprintf($this->ldapAccountForm, $credentials['username'])
                     : $credentials['username'];
                 $ldap->bind($bindUsername, (string) $credentials['password']);
