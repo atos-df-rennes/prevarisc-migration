@@ -13,7 +13,7 @@
 
 {% block body %}
     <div class="pull-right">
-        <a class="btn btn-default" href="{{ path('dossier_verifications_techniques_edit', {id: dossier.id}) }}">Modifier les {{ nom_capsule|lower }}</a>
+        <a class="btn btn-default {% if dossier.verrou %}hidden{% endif %}" href="{{ path('dossier_verifications_techniques_edit', {id: dossier.id}) }}">Modifier les {{ nom_capsule|lower }}</a>
     </div>
 
     <h3>{{ nom_capsule }}</h3>

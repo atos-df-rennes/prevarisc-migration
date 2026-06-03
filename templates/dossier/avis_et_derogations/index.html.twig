@@ -5,6 +5,7 @@
 {% block body %}
     <h3>Avis et dérogations</h3>
 
+    {% if not dossier.verrou %}
     <form class="form-horizontal col-md-8" method="post">
         {{ include('dossier/avis_et_derogations/_form.html.twig', {
             dossier: dossier,
@@ -19,6 +20,7 @@
             </div>
         </div>
     </form>
+    {% endif %}
 
     <div class="clearfix"></div>
 
