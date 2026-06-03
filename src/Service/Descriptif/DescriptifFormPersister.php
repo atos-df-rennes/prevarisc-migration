@@ -119,7 +119,11 @@ class DescriptifFormPersister
             }
         }
 
-        $this->deleteUntouchedTableauValeurs($entity, $existingValeurs, $touchedValeurIds);
+        // Restreindre la suppression aux champIds de l'onglet courant uniquement.
+        // Sans ce filtre, les valeurs tableau des autres onglets seraient supprimées
+        // car elles ne figurent pas dans $touchedValeurIds.
+        $scopedChampIds = $this->collectScopedChampIds($rubriques);
+        $this->deleteUntouchedTableauValeurs($entity, $existingValeurs, $touchedValeurIds, $scopedChampIds);
 
         $this->entityManager->flush();
     }
@@ -403,14 +407,22 @@ class DescriptifFormPersister
 
     /**
      * Supprime les Valeur de tableau existantes qui n'ont pas été soumises (lignes supprimées).
+     * Seuls les champIds appartenant aux rubriques soumises ($scopedChampIds) sont concernés,
+     * pour ne pas affecter les valeurs des autres onglets du formulaire personnalisé.
      *
      * @param Dossier|Etablissement $entity
      * @param array<int, Valeur[]>  $existingValeurs
      * @param int[]                 $touchedValeurIds
+     * @param int[]                 $scopedChampIds
      */
-    private function deleteUntouchedTableauValeurs($entity, array $existingValeurs, array $touchedValeurIds): void
+    private function deleteUntouchedTableauValeurs($entity, array $existingValeurs, array $touchedValeurIds, array $scopedChampIds): void
     {
-        foreach ($existingValeurs as $valeurs) {
+        foreach ($existingValeurs as $champId => $valeurs) {
+            if (!in_array($champId, $scopedChampIds, true)) {
+                // Ce champ appartient à un autre onglet : ne pas toucher ses valeurs
+                continue;
+            }
+
             foreach ($valeurs as $valeur) {
                 if (null === $valeur->getIdx()) {
                     // Champ simple, non concerné
@@ -424,6 +436,42 @@ class DescriptifFormPersister
                 }
             }
         }
+    }
+
+    /**
+     * Collecte tous les IDs de champs (parent + enfants directs) appartenant aux rubriques soumises.
+     * Permet de restreindre la suppression des valeurs tableau aux champs de l'onglet courant.
+     *
+     * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
+     *
+     * @return int[]
+     */
+    private function collectScopedChampIds(array $rubriques): array
+    {
+        $champIds = [];
+
+        foreach ($rubriques as $item) {
+            /** @var list<mixed> $champsData */
+            $champsData = $item['champs'];
+            foreach ($champsData as $champData) {
+                /** @var array<string, mixed> $champData */
+                /** @var Champ $champ */
+                $champ = $champData['champ'];
+                $id = $champ->getId();
+                if (null !== $id) {
+                    $champIds[] = $id;
+                }
+
+                foreach ($champ->getEnfants() as $enfant) {
+                    $enfantId = $enfant->getId();
+                    if (null !== $enfantId) {
+                        $champIds[] = $enfantId;
+                    }
+                }
+            }
+        }
+
+        return $champIds;
     }
 
     /**
