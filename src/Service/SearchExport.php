@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Constant\Avis;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -106,11 +107,11 @@ class SearchExport
             $this->writeTextCell($sheet, 20, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
             $this->writeTextCell($sheet, 21, $ligne, $row['LIBELLE_GENRE'] ?? '');
             $this->writeTextCell($sheet, 22, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
-            $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
+            $sheet->setCellValueByColumnAndRow(23, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
 
             $facteurDeCriticite = $row['FACTDANGE_DOSSIER'] ?? '';
             $idAvis = is_numeric($row['ID_AVIS'] ?? null) ? (int) $row['ID_AVIS'] : 0;
-            if (2 !== $idAvis) {
+            if (Avis::DEFAVORABLE !== $idAvis) {
                 $facteurDeCriticite = '';
             }
 
