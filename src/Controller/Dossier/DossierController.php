@@ -408,10 +408,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DocumentConsulteTransferService $documentConsulteTransferService,
         bool $mailEnabled
     ): Response {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
-        }
-
         // Vérification Plat'AU désactivé
         if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
             throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
@@ -681,10 +677,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function editDescriptif(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
-        }
-
         $form = $this->createForm(DossierDescriptifType::class, $dossier);
 
         $form->handleRequest($request);
@@ -738,10 +730,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être modifié.');
-        }
-
         // Pré-charge les relations
         if (null !== $dossier->getId()) {
             $this->dossierRepository->getTextesApplicablesByType($dossier->getId());

@@ -182,10 +182,6 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
-        if ($dossier->hasVerrou()) {
-            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
-        }
-
         $etablissements = $dossier->getEtablissements()->toArray();
         $nbEtablissements = count($etablissements);
 
@@ -239,10 +235,6 @@ class DossierEffectifsController extends AbstractController implements DossierLa
      */
     public function effectifsDegagementsModalReprise(Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            return new Response('', Response::HTTP_FORBIDDEN);
-        }
-
         $etablissements = $dossier->getEtablissements();
 
         if (1 !== $etablissements->count()) {
@@ -281,10 +273,6 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('reprendre_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
-        }
-
-        if ($dossier->hasVerrou()) {
-            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
         }
 
         $rawDossierSelect = $request->request->get('dossierSelect', 0);

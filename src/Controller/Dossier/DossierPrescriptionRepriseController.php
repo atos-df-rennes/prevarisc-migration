@@ -44,10 +44,6 @@ class DossierPrescriptionRepriseController extends AbstractController
      */
     public function repriseModal(Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         $etablissements = $dossier->getEtablissements();
 
         if (1 !== $etablissements->count()) {
@@ -78,10 +74,6 @@ class DossierPrescriptionRepriseController extends AbstractController
      */
     public function reprendre(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
 

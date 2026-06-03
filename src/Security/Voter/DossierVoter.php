@@ -107,6 +107,23 @@ class DossierVoter extends Voter
             $resourcesById[$natureId] = $resource;
         }
 
+        if (self::MODIFICATION === $attribute) {
+            return $this->canEdit($subject, $userPrivileges, $resourcesById, $natureDossierId);
+        }
+
+        return $this->canView($attribute, $userPrivileges, $resourcesById, $natureDossierId);
+    }
+
+    /**
+     * Vérifie si un utilisateur dispose d'un privilège donné sur un dossier selon sa nature.
+     *
+     * @param string                $attribute       Nom du privilège à vérifier
+     * @param mixed[]               $userPrivileges  Liste des privilèges de l'utilisateur
+     * @param array<int, Resources> $resourcesById   Ressources indexées par identifiant de nature
+     * @param int                   $natureDossierId Identifiant de la nature du dossier
+     */
+    private function canView(string $attribute, array $userPrivileges, array $resourcesById, int $natureDossierId): bool
+    {
         // Vérification du privilège "toutes natures" (id=0)
         if (array_key_exists(0, $resourcesById)) {
             $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[0]]);
@@ -124,5 +141,19 @@ class DossierVoter extends Voter
         }
 
         return false;
+    }
+
+    /**
+     * Vérifie si un utilisateur peut modifier un dossier :
+     * le dossier ne doit pas être verrouillé ET le privilège edit_doss doit être accordé.
+     *
+     * @param Dossier               $dossier         Dossier cible
+     * @param mixed[]               $userPrivileges  Liste des privilèges de l'utilisateur
+     * @param array<int, Resources> $resourcesById   Ressources indexées par identifiant de nature
+     * @param int                   $natureDossierId Identifiant de la nature du dossier
+     */
+    private function canEdit(Dossier $dossier, array $userPrivileges, array $resourcesById, int $natureDossierId): bool
+    {
+        return !$dossier->hasVerrou() && $this->canView(self::MODIFICATION, $userPrivileges, $resourcesById, $natureDossierId);
     }
 }
