@@ -41,6 +41,13 @@ class EtablissementDisplayRubrique
      */
     private $userDisplay;
 
+    /**
+     * @var ?bool
+     *
+     * @ORM\Column(name="USER_OPENED", type="boolean", nullable=true)
+     */
+    private $userOpened;
+
     public function getEtablissement(): ?Etablissement
     {
         return $this->etablissement;
@@ -73,6 +80,18 @@ class EtablissementDisplayRubrique
     public function setUserDisplay(bool $userDisplay): self
     {
         $this->userDisplay = $userDisplay;
+
+        return $this;
+    }
+
+    public function getUserOpened(): ?bool
+    {
+        return $this->userOpened;
+    }
+
+    public function setUserOpened(bool $userOpened): self
+    {
+        $this->userOpened = $userOpened;
 
         return $this;
     }
