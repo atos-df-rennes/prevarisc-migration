@@ -476,7 +476,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     /**
      * @Route("/etablissement/{id}/avis-derogations", name="etablissement_avis_derogations")
      *
-     * @IsGranted("view_ets", subject="etablissement")
+     * @Security("is_granted('avis_derogations') and is_granted('view_ets', etablissement)")
      */
     public function avisDerogations(Etablissement $etablissement): Response
     {
