@@ -56,13 +56,7 @@ class Commune
     /**
      * @var Collection<int, Groupement>
      *
-     * @ORM\JoinTable(
-     *     name="groupementcommune",
-     *     joinColumns={@ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", options={"fixed":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Groupement::class)
+     * @ORM\ManyToMany(targetEntity=Groupement::class, mappedBy="communes")
      */
     private $groupements;
 

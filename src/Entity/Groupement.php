@@ -73,7 +73,7 @@ class Groupement
      *     inverseJoinColumns={@ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", options={"fixed":true})}
      * )
      *
-     * @ORM\ManyToMany(targetEntity=Commune::class)
+     * @ORM\ManyToMany(targetEntity=Commune::class, inversedBy="groupements")
      */
     private $communes;
 
