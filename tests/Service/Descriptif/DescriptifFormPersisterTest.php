@@ -185,8 +185,8 @@ class DescriptifFormPersisterTest extends TestCase
 
     public function testPersistTableauNouvelleLigne(): void
     {
-        $parentChamp = $this->makeChamp(10, TypeChamp::PARENT, true);
         $enfantChamp = $this->makeChamp(11, TypeChamp::TEXT);
+        $parentChamp = $this->makeChamp(10, TypeChamp::PARENT, true, [$enfantChamp]);
 
         $this->valeurRepository
             ->method('findByDossier')
@@ -241,8 +241,8 @@ class DescriptifFormPersisterTest extends TestCase
 
     public function testPersistTableauSupprimeLigneAbsente(): void
     {
-        $parentChamp = $this->makeChamp(10, TypeChamp::PARENT, true);
         $enfantChamp = $this->makeChamp(11, TypeChamp::TEXT);
+        $parentChamp = $this->makeChamp(10, TypeChamp::PARENT, true, [$enfantChamp]);
 
         // Ligne existante en base (idx=1)
         $existingValeur = new Valeur();
@@ -297,6 +297,70 @@ class DescriptifFormPersisterTest extends TestCase
         self::assertContains($existingValeur, $removed);
     }
 
+    public function testPersistTableauNeSupprimesPasValeursDAutreOnglet(): void
+    {
+        // Champs de l'onglet soumis (ex: "Descriptif technique")
+        $enfantChamp1 = $this->makeChamp(11, TypeChamp::TEXT);
+        $parentChamp1 = $this->makeChamp(10, TypeChamp::PARENT, true, [$enfantChamp1]);
+
+        // Champs d'un autre onglet (ex: "Effectifs et dégagements") — non soumis
+        $enfantChamp2 = $this->makeChamp(21, TypeChamp::TEXT);
+
+        // Valeur tableau existante appartenant à l'autre onglet
+        $valeurAutreOnglet = new Valeur();
+        $valeurAutreOnglet->setStr('valeur autre onglet');
+        $valeurAutreOnglet->setChamp($enfantChamp2);
+        $valeurAutreOnglet->setIdx(1);
+        $this->setId($valeurAutreOnglet, 888);
+
+        // findByDossier retourne les valeurs des deux onglets
+        $this->valeurRepository
+            ->method('findByDossier')
+            ->willReturn([21 => [$valeurAutreOnglet]]);
+
+        $this->champRepository
+            ->method('find')
+            ->willReturnCallback(function ($id) use ($parentChamp1, $enfantChamp1): ?Champ {
+                if (10 === $id) {
+                    return $parentChamp1;
+                }
+
+                if (11 === $id) {
+                    return $enfantChamp1;
+                }
+
+                return null;
+            });
+
+        $this->dossierDisplayRubriqueRepository
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $removed = [];
+        $this->entityManager
+            ->method('remove')
+            ->willReturnCallback(static function ($obj) use (&$removed): void {
+                $removed[] = $obj;
+            });
+        $this->entityManager->expects(self::once())->method('flush');
+
+        $collection = new ArrayCollection([$valeurAutreOnglet]);
+        $dossier = $this->createMock(Dossier::class);
+        $dossier->method('getValeurs')->willReturn($collection);
+        $dossier->method('getId')->willReturn(1);
+
+        // Soumettre uniquement l'onglet 1 avec une nouvelle ligne
+        $newRow = new TableauRowData([11 => 'nouvelle ligne']);
+        $parentData = new ChampValueData(10, null, [$newRow]);
+        $rubriques = $this->makeRubriquesStructure(10, [['champ' => $parentChamp1, 'valeur' => null, 'lignes' => []]]);
+        $formData = $this->makeFormData(10, true, [10 => $parentData]);
+
+        $this->persister->persistForDossier($dossier, $formData, $rubriques);
+
+        // La valeur de l'autre onglet ne doit PAS être supprimée
+        self::assertNotContains($valeurAutreOnglet, $removed);
+    }
+
     public function testPersistDisplayPrefCree(): void
     {
         $champ = $this->makeChamp(1, TypeChamp::TEXT);
@@ -338,7 +402,10 @@ class DescriptifFormPersisterTest extends TestCase
 
     // --- Helpers ---
 
-    private function makeChamp(int $id, int $typeId, bool $tableau = false): Champ
+    /**
+     * @param Champ[] $enfants
+     */
+    private function makeChamp(int $id, int $typeId, bool $tableau = false, array $enfants = []): Champ
     {
         $typeEntity = $this->createMock(TypeChampEntity::class);
         $typeEntity->method('getId')->willReturn($typeId);
@@ -347,6 +414,7 @@ class DescriptifFormPersisterTest extends TestCase
         $champ->method('getId')->willReturn($id);
         $champ->method('getType')->willReturn($typeEntity);
         $champ->method('getTableau')->willReturn($tableau);
+        $champ->method('getEnfants')->willReturn(new ArrayCollection($enfants));
 
         return $champ;
     }
