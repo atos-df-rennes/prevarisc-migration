@@ -105,6 +105,12 @@
                 #}
                 <div class="form-group">
                     <label><strong>Types d'activité ERP</strong></label>
+                    <div class="mb-2">
+                        <button type="button"
+                                class="btn btn-xs btn-default select-all-activites-btn">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
+                        </button>
+                    </div>
                     {% do membre_form.types.setRendered %}
                     <div class="row">
                         {% for group in membre_form.types.vars.choices %}
@@ -170,6 +176,12 @@
                 #}
                 <div class="form-group">
                     <label><strong>Types et natures de dossier</strong></label>
+                    <div class="mb-2">
+                        <button type="button"
+                                class="btn btn-xs btn-default select-all-dossiers-btn">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout
+                        </button>
+                    </div>
                     {% do membre_form.typesDossier.setRendered %}
                     {% do membre_form.naturesDossier.setRendered %}
                     <div class="row">
