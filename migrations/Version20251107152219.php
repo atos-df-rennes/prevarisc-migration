@@ -21,6 +21,7 @@ final class Version20251107152219 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(75 === $schema->getTable('avis')->getColumn('LIBELLE_AVIS')->getLength(), "Colonne LIBELLE_AVIS déjà agrandie à 75 caractères.");
 
         $this->addSql('ALTER TABLE avis CHANGE LIBELLE_AVIS LIBELLE_AVIS VARCHAR(75) NOT NULL');
     }
@@ -39,6 +40,7 @@ final class Version20251107152219 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(30 === $schema->getTable('avis')->getColumn('LIBELLE_AVIS')->getLength(), "Colonne LIBELLE_AVIS déjà en VARCHAR(30).");
 
         $this->addSql('ALTER TABLE avis CHANGE LIBELLE_AVIS LIBELLE_AVIS VARCHAR(30) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`');
     }
