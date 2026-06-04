@@ -21,6 +21,7 @@ final class Version20250828101202 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!$schema->getTable('adressecommune')->getColumn('ID_UTILISATEURINFORMATIONS')->getNotnull(), 'Colonne ID_UTILISATEURINFORMATIONS déjà nullable.');
 
         $this->addSql('ALTER TABLE adressecommune CHANGE ID_UTILISATEURINFORMATIONS ID_UTILISATEURINFORMATIONS BIGINT UNSIGNED DEFAULT NULL');
     }
@@ -29,6 +30,7 @@ final class Version20250828101202 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf($schema->getTable('adressecommune')->getColumn('ID_UTILISATEURINFORMATIONS')->getNotnull(), 'Colonne ID_UTILISATEURINFORMATIONS déjà NOT NULL.');
 
         $this->addSql('ALTER TABLE adressecommune CHANGE ID_UTILISATEURINFORMATIONS ID_UTILISATEURINFORMATIONS BIGINT UNSIGNED NOT NULL');
     }
