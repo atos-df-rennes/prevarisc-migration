@@ -17,7 +17,7 @@ final class Version20260407110000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-        $this->skipIf($schema->getTable('utilisateurpreferences')->hasColumn('DERNIERE_VERSION_VUE'), "Dernière version vue déjà présente dans les préférences utilisateur.");
+        $this->skipIf($schema->getTable('utilisateurpreferences')->hasColumn('DERNIERE_VERSION_VUE'), 'Dernière version vue déjà présente dans les préférences utilisateur.');
 
         $this->addSql('ALTER TABLE utilisateurpreferences ADD COLUMN DERNIERE_VERSION_VUE VARCHAR(50) DEFAULT NULL');
     }
@@ -25,7 +25,7 @@ final class Version20260407110000 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-        $this->skipIf(!$schema->getTable('utilisateurpreferences')->hasColumn('DERNIERE_VERSION_VUE'), "Dernière version vue déjà supprimée des préférences utilisateur.");
+        $this->skipIf(!$schema->getTable('utilisateurpreferences')->hasColumn('DERNIERE_VERSION_VUE'), 'Dernière version vue déjà supprimée des préférences utilisateur.');
 
         $this->addSql('ALTER TABLE utilisateurpreferences DROP COLUMN DERNIERE_VERSION_VUE');
     }

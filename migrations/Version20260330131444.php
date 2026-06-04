@@ -23,7 +23,7 @@ final class Version20260330131444 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->skipIf($schema->getTable('rubrique')->getColumn('idx')->getNotnull(), "Colonnes idx déjà NOT NULL sur rubrique, champ et champvaleurliste.");
+        $this->skipIf($schema->getTable('rubrique')->getColumn('idx')->getNotnull(), 'Colonnes idx déjà NOT NULL sur rubrique, champ et champvaleurliste.');
 
         $this->addSql('ALTER TABLE rubrique CHANGE idx idx INT NOT NULL');
         $this->addSql('ALTER TABLE champ CHANGE idx idx INT NOT NULL');
@@ -32,7 +32,7 @@ final class Version20260330131444 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->skipIf(!$schema->getTable('rubrique')->getColumn('idx')->getNotnull(), "Colonnes idx déjà nullable sur rubrique, champ et champvaleurliste.");
+        $this->skipIf(!$schema->getTable('rubrique')->getColumn('idx')->getNotnull(), 'Colonnes idx déjà nullable sur rubrique, champ et champvaleurliste.');
 
         $this->addSql('ALTER TABLE rubrique CHANGE idx idx INT DEFAULT NULL');
         $this->addSql('ALTER TABLE champ CHANGE idx idx INT DEFAULT NULL');

@@ -22,7 +22,7 @@ final class Version20250820093814 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->skipIf($schema->getTable('avisderogations')->getColumn('DISPLAY_HISTORIQUE')->getNotnull(), "Correction du schéma déjà effectuée.");
+        $this->skipIf($schema->getTable('avisderogations')->getColumn('DISPLAY_HISTORIQUE')->getNotnull(), 'Correction du schéma déjà effectuée.');
         $this->addSql('ALTER TABLE adresseruetype CHANGE ABREVIATION_RUETYPE ABREVIATION_RUETYPE VARCHAR(16) NOT NULL');
         $this->addSql('ALTER TABLE avis CHANGE LIBELLE_AVIS LIBELLE_AVIS VARCHAR(30) NOT NULL');
         $this->addSql('ALTER TABLE avisderogations CHANGE DISPLAY_HISTORIQUE DISPLAY_HISTORIQUE TINYINT(1) DEFAULT \'0\' NOT NULL');
@@ -37,7 +37,7 @@ final class Version20250820093814 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
-        $this->skipIf(!$schema->getTable('avisderogations')->getColumn('DISPLAY_HISTORIQUE')->getNotnull(), "Correction du schéma déjà annulée.");
+        $this->skipIf(!$schema->getTable('avisderogations')->getColumn('DISPLAY_HISTORIQUE')->getNotnull(), 'Correction du schéma déjà annulée.');
 
         $this->addSql('ALTER TABLE adresseruetype CHANGE ABREVIATION_RUETYPE ABREVIATION_RUETYPE VARCHAR(16) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci` COMMENT \'Exemple : BLVD\'');
         $this->addSql('ALTER TABLE avis CHANGE LIBELLE_AVIS LIBELLE_AVIS VARCHAR(30) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`');
