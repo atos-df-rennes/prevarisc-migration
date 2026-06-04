@@ -7,6 +7,7 @@ use App\Entity\PieceJointe;
 use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Gestion des pièces jointes d'une date de commission.
  * Extrait de CalendrierDesCommissionsController (REF-CTL-01).
+ *
+ * @IsGranted("modification_odj")
  */
 class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 {

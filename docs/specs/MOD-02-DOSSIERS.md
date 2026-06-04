@@ -465,7 +465,11 @@ Un dossier supprimé peut être **rétabli** par un utilisateur ayant les droits
 
 ### Verrouillage
 
-**RG-DOS-021** — Lorsqu'un dossier est verrouillé, l'ensemble des modifications est interdit : formulaire principal, prescriptions (ajout, modification, suppression, réordonnancement), documents consultés, textes applicables, etc.
+**RG-DOS-021** — Lorsqu'un dossier est verrouillé, les modifications suivantes sont interdites : formulaire principal (informations générales), descriptif, prescriptions (ajout, modification, suppression, réordonnancement), liaisons (ajout, suppression), documents consultés (ajout, modification, suppression), pièces jointes, contacts.
+
+**RG-DOS-021bis** — Les actions suivantes restent autorisées sur un dossier verrouillé (comportement iso-legacy) : textes applicables, vérifications techniques, effectifs et dégagements, avis et dérogations (ajout, modification, suppression), génération de rapports.
+
+**RG-DOS-021ter** — Côté interface, les boutons d'action des fonctionnalités interdites (RG-DOS-021) sont masqués lorsque le dossier est verrouillé. Côté serveur, le `DossierVoter` refuse l'attribut `edit_doss` pour tout dossier verrouillé. Les actions autorisées malgré le verrou (RG-DOS-021bis) utilisent l'attribut `edit_doss_ignore_verrou` qui vérifie le privilège sans condition de verrouillage.
 
 **RG-DOS-022** — Le verrouillage enregistre l'identité de l'utilisateur ayant verrouillé. Le déverrouillage efface cette information.
 

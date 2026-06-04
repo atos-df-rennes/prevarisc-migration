@@ -726,7 +726,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /**
      * @Route("/dossier/{id}/textes-applicables/modifier", name="dossier_textes_applicables_edit", methods={"GET", "POST"})
      *
-     * @IsGranted("edit_doss", subject="dossier")
+     * @IsGranted("edit_doss_ignore_verrou", subject="dossier")
      */
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
@@ -775,7 +775,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/verifications-techniques/modifier", name="dossier_verifications_techniques_edit", methods={"GET", "POST"})
      *
-     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
     {
@@ -826,7 +826,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             : ['etudes' => [], 'visites' => [], 'autres' => []];
 
         if ($request->isMethod('POST')) {
-            $this->denyAccessUnlessGranted('edit_doss', $dossier);
+            $this->denyAccessUnlessGranted('edit_doss_ignore_verrou', $dossier);
 
             $data = $request->request->all();
 
@@ -902,7 +902,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier", name="dossier_avis_et_derogations_edit", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"GET", "POST"})
      *
-     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
@@ -989,7 +989,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"POST"})
      *
-     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
