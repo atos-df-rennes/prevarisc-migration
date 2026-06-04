@@ -19,6 +19,8 @@ final class Version20250305163248 extends AbstractMigration
 
     public function preUp(Schema $schema): void
     {
+        $this->skipIf($schema->getTable('utilisateur')->hasColumn('sso'), 'SSO déjà existant.');
+
         $this->addSql('ALTER TABLE adressecommune CHANGE ID_UTILISATEURINFORMATIONS ID_UTILISATEURINFORMATIONS BIGINT UNSIGNED DEFAULT NULL');
         $this->addSql('UPDATE adressecommune SET ID_UTILISATEURINFORMATIONS = NULL WHERE adressecommune.ID_UTILISATEURINFORMATIONS NOT IN (SELECT ID_UTILISATEURINFORMATIONS FROM utilisateurinformations)');
     }
