@@ -21,6 +21,7 @@ final class Version20251208155449 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!$schema->getTable('groupementpreventionniste')->getColumn('DATEDEBUT_GROUPEMENTPREVENTIONNISTE')->getNotnull(), 'Colonne DATEDEBUT_GROUPEMENTPREVENTIONNISTE déjà nullable.');
 
         $this->addSql('ALTER TABLE groupementpreventionniste CHANGE DATEDEBUT_GROUPEMENTPREVENTIONNISTE DATEDEBUT_GROUPEMENTPREVENTIONNISTE DATETIME DEFAULT NULL');
     }
@@ -28,8 +29,8 @@ final class Version20251208155449 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf($schema->getTable('groupementpreventionniste')->getColumn('DATEDEBUT_GROUPEMENTPREVENTIONNISTE')->getNotnull(), 'Colonne DATEDEBUT_GROUPEMENTPREVENTIONNISTE déjà NOT NULL.');
 
-        // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE groupementpreventionniste CHANGE DATEDEBUT_GROUPEMENTPREVENTIONNISTE DATEDEBUT_GROUPEMENTPREVENTIONNISTE DATETIME NOT NULL');
     }
 }
