@@ -23,6 +23,11 @@ class RubriqueFormData implements \ArrayAccess
     private $display;
 
     /**
+     * @var ?bool
+     */
+    private $opened;
+
+    /**
      * Données des champs racines indexées par champId.
      *
      * @var array<int, ChampValueData>
@@ -32,9 +37,10 @@ class RubriqueFormData implements \ArrayAccess
     /**
      * @param array<int, ChampValueData> $champs
      */
-    public function __construct(bool $display = true, array $champs = [])
+    public function __construct(bool $display = true, ?bool $opened = null, array $champs = [])
     {
         $this->display = $display;
+        $this->opened = $opened;
         $this->champs = $champs;
     }
 
@@ -46,6 +52,18 @@ class RubriqueFormData implements \ArrayAccess
     public function setDisplay(bool $display): self
     {
         $this->display = $display;
+
+        return $this;
+    }
+
+    public function isOpened(): ?bool
+    {
+        return $this->opened;
+    }
+
+    public function setOpened(?bool $opened): self
+    {
+        $this->opened = $opened;
 
         return $this;
     }

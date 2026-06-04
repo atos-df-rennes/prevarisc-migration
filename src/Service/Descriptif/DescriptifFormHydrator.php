@@ -45,7 +45,7 @@ class DescriptifFormHydrator
     /**
      * Construit le DescriptifFormData depuis la structure de rubriques.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     * @param list<array{rubrique: Rubrique, display: bool, opened: bool, champs: list<array<string, mixed>>}> $rubriques
      */
     private function hydrate(array $rubriques): DescriptifFormData
     {
@@ -73,6 +73,7 @@ class DescriptifFormHydrator
 
             $rubriqueFormDatas[$rubriqueId] = new RubriqueFormData(
                 (bool) $item['display'],
+                $item['opened'],
                 $champs
             );
         }

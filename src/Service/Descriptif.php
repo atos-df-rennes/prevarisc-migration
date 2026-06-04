@@ -108,7 +108,8 @@ class Descriptif
         $result = [];
 
         foreach ($capsule->getRubriques() as $rubrique) {
-            $display = $displayPrefs[$rubrique->getId()] ?? $rubrique->getDefaultDisplay() ?? true;
+            $display = $displayPrefs[$rubrique->getId()]['display'] ?? $rubrique->getDefaultDisplay() ?? true;
+            $opened = $displayPrefs[$rubrique->getId()]['open'] ?? $rubrique->getOuverte() ?? false;
 
             $champs = [];
             foreach ($rubrique->getRootChamps() as $champ) {
@@ -118,6 +119,7 @@ class Descriptif
             $result[] = [
                 'rubrique' => $rubrique,
                 'display' => $display,
+                'opened' => $opened,
                 'champs' => $champs,
             ];
         }
@@ -236,7 +238,10 @@ class Descriptif
             $rubrique = $displayRubrique->getRubrique();
             $rubriqueId = null !== $rubrique ? $rubrique->getId() : null;
             if (null !== $rubriqueId) {
-                $prefs[$rubriqueId] = (bool) $displayRubrique->getUserDisplay();
+                $prefs[$rubriqueId] = [
+                    'display' => (bool) $displayRubrique->getUserDisplay(),
+                    'open' => $displayRubrique->getUserOpened()
+                ];
             }
         }
 

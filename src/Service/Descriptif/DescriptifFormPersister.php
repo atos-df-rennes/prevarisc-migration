@@ -112,7 +112,7 @@ class DescriptifFormPersister
                 continue;
             }
 
-            $this->upsertDisplayPref($entity, $rubrique, $rubriqueData->isDisplay());
+            $this->upsertDisplayPref($entity, $rubrique, $rubriqueData->isDisplay(), $rubriqueData->isOpened());
 
             foreach ($rubriqueData->getChamps() as $champValueData) {
                 $this->persistChampValue($entity, $champValueData, $lookup, $existingValeurs, $touchedValeurIds);
@@ -354,16 +354,17 @@ class DescriptifFormPersister
      *
      * @param Dossier|Etablissement $entity
      */
-    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display): void
+    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display, ?bool $opened): void
     {
         if ($entity instanceof Dossier) {
-            $this->upsertDossierDisplayPref($entity, $rubrique, $display);
+            $this->upsertDossierDisplayPref($entity, $rubrique, $display, $opened);
         } elseif ($entity instanceof Etablissement) {
-            $this->upsertEtablissementDisplayPref($entity, $rubrique, $display);
+            $this->upsertEtablissementDisplayPref($entity, $rubrique, $display, $opened);
         }
     }
 
-    private function upsertDossierDisplayPref(Dossier $dossier, Rubrique $rubrique, bool $display): void
+
+    private function upsertDossierDisplayPref(Dossier $dossier, Rubrique $rubrique, bool $display, ?bool $opened): void
     {
         $existing = $this->dossierDisplayRubriqueRepository->findOneBy([
             'dossier' => $dossier,
@@ -372,6 +373,7 @@ class DescriptifFormPersister
 
         if (null !== $existing) {
             $existing->setUserDisplay($display);
+            $existing->setUserOpened($opened ?? false);
 
             return;
         }
@@ -380,11 +382,12 @@ class DescriptifFormPersister
         $pref->setDossier($dossier);
         $pref->setRubrique($rubrique);
         $pref->setUserDisplay($display);
+        $pref->setUserOpened($opened);
 
         $this->entityManager->persist($pref);
     }
 
-    private function upsertEtablissementDisplayPref(Etablissement $etablissement, Rubrique $rubrique, bool $display): void
+    private function upsertEtablissementDisplayPref(Etablissement $etablissement, Rubrique $rubrique, bool $display, ?bool $opened): void
     {
         $existing = $this->etablissementDisplayRubriqueRepository->findOneBy([
             'etablissement' => $etablissement,
@@ -393,6 +396,7 @@ class DescriptifFormPersister
 
         if (null !== $existing) {
             $existing->setUserDisplay($display);
+            $existing->setUserOpened($opened ?? false);
 
             return;
         }
@@ -401,6 +405,7 @@ class DescriptifFormPersister
         $pref->setEtablissement($etablissement);
         $pref->setRubrique($rubrique);
         $pref->setUserDisplay($display);
+        $pref->setUserOpened($opened ?? false);
 
         $this->entityManager->persist($pref);
     }

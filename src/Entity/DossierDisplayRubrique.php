@@ -41,6 +41,11 @@ class DossierDisplayRubrique
      */
     private $userDisplay;
 
+    /**
+     * @ORM\Column(name="USER_OPENED", type="boolean", nullable=true)
+     */
+    private $userOpened;
+
     public function getDossier(): ?Dossier
     {
         return $this->dossier;
@@ -73,6 +78,18 @@ class DossierDisplayRubrique
     public function setUserDisplay(bool $userDisplay): self
     {
         $this->userDisplay = $userDisplay;
+
+        return $this;
+    }
+
+    public function getUserOpened(): ?bool
+    {
+        return $this->userOpened;
+    }
+
+    public function setUserOpened(?bool $userOpened): self
+    {
+        $this->userOpened = $userOpened;
 
         return $this;
     }

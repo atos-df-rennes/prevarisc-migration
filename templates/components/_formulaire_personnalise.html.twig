@@ -29,10 +29,10 @@
             <div class="panel-heading" role="tab">
                 <h4 id="{{ rubrique.nom|lower|replace({' ': '-', "'": '-'}) }}" class="panel-title">
                     <a role="button"
-                       class="panel-title__link{% if not rubrique.ouverte %} collapsed{% endif %}"
+                       class="panel-title__link{% if not item.opened %} collapsed{% endif %}"
                        data-toggle="collapse"
                        data-target="#rubrique-body-{{ rubrique.id }}"
-                       aria-expanded="{{ rubrique.ouverte ? 'true' : 'false' }}"
+                       aria-expanded="{{ item.opened ? 'true' : 'false' }}"
                        aria-controls="rubrique-body-{{ rubrique.id }}">
                         {{ rubrique.nom }}
                         <span class="pull-right caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
@@ -40,7 +40,7 @@
                 </h4>
             </div>
 
-            <div id="rubrique-body-{{ rubrique.id }}" class="panel-collapse collapse{% if rubrique.ouverte %} in{% endif %}">
+            <div id="rubrique-body-{{ rubrique.id }}" class="panel-collapse collapse{% if item.opened %} in{% endif %}">
                 <div class="panel-body">
                     {% if item.champs is empty %}
                         <p class="text-muted"><em>Aucun champ renseigné. Contactez un administrateur Prevarisc.</em></p>

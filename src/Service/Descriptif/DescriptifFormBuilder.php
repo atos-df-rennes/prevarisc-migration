@@ -9,6 +9,7 @@ use App\Entity\Rubrique;
 use App\Form\Type\Descriptif\ChampValueType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -50,13 +51,17 @@ class DescriptifFormBuilder
                     'label' => $rubrique->getNom(),
                     'property_path' => '[rubrique_'.$rubriqueId.']',
                     'data_class' => RubriqueFormData::class,
-                    'attr' => ['data-ouverte' => $rubrique->getOuverte() ?? false],
+                    /*'attr' => ['data-ouverte' => $rubrique->getOuverte() ?? false],*/
                 ]
             );
 
             $rubriqueBuilder->add('display', CheckboxType::class, [
                 'required' => false,
                 'label' => $rubrique->getNom(),
+            ]);
+
+            $rubriqueBuilder->add('opened', HiddenType::class, [
+                'required' => false,
             ]);
 
             foreach ($item['champs'] as $champData) {
