@@ -80,6 +80,8 @@ class AlerteController extends AbstractController
             throw $this->createNotFoundException(sprintf('Établissement #%d introuvable', $etablissementId));
         }
 
+        $this->denyAccessUnlessGranted('view_ets', $etablissement);
+
         // Récupérer le template de changement
         $changement = $this->changementRepository->find($typeChangement);
         if (!$changement) {

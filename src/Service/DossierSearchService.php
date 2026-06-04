@@ -69,11 +69,6 @@ class DossierSearchService
             : $count;
 
         $sqlSelect = 'SELECT d.*,
-            (SELECT COUNT(dossierlie2.ID_DOSSIER2)
-                FROM dossier d2
-                INNER JOIN dossierlie dossierlie2 ON d2.ID_DOSSIER = dossierlie2.ID_DOSSIER1
-                WHERE d2.ID_DOSSIER = d.ID_DOSSIER
-            ) AS NB_DOSS_LIES,
             ( SELECT group_concat(dossierdocurba2.NUM_DOCURBA, \', \')
                 FROM dossier d3
                 INNER JOIN dossierdocurba dossierdocurba2 ON dossierdocurba2.ID_DOSSIER = d3.ID_DOSSIER
@@ -342,10 +337,10 @@ class DossierSearchService
         }
 
         // COUNT lean : sans les sous-requêtes corrélées d'affichage
-        // (NB_DOSS_LIES, NB_URBA, ALERTE_RECEPTION_TRAVAUX, ECHEANCIER_TRAVAUX)
+        // (NB_URBA, ALERTE_RECEPTION_TRAVAUX, ECHEANCIER_TRAVAUX)
         // ni les JOINs d'affichage uniquement (eia, type, genre, avis, platauconsultation).
         // Les conditions HAVING sur NB_URBA sont converties en WHERE EXISTS pour ne pas dépendre de la sous-requête SELECT.
-        // Gain : évite ~4×N sous-requêtes corrélées sur la totalité des lignes.
+        // Gain : évite ~3×N sous-requêtes corrélées sur la totalité des lignes.
         $sqlFromCountBase = ' FROM dossier d
             LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
             INNER JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
@@ -713,22 +708,6 @@ class DossierSearchService
 
             if (isset($criterias['dateReponseEnd']) && is_string($criterias['dateReponseEnd'])) {
                 $whereConditions[] = 'd.DATEREP_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseEnd']).", '%d/%m/%Y')";
-            }
-
-            if (isset($criterias['dateCommissionStart']) && is_string($criterias['dateCommissionStart'])) {
-                $whereConditions[] = 'd.DATECOMM_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateCommissionStart']).", '%d/%m/%Y')";
-            }
-
-            if (isset($criterias['dateCommissionEnd']) && is_string($criterias['dateCommissionEnd'])) {
-                $whereConditions[] = 'd.DATECOMM_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateCommissionEnd']).", '%d/%m/%Y')";
-            }
-
-            if (isset($criterias['dateVisiteStart']) && is_string($criterias['dateVisiteStart'])) {
-                $whereConditions[] = 'd.DATEVISITE_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteStart']).", '%d/%m/%Y')";
-            }
-
-            if (isset($criterias['dateVisiteEnd']) && is_string($criterias['dateVisiteEnd'])) {
-                $whereConditions[] = 'd.DATEVISITE_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteEnd']).", '%d/%m/%Y')";
             }
 
             $provenanceValue = isset($criterias['provenance']) && is_string($criterias['provenance']) ? $criterias['provenance'] : null;

@@ -63,10 +63,6 @@ class DossierPrescriptionTypeController extends AbstractController
      */
     public function ajouterTypeModal(Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         return $this->render('dossier/prescriptions/_modal_ajout_type.html.twig', [
             'dossier' => $dossier,
             'categories' => $this->categorieRepo->findBy([], ['numero' => 'ASC']),
@@ -84,10 +80,6 @@ class DossierPrescriptionTypeController extends AbstractController
      */
     public function rechercheMotsCles(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         $rawMotsCles = $request->request->get('motsCles', '');
         $motsCles = [] !== ($parts = array_filter(explode(' ', is_string($rawMotsCles) ? trim($rawMotsCles) : '')))
             ? array_values($parts)
@@ -114,10 +106,6 @@ class DossierPrescriptionTypeController extends AbstractController
      */
     public function rechercheClassement(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         $categorieId = $request->request->getInt('categorieId', 0);
         $texteId = $request->request->getInt('texteId', 0);
         $articleId = $request->request->getInt('articleId', 0);
@@ -180,10 +168,6 @@ class DossierPrescriptionTypeController extends AbstractController
      */
     public function ajouterDepuisType(Request $request, Dossier $dossier, PrescriptionType $prescriptionType): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
 

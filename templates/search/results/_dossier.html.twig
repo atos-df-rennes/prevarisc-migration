@@ -33,11 +33,7 @@
 {% if objet is not empty %}{% set fulltext_parts = fulltext_parts|merge([objet]) %}{% endif %}
 {% set fulltext = fulltext_parts|join(' - ') %}
 
-<li class="dossier{% if item.NB_DOSS_LIES > 0 %} slide{% endif %}" id="{{ item.ID_DOSSIER }}">
-
-    {% if item.NB_DOSS_LIES > 0 %}
-        <span class="icone_enfants"><i class='ui-icon ui-icon-triangle-1-e' style='position: relative; left: -25px; float: left; margin-right: -25px;'></i></span>
-    {% endif %}
+<li class="dossier" id="{{ item.ID_DOSSIER }}">
 
     <div class="pull-left">
         <span class="doss-nom">
@@ -57,9 +53,6 @@
             </a>
         </span>
 
-        {% if item.NB_DOSS_LIES > 0 %}
-            <span class="load ui-helper-hidden"><img src="{{ asset('images/load.gif') }}" alt="Chargement ..." /></span>
-        {% endif %}
     </div>
 
     <div style="clear: both"></div>

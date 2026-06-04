@@ -131,6 +131,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     private $logger;
 
+    /** @var bool */
+    private $deactivatePlatau;
+
     /** @var DossierService */
     private $dossierService;
 
@@ -186,7 +189,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DescriptifFormBuilder $descriptifFormBuilder,
         DescriptifFormPersister $descriptifFormPersister,
         FormFactoryInterface $formFactory,
-        EtablissementHistoriqueService $etablissementHistoriqueService
+        EtablissementHistoriqueService $etablissementHistoriqueService,
+        bool $deactivatePlatau = false
     ) {
         $this->entityManager = $entityManager;
         $this->platauConsultationService = $platauConsultationService;
@@ -204,6 +208,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierAffectationService = $dossierAffectationService;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
         $this->logger = $logger;
+        $this->deactivatePlatau = $deactivatePlatau;
         $this->dossierService = $dossierService;
         $this->dossierRepository = $dossierRepository;
         $this->dossierCreationService = $dossierCreationService;
@@ -231,6 +236,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
             && !$dossier->isIncomplet()
             && !$dossier->hasNePeutSePrononcer()
         ;
+
+        if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
+            throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
+        }
 
         $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
 
@@ -399,6 +408,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DocumentConsulteTransferService $documentConsulteTransferService,
         bool $mailEnabled
     ): Response {
+        // Vérification Plat'AU désactivé
+        if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
+            throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
+        }
+
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
         $this->documentManquantService->organizeDocumentsManquants($dossier);
 
@@ -712,7 +726,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /**
      * @Route("/dossier/{id}/textes-applicables/modifier", name="dossier_textes_applicables_edit", methods={"GET", "POST"})
      *
-     * @IsGranted("edit_doss", subject="dossier")
+     * @IsGranted("edit_doss_ignore_verrou", subject="dossier")
      */
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
@@ -761,7 +775,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/verifications-techniques/modifier", name="dossier_verifications_techniques_edit", methods={"GET", "POST"})
      *
-     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
     {
@@ -812,7 +826,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             : ['etudes' => [], 'visites' => [], 'autres' => []];
 
         if ($request->isMethod('POST')) {
-            $this->denyAccessUnlessGranted('edit_doss', $dossier);
+            $this->denyAccessUnlessGranted('edit_doss_ignore_verrou', $dossier);
 
             $data = $request->request->all();
 
@@ -888,7 +902,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier", name="dossier_avis_et_derogations_edit", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"GET", "POST"})
      *
-     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
@@ -975,7 +989,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      *
      * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"POST"})
      *
-     * @Security("is_granted('avis_derogations') and is_granted('edit_doss', dossier)")
+     * @Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
     public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {

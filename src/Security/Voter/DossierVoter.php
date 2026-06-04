@@ -16,6 +16,13 @@ class DossierVoter extends Voter
 
     public const MODIFICATION = 'edit_doss';
 
+    /**
+     * Vérifie le privilège edit_doss sans tenir compte du verrouillage.
+     * Utilisé pour les actions qui, dans le legacy, ne sont pas bloquées par le verrou
+     * (textes applicables, vérifications techniques, effectifs/dégagements, avis/dérogations, génération rapport).
+     */
+    public const MODIFICATION_IGNORE_VERROU = 'edit_doss_ignore_verrou';
+
     public const VERROUILLAGE = 'verrouillage_dossier';
 
     /**
@@ -41,7 +48,7 @@ class DossierVoter extends Voter
 
     protected function supports($attribute, $subject): bool
     {
-        if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::VERROUILLAGE], true)) {
+        if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::MODIFICATION_IGNORE_VERROU, self::VERROUILLAGE], true)) {
             return false;
         }
 
@@ -107,6 +114,27 @@ class DossierVoter extends Voter
             $resourcesById[$natureId] = $resource;
         }
 
+        if (self::MODIFICATION === $attribute) {
+            return $this->canEdit($subject, $userPrivileges, $resourcesById, $natureDossierId);
+        }
+
+        if (self::MODIFICATION_IGNORE_VERROU === $attribute) {
+            return $this->canView(self::MODIFICATION, $userPrivileges, $resourcesById, $natureDossierId);
+        }
+
+        return $this->canView($attribute, $userPrivileges, $resourcesById, $natureDossierId);
+    }
+
+    /**
+     * Vérifie si un utilisateur dispose d'un privilège donné sur un dossier selon sa nature.
+     *
+     * @param string                $attribute       Nom du privilège à vérifier
+     * @param mixed[]               $userPrivileges  Liste des privilèges de l'utilisateur
+     * @param array<int, Resources> $resourcesById   Ressources indexées par identifiant de nature
+     * @param int                   $natureDossierId Identifiant de la nature du dossier
+     */
+    private function canView(string $attribute, array $userPrivileges, array $resourcesById, int $natureDossierId): bool
+    {
         // Vérification du privilège "toutes natures" (id=0)
         if (array_key_exists(0, $resourcesById)) {
             $privilegeAll = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resourcesById[0]]);
@@ -124,5 +152,19 @@ class DossierVoter extends Voter
         }
 
         return false;
+    }
+
+    /**
+     * Vérifie si un utilisateur peut modifier un dossier :
+     * le dossier ne doit pas être verrouillé ET le privilège edit_doss doit être accordé.
+     *
+     * @param Dossier               $dossier         Dossier cible
+     * @param mixed[]               $userPrivileges  Liste des privilèges de l'utilisateur
+     * @param array<int, Resources> $resourcesById   Ressources indexées par identifiant de nature
+     * @param int                   $natureDossierId Identifiant de la nature du dossier
+     */
+    private function canEdit(Dossier $dossier, array $userPrivileges, array $resourcesById, int $natureDossierId): bool
+    {
+        return !$dossier->hasVerrou() && $this->canView(self::MODIFICATION, $userPrivileges, $resourcesById, $natureDossierId);
     }
 }
