@@ -28,6 +28,7 @@ class PrivilegeVoter implements VoterInterface
     private const EXCLUDED_ATTRIBUTES = [
         DossierVoter::LECTURE,
         DossierVoter::MODIFICATION,
+        DossierVoter::MODIFICATION_IGNORE_VERROU,
         DossierVoter::VERROUILLAGE,
         EtablissementVoter::LECTURE,
         EtablissementVoter::MODIFICATION,
