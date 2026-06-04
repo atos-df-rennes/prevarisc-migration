@@ -76,6 +76,42 @@ $(document).ready(function () {
     }
 
     /**
+     * Met à jour l'icône du bouton "Tout" pour les types d'activité ERP.
+     * Affiche glyphicon-unchecked si toutes les activités sont cochées, glyphicon-check sinon.
+     *
+     * @param {jQuery} $panel - Le panel membre concerné.
+     */
+    function updateSelectAllActivitesBtn($panel) {
+        var $btn = $panel.find('.select-all-activites-btn');
+        if ($btn.length === 0) { return; }
+        var $checkboxes = $panel.find('.activite-item input[type="checkbox"]');
+        var allChecked = $checkboxes.length > 0 && $checkboxes.filter(':checked').length === $checkboxes.length;
+        if (allChecked) {
+            $btn.html('<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Tout');
+        } else {
+            $btn.html('<span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout');
+        }
+    }
+
+    /**
+     * Met à jour l'icône du bouton "Tout" pour les types et natures de dossier.
+     * Affiche glyphicon-unchecked si tous les types sont cochés (sans indéterminé), glyphicon-check sinon.
+     *
+     * @param {jQuery} $panel - Le panel membre concerné.
+     */
+    function updateSelectAllDossiersBtn($panel) {
+        var $btn = $panel.find('.select-all-dossiers-btn');
+        if ($btn.length === 0) { return; }
+        var $typeCheckboxes = $panel.find('.dossier-type-checkbox');
+        var allChecked = $typeCheckboxes.length > 0 && $typeCheckboxes.filter(':checked').length === $typeCheckboxes.length;
+        if (allChecked) {
+            $btn.html('<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span> Tout');
+        } else {
+            $btn.html('<span class="glyphicon glyphicon-check" aria-hidden="true"></span> Tout');
+        }
+    }
+
+    /**
      * Met à jour l'état (coché / indéterminé) de la checkbox maître d'un groupe
      * d'activités ERP en fonction de l'état des checkboxes individuelles du groupe.
      *
@@ -127,10 +163,12 @@ $(document).ready(function () {
         $panel.find('.activite-group-toggle').each(function () {
             updateActiviteGroupToggle($panel, $(this).data('group'));
         });
+        updateSelectAllActivitesBtn($panel);
 
         $panel.find('.dossier-type-checkbox').each(function () {
             updateDossierTypeCheckbox($panel, $(this).data('type-id'));
         });
+        updateSelectAllDossiersBtn($panel);
     }
 
     // Initialisation des panels existants au chargement de la page
@@ -159,6 +197,26 @@ $(document).ready(function () {
         if ($btn.length) { updateSelectAllBtn($btn); }
     });
 
+    // --- Boutons "Tout" — types d'activité ERP ---
+
+    $(document).on('click', '.select-all-activites-btn', function () {
+        var $panel = $(this).closest('.membre-rule');
+        var $checkboxes = $panel.find('.activite-item input[type="checkbox"]');
+        var allChecked = $checkboxes.length > 0 && $checkboxes.filter(':checked').length === $checkboxes.length;
+        $panel.find('.activite-group-toggle').prop('checked', !allChecked).prop('indeterminate', false).trigger('change');
+        updateSelectAllActivitesBtn($panel);
+    });
+
+    // --- Boutons "Tout" — types et natures de dossier ---
+
+    $(document).on('click', '.select-all-dossiers-btn', function () {
+        var $panel = $(this).closest('.membre-rule');
+        var $typeCheckboxes = $panel.find('.dossier-type-checkbox');
+        var allChecked = $typeCheckboxes.length > 0 && $typeCheckboxes.filter(':checked').length === $typeCheckboxes.length;
+        $typeCheckboxes.prop('checked', !allChecked).prop('indeterminate', false).trigger('change');
+        updateSelectAllDossiersBtn($panel);
+    });
+
     // --- Groupes d'activités ERP ---
 
     /**
@@ -170,13 +228,13 @@ $(document).ready(function () {
         var $panel = $toggle.closest('.membre-rule');
         $panel.find('#activite-group-' + groupKey + ' input[type="checkbox"]').prop('checked', $toggle.prop('checked'));
         $toggle.prop('indeterminate', false);
+        updateSelectAllActivitesBtn($panel);
     });
 
     $(document).on('change', '.activite-item input[type="checkbox"]', function () {
-        updateActiviteGroupToggle(
-            $(this).closest('.membre-rule'),
-            $(this).closest('.activite-item').data('group')
-        );
+        var $panel = $(this).closest('.membre-rule');
+        updateActiviteGroupToggle($panel, $(this).closest('.activite-item').data('group'));
+        updateSelectAllActivitesBtn($panel);
     });
 
     // --- Types et natures de dossier ---
@@ -190,13 +248,13 @@ $(document).ready(function () {
         var $panel = $cb.closest('.membre-rule');
         $cb.prop('indeterminate', false);
         $panel.find('.dossier-nature-item[data-type-id="' + typeId + '"] input[type="checkbox"]').prop('checked', $cb.prop('checked'));
+        updateSelectAllDossiersBtn($panel);
     });
 
     $(document).on('change', '.dossier-nature-item input[type="checkbox"]', function () {
-        updateDossierTypeCheckbox(
-            $(this).closest('.membre-rule'),
-            $(this).closest('.dossier-nature-item').data('type-id')
-        );
+        var $panel = $(this).closest('.membre-rule');
+        updateDossierTypeCheckbox($panel, $(this).closest('.dossier-nature-item').data('type-id'));
+        updateSelectAllDossiersBtn($panel);
     });
 
     // --- Ajout d'un membre ---
