@@ -111,7 +111,7 @@ class Descriptif
         foreach ($capsule->getRubriques() as $rubrique) {
             $pref = $displayPrefs[$rubrique->getId()] ?? null;
             $display = null !== $pref ? $pref->isDisplay() : ($rubrique->getDefaultDisplay() ?? true);
-            $opened = null !== $pref ? $pref->isOpened() : ($rubrique->getOuverte() ?? false);
+            $opened = (null !== $pref ? $pref->isOpened() : null) ?? $rubrique->getOuverte() ?? false;
 
             $champs = [];
             foreach ($rubrique->getRootChamps() as $champ) {

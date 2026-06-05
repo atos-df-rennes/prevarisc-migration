@@ -23,7 +23,7 @@ class RubriqueFormData implements \ArrayAccess
     private $display;
 
     /**
-     * @var ?bool
+     * @var bool
      */
     private $opened;
 
@@ -37,7 +37,7 @@ class RubriqueFormData implements \ArrayAccess
     /**
      * @param array<int, ChampValueData> $champs
      */
-    public function __construct(bool $display = true, ?bool $opened = null, array $champs = [])
+    public function __construct(bool $display = true, bool $opened = false, array $champs = [])
     {
         $this->display = $display;
         $this->opened = $opened;
@@ -56,12 +56,12 @@ class RubriqueFormData implements \ArrayAccess
         return $this;
     }
 
-    public function isOpened(): ?bool
+    public function isOpened(): bool
     {
         return $this->opened;
     }
 
-    public function setOpened(?bool $opened): self
+    public function setOpened(bool $opened): self
     {
         $this->opened = $opened;
 

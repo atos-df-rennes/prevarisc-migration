@@ -354,7 +354,7 @@ class DescriptifFormPersister
      *
      * @param Dossier|Etablissement $entity
      */
-    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display, ?bool $opened): void
+    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display, bool $opened): void
     {
         if ($entity instanceof Dossier) {
             $this->upsertDossierDisplayPref($entity, $rubrique, $display, $opened);
@@ -364,7 +364,7 @@ class DescriptifFormPersister
     }
 
 
-    private function upsertDossierDisplayPref(Dossier $dossier, Rubrique $rubrique, bool $display, ?bool $opened): void
+    private function upsertDossierDisplayPref(Dossier $dossier, Rubrique $rubrique, bool $display, bool $opened): void
     {
         $existing = $this->dossierDisplayRubriqueRepository->findOneBy([
             'dossier' => $dossier,
@@ -373,7 +373,7 @@ class DescriptifFormPersister
 
         if (null !== $existing) {
             $existing->setUserDisplay($display);
-            $existing->setUserOpened($opened ?? false);
+            $existing->setUserOpened($opened);
 
             return;
         }
@@ -387,7 +387,7 @@ class DescriptifFormPersister
         $this->entityManager->persist($pref);
     }
 
-    private function upsertEtablissementDisplayPref(Etablissement $etablissement, Rubrique $rubrique, bool $display, ?bool $opened): void
+    private function upsertEtablissementDisplayPref(Etablissement $etablissement, Rubrique $rubrique, bool $display, bool $opened): void
     {
         $existing = $this->etablissementDisplayRubriqueRepository->findOneBy([
             'etablissement' => $etablissement,
@@ -396,7 +396,7 @@ class DescriptifFormPersister
 
         if (null !== $existing) {
             $existing->setUserDisplay($display);
-            $existing->setUserOpened($opened ?? false);
+            $existing->setUserOpened($opened);
 
             return;
         }
@@ -405,7 +405,7 @@ class DescriptifFormPersister
         $pref->setEtablissement($etablissement);
         $pref->setRubrique($rubrique);
         $pref->setUserDisplay($display);
-        $pref->setUserOpened($opened ?? false);
+        $pref->setUserOpened($opened);
 
         $this->entityManager->persist($pref);
     }

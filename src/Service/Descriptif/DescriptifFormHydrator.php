@@ -73,7 +73,7 @@ class DescriptifFormHydrator
 
             $rubriqueFormDatas[$rubriqueId] = new RubriqueFormData(
                 (bool) $item['display'],
-                $item['opened'],
+                (bool) ($item['opened'] ?? false),
                 $champs
             );
         }
