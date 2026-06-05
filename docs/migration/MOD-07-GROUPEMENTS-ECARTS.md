@@ -31,6 +31,8 @@
 | **Impact** | Faible à moyen — le groupement est bien créé, mais le parcours décrit par la spec (« créer puis compléter la fiche ») est moins fluide dans Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/templates/groupement/index.html.twig`, `prevarisc/application/views/scripts/groupement/index.phtml` |
 
+**Retour utilisateur** : Écart de migration confirmé. Passer l'`id` du groupement nouvellement créé en query string lors du retour vers `admin_groupement`.
+
 ---
 
 ### Écart 2 — La vue simplifiée de consultation embarquée n'est pas migrée
@@ -43,6 +45,8 @@
 | **Legacy** | `viewAction()` + `views/scripts/groupement/view.phtml` affichent le libellé, le type, les coordonnées, les préventionnistes et les contacts en lecture seule (`application/controllers/GroupementController.php:68-73`, `application/views/scripts/groupement/view.phtml:1-67`). |
 | **Impact** | Moyen — la consultation embarquée fonctionne encore via le fallback legacy, mais elle n'est pas réellement migrée côté Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/templates/etablissement/_informations/_carto.html.twig`, `prevarisc/application/controllers/GroupementController.php`, `prevarisc/application/views/scripts/groupement/view.phtml` |
+
+**Retour utilisateur** : Écart de migration confirmé. Migrer la consultation embarquée et mettre à jour les liens pour pointer vers le Symfony ensuite.
 
 ---
 
@@ -57,6 +61,10 @@
 | **Impact** | Moyen — le résultat fonctionnel visible est proche, mais le comportement historique de « recalcul total » et la remise à zéro de la date d'affectation ne sont plus garantis. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Entity/Groupement.php`, `prevarisc/application/controllers/GroupementController.php` |
 
+**Retour utilisateur** : Écarts de migration acceptés. Le "recalcul total" n'est pas nécessaire car géré par les Collections Doctrines correctement.\
+Comme indiqué, le champ `DATEDEBUT_GROUPEMENTPREVENTIONNISTE` n'est utilisé nul part dans l'application et on laisse donc en l'état pour l'instant. Si ces champs venaient à être utilisés, ils seraient de nouveau implémentés pour permettre leur utilisation dans des vues.\
+Aucune action à prévoir sur ce point.
+
 ---
 
 ### Écart 4 — La réaffectation Symfony n'invalide pas le cache global de recherche
@@ -69,6 +77,9 @@
 | **Legacy** | `preventionnisteAction()` appelle le service puis exécute `getResource('cacheSearch')->clean(Zend_Cache::CLEANING_MODE_ALL)` (`application/controllers/GroupementController.php:241-247`). |
 | **Impact** | **Élevé** — les nouvelles affectations peuvent ne pas être visibles immédiatement dans les écrans ou exports reposant sur le cache de recherche. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Service/GroupementCommunes.php`, `prevarisc/application/controllers/GroupementController.php` |
+
+**Retour utilisateur** : Il n'y a pas eu de portage de gestion du cache dans le code Symfony. La migration étant finie, le vidage des caches sur le legacy n'est plus un problème.\
+Un cache TagAware a été introduit dans la branche **fix/cache-recherche** (non encore mergée) pour faire un miroir du `$cacheSearch` legacy. La gestion de cache sera donc à effectuer une fois la branche **fix/cache-recherche** mergée.
 
 ---
 
@@ -83,6 +94,8 @@
 | **Impact** | Faible à moyen — selon l'ordre renvoyé par Doctrine/SQL, l'affichage peut devenir non déterministe et s'écarter du tri attendu par la spec. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Entity/GroupementType.php`, `prevarisc/application/views/helpers/ListeGroupement.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. L'ordre peut en effet différer et il faudrait mettre un tri explicite via annotation `@OrderBy` et remplacer le `findAll()` par `findBy(['libelle' => 'ASC])`.
+
 ---
 
 ### Écart 6 — La fiche de coordonnées vide n'est pas créée automatiquement côté Symfony
@@ -96,6 +109,9 @@
 | **Impact** | Faible — l'interface reste utilisable, mais l'état de données attendu par la spec et par le legacy (fiche vide existante) n'est plus garanti. |
 | **Fichiers concernés** | `prevarisc-migration/src/Form/GroupementType.php`, `prevarisc-migration/src/Entity/Groupement.php`, `prevarisc/application/controllers/GroupementController.php` |
 
+**Retour utilisateur** : Écart de migration accepté. La création d'une ligne vide n'est pas nécessaire et pollue la base plus qu'autre chose. Si l'absence de création de cette ligne n'entraîne pas de crash ou de mauvais affichage front, on laisse en l'état et la fiche sera créée au besoin lorsque les informations seront renseignées.\
+Aucun action à prévoir sur ce point.
+
 ---
 
 ### Écart 7 — La précondition « au moins un préventionniste » n'est vérifiée qu'en interface, pas côté serveur
@@ -108,6 +124,8 @@
 | **Legacy** | Même logique : le bouton n'est affiché que si la liste n'est pas vide (`application/views/scripts/groupement/display.phtml:70-83`), mais `preventionnisteAction()` exécute la réaffectation sans garde serveur (`application/controllers/GroupementController.php:241-247`). |
 | **Impact** | Faible — l'écart n'est exploitable qu'en forgeant la requête, mais la contrainte métier de la spec n'est pas réellement sécurisée ni en Symfony ni en legacy. |
 | **Fichiers concernés** | `prevarisc-migration/templates/groupement/_form_affectations.html.twig`, `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc/application/views/scripts/groupement/display.phtml`, `prevarisc/application/controllers/GroupementController.php` |
+
+**Retour utilisateur** : OK, ajouter la vérification de la condition côté controller pour se prémunir d'un appel direct via URL.
 
 ---
 
