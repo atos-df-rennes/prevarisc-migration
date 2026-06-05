@@ -75,70 +75,226 @@ h2.page-header {
     color: #005580;
 }
 
-/* On règle la navbar en mode "super sleek"
--------------------------------------------------- */
-
-body > .navbar {
-    font-size: 12px;
-}
-
-.navbar .btn, .navbar .btn-group {
-    margin-top: 10px;
-}
-
-#research-input input {
-    font-size: 13px;
-    -webkit-transition: width 0.25s ease-in-out;
-    -moz-transition:width 0.25s ease-in-out;
-    -o-transition: width 0.25s ease-in-out;
-    transition: width 0.25s ease-in-out;
-}
-
-#research-input input:focus{
-    width: 300px;
-}
-
-#research-input a {
-    font-size: 12px;
-    padding: 4px 4px 4px 4px;
-    margin-top: 10px;
-    text-transform: initial;
-}
-
-#research-input button.btn_search {
-    padding: 4px 6px;
-}
-
-.navbar-inner .container-fluid {
-    width: 100%;
-}
-
-.navbar-search {
-    margin: 0;
-}
-
+/*-------------------------- Styles de la barre de navigation --------------------------*/
 .navbar-inner .container-fluid,
-.navbar-inner .container-fluid .nav-collapse > ul > li,
 .navbar-inner .container-fluid .nav-collapse > ul > li > a {
-    line-height: 30px;
-    font-size: 12px;
-    text-transform: uppercase;
-    color: #949494;
-    text-decoration: none;
+    text-transform: capitalize;
+    color: #333333;
+    font-family: Helvetica Neue;
+    font-weight: 700;
+    font-size: 14px;
 }
 
-.navbar-inner .container-fluid .nav-collapse > ul > li > a {
-    padding: 10px 8px 10px 5px;
+.navbar .nav{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    float: none;
+    margin-bottom: 10px;
 }
 
-.navbar-inner .container-fluid .nav-collapse > ul > li > a:hover {
-    color: #555;
+.nav {
+    margin-bottom: 0;
+    margin-left: 20px;
+}
+
+.navbar .navbar-inner {
+    padding : 0;
+}
+
+.navbar .nav > li > a {
+    padding: 10px 8px;
+}
+
+.navbar .nav > li > a > i {
+    margin: 0 5px 3px 0;
 }
 
 .navbar .nav .dropdown-toggle .caret {
+    margin-left : 5px;
     margin-top: 13px;
 }
 
+.navbar-search {
+    margin-top: 10px;
+}
+
+.navbar .nav > li.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.avatar {
+    width: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #CCCCCC;
+}
+
+.navbar .nav > li > a.deconnexion {
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    padding: 4px 12px;
+}
+
+.logo-small {
+    display: none;
+}
+
+@media screen and (max-width: 1425px) {
+    .brand .logo-default {
+        display: none;
+    }
+    .logo-small {
+        display: inline;
+    }
+    .navbar .brand{
+        padding: 10px 0 10px;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 1180px) {
+    .navbar .nav {
+        margin-top: 7%;
+    }
+
+    .nav-collapse.collapse {
+        overflow: auto;
+        height: 0;
+    }
+
+    .navbar .btn-navbar {
+        display: block;
+        cursor: pointer;
+    }
+
+    .icon-bar {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background-color: #333;
+        margin: 4px 0;
+    }
+}
+
+/*-------------------------- Styles des filtres --------------------------*/
+.bloc-sortable {
+    cursor: move;
+    padding: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    background: #fff;
+}
+
+.filtres-cartes-recherche input.filtre-cartes-input {
+    width: 250px;
+    height: 30px;
+}
+
+.filtres-cartes {
+    display: flex;
+    justify-content: space-between;
+}
+
+@media (max-width: 980px) {
+    .filtres-cartes {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filtres-cartes-recherche {
+        display: flex;
+    }
+
+    .filtres-cartes-recherche input.filtre-cartes-input {
+        flex: 1;
+    }
+
+    .filtre-cartes-types {
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+/*-------------------------- Styles des panneaux ouvrables du dashboard --------------------------*/
+.titre-section {
+    text-align: center;
+    margin: 20px 0 40px 0;
+}
+
+.titre-section hr {
+    border-top: 1px solid #ccc;
+    position: absolute;
+    width: 97%;
+}
+
+.titre-section h2 {
+    display: inline;
+    position: relative;
+    background: #fff;
+    padding: 0 15px;
+}
+
+.titre-section h2 i{
+    display: table-cell;
+}
+
+.blocs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 45px;
+}
+
+.dashboard .panel {
+    margin-bottom: 0;
+}
+
+.dashboard .panel.panel-ouvrable {
+    width: 300px;
+    height: 200px;
+    background: #F5F5F5;
+    border: 1px solid #DDDDDD;
+    border-radius: 3px;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+    box-sizing: border-box;
+}
+
+.dashboard .panel.panel-ouvrable .panel-heading {
+    display: flex;
+    align-items: center;
+    width: 270px;
+    height: 80px;
+    font-weight: bold;
+    border: none;
+    margin : 0;
+}
+
+.dashboard .panel-heading .compteur{
+    color: #ffffff;
+    border-radius: 24px;
+    background-color: #333333;
+    padding: 5px;
+    margin-right: 20px;
+}
+
+.dashboard .panel.panel-ouvrable .panel-footer {
+    border: none;
+}
+
+.dashboard .panel.panel-ouvrable .btn-ouvrir {
+    width: 90%;
+    background: linear-gradient(180deg, #FFFFFF 0%, #E7E7E7 100%);
+    border: 1px solid #CCCCCC;
+    border-radius: 3px;
+    margin-left: 15px;
+    padding: 5px;
+    color: #333;
+}
 
 /* Style de la page d'erreur
 -------------------------------------------------- */
@@ -822,10 +978,6 @@ text-decoration: none;
     padding-top: 70px;
 }
 
-.navbar-fixed-top .navbar-inner {
-    box-shadow: none;
-}
-
 .nav-tabs.nav-stacked.menu_dashboard>li>a {
   border-radius: 0px;
   border-top: 1px solid #fff;
@@ -836,23 +988,9 @@ text-decoration: none;
   color: #555555;
 }
 
-#home.dashboard .panel {
-  width:  49%;
-  float: left;
-  margin-bottom: 0;
-}
-
 .dashboard .panel.ui-draggable-dragging {
     border-style: dashed;
     border-width: 3px;
-}
-
-.dashboard .panel.w2 {
-  width:  100%;
-}
-
-#home.dashboard .panel-heading {
-  cursor: move;
 }
 
 .dashboard .panel .icon {
@@ -868,10 +1006,6 @@ text-decoration: none;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-}
-
-.dashboard .grid-gutter {
-  width: 1%;
 }
 
 .sidebar {
