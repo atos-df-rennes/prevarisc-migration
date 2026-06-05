@@ -15,6 +15,7 @@ use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
+use App\ValueObject\RubriqueDisplayPref;
 
 class Descriptif
 {
@@ -77,7 +78,7 @@ class Descriptif
      * pour éviter les requêtes N+1 lors de l'assemblage.
      *
      * @param array<int, Valeur[]> $valeurs      valeurs indexées par champId
-     * @param array<int, bool>     $displayPrefs prefs indexées par rubriqueId
+     * @param array<int, RubriqueDisplayPref>     $displayPrefs prefs indexées par rubriqueId
      *
      * @return array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}
      */
@@ -98,8 +99,8 @@ class Descriptif
     /**
      * Construit la structure rubriques enrichie avec display et valeurs résolues.
      *
-     * @param array<int, Valeur[]> $valeurs      valeurs indexées par champId
-     * @param array<int, bool>     $displayPrefs prefs indexées par rubriqueId
+     * @param array<int, Valeur[]>            $valeurs      valeurs indexées par champId
+     * @param array<int, RubriqueDisplayPref> $displayPrefs prefs indexées par rubriqueId
      *
      * @return list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>
      */
@@ -108,8 +109,9 @@ class Descriptif
         $result = [];
 
         foreach ($capsule->getRubriques() as $rubrique) {
-            $display = $displayPrefs[$rubrique->getId()]['display'] ?? $rubrique->getDefaultDisplay() ?? true;
-            $opened = $displayPrefs[$rubrique->getId()]['open'] ?? $rubrique->getOuverte() ?? false;
+            $pref = $displayPrefs[$rubrique->getId()] ?? null;
+            $display = null !== $pref ? $pref->isDisplay() : ($rubrique->getDefaultDisplay() ?? true);
+            $opened = null !== $pref ? $pref->isOpened() : ($rubrique->getOuverte() ?? false);
 
             $champs = [];
             foreach ($rubrique->getRootChamps() as $champ) {
@@ -225,11 +227,11 @@ class Descriptif
     }
 
     /**
-     * Construit un index [rubriqueId => bool] depuis les préférences d'affichage.
+     * Construit un index [rubriqueId => RubriqueDisplayPref] depuis les préférences d'affichage.
      *
      * @param DossierDisplayRubrique[]|EtablissementDisplayRubrique[] $displayRubriques
      *
-     * @return array<int, bool>
+     * @return array<int, RubriqueDisplayPref>
      */
     private function buildDisplayPrefs(array $displayRubriques): array
     {
@@ -238,10 +240,10 @@ class Descriptif
             $rubrique = $displayRubrique->getRubrique();
             $rubriqueId = null !== $rubrique ? $rubrique->getId() : null;
             if (null !== $rubriqueId) {
-                $prefs[$rubriqueId] = [
-                    'display' => (bool) $displayRubrique->getUserDisplay(),
-                    'open' => $displayRubrique->getUserOpened()
-                ];
+                $prefs[$rubriqueId] = new RubriqueDisplayPref(
+                    (bool) $displayRubrique->getUserDisplay(),
+                    $displayRubrique->getUserOpened()
+                );
             }
         }
 
