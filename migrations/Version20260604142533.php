@@ -14,7 +14,7 @@ final class Version20260604142533 extends AbstractMigration
 {
     public function getDescription() : string
     {
-        return '';
+        return "Sauvegarde l'état d'ouverture d'une rubrique à la sauvegarde.";
     }
 
     public function up(Schema $schema) : void

@@ -51,7 +51,6 @@ class DescriptifFormBuilder
                     'label' => $rubrique->getNom(),
                     'property_path' => '[rubrique_'.$rubriqueId.']',
                     'data_class' => RubriqueFormData::class,
-                    /*'attr' => ['data-ouverte' => $rubrique->getOuverte() ?? false],*/
                 ]
             );
 

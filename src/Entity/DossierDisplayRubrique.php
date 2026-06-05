@@ -42,6 +42,8 @@ class DossierDisplayRubrique
     private $userDisplay;
 
     /**
+     * @var ?bool
+     *
      * @ORM\Column(name="USER_OPENED", type="boolean", nullable=true)
      */
     private $userOpened;
