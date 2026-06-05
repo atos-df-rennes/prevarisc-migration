@@ -12,6 +12,14 @@ import { initLoadingButton } from './modules/loading-button.js';
 
 initLoadingButton('#js-btn-enregistrer-descriptif', 'Enregistrement...');
 
+// Synchronise l'input hidden "opened" avec l'état réel du collapse Bootstrap
+$(document).on('show.bs.collapse hide.bs.collapse', '.panel-collapse', function (e) {
+    const input = $(this).find('[data-opened-input]');
+    if (input.length) {
+        input.val(e.type === 'show' ? '1' : '0');
+    }
+});
+
 // Bouton "Aujourd'hui" : event delegation pour gérer les lignes ajoutées dynamiquement
 document.addEventListener('click', function(e) {
     const btn = e.target.closest('.btn-today[data-target]');
