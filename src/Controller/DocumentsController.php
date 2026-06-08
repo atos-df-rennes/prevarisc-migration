@@ -95,30 +95,35 @@ class DocumentsController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $commission = $form->get('commission')->getData();
+                $commissions = $form->get('commissions')->getData();
                 $fichier = $form->get('file')->getData();
 
-                if (!$commission instanceof FormDocument) {
-                    throw new \Exception("La commission n'est pas correcte.");
-                }
+                $filesystem = new Filesystem();
 
-                if (!$fichier instanceof UploadedFile) {
-                    throw new \Exception("Le fichier n'est pas correct.");
-                }
+                foreach ($commissions as $commission) {
+                    if (!$commission instanceof FormDocument) {
+                        throw new \Exception("La commission n'est pas correcte.");
+                    }
 
-                try {
-                    // @todo: Générer un nom de fichier plus sûr
-                    $fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));
+                    if (!$fichier instanceof UploadedFile) {
+                        throw new \Exception("Le fichier n'est pas correct.");
+                    }
 
-                    $this->addFlash('success', 'Le document a bien été ajouté.');
-                } catch (FileException $fileException) {
-                    $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
+                    try {
+                        // @todo: Générer un nom de fichier plus sûr
+                        $filesystem->copy($fichier->getRealPath(),$documentsRealDataPath.$commission->id()."/".File::sanitize($fichier->getClientOriginalName()));
+                        /*$fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));*/
 
-                    $this->addFlash('danger', "Erreur lors de l'ajout du document.");
-                } catch (\InvalidArgumentException $invalidArgumentException) {
-                    $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents : '.$invalidArgumentException->getMessage());
+                        $this->addFlash('success', 'Le document a bien été ajouté.');
+                    } catch (FileException $fileException) {
+                        $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
 
-                    $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                        $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                    } catch (\InvalidArgumentException $invalidArgumentException) {
+                        $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents : '.$invalidArgumentException->getMessage());
+
+                        $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                    }
                 }
 
                 return $this->redirectToRoute('admin_documents');
