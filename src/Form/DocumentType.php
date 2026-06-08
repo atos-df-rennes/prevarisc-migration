@@ -17,7 +17,7 @@ class DocumentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('commission', ChoiceType::class, [
+            ->add('commissions', ChoiceType::class, [
                 'choices' => $builder->getData(),
                 'choice_label' => function (FormDocument $commission): string {
                     return $commission->nom();
@@ -27,7 +27,9 @@ class DocumentType extends AbstractType
                 },
                 'group_by' => function (FormDocument $commission): ?string {
                     return $commission->type();
-                }
+                },
+                'multiple' => true,
+                'expanded' => true,
             ])
             ->add('file', FileType::class, [
                 'label' => 'Fichier à envoyer',
