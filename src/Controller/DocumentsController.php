@@ -118,11 +118,11 @@ class DocumentsController extends AbstractController
                     } catch (FileException $fileException) {
                         $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
 
-                        $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                        $this->addFlash('danger', $commission->nom()." : Erreur lors de l'ajout du document.");
                     } catch (\InvalidArgumentException $invalidArgumentException) {
                         $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents : '.$invalidArgumentException->getMessage());
 
-                        $this->addFlash('danger', "Erreur lors de l'ajout du document.");
+                        $this->addFlash('danger', $commission->nom()." : Erreur lors de l'ajout du document.");
                     }
                 }
 
