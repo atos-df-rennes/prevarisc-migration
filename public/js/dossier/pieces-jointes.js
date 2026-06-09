@@ -162,6 +162,45 @@ $(document).ready(function () {
         });
     });
 
+    $('#tabPieceJointe').on('click', '.btn-show-rename-pj', function () {
+        const btn = $(this);
+        const id = btn.data('pj-id')
+        if (document.getElementById('rename-'+id).style.display === 'none'){
+            document.getElementById('rename-'+id).style.display = ''
+        }
+        else {
+            document.getElementById('rename-'+id).style.display = 'none'
+        }
+    });
+
+    $('#tabPieceJointe').on('click', '.btn-rename-pj', function () {
+        const btn = $(this);
+        const id = btn.data('pj-id')
+        const url = btn.data('url');
+        const token = btn.data('token');
+
+        const nouveau_nom = document.getElementById('rename-name-'+id).value
+        const nouvelle_description = document.getElementById('rename-description-'+id).value
+
+        const tableau = document.querySelector('#pj-row-'+id).children;
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: { _token: token, new_nom: nouveau_nom, new_description: nouvelle_description },
+            success: function () {
+                tableau[0].getElementsByTagName('a')[0].textContent = nouveau_nom+'.'+tableau[0].getElementsByTagName('a')[0].classList[1]
+                tableau[1].textContent = nouvelle_description
+                document.getElementById('rename-'+id).style.display = 'none'
+                $.toast.success('Pièce jointe renommé !');
+            },
+            error: function () {
+                document.getElementById('rename-'+id).style.display = 'none'
+                $.toast.error('Erreur lors de la renomme de la pièce jointe.');
+            }
+        })
+    })
+
     // --- Retry export Platau ---
 
     $('#tabPieceJointe').on('click', '.btn-retry-platau', function () {
