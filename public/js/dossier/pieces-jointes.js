@@ -184,6 +184,11 @@ $(document).ready(function () {
 
         const tableau = document.querySelector('#pj-row-'+id).children;
 
+        if (nouveau_nom === '') {
+            $.toast.error('Veuillez renseigner un nom pour la pièce jointe.');
+            return;
+        }
+
         $.ajax({
             url: url,
             method: 'POST',
