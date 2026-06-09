@@ -139,6 +139,8 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
         $this->notificationService->setLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
 
+        dump($dossier, $listePj, $isPlatau);
+
         return $this->render('dossier/pieces_jointes/index.html.twig', [
             'dossier' => $dossier,
             'listePj' => $listePj,
@@ -339,6 +341,44 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
         $this->entityManager->remove($dpj);
         $this->entityManager->remove($pj);
+        $this->entityManager->flush();
+
+        return $this->json(['success' => true]);
+    }
+
+    /**
+     * @Route("/dossier/{id}/pieces-jointes/{idpj}/rename", name="dossier_pieces_jointes_rename", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
+     *
+     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
+     *
+     * @IsGranted("edit_doss", subject="dossier")
+     */
+    public function rename(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
+    {
+        $rawTokenDelete = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('dossier_pj_rename_'.$pj->getId(), is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
+            return $this->json(['error' => 'Token CSRF invalide.'], 403);
+        }
+
+        $dpj = $this->dossierPieceJointeRepository->findOneBy([
+            'pieceJointe' => $pj,
+            'dossier' => $dossier,
+        ]);
+        if (null === $dpj) {
+            return $this->json(['error' => 'Pièce jointe non rattachée à ce dossier.'], 404);
+        }
+
+        $statut = $pj->getStatut();
+        if (null !== $statut && in_array($statut->getNomStatut(), ['to_be_exported', 'exported', 'awaiting_status'], true)) {
+            return $this->json([
+                'error' => "Impossible de renommer une pièce jointe en cours de traitement Plat'AU.",
+            ], 403);
+        }
+
+        $pj->setNom($request->request->get('new_nom'));
+        $pj->setDescription(is_string($request->request->get('new_description')) && '' !== $request->request->get('new_description') ? $request->request->get('new_description') : null);
+
+        $this->entityManager->persist($pj);
         $this->entityManager->flush();
 
         return $this->json(['success' => true]);
