@@ -139,8 +139,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
         $this->notificationService->setLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
 
-        dump($dossier, $listePj, $isPlatau);
-
         return $this->render('dossier/pieces_jointes/index.html.twig', [
             'dossier' => $dossier,
             'listePj' => $listePj,
