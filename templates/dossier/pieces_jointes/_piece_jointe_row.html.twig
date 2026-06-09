@@ -74,6 +74,19 @@
     {% endif %}
 
     <td>
+        {% set can_delete = not verrou %} {# même condition pour supprimer et renommer #}
+        {% if can_delete and pj.statut and pj.statut.nomStatut in ['to_be_exported', 'exported', 'awaiting_status'] %}
+            {% set can_delete = false %}
+        {% endif %}
+        {% if can_delete %}
+            <button type="button" class="btn btn-default btn-xs btn-show-rename-pj"
+                    data-pj-id="{{ pj.id }}">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </button>
+        {% endif %}
+    </td>
+
+    <td>
         {% set can_delete = not verrou %}
         {% if can_delete and pj.statut and pj.statut.nomStatut in ['to_be_exported', 'exported', 'awaiting_status'] %}
             {% set can_delete = false %}
@@ -86,5 +99,26 @@
                 <span class="glyphicon glyphicon-trash"></span>
             </button>
         {% endif %}
+    </td>
+</tr>
+
+<tr id="rename-{{ pj.id }}" style="display: none">
+    <td>
+        <label style="width: 100%">
+            <input type="text" id="rename-name-{{ pj.id }}" placeholder="Nouveau nom" style="width: 100%">
+        </label>
+    </td>
+    <td>
+        <label style="width: 100%">
+            <input type="text" id="rename-description-{{ pj.id }}" placeholder="Nouvelle description" style="width: 100%">
+        </label>
+    </td>
+    <td>
+        <button type="button" class="btn btn-default btn-xs btn-rename-pj"
+                data-pj-id="{{ pj.id }}"
+                data-url="{{ path('dossier_pieces_jointes_rename', {id: dossier.id, idpj: pj.id}) }}"
+                data-token="{{ csrf_token('dossier_pj_rename_' ~ pj.id) }}">
+            Sauvegarder
+        </button>
     </td>
 </tr>
