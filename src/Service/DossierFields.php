@@ -83,7 +83,7 @@ final class DossierFields
         // Réception de travaux - OK
         '25' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Avant ouverture - OK
-        '48' => ['dateInsert', 'objet','documentsUrbanisme',  'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
+        '48' => ['dateInsert', 'objet', 'documentsUrbanisme',  'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
         '26' => ['dateInsert', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
