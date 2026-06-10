@@ -98,25 +98,24 @@ class DocumentsController extends AbstractController
                 $commissions = $form->get('commissions')->getData();
                 $fichier = $form->get('file')->getData();
 
-                $filesystem = new Filesystem();
+                if (!$fichier instanceof UploadedFile) {
+                    throw new \Exception("Le fichier n'est pas correct.");
+                }
 
                 foreach ($commissions as $commission) {
                     if (!$commission instanceof FormDocument) {
                         throw new \Exception("La commission n'est pas correcte.");
                     }
 
-                    if (!$fichier instanceof UploadedFile) {
-                        throw new \Exception("Le fichier n'est pas correct.");
-                    }
-
                     try {
                         // @todo: Générer un nom de fichier plus sûr
-                        $filesystem->copy($fichier->getRealPath(),$documentsRealDataPath.$commission->id()."/".File::sanitize($fichier->getClientOriginalName()));
+                        $this->filesystem->mkdir($documentsRealDataPath.$commission->id());
+                        $this->filesystem->copy($fichier->getPathname(),$documentsRealDataPath.$commission->id()."/".File::sanitize($fichier->getClientOriginalName()));
                         /*$fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));*/
 
                         $this->addFlash('success', 'Le document a bien été ajouté.');
-                    } catch (FileException $fileException) {
-                        $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
+                    } catch (IOException $IOException) {
+                        $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$IOException->getMessage());
 
                         $this->addFlash('danger', $commission->nom()." : Erreur lors de l'ajout du document.");
                     } catch (\InvalidArgumentException $invalidArgumentException) {
