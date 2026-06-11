@@ -374,7 +374,8 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         }
 
         $nomFichier = is_string($request->request->get('new_nom')) ? $request->request->get('new_nom') : '';
-        if ('' == $nomFichier) {
+        $nomFichier = trim($nomFichier);
+        if ('' == $nomFichier or strlen($nomFichier) > 255) {
             return $this->json([
                 'error' => "Nom de pièce jointe invalide ou vide.",
             ], 400);
