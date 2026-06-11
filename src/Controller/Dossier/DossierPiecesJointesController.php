@@ -345,7 +345,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
     }
 
     /**
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/rename", name="dossier_pieces_jointes_rename", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
+     * @Route("/dossier/{id}/pieces-jointes/{idpj}/renommer", name="dossier_pieces_jointes_rename", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
      *
      * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
      *
@@ -353,8 +353,8 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      */
     public function rename(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
-        $rawTokenDelete = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('dossier_pj_rename_'.$pj->getId(), is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
+        $rawTokenRename = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('dossier_pj_rename_'.$pj->getId(), is_string($rawTokenRename) ? $rawTokenRename : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
@@ -373,7 +373,14 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             ], 403);
         }
 
-        $pj->setNom($request->request->get('new_nom'));
+        $nomFichier = is_string($request->request->get('new_nom')) ? $request->request->get('new_nom') : '';
+        if ('' == $nomFichier) {
+            return $this->json([
+                'error' => "Nom de pièce jointe invalide ou vide.",
+            ], 400);
+        };
+
+        $pj->setNom($nomFichier);
         $pj->setDescription(is_string($request->request->get('new_description')) && '' !== $request->request->get('new_description') ? $request->request->get('new_description') : null);
 
         $this->entityManager->persist($pj);
