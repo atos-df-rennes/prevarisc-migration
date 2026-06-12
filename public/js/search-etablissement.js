@@ -25,7 +25,43 @@ $(document).ready(function() {
     new TomSelect("select[name='categories[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les catégories' }));
     new TomSelect("select[name='classes[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les classes' }));
     new TomSelect("select[name='familles[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les familles' }));
-    new TomSelect("select[name='types_activites[]']", Object.assign({}, tsMultiConfig, { placeholder: "Tous les types d'activités" }));
+    const tsType = new TomSelect(
+        "select[name='types_activites[]']",
+        Object.assign({}, tsMultiConfig, {
+            placeholder: "Tous les types d'activités",
+            create: true,
+            render:{
+                optgroup_header: function (data) {
+                    const div = document.createElement('div');
+                    div.classList.add('optgroup-header');
+
+                    const link = document.createElement('a');
+                    link.innerText = data.label;
+                    link.classList.add('check-all');
+                    link.dataset.option = data.value;
+                    div.append(link);
+
+                    link.addEventListener('click', (event) => {
+                        const allValues = tsType.options;
+                        var valuesToSelect = Object.keys(allValues).map(function(key) {
+                            let opt = allValues[key].optgroup
+                            if (opt.toString() === event.target.dataset.option) {
+                                return allValues[key].value;
+                            }
+                        });
+                        tsType.getValue().forEach((selection) => {
+                            valuesToSelect[parseInt(selection)] = selection
+                        })
+                        tsType.setValue(valuesToSelect);
+
+                        tsType.refreshItems()
+                        tsType.refreshOptions()
+                    })
+
+                    return div;
+                }
+            }
+        }),)
     new TomSelect("select[name='avis[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Tous les avis' }));
     new TomSelect("select[name='presences_local_sommeil[]']", Object.assign({}, tsMultiConfig, { placeholder: "Qu'importe la présence de local à sommeil" }));
     new TomSelect("select[name='commissions[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les commissions' }));
