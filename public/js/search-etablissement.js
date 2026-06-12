@@ -50,7 +50,7 @@ $(document).ready(function() {
                             }
                         });
                         tsType.getValue().forEach((selection) => {
-                            valuesToSelect[parseInt(selection)] = selection
+                            valuesToSelect[parseInt(selection)-1] = selection
                         })
                         tsType.setValue(valuesToSelect);
 
