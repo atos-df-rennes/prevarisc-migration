@@ -37,7 +37,7 @@ $(document).ready(function() {
 
                     const link = document.createElement('a');
                     link.innerText = data.label;
-                    link.classList.add('check-all');
+                    //link.classList.add('check-all');
                     link.dataset.option = data.value;
                     div.append(link);
 
@@ -49,8 +49,43 @@ $(document).ready(function() {
                                 return allValues[key].value;
                             }
                         });
+                        console.log(valuesToSelect)
+                        console.log(tsType.getValue())
                         tsType.getValue().forEach((selection) => {
                             valuesToSelect[parseInt(selection)-1] = selection
+                        })
+                        tsType.setValue(valuesToSelect);
+
+                        tsType.refreshItems()
+                        tsType.refreshOptions()
+                    })
+
+                    const saut_ligne = document.createElement('p')
+                    div.append(saut_ligne)
+
+                    const link_clear = document.createElement('a')
+                    link_clear.innerText = 'Clear';
+                    link_clear.dataset.option = data.value;
+                    div.append(link_clear);
+
+                    link_clear.addEventListener('click', (event) => {
+                        const allValues = tsType.options;
+                        var valuesToSelect = Object.keys(allValues).map(function(key) {
+                            let opt = allValues[key].optgroup
+                            if (opt.toString() === event.target.dataset.option) {
+                                return allValues[key].value;
+                            }
+                        });
+                        console.log(valuesToSelect)
+                        console.log(tsType.getValue())
+                        const newValues = tsType.options;
+                        tsType.getValue().forEach((selection) => {
+                            if (valuesToSelect[parseInt(selection)-1] !== selection) {
+                                valuesToSelect[parseInt(selection)-1] = selection
+                            }
+                            else {
+                                valuesToSelect[parseInt(selection)-1] = undefined
+                            }
                         })
                         tsType.setValue(valuesToSelect);
 
