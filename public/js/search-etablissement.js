@@ -42,22 +42,18 @@ $(document).ready(function() {
                     div.append(link);
 
                     link.addEventListener('click', (event) => {
-                        const allValues = tsType.options;
-                        var valuesToSelect = Object.keys(allValues).map(function(key) {
-                            let opt = allValues[key].optgroup
-                            if (opt.toString() === event.target.dataset.option) {
-                                return allValues[key].value;
+                        const groupKey = event.target.dataset.option;
+                        const currentSelected = new Set(tsType.getValue());
+
+                        Object.values(tsType.options).forEach(opt => {
+                            if (opt.optgroup.toString() === groupKey) {
+                                currentSelected.add(opt.value);
                             }
                         });
-                        console.log(valuesToSelect)
-                        console.log(tsType.getValue())
-                        tsType.getValue().forEach((selection) => {
-                            valuesToSelect[parseInt(selection)-1] = selection
-                        })
-                        tsType.setValue(valuesToSelect);
+                        tsType.setValue([...currentSelected])
 
-                        tsType.refreshItems()
-                        tsType.refreshOptions()
+                        tsType.refreshItems();
+                        tsType.refreshOptions();
                     })
 
                     const saut_ligne = document.createElement('p')
@@ -69,28 +65,18 @@ $(document).ready(function() {
                     div.append(link_clear);
 
                     link_clear.addEventListener('click', (event) => {
-                        const allValues = tsType.options;
-                        var valuesToSelect = Object.keys(allValues).map(function(key) {
-                            let opt = allValues[key].optgroup
-                            if (opt.toString() === event.target.dataset.option) {
-                                return allValues[key].value;
+                        const groupKey = event.target.dataset.option;
+                        const currentSelected = new Set(tsType.getValue());
+
+                        Object.values(tsType.options).forEach(opt => {
+                            if (opt.optgroup.toString() === groupKey) {
+                                currentSelected.delete(opt.value);
                             }
                         });
-                        console.log(valuesToSelect)
-                        console.log(tsType.getValue())
-                        const newValues = tsType.options;
-                        tsType.getValue().forEach((selection) => {
-                            if (valuesToSelect[parseInt(selection)-1] !== selection) {
-                                valuesToSelect[parseInt(selection)-1] = selection
-                            }
-                            else {
-                                valuesToSelect[parseInt(selection)-1] = undefined
-                            }
-                        })
-                        tsType.setValue(valuesToSelect);
+                        tsType.setValue([...currentSelected])
 
-                        tsType.refreshItems()
-                        tsType.refreshOptions()
+                        tsType.refreshItems();
+                        tsType.refreshOptions();
                     })
 
                     return div;
