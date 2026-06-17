@@ -77,6 +77,16 @@ final class EtablissementHistoriqueService
             $classe = $etablissementInformation->getClasse();
             $famille = $etablissementInformation->getFamille();
             $auteur = $etablissementInformation->getUtilisateur();
+            $effectifs = [
+                'public' => $etablissementInformation->getEffectifPublic(),
+                'personnel' => $etablissementInformation->getEffectifPersonnel(),
+            ];
+            if ($etablissementInformation->getLocalSommeil()) {
+                $effectifs['héberge'] = $etablissementInformation->getEffectifHeberge();
+            }
+            if ($categorie->id == 5) {
+                $effectifs['justifiant'] = $etablissementInformation->getEffectifJustifiantClassement();
+            }
             $infosAuteur = null;
 
             if (null === $date) {
@@ -110,6 +120,15 @@ final class EtablissementHistoriqueService
                 $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
                 $historique->addCategorie($categorieHistorique);
 
+                $label = "";
+                foreach ($effectifs as $cle => $effectif) {
+                    $label .= $cle." : ".$effectif."; ";
+                }
+                $label = rtrim($label, "; ");
+
+                $effectifsHistorique = new DonneeHistorique($date->getTimestamp(), $label, $infosAuteur);
+                $historique->addEffectifs($effectifsHistorique);
+
                 $lastHistorique
                     ->setStatut($statut)
                     ->setType($type)
@@ -117,6 +136,7 @@ final class EtablissementHistoriqueService
                     ->setLibelle($libelle)
                     ->setClasse($classe)
                     ->setFamille($famille)
+                    ->setEffectifs($effectifs)
                 ;
             } else {
                 if ($lastHistorique->getStatut() !== $statut) {
@@ -189,6 +209,24 @@ final class EtablissementHistoriqueService
 
                     $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
                     $historique->addCategorie($categorieHistorique);
+                }
+
+                if ($lastHistorique->getEffectifs() !== $effectifs) {
+                    $allEffectifs = $historique->getEffectifs();
+                    $currentEffectifs = end($allEffectifs);
+                    \assert(false !== $currentEffectifs);
+                    $currentEffectifs->setFin($date->getTimestamp());
+
+                    $lastHistorique->setEffectifs($effectifs);
+
+                    $label = "";
+                    foreach ($effectifs as $cle => $effectif) {
+                        $label .= $cle." : ".$effectif."; ";
+                    }
+                    $label = rtrim($label, "; ");
+
+                    $effectifsHistorique = new DonneeHistorique($date->getTimestamp(), $label, $infosAuteur);
+                    $historique->addEffectifs($effectifsHistorique);
                 }
             }
         }

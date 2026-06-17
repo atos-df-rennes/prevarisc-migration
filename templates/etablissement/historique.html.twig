@@ -54,4 +54,11 @@
     {% else %}
         <p class='muted'>Pas d'historique disponible.</p>
     {% endif %}
+
+    <h4>Historique des effectifs</h4>
+    {% if historique.effectifs is defined %}
+        {{ section_historique(historique.effectifs) }}
+    {% else %}
+        <p class='muted'>Pas d'historique disponible.</p>
+    {% endif %}
 {% endblock %}

@@ -24,6 +24,8 @@ class Informations
 
     /** @var DonneeHistorique[] */
     private $avis;
+    /** @var DonneeHistorique[] */
+    private $effectifs;
 
     public function __construct()
     {
@@ -34,6 +36,7 @@ class Informations
         $this->libelle = [];
         $this->categorie = [];
         $this->avis = [];
+        $this->effectifs = [];
     }
 
     public function isEmpty(): bool
@@ -44,6 +47,8 @@ class Informations
             && [] === $this->famille
             && [] === $this->libelle
             && [] === $this->categorie
+            && [] === $this->avis
+            && [] === $this->effectifs
         ;
     }
 
@@ -153,5 +158,16 @@ class Informations
         $this->avis = $avis;
 
         return $this;
+    }
+
+    public function addEffectifs(DonneeHistorique $effectifs): self
+    {
+        $this->effectifs[] = $effectifs;
+
+        return $this;
+    }
+    public function getEffectifs(): array
+    {
+        return $this->effectifs;
     }
 }

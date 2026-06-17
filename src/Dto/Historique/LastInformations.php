@@ -27,6 +27,8 @@ class LastInformations
 
     /** @var ?Famille */
     private $famille;
+    /** @var ?array */
+    private $effectifs;
 
     public function __construct()
     {
@@ -36,6 +38,7 @@ class LastInformations
         $this->libelle = null;
         $this->classe = null;
         $this->famille = null;
+        $this->effectifs = null;
     }
 
     public function getStatut(): ?EtablissementStatut
@@ -106,6 +109,17 @@ class LastInformations
     public function setFamille(?Famille $famille): self
     {
         $this->famille = $famille;
+
+        return $this;
+    }
+    public function getEffectifs(): ?array
+    {
+        return $this->effectifs;
+    }
+
+    public function setEffectifs(?array $effectifs): self
+    {
+        $this->effectifs = $effectifs;
 
         return $this;
     }
