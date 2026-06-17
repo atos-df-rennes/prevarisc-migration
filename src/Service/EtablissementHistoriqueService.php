@@ -84,7 +84,7 @@ final class EtablissementHistoriqueService
             if ($etablissementInformation->getLocalSommeil()) {
                 $effectifs['héberge'] = $etablissementInformation->getEffectifHeberge();
             }
-            if ($categorie->id == 5) {
+            if ($categorie->getId() == 5) {
                 $effectifs['justifiant'] = $etablissementInformation->getEffectifJustifiantClassement();
             }
             $infosAuteur = null;

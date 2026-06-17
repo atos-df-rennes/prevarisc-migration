@@ -21,7 +21,7 @@ class EtablissementCategorie
      *
      * @ORM\Column(name="ID_CATEGORIE", type="integer", options={"unsigned":true})
      */
-    public $id;
+    private $id;
 
     /**
      * @var string
