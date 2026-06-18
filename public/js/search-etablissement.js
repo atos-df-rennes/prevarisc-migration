@@ -29,7 +29,6 @@ $(document).ready(function() {
         "select[name='types_activites[]']",
         Object.assign({}, tsMultiConfig, {
             placeholder: "Tous les types d'activités",
-            create: true,
             render:{
                 optgroup_header: function (data) {
                     const div = document.createElement('div');
@@ -37,7 +36,7 @@ $(document).ready(function() {
 
                     const link = document.createElement('a');
                     link.innerText = data.label;
-                    //link.classList.add('check-all');
+                    link.href = '#';
                     link.dataset.option = data.value;
                     div.append(link);
 
@@ -46,7 +45,7 @@ $(document).ready(function() {
                         const currentSelected = new Set(tsType.getValue());
 
                         Object.values(tsType.options).forEach(opt => {
-                            if (opt.optgroup.toString() === groupKey) {
+                            if (String(opt.optgroup) === groupKey) {
                                 currentSelected.add(opt.value);
                             }
                         });
@@ -60,7 +59,8 @@ $(document).ready(function() {
                     div.append(saut_ligne)
 
                     const link_clear = document.createElement('a')
-                    link_clear.innerText = 'Clear';
+                    link_clear.innerText = 'Vider';
+                    link.href = '#';
                     link_clear.dataset.option = data.value;
                     div.append(link_clear);
 
@@ -69,7 +69,7 @@ $(document).ready(function() {
                         const currentSelected = new Set(tsType.getValue());
 
                         Object.values(tsType.options).forEach(opt => {
-                            if (opt.optgroup.toString() === groupKey) {
+                            if (String(opt.optgroup) === groupKey) {
                                 currentSelected.delete(opt.value);
                             }
                         });
