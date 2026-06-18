@@ -166,6 +166,7 @@ class Informations
 
         return $this;
     }
+
     public function getEffectifs(): array
     {
         return $this->effectifs;

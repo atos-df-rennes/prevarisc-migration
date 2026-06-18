@@ -84,7 +84,7 @@ final class EtablissementHistoriqueService
             if ($etablissementInformation->getLocalSommeil()) {
                 $effectifs['héberge'] = $etablissementInformation->getEffectifHeberge();
             }
-            if ($categorie->getId() == 5) {
+            if ($categorie != null && $categorie->getId() == 5) {
                 $effectifs['justifiant'] = $etablissementInformation->getEffectifJustifiantClassement();
             }
             $infosAuteur = null;
@@ -120,11 +120,14 @@ final class EtablissementHistoriqueService
                 $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
                 $historique->addCategorie($categorieHistorique);
 
-                $label = "";
+                $labelParts = [];
                 foreach ($effectifs as $cle => $effectif) {
-                    $label .= $cle." : ".$effectif."; ";
+                    if ($effectif == null) {
+                        continue;
+                    }
+                    $labelParts[] = $cle." : ".$effectif;
                 }
-                $label = rtrim($label, "; ");
+                $label = [] != $labelParts ? implode('; ', $labelParts) : null;
 
                 $effectifsHistorique = new DonneeHistorique($date->getTimestamp(), $label, $infosAuteur);
                 $historique->addEffectifs($effectifsHistorique);
@@ -219,11 +222,14 @@ final class EtablissementHistoriqueService
 
                     $lastHistorique->setEffectifs($effectifs);
 
-                    $label = "";
+                    $labelParts = [];
                     foreach ($effectifs as $cle => $effectif) {
-                        $label .= $cle." : ".$effectif."; ";
+                        if ($effectif == null) {
+                            continue;
+                        }
+                        $labelParts[] = $cle." : ".$effectif;
                     }
-                    $label = rtrim($label, "; ");
+                    $label = [] != $labelParts ? implode('; ', $labelParts) : null;
 
                     $effectifsHistorique = new DonneeHistorique($date->getTimestamp(), $label, $infosAuteur);
                     $historique->addEffectifs($effectifsHistorique);

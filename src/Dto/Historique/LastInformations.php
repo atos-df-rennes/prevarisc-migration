@@ -112,6 +112,7 @@ class LastInformations
 
         return $this;
     }
+
     public function getEffectifs(): ?array
     {
         return $this->effectifs;
