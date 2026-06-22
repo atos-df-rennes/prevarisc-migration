@@ -1613,6 +1613,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             'LIBELLE_TYPE',
             'LIBELLE_GENRE',
             'DATE_REPONSE_ATTENDUE',
+            'DELAIPRESC_DOSSIER',
         ];
 
         return $this->buildNativeQueryRsm(array_merge($dashboardColumns, $additionalColumns));

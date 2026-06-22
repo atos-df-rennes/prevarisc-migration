@@ -130,5 +130,6 @@ abstract class AbstractDossierResultDto
         $this->ID_AVIS = SqlTypeHelper::toInt($row['ID_AVIS'] ?? null);
         $this->LIBELLE_ETABLISSEMENTINFORMATIONS = SqlTypeHelper::toStr($row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? null);
         $this->DATE_REPONSE_ATTENDUE = SqlTypeHelper::toStr($row['DATE_REPONSE_ATTENDUE'] ?? null);
+        $this->DELAIPRESC_DOSSIER = SqlTypeHelper::toStr($row['DELAIPRESC_DOSSIER'] ?? null);
     }
 }
