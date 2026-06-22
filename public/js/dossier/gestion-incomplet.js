@@ -127,7 +127,7 @@
     function initEtatDossierModerne() {
         const radiosIncomplet = document.querySelectorAll('input[name="dossier[incomplet]"]');
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
-        
+
         if (!radiosIncomplet.length || !dossierIncomplet) {
             return;
         }
@@ -173,13 +173,14 @@
         const inputComplet = document.querySelector('#inputComplet');
         const horsDelaiField = document.querySelector('#field-horsDelai');
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
+        const allDocs = dossierIncomplet ? dossierIncomplet.querySelectorAll('.doc-manquant-item') : [];
 
         // Marquer les documents validés comme readonly, laisser les non validés éditables
         markValidatedDocumentsReadonly();
 
         if (value === '1') {
             // Dossier incomplet au chargement
-            if (inputComplet) {
+            if (inputComplet && allDocs.length > 0) {
                 inputComplet.style.display = 'none';
             }
             if (horsDelaiField) {
@@ -187,13 +188,12 @@
             }
 
             // Afficher la zone documents incomplets
-            if (dossierIncomplet) {
+            if (dossierIncomplet && allDocs.length > 0) {
                 dossierIncomplet.style.display = '';
             }
         } else {
             // Dossier complet au chargement
             // Afficher l'historique s'il y a des documents
-            const allDocs = dossierIncomplet ? dossierIncomplet.querySelectorAll('.doc-manquant-item') : [];
             if (dossierIncomplet && allDocs.length > 0) {
                 dossierIncomplet.style.display = '';
             } else if (dossierIncomplet) {
