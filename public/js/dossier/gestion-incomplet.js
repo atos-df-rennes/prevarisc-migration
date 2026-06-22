@@ -180,7 +180,7 @@
 
         if (value === '1') {
             // Dossier incomplet au chargement
-            if (inputComplet && allDocs.length > 0) {
+            if (inputComplet) {
                 inputComplet.style.display = 'none';
             }
             if (horsDelaiField) {
@@ -188,8 +188,13 @@
             }
 
             // Afficher la zone documents incomplets
-            if (dossierIncomplet && allDocs.length > 0) {
+            if (dossierIncomplet) {
                 dossierIncomplet.style.display = '';
+
+                // État instable (incomplet sans document) : injecter un bloc vide sans pré-remplissage
+                if (allDocs.length === 0) {
+                    addDocumentFromPrototype(false);
+                }
             }
         } else {
             // Dossier complet au chargement
@@ -431,7 +436,12 @@
     /**
      * Ajoute un nouveau document depuis le prototype Symfony
      */
-    async function addDocumentFromPrototype() {
+    /**
+     * @param {boolean} [prefill=true] Si false, n'injecte ni la date du jour ni les documents depuis l'API.
+     *   Utiliser false pour refléter un état instable (incomplet sans document en BDD).
+     */
+    async function addDocumentFromPrototype(prefill) {
+        const shouldPrefill = prefill !== false;
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
         if (!dossierIncomplet) return;
 
@@ -474,14 +484,16 @@
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
-            const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
-            if (newDateInput) {
-                newDateInput.value = getTodayDate();
+            if (shouldPrefill) {
+                const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
+                if (newDateInput) {
+                    newDateInput.value = getTodayDate();
+                }
             }
-            
+
             // Pré-remplir la liste des documents manquants depuis la BDD
             const documentManquantTextarea = newElement.querySelector('textarea[name*="[documentManquant]"]');
-            if (documentManquantTextarea) {
+            if (documentManquantTextarea && shouldPrefill) {
                 try {
                     const response = await fetch('/api/document-manquant/liste');
                     if (response.ok) {
