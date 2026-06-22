@@ -145,9 +145,9 @@ class SearchExport
         $styleArray = [
             'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
         ];
-        $sheet->getStyle('A1:V1')->applyFromArray($styleArray);
-        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:V1')->getFont()->setSize(11)->setBold(true);
+        $sheet->getStyle('A1:W1')->applyFromArray($styleArray);
+        $sheet->getStyle('A1:W1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:W1')->getFont()->setSize(11)->setBold(true);
 
         $sheet->setCellValueByColumnAndRow(1, 1, 'Groupement');
         $sheet->setCellValueByColumnAndRow(2, 1, 'Commune');
@@ -171,6 +171,7 @@ class SearchExport
         $sheet->setCellValueByColumnAndRow(20, 1, 'Préventionniste en charge du dossier');
         $sheet->setCellValueByColumnAndRow(21, 1, 'Pièces jointes ?');
         $sheet->setCellValueByColumnAndRow(22, 1, 'Identifiant PLATAU');
+        $sheet->setCellValueByColumnAndRow(23, 1, 'Date de levée des prescriptions');
 
         $ligne = 2;
         foreach ($rows as $row) {
@@ -205,6 +206,8 @@ class SearchExport
             if ('1' === $provenance) {
                 $this->writeTextCell($sheet, 22, $ligne, $row['ID_PLATAU'] ?? '');
             }
+
+            $this->writeDateCell($sheet, 23, $ligne, $row['DELAIPRESC_DOSSIER'] ?? null);
 
             ++$ligne;
         }
