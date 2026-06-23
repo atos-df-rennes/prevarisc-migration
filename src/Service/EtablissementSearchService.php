@@ -427,8 +427,9 @@ class EtablissementSearchService
                             WHERE dossier.AVIS_DOSSIER_COMMISSION = 1 AND dossier.TYPE_DOSSIER = 2 AND dossier.DATEVISITE_DOSSIER >= d2.DATEVISITE_DOSSIER AND etablissementdossier.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT))
                 AND ed.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
             ) AS DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF,
+            GROUP_CONCAT(groupement.LIBELLE_GROUPEMENT) AS GROUPEMENTS,
             etablissementinformations.*,
-            dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
+            dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER, dossier.FACTDANGE_DOSSIER,
             avis.ID_AVIS, avis.LIBELLE_AVIS,
             categorie.LIBELLE_CATEGORIE,
             type.LIBELLE_TYPE,
@@ -466,7 +467,7 @@ class EtablissementSearchService
             LEFT JOIN adresserue ON adresserue.ID_RUE = etablissementadresse.ID_RUE
             LEFT JOIN adressecommune ON etablissementadresse.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
             LEFT JOIN groupementcommune ON groupementcommune.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
-            LEFT JOIN groupement ON groupement.ID_GROUPEMENT = groupementcommune.ID_GROUPEMENT AND groupement.ID_GROUPEMENTTYPE = 5
+            LEFT JOIN groupement ON groupement.ID_GROUPEMENT = groupementcommune.ID_GROUPEMENT
             LEFT JOIN etablissementlie ON e.ID_ETABLISSEMENT = etablissementlie.ID_FILS_ETABLISSEMENT
             LEFT JOIN etablissementinformations AS etablissementinformationspere
                 ON etablissementinformationspere.ID_ETABLISSEMENT = etablissementlie.ID_ETABLISSEMENT

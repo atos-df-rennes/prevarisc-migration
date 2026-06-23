@@ -44,6 +44,14 @@ final class DossierAffectationDto extends AbstractDossierResultDto
     public $ID_DATECOMMISSION_AFFECT;
 
     /**
+     * Document d'urbanisme (chaîne concaténée des NUM_DOCURBA pour mode séquentiel).
+     * Récupérée via SELECT group_concat() ou enrichie par listeDocUrba.
+     *
+     * @var string|null
+     */
+    public $NUM_DOCURBA;
+
+    /**
      * Données établissement enrichies par le contrôleur (informations, adresses, parents).
      * Null si non enrichi (dossier sans établissement ou enrichissement non effectué).
      *
@@ -81,6 +89,7 @@ final class DossierAffectationDto extends AbstractDossierResultDto
         $dto->HEURE_FIN_AFFECT = SqlTypeHelper::toStr($row['HEURE_FIN_AFFECT'] ?? null);
         $dto->NUM_DOSSIER = SqlTypeHelper::toInt($row['NUM_DOSSIER'] ?? null);
         $dto->ID_DATECOMMISSION_AFFECT = SqlTypeHelper::toInt($row['ID_DATECOMMISSION_AFFECT'] ?? null);
+        $dto->NUM_DOCURBA = SqlTypeHelper::toStr($row['NUM_DOCURBA'] ?? null);
 
         return $dto;
     }

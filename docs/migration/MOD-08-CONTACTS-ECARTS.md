@@ -31,6 +31,8 @@
 | **Impact** | **Moyen** — Symfony permet de créer des contacts « Maire » hors du contexte prévu par la règle métier et par le legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Form/ContactType.php`, `prevarisc/application/views/scripts/contact/form.phtml` |
 
+**Retour utilisateur** : Écart de migration confirmé. Par ailleurs je ne constate pas de présélection de la valeur "Maire". J'ai uniquement constaté le masquage de cette fonction à l'ajout et l'affichage lors de la modification. Une analyse du contexte "commune" est à effectuer pour déterminer sur quels écrans et suite à quelles actions ce contexte apparaît et déclenche la règle de présélection.
+
 ---
 
 ### Écart 2 — L'héritage des contacts d'établissement ne remonte qu'au parent direct
@@ -43,6 +45,8 @@
 | **Legacy** | Le legacy remonte explicitement deux niveaux via `getAllParents()` qui renvoie `[parent, grand-parent]` (`application/models/DbTable/Etablissement.php:255-263`), puis fusionne les contacts des deux niveaux (`application/controllers/EtablissementController.php:453-461`). |
 | **Impact** | **Élevé** — un DUS porté uniquement par le grand-parent ne sera pas visible dans l'onglet Contacts Symfony d'une cellule, contrairement au legacy et à la spec. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php`, `prevarisc-migration/src/Entity/Etablissement.php`, `prevarisc/application/models/DbTable/Etablissement.php`, `prevarisc/application/controllers/EtablissementController.php` |
+
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy pour remonter de deux niveaux.
 
 ---
 

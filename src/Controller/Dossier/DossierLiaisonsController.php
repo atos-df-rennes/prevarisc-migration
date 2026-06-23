@@ -73,12 +73,6 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
      */
     public function lieesDoss(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            $this->addFlash('warning', 'Le dossier est verrouillé.');
-
-            return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
-        }
-
         $disponibles = $this->dossierLiaisonsService->getDossiersDisponibles($dossier);
         $form = $this->createForm(DossierLiaisonsType::class, null, ['available_dossiers' => $disponibles]);
         $form->handleRequest($request);
@@ -116,12 +110,6 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
      */
     public function ajouterEtablissementLie(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            $this->addFlash('warning', 'Le dossier est verrouillé.');
-
-            return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
-        }
-
         $form = $this->createForm(DossierAjouterEtablissementType::class);
         $form->handleRequest($request);
 

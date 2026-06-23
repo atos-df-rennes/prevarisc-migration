@@ -16,11 +16,6 @@ namespace App\Dto\Repository;
 final class DossierSearchResultDto extends AbstractDossierResultDto
 {
     /**
-     * @var int|null
-     */
-    public $NB_DOSS_LIES;
-
-    /**
      * @var string|null
      */
     public $NB_URBA;
@@ -90,7 +85,6 @@ final class DossierSearchResultDto extends AbstractDossierResultDto
     {
         $dto = new self();
         $dto->fillCommonFields($row);
-        $dto->NB_DOSS_LIES = SqlTypeHelper::toInt($row['NB_DOSS_LIES'] ?? null);
         $dto->NB_URBA = SqlTypeHelper::toStr($row['NB_URBA'] ?? null);
         $dto->ALERTE_RECEPTION_TRAVAUX = SqlTypeHelper::toInt($row['ALERTE_RECEPTION_TRAVAUX'] ?? null);
         $dto->ECHEANCIER_TRAVAUX = SqlTypeHelper::toInt($row['ECHEANCIER_TRAVAUX'] ?? null);

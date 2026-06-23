@@ -31,6 +31,8 @@
 | **Impact** | **Moyen** — le compte est bien marqué SSO, mais conserve une empreinte locale non attendue, contrairement à la spec et au legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/UtilisateursController.php:72-115`, `prevarisc-migration/src/Form/UtilisateurType.php:52-131`, `prevarisc/application/services/User.php:149-160`, `prevarisc/application/views/scripts/users/edit.phtml:39-46` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy.
+
 ---
 
 ### Écart 2 — Les droits dossier ne vérifient plus les établissements rattachés
@@ -43,6 +45,10 @@
 | **Legacy** | `Plugin_ACL` commence par vérifier qu'au moins un établissement lié est accessible en `view_ets`, puis seulement le privilège dossier / création. |
 | **Impact** | **Critique** — un utilisateur peut obtenir l'accès à un dossier par sa seule nature, même si ses ressources établissements ne couvrent pas les établissements associés. |
 | **Fichiers concernés** | `prevarisc-migration/src/Security/Voter/DossierVoter.php:42-126`, `prevarisc-migration/src/Controller/Dossier/DossierController.php:224-254`, `prevarisc/application/plugins/ACL.php:278-304`, `prevarisc/application/plugins/ACL.php:364-380` |
+
+**Retour utilisateur** : Écart de migration confirmé. Si le contrôle ACL legacy est systématique, inclure cette vérification dans le Voter Symfony dédié `DossierVoter`. Récupérer les établissements liés au dossier et vérifier les droits de chacun via le Voter dédié `EtablissementVoter` spécifique en fonction du genre de l'établissement.\
+Pour cela, utiliser la Factory `EtablissementVoterFactory` dont un exemple est disponible dans le Voter `EtablissementSiteVoter`.\
+Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et `DossierVoter`, considérer l'extraction de la logique dans une classe dédiée (**ex:** `MultipleEtablissementVoter` ou similaire).
 
 ---
 
@@ -57,6 +63,10 @@
 | **Impact** | **Critique** — certaines restrictions configurées par l'administrateur sont ignorées en Symfony, ce qui peut sur-autoriser l'accès à des établissements. |
 | **Fichiers concernés** | `prevarisc-migration/src/Repository/ResourcesRepository.php:92-279`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCelluleVoter.php:35-60`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementZoneVoter.php:35-60`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCampingVoter.php:46-70`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementIopVoter.php:46-70`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementManifestationTemporaireVoter.php:46-70`, `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233`, `prevarisc/application/plugins/ACL.php:493-550` |
 
+**Retour utilisateur** : Le traitement des ressources spécialisées dans Symfony respecte strictement l'affichage du formulaire dans la modale de sélection.\
+Pour un établissement de genre `Cellule`, seuls les types d'activités peuvent être renseignés. Pour un établissement de genre `Zone`, seul le classement peut être renseigné. Le back est donc aligné avec le front.\
+Effectuer une vérifiation avec le legacy mais les ressources finales générées sont normalement strictement identiques entre les deux applications. Aucune action à prévoir sur ce point.
+
 ---
 
 ### Écart 4 — La règle d'accès aux sites n'est pas reproduite à l'identique
@@ -69,6 +79,8 @@
 | **Legacy** | Le plugin ACL garde un cas spécifique `editsite` + privilège `creations/add_etablissement`, en plus des contrôles sur les ressources calculées depuis les établissements enfants. |
 | **Impact** | **Moyen à élevé** — les droits sur les sites vides ou en cours de constitution ne suivent plus exactement la règle métier ni le comportement historique. |
 | **Fichiers concernés** | `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementSiteVoter.php:47-140`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementVoter.php:18-22`, `prevarisc/application/plugins/ACL.php:264-277`, `prevarisc/application/plugins/ACL.php:464-479` |
+
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy -> ajout de la vérification du privilège `add_etablissement`.
 
 ---
 
@@ -83,6 +95,10 @@
 | **Impact** | **Élevé en NTLM**, **moyen sinon** — la trace d'activité est incomplète et l'utilisateur NTLM peut être reconnecté immédiatement après logout. |
 | **Fichiers concernés** | `prevarisc-migration/src/Security/LogoutHandler.php:42-56`, `prevarisc-migration/src/Security/CasLogoutSuccessHandler.php:59-75`, `prevarisc-migration/src/Security/FormLoginAuthenticator.php:238-265`, `prevarisc/application/controllers/SessionController.php:124-149`, `prevarisc-migration/src/EventSubscriber/LastActionSubscriber.php:47-76` |
 
+**Retour utilisateur** : Le subscriber `LastActionSubscriber` est déjà censé faire cette opération. Vérifier si ce souci n'est pas lié à l'utilisation de l'événement kernel `kernel.terminate`. Si oui, la modification vers un autre événement doit être analysée.\
+Sinon il est possible d'effectuer l'action dans le `LogoutHandler` directement. Il faudra alors considérer une extraction de la logique de mise à jour de la dernière action utilisateur.\
+Concernant le NTLM, le legacy affiche une page d'erreur à la "déconnexion" mais il me semble que si l'utilisateur revient sur l'application, il sera reconnecté automatiquement. Le comportement legacy paraît donc étrange. On laisse ce point en suspens pour le moment.
+
 ---
 
 ### Écart 6 — La modification d'un groupe n'invalide pas les caches legacy
@@ -96,6 +112,9 @@
 | **Impact** | **Moyen** dans le contexte strangler — après modification d'un libellé de groupe ou de ses métadonnées, les pages legacy peuvent continuer à utiliser un cache obsolète jusqu'à vidage manuel. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/GroupeController.php:117-128`, `prevarisc/application/services/User.php:282-313` |
 
+**Retour utilisateur** : Il n'y a pas eu de portage de gestion du cache dans le code Symfony. La migration étant finie, le vidage des caches sur le legacy n'est plus un problème.\
+Il faudrait en revanche vérifier si une mise en cache des utilisateurs est nécessaire côté Symfony ou non. En l'état, le code Symfony est censé prendre en compte les modifications immédiatement, ce qui est fonctionnellement correct.
+
 ---
 
 ### Écart 7 — Les ressources dossier multi-natures sont décrites dans la spec mais non résolues
@@ -108,6 +127,11 @@
 | **Legacy** | Le legacy sait aussi créer `dossier_1-2`, mais le contrôle ACL ne développe pas ces ressources contrairement aux établissements ; il ne résout que des ressources `dossier_<id>`. |
 | **Impact** | **Moyen** — l'administrateur peut croire avoir configuré une ressource multi-natures valide alors qu'elle reste inopérante dans les deux implémentations. |
 | **Fichiers concernés** | `prevarisc-migration/src/Form/RessourceSpecialiseeDossierType.php:14-31`, `prevarisc-migration/src/Repository/ResourcesRepository.php:66-86`, `prevarisc-migration/src/Security/Voter/DossierVoter.php:48-124`, `prevarisc/application/controllers/UsersController.php:473-499`, `prevarisc/application/plugins/ACL.php:364-380` |
+
+**Retour utilisateur** : Le legacy étant la source de vérité, l'implémentation Symfony est alignée. Mettre à jour la spec _$HOME/prevarisc-infra/prevarisc-migration/docs/specs/MOD-05-UTILISATEURS.md_ pour indiquer que les ressources multi-natures ne sont pas prises en charge.\
+Ajouter une note indiquant de prévoir une modification pour soit :
+- Prendre en charge les ressources multi-natures
+- Modifier le formulaire de sélection pour avoir un `<select>` simple au lieu de multiple
 
 ---
 

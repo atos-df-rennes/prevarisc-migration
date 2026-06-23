@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Constant\Avis;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -34,9 +35,9 @@ class SearchExport
         $styleArray = [
             'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
         ];
-        $sheet->getStyle('A1:X1')->applyFromArray($styleArray);
-        $sheet->getStyle('A1:X1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:X1')->getFont()->setSize(11)->setBold(true);
+        $sheet->getStyle('A1:Z1')->applyFromArray($styleArray);
+        $sheet->getStyle('A1:Z1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:Z1')->getFont()->setSize(11)->setBold(true);
 
         $sheet->setCellValueByColumnAndRow(1, 1, 'Commune');
         $sheet->setCellValueByColumnAndRow(2, 1, 'Catégorie');
@@ -57,11 +58,12 @@ class SearchExport
         $sheet->setCellValueByColumnAndRow(17, 1, 'Date de prochaine visite périodique');
         $sheet->setCellValueByColumnAndRow(18, 1, 'Date de visite prévue');
         $sheet->setCellValueByColumnAndRow(19, 1, 'Adresse');
-        $sheet->setCellValueByColumnAndRow(20, 1, 'Groupement territorial compétent');
-        $sheet->setCellValueByColumnAndRow(21, 1, 'Libellé du père/site');
-        $sheet->setCellValueByColumnAndRow(22, 1, 'Genre');
-        $sheet->setCellValueByColumnAndRow(23, 1, 'Préventionniste');
-        $sheet->setCellValueByColumnAndRow(24, 1, 'Présence de locaux à sommeil');
+        $sheet->setCellValueByColumnAndRow(20, 1, 'Libellé du père/site');
+        $sheet->setCellValueByColumnAndRow(21, 1, 'Genre');
+        $sheet->setCellValueByColumnAndRow(22, 1, 'Préventionniste');
+        $sheet->setCellValueByColumnAndRow(23, 1, 'Présence de locaux à sommeil');
+        $sheet->setCellValueByColumnAndRow(24, 1, 'Facteur de criticité');
+        $sheet->setCellValueByColumnAndRow(25, 1, 'Groupement(s)');
 
         $ligne = 2;
         foreach ($rows as $row) {
@@ -102,12 +104,20 @@ class SearchExport
             $this->writeDateCell($sheet, 18, $ligne, $row['DATE_VISITE_PREVUE'] ?? null);
 
             $this->writeTextCell($sheet, 19, $ligne, trim($this->toStr($row['NUMERO_ADRESSE'] ?? null).' '.$this->toStr($row['LIBELLE_RUE'] ?? null).' '.$this->toStr($row['COMPLEMENT_ADRESSE'] ?? null).' '.$this->toStr($row['CODEPOSTAL_COMMUNE'] ?? null)));
-            $this->writeTextCell($sheet, 20, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
-            $this->writeTextCell($sheet, 21, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
-            $this->writeTextCell($sheet, 22, $ligne, $row['LIBELLE_GENRE'] ?? '');
-            $this->writeTextCell($sheet, 23, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
-            $sheet->setCellValueByColumnAndRow(24, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
+            $this->writeTextCell($sheet, 20, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
+            $this->writeTextCell($sheet, 21, $ligne, $row['LIBELLE_GENRE'] ?? '');
+            $this->writeTextCell($sheet, 22, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
+            $sheet->setCellValueByColumnAndRow(23, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
 
+            $facteurDeCriticite = $row['FACTDANGE_DOSSIER'] ?? '';
+            $idAvis = is_numeric($row['ID_AVIS'] ?? null) ? (int) $row['ID_AVIS'] : 0;
+            if (Avis::DEFAVORABLE !== $idAvis) {
+                $facteurDeCriticite = '';
+            }
+
+            $this->writeTextCell($sheet, 24, $ligne, $facteurDeCriticite);
+
+            $this->writeTextCell($sheet, 25, $ligne, $row['GROUPEMENTS'] ?? '');
             ++$ligne;
         }
 

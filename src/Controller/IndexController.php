@@ -183,6 +183,8 @@ class IndexController extends AbstractController
      */
     public function addMessage(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('fil_actus');
+
         $groupes = $this->groupeRepository->findAll();
 
         if ($request->isMethod('POST')) {
@@ -228,6 +230,8 @@ class IndexController extends AbstractController
      */
     public function deleteMessage(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('fil_actus');
+
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete_message', is_string($rawToken) ? $rawToken : null)) {
             throw $this->createAccessDeniedException('Token CSRF invalide.');

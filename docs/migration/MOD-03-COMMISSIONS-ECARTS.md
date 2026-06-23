@@ -31,6 +31,10 @@
 | **Impact** | **Élevé** — la spec décrit une règle plus stricte que les deux implémentations réelles ; le risque est d'affecter des établissements sur une règle incomplète ou plus large que prévu. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:391`, `prevarisc-migration/src/Form/CommissionRegleType.php:41-46,58-63,82-87,99-105,119-125,181-199`, `prevarisc-migration/src/Service/Commission/CommissionRegleCompetenceService.php:14-20,64-103`, `prevarisc/application/models/DbTable/Commission.php:140-182,192-233,242-289` |
 
+**Retour utilisateur** : Au vu du code cela est normal, les méthodes mentionnées contrôlent les valeurs par défaut proposées lors de la création/modification d'un établissement et l'application des règles qui est propres aux établissements également. La règle étude/visite concernent les dossiers et n'a pas lieu d'être dans les blocs de code concernés.\
+Cette règle est uniquement utilisée pour la génération des documents de commission.
+Rien à prévoir sur ce point.
+
 ---
 
 ### Écart 2 — Les natures de dossier et l'axe « commune » des spécialisations membres ne sont pas réellement utilisés pour filtrer les documents
@@ -43,6 +47,9 @@
 | **Legacy** | Même constat côté legacy : l'écran membre propose les natures de dossier, mais les templates `generationconvoc.phtml` et `generationodj.phtml` filtrent uniquement sur manifestation / catégorie+type / classe + type de dossier. |
 | **Impact** | **Élevé** — la spécialisation réelle des membres est plus pauvre que celle décrite par la spec ; des dossiers peuvent être inclus alors qu'ils devraient être exclus selon leur nature ou leur commune. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:405,453`, `prevarisc-migration/src/Form/CommissionMembreType.php:120-199`, `prevarisc-migration/src/Service/Commission/CommissionMembreEligibilityChecker.php:13-21,30-76`, `prevarisc/application/views/scripts/commission/partials/partial-ligne-membre-commission.phtml:124-156`, `prevarisc/application/views/scripts/calendrier-des-commissions/generationconvoc.phtml:42-57,96-111,124-139,184-199`, `prevarisc/application/views/scripts/calendrier-des-commissions/generationodj.phtml:74-89` |
+
+**Retour utilisateur** : Le legacy étant la source de vérité, on conserve les filtres en l'état. Pas d'ajout de filtre sur les natures de dossier. Le filtre sur la commune semble lui bien être utilisé avec une vérification sur la commune de l'établissement lié au dossier. Rien à prévoir sur ce point.\
+Documenter dans la spec (_$HOME/prevarisc-infra/prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md_) que le filtre nature de dossier est pris en compte en base mais qu'il n'est pas utilisé pour filtrer les dossiers lors de la génération.
 
 ---
 
@@ -57,6 +64,9 @@
 | **Impact** | **Critique** — un membre de groupement peut recevoir un ordre du jour contenant des dossiers qui ne relèvent pas de son périmètre. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:453-455`, `prevarisc-migration/src/Service/Commission/CommissionDocumentGenerationService.php:1319-1383`, `prevarisc/application/views/scripts/calendrier-des-commissions/generationodj.phtml:107-145` |
 
+**Retour utilisateur** : Le legacy étant la source de vérité, on conserve l'absence du test d'éligibilité. Rien à prévoir sur ce point.\
+Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la génération par groupement.
+
 ---
 
 ### Écart 4 — L'indicateur de présence n'oppose pas « titulaire » et « suppléant », mais trois statuts métier différents
@@ -69,6 +79,8 @@
 | **Legacy** | Le legacy porte exactement la même sémantique à trois états dans la ligne membre. |
 | **Impact** | **Moyen** — la spec ne reflète pas le comportement réel du produit ; sans arbitrage métier, toute recette « titulaire/suppléant » sera ambiguë. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:177,182,413`, `prevarisc-migration/src/Form/CommissionMembreType.php:45-52`, `prevarisc/application/views/scripts/commission/partials/partial-ligne-membre-commission.phtml:11-16` |
+
+**Retour utilisateur** : La spec est incorrecte. La mettre à jour avec les valeurs des formulaires (Membre Obligatoire, Membre Facultatif, Membre Pour information). Ces valeurs sont uniquement à titre informatif et ne sont pas utilisées à d'autres fins que de l'affichage.
 
 ---
 
@@ -83,6 +95,8 @@
 | **Impact** | **Moyen à élevé** — les occurrences récurrentes ne bénéficient pas du modèle multi-dates attendu par la spec (promotion du maître, suppression de date liée, propagation unifiée). |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:429`, `prevarisc-migration/src/Service/Commission/CalendarService.php:278-306`, `prevarisc/application/controllers/CalendrierDesCommissionsController.php:690-738` |
 
+**Retour utilisateur** : Le legacy étant la source de vérité, on conserve en l'état. Documenter dans la spec ce comportement en indiquant qu'il s'agit probablement d'un bug à corriger ultérieurement.
+
 ---
 
 ### Écart 6 — La suppression d'un membre en Symfony ne garantit pas la suppression de ses modèles ODT
@@ -95,6 +109,8 @@
 | **Legacy** | Le legacy supprime explicitement les fichiers `ODJ`, `CONVOCATIONVISITE` et `CONVOCATIONSALLE` avant de supprimer le membre. |
 | **Impact** | **Élevé** — risque d'orphelins sur le disque et de divergence entre base et filesystem. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:411`, `prevarisc-migration/src/Controller/Commission/CommissionMembresController.php:45-59`, `prevarisc-migration/src/Entity/Commission.php:85-89`, `prevarisc-migration/src/Service/Commission/CommissionMembreCourrierService.php:98-121`, `prevarisc/application/controllers/CommissionController.php:353-381` |
+
+**Retour utilisateur** : Bug de migration confirmé. Corriger pour supprimer les documents modèles ODT liés au membre supprimé. Contrairement au legacy, effectuer la suppression des documents après que la suppression du membre ait été effectuée avec succès. Ce pattern est déjà utilisé dans l'application : _$HOME/prevarisc-infra/prevarisc-migration/src/Service/Commission/CommissionManagerService.php_
 
 ---
 
@@ -110,6 +126,8 @@
 | **Impact** | **Moyen** — le comportement métier est conservé, mais la migration n'est pas autonome sur ce flux. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Commission/CommissionCompetencesController.php:109-113`, `prevarisc/application/controllers/CommissionController.php:276-281` |
 
+**Retour utilisateur** : Écart de migration confirmé. Un cache TagAware a été introduit dans la branche **fix/cache-recherche** (non encore mergée) pour faire un miroir du `$cacheSearch` legacy. Il faut donc également avoir un cache Symfony miroir du `$cache` legacy. Vérifier également si la suppression du `$cache` legacy entraîne également la suppression du `$cacheSearch` ou si les deux sont indépendants.
+
 ---
 
 ### Écart B — Le flux webcal Symfony est volontairement simplifié par rapport au legacy
@@ -122,6 +140,8 @@
 | **Impact** | **Moyen** — l'abonnement webcal existe bien, mais le niveau de détail disponible dans les clients externes est inférieur au legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Service/Commission/IcalendarSyncService.php:13-16,32-35,66-127`, `prevarisc/application/modules/api/services/Calendar.php:17-61,123-220` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy si la complexité n'est pas trop élévée et prévoir une procédure de test pour vérifier le bon affichage des informations.
+
 ---
 
 ### Écart C — La suppression d'une commission ne reproduit pas le nettoyage legacy complet
@@ -133,6 +153,8 @@
 | **Legacy** | `deleteAction()` supprime d'abord les contacts via `ContactController::delete`, puis les membres via `delete-membre`, puis les règles, avant de supprimer la commission. |
 | **Impact** | **Moyen** — le résultat métier immédiat est correct en base, mais le nettoyage transverse est moins complet qu'en legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Service/Commission/CommissionManagerService.php:41-75`, `prevarisc-migration/src/Entity/Commission.php:72-89`, `prevarisc/application/controllers/CommissionController.php:11-40`, `prevarisc/application/controllers/ContactController.php:241-255`, `prevarisc/application/controllers/CommissionController.php:353-381` |
+
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy.
 
 ---
 

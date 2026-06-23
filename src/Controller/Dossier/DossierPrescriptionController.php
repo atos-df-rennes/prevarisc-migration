@@ -47,10 +47,6 @@ class DossierPrescriptionController extends AbstractController implements Dossie
      */
     public function reordonner(Request $request, Dossier $dossier): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
 
@@ -79,10 +75,6 @@ class DossierPrescriptionController extends AbstractController implements Dossie
      */
     public function form(Request $request, Dossier $dossier, ?PrescriptionDossier $prescription = null): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         $isNew = null === $prescription;
         $ancienType = null;
 
@@ -133,10 +125,6 @@ class DossierPrescriptionController extends AbstractController implements Dossie
      */
     public function supprimer(Request $request, Dossier $dossier, PrescriptionDossier $prescription): Response
     {
-        if ($dossier->hasVerrou()) {
-            throw $this->createAccessDeniedException('Le dossier est verrouillé.');
-        }
-
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
 

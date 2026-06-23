@@ -99,11 +99,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ldap_basedn', '%env(string:PREVARISC_LDAP_BASEDN)%');
 
-    $parameters->set('env(PREVARISC_LDAP_FILTER)', '(uid=%s)');
+    $parameters->set('env(PREVARISC_LDAP_FILTER)', '(sAMAccountName=%s)');
 
     // Filtre de recherche LDAP pour retrouver le DN d'un utilisateur dans l'annuaire.
-    // OpenLDAP (défaut) : (uid=%s)
-    // Active Directory  : (sAMAccountName=%s) ou (&(objectClass=user)(sAMAccountName=%s))
+    // Active Directory (défaut) : (sAMAccountName=%s) — iso legacy Zend (bindRequiresDn=false)
+    // OpenLDAP                  : (uid=%s)
     $parameters->set('app.ldap_filter', '%env(string:PREVARISC_LDAP_FILTER)%');
 
     $parameters->set('env(PREVARISC_SECURITY_KEY)', '');
@@ -245,15 +245,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
 
-    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 0);
+    // @todo: Variable à retirer une fois le legacy retiré
+    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 1);
 
     $parameters->set('app.symfony_login', '%env(bool:PREVARISC_SYMFONY_LOGIN)%');
 
     $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
 
-    // Compte LDAP utilisé par le formulaire legacy Zend (via Zend_Ldap).
-    // Ce paramètre est lu par le code legacy, pas directement par Symfony.
-    // Si PREVARISC_LDAP_ENABLED=1, c'est $ldapUsername (PREVARISC_LDAP_USERNAME) qui est utilisé par Symfony.
+    // Format du compte utilisateur pour le bind direct LDAP (fallback si le bind service-account échoue
+    // ou si l'utilisateur n'est pas trouvé via le filtre).
+    // Utilise sprintf : %s est remplacé par le login saisi.
+    // Exemples : '%s@sdis85.com' (UPN Active Directory), 'DOMAIN\%s' (pre-Win2000).
+    // Si vide, le login est utilisé tel quel (convient pour OpenLDAP avec uid).
     $parameters->set('app.ldap_account_form', '%env(string:PREVARISC_LDAP_ACCOUNT_FORM)%');
 
     $parameters->set('env(PREVARISC_LOCAL_SOMMEIL_TYPES)', '7;11');
@@ -266,7 +269,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_PROXY_PROTOCOL)', 0);
 
-    $parameters->set('app.proxy_protocol', '%env(int:PREVARISC_PROXY_PROTOCOL)%');
+    // @fixme: La variable a pour valeur "HTTP", ce qui n'est pas correct mais fonctionne avec le legacy car (int) "HTTP" = 0
+    // Modifier l'env var processor pour utiliser int après modification de la configuration chez tous les SDIS
+    $parameters->set('app.proxy_protocol', '%env(string:PREVARISC_PROXY_PROTOCOL)%');
 
     $parameters->set('env(PREVARISC_PROXY_PORT)', 0);
 

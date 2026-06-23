@@ -127,7 +127,7 @@
     function initEtatDossierModerne() {
         const radiosIncomplet = document.querySelectorAll('input[name="dossier[incomplet]"]');
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
-        
+
         if (!radiosIncomplet.length || !dossierIncomplet) {
             return;
         }
@@ -173,6 +173,7 @@
         const inputComplet = document.querySelector('#inputComplet');
         const horsDelaiField = document.querySelector('#field-horsDelai');
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
+        const allDocs = dossierIncomplet ? dossierIncomplet.querySelectorAll('.doc-manquant-item') : [];
 
         // Marquer les documents validés comme readonly, laisser les non validés éditables
         markValidatedDocumentsReadonly();
@@ -189,11 +190,15 @@
             // Afficher la zone documents incomplets
             if (dossierIncomplet) {
                 dossierIncomplet.style.display = '';
+
+                // État instable (incomplet sans document) : injecter un bloc vide sans pré-remplissage
+                if (allDocs.length === 0) {
+                    addDocumentFromPrototype(false);
+                }
             }
         } else {
             // Dossier complet au chargement
             // Afficher l'historique s'il y a des documents
-            const allDocs = dossierIncomplet ? dossierIncomplet.querySelectorAll('.doc-manquant-item') : [];
             if (dossierIncomplet && allDocs.length > 0) {
                 dossierIncomplet.style.display = '';
             } else if (dossierIncomplet) {
@@ -333,22 +338,42 @@
         const allDocs = dossierIncomplet.querySelectorAll('.doc-manquant-item');
         allDocs.forEach(doc => {
             const dateReceptionInput = doc.querySelector('.date-reception');
-            
+
             if (dateReceptionInput && dateReceptionInput.value) {
-                // Document validé → tout en readonly + masquer boutons "Aujourd'hui"
+                // Document validé (dateReception renseignée) → tout en readonly
                 markDocumentAsReadonly(doc);
             } else {
-                // Document non validé → éditable sauf date incomplet
+                // Document non validé : readonly sur date incomplet seulement si elle est déjà renseignée.
+                // Si date vide → document non encore persisté (état instable ou re-rendu après erreur) → tout éditable.
+                const dateIncompletInput = doc.querySelector('.date-incomplet');
+                const hasDate = !!(dateIncompletInput && dateIncompletInput.value);
+
                 const inputs = doc.querySelectorAll('input, textarea');
                 inputs.forEach(input => {
-                    input.readOnly = input.classList.contains('date-incomplet');
+                    input.readOnly = hasDate && input.classList.contains('date-incomplet');
                 });
-                
-                // Gérer boutons "Aujourd'hui" selon l'état readonly des champs
-                updateTodayButtonsVisibility(doc);
+
+                // Bouton "Aujourd'hui" date incomplet : visible uniquement si date non encore renseignée
+                const todayBtns = doc.querySelectorAll('.btn-today-incomplet, .btn-today-reception');
+                todayBtns.forEach(btn => {
+                    if (btn.classList.contains('btn-today-incomplet')) {
+                        btn.style.display = hasDate ? 'none' : '';
+                    } else if (btn.classList.contains('btn-today-reception')) {
+                        btn.style.display = '';
+                    }
+                });
+
+                // Bouton "Annuler" : injecté si absent sur un document sans date (nouveau, non persisté)
+                if (!hasDate) {
+                    const dateIncompletContainer = doc.querySelector('.date-incomplet-container');
+                    const existingCancelBtn = doc.querySelector('.cancel-incomplet');
+                    if (dateIncompletContainer && !existingCancelBtn) {
+                        createButton('annuler', dateIncompletContainer);
+                    }
+                }
             }
         });
-        
+
         // Mettre à jour la visibilité des boutons après marquage
         updateButtonsVisibility();
     }
@@ -431,7 +456,12 @@
     /**
      * Ajoute un nouveau document depuis le prototype Symfony
      */
-    async function addDocumentFromPrototype() {
+    /**
+     * @param {boolean} [prefill=true] Si false, n'injecte ni la date du jour ni les documents depuis l'API.
+     *   Utiliser false pour refléter un état instable (incomplet sans document en BDD).
+     */
+    async function addDocumentFromPrototype(prefill) {
+        const shouldPrefill = prefill !== false;
         const dossierIncomplet = document.querySelector('#dossierIncomplet');
         if (!dossierIncomplet) return;
 
@@ -474,14 +504,16 @@
             }
 
             // Pré-remplir la date du jour pour "Dossier incomplet le"
-            const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
-            if (newDateInput) {
-                newDateInput.value = getTodayDate();
+            if (shouldPrefill) {
+                const newDateInput = newElement.querySelector(`input[name*="[date]"]`);
+                if (newDateInput) {
+                    newDateInput.value = getTodayDate();
+                }
             }
-            
+
             // Pré-remplir la liste des documents manquants depuis la BDD
             const documentManquantTextarea = newElement.querySelector('textarea[name*="[documentManquant]"]');
-            if (documentManquantTextarea) {
+            if (documentManquantTextarea && shouldPrefill) {
                 try {
                     const response = await fetch('/api/document-manquant/liste');
                     if (response.ok) {
@@ -628,18 +660,19 @@
         // Règle 3 : Si un document non validé existe (déjà en base, pas nouveau) → "Valider réception" visible
         unvalidatedDocs.forEach(doc => {
             const validateBtn = doc.querySelector('.validate-reception');
-            const isNew = doc.dataset.isNew === 'true';
-            
+
             if (validateBtn) {
                 // Toujours afficher "Valider" sur les docs non validés (nouveau ou pas)
                 validateBtn.style.display = '';
             }
-            
-            // Si pas nouveau (déjà en base) → rendre les champs éditables sauf date incomplet
-            if (!isNew) {
+
+            // Si doc déjà persisté (date renseignée) → rendre les champs éditables sauf date incomplet
+            const dateIncompletInput = doc.querySelector('.date-incomplet');
+            const hasDate = !!(dateIncompletInput && dateIncompletInput.value);
+            if (hasDate) {
                 const inputs = doc.querySelectorAll('input, textarea');
                 inputs.forEach(input => {
-                    input.readOnly = !!(input.name && input.name.includes('[date]') && !input.name.includes('[dateReception]'));
+                    input.readOnly = input.classList.contains('date-incomplet');
                 });
             }
         });

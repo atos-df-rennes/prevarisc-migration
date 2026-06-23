@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Constant\DossierNature;
 use App\Repository\DossierRepository;
+use App\Validator\DossierDocumentsManquants;
 use App\Validator\DossierObjet;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,6 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
  *
  * @DossierObjet(groups={"edit_informations"})
+ *
+ * @DossierDocumentsManquants(groups={"edit_informations"})
  */
 class Dossier
 {

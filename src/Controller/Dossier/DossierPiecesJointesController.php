@@ -180,10 +180,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             return $this->json(['success' => false, 'message' => 'Token CSRF invalide.'], 403);
         }
 
-        if ($dossier->hasVerrou()) {
-            return $this->json(['success' => false, 'message' => 'Le dossier est verrouillé.'], 403);
-        }
-
         $file = $request->files->get('fichier');
         if (null === $file) {
             return $this->json([
@@ -321,10 +317,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $rawTokenDelete = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_delete_'.$pj->getId(), is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
-        }
-
-        if ($dossier->hasVerrou()) {
-            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
         }
 
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
@@ -479,10 +471,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $rawTokenRetry = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_retry_'.$pj->getId(), is_string($rawTokenRetry) ? $rawTokenRetry : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
-        }
-
-        if ($dossier->hasVerrou()) {
-            return $this->json(['error' => 'Le dossier est verrouillé.'], 403);
         }
 
         $dpj = $this->dossierPieceJointeRepository->findOneBy([

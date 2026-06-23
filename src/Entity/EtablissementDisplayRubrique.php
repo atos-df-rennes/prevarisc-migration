@@ -26,6 +26,8 @@ class EtablissementDisplayRubrique
     /**
      * @var Rubrique
      *
+     * @ORM\Id
+     *
      * @ORM\ManyToOne(targetEntity=Rubrique::class)
      *
      * @ORM\JoinColumn(name="ID_RUBRIQUE", referencedColumnName="ID_RUBRIQUE", nullable=false)
