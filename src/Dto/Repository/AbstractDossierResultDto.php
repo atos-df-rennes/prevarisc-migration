@@ -104,6 +104,10 @@ abstract class AbstractDossierResultDto
      * @var string|null
      */
     public $DATE_REPONSE_ATTENDUE;
+    /**
+     * @var string|null
+     */
+    public $DELAIPRESC_DOSSIER;
 
     /**
      * Remplit les champs communs depuis un tableau brut SQL.
