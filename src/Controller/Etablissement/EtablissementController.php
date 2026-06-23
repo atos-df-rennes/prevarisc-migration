@@ -44,6 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
@@ -141,6 +142,9 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var EtablissementFormDataLoader */
     private $formDataLoader;
 
+    /** @var TagAwareCacheInterface */
+    private $searchCache;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -167,7 +171,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         LoggerInterface $pieceJointeLogger,
         EtablissementHistoriqueService $etablissementHistoriqueService,
         EtablissementPieceJointeService $etablissementPieceJointeService,
-        EtablissementFormDataLoader $formDataLoader
+        EtablissementFormDataLoader $formDataLoader,
+        TagAwareCacheInterface $searchCache
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -195,6 +200,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->etablissementHistoriqueService = $etablissementHistoriqueService;
         $this->etablissementPieceJointeService = $etablissementPieceJointeService;
         $this->formDataLoader = $formDataLoader;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -923,8 +929,8 @@ class EtablissementController extends AbstractController implements Etablissemen
             return $this->redirectToRoute('etablissement_informations', ['id' => $etablissement->getId()]);
         }
 
-        // @todo Décommissionnement legacy : remplacer par redirectToRoute('search_etablissement')
-        // Ce passage par le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
-        return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target=/rechercher/etablissement?label=');
+        $this->searchCache->invalidateTags(['search']);
+
+        return $this->redirectToRoute('search_etablissement', ['label' => '']);
     }
 }

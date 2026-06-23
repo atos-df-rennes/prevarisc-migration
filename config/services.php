@@ -50,7 +50,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Controller\Etablissement\EtablissementController')
         ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
-        ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
+        ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%')
+        ->arg('$searchCache', ref('cache.search'));
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
