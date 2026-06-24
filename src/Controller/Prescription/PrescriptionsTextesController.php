@@ -85,7 +85,7 @@ class PrescriptionsTextesController extends AbstractController
         Request $request,
         PrescriptionTexteListe $texteListe
     ): Response {
-        $form = $this->createForm(ReplacePrescriptionTexteListeType::class);
+        $form = $this->createForm(ReplacePrescriptionTexteListeType::class, null, ['excluded' => $texteListe]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

@@ -303,7 +303,7 @@ Le réordonnancement met à jour les numéros d'ordre :
    - Rappels réglementaires
    - Prescriptions liées à l'exploitation
    - Recommandations liées à l'amélioration
-7. Chaque prescription reprise conserve son numéro d'ordre d'origine, son type, son contenu et ses associations texte/article.
+7. Chaque prescription reprise reçoit un nouveau numéro d'ordre calculé dans le dossier cible. Une renumérotation globale est effectuée après chaque reprise afin d'assurer une séquence continue sans doublons.
 8. La prescription reprise est marquée avec la **référence du dossier d'origine** (lien vers le dossier source et date de création), visible dans l'affichage sous forme d'un badge « Reprise du dossier [Nom ou Type - Nature] créé le [date] ».
 9. Les prescriptions types reprises conservent leur lien avec le type de prescription du référentiel.
 10. Les prescriptions libres reprises voient leurs associations texte/article dupliquées.
@@ -378,11 +378,11 @@ Les modifications ultérieures du type de prescription dans le référentiel n'a
 
 ### 7.5 Reprise impossible (dossier multi-établissements)
 
-Si le dossier courant est lié à plusieurs établissements, la reprise de prescriptions est impossible. Le système affiche le message : « Pour pouvoir utiliser cette fonctionnalité, le dossier ne doit concerner qu'un seul établissement. »
+Si le dossier courant est lié à plusieurs établissements, la reprise de prescriptions est impossible. Le bouton de reprise est affiché mais désactivé, et un message explicatif est visible au survol : « Pour pouvoir utiliser cette fonctionnalité, le dossier ne doit concerner qu'un seul établissement. »
 
 ### 7.6 Reprise depuis plusieurs dossiers
 
-Lors de la reprise, le préventionniste peut sélectionner plusieurs dossiers sources. Les prescriptions de chaque dossier sont reprises en conservant leur numérotation d'origine. Si des conflits de numérotation surviennent entre les différents dossiers sources, les prescriptions sont ajoutées dans l'ordre de traitement des dossiers sélectionnés.
+Lors de la reprise, le préventionniste peut sélectionner plusieurs dossiers sources. Les prescriptions de chaque dossier sont copiées séquentiellement dans le dossier cible. Une renumérotation globale est effectuée à l'issue de l'import pour garantir une numérotation continue et sans doublon dans le dossier cible.
 
 ### 7.7 Remplacement d'un texte ou d'un article dans le référentiel
 
