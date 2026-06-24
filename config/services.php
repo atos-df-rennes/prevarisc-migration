@@ -167,6 +167,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Controller\Dossier\DossierController')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
+        ->arg('$searchCache', ref('cache.search'))
         ->tag('controller.service_arguments');
 
     $services->set('App\Service\Dashboard\DashboardBlocConfig')

@@ -1,6 +1,6 @@
 # Rapport d'écarts — MOD-02 DOSSIERS
 
-> **Date** : 2026-05-22 (mis à jour le 2026-05-27)
+> **Date** : 2026-05-22 (mis à jour le 2026-06-24)
 > **Spec source** : `docs/specs/MOD-02-DOSSIERS.md`
 > **Méthode** : Comparaison spec ↔ code Symfony ↔ code legacy Zend
 
@@ -14,10 +14,10 @@
 | Écarts spec ↔ Symfony | 5 |
 | Écarts spec ↔ Legacy | 3 |
 | Écarts Symfony ↔ Legacy | 2 |
-| Écarts corrigés | 2 (Écarts 3 & 5) |
+| Écarts corrigés | 3 (Écarts 3, 5, Suppression) |
 | Écarts documentés / non-régressions | 3 (Écarts 1, 2 & 4) |
 
-> **Note Strangler** : la suppression d'un dossier reste volontairement branchée sur le legacy côté UI (`templates/dossier/index.html.twig` → `/dossier/delete/...`) ; ce point n'est pas compté comme écart de migration tant que ce chaînage est assumé.
+> **Note Strangler résolue** : ~~la suppression d'un dossier reste volontairement branchée sur le legacy~~ — migration complète le 2026-06-24 (`DossierSuppressionService` + route `dossier_supprimer`).
 
 ---
 
@@ -103,7 +103,7 @@
 | RG-DOS-015 | Masquage `AVIS_COMMISSION` en consultation | ✅ `index()` calcule `$afficherAvis` selon les mêmes drapeaux que le legacy (différé, incomplet, hors délai, absence quorum, ne peut se prononcer) ; le champ n'est masqué qu'en affichage, pas en édition — ISO legacy. |
 | RG-DOS-016, RG-DOS-017, RG-DOS-018, RG-DOS-019, RG-DOS-034, RG-DOS-035 | Dossier donnant avis et groupe de visite | ✅ L'affectation / désaffectation du dossier donnant avis, la répercussion aux établissements enfants et l'alerte VAO sur établissement en statut projet sont portées. |
 | RG-DOS-022, RG-DOS-023 | Verrouillage : identité et droit par nature | ✅ Le verrou enregistre l'utilisateur et le droit `verrouillage_dossier` est bien résolu via les ressources spécialisées par nature. |
-| RG-DOS-024, RG-DOS-025, RG-DOS-028, RG-DOS-046 | Suppression logique, rétablissement, cache | ✅ Le modèle Symfony conserve la suppression logique (`DATESUPPRESSION_DOSSIER`), filtre les dossiers supprimés, propose un rétablissement via `ElementsSupprimesController` et continue d'invalider le cache via les routes legacy de transition. |
+| RG-DOS-024, RG-DOS-025, RG-DOS-028, RG-DOS-046 | Suppression logique, rétablissement, cache | ✅ **Suppression désormais entièrement migrée** (2026-06-24) : `DossierSuppressionService` pose `DATESUPPRESSION_DOSSIER` + `DELETED_BY`, supprime les affectations commission via `DossierAffectationRepository::deleteAllAffectations()`, recalcule le dossier donnant avis pour tous les établissements liés. Cache Symfony invalidé via `searchCache->invalidateTags(['search'])` ; cache Zend nettoyé via `LegacyController::viderCacheEtablissementAction()`. Rétablissement inchangé via `ElementsSupprimesController`. |
 | RG-DOS-029, RG-DOS-030, RG-DOS-031, RG-DOS-032 | Affectation commission / visite | ✅ `DossierAffectationService` gère la synchronisation des dates, la suppression des affectations et la remise à zéro des horaires/ordre lors d'un changement de date. |
 | RG-DOS-037 | Numéros d'urbanisme et documents consultés | ✅ Les numéros d'urbanisme restent saisis en collection dédiée, affichés en consultation et exploités dans la recherche / génération documentaire. |
 | RG-DOS-041 | Champ CNE | ✅ Le champ `CNE_DOSSIER` est absent du formulaire Symfony comme du formulaire legacy (`$listeChamps`) — comportement ISO, pas de régression. |
@@ -119,3 +119,74 @@
 3. Mettre à jour la spec RG-DOS-015 pour distinguer explicitement le mode affichage (masquage de `AVIS_COMMISSION` selon les cases cochées) du mode édition (pas de masquage), et préciser que seul `AVIS_COMMISSION` est concerné, pas la date de commission/visite.
 4. Documenter dans la spec ou le manifest que la suppression reste en strangler via le legacy, afin d'éviter de la signaler à tort comme non migrée lors des prochains audits.
 5. Documenter dans la spec que RG-DOS-003 (multi-natures) et RG-DOS-041 (CNE) décrivent des comportements non implémentés dans aucune base de code, pour clarifier qu'il ne s'agit pas de régressions à traiter en migration.
+
+---
+
+## Suppression d'un dossier — Rapport d'écarts (2026-06-24)
+
+### Fichiers analysés
+
+**Legacy :**
+- `prevarisc/application/controllers/DossierController.php` : `deleteAction()` (lignes 3248–3282)
+- `prevarisc/application/services/Dossier.php` : `delete()` (lignes 919–944)
+- `prevarisc/application/models/DbTable/DossierAffectation.php` : `deleteDateDossierAffect()`
+- `prevarisc/application/models/DbTable/EtablissementDossier.php` : `getEtablissementListe()`
+- `prevarisc/application/views/scripts/dossier/index.phtml` (modal de confirmation)
+
+**Symfony :**
+- `prevarisc-migration/src/Service/Dossier/DossierSuppressionService.php` (nouveau)
+- `prevarisc-migration/src/Controller/Dossier/DossierController.php` : action `supprimer()`
+- `prevarisc-migration/templates/dossier/index.html.twig` : modal mise à jour
+- `prevarisc/application/controllers/LegacyController.php` : `viderCacheEtablissementAction()` (nouveau)
+
+**Niveau de confiance global : ⚠️**
+
+---
+
+### ✅ PORT DIRECT — aucune vérification nécessaire
+
+- Suppression logique : `$dossier->DATESUPPRESSION_DOSSIER = $date->format('Y-m-d')` → `setDateSuppression(new \DateTime())` (même sémantique)
+- Auteur suppression : `Zend_Auth::getInstance()->getIdentity()['ID_UTILISATEUR']` → `$this->getUser()` + `setDeletedBy($user)` (même résultat)
+- Suppression affectations commission : `deleteDateDossierAffect()` → `DossierAffectationRepository::deleteAllAffectations()` (même table `dossieraffectation`, même filtre `ID_DOSSIER_AFFECT = ?`)
+- Flash message : `flashMessenger` → `addFlash()` (port mécanique Zend → Symfony)
+- Redirection vers recherche : `/search/dossier?objet=&page=1` → `redirectToRoute('search_dossier')` (équivalent fonctionnel)
+
+---
+
+### ⚠️ ADAPTATIONS — vérifier ces points
+
+**Écart S1 — Code mort non porté : `$date` et `$uniqueEtab`**
+
+| | Détail |
+|---|---|
+| **Legacy** | `Service_Dossier::delete($idDossier, $date = null, $uniqueEtab = false)` — `$uniqueEtab=true` uniquement depuis `deleteByEtab()`, jamais depuis `deleteAction()`. |
+| **Symfony** | Paramètres absents de `DossierSuppressionService::supprimer()`. |
+| **Impact** | Aucune régression depuis la suppression unitaire. |
+| **Scénario de test** | Supprimer un dossier depuis la page dossier → vérifier qu'il disparaît de la recherche. |
+
+**Écart S2 — Recalcul dossier donnant avis : exclusion explicite vs filtre DB**
+
+| | Détail |
+|---|---|
+| **Legacy** | `getDernierIdDossierDonnantAvis()` appelé APRÈS `delete()` : dossier supprimé exclu par `DATESUPPRESSION_DOSSIER IS NULL` en DB. |
+| **Symfony** | `findLastDossierDonnantAvisForEtablissement($etab, $dossier)` appelé AVANT flush : dossier exclu explicitement via `excludeDossier`. Même résultat. |
+| **Impact** | Fonctionnellement identique. |
+| **Scénario de test** | Supprimer un dossier qui était `dossier donnant avis` d'un établissement → vérifier que `ID_DOSSIER_DONNANT_AVIS` est mis à jour (ou null) en BDD. |
+
+**Écart S3 — Sécurité renforcée : CSRF + verrou + `view_doss`**
+
+| | Détail |
+|---|---|
+| **Legacy** | GET sans CSRF, verrou non vérifié côté serveur, ACL Zend globale. |
+| **Symfony** | POST avec CSRF (`dossier_suppression_<id>`), vérification `hasVerrou()`, `@Security("is_granted('delete_dossier') and is_granted('view_doss', dossier)")`. |
+| **Impact** | Renforcement sécurité, non-régression fonctionnelle. |
+| **Scénarios de test** | ① Dossier non verrouillé + privilège → suppression OK. ② Dossier verrouillé → 403. ③ Token CSRF invalide → 403. |
+
+**Écart S4 — Invalidation cache : double canal**
+
+| | Détail |
+|---|---|
+| **Legacy** | `cacheSearch->clean(ALL)` + `cache->remove('etablissement_id_<id>')`. |
+| **Symfony** | `TagAwareCacheInterface::invalidateTags(['search'])` (Symfony) + redirect → `LegacyController::viderCacheEtablissementAction()` qui vide `etablissement_id_<id>` ET `cacheSearch` legacy. |
+| **Impact** | Cohérence accrue ; les deux caches (Symfony et Zend) sont nettoyés. |
+| **Scénario de test** | Supprimer un dossier → vérifier que `/rechercher/dossier` Symfony ne le liste plus. |

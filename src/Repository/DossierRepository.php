@@ -44,10 +44,10 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->leftJoin('d.deletedBy', 'u')
             ->join('d.type', 'dt')
             ->join('d.nature', 'dn')
-            ->join('d.etablissements', 'e')
-            ->join('e.informations', 'ei')
+            ->leftJoin('d.etablissements', 'e')
+            ->leftJoin('e.informations', 'ei')
             ->where($queryBuilder->expr()->isNotNull('d.dateSuppression'))
-            ->andWhere('ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e)')
+            ->andWhere('e IS NULL OR ei.date = (SELECT MAX(etabInfos.date) from App\Entity\EtablissementInformations etabInfos where etabInfos.etablissement = e)')
             ->orderBy('d.dateSuppression', 'DESC')
             ->getQuery()
         ;
@@ -204,7 +204,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->addSelect('dcp')
             ->leftJoin('d.avisCommission', 'dac')
             ->addSelect('dac')
-            ->where('e.id = :id');
+            ->where('e.id = :id')
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'));
         if ([] !== $types) {
             if ($reverse) {
                 $query->andWhere($query->expr()->notIn('d.type', ':types'));
@@ -255,7 +256,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $qb = $this->createQueryBuilder('d');
         $query = $qb->select('COUNT(d.id)')
             ->join('d.etablissements', 'e')
-            ->where('e.id = :id');
+            ->where('e.id = :id')
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'));
 
         if ([] !== $types) {
             if ($reverse) {
