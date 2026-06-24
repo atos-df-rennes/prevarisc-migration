@@ -204,7 +204,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->addSelect('dcp')
             ->leftJoin('d.avisCommission', 'dac')
             ->addSelect('dac')
-            ->where('e.id = :id');
+            ->where('e.id = :id')
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'));
         if ([] !== $types) {
             if ($reverse) {
                 $query->andWhere($query->expr()->notIn('d.type', ':types'));
@@ -255,7 +256,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $qb = $this->createQueryBuilder('d');
         $query = $qb->select('COUNT(d.id)')
             ->join('d.etablissements', 'e')
-            ->where('e.id = :id');
+            ->where('e.id = :id')
+            ->andWhere($qb->expr()->isNull('d.dateSuppression'));
 
         if ([] !== $types) {
             if ($reverse) {
