@@ -298,7 +298,10 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                    <a href="/dossier/delete/id/{{ dossier.id }}" class="btn btn-success">Confirmer</a>
+                    <form action="{{ path('dossier_supprimer', {id: dossier.id}) }}" method="POST" style="display:inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('dossier_suppression_' ~ dossier.id) }}">
+                        <button type="submit" class="btn btn-danger">Confirmer</button>
+                    </form>
                 </div>
             </div>
         </div>

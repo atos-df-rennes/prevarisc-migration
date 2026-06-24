@@ -402,3 +402,45 @@ recherche:
       le legacy fait autorité, écart documenté dans la spec
 
     Rapport d'écarts : docs/migration/MOD-06-RECHERCHE-ECARTS.md
+
+dossier_suppression:
+  status: migrated
+  legacy_files:
+    - prevarisc/application/controllers/DossierController.php (deleteAction, lignes 3248-3282)
+    - prevarisc/application/services/Dossier.php (delete, lignes 919-944)
+    - prevarisc/application/models/DbTable/DossierAffectation.php (deleteDateDossierAffect)
+    - prevarisc/application/models/DbTable/EtablissementDossier.php (getEtablissementListe)
+  migrated_files:
+    - prevarisc-migration/src/Service/Dossier/DossierSuppressionService.php
+    - prevarisc-migration/src/Controller/Dossier/DossierController.php (supprimer)
+    - prevarisc-migration/templates/dossier/index.html.twig (modal suppression)
+    - prevarisc/application/controllers/LegacyController.php (viderCacheEtablissementAction)
+  updated_at: "2026-06-24"
+  routes:
+    - name: dossier_supprimer
+      path: /dossier/{id}/supprimer
+  notes: >
+    Suppression logique du dossier (DATESUPPRESSION_DOSSIER + DELETED_BY).
+    Suppression des affectations commission via DossierAffectationRepository::deleteAllAffectations().
+    Recalcul du dossier donnant avis pour tous les établissements liés (iso-legacy),
+    via DossierRepository::findLastDossierDonnantAvisForEtablissement() avec exclusion du dossier supprimé.
+
+    Code mort non porté (Écart 1) :
+    - Paramètres $date et $uniqueEtab de Service_Dossier::delete() : jamais transmis
+      depuis deleteAction() — seul deleteByEtab() les utilise. Le bloc conditionnel
+      if ($uniqueEtab) n'est jamais exécuté depuis deleteAction().
+
+    Invalidation cache :
+    - Symfony : TagAwareCacheInterface::invalidateTags(['search']) sur cache.search
+    - Legacy : redirect vers /legacy/vider-cache-etablissement (nouvelle action)
+      qui vide etablissement_id_<id> + cacheSearch legacy (iso-fonctionnel)
+
+    Sécurité :
+    - @Security("is_granted('delete_dossier') and is_granted('view_doss', dossier)")
+    - Vérification verrou en amont de la suppression (HTTP 403 si verrouillé)
+    - Token CSRF sur le formulaire de confirmation (dossier_suppression_<id>)
+    - Bouton "Confirmer" migré de GET (<a href>) vers POST (<form>) avec CSRF
+
+    Redirect :
+    - Après suppression, redirect vers page de recherche Symfony (search_dossier)
+      via /legacy/vider-cache-etablissement?ids=[...]&target=/rechercher/dossier

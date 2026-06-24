@@ -36,6 +36,7 @@ use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierCreationService;
 use App\Service\Dossier\DossierSauvegardeService;
+use App\Service\Dossier\DossierSuppressionService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\EtablissementHistoriqueService;
@@ -51,6 +52,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
@@ -146,6 +148,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
     /** @var DossierSauvegardeService */
     private $dossierSauvegardeService;
 
+    /** @var DossierSuppressionService */
+    private $dossierSuppressionService;
+
+    /** @var TagAwareCacheInterface */
+    private $searchCache;
+
     /** @var DescriptifService */
     private $descriptifService;
 
@@ -184,6 +192,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         DossierRepository $dossierRepository,
         DossierCreationService $dossierCreationService,
         DossierSauvegardeService $dossierSauvegardeService,
+        DossierSuppressionService $dossierSuppressionService,
+        TagAwareCacheInterface $searchCache,
         DescriptifService $descriptifService,
         DescriptifFormHydrator $descriptifFormHydrator,
         DescriptifFormBuilder $descriptifFormBuilder,
@@ -213,6 +223,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $this->dossierRepository = $dossierRepository;
         $this->dossierCreationService = $dossierCreationService;
         $this->dossierSauvegardeService = $dossierSauvegardeService;
+        $this->dossierSuppressionService = $dossierSuppressionService;
+        $this->searchCache = $searchCache;
         $this->descriptifService = $descriptifService;
         $this->descriptifFormHydrator = $descriptifFormHydrator;
         $this->descriptifFormBuilder = $descriptifFormBuilder;
@@ -1007,5 +1019,68 @@ class DossierController extends AbstractController implements DossierLateralNavi
         }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Suppression logique d'un dossier.
+     *
+     * Port direct de DossierController::deleteAction() (legacy).
+     * Suppression logique (date de suppression + auteur), nettoyage des affectations commission,
+     * recalcul du dossier donnant avis pour les établissements concernés, invalidation du cache.
+     *
+     * @Route("/dossier/{id}/supprimer", name="dossier_supprimer", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_dossier_lateral_nav": false})
+     *
+     * @Security("is_granted('delete_dossier') and is_granted('view_doss', dossier)")
+     */
+    public function supprimer(Request $request, Dossier $dossier): Response
+    {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('dossier_suppression_'.$dossier->getId(), $csrfToken)) {
+            throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
+        }
+
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être supprimé.');
+        }
+
+        /** @var Utilisateur $user */
+        $user = $this->getUser();
+
+        try {
+            /** @var int[] $etablissementsIds */
+            $etablissementsIds = $this->entityManager->wrapInTransaction(
+                function () use ($dossier, $user): array {
+                    return $this->dossierSuppressionService->supprimer($dossier, $user);
+                }
+            );
+
+            $this->addFlash('success', 'Le dossier a bien été supprimé.');
+
+            $this->searchCache->invalidateTags(['search']);
+
+            if ([] !== $etablissementsIds) {
+                $idsJson = json_encode($etablissementsIds);
+
+                return $this->redirect(sprintf(
+                    '/legacy/vider-cache-etablissement?ids=%s&target=%s',
+                    urlencode(false !== $idsJson ? $idsJson : '[]'),
+                    urlencode($this->generateUrl('search_dossier'))
+                ));
+            }
+
+            return $this->redirectToRoute('search_dossier');
+        } catch (\Throwable $throwable) {
+            $this->logger->error('Erreur lors de la suppression du dossier', [
+                'dossier_id' => $dossier->getId(),
+                'exception' => $throwable->getMessage(),
+                'trace' => $throwable->getTraceAsString(),
+            ]);
+
+            $this->addFlash('danger', 'Le dossier n\'a pas été supprimé. Veuillez réessayer ou contacter le service informatique.');
+
+            return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+        }
     }
 }
