@@ -31,7 +31,7 @@
 | **Impact** | **Élevé** — la spec décrit une règle plus stricte que les deux implémentations réelles ; le risque est d'affecter des établissements sur une règle incomplète ou plus large que prévu. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:391`, `prevarisc-migration/src/Form/CommissionRegleType.php:41-46,58-63,82-87,99-105,119-125,181-199`, `prevarisc-migration/src/Service/Commission/CommissionRegleCompetenceService.php:14-20,64-103`, `prevarisc/application/models/DbTable/Commission.php:140-182,192-233,242-289` |
 
-**Retour utilisateur** : Au vu du code cela est normal, les méthodes mentionnées contrôlent les valeurs par défaut proposées lors de la création/modification d'un établissement et l'application des règles qui est propres aux établissements également. La règle étude/visite concernent les dossiers et n'a pas lieu d'être dans les blocs de code concernés.\
+**Retour utilisateur** : Au vu du code cela est normal, les méthodes mentionnées contrôlent les valeurs par défaut proposées lors de la création/modification d'un établissement et l'application des règles qui est propre aux établissements également. La règle étude/visite concernent les dossiers et n'a pas lieu d'être dans les blocs de code concernés.\
 Cette règle est uniquement utilisée pour la génération des documents de commission.
 Rien à prévoir sur ce point.
 
@@ -126,7 +126,7 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 | **Impact** | **Moyen** — le comportement métier est conservé, mais la migration n'est pas autonome sur ce flux. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Commission/CommissionCompetencesController.php:109-113`, `prevarisc/application/controllers/CommissionController.php:276-281` |
 
-**Retour utilisateur** : Écart de migration confirmé. Un cache TagAware a été introduit dans la branche **fix/cache-recherche** (non encore mergée) pour faire un miroir du `$cacheSearch` legacy. Il faut donc également avoir un cache Symfony miroir du `$cache` legacy. Vérifier également si la suppression du `$cache` legacy entraîne également la suppression du `$cacheSearch` ou si les deux sont indépendants.
+**Retour utilisateur** : Écart de migration confirmé. Un cache TagAware a été introduit pour faire un miroir du `$cacheSearch` legacy. Il faut donc également avoir un cache Symfony miroir du `$cache` legacy. Cependant, ce mécanisme n'étant pas encore présent, ajouter pour le moment un commentaire indiquant qu'il faut vider le `$cache` standard (et pas `$cacheSearch` qui ne semble pas utilisé par le legacy dans ce cas). Étant donné que tous les écrans legacy sont réputés migrés, retirer l'appel au chemin de vidage des caches legacy.
 
 ---
 
@@ -140,7 +140,7 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 | **Impact** | **Moyen** — l'abonnement webcal existe bien, mais le niveau de détail disponible dans les clients externes est inférieur au legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Service/Commission/IcalendarSyncService.php:13-16,32-35,66-127`, `prevarisc/application/modules/api/services/Calendar.php:17-61,123-220` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy si la complexité n'est pas trop élévée et prévoir une procédure de test pour vérifier le bon affichage des informations.
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy si la complexité n'est pas trop élevée et prévoir une procédure de test pour vérifier le bon affichage des informations.
 
 ---
 
