@@ -82,24 +82,24 @@ final class Dossier
 
         // Suppression des affectations commission des dossiers exclusifs
         $conn->executeStatement(
-            "DELETE da
+            'DELETE da
              FROM dossieraffectation da
              INNER JOIN dossier d ON d.ID_DOSSIER = da.ID_DOSSIER_AFFECT
              INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
              WHERE ed.ID_ETABLISSEMENT = :etabId
                AND d.DATESUPPRESSION_DOSSIER IS NULL
-               AND {$exclusif}",
+               AND '.$exclusif,
             ['etabId' => $etabId]
         );
 
         // Suppression logique des dossiers exclusivement liés à cet établissement
         $conn->executeStatement(
-            "UPDATE dossier d
+            'UPDATE dossier d
              INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
              SET d.DATESUPPRESSION_DOSSIER = :date, d.DELETED_BY = :userId
              WHERE ed.ID_ETABLISSEMENT = :etabId
                AND d.DATESUPPRESSION_DOSSIER IS NULL
-               AND {$exclusif}",
+               AND '.$exclusif,
             [
                 'date' => $date,
                 'userId' => $userId,

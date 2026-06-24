@@ -14,7 +14,7 @@ Le module couvre :
 
 - La **création et l'administration** des commissions de sécurité et de leurs sous-commissions.
 - La **définition des règles de compétence** territoriale et technique de chaque commission.
-- La **gestion des membres** (titulaires, suppléants) et de leurs périmètres d'intervention.
+- La **gestion des membres** et de leurs périmètres d'intervention.
 - La **planification des séances** (calendrier, récurrence, séances liées).
 - La **constitution de l'ordre du jour** d'une séance (affectation de dossiers, gestion horaire ou séquentielle).
 - La **génération des documents officiels** : convocations, ordres du jour, procès-verbaux, comptes-rendus.
@@ -59,7 +59,7 @@ Le type « communal » (identifiant interne type 2) se distingue des autres par 
 Chaque commission possède une liste de **membres**. Un membre est caractérisé par :
 
 - Un **libellé** (nom ou fonction du membre).
-- Un indicateur de **présence** (titulaire ou suppléant).
+- Un indicateur de **présence** : **Membre Obligatoire**, **Membre Facultatif** ou **Membre Pour information**. Cet indicateur est purement informatif et n'est pas utilisé à des fins de filtrage ou de traitement automatique.
 - Un éventuel rattachement à un **groupement** (gendarmerie, police, etc.).
 
 Chaque membre peut être **spécialisé** selon cinq axes de compétence :
@@ -70,11 +70,11 @@ Chaque membre peut être **spécialisé** selon cinq axes de compétence :
 | **Types d'activité** | Le membre n'intervient que pour certains types d'activité (J, L, M, N, O, P, R, S, T, U, V, W, X, Y…). |
 | **Classes IGH** | Le membre n'intervient que pour certaines classes d'IGH (GHA, GHO, GHR, GHS, GHU, GHW, GHZ…). |
 | **Types de dossier** | Le membre n'intervient que pour certains types de dossier (étude, visite périodique, visite de réception…). |
-| **Natures de dossier** | Le membre n'intervient que pour certaines natures de dossier (permis de construire, autorisation de travaux, levée de prescriptions…). |
+| **Natures de dossier** | Le membre n'intervient que pour certaines natures de dossier (permis de construire, autorisation de travaux, levée de prescriptions…). **Note : cet axe est stocké en base de données mais n'est pas utilisé pour filtrer les dossiers lors de la génération des documents.** |
 
 Lorsqu'un axe est coché pour toutes les valeurs, le membre est compétent pour l'ensemble de cet axe (affichage simplifié « λ »).
 
-Les spécialisations des membres servent au **filtrage** lors de la génération des documents : chaque membre ne reçoit que les dossiers relevant de son périmètre.
+Les spécialisations des membres servent au **filtrage** lors de la génération des documents : chaque membre ne reçoit que les dossiers relevant de son périmètre. **Les natures de dossier sont enregistrées en base mais ne participent pas au filtrage lors de la génération.**
 
 ### 3.3 Règles de compétence
 
@@ -174,12 +174,12 @@ L'interface présente un tableau avec les colonnes :
 **Ajouter un membre :**
 
 1. Le secrétariat clique sur « Ajouter un membre ».
-2. Un membre vierge est créé avec un libellé vide et un statut de non-présence par défaut.
+2. Un membre vierge est créé avec un libellé vide et un indicateur de présence « Membre Facultatif » par défaut.
 
 **Configurer un membre :**
 
 1. Saisie du **libellé** (nom, fonction).
-2. Indication de la **présence** (coché = titulaire, décoché = suppléant ou absent par défaut).
+2. Indication de la **présence** : **Membre Obligatoire**, **Membre Facultatif** ou **Membre Pour information** (informatif uniquement).
 3. Éventuel rattachement à un **groupement** (pour les membres représentant une entité intercommunale : gendarmerie, police…).
 4. Sélection des **périmètres de compétence** :
    - Catégories d'ERP (cases à cocher).
@@ -225,7 +225,7 @@ L'interface présente :
 5. **Mode récurrent :** en activant la récurrence, le secrétariat définit :
    - Une **périodicité** (1 à 4 semaines).
    - Une **date de fin** de récurrence.
-   - Le système génère automatiquement toutes les dates selon la périodicité, chacune liée à la date principale.
+   - Le système génère automatiquement toutes les dates selon la périodicité, chacune liée à la date principale. **Note : dans l'implémentation actuelle (legacy et Symfony), les occurrences récurrentes ne sont pas liées à la date principale ; elles sont créées comme des dates indépendantes (bug connu).**
 
 **Modifier une séance :**
 
@@ -319,7 +319,7 @@ Pour chaque dossier inclus, le document contient :
 - Les avis de dérogation (du dossier, de l'établissement et des établissements enfants).
 - Les données des formulaires personnalisés (vérifications techniques, descriptif de l'établissement, effectifs et dégagements).
 
-Le filtrage s'applique selon les spécialisations du membre (catégories, types d'activité, classes, types et natures de dossier).
+Le filtrage s'applique selon les spécialisations du membre (catégories, types d'activité, classes, types de dossier). **Les natures de dossier sont stockées en base mais ne participent pas au filtrage lors de la génération des documents.**
 
 #### 4.6.2 Ordres du jour
 
@@ -402,7 +402,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-020** — Un membre est toujours rattaché à une seule commission.
 
-**RG-COM-021** — Un membre peut être spécialisé sur zéro à plusieurs catégories, types d'activité, classes IGH, types de dossier et natures de dossier.
+**RG-COM-021** — Un membre peut être spécialisé sur zéro à plusieurs catégories, types d'activité, classes IGH, types de dossier et natures de dossier. **Les natures de dossier sont stockées en base de données mais ne sont pas utilisées pour filtrer les dossiers lors de la génération des documents.**
 
 **RG-COM-022** — Un membre peut être rattaché à un groupement (pour les représentants de services extérieurs : gendarmerie, police, etc.). Dans ce cas, ses documents sont générés par groupement et non par commune.
 
@@ -410,7 +410,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-024** — Lors de la suppression d'un membre, ses documents modèles (fichiers ODT) sont supprimés du système de fichiers.
 
-**RG-COM-025** — L'indicateur de présence distingue les membres titulaires (présence = oui) des membres suppléants ou par défaut absents (présence = non).
+**RG-COM-025** — L'indicateur de présence prend trois valeurs : **Membre Obligatoire**, **Membre Facultatif**, **Membre Pour information**. Ces valeurs sont purement informatives et ne conditionnent aucun traitement automatique.
 
 ### Calendrier et séances
 
@@ -426,7 +426,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-035** — Seules les dates liées peuvent être supprimées individuellement. La suppression de la date principale nécessite la suppression de la séance entière.
 
-**RG-COM-036** — En mode récurrent, le système génère des séances à intervalle régulier (1 à 4 semaines) entre la date de début et la date de fin de récurrence. Toutes les dates générées sont liées à la première (date principale).
+**RG-COM-036** — En mode récurrent, le système génère des séances à intervalle régulier (1 à 4 semaines) entre la date de début et la date de fin de récurrence. Toutes les dates générées sont liées à la première (date principale). **Note : dans les implémentations legacy et Symfony, les dates récurrentes ne sont pas liées à la date principale (elles sont créées comme des dates indépendantes). Ce comportement est un bug connu à corriger ultérieurement.**
 
 **RG-COM-037** — Le déplacement d'une séance (par glisser-déposer) met à jour la date de commission et, le cas échéant, les horaires des dossiers affectés.
 
@@ -450,7 +450,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-051** — La génération de documents utilise un mécanisme de **fusion** : les variables du modèle ODT sont remplacées par les données réelles de la séance, des dossiers et des établissements.
 
-**RG-COM-052** — Les convocations et ordres du jour sont **filtrés par membre** : chaque membre ne reçoit que les dossiers correspondant à ses spécialisations (catégories, types d'activité, classes IGH, types de dossier, communes).
+**RG-COM-052** — Les convocations et ordres du jour sont **filtrés par membre** : chaque membre ne reçoit que les dossiers correspondant à ses spécialisations (catégories, types d'activité, classes IGH, types de dossier, communes). **Cette règle ne s'applique pas aux membres rattachés à un groupement : pour ces membres, tous les dossiers de la séance sont inclus dans l'ordre du jour, sans filtrage par compétence.**
 
 **RG-COM-053** — Pour les membres rattachés à un groupement, les documents sont organisés **par groupement** (adresse du groupement). Pour les autres membres, ils sont organisés **par commune** (adresse de la mairie, informations du maire).
 

@@ -96,6 +96,20 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
     }
 
     /**
+     * Supprime tous les fichiers ODT associés à un membre, sans toucher la base de données.
+     * À utiliser avant ou après la suppression de l'entité membre.
+     */
+    public function deleteAllFiles(CommissionMembre $membre): void
+    {
+        foreach (CommissionMembreCourrierType::ALL as $type) {
+            $filename = $this->getCourrierFilename($membre, $type);
+            if (null !== $filename) {
+                $this->removeFile($this->buildStoredFilename($membre, $type, $filename));
+            }
+        }
+    }
+
+    /**
      * Supprime un courrier type d'un membre de commission.
      * Sans effet si aucun courrier n'est défini pour ce type.
      *

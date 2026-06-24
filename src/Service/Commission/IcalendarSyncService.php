@@ -10,12 +10,21 @@ use Sabre\VObject\Component\VCalendar;
 /**
  * Service de génération du flux iCalendar pour la synchronisation webcal.
  *
- * Port simplifié de Api_Service_Calendar — une VEVENT par DateCommission.
- * Le flux inclut un VTIMEZONE (Europe/Paris par défaut) et toutes les DateCommissions
- * depuis 1 an avant aujourd'hui, filtrées par utilisateur et/ou commission si précisé.
+ * Port de Api_Service_Calendar — une VEVENT par couple DateCommission × Dossier,
+ * avec SUMMARY et LOCATION enrichis (numéro ERP, établissement, adresse).
+ * La DESCRIPTION inclut les préventionnistes du dossier.
+ *
+ * Note : les contacts, coordonnées de la mairie et avis d'exploitation
+ * ne sont pas inclus dans la DESCRIPTION (requêtes supplémentaires non implémentées).
  */
 class IcalendarSyncService
 {
+    /** @var int Type d'événement « en salle » */
+    private const TYPE_EVENEMENT_EN_SALLE = 1;
+
+    /** @var int ID dossiertype groupe de visite */
+    private const ID_DOSSIERTYPE_GRPVISITE = 3;
+
     /**
      * @var DateCommissionRepository
      */
@@ -29,9 +38,12 @@ class IcalendarSyncService
     /**
      * Génère le flux iCalendar sérialisé.
      *
-     * Port simplifié de Api_Service_Calendar::sync() :
-     * - Une VEVENT par DateCommission (pas une par dossier comme le legacy).
-     * - DESCRIPTION = liste des OBJET_DOSSIER affectés séparés par des sauts de ligne.
+     * Port de Api_Service_Calendar::sync() :
+     * - Une VEVENT par couple DateCommission × Dossier.
+     * - SUMMARY enrichi : #NUMEROID libellé (commune) : type nature - objet (en salle)
+     *   ou #NUMEROID libellé : libellé_séance (visite/groupe de visite).
+     * - LOCATION : adresse de l'établissement (visite) ou nom de la commission (en salle).
+     * - DESCRIPTION : préventionniste(s) du dossier.
      *
      * @param int|null $userId       ID préventionniste — null pour tout retourner (admin)
      * @param int|null $commissionId ID commission — null pour toutes les commissions
@@ -63,46 +75,27 @@ class IcalendarSyncService
         $tzid = 'Europe/Paris';
         $this->addVTimezone($calendar, $tzid);
 
-        // Grouper les lignes par ID de DateCommission (plusieurs dossiers par DC possibles)
-        /** @var array<int, array{row: array<string, mixed>, dossiers: string[]}> $dcMap */
-        $dcMap = [];
+        $tz = new \DateTimeZone($tzid);
+        $now = new \DateTime('now', $tz);
+
         foreach ($rows as $row) {
             $dcId = isset($row['ID_DATECOMMISSION']) && is_numeric($row['ID_DATECOMMISSION'])
                 ? (int) $row['ID_DATECOMMISSION']
                 : 0;
-            if (!isset($dcMap[$dcId])) {
-                $dcMap[$dcId] = [
-                    'row' => $row,
-                    'dossiers' => [],
-                ];
-            }
 
-            $objetDossier = isset($row['OBJET_DOSSIER']) && \is_string($row['OBJET_DOSSIER'])
-                ? $row['OBJET_DOSSIER']
+            $dossierId = isset($row['ID_DOSSIER']) && is_numeric($row['ID_DOSSIER'])
+                ? (int) $row['ID_DOSSIER']
                 : null;
-            if (null !== $objetDossier && '' !== $objetDossier) {
-                $dcMap[$dcId]['dossiers'][] = $objetDossier;
-            }
-        }
-
-        $tz = new \DateTimeZone($tzid);
-        $now = new \DateTime('now', $tz);
-
-        foreach ($dcMap as $dcId => $data) {
-            $row = $data['row'];
-            $dossiers = $data['dossiers'];
-
-            $libelleCommission = isset($row['LIBELLE_COMMISSION']) && \is_string($row['LIBELLE_COMMISSION'])
-                ? $row['LIBELLE_COMMISSION']
-                : '';
-            $libelleDate = isset($row['LIBELLE_DATECOMMISSION']) && \is_string($row['LIBELLE_DATECOMMISSION'])
-                ? $row['LIBELLE_DATECOMMISSION']
-                : '';
-            $summary = $libelleDate.('' !== $libelleCommission && '0' !== $libelleCommission ? ' - '.$libelleCommission : '');
 
             $dateStr = \is_string($row['DATE_COMMISSION'] ?? null) ? $row['DATE_COMMISSION'] : '';
-            $heureDebStr = \is_string($row['HEUREDEB_COMMISSION'] ?? null) ? $row['HEUREDEB_COMMISSION'] : '00:00:00';
-            $heureFinStr = \is_string($row['HEUREFIN_COMMISSION'] ?? null) ? $row['HEUREFIN_COMMISSION'] : '00:00:00';
+            $heureDebCom = \is_string($row['HEUREDEB_COMMISSION'] ?? null) ? $row['HEUREDEB_COMMISSION'] : '00:00:00';
+            $heureFinCom = \is_string($row['HEUREFIN_COMMISSION'] ?? null) ? $row['HEUREFIN_COMMISSION'] : '00:00:00';
+
+            // Utilise l'heure d'affectation du dossier si disponible, sinon l'heure de la séance
+            $heureDebAffect = \is_string($row['HEURE_DEB_AFFECT'] ?? null) ? $row['HEURE_DEB_AFFECT'] : '';
+            $heureFinAffect = \is_string($row['HEURE_FIN_AFFECT'] ?? null) ? $row['HEURE_FIN_AFFECT'] : '';
+            $heureDebStr = ($dossierId && '' !== $heureDebAffect) ? $heureDebAffect : $heureDebCom;
+            $heureFinStr = ($dossierId && '' !== $heureFinAffect) ? $heureFinAffect : $heureFinCom;
 
             try {
                 $dtStart = new \DateTime($dateStr.' '.$heureDebStr, $tz);
@@ -111,20 +104,106 @@ class IcalendarSyncService
                 continue;
             }
 
-            $description = implode("\n", $dossiers);
+            if (null === $dossierId) {
+                // DateCommission sans dossier : VEVENT minimal
+                $libelleDate = \is_string($row['LIBELLE_DATECOMMISSION'] ?? null) ? $row['LIBELLE_DATECOMMISSION'] : '';
+                $libelleCommission = \is_string($row['LIBELLE_COMMISSION'] ?? null) ? $row['LIBELLE_COMMISSION'] : '';
+                $summary = $libelleDate.('' !== $libelleCommission ? ' - '.$libelleCommission : '');
+
+                $calendar->add('VEVENT', [
+                    'SUMMARY' => $summary,
+                    'DTSTART' => $dtStart,
+                    'DTEND' => $dtEnd,
+                    'DESCRIPTION' => '',
+                    'LOCATION' => '',
+                    'UID' => sprintf('prevarisc-commission-%d@prevarisc.local', $dcId),
+                    'DTSTAMP' => $now,
+                ]);
+
+                continue;
+            }
+
+            [$summary, $location] = $this->buildSummaryAndLocation($row);
+            $description = $this->buildDescription($row);
 
             $calendar->add('VEVENT', [
                 'SUMMARY' => $summary,
                 'DTSTART' => $dtStart,
                 'DTEND' => $dtEnd,
                 'DESCRIPTION' => $description,
-                'LOCATION' => $libelleCommission,
-                'UID' => sprintf('prevarisc-commission-%d@prevarisc.local', $dcId),
+                'LOCATION' => $location,
+                'UID' => sprintf('prevarisc-commission-%d-dossier-%d@prevarisc.local', $dcId, $dossierId),
                 'DTSTAMP' => $now,
             ]);
         }
 
         return $calendar->serialize();
+    }
+
+    /**
+     * Construit le résumé et la localisation du VEVENT à partir des données de la ligne.
+     *
+     * Port de Api_Service_Calendar::createICSEvent() — sections SUMMARY et LOCATION.
+     *
+     * @param array<string, mixed> $row
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function buildSummaryAndLocation(array $row): array
+    {
+        $numeroid = \is_string($row['NUMEROID_ETABLISSEMENT'] ?? null) ? $row['NUMEROID_ETABLISSEMENT'] : '';
+        $libelleEts = \is_string($row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? null) ? $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] : '';
+        $commune = \is_string($row['LIBELLE_COMMUNE'] ?? null) ? $row['LIBELLE_COMMUNE'] : '';
+        $libelleDate = \is_string($row['LIBELLE_DATECOMMISSION'] ?? null) ? $row['LIBELLE_DATECOMMISSION'] : '';
+        $libelleCommission = \is_string($row['LIBELLE_COMMISSION'] ?? null) ? $row['LIBELLE_COMMISSION'] : '';
+        $libelleType = \is_string($row['LIBELLE_DOSSIERTYPE'] ?? null) ? $row['LIBELLE_DOSSIERTYPE'] : '';
+        $libelleNature = \is_string($row['LIBELLE_DOSSIERNATURE'] ?? null) ? $row['LIBELLE_DOSSIERNATURE'] : '';
+        $objetDossier = \is_string($row['OBJET_DOSSIER'] ?? null) ? $row['OBJET_DOSSIER'] : '';
+        $typeEvenement = isset($row['ID_COMMISSIONTYPEEVENEMENT']) && is_numeric($row['ID_COMMISSIONTYPEEVENEMENT'])
+            ? (int) $row['ID_COMMISSIONTYPEEVENEMENT']
+            : 0;
+        $typeDossier = isset($row['TYPE_DOSSIER']) && is_numeric($row['TYPE_DOSSIER'])
+            ? (int) $row['TYPE_DOSSIER']
+            : 0;
+
+        if (self::TYPE_EVENEMENT_EN_SALLE === $typeEvenement) {
+            $libelleSum = (self::ID_DOSSIERTYPE_GRPVISITE === $typeDossier) ? $libelleDate : $objetDossier;
+            $summary = substr(
+                sprintf('#%s %s (%s) : %s %s - %s', $numeroid, $libelleEts, $commune, $libelleType, $libelleNature, trim($libelleSum)),
+                0,
+                255
+            );
+            $location = sprintf('Commission en salle de %s', $libelleCommission);
+        } else {
+            $summary = substr(
+                sprintf('#%s %s : %s', $numeroid, $libelleEts, $libelleDate),
+                0,
+                255
+            );
+            $numero = \is_string($row['NUMERO_ADRESSE'] ?? null) ? $row['NUMERO_ADRESSE'] : '';
+            $ruetype = \is_string($row['LIBELLE_RUETYPE'] ?? null) ? $row['LIBELLE_RUETYPE'] : '';
+            $rue = \is_string($row['LIBELLE_RUE'] ?? null) ? $row['LIBELLE_RUE'] : '';
+            $cp = \is_string($row['CODEPOSTAL_COMMUNE'] ?? null) ? $row['CODEPOSTAL_COMMUNE'] : '';
+            $location = trim(sprintf('%s %s %s, %s %s', $numero, $ruetype, $rue, $cp, $commune));
+        }
+
+        return [$summary, $location];
+    }
+
+    /**
+     * Construit la description du VEVENT (préventionnistes du dossier).
+     *
+     * @param array<string, mixed> $row
+     */
+    private function buildDescription(array $row): string
+    {
+        $preventionnistes = \is_string($row['PREVENTIONNISTES'] ?? null) ? trim($row['PREVENTIONNISTES']) : '';
+
+        if ('' === $preventionnistes) {
+            return '';
+        }
+
+        return sprintf("Préventionniste(s) du dossier :\r\n- %s\r\n", $preventionnistes);
     }
 
     /**

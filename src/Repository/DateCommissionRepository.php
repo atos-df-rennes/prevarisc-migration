@@ -346,16 +346,16 @@ class DateCommissionRepository extends ServiceEntityRepository
 
     /**
      * Retourne les DateCommissions pour la synchronisation webcal.
-     * Port simplifié de Model_DbTable_DateCommission::getEventInCommission().
+     * Port de Model_DbTable_DateCommission::getEventInCommission().
      *
-     * - Si userId non null : joint avec dossieraffectation + dossierpreventionniste
-     *   pour ne retourner que les DateCommissions des dossiers du préventionniste.
+     * - Si userId non null : joint avec dossierpreventionniste pour ne retourner que les
+     *   DateCommissions des dossiers du préventionniste.
      * - Si commissionId non null : filtre par commission.
      * - Si les deux null (admin) : retourne tout.
      * - fromDate : filtre dc.DATE_COMMISSION >= fromDate (date glissante, 1 an en arrière).
-     * - Joint avec dossieraffectation pour récupérer OBJET_DOSSIER pour la DESCRIPTION.
      *
-     * Retourne des lignes brutes : plusieurs lignes par DateCommission si plusieurs dossiers.
+     * Retourne une ligne par couple DateCommission × Dossier.
+     * Les natures de dossier et les préventionnistes sont regroupés via GROUP_CONCAT.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -364,33 +364,89 @@ class DateCommissionRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $params = ['fromDate' => $fromDate];
 
+        // Sous-requête corrélée : libellés des natures de dossier regroupés
+        $natureSubquery = "(SELECT GROUP_CONCAT(DISTINCT dnl2.LIBELLE_DOSSIERNATURE
+                                ORDER BY dnl2.LIBELLE_DOSSIERNATURE SEPARATOR ', ')
+                            FROM dossiernature dn2
+                            JOIN dossiernatureliste dnl2 ON dn2.ID_NATURE = dnl2.ID_DOSSIERNATURE
+                            WHERE dn2.ID_DOSSIER = d.ID_DOSSIER)";
+
+        // Sous-requête corrélée : préventionnistes regroupés
+        $preventionnisteSubquery = "(SELECT GROUP_CONCAT(DISTINCT
+                                        TRIM(CONCAT_WS(' ',
+                                            NULLIF(ui2.GRADE_UTILISATEURINFORMATIONS, ''),
+                                            ui2.PRENOM_UTILISATEURINFORMATIONS,
+                                            ui2.NOM_UTILISATEURINFORMATIONS))
+                                        ORDER BY ui2.NOM_UTILISATEURINFORMATIONS SEPARATOR ', ')
+                                     FROM dossierpreventionniste dp2
+                                     JOIN utilisateurinformations ui2
+                                          ON dp2.ID_PREVENTIONNISTE = ui2.ID_UTILISATEURINFORMATIONS
+                                     WHERE dp2.ID_DOSSIER = d.ID_DOSSIER)";
+
         if (null !== $userId) {
-            // Filtre par préventionniste : joint dossieraffectation → dossier → dossierpreventionniste
-            // INNER JOINs explicites car le WHERE sur dp.ID_PREVENTIONNISTE exige que d et dp existent.
-            $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
-                           dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
-                           c.LIBELLE_COMMISSION,
-                           d.OBJET_DOSSIER, d.ID_DOSSIER
-                    FROM datecommission dc
-                    JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
-                    JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+            // Filtrage par préventionniste : INNER JOINs pour n'inclure que les dossiers du préventionniste
+            $dossierJoins = 'JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
                     JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-                    JOIN dossierpreventionniste dp ON dp.ID_DOSSIER = d.ID_DOSSIER
-                    WHERE dp.ID_PREVENTIONNISTE = :userId
-                    AND dc.DATE_COMMISSION >= :fromDate';
+                    JOIN dossierpreventionniste dp ON d.ID_DOSSIER = dp.ID_DOSSIER
+                    JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER';
+            $userFilter = 'AND dp.ID_PREVENTIONNISTE = :userId';
             $params['userId'] = $userId;
         } else {
-            // Admin : toutes les DateCommissions avec leurs dossiers (LEFT JOIN)
-            $sql = 'SELECT dc.ID_DATECOMMISSION, dc.DATE_COMMISSION, dc.HEUREDEB_COMMISSION,
-                           dc.HEUREFIN_COMMISSION, dc.LIBELLE_DATECOMMISSION,
-                           c.LIBELLE_COMMISSION,
-                           d.OBJET_DOSSIER, d.ID_DOSSIER
-                    FROM datecommission dc
-                    JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
-                    LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
+            // Admin : toutes les DateCommissions, LEFT JOIN pour inclure celles sans dossier
+            $dossierJoins = 'LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
                     LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-                    WHERE dc.DATE_COMMISSION >= :fromDate';
+                    LEFT JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER';
+            $userFilter = '';
         }
+
+        $sql = "SELECT
+                    dc.ID_DATECOMMISSION,
+                    dc.DATE_COMMISSION,
+                    dc.HEUREDEB_COMMISSION,
+                    dc.HEUREFIN_COMMISSION,
+                    dc.LIBELLE_DATECOMMISSION,
+                    dc.ID_COMMISSIONTYPEEVENEMENT,
+                    c.LIBELLE_COMMISSION,
+                    d.ID_DOSSIER,
+                    d.OBJET_DOSSIER,
+                    d.TYPE_DOSSIER,
+                    da.HEURE_DEB_AFFECT,
+                    da.HEURE_FIN_AFFECT,
+                    dt.LIBELLE_DOSSIERTYPE,
+                    {$natureSubquery} AS LIBELLE_DOSSIERNATURE,
+                    ets.ID_ETABLISSEMENT,
+                    ets.NUMEROID_ETABLISSEMENT,
+                    ei.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                    ea.NUMERO_ADRESSE,
+                    ar.LIBELLE_RUE,
+                    art.LIBELLE_RUETYPE,
+                    com.LIBELLE_COMMUNE,
+                    com.CODEPOSTAL_COMMUNE,
+                    {$preventionnisteSubquery} AS PREVENTIONNISTES
+                FROM datecommission dc
+                JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
+                {$dossierJoins}
+                LEFT JOIN dossiertype dt ON d.TYPE_DOSSIER = dt.ID_DOSSIERTYPE
+                LEFT JOIN etablissement ets ON edos.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
+                LEFT JOIN etablissementinformations ei
+                    ON ets.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
+                    AND ei.ID_ETABLISSEMENTINFORMATIONS = (
+                        SELECT MIN(ei2.ID_ETABLISSEMENTINFORMATIONS)
+                        FROM etablissementinformations ei2
+                        WHERE ei2.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
+                    )
+                LEFT JOIN etablissementadresse ea
+                    ON ets.ID_ETABLISSEMENT = ea.ID_ETABLISSEMENT
+                    AND ea.ID_ADRESSE = (
+                        SELECT MIN(ea2.ID_ADRESSE)
+                        FROM etablissementadresse ea2
+                        WHERE ea2.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
+                    )
+                LEFT JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
+                LEFT JOIN adresseruetype art ON ar.ID_RUETYPE = art.ID_RUETYPE
+                LEFT JOIN commune com ON ea.NUMINSEE_COMMUNE = com.NUMINSEE_COMMUNE
+                WHERE dc.DATE_COMMISSION >= :fromDate
+                {$userFilter}";
 
         if (null !== $commissionId) {
             $sql .= ' AND dc.COMMISSION_CONCERNE = :commissionId';
