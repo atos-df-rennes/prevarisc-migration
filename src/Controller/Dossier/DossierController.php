@@ -1064,7 +1064,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $idsJson = json_encode($etablissementsIds);
 
                 return $this->redirect(sprintf(
-                    '/legacy/vider-cache-etablissement?ids=%s&target=%s',
+                    '/legacy/etablissement/vider-cache?ids=%s&target=%s',
                     urlencode(false !== $idsJson ? $idsJson : '[]'),
                     urlencode($this->generateUrl('search_dossier'))
                 ));
