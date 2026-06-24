@@ -31,7 +31,7 @@
 | **Impact** | **Moyen** — une prescription type sans association peut être enregistrée côté Symfony, alors que la spec et l'IHM legacy l'interdisent. |
 | **Fichiers concernés** | `prevarisc-migration/src/Form/PrescriptionTypePrescriptionType.php:13-24`, `prevarisc-migration/src/Controller/Prescription/PrescriptionsTypesController.php:304-314`, `prevarisc/application/views/scripts/gestion-prescriptions/index.phtml:518-575` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy en appliquant la contrainte `Count(min=1)`.
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy en appliquant la contrainte `Count(min=1)`. Appliquer également la contrainte sur le fait que le conten ne doit pas être vide.
 
 ---
 
@@ -47,7 +47,7 @@
 | **Fichiers concernés** | `prevarisc-migration/src/Form/PrescriptionDossierAssociationType.php:31-54`, `prevarisc-migration/src/Form/PrescriptionTypePrescriptionAssociationType.php:31-54`, `prevarisc-migration/src/Form/PrescriptionReglementaireAssociationType.php:35-55`, `prevarisc/application/views/scripts/gestion-prescriptions/formprescription.phtml:82-110`, `prevarisc/application/views/scripts/gestion-prescriptions/prescription-form.phtml:147-184`, `prevarisc/application/views/scripts/dossier/prescription-edit.phtml:112-137`, `prevarisc/application/services/Prescriptions.php:71-84,209-218`, `prevarisc/application/services/Dossier.php:501-518,579-596` |
 
 **Retour utilisateur** : Le legacy présélectionne les valeurs sans options vides. Les options vides apparaissent uniquement après ajout d'une première association. Lorsqu'une valeur est sélectionnée, il n'est pas possible de la retirer.\
-Le comportement de sélection partielle semble donc être un bug dans un cas précis et ne devrait pas être permise. Le code Symfony est donc correct et aucune action n'est à prévoir pour ce point.
+Le comportement de sélection partielle semble donc être un bug dans un cas précis et ne devrait pas être permis. Le code Symfony est donc correct et aucune action n'est à prévoir pour ce point.
 
 ---
 
