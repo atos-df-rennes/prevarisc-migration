@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service\Commission;
 
+use App\Constant\Avis;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierType;
+use App\Constant\GenreEtablissement;
 use App\Repository\DateCommissionRepository;
 use Sabre\VObject\Component\VCalendar;
 
@@ -245,7 +247,7 @@ class IcalendarSyncService
             ? (int) $row['TYPE_DOSSIER']
             : 0;
 
-        if (1 === $typeDossier) {
+        if (DossierType::ETUDE === $typeDossier) {
             $typeServInstruc = \is_string($row['TYPESERVINSTRUC_DOSSIER'] ?? null)
                 ? $row['TYPESERVINSTRUC_DOSSIER']
                 : '';
@@ -319,20 +321,20 @@ class IcalendarSyncService
         }
 
         $avis = $row['AVIS_DOSSIER_COMMISSION_VAL'] ?? null;
-        if (null === $avis || !is_numeric($avis)) {
+        if (!is_numeric($avis)) {
             return "Avis d'exploitation indisponible";
         }
 
         // ID_GENRE_CELLULE = 3 (port de Api_Service_Calendar::ID_GENRE_CELLULE)
         $idGenre = isset($row['ID_GENRE']) && is_numeric($row['ID_GENRE']) ? (int) $row['ID_GENRE'] : 0;
-        $suffixeCellule = (3 === $idGenre) ? " à l'exploitation" : '';
+        $suffixeCellule = (GenreEtablissement::CELLULE === $idGenre) ? " à l'exploitation" : '';
 
         $avisInt = (int) $avis;
-        if (1 === $avisInt) {
+        if (Avis::FAVORABLE === $avisInt) {
             return 'Favorable'.$suffixeCellule;
         }
 
-        if (2 === $avisInt) {
+        if (Avis::DEFAVORABLE === $avisInt) {
             return 'Défavorable'.$suffixeCellule;
         }
 
