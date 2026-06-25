@@ -106,11 +106,9 @@ class CommissionCompetencesController extends AbstractController
             $this->addFlash('success', \sprintf('Les règles de compétence ont été appliquées à %d établissement(s).', $numberOfUpdatedEtablissements));
         }
 
-        $target = $this->generateUrl('admin_commissions_competences', ['id' => $commission->getId()]);
-
         // @todo Cache standard : invalider le cache $cache (équivalent Zend cache->clean()) une fois
         // qu'un mécanisme Symfony de cache standard (miroir du $cache legacy) sera mis en place.
         // Ne pas confondre avec le TagAwareCacheInterface ($cacheSearch) qui ne semble pas utilisé ici.
-        return $this->redirect($target);
+        return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
     }
 }

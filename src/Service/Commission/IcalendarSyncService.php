@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Commission;
 
+use App\Constant\CommissionTypeEvenement;
+use App\Constant\DossierType;
 use App\Repository\DateCommissionRepository;
 use Sabre\VObject\Component\VCalendar;
 
@@ -19,12 +21,6 @@ use Sabre\VObject\Component\VCalendar;
  */
 class IcalendarSyncService
 {
-    /** @var int Type d'événement « en salle » */
-    private const TYPE_EVENEMENT_EN_SALLE = 1;
-
-    /** @var int ID dossiertype groupe de visite */
-    private const ID_DOSSIERTYPE_GRPVISITE = 3;
-
     /**
      * @var DateCommissionRepository
      */
@@ -166,8 +162,8 @@ class IcalendarSyncService
             ? (int) $row['TYPE_DOSSIER']
             : 0;
 
-        if (self::TYPE_EVENEMENT_EN_SALLE === $typeEvenement) {
-            $libelleSum = (self::ID_DOSSIERTYPE_GRPVISITE === $typeDossier) ? $libelleDate : $objetDossier;
+        if (CommissionTypeEvenement::TYPE_COMMISSION_SALLE === $typeEvenement) {
+            $libelleSum = (DossierType::GROUPE_DE_VISITE === $typeDossier) ? $libelleDate : $objetDossier;
             $summary = substr(
                 sprintf('#%s %s (%s) : %s %s - %s', $numeroid, $libelleEts, $commune, $libelleType, $libelleNature, trim($libelleSum)),
                 0,
