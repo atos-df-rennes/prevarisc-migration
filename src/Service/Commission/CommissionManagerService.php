@@ -3,6 +3,9 @@
 namespace App\Service\Commission;
 
 use App\Entity\Commission;
+use App\Entity\CommissionMembre;
+use App\Entity\UtilisateurInformations;
+use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -17,17 +20,33 @@ final class CommissionManagerService
     /** @var CommissionFilesystem */
     private $commissionFilesystem;
 
+    /** @var CommissionMembreCourrierService */
+    private $courrierService;
+
+    /** @var Contact */
+    private $contactService;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        CommissionFilesystem $commissionFilesystem
+        CommissionFilesystem $commissionFilesystem,
+        CommissionMembreCourrierService $courrierService,
+        Contact $contactService
     ) {
         $this->entityManager = $entityManager;
         $this->commissionFilesystem = $commissionFilesystem;
+        $this->courrierService = $courrierService;
+        $this->contactService = $contactService;
     }
 
     /**
      * Sauvegarde les commissions soumises et supprime celles absentes de la soumission.
      * Synchronise ensuite le filesystem (création/suppression de répertoires).
+     *
+     * Alignement legacy (CommissionController::deleteAction) :
+     * - Les contacts de la commission sont dissociés ; ceux non utilisés ailleurs sont supprimés.
+     * - Les membres de la commission sont supprimés via cascade Doctrine.
+     * - Les règles de compétence sont supprimées via orphanRemoval.
+     * - Les fichiers ODT des membres sont supprimés du filesystem après le flush.
      *
      * Note d'intégrité : en cas d'échec filesystem après le flush, la base de données
      * reste authoritative. Les répertoires manquants peuvent être recréés manuellement.
@@ -53,12 +72,42 @@ final class CommissionManagerService
 
         /** @var int[] $commissionsToDelete */
         $commissionsToDelete = [];
+
+        /**
+         * Membres dont les fichiers ODT doivent être supprimés après le flush.
+         *
+         * @var CommissionMembre[] $membresOdtToClean
+         */
+        $membresOdtToClean = [];
+
         foreach ($originalCommissions as $commission) {
             $commissionId = $commission->getId();
-            if ($commissionId && !in_array($commissionId, $submittedIds, true)) {
-                $commissionsToDelete[] = $commissionId;
-                $this->entityManager->remove($commission);
+            if (!$commissionId) {
+                continue;
             }
+
+            if (in_array($commissionId, $submittedIds, true)) {
+                continue;
+            }
+
+            $commissionsToDelete[] = $commissionId;
+
+            // Capture les membres avant que Doctrine ne les supprime en cascade
+            foreach ($commission->getMembres() as $membre) {
+                $membresOdtToClean[$membre->getId()] = $membre;
+            }
+
+            // Supprime les contacts de la commission :
+            // si un contact n'est rattaché qu'à cette commission, il est supprimé.
+            foreach ($commission->getContacts()->toArray() as $contact) {
+                /** @var UtilisateurInformations $contact */
+                $commission->removeContact($contact);
+                if (!$this->contactService->isUsed($contact, Contact::COMMISSION)) {
+                    $this->entityManager->remove($contact);
+                }
+            }
+
+            $this->entityManager->remove($commission);
         }
 
         $this->entityManager->flush();
@@ -71,6 +120,11 @@ final class CommissionManagerService
 
         foreach ($commissionsToDelete as $commissionId) {
             $this->commissionFilesystem->removeCommissionDirectory($commissionId);
+        }
+
+        // Suppression des fichiers ODT après persistance réussie
+        foreach ($membresOdtToClean as $id => $membre) {
+            $this->courrierService->deleteAllFiles($membre, $id);
         }
     }
 }

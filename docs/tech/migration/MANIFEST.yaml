@@ -23,7 +23,7 @@ calendrier_des_commissions:
     - prevarisc-migration/public/js/dossier/calendar-init.js
     - prevarisc-migration/public/js/calendrier/date-collection-observer.js
     - prevarisc-migration/config/packages/security.php
-  updated_at: "2026-04-22"
+  updated_at: "2026-06-24"
   notes: >
     Correction des classes CSS hidden sur les champs planification,
     correction off-by-one sur la sélection multi-dates (FullCalendar v1.6.4 end inclusif),
@@ -36,6 +36,10 @@ calendrier_des_commissions:
     accès public /api/1.0/calendar (security.php),
     correction lien gestionodj.html.twig vers route Symfony,
     activation lien export Outlook mensuel dans calendrier-commissions.js.
+    [2026-06-24] Écart B MOD-03 : alignement webcal sur legacy — VEVENT par couple
+    DateCommission × Dossier, SUMMARY enrichi (#NUMEROID établissement commune type nature),
+    LOCATION (adresse ou commission en salle), DESCRIPTION (préventionnistes).
+    Requête findForWebcalSync étendue avec établissement, adresse, commune, preventionniste.
   routes:
     - name: calendrier_des_commissions_export_outlook
       path: /commissions/calendrier/export-outlook/{dateCommId}
@@ -59,7 +63,7 @@ commission_generation_documents:
     - prevarisc-migration/src/Constant/AvisCommission.php
     - prevarisc-migration/public/js/gestionodj.js
     - prevarisc-migration/templates/calendrier_des_commissions/gestionodj.html.twig
-  updated_at: "2026-05-20"
+  updated_at: "2026-06-24"
   notes: >
     PHPStan niveau 10 : 0 erreur (CommissionDocumentGenerationService, CommissionMembreEligibilityChecker).
     Migration complète des 4 actions de génération de documents ODT de commission
@@ -73,6 +77,13 @@ commission_generation_documents:
     Gestion groupement incluse (convocation + ODJ).
     Réponse JSON par membre avec détail status/message/pieceJointeId.
     CSRF par action + dateCommId.
+    [2026-06-24] Écart 6 MOD-03 : CommissionMembreCourrierService::deleteAllFiles() + appel dans
+    CommissionMembresController pour supprimer les ODT des membres retirés après flush.
+    [2026-06-24] Écart A MOD-03 : CommissionCompetencesController::applyRegles() — retire l'appel
+    legacy /legacy/admin/clear-cache-and-redirect, redirige directement, TODO cache standard.
+    [2026-06-24] Écart C MOD-03 : CommissionManagerService::saveCommissions() — suppression des
+    contacts (avec delete UtilisateurInformations si non utilisée) et des ODT membres avant
+    suppression de la commission (alignement legacy CommissionController::deleteAction).
   routes:
     - name: commission_calendrier_generation_convocation
       path: /commission/calendrier/{dateCommId}/generation/convocation

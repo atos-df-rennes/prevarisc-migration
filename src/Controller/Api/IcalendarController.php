@@ -77,12 +77,11 @@ class IcalendarController extends AbstractController
         // on retourne tout sans filtre utilisateur (userId=null).
         // Le filtre commission reste toujours honoré, même pour les admins.
         $utilisateur = $this->utilisateurRepository->find($userId);
-        $effectiveUserId = null !== $utilisateur && $this->hasCalendarViewAllPrivilege($utilisateur)
-            ? null
-            : $userId;
+        $hasViewAllPrivilege = null !== $utilisateur && $this->hasCalendarViewAllPrivilege($utilisateur);
+        $effectiveUserId = $hasViewAllPrivilege ? null : $userId;
         $effectiveCommissionId = $commissionId;
 
-        $icsContent = $this->icalendarSyncService->generateFeed($effectiveUserId, $effectiveCommissionId);
+        $icsContent = $this->icalendarSyncService->generateFeed($effectiveUserId, $effectiveCommissionId, $hasViewAllPrivilege);
 
         $response = new Response($icsContent);
         $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');

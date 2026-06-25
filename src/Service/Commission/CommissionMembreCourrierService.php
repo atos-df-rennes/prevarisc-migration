@@ -62,7 +62,7 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
             return false;
         }
 
-        return $this->storedFileExists($this->buildStoredFilename($membre, $type, $filename));
+        return $this->storedFileExists($this->buildStoredFilename($membre->getId(), $type, $filename));
     }
 
     /**
@@ -79,11 +79,11 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
         }
 
         $originalFilename = File::sanitize($file->getClientOriginalName());
-        $storedFilename = $this->buildStoredFilename($membre, $type, $originalFilename);
+        $storedFilename = $this->buildStoredFilename($membre->getId(), $type, $originalFilename);
 
         $existingFilename = $this->getCourrierFilename($membre, $type);
         if (null !== $existingFilename) {
-            $existingStoredFilename = $this->buildStoredFilename($membre, $type, $existingFilename);
+            $existingStoredFilename = $this->buildStoredFilename($membre->getId(), $type, $existingFilename);
             if ($existingStoredFilename !== $storedFilename) {
                 $this->removeFile($existingStoredFilename);
             }
@@ -93,6 +93,20 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
 
         $this->setCourrierFilename($membre, $type, $originalFilename);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Supprime tous les fichiers ODT associés à un membre, sans toucher la base de données.
+     * À utiliser après la suppression de l'entité membre. Ceci nécessite l'utilisation séparée de l'id qui est nullifié après suppression.
+     */
+    public function deleteAllFiles(CommissionMembre $membre, int $membreId): void
+    {
+        foreach (CommissionMembreCourrierType::ALL as $type) {
+            $filename = $this->getCourrierFilename($membre, $type);
+            if (null !== $filename) {
+                $this->removeFile($this->buildStoredFilename($membreId, $type, $filename));
+            }
+        }
     }
 
     /**
@@ -113,7 +127,7 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
             return;
         }
 
-        $storedFilename = $this->buildStoredFilename($membre, $type, $existingFilename);
+        $storedFilename = $this->buildStoredFilename($membre->getId(), $type, $existingFilename);
         $this->removeFile($storedFilename);
 
         $this->setCourrierFilename($membre, $type, null);
@@ -124,9 +138,13 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
      * Construit le nom du fichier tel qu'il est stocké sur le disque.
      * Convention : {idMembre}{type}_{originalFilename}.
      */
-    private function buildStoredFilename(CommissionMembre $membre, string $type, string $originalFilename): string
+    private function buildStoredFilename(?int $membreId, string $type, string $originalFilename): string
     {
-        return $membre->getId().$type.'_'.$originalFilename;
+        if (null === $membreId) {
+            throw new \InvalidArgumentException("L'identifiant du membre n'a pas pu être récupéré. Impossible de déterminer le nom du fichier.");
+        }
+
+        return $membreId.$type.'_'.$originalFilename;
     }
 
     /**
