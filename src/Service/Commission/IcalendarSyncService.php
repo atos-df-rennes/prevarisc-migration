@@ -72,7 +72,7 @@ class IcalendarSyncService
         $this->addVTimezone($calendar, $tzid);
 
         $tz = new \DateTimeZone($tzid);
-        $now = new \DateTime('now', $tz);
+        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
 
         foreach ($rows as $row) {
             $dcId = isset($row['ID_DATECOMMISSION']) && is_numeric($row['ID_DATECOMMISSION'])
@@ -113,7 +113,7 @@ class IcalendarSyncService
                     'DESCRIPTION' => '',
                     'LOCATION' => '',
                     'UID' => sprintf('prevarisc-commission-%d@prevarisc.local', $dcId),
-                    'DTSTAMP' => $now,
+                    'DTSTAMP' => $nowUtc,
                 ]);
 
                 continue;
@@ -129,7 +129,7 @@ class IcalendarSyncService
                 'DESCRIPTION' => $description,
                 'LOCATION' => $location,
                 'UID' => sprintf('prevarisc-commission-%d-dossier-%d@prevarisc.local', $dcId, $dossierId),
-                'DTSTAMP' => $now,
+                'DTSTAMP' => $nowUtc,
             ]);
         }
 

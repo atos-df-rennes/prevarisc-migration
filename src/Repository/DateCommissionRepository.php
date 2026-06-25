@@ -383,23 +383,14 @@ class DateCommissionRepository extends ServiceEntityRepository
                                           ON dp2.ID_PREVENTIONNISTE = ui2.ID_UTILISATEURINFORMATIONS
                                      WHERE dp2.ID_DOSSIER = d.ID_DOSSIER)";
 
+        // Port du legacy : INNER JOINs pour inclure UNIQUEMENT les dossiers avec préventionniste(s)
+        $userFilter = '';
         if (null !== $userId) {
-            // Filtrage par préventionniste : INNER JOINs pour n'inclure que les dossiers du préventionniste
-            $dossierJoins = 'JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
-                    JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-                    JOIN dossierpreventionniste dp ON d.ID_DOSSIER = dp.ID_DOSSIER
-                    JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER';
-            $userFilter = 'AND dp.ID_PREVENTIONNISTE = :userId';
+            $userFilter = 'AND u.ID_UTILISATEUR = :userId';
             $params['userId'] = $userId;
-        } else {
-            // Admin : toutes les DateCommissions, LEFT JOIN pour inclure celles sans dossier
-            $dossierJoins = 'LEFT JOIN dossieraffectation da ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
-                    LEFT JOIN dossier d ON da.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-                    LEFT JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER';
-            $userFilter = '';
         }
 
-        $sql = "SELECT
+        $sql = "SELECT DISTINCT
                     dc.ID_DATECOMMISSION,
                     dc.DATE_COMMISSION,
                     dc.HEUREDEB_COMMISSION,
@@ -410,8 +401,6 @@ class DateCommissionRepository extends ServiceEntityRepository
                     d.ID_DOSSIER,
                     d.OBJET_DOSSIER,
                     d.TYPE_DOSSIER,
-                    da.HEURE_DEB_AFFECT,
-                    da.HEURE_FIN_AFFECT,
                     dt.LIBELLE_DOSSIERTYPE,
                     {$natureSubquery} AS LIBELLE_DOSSIERNATURE,
                     ets.ID_ETABLISSEMENT,
@@ -423,10 +412,15 @@ class DateCommissionRepository extends ServiceEntityRepository
                     com.LIBELLE_COMMUNE,
                     com.CODEPOSTAL_COMMUNE,
                     {$preventionnisteSubquery} AS PREVENTIONNISTES
-                FROM datecommission dc
+                FROM dossier d
+                JOIN dossieraffectation da ON d.ID_DOSSIER = da.ID_DOSSIER_AFFECT
+                JOIN datecommission dc ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
                 JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
-                {$dossierJoins}
-                LEFT JOIN dossiertype dt ON d.TYPE_DOSSIER = dt.ID_DOSSIERTYPE
+                JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER
+                JOIN dossiernature dn ON d.ID_DOSSIER = dn.ID_DOSSIER
+                JOIN dossiertype dt ON d.TYPE_DOSSIER = dt.ID_DOSSIERTYPE
+                JOIN dossierpreventionniste dp ON d.ID_DOSSIER = dp.ID_DOSSIER
+                JOIN utilisateur u ON dp.ID_PREVENTIONNISTE = u.ID_UTILISATEUR
                 LEFT JOIN etablissement ets ON edos.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
                 LEFT JOIN etablissementinformations ei
                     ON ets.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
@@ -444,7 +438,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                     )
                 LEFT JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
                 LEFT JOIN adresseruetype art ON ar.ID_RUETYPE = art.ID_RUETYPE
-                LEFT JOIN commune com ON ea.NUMINSEE_COMMUNE = com.NUMINSEE_COMMUNE
+                LEFT JOIN adressecommune com ON ea.NUMINSEE_COMMUNE = com.NUMINSEE_COMMUNE
                 WHERE dc.DATE_COMMISSION >= :fromDate
                 {$userFilter}";
 
