@@ -70,7 +70,7 @@ class CommissionMembresController extends AbstractController
             // Identifie les membres supprimés : présents avant, absents après soumission
             $removedMembres = array_filter(
                 $originalMembres,
-                static function (CommissionMembre $membre) use ($commission) {
+                static function (CommissionMembre $membre) use ($commission): bool {
                     return !$commission->getMembres()->contains($membre);
                 }
             );
