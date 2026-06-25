@@ -138,8 +138,12 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
      * Construit le nom du fichier tel qu'il est stocké sur le disque.
      * Convention : {idMembre}{type}_{originalFilename}.
      */
-    private function buildStoredFilename(int $membreId, string $type, string $originalFilename): string
+    private function buildStoredFilename(?int $membreId, string $type, string $originalFilename): string
     {
+        if (null === $membreId) {
+            throw new \InvalidArgumentException("L'identifiant du membre n'a pas pu être récupéré. Impossible de déterminer le nom du fichier.");
+        }
+
         return $membreId.$type.'_'.$originalFilename;
     }
 
