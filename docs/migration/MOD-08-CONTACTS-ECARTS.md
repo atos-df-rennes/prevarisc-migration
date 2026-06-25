@@ -11,10 +11,10 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 16 (RG-CTT-001 à RG-CTT-016) |
-| Écarts spec ↔ Symfony | 5 |
+| Écarts spec ↔ Symfony | 5 (1 traité ✅) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 5 |
-| Impact critique | 1 (suppression d'un contact encore partagé) |
+| Écarts Symfony ↔ Legacy | 5 (1 corrigé ✅) |
+| Impact critique | 0 (1 risque critique éliminé ✅) |
 
 ---
 
@@ -50,16 +50,16 @@
 
 ---
 
-### Écart 3 — La suppression peut effacer un contact encore lié à une autre entité du même type
+### Écart 3 — La suppression peut effacer un contact encore lié à une autre entité du même type ✅ Corrigé
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-CTT-006, RG-CTT-007, § 5.4, § 8.3 |
 | **Spec** | Si au moins une autre association subsiste, seule la dissociation courante doit être supprimée ; la fiche contact doit être conservée. |
-| **Symfony** | Les contrôleurs retirent d'abord l'association (`removeContact()`), puis appellent `Contact::isUsed()` avec un seuil `1` pour le type courant (`src/Controller/Etablissement/EtablissementContactController.php:179-183`, `src/Controller/Dossier/DossierContactController.php:194-198`, `src/Controller/GroupementController.php:299-303`, `src/Controller/Commission/CommissionContactsController.php:139-143`, `src/Service/Contact.php:67-75`). Après dissociation, un contact encore lié à **un autre établissement** / **un autre dossier** / etc. n'est plus détecté comme « utilisé » et peut être supprimé à tort. |
+| **Symfony (avant)** | Les contrôleurs retiraient d'abord l'association (`removeContact()`), puis appelaient `Contact::isUsed()` avec un seuil `1` pour le type courant (`src/Controller/Etablissement/EtablissementContactController.php:179-183`, `src/Controller/Dossier/DossierContactController.php:194-198`, `src/Controller/GroupementController.php:299-303`, `src/Controller/Commission/CommissionContactsController.php:139-143`, `src/Service/Contact.php:67-75`). Cette séquence créait une dépendance au timing Doctrine : si un `flush()` était inséré entre `removeContact()` et `isUsed()`, le contact aurait pu être supprimé à tort. |
 | **Legacy** | Le legacy compte les associations **avant** suppression et conserve la fiche dès qu'il en reste au moins une sur n'importe quel type (`application/controllers/ContactController.php:241-255`). |
-| **Impact** | **Critique** — risque de suppression définitive d'une fiche contact encore partagée entre plusieurs entités du même type, en contradiction directe avec la spec. |
-| **Fichiers concernés** | `prevarisc-migration/src/Service/Contact.php`, `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php`, `prevarisc-migration/src/Controller/Dossier/DossierContactController.php`, `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Controller/Commission/CommissionContactsController.php`, `prevarisc/application/controllers/ContactController.php` |
+| **Solution** | Vérification de `isUsed()` **avant** `removeContact()`, stockage du résultat dans une variable temporaire (`$isStillUsed`), puis suppression de l'association et du contact en toute sécurité. Élimine la fragilité de timing et aligne le pattern avec le legacy. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php` (ligne 179), `prevarisc-migration/src/Controller/Dossier/DossierContactController.php` (ligne 176), `prevarisc-migration/src/Controller/GroupementController.php` (ligne 299), `prevarisc-migration/src/Controller/Commission/CommissionContactsController.php` (ligne 139) |
 
 ---
 
@@ -105,7 +105,7 @@
 
 ## Recommandations
 
-1. **Priorité critique** : corriger la logique de suppression dans `App\Service\Contact::isUsed()` / les contrôleurs pour vérifier les associations restantes **avant** suppression ou abaisser le seuil attendu après dissociation.
+1. **Priorité critique** ✅ Traitée : correction de la logique de suppression dans les contrôleurs pour vérifier les associations restantes **avant** suppression, éliminant la dépendance au timing Doctrine.
 2. **Priorité haute** : compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController` pour restaurer la visibilité du DUS hérité.
 3. **Priorité moyenne** : ajouter un filtrage contextuel des fonctions dans `ContactType` afin de masquer « Maire » en création standard et ne l'autoriser qu'en édition / contexte commune.
 4. **Priorité moyenne** : relever l'autocomplétion à 100 résultats maximum pour retrouver le comportement attendu par la spec et par l'UI legacy.

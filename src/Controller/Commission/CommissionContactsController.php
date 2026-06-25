@@ -136,9 +136,11 @@ class CommissionContactsController extends AbstractController
                 return $this->redirectToRoute('admin_commissions_contacts', ['id' => $commission->getId()]);
             }
 
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::COMMISSION);
+
             $commission->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::COMMISSION)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 

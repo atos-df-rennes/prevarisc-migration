@@ -173,9 +173,11 @@ class DossierContactController extends AbstractController implements DossierLate
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::DOSSIER);
+
             $dossier->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::DOSSIER)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 

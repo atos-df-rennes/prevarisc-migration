@@ -176,9 +176,11 @@ class EtablissementContactController extends AbstractController implements Etabl
                 return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
             }
 
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::ETABLISSEMENT);
+
             $etablissement->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 

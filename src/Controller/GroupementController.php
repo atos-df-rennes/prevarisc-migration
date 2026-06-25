@@ -296,9 +296,11 @@ class GroupementController extends AbstractController
                 return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
             }
 
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::GROUPEMENT);
+
             $groupement->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::GROUPEMENT)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 
