@@ -373,14 +373,14 @@ class DateCommissionRepository extends ServiceEntityRepository
         // Sous-requête corrélée : préventionnistes regroupés (grade + prenom + nom)
         // Include all preventionnistes, with NULL grade for those missing one
         $preventionnisteSubquery = "(SELECT GROUP_CONCAT(CONCAT(
-                                            CASE 
+                                            CASE
                                                 WHEN COALESCE(ui2.GRADE_UTILISATEURINFORMATIONS, '') = ''
                                                 THEN 'INCOMPLETE'
                                                 ELSE TRIM(CONCAT_WS(' ',
                                                     NULLIF(ui2.GRADE_UTILISATEURINFORMATIONS, ''),
                                                     ui2.PRENOM_UTILISATEURINFORMATIONS,
                                                     ui2.NOM_UTILISATEURINFORMATIONS))
-                                            END) 
+                                            END)
                                         ORDER BY ui2.NOM_UTILISATEURINFORMATIONS SEPARATOR ', ')
                                      FROM dossierpreventionniste dp2
                                      JOIN utilisateurinformations ui2
@@ -419,7 +419,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                             LEFT JOIN fonction f_m ON ui_m.ID_FONCTION = f_m.ID_FONCTION
                             WHERE ac_m.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
                             AND ui_m.NOM_UTILISATEURINFORMATIONS IS NOT NULL
-                            ORDER BY ac_m.ID_ADRESSECOMMUNE ASC
+                            ORDER BY ac_m.NUMINSEE_COMMUNE ASC
                             LIMIT 1)";
 
         // Sous-requête corrélée : coordonnées du service instructeur (groupement par libellé)
