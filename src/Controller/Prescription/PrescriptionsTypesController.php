@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -127,6 +128,12 @@ class PrescriptionsTypesController extends AbstractController
             return $this->redirectToRoute('admin_prescriptions');
         }
 
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFormErrorsToFlash($form);
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
         return $this->render('prescriptions_types/ajout_categorie.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -175,6 +182,12 @@ class PrescriptionsTypesController extends AbstractController
             $this->entityManager->persist($texte);
             $this->entityManager->flush();
 
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFormErrorsToFlash($form);
             return $this->redirectToRoute('admin_prescriptions');
         }
 
@@ -230,6 +243,12 @@ class PrescriptionsTypesController extends AbstractController
             $this->entityManager->persist($article);
             $this->entityManager->flush();
 
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFormErrorsToFlash($form);
             return $this->redirectToRoute('admin_prescriptions');
         }
 
@@ -314,6 +333,12 @@ class PrescriptionsTypesController extends AbstractController
             return $this->redirectToRoute('admin_prescriptions');
         }
 
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFormErrorsToFlash($form);
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
         return $this->render('prescriptions_types/form_prescription.html.twig', [
             'categorie' => $categorie,
             'texte' => $texte,
@@ -375,5 +400,42 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->generateUrl($routeName, $routeParams);
+    }
+
+    /**
+     * Converts form errors to flash messages for display on the admin page.
+     *
+     * @param \Symfony\Component\Form\FormInterface $form
+     */
+    private function addFormErrorsToFlash($form): void
+    {
+        $errors = $this->getFormErrors($form);
+        
+        foreach ($errors as $error) {
+            $this->addFlash('form_error', $error);
+        }
+    }
+
+    /**
+     * Recursively extracts all form errors.
+     *
+     * @param \Symfony\Component\Form\FormInterface $form
+     * @return array<string>
+     */
+    private function getFormErrors($form): array
+    {
+        $errors = [];
+        
+        // Get errors for the current form with deep = true to get all nested errors
+        foreach ($form->getErrors(true) as $error) {
+            if (!$error instanceof FormError) {
+                continue;
+            }
+            
+            $message = $error->getMessage();
+            $errors[] = (string) $message;
+        }
+        
+        return $errors;
     }
 }

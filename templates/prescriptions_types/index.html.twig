@@ -13,6 +13,20 @@
         Gestion des prescriptions types
     </h3>
 
+    {% if app.flashes('form_error') %}
+        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Erreur dans le formulaire :</strong>
+            <ul class="mb-0 mt-2">
+                {% for error in app.flashes('form_error') %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
     <div class="row mb-4">
         <div class="col-md-12 text-right">
             <button type="button" class="btn btn-default ajax-modal-trigger" data-target="#modal-prescription" data-content="{{ path('admin_prescriptions_types_categorie_ajouter') }}">Ajouter une catégorie</button>
