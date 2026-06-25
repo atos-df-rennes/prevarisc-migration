@@ -85,7 +85,7 @@ class PrescriptionsArticlesController extends AbstractController
         Request $request,
         PrescriptionArticleListe $articleListe
     ): Response {
-        $form = $this->createForm(ReplacePrescriptionArticleListeType::class);
+        $form = $this->createForm(ReplacePrescriptionArticleListeType::class, null, ['excluded' => $articleListe]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

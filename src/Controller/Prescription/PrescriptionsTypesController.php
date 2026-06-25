@@ -15,6 +15,7 @@ use App\Repository\PrescriptionCategorieRepository;
 use App\Repository\PrescriptionTexteRepository;
 use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
+use App\Utils\FormHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -47,13 +48,17 @@ class PrescriptionsTypesController extends AbstractController
     /** @var Prescriptions */
     private $prescriptionsService;
 
+    /** @var FormHelper */
+    private $formHelper;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PrescriptionCategorieRepository $prescriptionCategorieRepository,
         PrescriptionTexteRepository $prescriptionTexteRepository,
         PrescriptionArticleRepository $prescriptionArticleRepository,
         PrescriptionTypeRepository $prescriptionTypeRepository,
-        Prescriptions $prescriptionsService
+        Prescriptions $prescriptionsService,
+        FormHelper $formHelper
     ) {
         $this->entityManager = $entityManager;
         $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
@@ -61,6 +66,7 @@ class PrescriptionsTypesController extends AbstractController
         $this->prescriptionArticleRepository = $prescriptionArticleRepository;
         $this->prescriptionTypeRepository = $prescriptionTypeRepository;
         $this->prescriptionsService = $prescriptionsService;
+        $this->formHelper = $formHelper;
     }
 
     /**
@@ -127,6 +133,13 @@ class PrescriptionsTypesController extends AbstractController
             return $this->redirectToRoute('admin_prescriptions');
         }
 
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->formHelper->addErrorsToFlashFromForm($form);
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
         return $this->render('prescriptions_types/ajout_categorie.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -174,6 +187,13 @@ class PrescriptionsTypesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($texte);
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->formHelper->addErrorsToFlashFromForm($form);
 
             return $this->redirectToRoute('admin_prescriptions');
         }
@@ -229,6 +249,13 @@ class PrescriptionsTypesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($article);
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->formHelper->addErrorsToFlashFromForm($form);
 
             return $this->redirectToRoute('admin_prescriptions');
         }
@@ -310,6 +337,13 @@ class PrescriptionsTypesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($prescription);
             $this->entityManager->flush();
+
+            return $this->redirectToRoute('admin_prescriptions');
+        }
+
+        // If form is submitted but has errors (POST request), redirect to admin page with errors
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->formHelper->addErrorsToFlashFromForm($form);
 
             return $this->redirectToRoute('admin_prescriptions');
         }

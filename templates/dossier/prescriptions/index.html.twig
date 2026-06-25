@@ -19,13 +19,18 @@
                     Ajouter une prescription
                 </a>
             </div>
-            {% if dossier.etablissements|length == 1 %}
-                <div class="prescription-actions__group prescription-actions__group--reprise">
+            <div class="prescription-actions__group prescription-actions__group--reprise">
+                {% if dossier.etablissements|length == 1 %}
                     <button id="btn-ouvrir-modal-reprise" class="btn btn-default">
                         Reprendre les prescriptions d'autres dossiers
                     </button>
-                </div>
-            {% endif %}
+                {% else %}
+                    <button class="btn btn-default" disabled="disabled"
+                            title="Pour pouvoir utiliser cette fonctionnalité, le dossier ne doit concerner qu'un seul établissement.">
+                        Reprendre les prescriptions d'autres dossiers
+                    </button>
+                {% endif %}
+            </div>
         </div>
     {% endif %}
 
