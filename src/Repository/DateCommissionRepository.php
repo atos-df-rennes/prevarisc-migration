@@ -419,7 +419,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                             LEFT JOIN fonction f_m ON ui_m.ID_FONCTION = f_m.ID_FONCTION
                             WHERE ac_m.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
                             AND ui_m.NOM_UTILISATEURINFORMATIONS IS NOT NULL
-                            ORDER BY ac_m.NUMINSEE_COMMUNE ASC
+                            ORDER BY ac_m.ID_ADRESSECOMMUNE ASC, ui_m.ID_UTILISATEURINFORMATIONS ASC
                             LIMIT 1)";
 
         // Sous-requête corrélée : coordonnées du service instructeur (groupement par libellé)
