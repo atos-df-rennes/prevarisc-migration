@@ -49,10 +49,11 @@ class IcalendarSyncService
      *
      * @param int|null $userId       ID préventionniste — null pour tout retourner (admin)
      * @param int|null $commissionId ID commission — null pour toutes les commissions
+     * @param bool     $ignoreEts    Si true, utilise LEFT JOIN sur etablissementdossier (inclut dossiers sans établissement)
      *
      * @return string Le flux iCalendar sérialisé (text/calendar)
      */
-    public function generateFeed(?int $userId, ?int $commissionId): string
+    public function generateFeed(?int $userId, ?int $commissionId, bool $ignoreEts = false): string
     {
         $today = new \DateTime();
         $today->modify('-1 year');
@@ -60,7 +61,7 @@ class IcalendarSyncService
         $fromDate = $today->format('Y-m-d');
 
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $this->dateCommissionRepository->findForWebcalSync($userId, $commissionId, $fromDate);
+        $rows = $this->dateCommissionRepository->findForWebcalSync($userId, $commissionId, $fromDate, $ignoreEts);
 
         $refreshTime = (string) (getenv('PREVARISC_CALENDAR_REFRESH_TIME') ?: 'PT5M');
         $calendrierNom = 'Prévarisc';
@@ -297,6 +298,11 @@ class IcalendarSyncService
             foreach (explode(', ', $preventionnistes) as $prev) {
                 $prev = trim($prev);
                 if ('' !== $prev) {
+                    // Legacy-compatible: replace INCOMPLETE marker with error message
+                    if ('INCOMPLETE' === $prev) {
+                        $prev = ' Informations du prévisionniste incomplètes ou absentes';
+                    }
+
                     $corpus .= '- '.$prev.$lf.$lf;
                 }
             }

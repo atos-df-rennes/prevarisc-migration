@@ -10,13 +10,9 @@ use PHPUnit\Framework\TestCase;
 
 final class IcalendarSyncServiceTest extends TestCase
 {
-    /** @var IcalendarSyncService */
-    private $service;
-
     protected function setUp(): void
     {
         $repo = $this->createMock(DateCommissionRepository::class);
-        $this->service = new IcalendarSyncService($repo);
     }
 
     /**
@@ -106,7 +102,7 @@ final class IcalendarSyncServiceTest extends TestCase
             ],
             'avis défavorable' => [
                 [array_merge($baseRow, ['AVIS_DOSSIER_COMMISSION_VAL' => '2'])],
-                "Défavorable",
+                'Défavorable',
             ],
             'avis indisponible si null' => [
                 [array_merge($baseRow, ['AVIS_DOSSIER_COMMISSION_VAL' => null])],

@@ -358,7 +358,7 @@ class DateCommissionRepository extends ServiceEntityRepository
      *
      * @return array<int, array<string, mixed>>
      */
-    public function findForWebcalSync(?int $userId, ?int $commissionId, string $fromDate): array
+    public function findForWebcalSync(?int $userId, ?int $commissionId, string $fromDate, bool $ignoreEts = false): array
     {
         $conn = $this->getEntityManager()->getConnection();
         $params = ['fromDate' => $fromDate];
@@ -371,11 +371,16 @@ class DateCommissionRepository extends ServiceEntityRepository
                             WHERE dn2.ID_DOSSIER = d.ID_DOSSIER)";
 
         // Sous-requête corrélée : préventionnistes regroupés (grade + prenom + nom)
-        $preventionnisteSubquery = "(SELECT GROUP_CONCAT(DISTINCT
-                                        TRIM(CONCAT_WS(' ',
-                                            NULLIF(ui2.GRADE_UTILISATEURINFORMATIONS, ''),
-                                            ui2.PRENOM_UTILISATEURINFORMATIONS,
-                                            ui2.NOM_UTILISATEURINFORMATIONS))
+        // Include all preventionnistes, with NULL grade for those missing one
+        $preventionnisteSubquery = "(SELECT GROUP_CONCAT(CONCAT(
+                                            CASE 
+                                                WHEN COALESCE(ui2.GRADE_UTILISATEURINFORMATIONS, '') = ''
+                                                THEN 'INCOMPLETE'
+                                                ELSE TRIM(CONCAT_WS(' ',
+                                                    NULLIF(ui2.GRADE_UTILISATEURINFORMATIONS, ''),
+                                                    ui2.PRENOM_UTILISATEURINFORMATIONS,
+                                                    ui2.NOM_UTILISATEURINFORMATIONS))
+                                            END) 
                                         ORDER BY ui2.NOM_UTILISATEURINFORMATIONS SEPARATOR ', ')
                                      FROM dossierpreventionniste dp2
                                      JOIN utilisateurinformations ui2
@@ -449,6 +454,8 @@ class DateCommissionRepository extends ServiceEntityRepository
             $params['userId'] = $userId;
         }
 
+        $etablissementDossierJoin = $ignoreEts ? 'LEFT JOIN' : 'JOIN';
+
         $sql = "SELECT DISTINCT
                     dc.ID_DATECOMMISSION,
                     dc.DATE_COMMISSION,
@@ -487,9 +494,10 @@ class DateCommissionRepository extends ServiceEntityRepository
                 JOIN dossieraffectation da ON d.ID_DOSSIER = da.ID_DOSSIER_AFFECT
                 JOIN datecommission dc ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
                 JOIN commission c ON dc.COMMISSION_CONCERNE = c.ID_COMMISSION
-                JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER
+                {$etablissementDossierJoin} etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER
                 JOIN dossiernature dn ON d.ID_DOSSIER = dn.ID_DOSSIER
                 JOIN dossiertype dt ON d.TYPE_DOSSIER = dt.ID_DOSSIERTYPE
+                JOIN dossierpreventionniste dp ON d.ID_DOSSIER = dp.ID_DOSSIER
                 LEFT JOIN etablissement ets ON edos.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
                 LEFT JOIN etablissementinformations ei
                     ON ets.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
