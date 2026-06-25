@@ -37,7 +37,6 @@ final class FormHelper
                 continue;
             }
 
-
             $session->getFlashBag()->add('danger', $error->getMessage());
         }
     }
