@@ -15,11 +15,11 @@ use App\Repository\PrescriptionCategorieRepository;
 use App\Repository\PrescriptionTexteRepository;
 use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
+use App\Utils\FormHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -48,13 +48,17 @@ class PrescriptionsTypesController extends AbstractController
     /** @var Prescriptions */
     private $prescriptionsService;
 
+    /** @var FormHelper */
+    private $formHelper;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PrescriptionCategorieRepository $prescriptionCategorieRepository,
         PrescriptionTexteRepository $prescriptionTexteRepository,
         PrescriptionArticleRepository $prescriptionArticleRepository,
         PrescriptionTypeRepository $prescriptionTypeRepository,
-        Prescriptions $prescriptionsService
+        Prescriptions $prescriptionsService,
+        FormHelper $formHelper
     ) {
         $this->entityManager = $entityManager;
         $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
@@ -62,6 +66,7 @@ class PrescriptionsTypesController extends AbstractController
         $this->prescriptionArticleRepository = $prescriptionArticleRepository;
         $this->prescriptionTypeRepository = $prescriptionTypeRepository;
         $this->prescriptionsService = $prescriptionsService;
+        $this->formHelper = $formHelper;
     }
 
     /**
@@ -130,7 +135,8 @@ class PrescriptionsTypesController extends AbstractController
 
         // If form is submitted but has errors (POST request), redirect to admin page with errors
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFormErrorsToFlash($form);
+            $this->formHelper->addErrorsToFlashFromForm($form);
+
             return $this->redirectToRoute('admin_prescriptions');
         }
 
@@ -187,7 +193,8 @@ class PrescriptionsTypesController extends AbstractController
 
         // If form is submitted but has errors (POST request), redirect to admin page with errors
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFormErrorsToFlash($form);
+            $this->formHelper->addErrorsToFlashFromForm($form);
+
             return $this->redirectToRoute('admin_prescriptions');
         }
 
@@ -248,7 +255,8 @@ class PrescriptionsTypesController extends AbstractController
 
         // If form is submitted but has errors (POST request), redirect to admin page with errors
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFormErrorsToFlash($form);
+            $this->formHelper->addErrorsToFlashFromForm($form);
+
             return $this->redirectToRoute('admin_prescriptions');
         }
 
@@ -335,7 +343,8 @@ class PrescriptionsTypesController extends AbstractController
 
         // If form is submitted but has errors (POST request), redirect to admin page with errors
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->addFormErrorsToFlash($form);
+            $this->formHelper->addErrorsToFlashFromForm($form);
+
             return $this->redirectToRoute('admin_prescriptions');
         }
 
@@ -400,42 +409,5 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->generateUrl($routeName, $routeParams);
-    }
-
-    /**
-     * Converts form errors to flash messages for display on the admin page.
-     *
-     * @param \Symfony\Component\Form\FormInterface $form
-     */
-    private function addFormErrorsToFlash($form): void
-    {
-        $errors = $this->getFormErrors($form);
-
-        foreach ($errors as $error) {
-            $this->addFlash('danger', $error);
-        }
-    }
-
-    /**
-     * Recursively extracts all form errors.
-     *
-     * @param \Symfony\Component\Form\FormInterface $form
-     * @return array<string>
-     */
-    private function getFormErrors($form): array
-    {
-        $errors = [];
-
-        // Get errors for the current form with deep = true to get all nested errors
-        foreach ($form->getErrors(true) as $error) {
-            if (!$error instanceof FormError) {
-                continue;
-            }
-
-            $message = $error->getMessage();
-            $errors[] = (string) $message;
-        }
-
-        return $errors;
     }
 }
