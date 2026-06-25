@@ -94,7 +94,7 @@ final class CommissionManagerService
 
             // Capture les membres avant que Doctrine ne les supprime en cascade
             foreach ($commission->getMembres() as $membre) {
-                $membresOdtToClean[] = $membre;
+                $membresOdtToClean[$membre->getId()] = $membre;
             }
 
             // Supprime les contacts de la commission :
@@ -123,8 +123,8 @@ final class CommissionManagerService
         }
 
         // Suppression des fichiers ODT après persistance réussie
-        foreach ($membresOdtToClean as $membre) {
-            $this->courrierService->deleteAllFiles($membre);
+        foreach ($membresOdtToClean as $id => $membre) {
+            $this->courrierService->deleteAllFiles($membre, $id);
         }
     }
 }

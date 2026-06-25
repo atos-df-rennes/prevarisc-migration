@@ -3,6 +3,7 @@
 namespace App\Controller\Commission;
 
 use App\Entity\Commission;
+use App\Entity\CommissionMembre;
 use App\Form\CommissionMembresCollectionType;
 use App\Repository\CommissionMembreRepository;
 use App\Repository\DossierNatureListeRepository;
@@ -55,6 +56,8 @@ class CommissionMembresController extends AbstractController
 
         // Capture les membres existants avant la soumission du formulaire
         // pour identifier ceux qui seront supprimés et nettoyer leurs fichiers ODT.
+        // Note: toArray() crée une COPIE (pas une référence), sinon handleRequest()
+        // modifierait aussi $originalMembres.
         $originalMembres = $commission->getMembres()->toArray();
 
         $form = $this->createForm(CommissionMembresCollectionType::class, $commission, [
@@ -64,27 +67,30 @@ class CommissionMembresController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Identifie les membres supprimés (présents avant soumission, absents après)
-            $submittedMembreIds = [];
-            foreach ($commission->getMembres() as $membre) {
-                if ($membre->getId()) {
-                    $submittedMembreIds[] = $membre->getId();
-                }
-            }
-
+            // Identifie les membres supprimés : présents avant, absents après soumission
             $removedMembres = array_filter(
                 $originalMembres,
-                static function ($m) use ($submittedMembreIds): bool {
-                    return $m->getId() && !\in_array($m->getId(), $submittedMembreIds, true);
+                static function (CommissionMembre $membre) use ($commission) {
+                    return !$commission->getMembres()->contains($membre);
                 }
             );
+
+            // Capture les IDs AVANT le flush (après, ils seront null)
+            $removedMembresWithIds = [];
+            foreach ($removedMembres as $membre) {
+                $id = $membre->getId();
+                if ($id) {
+                    $removedMembresWithIds[$id] = $membre;
+                }
+            }
 
             // Persistance : orphanRemoval=true supprime les membres retirés de la collection
             $this->entityManager->flush();
 
-            // Suppression des fichiers ODT après persistance réussie
-            foreach ($removedMembres as $membre) {
-                $this->courrierService->deleteAllFiles($membre);
+            // Suppression des fichiers ODT seulement après flush réussi
+            // Ainsi, si le flush échoue, les fichiers ne sont pas supprimés
+            foreach ($removedMembresWithIds as $id => $membre) {
+                $this->courrierService->deleteAllFiles($membre, $id);
             }
 
             $this->addFlash('success', 'Les membres ont été sauvegardés avec succès.');
