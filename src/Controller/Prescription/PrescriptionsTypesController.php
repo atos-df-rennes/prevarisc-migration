@@ -410,9 +410,9 @@ class PrescriptionsTypesController extends AbstractController
     private function addFormErrorsToFlash($form): void
     {
         $errors = $this->getFormErrors($form);
-        
+
         foreach ($errors as $error) {
-            $this->addFlash('form_error', $error);
+            $this->addFlash('danger', $error);
         }
     }
 
@@ -425,17 +425,17 @@ class PrescriptionsTypesController extends AbstractController
     private function getFormErrors($form): array
     {
         $errors = [];
-        
+
         // Get errors for the current form with deep = true to get all nested errors
         foreach ($form->getErrors(true) as $error) {
             if (!$error instanceof FormError) {
                 continue;
             }
-            
+
             $message = $error->getMessage();
             $errors[] = (string) $message;
         }
-        
+
         return $errors;
     }
 }
