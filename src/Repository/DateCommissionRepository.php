@@ -401,6 +401,8 @@ class DateCommissionRepository extends ServiceEntityRepository
                     d.ID_DOSSIER,
                     d.OBJET_DOSSIER,
                     d.TYPE_DOSSIER,
+                    da.HEURE_DEB_AFFECT,
+                    da.HEURE_FIN_AFFECT,
                     dt.LIBELLE_DOSSIERTYPE,
                     {$natureSubquery} AS LIBELLE_DOSSIERNATURE,
                     ets.ID_ETABLISSEMENT,
