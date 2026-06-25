@@ -1,6 +1,7 @@
 # Rapport d'écarts — MOD-03 COMMISSIONS
 
 > **Date** : 2026-05-22  
+> **Mise à jour** : 2026-06-24  
 > **Spec source** : `docs/specs/MOD-03-COMMISSIONS.md`  
 > **Méthode** : Comparaison spec ↔ code Symfony ↔ code legacy Zend
 
@@ -11,16 +12,16 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 40 (RG-COM-001 à RG-COM-060, numérotation discontinue) + revue des sections 4.7 et 6 |
-| Écarts spec ↔ Symfony | 6 |
+| Écarts spec ↔ Symfony | 6 (4 specs corrigées ✅, 1 sans action ✅, 1 code corrigé ✅) |
 | Écarts spec ↔ Legacy | 5 |
-| Écarts Symfony ↔ Legacy | 3 |
-| Impact critique | 1 (ODJ groupement non filtré par membre dans les deux implémentations) |
+| Écarts Symfony ↔ Legacy | 3 (3 comblés ✅) |
+| Impact critique | 1 (ODJ groupement non filtré par membre — comportement legacy conservé, spec documentée ✅) |
 
 ---
 
 ## Écarts détaillés
 
-### Écart 1 — Les règles de compétence ne respectent pas la combinaison de critères « tous obligatoires » de la spec
+### Écart 1 — Les règles de compétence ne respectent pas la combinaison de critères « tous obligatoires » de la spec ✅ Sans action
 
 | | Détail |
 |---|--------|
@@ -31,13 +32,15 @@
 | **Impact** | **Élevé** — la spec décrit une règle plus stricte que les deux implémentations réelles ; le risque est d'affecter des établissements sur une règle incomplète ou plus large que prévu. |
 | **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md:391`, `prevarisc-migration/src/Form/CommissionRegleType.php:41-46,58-63,82-87,99-105,119-125,181-199`, `prevarisc-migration/src/Service/Commission/CommissionRegleCompetenceService.php:14-20,64-103`, `prevarisc/application/models/DbTable/Commission.php:140-182,192-233,242-289` |
 
-**Retour utilisateur** : Au vu du code cela est normal, les méthodes mentionnées contrôlent les valeurs par défaut proposées lors de la création/modification d'un établissement et l'application des règles qui est propres aux établissements également. La règle étude/visite concernent les dossiers et n'a pas lieu d'être dans les blocs de code concernés.\
+**Retour utilisateur** : Au vu du code cela est normal, les méthodes mentionnées contrôlent les valeurs par défaut proposées lors de la création/modification d'un établissement et l'application des règles qui est propre aux établissements également. La règle étude/visite concernent les dossiers et n'a pas lieu d'être dans les blocs de code concernés.\
 Cette règle est uniquement utilisée pour la génération des documents de commission.
 Rien à prévoir sur ce point.
 
+**Décision** : Comportement normal. Aucune modification requise.
+
 ---
 
-### Écart 2 — Les natures de dossier et l'axe « commune » des spécialisations membres ne sont pas réellement utilisés pour filtrer les documents
+### Écart 2 — Les natures de dossier et l'axe « commune » des spécialisations membres ne sont pas réellement utilisés pour filtrer les documents ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
@@ -51,9 +54,11 @@ Rien à prévoir sur ce point.
 **Retour utilisateur** : Le legacy étant la source de vérité, on conserve les filtres en l'état. Pas d'ajout de filtre sur les natures de dossier. Le filtre sur la commune semble lui bien être utilisé avec une vérification sur la commune de l'établissement lié au dossier. Rien à prévoir sur ce point.\
 Documenter dans la spec (_$HOME/prevarisc-infra/prevarisc-migration/docs/specs/MOD-03-COMMISSIONS.md_) que le filtre nature de dossier est pris en compte en base mais qu'il n'est pas utilisé pour filtrer les dossiers lors de la génération.
 
+**Décision** : Spécification corrigée. Note ajoutée dans `docs/specs/MOD-03-COMMISSIONS.md` (§3.2 tableau des axes, §3.2 note filtrage, §4.6.1, RG-COM-021, RG-COM-052).
+
 ---
 
-### Écart 3 — Les ODJ des membres rattachés à un groupement ne sont pas filtrés par compétence
+### Écart 3 — Les ODJ des membres rattachés à un groupement ne sont pas filtrés par compétence ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
@@ -67,9 +72,11 @@ Documenter dans la spec (_$HOME/prevarisc-infra/prevarisc-migration/docs/specs/M
 **Retour utilisateur** : Le legacy étant la source de vérité, on conserve l'absence du test d'éligibilité. Rien à prévoir sur ce point.\
 Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la génération par groupement.
 
+**Décision** : Spécification corrigée. Note ajoutée dans `docs/specs/MOD-03-COMMISSIONS.md` (RG-COM-052).
+
 ---
 
-### Écart 4 — L'indicateur de présence n'oppose pas « titulaire » et « suppléant », mais trois statuts métier différents
+### Écart 4 — L'indicateur de présence n'oppose pas « titulaire » et « suppléant », mais trois statuts métier différents ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
@@ -82,9 +89,11 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 
 **Retour utilisateur** : La spec est incorrecte. La mettre à jour avec les valeurs des formulaires (Membre Obligatoire, Membre Facultatif, Membre Pour information). Ces valeurs sont uniquement à titre informatif et ne sont pas utilisées à d'autres fins que de l'affichage.
 
+**Décision** : Spécification corrigée. Remplacement de « titulaire/suppléant » par « Membre Obligatoire / Membre Facultatif / Membre Pour information » dans `docs/specs/MOD-03-COMMISSIONS.md` (§1, §3.2, §4.3, RG-COM-025).
+
 ---
 
-### Écart 5 — Les séances créées en mode récurrent ne sont pas liées à la date principale
+### Écart 5 — Les séances créées en mode récurrent ne sont pas liées à la date principale ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
@@ -97,9 +106,11 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 
 **Retour utilisateur** : Le legacy étant la source de vérité, on conserve en l'état. Documenter dans la spec ce comportement en indiquant qu'il s'agit probablement d'un bug à corriger ultérieurement.
 
+**Décision** : Spécification corrigée. Note ajoutée dans `docs/specs/MOD-03-COMMISSIONS.md` (§4.4 mode récurrent, RG-COM-036) indiquant que les occurrences récurrentes ne sont pas liées à la date principale dans les deux implémentations (bug connu).
+
 ---
 
-### Écart 6 — La suppression d'un membre en Symfony ne garantit pas la suppression de ses modèles ODT
+### Écart 6 — La suppression d'un membre en Symfony ne garantit pas la suppression de ses modèles ODT ✅ Corrigé
 
 | | Détail |
 |---|--------|
@@ -112,11 +123,18 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 
 **Retour utilisateur** : Bug de migration confirmé. Corriger pour supprimer les documents modèles ODT liés au membre supprimé. Contrairement au legacy, effectuer la suppression des documents après que la suppression du membre ait été effectuée avec succès. Ce pattern est déjà utilisé dans l'application : _$HOME/prevarisc-infra/prevarisc-migration/src/Service/Commission/CommissionManagerService.php_
 
+**Solution** : Ajout de `CommissionMembreCourrierService::deleteAllFiles()` (suppression physique des fichiers ODT sans opération DB). Appel dans `CommissionMembresController::membres()` après le `flush()` réussi, pour tous les membres retirés de la collection. Les membres supprimés sont capturés avant `handleRequest()` par comparaison avec la collection soumise.
+
+| Fichiers modifiés | Rôle |
+|---|---|
+| `src/Service/Commission/CommissionMembreCourrierService.php` | Nouvelle méthode `deleteAllFiles()` |
+| `src/Controller/Commission/CommissionMembresController.php` | Injection `CommissionMembreCourrierService`, capture membres originaux, appel `deleteAllFiles` post-flush |
+
 ---
 
 ## Écarts Symfony ↔ legacy hors spec stricte
 
-### Écart A — La purge de cache après application des règles dépend encore du legacy
+### Écart A — La purge de cache après application des règles dépend encore du legacy ✅ Corrigé
 
 | | Détail |
 |---|--------|
@@ -126,11 +144,17 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 | **Impact** | **Moyen** — le comportement métier est conservé, mais la migration n'est pas autonome sur ce flux. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Commission/CommissionCompetencesController.php:109-113`, `prevarisc/application/controllers/CommissionController.php:276-281` |
 
-**Retour utilisateur** : Écart de migration confirmé. Un cache TagAware a été introduit dans la branche **fix/cache-recherche** (non encore mergée) pour faire un miroir du `$cacheSearch` legacy. Il faut donc également avoir un cache Symfony miroir du `$cache` legacy. Vérifier également si la suppression du `$cache` legacy entraîne également la suppression du `$cacheSearch` ou si les deux sont indépendants.
+**Retour utilisateur** : Écart de migration confirmé. Un cache TagAware a été introduit pour faire un miroir du `$cacheSearch` legacy. Il faut donc également avoir un cache Symfony miroir du `$cache` legacy. Cependant, ce mécanisme n'étant pas encore présent, ajouter pour le moment un commentaire indiquant qu'il faut vider le `$cache` standard (et pas `$cacheSearch` qui ne semble pas utilisé par le legacy dans ce cas). Étant donné que tous les écrans legacy sont réputés migrés, retirer l'appel au chemin de vidage des caches legacy.
+
+**Solution** : Retrait de la redirection `/legacy/admin/clear-cache-and-redirect` dans `CommissionCompetencesController::applyRegles()`. La méthode redirige désormais directement vers la page des compétences. Ajout d'un commentaire `@todo` précisant qu'il faudra invalider le cache standard Symfony (miroir du `$cache` legacy, distinct du `$cacheSearch` TagAware) lorsque ce mécanisme sera disponible.
+
+| Fichiers modifiés | Rôle |
+|---|---|
+| `src/Controller/Commission/CommissionCompetencesController.php` | Retrait appel legacy, redirection directe, TODO cache standard |
 
 ---
 
-### Écart B — Le flux webcal Symfony est volontairement simplifié par rapport au legacy
+### Écart B — Le flux webcal Symfony est volontairement simplifié par rapport au legacy ✅ Aligné sur le legacy
 
 | | Détail |
 |---|--------|
@@ -140,11 +164,33 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 | **Impact** | **Moyen** — l'abonnement webcal existe bien, mais le niveau de détail disponible dans les clients externes est inférieur au legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Service/Commission/IcalendarSyncService.php:13-16,32-35,66-127`, `prevarisc/application/modules/api/services/Calendar.php:17-61,123-220` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy si la complexité n'est pas trop élévée et prévoir une procédure de test pour vérifier le bon affichage des informations.
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy si la complexité n'est pas trop élevée et prévoir une procédure de test pour vérifier le bon affichage des informations.
+
+**Solution** : Alignement sur `Api_Service_Calendar` — une VEVENT par couple DateCommission × Dossier (au lieu d'une par DateCommission). La requête `DateCommissionRepository::findForWebcalSync()` a été étendue pour retourner les données établissement (numéro ERP, libellé), adresse (numéro, rue, type de rue, commune, code postal), type/nature de dossier, et préventionnistes (GROUP_CONCAT). `IcalendarSyncService` a été refactoré pour produire :
+- `SUMMARY` riche : `#NUMEROID libellé (commune) : type nature - objet` (en salle) ou `#NUMEROID libellé : libellé_séance` (visite/groupe).
+- `LOCATION` : adresse complète de l'établissement (visite) ou `Commission en salle de {commission}`.
+- `DESCRIPTION` : préventionniste(s) du dossier.
+- `DTSTART`/`DTEND` : heure d'affectation du dossier si disponible, sinon heure de la séance.
+- `UID` : `prevarisc-commission-{dcId}-dossier-{dossierId}@prevarisc.local`.
+
+Note : les contacts du dossier/établissement, les coordonnées de la mairie et l'avis d'exploitation ne sont pas inclus dans la DESCRIPTION (requêtes supplémentaires N+1 jugées trop complexes à implémenter de façon sûre).
+
+**Procédure de test** :
+1. S'abonner à l'URL webcal `webcal://{host}/api/1.0/calendar` dans un client iCalendar (Thunderbird, Apple Calendar, Google Calendar).
+2. Vérifier que chaque événement de la séance affiche : le numéro ERP (#XXXXX), le libellé de l'établissement, la commune, le type et la nature du dossier dans le SUMMARY.
+3. Pour une visite (groupe de visite / visite de sécurité) : vérifier que l'adresse de l'établissement apparaît dans LOCATION.
+4. Pour une séance en salle : vérifier que `Commission en salle de {nom}` apparaît dans LOCATION.
+5. Vérifier que le(s) préventionniste(s) du dossier apparaissent dans DESCRIPTION.
+6. Vérifier que l'heure d'affectation spécifique du dossier (si définie) est utilisée pour DTSTART/DTEND.
+
+| Fichiers modifiés | Rôle |
+|---|---|
+| `src/Repository/DateCommissionRepository.php` | Requête `findForWebcalSync` étendue (établissement, adresse, commune, type/nature, préventionniste) |
+| `src/Service/Commission/IcalendarSyncService.php` | VEVENT par dossier, `buildSummaryAndLocation()`, `buildDescription()` |
 
 ---
 
-### Écart C — La suppression d'une commission ne reproduit pas le nettoyage legacy complet
+### Écart C — La suppression d'une commission ne reproduit pas le nettoyage legacy complet ✅ Aligné sur le legacy
 
 | | Détail |
 |---|--------|
@@ -155,6 +201,15 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 | **Fichiers concernés** | `prevarisc-migration/src/Service/Commission/CommissionManagerService.php:41-75`, `prevarisc-migration/src/Entity/Commission.php:72-89`, `prevarisc/application/controllers/CommissionController.php:11-40`, `prevarisc/application/controllers/ContactController.php:241-255`, `prevarisc/application/controllers/CommissionController.php:353-381` |
 
 **Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy.
+
+**Solution** : `CommissionManagerService::saveCommissions()` étendu pour reproduire la séquence `CommissionController::deleteAction()` du legacy :
+1. **Contacts** : chaque contact est dissocié de la commission via `removeContact()`. Si le contact n'est rattaché à aucune autre entité (`Contact::isUsed()` retourne false), l'entité `UtilisateurInformations` est supprimée.
+2. **Membres** : les membres à supprimer sont capturés avant le `flush()`. Après persistance réussie, `CommissionMembreCourrierService::deleteAllFiles()` est appelé pour nettoyer les fichiers ODT de chaque membre.
+3. **Règles** : gérées par `orphanRemoval=true` Doctrine (inchangé).
+
+| Fichiers modifiés | Rôle |
+|---|---|
+| `src/Service/Commission/CommissionManagerService.php` | Injection `CommissionMembreCourrierService` + `Contact`, suppression contacts, capture membres, nettoyage ODT post-flush |
 
 ---
 
@@ -179,10 +234,6 @@ Documenter dans la spec que le test d'éligibilité n'est pas effectué pour la 
 
 ## Recommandations
 
-1. **Priorité critique** : corriger la génération des **ODJ groupement** pour réappliquer le filtrage métier par membre avant fusion ODT.
-2. **Priorité haute** : décider avec le métier si la spec doit être corrigée ou si l'application doit réellement réintroduire les axes **étude/visite**, **nature de dossier** et **commune** dans les règles / spécialisations.
-3. **Priorité haute** : sécuriser la suppression Symfony des membres (et idéalement des commissions) en branchant un nettoyage filesystem systématique des modèles ODT.
-4. **Priorité moyenne** : aligner le comportement de **récurrence** avec RG-COM-036 en liant chaque occurrence générée à la date principale.
-5. **Priorité moyenne** : documenter explicitement la divergence fonctionnelle entre la spec et le produit réel sur l'indicateur de **présence** (booléen vs 3 statuts métier).
-6. **Priorité moyenne** : supprimer la dépendance de purge de cache vers le legacy pour rendre le module commissions totalement autonome.
-7. **Priorité basse à moyenne** : arbitrer le niveau de détail attendu pour le flux **webcal** Symfony ; si l'objectif est l'iso-fonctionnalité legacy, il faut revenir à une VEVENT par dossier.
+Tous les écarts ont été traités. Aucune action complémentaire requise sur ce module.
+
+> **Note résiduelle** : Les contacts du dossier/établissement, coordonnées de la mairie et avis d'exploitation ne sont pas inclus dans la DESCRIPTION du flux webcal (Écart B). Cette divergence mineure avec le legacy est documentée et jugée acceptable.
