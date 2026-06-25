@@ -346,16 +346,15 @@ class DateCommissionRepository extends ServiceEntityRepository
 
     /**
      * Retourne les DateCommissions pour la synchronisation webcal.
-     * Port de Model_DbTable_DateCommission::getEventInCommission().
+     * Port de Model_DbTable_DateCommission::getEventInCommission() + Api_Service_Calendar::getEventCorps().
      *
-     * - Si userId non null : joint avec dossierpreventionniste pour ne retourner que les
-     *   DateCommissions des dossiers du préventionniste.
+     * - Si userId non null : retourne les dossiers du préventionniste + les dossiers sans préventionniste.
      * - Si commissionId non null : filtre par commission.
      * - Si les deux null (admin) : retourne tout.
      * - fromDate : filtre dc.DATE_COMMISSION >= fromDate (date glissante, 1 an en arrière).
      *
      * Retourne une ligne par couple DateCommission × Dossier.
-     * Les natures de dossier et les préventionnistes sont regroupés via GROUP_CONCAT.
+     * Les natures, préventionnistes et contacts sont regroupés via GROUP_CONCAT.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -371,7 +370,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                             JOIN dossiernatureliste dnl2 ON dn2.ID_NATURE = dnl2.ID_DOSSIERNATURE
                             WHERE dn2.ID_DOSSIER = d.ID_DOSSIER)";
 
-        // Sous-requête corrélée : préventionnistes regroupés
+        // Sous-requête corrélée : préventionnistes regroupés (grade + prenom + nom)
         $preventionnisteSubquery = "(SELECT GROUP_CONCAT(DISTINCT
                                         TRIM(CONCAT_WS(' ',
                                             NULLIF(ui2.GRADE_UTILISATEURINFORMATIONS, ''),
@@ -381,12 +380,72 @@ class DateCommissionRepository extends ServiceEntityRepository
                                      FROM dossierpreventionniste dp2
                                      JOIN utilisateurinformations ui2
                                           ON dp2.ID_PREVENTIONNISTE = ui2.ID_UTILISATEURINFORMATIONS
-                                     WHERE dp2.ID_DOSSIER = d.ID_DOSSIER)";
+                                     WHERE dp2.ID_DOSSIER = d.ID_DOSSIER
+                                     AND ui2.NOM_UTILISATEURINFORMATIONS IS NOT NULL)";
 
-        // Port du legacy : INNER JOINs pour inclure UNIQUEMENT les dossiers avec préventionniste(s)
+        // Sous-requête corrélée : contacts du dossier (format "- FONCTION : NOM PRENOM, adresse, tel, mail")
+        $contactFmt = $this->buildContactFormatSql('ui_dc', 'f_dc');
+        $contactsDossierSubquery = "(SELECT GROUP_CONCAT({$contactFmt}
+                                         ORDER BY ui_dc.NOM_UTILISATEURINFORMATIONS SEPARATOR '\n')
+                                      FROM dossiercontact dc_sub
+                                      JOIN utilisateurinformations ui_dc
+                                           ON dc_sub.ID_UTILISATEURINFORMATIONS = ui_dc.ID_UTILISATEURINFORMATIONS
+                                      LEFT JOIN fonction f_dc ON ui_dc.ID_FONCTION = f_dc.ID_FONCTION
+                                      WHERE dc_sub.ID_DOSSIER = d.ID_DOSSIER
+                                      AND ui_dc.NOM_UTILISATEURINFORMATIONS IS NOT NULL)";
+
+        // Sous-requête corrélée : contacts de l'établissement
+        $contactFmtEts = $this->buildContactFormatSql('ui_ec', 'f_ec');
+        $contactsEtsSubquery = "(SELECT GROUP_CONCAT({$contactFmtEts}
+                                      ORDER BY ui_ec.NOM_UTILISATEURINFORMATIONS SEPARATOR '\n')
+                                   FROM etablissementcontact ec_sub
+                                   JOIN utilisateurinformations ui_ec
+                                        ON ec_sub.ID_UTILISATEURINFORMATIONS = ui_ec.ID_UTILISATEURINFORMATIONS
+                                   LEFT JOIN fonction f_ec ON ui_ec.ID_FONCTION = f_ec.ID_FONCTION
+                                   WHERE ec_sub.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
+                                   AND ui_ec.NOM_UTILISATEURINFORMATIONS IS NOT NULL)";
+
+        // Sous-requête corrélée : coordonnées du maire (via adressecommune liée à l'adresse de l'établissement)
+        $contactFmtMaire = $this->buildContactFormatSql('ui_m', 'f_m');
+        $maireSubquery = "(SELECT {$contactFmtMaire}
+                            FROM adressecommune ac_m
+                            JOIN utilisateurinformations ui_m
+                                 ON ac_m.ID_UTILISATEURINFORMATIONS = ui_m.ID_UTILISATEURINFORMATIONS
+                            LEFT JOIN fonction f_m ON ui_m.ID_FONCTION = f_m.ID_FONCTION
+                            WHERE ac_m.NUMINSEE_COMMUNE = ea.NUMINSEE_COMMUNE
+                            AND ui_m.NOM_UTILISATEURINFORMATIONS IS NOT NULL
+                            LIMIT 1)";
+
+        // Sous-requête corrélée : coordonnées du service instructeur (groupement par libellé)
+        $contactFmtSi = $this->buildContactFormatSql('ui_si', 'f_si');
+        $serviceInstructeurSubquery = "(SELECT {$contactFmtSi}
+                                         FROM groupement g_si
+                                         JOIN utilisateurinformations ui_si
+                                              ON g_si.ID_UTILISATEURINFORMATIONS = ui_si.ID_UTILISATEURINFORMATIONS
+                                         LEFT JOIN fonction f_si ON ui_si.ID_FONCTION = f_si.ID_FONCTION
+                                         WHERE g_si.LIBELLE_GROUPEMENT = d.SERVICEINSTRUC_DOSSIER
+                                         AND ui_si.NOM_UTILISATEURINFORMATIONS IS NOT NULL
+                                         LIMIT 1)";
+
+        // Sous-requête corrélée : avis d'exploitation (via le dossier donnant avis sur l'établissement)
+        $avisSubquery = '(SELECT d_avis.AVIS_DOSSIER_COMMISSION
+                           FROM dossier d_avis
+                           WHERE d_avis.ID_DOSSIER = ets.ID_DOSSIER_DONNANT_AVIS
+                           LIMIT 1)';
+
+        // Filtre utilisateur : dossiers du préventionniste OU dossiers sans préventionniste assigné
         $userFilter = '';
         if (null !== $userId) {
-            $userFilter = 'AND u.ID_UTILISATEUR = :userId';
+            $userFilter = 'AND (
+                EXISTS (
+                    SELECT 1 FROM dossierpreventionniste dp_u
+                    JOIN utilisateur u_f ON dp_u.ID_PREVENTIONNISTE = u_f.ID_UTILISATEUR
+                    WHERE dp_u.ID_DOSSIER = d.ID_DOSSIER AND u_f.ID_UTILISATEUR = :userId
+                )
+                OR NOT EXISTS (
+                    SELECT 1 FROM dossierpreventionniste dp_n WHERE dp_n.ID_DOSSIER = d.ID_DOSSIER
+                )
+            )';
             $params['userId'] = $userId;
         }
 
@@ -401,19 +460,29 @@ class DateCommissionRepository extends ServiceEntityRepository
                     d.ID_DOSSIER,
                     d.OBJET_DOSSIER,
                     d.TYPE_DOSSIER,
+                    d.TYPESERVINSTRUC_DOSSIER,
+                    d.SERVICEINSTRUC_DOSSIER,
                     da.HEURE_DEB_AFFECT,
                     da.HEURE_FIN_AFFECT,
                     dt.LIBELLE_DOSSIERTYPE,
                     {$natureSubquery} AS LIBELLE_DOSSIERNATURE,
                     ets.ID_ETABLISSEMENT,
                     ets.NUMEROID_ETABLISSEMENT,
+                    ets.ID_DOSSIER_DONNANT_AVIS,
                     ei.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                    ei.ID_GENRE,
                     ea.NUMERO_ADRESSE,
                     ar.LIBELLE_RUE,
                     art.LIBELLE_RUETYPE,
                     com.LIBELLE_COMMUNE,
                     com.CODEPOSTAL_COMMUNE,
-                    {$preventionnisteSubquery} AS PREVENTIONNISTES
+                    {$preventionnisteSubquery} AS PREVENTIONNISTES,
+                    {$contactsDossierSubquery} AS CONTACTS_DOSSIER,
+                    {$contactsEtsSubquery} AS CONTACTS_ETABLISSEMENT,
+                    {$maireSubquery} AS MAIRE_CONTACT,
+                    {$serviceInstructeurSubquery} AS SERVICE_INSTRUCTEUR_CONTACT,
+                    drv.DATEVISITE_DOSSIER AS DERNIERE_VISITE,
+                    {$avisSubquery} AS AVIS_DOSSIER_COMMISSION_VAL
                 FROM dossier d
                 JOIN dossieraffectation da ON d.ID_DOSSIER = da.ID_DOSSIER_AFFECT
                 JOIN datecommission dc ON da.ID_DATECOMMISSION_AFFECT = dc.ID_DATECOMMISSION
@@ -421,8 +490,6 @@ class DateCommissionRepository extends ServiceEntityRepository
                 JOIN etablissementdossier edos ON d.ID_DOSSIER = edos.ID_DOSSIER
                 JOIN dossiernature dn ON d.ID_DOSSIER = dn.ID_DOSSIER
                 JOIN dossiertype dt ON d.TYPE_DOSSIER = dt.ID_DOSSIERTYPE
-                JOIN dossierpreventionniste dp ON d.ID_DOSSIER = dp.ID_DOSSIER
-                JOIN utilisateur u ON dp.ID_PREVENTIONNISTE = u.ID_UTILISATEUR
                 LEFT JOIN etablissement ets ON edos.ID_ETABLISSEMENT = ets.ID_ETABLISSEMENT
                 LEFT JOIN etablissementinformations ei
                     ON ets.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT
@@ -441,6 +508,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                 LEFT JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
                 LEFT JOIN adresseruetype art ON ar.ID_RUETYPE = art.ID_RUETYPE
                 LEFT JOIN adressecommune com ON ea.NUMINSEE_COMMUNE = com.NUMINSEE_COMMUNE
+                LEFT JOIN dossierdernierevisite drv ON ets.ID_ETABLISSEMENT = drv.ID_ETABLISSEMENT
                 WHERE dc.DATE_COMMISSION >= :fromDate
                 {$userFilter}";
 
@@ -455,6 +523,34 @@ class DateCommissionRepository extends ServiceEntityRepository
         $rows = $conn->fetchAllAssociative($sql, $params);
 
         return $rows;
+    }
+
+    /**
+     * Retourne le fragment SQL formatant un utilisateurinformations en ligne de contact.
+     * Format : "- LIBELLE_FONCTION : NOM PRENOM[, adresse][, tel][, fax][, mail]".
+     *
+     * @param string $uiAlias  Alias de la table utilisateurinformations (ex: "ui_dc")
+     * @param string $fonAlias Alias de la table fonction (ex: "f_dc")
+     */
+    private function buildContactFormatSql(string $uiAlias, string $fonAlias): string
+    {
+        return "CONCAT(
+            COALESCE(CONCAT('- ', {$fonAlias}.LIBELLE_FONCTION, ' : '), '- : '),
+            COALESCE({$uiAlias}.NOM_UTILISATEURINFORMATIONS, ''),
+            COALESCE(CONCAT(' ', {$uiAlias}.PRENOM_UTILISATEURINFORMATIONS), ''),
+            IF({$uiAlias}.NUMEROADRESSE_UTILISATEURINFORMATIONS IS NOT NULL
+               AND {$uiAlias}.RUEADRESSE_UTILISATEURINFORMATIONS IS NOT NULL
+               AND {$uiAlias}.CPADRESSE_UTILISATEURINFORMATIONS IS NOT NULL
+               AND {$uiAlias}.VILLEADRESSE_UTILISATEURINFORMATIONS IS NOT NULL,
+               CONCAT(', ', {$uiAlias}.NUMEROADRESSE_UTILISATEURINFORMATIONS, ' ',
+                      {$uiAlias}.RUEADRESSE_UTILISATEURINFORMATIONS, ', ',
+                      {$uiAlias}.CPADRESSE_UTILISATEURINFORMATIONS, ' ',
+                      {$uiAlias}.VILLEADRESSE_UTILISATEURINFORMATIONS),
+               ''),
+            COALESCE(CONCAT(', ', {$uiAlias}.TELFIXE_UTILISATEURINFORMATIONS), ''),
+            COALESCE(CONCAT(', ', {$uiAlias}.TELFAX_UTILISATEURINFORMATIONS), ''),
+            COALESCE(CONCAT(', ', {$uiAlias}.MAIL_UTILISATEURINFORMATIONS), '')
+        )";
     }
 
     /**

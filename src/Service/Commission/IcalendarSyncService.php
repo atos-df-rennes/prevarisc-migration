@@ -13,11 +13,15 @@ use Sabre\VObject\Component\VCalendar;
  * Service de génération du flux iCalendar pour la synchronisation webcal.
  *
  * Port de Api_Service_Calendar — une VEVENT par couple DateCommission × Dossier,
- * avec SUMMARY et LOCATION enrichis (numéro ERP, établissement, adresse).
- * La DESCRIPTION inclut les préventionnistes du dossier.
+ * avec SUMMARY, LOCATION et DESCRIPTION enrichis.
  *
- * Note : les contacts, coordonnées de la mairie et avis d'exploitation
- * ne sont pas inclus dans la DESCRIPTION (requêtes supplémentaires non implémentées).
+ * La DESCRIPTION inclut (port de Api_Service_Calendar::getEventCorps()) :
+ *  1. Contacts du dossier (dossiercontact) + contacts de l'établissement
+ *  2. Coordonnées de la mairie
+ *  3. Coordonnées du service instructeur (uniquement dossiers de type instruction)
+ *  4. Date de la dernière visite périodique
+ *  5. Avis d'exploitation de l'établissement
+ *  6. Préventionniste(s) du dossier
  */
 class IcalendarSyncService
 {
@@ -39,7 +43,7 @@ class IcalendarSyncService
      * - SUMMARY enrichi : #NUMEROID libellé (commune) : type nature - objet (en salle)
      *   ou #NUMEROID libellé : libellé_séance (visite/groupe de visite).
      * - LOCATION : adresse de l'établissement (visite) ou nom de la commission (en salle).
-     * - DESCRIPTION : préventionniste(s) du dossier.
+     * - DESCRIPTION : contacts, mairie, service instructeur, dernière visite, avis, préventionnistes.
      *
      * @param int|null $userId       ID préventionniste — null pour tout retourner (admin)
      * @param int|null $commissionId ID commission — null pour toutes les commissions
@@ -187,19 +191,152 @@ class IcalendarSyncService
     }
 
     /**
-     * Construit la description du VEVENT (préventionnistes du dossier).
+     * Construit la description du VEVENT.
+     * Port complet de Api_Service_Calendar::getEventCorps().
+     *
+     * Sections :
+     *  1. Contacts du dossier + établissement
+     *  2. Coordonnées de la mairie
+     *  3. Coordonnées du service instructeur (dossiers instruction uniquement)
+     *  4. Date de la dernière visite périodique
+     *  5. Avis d'exploitation de l'établissement
+     *  6. Préventionniste(s) du dossier
      *
      * @param array<string, mixed> $row
      */
     private function buildDescription(array $row): string
     {
-        $preventionnistes = \is_string($row['PREVENTIONNISTES'] ?? null) ? trim($row['PREVENTIONNISTES']) : '';
+        $lf = "\r\n";
+        $corpus = 'Contacts du dossier :'.$lf;
 
-        if ('' === $preventionnistes) {
-            return '';
+        // 1. Contacts (dossier + établissement)
+        $contactsDossier = \is_string($row['CONTACTS_DOSSIER'] ?? null)
+            ? trim($row['CONTACTS_DOSSIER'])
+            : '';
+        $contactsEts = \is_string($row['CONTACTS_ETABLISSEMENT'] ?? null)
+            ? trim($row['CONTACTS_ETABLISSEMENT'])
+            : '';
+
+        $allContacts = array_filter([$contactsDossier, $contactsEts], static function ($c): bool {
+            return '' !== $c;
+        });
+
+        if (!empty($allContacts)) {
+            $corpus .= implode($lf, $allContacts).$lf;
+        } else {
+            $corpus .= 'Aucun contact'.$lf;
         }
 
-        return sprintf("Préventionniste(s) du dossier :\r\n- %s\r\n", $preventionnistes);
+        $corpus .= $lf.$lf;
+
+        // 2. Mairie
+        $maireContact = \is_string($row['MAIRE_CONTACT'] ?? null)
+            ? trim($row['MAIRE_CONTACT'])
+            : '';
+
+        if ('' !== $maireContact) {
+            $corpus .= 'Coordonnées de la mairie :'.$lf.$maireContact.$lf.$lf.$lf;
+        } else {
+            $corpus .= 'Aucune coordonées pour la mairie.'.$lf.$lf;
+        }
+
+        // 3. Service instructeur (uniquement pour les dossiers de type instruction = TYPE_DOSSIER 1)
+        $typeDossier = isset($row['TYPE_DOSSIER']) && is_numeric($row['TYPE_DOSSIER'])
+            ? (int) $row['TYPE_DOSSIER']
+            : 0;
+
+        if (1 === $typeDossier) {
+            $typeServInstruc = \is_string($row['TYPESERVINSTRUC_DOSSIER'] ?? null)
+                ? $row['TYPESERVINSTRUC_DOSSIER']
+                : '';
+
+            if ('servInstCommune' === $typeServInstruc) {
+                $servInstructContact = $maireContact;
+            } else {
+                $servInstructContact = \is_string($row['SERVICE_INSTRUCTEUR_CONTACT'] ?? null)
+                    ? trim($row['SERVICE_INSTRUCTEUR_CONTACT'])
+                    : '';
+            }
+
+            // Port fidèle du legacy : la condition d'affichage vérifie la présence du maire
+            if ('' !== $maireContact) {
+                $corpus .= 'Coordonnées du service instructeur :'.$lf
+                    .$servInstructContact.$lf.$lf.$lf;
+            } else {
+                $corpus .= 'Aucunes coordonées pour le service instructeur.'.$lf.$lf;
+            }
+        }
+
+        // 4. Dernière visite périodique
+        $derniereVisite = $row['DERNIERE_VISITE'] ?? null;
+        $derniereVisiteStr = 'Aucune date.';
+        if (\is_string($derniereVisite) && '' !== $derniereVisite) {
+            try {
+                $derniereVisiteStr = (new \DateTime($derniereVisite))->format('d/m/Y');
+            } catch (\Exception $e) {
+                $derniereVisiteStr = $derniereVisite;
+            }
+        }
+
+        $corpus .= 'Date de la dernière visite périodique : '.$derniereVisiteStr.$lf.$lf;
+
+        // 5. Avis d'exploitation
+        $corpus .= "Avis d'exploitation de l'établissement : "
+            .$this->buildAvisEtablissement($row).$lf.$lf.$lf;
+
+        // 6. Préventionnistes
+        $preventionnistes = \is_string($row['PREVENTIONNISTES'] ?? null)
+            ? trim($row['PREVENTIONNISTES'])
+            : '';
+
+        $corpus .= 'Préventionniste(s) du dossier :'.$lf;
+
+        if ('' !== $preventionnistes) {
+            foreach (explode(', ', $preventionnistes) as $prev) {
+                $prev = trim($prev);
+                if ('' !== $prev) {
+                    $corpus .= '- '.$prev.$lf.$lf;
+                }
+            }
+        } else {
+            $corpus .= '- Informations du prévisionniste incomplètes ou absentes'.$lf.$lf;
+        }
+
+        return $corpus.$lf.$lf;
+    }
+
+    /**
+     * Retourne la chaîne d'avis d'exploitation à inclure dans la DESCRIPTION.
+     * Port de Api_Service_Calendar::getAvisEtablissement().
+     *
+     * @param array<string, mixed> $row
+     */
+    private function buildAvisEtablissement(array $row): string
+    {
+        $idEts = $row['ID_ETABLISSEMENT'] ?? null;
+        if (null === $idEts) {
+            return "Avis d'exploitation indisponible";
+        }
+
+        $avis = $row['AVIS_DOSSIER_COMMISSION_VAL'] ?? null;
+        if (null === $avis || !is_numeric($avis)) {
+            return "Avis d'exploitation indisponible";
+        }
+
+        // ID_GENRE_CELLULE = 3 (port de Api_Service_Calendar::ID_GENRE_CELLULE)
+        $idGenre = isset($row['ID_GENRE']) && is_numeric($row['ID_GENRE']) ? (int) $row['ID_GENRE'] : 0;
+        $suffixeCellule = (3 === $idGenre) ? " à l'exploitation" : '';
+
+        $avisInt = (int) $avis;
+        if (1 === $avisInt) {
+            return 'Favorable'.$suffixeCellule;
+        }
+
+        if (2 === $avisInt) {
+            return 'Défavorable'.$suffixeCellule;
+        }
+
+        return "Avis d'exploitation indisponible";
     }
 
     /**
