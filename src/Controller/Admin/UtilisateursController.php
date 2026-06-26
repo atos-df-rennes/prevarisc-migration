@@ -7,9 +7,9 @@ use App\Entity\UtilisateurPreferences;
 use App\Form\UtilisateurType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
-use App\Security\Md5SaltedEncoder;
 use App\Service\Avatar;
 use App\Service\Image;
+use App\Service\UtilisateurManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,17 +40,17 @@ class UtilisateursController extends AbstractController
     /** @var Image */
     private $image;
 
-    /** @var Md5SaltedEncoder */
-    private $passwordEncoder;
+    /** @var UtilisateurManager */
+    private $utilisateurManager;
 
-    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, Md5SaltedEncoder $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, UtilisateurManager $utilisateurManager)
     {
         $this->entityManager = $entityManager;
         $this->utilisateurRepository = $utilisateurRepository;
         $this->groupeRepository = $groupeRepository;
         $this->avatar = $avatar;
         $this->image = $image;
-        $this->passwordEncoder = $passwordEncoder;
+        $this->utilisateurManager = $utilisateurManager;
     }
 
     /**
@@ -80,9 +80,8 @@ class UtilisateursController extends AbstractController
             $preferences = new UtilisateurPreferences();
             $preferences->setUtilisateur($utilisateur);
             $utilisateur->setPreferences($preferences);
-            // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
-            // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
-            $utilisateur->setPassword($this->passwordEncoder->encodePassword((string) $utilisateur->getPlainPassword(), $utilisateur->getSalt()));
+            // Délégué à UtilisateurManager pour centraliser la logique.
+            $this->utilisateurManager->processPasswordBeforePersist($utilisateur);
 
             $dateDerniereVisite = new \DateTime();
             $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
@@ -129,15 +128,8 @@ class UtilisateursController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // On ne re-set pas le password s'il n'a pas été modifié
-            // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
-            if (null !== $utilisateur->getPlainPassword()) {
-                // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
-                // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
-                $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur->getPlainPassword(), $utilisateur->getSalt()));
-            } elseif (null !== $utilisateur->getPassword() && $utilisateur->getSso()) {
-                $utilisateur->setPassword(null);
-            }
+            // Délégué à UtilisateurManager pour centraliser la logique du password.
+            $this->utilisateurManager->processPasswordBeforePersist($utilisateur);
 
             $this->entityManager->persist($utilisateur);
             $this->entityManager->flush();
