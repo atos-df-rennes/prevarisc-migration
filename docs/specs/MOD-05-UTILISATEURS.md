@@ -294,6 +294,12 @@ Une ressource spécialisée sur les dossiers se définit par :
 
 Chaque ressource spécialisée pour les dossiers génère automatiquement trois privilèges : **Lecture**, **Modifier** et **Verrouillage d'un dossier**.
 
+> ⚠️ **Limitation implémentée** : Le formulaire d'administration accepte une sélection de plusieurs natures, mais **les ressources multi-natures (ex: `dossier_1-2`) ne sont pas résolues par le moteur de contrôle d'accès**. Seules les ressources simples de type `dossier_<ID_NATURE>` sont traitées lors des vérifications d'accès. Cette limitation existe aussi dans l'implémentation legacy et n'a pas été changée lors de la migration.
+>
+> **Options de correction à envisager** :
+> - Implémenter réellement la résolution des ressources multi-natures dans le moteur ACL.
+> - Modifier le formulaire d'administration pour imposer une sélection unique de nature (remplacer le sélecteur multiple par un simple `<select>`).
+
 #### 5.2.3 Nommage et affichage
 
 - Chaque ressource spécialisée reçoit un nom descriptif automatique résumant ses critères (ex : « Établissement (Types J-L — Catégories 1-2 — Sur les commissions de l'utilisateur — Ignorer les groupements — Ignorer la commune) »).
