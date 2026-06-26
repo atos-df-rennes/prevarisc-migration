@@ -11,6 +11,7 @@ use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -22,7 +23,8 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $voter = new DossierVoter($resourcesRepository, $privilegesRepository);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
         $token = $this->createMock(TokenInterface::class);
         $user = $this->createMock(Utilisateur::class);
@@ -32,6 +34,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
         $nature = $this->createMock(DossierNatureListe::class);
         $nature->method('getId')->willReturn(1);
         $dossier->method('getNature')->willReturn($nature);
+        $dossier->method('getEtablissements')->willReturn(new ArrayCollection([]));
 
         $resource = $this->createMock(Resources::class);
         $resource->method('getName')->willReturn('resource_1');

@@ -14,17 +14,13 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Security\Voter\Etablissement\EtablissementErpVoter;
-use App\Security\Voter\Etablissement\EtablissementHabitationVoter;
-use App\Security\Voter\Etablissement\EtablissementIghVoter;
 use App\Security\Voter\Etablissement\EtablissementSiteVoter;
 use App\Security\Voter\Etablissement\EtablissementVoter;
-use App\Service\Voter\EtablissementVoterFactory;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -158,32 +154,6 @@ class EtablissementSiteVoterTest extends TestCase
     }
 
     /**
-     * Crée un voter ERP qui accorde l'accès.
-     *
-     * @return MockObject&EtablissementErpVoter
-     */
-    private function createGrantingErpVoter(): MockObject
-    {
-        $voter = $this->createMock(EtablissementErpVoter::class);
-        $voter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
-
-        return $voter;
-    }
-
-    /**
-     * Crée un voter ERP qui refuse l'accès.
-     *
-     * @return MockObject&EtablissementErpVoter
-     */
-    private function createDenyingErpVoter(): MockObject
-    {
-        $voter = $this->createMock(EtablissementErpVoter::class);
-        $voter->method('vote')->willReturn(VoterInterface::ACCESS_DENIED);
-
-        return $voter;
-    }
-
-    /**
      * Test : Site avec fils ERP et accès ERP autorisé → ACCESS_GRANTED.
      */
     public function testSiteAvecFilsErpAccordeAccesSiAccesErpAutorise(): void
@@ -193,14 +163,10 @@ class EtablissementSiteVoterTest extends TestCase
         $erpFils = $this->createMockErpFils();
         $site = $this->createMockSite([$erpFils]);
 
-        $erpVoter = $this->createGrantingErpVoter();
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $factory->method('getVoterForGenre')
-            ->with(GenreEtablissement::ERP)
-            ->willReturn($erpVoter);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -217,14 +183,10 @@ class EtablissementSiteVoterTest extends TestCase
         $erpFils = $this->createMockErpFils();
         $site = $this->createMockSite([$erpFils]);
 
-        $erpVoter = $this->createDenyingErpVoter();
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $factory->method('getVoterForGenre')
-            ->with(GenreEtablissement::ERP)
-            ->willReturn($erpVoter);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(false);
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -241,17 +203,10 @@ class EtablissementSiteVoterTest extends TestCase
         $ighFils = $this->createMockIghFils();
         $site = $this->createMockSite([$ighFils]);
 
-        // Mock de la factory qui retourne un IGH voter autorisant l'accès
-        $ighVoter = $this->createMock(EtablissementIghVoter::class);
-        $ighVoter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
 
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $factory->method('getVoterForGenre')
-            ->with(GenreEtablissement::IGH)
-            ->willReturn($ighVoter);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -268,17 +223,10 @@ class EtablissementSiteVoterTest extends TestCase
         $habitationFils = $this->createMockHabitationFils();
         $site = $this->createMockSite([$habitationFils]);
 
-        // Mock de la factory qui retourne un Habitation voter autorisant l'accès
-        $habitationVoter = $this->createMock(EtablissementHabitationVoter::class);
-        $habitationVoter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
 
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $factory->method('getVoterForGenre')
-            ->with(GenreEtablissement::HABITATION)
-            ->willReturn($habitationVoter);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -296,22 +244,10 @@ class EtablissementSiteVoterTest extends TestCase
         $ighFils = $this->createMockIghFils();
         $site = $this->createMockSite([$erpFils, $ighFils]);
 
-        // Mock ERP voter refuse, IGH voter autorise
-        $erpVoter = $this->createMock(EtablissementErpVoter::class);
-        $erpVoter->method('vote')->willReturn(VoterInterface::ACCESS_DENIED);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
 
-        $ighVoter = $this->createMock(EtablissementIghVoter::class);
-        $ighVoter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
-
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $factory->method('getVoterForGenre')
-            ->willReturnMap([
-                [GenreEtablissement::ERP, $erpVoter],
-                [GenreEtablissement::IGH, $ighVoter],
-            ]);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, ...$this->createMockRepositories());
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -351,10 +287,9 @@ class EtablissementSiteVoterTest extends TestCase
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
 
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, $resourcesRepository, $privilegesRepository);
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, $resourcesRepository, $privilegesRepository);
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 
@@ -387,10 +322,9 @@ class EtablissementSiteVoterTest extends TestCase
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
         $privilegesRepository->method('findOneBy')->willReturn(null);
 
-        $factory = $this->createMock(EtablissementVoterFactory::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
 
-        $siteVoter = new EtablissementSiteVoter($factory, $logger, $resourcesRepository, $privilegesRepository);
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, $resourcesRepository, $privilegesRepository);
 
         $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
 

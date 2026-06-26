@@ -11,6 +11,7 @@ use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +24,8 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNatu
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $voter = new DossierVoter($resourcesRepository, $privilegesRepository);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
         $token = $this->createMock(TokenInterface::class);
         $user = $this->createMock(Utilisateur::class);
@@ -33,6 +35,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNatu
         $nature = $this->createMock(DossierNatureListe::class);
         $nature->method('getId')->willReturn(3);
         $dossier->method('getNature')->willReturn($nature);
+        $dossier->method('getEtablissements')->willReturn(new ArrayCollection([]));
 
         $resourceAll = $this->createMock(Resources::class);
         $resourceAll->method('getName')->willReturn('resource_0');

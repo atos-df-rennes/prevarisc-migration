@@ -6,6 +6,7 @@ use App\Entity\Dossier;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -16,7 +17,8 @@ class VoteReturnsAccessAbstainWhenNoSpecializedResourcesExistTest extends TestCa
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $voter = new DossierVoter($resourcesRepository, $privilegesRepository);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
         $dossier = $this->createMock(Dossier::class);
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([]);
