@@ -122,24 +122,16 @@ class DossierVoter extends Voter
             $resourcesById[$natureId] = $resource;
         }
 
-        if (self::MODIFICATION === $attribute) {
-            if (!$this->checkEtablissementsAccess($subject, $token)) {
-                return false;
-            }
+        if (!$this->checkEtablissementsAccess($subject, $token)) {
+            return false;
+        }
 
+        if (self::MODIFICATION === $attribute) {
             return $this->canEdit($subject, $userPrivileges, $resourcesById, $natureDossierId);
         }
 
         if (self::MODIFICATION_IGNORE_VERROU === $attribute) {
-            if (!$this->checkEtablissementsAccess($subject, $token)) {
-                return false;
-            }
-
             return $this->canView(self::MODIFICATION, $userPrivileges, $resourcesById, $natureDossierId);
-        }
-
-        if (!$this->checkEtablissementsAccess($subject, $token)) {
-            return false;
         }
 
         return $this->canView($attribute, $userPrivileges, $resourcesById, $natureDossierId);
