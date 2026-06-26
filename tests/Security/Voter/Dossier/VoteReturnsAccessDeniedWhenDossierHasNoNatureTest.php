@@ -7,6 +7,7 @@ use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -17,7 +18,8 @@ class VoteReturnsAccessDeniedWhenDossierHasNoNatureTest extends TestCase
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $voter = new DossierVoter($resourcesRepository, $privilegesRepository);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
         $token = $this->createMock(TokenInterface::class);
         $user = $this->createMock(Utilisateur::class);

@@ -50,6 +50,8 @@
 Pour cela, utiliser la Factory `EtablissementVoterFactory` dont un exemple est disponible dans le Voter `EtablissementSiteVoter`.\
 Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et `DossierVoter`, considérer l'extraction de la logique dans une classe dédiée (**ex:** `MultipleEtablissementVoter` ou similaire).
 
+**Statut** : **Corrigé** — `EtablissementCollectionAccessChecker` extrait la logique commune entre `EtablissementSiteVoter` et `DossierVoter`. Le `DossierVoter` vérifie désormais `view_ets` sur chaque établissement lié avant d'accorder l'accès par nature. Si le dossier n'a aucun établissement lié, la vérification ets est ignorée (aligné sur le cas `$i === 0` du legacy). Commit : `cf3dc9b`.
+
 ---
 
 ### Écart 3 — Les ressources spécialisées établissement ne sont appliquées que partiellement en Symfony
