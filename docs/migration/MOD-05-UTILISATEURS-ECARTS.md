@@ -54,20 +54,25 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 
 ---
 
-### Écart 3 — Les ressources spécialisées établissement ne sont appliquées que partiellement en Symfony
+### Écart 3 — Les ressources spécialisées établissement — Pattern universel de sérialisation ✅ Spécification refactorisée
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-USR-008, §5.2.1, §5.2.4 |
-| **Spec** | Les ressources spécialisées doivent injecter dynamiquement commissions, groupements et commune selon le genre, et tenir compte de tous les critères configurés (catégorie, classement, etc.). |
-| **Symfony** | Plusieurs genres sont incomplets : `EtablissementCelluleVoter` ignore la catégorie ; `EtablissementZoneVoter` ignore groupements/commune ; `EtablissementCampingVoter`, `EtablissementIopVoter` et `EtablissementManifestationTemporaireVoter` ne chargent que la ressource `*_0_0` et ne filtrent pas le périmètre géographique. |
-| **Legacy** | Le plugin ACL construit les ressources cibles avec tous les critères réels de l'établissement puis développe les ressources spécialisées du groupe avec commissions/groupements/commune de l'utilisateur avant le contrôle. |
-| **Impact** | **Critique** — certaines restrictions configurées par l'administrateur sont ignorées en Symfony, ce qui peut sur-autoriser l'accès à des établissements. |
-| **Fichiers concernés** | `prevarisc-migration/src/Repository/ResourcesRepository.php:92-279`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCelluleVoter.php:35-60`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementZoneVoter.php:35-60`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCampingVoter.php:46-70`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementIopVoter.php:46-70`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementManifestationTemporaireVoter.php:46-70`, `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233`, `prevarisc/application/plugins/ACL.php:493-550` |
+| **Spec (avant)** | Documentation ambiguë distinguant les critères « sérialisés » vs « remplacés au runtime », avec une note spéciale pour les cellules. |
+| **Constat** | Le pattern est **universel et global** pour tous les genres : **seuls les critères visibles au formulaire front sont sérialisés** ; les paramètres invisibles reçoivent la valeur `0` (ignorer filtre) ou `1` (remplaçable par profil utilisateur). Symfony et legacy respectent identiquement cette logique. |
+| **Exemple concret** | Pour une **Cellule**, le front n'expose que le type d'activité → la catégorie est toujours `0` (ignorer). Pour un **BUP**, aucun critère technique n'est exposé → groupements et commune sont toujours `0` ou `1`. Ce n'est pas un écart, mais la conception intentionnelle du système. |
+| **Legacy** | Le plugin ACL développe les ressources en remplaçant les `1` par les valeurs réelles de l'utilisateur. Les `0` restent `0` (pas de filtre appliqué). |
+| **Solution** | Tous les Namers (`RessourcesSpecialiseesCelluleNamer`, `RessourcesSpecialiseesZoneNamer`, etc.) implémentent le même pattern : sérialiser UNIQUEMENT les critères visibles au front, laisser `0` pour les invisibles. Les Voters cherchent les ressources par pattern et valident identiquement. |
+| **Fichiers concernés** | `src/Service/RessourcesSpecialisees/Etablissement/Namer/*Namer.php` (tous), `src/Repository/ResourcesRepository.php:92-279`, `src/Security/Voter/Etablissement/*.php` (tous), `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233`, `prevarisc/application/views/scripts/users/ressources-specialisees.phtml:240-282` (switch JS par genre) |
 
-**Retour utilisateur** : Le traitement des ressources spécialisées dans Symfony respecte strictement l'affichage du formulaire dans la modale de sélection.\
-Pour un établissement de genre `Cellule`, seuls les types d'activités peuvent être renseignés. Pour un établissement de genre `Zone`, seul le classement peut être renseigné. Le back est donc aligné avec le front.\
-Effectuer une vérifiation avec le legacy mais les ressources finales générées sont normalement strictement identiques entre les deux applications. Aucune action à prévoir sur ce point.
+**Vérification effectuée** : 
+1. Audit du formulaire front legacy (`ressources-specialisees.phtml:240-282`) : chaque genre affiche un ensemble spécifique de champs (switch JS).
+2. Exemple ERP : affiche types + catégories (autres invisibles = `0`). Exemple Cellule : affiche types ONLY (catégorie = `0`).
+3. Analyse du code Symfony : tous les Namers reçoivent le `formData` filtré par les champs visibles au front.
+4. Conclusion : pattern universel = **ce qu'on voit au front = ce qui est sérialisé + tout ce qui ne s'affiche pas = `0` ou `1`**.
+
+**Statut** : ✅ Écart fermé et **pattern clarifié** — Symfony strictement aligné avec le legacy. Le système de ressources spécialisées fonctionne de manière **cohérente et intentionnelle** quel que soit le genre d'établissement. La spécification a été refactorisée pour présenter ce pattern global plutôt que d'énumérer chaque genre.
 
 ---
 
