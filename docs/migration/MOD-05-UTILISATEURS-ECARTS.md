@@ -26,12 +26,12 @@
 |---|--------|
 | **Règles** | §3.2, RG-USR-012 |
 | **Spec** | Si « Connexion via LDAP/CAS/NTLM » est cochée, aucun mot de passe local n'est enregistré. |
-| **Symfony** | `UtilisateursController::ajouter()` encode systématiquement `plainPassword`, même pour un utilisateur `sso=true`. Le formulaire masque le champ, mais ne force pas un `password=null` à la création. |
+| **Symfony** | Correction implémentée : la logique de gestion du mot de passe a été centralisée dans un service `App\Service\UtilisateurManager`. Lors de la création et de la modification, si `sso=true` le champ `password` est forcé à `null`. Sinon, le `plainPassword` n'est encodé que s'il est non-null et non vide. |
 | **Legacy** | `Service_User::save()` enregistre `PASSWD_UTILISATEUR = null` quand `PASSWD_INPUT` est vide, ce qui correspond au comportement attendu. |
-| **Impact** | **Moyen** — le compte est bien marqué SSO, mais conserve une empreinte locale non attendue, contrairement à la spec et au legacy. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/UtilisateursController.php:72-115`, `prevarisc-migration/src/Form/UtilisateurType.php:52-131`, `prevarisc/application/services/User.php:149-160`, `prevarisc/application/views/scripts/users/edit.phtml:39-46` |
+| **Impact** | **Corrigé** — les comptes SSO n'ont plus d'empreinte de mot de passe local ; comportement aligné sur la spec et le legacy. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/UtilisateursController.php` (modifié), `prevarisc-migration/src/Service/UtilisateurManager.php` (nouveau), `prevarisc-migration/src/Form/UtilisateurType.php:52-131`, `prevarisc-migration/tests/Service/UtilisateurManagerTest.php` (nouveau), `prevarisc/application/services/User.php:149-160`, `prevarisc/application/views/scripts/users/edit.phtml:39-46` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy.
+**Retour utilisateur** : Écart corrigé et centralisé dans un service. Écart fermé — implémentation Symfony alignée sur le legacy.
 
 ---
 
