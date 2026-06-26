@@ -219,35 +219,56 @@ Au-delà des ressources génériques, le système permet de créer des **ressour
 
 Une ressource spécialisée sur les établissements combine plusieurs critères de filtrage qui varient selon le **genre** de l'établissement :
 
+> **Note importante** : Lors de la création d'une ressource spécialisée, seuls les critères visibles dans la modale de sélection **front** sont sérialisés dans le nom de la ressource (ex: `cell_<typeActivite>_0`, `zone_<classement>_0_0`). Les autres paramètres comme les groupements, commissions ou communes sont marqués `0` dans la ressource stockée, et remplacés dynamiquement **lors de la vérification des droits** par les valeurs réelles de l'utilisateur (selon son profil). Cela permet une configuration centralisée et une résolution des droits au runtime.
+
 **Établissement recevant du public (ERP) :**
 
-| Critère | Options |
-|---|---|
-| Types d'activité | Un ou plusieurs types sélectionnés, ou « Tous les types » |
-| Catégories | Une ou plusieurs catégories sélectionnées, ou « Toutes les catégories » |
-| Commissions | « Ignorer les commissions » ou « Sur les commissions de l'utilisateur » |
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+| Critère | Sérialisé | Notes |
+|---|---|---|
+| Types d'activité | ✅ Oui | Sélection multiple |
+| Catégories | ✅ Oui | Sélection multiple |
+| Commissions | ❌ Remplacé au runtime | `0` (tous) ou `1` (filtré par celles de l'utilisateur) |
+| Groupements | ❌ Remplacé au runtime | `0` (tous) ou `1` (filtré par ceux de l'utilisateur) |
+| Commune | ❌ Remplacé au runtime | `0` (tous) ou `1` (commune de l'utilisateur) |
 
 **Cellule :**
 
-| Critère | Options |
-|---|---|
-| Types d'activité | Un ou plusieurs types, ou « Tous les types » |
-| Catégories | Une ou plusieurs catégories, ou « Toutes les catégories » |
+| Critère | Sérialisé | Notes |
+|---|---|---|
+| Types d'activité | ✅ Oui | Sélection multiple |
+| Catégories | ❌ Non | Paramètre UI uniquement (non sérialisé) |
 
 **Habitation :**
 
-| Critère | Options |
-|---|---|
-| Familles | Une ou plusieurs familles sélectionnées, ou « Toutes les familles » |
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+| Critère | Sérialisé | Notes |
+|---|---|---|
+| Familles | ✅ Oui | Sélection multiple |
+| Groupements | ❌ Remplacé au runtime | `0` (tous) ou `1` (ceux de l'utilisateur) |
+| Commune | ❌ Remplacé au runtime | `0` (tous) ou `1` (commune de l'utilisateur) |
 
 **Immeuble de grande hauteur (IGH) :**
 
-| Critère | Options |
-|---|---|
+| Critère | Sérialisé | Notes |
+|---|---|---|
+| Classes | ✅ Oui | Sélection multiple |
+| Commissions | ❌ Remplacé au runtime | `0` (tous) ou `1` (celles de l'utilisateur) |
+| Groupements | ❌ Remplacé au runtime | `0` (tous) ou `1` (ceux de l'utilisateur) |
+| Commune | ❌ Remplacé au runtime | `0` (tous) ou `1` (commune de l'utilisateur) |
+
+**Bureau unique de police (BUP), Camping, Manifestation temporaire, IOP :**
+
+| Critère | Sérialisé | Notes |
+|---|---|---|
+| Groupements | ❌ Remplacé au runtime | `0` (tous) ou `1` (ceux de l'utilisateur) |
+| Commune | ❌ Remplacé au runtime | `0` (tous) ou `1` (commune de l'utilisateur) |
+
+**Zone :**
+
+| Critère | Sérialisé | Notes |
+|---|---|---|
+| Classements | ✅ Oui | Sélection multiple |
+| Groupements | ❌ Remplacé au runtime | `0` (tous) ou `1` (ceux de l'utilisateur) |
+| Commune | ❌ Remplacé au runtime | `0` (tous) ou `1` (commune de l'utilisateur) |
 | Classes | Une ou plusieurs classes sélectionnées, ou « Toutes les classes » |
 | Commissions | « Ignorer les commissions » ou « Sur les commissions de l'utilisateur » |
 | Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |

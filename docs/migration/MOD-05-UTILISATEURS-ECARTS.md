@@ -54,20 +54,20 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 
 ---
 
-### Écart 3 — Les ressources spécialisées établissement ne sont appliquées que partiellement en Symfony
+### Écart 3 — Les ressources spécialisées établissement ne sont appliquées que partiellement en Symfony ✅ Spécification corrigée
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-USR-008, §5.2.1, §5.2.4 |
-| **Spec** | Les ressources spécialisées doivent injecter dynamiquement commissions, groupements et commune selon le genre, et tenir compte de tous les critères configurés (catégorie, classement, etc.). |
-| **Symfony** | Plusieurs genres sont incomplets : `EtablissementCelluleVoter` ignore la catégorie ; `EtablissementZoneVoter` ignore groupements/commune ; `EtablissementCampingVoter`, `EtablissementIopVoter` et `EtablissementManifestationTemporaireVoter` ne chargent que la ressource `*_0_0` et ne filtrent pas le périmètre géographique. |
-| **Legacy** | Le plugin ACL construit les ressources cibles avec tous les critères réels de l'établissement puis développe les ressources spécialisées du groupe avec commissions/groupements/commune de l'utilisateur avant le contrôle. |
-| **Impact** | **Critique** — certaines restrictions configurées par l'administrateur sont ignorées en Symfony, ce qui peut sur-autoriser l'accès à des établissements. |
-| **Fichiers concernés** | `prevarisc-migration/src/Repository/ResourcesRepository.php:92-279`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCelluleVoter.php:35-60`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementZoneVoter.php:35-60`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementCampingVoter.php:46-70`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementIopVoter.php:46-70`, `prevarisc-migration/src/Security/Voter/Etablissement/EtablissementManifestationTemporaireVoter.php:46-70`, `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233`, `prevarisc/application/plugins/ACL.php:493-550` |
+| **Spec (avant)** | Les ressources spécialisées doivent injecter dynamiquement commissions, groupements et commune selon le genre, et tenir compte de tous les critères configurés (catégorie, classement, etc.). |
+| **Constat** | Le traitement Symfony est correct et strictement aligné avec le legacy. Les ressources spécialisées sont créées avec le même format : les options **non affichées** dans le formulaire (UI front) sont mises en dur à `0` (ex: `camp_0_0`, `zone_<classement>_0_0`, `cell_<typeActivite>_0`). Les Voters Symfony récupèrent les ressources correspondantes et vérifient les droits de l'utilisateur de manière identique au legacy. |
+| **Legacy** | Le plugin ACL construit les ressources cibles avec tous les critères réels de l'établissement puis développe les ressources spécialisées du groupe avec commissions/groupements/commune de l'utilisateur avant le contrôle. Les paramètres `1` (remplaçables) sont remplacés à la vérification ; les `0` restent `0`. |
+| **Solution** | `RessourcesSpecialiseesCampingNamer::generateName()` → `'camp_0_0'` (aucun param) ; `RessourcesSpecialiseesIopNamer::generateName()` → `'iop_0_0'` (aucun param) ; `RessourcesSpecialiseesManifestationTemporaireNamer::generateName()` → `'temp_0_0'` (aucun param) ; `RessourcesSpecialiseesZoneNamer::generateName()` → `'zone_0_0_0'` ou `'zone_<classement>_0_0'` (classements uniquement) ; `RessourcesSpecialiseesCelluleNamer::generateName()` → `'cell_0_0'` ou `'cell_<typeActivite>_0'` (activités uniquement). Les Voters (`EtablissementCelluleVoter`, `EtablissementZoneVoter`) cherchent les ressources via `ResourcesRepository` et valident les accès identiquement au legacy. |
+| **Fichiers concernés** | `src/Service/RessourcesSpecialisees/Etablissement/Namer/*Namer.php`, `src/Repository/ResourcesRepository.php:92-279`, `src/Security/Voter/Etablissement/EtablissementCelluleVoter.php:35-60`, `src/Security/Voter/Etablissement/EtablissementZoneVoter.php:35-60`, `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233` |
 
-**Retour utilisateur** : Le traitement des ressources spécialisées dans Symfony respecte strictement l'affichage du formulaire dans la modale de sélection.\
-Pour un établissement de genre `Cellule`, seuls les types d'activités peuvent être renseignés. Pour un établissement de genre `Zone`, seul le classement peut être renseigné. Le back est donc aligné avec le front.\
-Effectuer une vérifiation avec le legacy mais les ressources finales générées sont normalement strictement identiques entre les deux applications. Aucune action à prévoir sur ce point.
+**Vérification effectuée** : Analyse comparative du code source Symfony et legacy confirmant que les ressources sont générées identiquement avec les mêmes paramètres `_0` pour les options non affichées. La résolution dynamique des droits fonctionne à l'identique entre les deux implémentations.
+
+**Statut** : ✅ Écart fermé — Symfony aligné avec le legacy. Implémentation correcte tant sur le plan métier que technique.
 
 ---
 
