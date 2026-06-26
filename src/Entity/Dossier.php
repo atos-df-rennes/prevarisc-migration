@@ -35,6 +35,12 @@ class Dossier
     private $id;
 
     /**
+     * @var ?int
+     *
+     * @ORM\Column(name="COMMUNE_DOSSIER", type="bigint")
+     */
+    private $commune;
+    /**
      * @var ?\DateTimeInterface
      *
      * @ORM\Column(name="DATESUPPRESSION_DOSSIER", type="date", nullable=true)
@@ -656,6 +662,17 @@ class Dossier
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCommune(): ?int
+    {
+        return $this->commune;
+    }
+    public function setCommune(int $commune): self
+    {
+        $this->commune = $commune;
+
+        return $this;
     }
 
     public function getDateSuppression(): ?\DateTimeInterface

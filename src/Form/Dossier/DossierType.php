@@ -2,9 +2,11 @@
 
 namespace App\Form\Dossier;
 
+use App\Controller\ContactController;
 use App\Entity\Avis;
 use App\Entity\Commission;
 use App\Entity\CommissionType;
+use App\Entity\Commune;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierPieceJointe;
@@ -12,12 +14,14 @@ use App\Entity\DossierType as DossierTypeEntity;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DataTransformer\DateCommissionTransformer;
+use App\Repository\CommuneRepository;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierPieceJointeRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -41,11 +45,14 @@ class DossierType extends AbstractType
 
     /** @var EntityManagerInterface */
     private $entityManager;
+    /** @var CommuneRepository */
+    private $CommuneRepository;
 
-    public function __construct(Security $security, EntityManagerInterface $entityManager)
+    public function __construct(Security $security, EntityManagerInterface $entityManager,CommuneRepository $CommuneRepository)
     {
         $this->security = $security;
         $this->entityManager = $entityManager;
+        $this->CommuneRepository = $CommuneRepository;
     }
 
     // Note : Possibilité future de séparer en plusieurs FormTypes selon le type de dossier
@@ -74,6 +81,21 @@ class DossierType extends AbstractType
                 'attr' => [
                     'data-action' => 'change',
                 ],
+            ])
+            ->add('commune', EntityType::class, [
+                'label' => 'Commune',
+                'class' => Commune::class,
+                'choice_loader' => new CallbackChoiceLoader(function () use ($options) {
+                    // Retourne une liste vide si is_post est false, ce qui évite de charger tous les contacts lors de l'affichage initial du formulaire
+                    if (array_key_exists('is_post', $options) && false === $options['is_post']) {
+                        return [];
+                    }
+
+                    return $this->CommuneRepository->findAllForSearch();
+                }),
+                'choice_label' => 'libelle',
+                'placeholder' => 'Sélectionner une commune',
+                'required' => false,
             ])
             ->add('dateInsert', DateType::class, [
                 'label' => 'Date de création du dossier',
@@ -578,6 +600,7 @@ class DossierType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Dossier::class,
             'is_edit' => false, // Par défaut, mode création
+            'is_post' => false,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
             'csrf_token_id' => 'dossier_form',
@@ -585,6 +608,7 @@ class DossierType extends AbstractType
         ]);
 
         $resolver->setAllowedTypes('is_edit', 'bool');
+        $resolver->setAllowedTypes('is_post', 'bool');
     }
 
     /**

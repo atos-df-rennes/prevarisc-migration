@@ -8,6 +8,7 @@ use App\Repository\CommuneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -64,5 +65,13 @@ class CommunesController extends AbstractController
             'form' => $form->createView(),
             'commune' => $commune,
         ]);
+    }
+
+    /**
+     * @Route("/commune/{search}", name="commune_autocomplete", options={"expose"=true})
+     */
+    public function autocomplete(string $search): JsonResponse
+    {
+        return $this->json($this->communeRepository->findCommune($search));
     }
 }

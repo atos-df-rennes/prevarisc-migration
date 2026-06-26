@@ -443,6 +443,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $form = $this->createForm(DossierType::class, $dossier, [
             'is_edit' => true,
+            'is_post' => $request->isMethod('POST'),
         ]);
 
         // Pré-remplir les champs Hidden avec IDs affectations existantes

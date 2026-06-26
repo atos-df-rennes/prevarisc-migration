@@ -184,6 +184,33 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     maxItems: null
                 });
             }
+
+            new TomSelect ('#dossier_commune', {
+                plugins: ['remove_button'],
+                maxItems: 1,
+                create: false,
+                shouldLoad: function(query) {
+                    return query.length > 1;
+                },
+                load: function (query, callback) {
+                    const url = Routing.generate('commune_autocomplete', {search: encodeURIComponent(query)});
+                    fetch (url)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json.map(contact => {
+                                let nameParts = []
+                                nameParts.push(contact.libelle)
+
+                                return {
+                                    id: contact.id,
+                                    libelle: nameParts.join(" ")
+                                }
+                            }))
+                        }).catch(() => {
+                        callback()
+                    })
+                }
+            })
         });
     }
 })();

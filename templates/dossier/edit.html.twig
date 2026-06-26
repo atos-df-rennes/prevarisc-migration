@@ -150,6 +150,7 @@
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReception}) }}
 
             {{ dm.champ_form(form.serviceInstructeur, 'field-serviceInstructeur') }}
+            {{ dm.champ_form(form.commune, 'field-commune') }}
             {{ dm.champ_form(form.commission, 'field-commission') }}
 
             {# Champs descriptifGeneral, descriptifEffectifs, coordonneesSsi retirés #}

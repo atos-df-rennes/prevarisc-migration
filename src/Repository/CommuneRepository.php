@@ -52,4 +52,18 @@ class CommuneRepository extends ServiceEntityRepository implements HasContacts
             ->getArrayResult()
         ;
     }
+
+    public function findCommune(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('c');
+
+        return $queryBuilder
+            ->select('c.id', 'c.libelle')
+            ->where('c.libelle LIKE :name')
+            ->setParameter('name', '%'.$name.'%')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
