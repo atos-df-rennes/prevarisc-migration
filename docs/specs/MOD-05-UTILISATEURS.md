@@ -255,7 +255,7 @@ Une ressource spécialisée sur les établissements combine plusieurs critères 
 | Groupements | ❌ Remplacé au runtime | `0` (tous) ou `1` (ceux de l'utilisateur) |
 | Commune | ❌ Remplacé au runtime | `0` (tous) ou `1` (commune de l'utilisateur) |
 
-**Bureau unique de police (BUP), Camping, Manifestation temporaire, IOP :**
+**Bâtiment d'Utilité Publique (BUP), Camping, Manifestation temporaire, IOP :**
 
 | Critère | Sérialisé | Notes |
 |---|---|---|
