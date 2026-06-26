@@ -82,7 +82,15 @@ class UtilisateursController extends AbstractController
             $utilisateur->setPreferences($preferences);
             // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
             // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
-            $utilisateur->setPassword($this->passwordEncoder->encodePassword((string) $utilisateur->getPlainPassword(), $utilisateur->getSalt()));
+            // Si l'utilisateur est en SSO, ne pas enregistrer de mot de passe local.
+            if ($utilisateur->getSso()) {
+                $utilisateur->setPassword(null);
+            } else {
+                $plain = $utilisateur->getPlainPassword();
+                if (null !== $plain && '' !== $plain) {
+                    $utilisateur->setPassword($this->passwordEncoder->encodePassword($plain, $utilisateur->getSalt()));
+                }
+            }
 
             $dateDerniereVisite = new \DateTime();
             $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
