@@ -78,8 +78,7 @@ Aucune action à prévoir sur ce point.
 | **Impact** | **Élevé** — les nouvelles affectations peuvent ne pas être visibles immédiatement dans les écrans ou exports reposant sur le cache de recherche. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Service/GroupementCommunes.php`, `prevarisc/application/controllers/GroupementController.php` |
 
-**Retour utilisateur** : Il n'y a pas eu de portage de gestion du cache dans le code Symfony. La migration étant finie, le vidage des caches sur le legacy n'est plus un problème.\
-Un cache TagAware a été introduit dans la branche **fix/cache-recherche** (non encore mergée) pour faire un miroir du `$cacheSearch` legacy. La gestion de cache sera donc à effectuer une fois la branche **fix/cache-recherche** mergée.
+**Retour utilisateur** : Écart de migration confirmé. Vider le cache Symfony `$cacheSearch` qui est un cache `TagAwareInterface`. Voir `services.php` pour l'autowiring.
 
 ---
 

@@ -31,7 +31,7 @@
 | **Impact** | **Moyen** — le compte est bien marqué SSO, mais conserve une empreinte locale non attendue, contrairement à la spec et au legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/UtilisateursController.php:72-115`, `prevarisc-migration/src/Form/UtilisateurType.php:52-131`, `prevarisc/application/services/User.php:149-160`, `prevarisc/application/views/scripts/users/edit.phtml:39-46` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy.
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy. Commencer par modifier le test existant qui doit échouer dans ce cas et passer après correction.
 
 ---
 
