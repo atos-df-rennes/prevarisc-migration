@@ -32,7 +32,7 @@ class EtablissementCollectionAccessChecker
      *
      * @param iterable<Etablissement> $etablissements
      */
-    public function isAtLeastOneAccessible(iterable $etablissements, string $attribute, TokenInterface $token): bool
+    public function hasAtLeastOneAccessible(iterable $etablissements, string $attribute, TokenInterface $token): bool
     {
         foreach ($etablissements as $etablissement) {
             try {

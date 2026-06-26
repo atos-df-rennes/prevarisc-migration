@@ -150,7 +150,7 @@ class DossierVoter extends Voter
             return true;
         }
 
-        return $this->collectionAccessChecker->isAtLeastOneAccessible($etablissements, EtablissementVoter::LECTURE, $token);
+        return $this->collectionAccessChecker->hasAtLeastOneAccessible($etablissements, EtablissementVoter::LECTURE, $token);
     }
 
     /**

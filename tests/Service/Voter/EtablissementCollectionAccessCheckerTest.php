@@ -57,7 +57,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
     {
         $token = $this->createMock(TokenInterface::class);
 
-        $result = $this->checker->isAtLeastOneAccessible([], 'view_ets', $token);
+        $result = $this->checker->hasAtLeastOneAccessible([], 'view_ets', $token);
 
         $this->assertFalse($result);
     }
@@ -75,7 +75,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
 
         $this->factory->method('getVoterForGenre')->with(2)->willReturn($voter);
 
-        $result = $this->checker->isAtLeastOneAccessible([$etablissement], 'view_ets', $token);
+        $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
         $this->assertTrue($result);
     }
@@ -93,7 +93,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
 
         $this->factory->method('getVoterForGenre')->with(2)->willReturn($voter);
 
-        $result = $this->checker->isAtLeastOneAccessible([$etablissement], 'view_ets', $token);
+        $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
         $this->assertFalse($result);
     }
@@ -118,7 +118,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
             [3, $grantingVoter],
         ]);
 
-        $result = $this->checker->isAtLeastOneAccessible([$ets1, $ets2], 'view_ets', $token);
+        $result = $this->checker->hasAtLeastOneAccessible([$ets1, $ets2], 'view_ets', $token);
 
         $this->assertTrue($result);
     }
@@ -134,7 +134,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
         $this->factory->method('getVoterForGenre')->with(999)->willReturn(null);
         $this->logger->expects($this->once())->method('warning');
 
-        $result = $this->checker->isAtLeastOneAccessible([$etablissement], 'view_ets', $token);
+        $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
         $this->assertFalse($result);
     }
@@ -152,7 +152,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
         $this->logger->expects($this->once())->method('warning');
         $this->factory->expects($this->never())->method('getVoterForGenre');
 
-        $result = $this->checker->isAtLeastOneAccessible([$etablissement], 'view_ets', $token);
+        $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
         $this->assertFalse($result);
     }

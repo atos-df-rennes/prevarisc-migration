@@ -154,9 +154,10 @@ class EtablissementSiteVoterTest extends TestCase
     }
 
     /**
-     * Test : Site avec fils ERP et accès ERP autorisé → ACCESS_GRANTED.
+     * Test : Site avec fils et accès autorisé → ACCESS_GRANTED.
+     * Valide que le voter délègue correctement à hasAtLeastOneAccessible avec le bon ensemble de fils.
      */
-    public function testSiteAvecFilsErpAccordeAccesSiAccesErpAutorise(): void
+    public function testSiteAvecFilsAccordeAccesSiAccesAutorise(): void
     {
         $user = $this->createMockUser();
         $token = $this->createMockToken($user);
@@ -164,7 +165,11 @@ class EtablissementSiteVoterTest extends TestCase
         $site = $this->createMockSite([$erpFils]);
 
         $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
+        // Vérifie que hasAtLeastOneAccessible est appelée avec le bon attribut
+        $collectionAccessChecker->expects(self::once())
+            ->method('hasAtLeastOneAccessible')
+            ->with([$erpFils], EtablissementVoter::LECTURE, $token)
+            ->willReturn(true);
 
         $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
@@ -174,9 +179,10 @@ class EtablissementSiteVoterTest extends TestCase
     }
 
     /**
-     * Test : Site avec fils ERP mais accès ERP refusé → ACCESS_DENIED.
+     * Test : Site avec fils mais accès refusé → ACCESS_DENIED.
+     * Valide que le voter propage correctement le refus d'accès.
      */
-    public function testSiteAvecFilsErpRefuseAccesSiAccesErpRefuse(): void
+    public function testSiteAvecFilsRefuseAccesSiAccesRefuse(): void
     {
         $user = $this->createMockUser();
         $token = $this->createMockToken($user);
@@ -184,7 +190,9 @@ class EtablissementSiteVoterTest extends TestCase
         $site = $this->createMockSite([$erpFils]);
 
         $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(false);
+        $collectionAccessChecker->expects(self::once())
+            ->method('hasAtLeastOneAccessible')
+            ->willReturn(false);
 
         $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 
@@ -194,58 +202,25 @@ class EtablissementSiteVoterTest extends TestCase
     }
 
     /**
-     * Test : Site avec fils IGH et accès IGH autorisé → ACCESS_GRANTED.
+     * Test : Site avec plusieurs fils de genres différents → hasAtLeastOneAccessible est appelée
+     * avec tous les fils, peu importe leur genre.
+     * Cela valide que le Voter ne filtre pas les genres et délègue correctement.
      */
-    public function testSiteAvecFilsIghAccordeAccesSiAccesIghAutorise(): void
-    {
-        $user = $this->createMockUser();
-        $token = $this->createMockToken($user);
-        $ighFils = $this->createMockIghFils();
-        $site = $this->createMockSite([$ighFils]);
-
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
-
-        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
-
-        $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
-
-        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
-    }
-
-    /**
-     * Test : Site avec fils Habitation et accès Habitation autorisé → ACCESS_GRANTED.
-     */
-    public function testSiteAvecFilsHabitationAccordeAccesSiAccesHabitationAutorise(): void
-    {
-        $user = $this->createMockUser();
-        $token = $this->createMockToken($user);
-        $habitationFils = $this->createMockHabitationFils();
-        $site = $this->createMockSite([$habitationFils]);
-
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
-
-        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
-
-        $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
-
-        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
-    }
-
-    /**
-     * Test : Site avec fils mixtes (ERP refusé, IGH autorisé) → ACCESS_GRANTED (au moins un autorisé).
-     */
-    public function testSiteAvecFilsMixtesAccordeAccesSiAuMoinsUnAccesAutorise(): void
+    public function testSiteAvecFilsMixtesAppelleHasAtLeastOneAccessibleAvecTousLesFils(): void
     {
         $user = $this->createMockUser();
         $token = $this->createMockToken($user);
         $erpFils = $this->createMockErpFils();
         $ighFils = $this->createMockIghFils();
-        $site = $this->createMockSite([$erpFils, $ighFils]);
+        $habitationFils = $this->createMockHabitationFils();
+        $site = $this->createMockSite([$erpFils, $ighFils, $habitationFils]);
 
         $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(true);
+        // Vérifie que tous les fils sont passés à hasAtLeastOneAccessible
+        $collectionAccessChecker->expects(self::once())
+            ->method('hasAtLeastOneAccessible')
+            ->with([$erpFils, $ighFils, $habitationFils], EtablissementVoter::LECTURE, $token)
+            ->willReturn(true);
 
         $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, ...$this->createMockRepositories());
 

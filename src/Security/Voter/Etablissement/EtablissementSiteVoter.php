@@ -60,7 +60,7 @@ class EtablissementSiteVoter extends EtablissementVoter
         }
 
         // Site avec fils : Vérifier l'accès à au moins un fils
-        return $this->collectionAccessChecker->isAtLeastOneAccessible($etablissementsFils, $attribute, $token);
+        return $this->collectionAccessChecker->hasAtLeastOneAccessible($etablissementsFils, $attribute, $token);
     }
 
     /**

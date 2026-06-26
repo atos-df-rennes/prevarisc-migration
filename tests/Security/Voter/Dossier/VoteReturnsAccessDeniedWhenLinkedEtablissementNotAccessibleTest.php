@@ -31,7 +31,7 @@ class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends Te
 
         // Le checker signale qu'aucun établissement lié n'est accessible en view_ets
         $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->method('isAtLeastOneAccessible')->willReturn(false);
+        $collectionAccessChecker->method('hasAtLeastOneAccessible')->willReturn(false);
 
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 

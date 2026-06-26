@@ -31,7 +31,7 @@ class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestCase
 
         // Le checker ne doit pas être appelé car aucun établissement n'est lié
         $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
-        $collectionAccessChecker->expects($this->never())->method('isAtLeastOneAccessible');
+        $collectionAccessChecker->expects($this->never())->method('hasAtLeastOneAccessible');
 
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
