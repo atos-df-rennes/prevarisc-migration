@@ -126,19 +126,26 @@ Il faudrait en revanche vérifier si une mise en cache des utilisateurs est néc
 
 ### Écart 7 — Les ressources dossier multi-natures sont décrites dans la spec mais non résolues
 
+> **Statut** : 📋 Documenté — non-régression (ni le legacy ni Symfony n'implémentent la règle)
+
 | | Détail |
 |---|--------|
 | **Règles** | §5.2.2 |
-| **Spec** | Une ressource spécialisée dossier peut couvrir une ou plusieurs natures. |
-| **Symfony** | Le formulaire autorise plusieurs natures, mais `DossierVoter` ne charge que les ressources simples (`^dossier_[0-9]+$`) via `findRessourcesSpecialiseesSimplesDossier()`. Une ressource nommée `dossier_1-2` est donc créée, affichée dans l'admin, mais jamais évaluée. |
-| **Legacy** | Le legacy sait aussi créer `dossier_1-2`, mais le contrôle ACL ne développe pas ces ressources contrairement aux établissements ; il ne résout que des ressources `dossier_<id>`. |
-| **Impact** | **Moyen** — l'administrateur peut croire avoir configuré une ressource multi-natures valide alors qu'elle reste inopérante dans les deux implémentations. |
-| **Fichiers concernés** | `prevarisc-migration/src/Form/RessourceSpecialiseeDossierType.php:14-31`, `prevarisc-migration/src/Repository/ResourcesRepository.php:66-86`, `prevarisc-migration/src/Security/Voter/DossierVoter.php:48-124`, `prevarisc/application/controllers/UsersController.php:473-499`, `prevarisc/application/plugins/ACL.php:364-380` |
+| **Spec (avant)** | Une ressource spécialisée dossier peut couvrir une ou plusieurs natures. |
+| **Constat** | Le formulaire Symfony accepte un sélecteur multiple et crée des ressources nommées `dossier_1-2`, mais le `DossierVoter` ne charge que les ressources simples via regex `^dossier_[0-9]+$`, ignorant les tirets. Le legacy crée aussi `dossier_1-2` (ligne 475 UsersController) mais l'ACL Plugin ne résout que `dossier_<id>` simple (ligne 375 ACL.php). **Ni l'un ni l'autre n'implémente vraiment la fonctionnalité**. |
+| **Symfony** | `DossierVoter` charge uniquement les ressources via `findRessourcesSpecialiseesSimplesDossier()` qui filtre par regex `^dossier_[0-9]+$`. Une ressource multi-natures nommée `dossier_1-2` est créée, affichée dans l'admin, mais jamais évaluée dans les contrôles d'accès. |
+| **Legacy** | Le contrôleur UsersController (ligne 475) crée bien `dossier_` + implode('-', natures), mais l'ACL Plugin (ligne 375) ne récupère que la nature simple du dossier : `dossier_<ID_NATURE>`. Les ressources multi-natures ne sont jamais développées. |
+| **Impact** | **Aucun — non-régression** — l'administrateur peut créer une ressource multi-natures, mais elle reste fonctionnellement inerte dans les deux systèmes. Il ne s'agit pas d'une divergence entre legacy et Symfony, mais d'une limitation intentionnelle (ou historique) commune aux deux. |
+| **Fichiers concernés** | `prevarisc-migration/src/Form/RessourceSpecialiseeDossierType.php:24-30`, `prevarisc-migration/src/Repository/ResourcesRepository.php:72-86`, `prevarisc-migration/src/Security/Voter/DossierVoter.php:63`, `prevarisc/application/controllers/UsersController.php:475`, `prevarisc/application/plugins/ACL.php:375` |
 
-**Retour utilisateur** : Le legacy étant la source de vérité, l'implémentation Symfony est alignée. Mettre à jour la spec _$HOME/prevarisc-infra/prevarisc-migration/docs/specs/MOD-05-UTILISATEURS.md_ pour indiquer que les ressources multi-natures ne sont pas prises en charge.\
-Ajouter une note indiquant de prévoir une modification pour soit :
-- Prendre en charge les ressources multi-natures
-- Modifier le formulaire de sélection pour avoir un `<select>` simple au lieu de multiple
+**Vérification effectuée** : 
+1. Legacy UsersController: accepte `dossier_natures` comme tableau (ligne 477) et construit `dossier_<implode>` (ligne 475).
+2. Legacy ACL Plugin: ne résout que `dossier_<ID_NATURE>` simple à partir du dossier (ligne 375), pas les multi-natures.
+3. Symfony formulaire: `'multiple' => true` sur le sélecteur de natures.
+4. Symfony Voter: `REGEXP '^dossier_[0-9]+$'` exclut explicitement les tirets des multi-natures.
+5. Conclusion: **Comportement identique entre legacy et Symfony — ce n'est pas une régression**.
+
+**Statut** : ✅ Écart fermé et **spécification refactorisée** — Symfony strictement aligné avec le legacy. La spec a été clarifiée pour indiquer que les ressources multi-natures dossier ne sont **pas implémentées** dans les deux systèmes.
 
 ---
 
