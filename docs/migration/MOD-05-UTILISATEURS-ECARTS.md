@@ -54,7 +54,7 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 
 ---
 
-### Écart 3 — Les ressources spécialisées établissement ne sont appliquées que partiellement en Symfony ✅ Spécification corrigée
+### Écart 3 — Les ressources spécialisées établissement ne sont appliquées que partiellement en Symfony ✅ Spécification clarifiée
 
 | | Détail |
 |---|--------|
@@ -62,12 +62,16 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 | **Spec (avant)** | Les ressources spécialisées doivent injecter dynamiquement commissions, groupements et commune selon le genre, et tenir compte de tous les critères configurés (catégorie, classement, etc.). |
 | **Constat** | Le traitement Symfony est correct et strictement aligné avec le legacy. Les ressources spécialisées sont créées avec le même format : les options **non affichées** dans le formulaire (UI front) sont mises en dur à `0` (ex: `camp_0_0`, `zone_<classement>_0_0`, `cell_<typeActivite>_0`). Les Voters Symfony récupèrent les ressources correspondantes et vérifient les droits de l'utilisateur de manière identique au legacy. |
 | **Legacy** | Le plugin ACL construit les ressources cibles avec tous les critères réels de l'établissement puis développe les ressources spécialisées du groupe avec commissions/groupements/commune de l'utilisateur avant le contrôle. Les paramètres `1` (remplaçables) sont remplacés à la vérification ; les `0` restent `0`. |
-| **Solution** | `RessourcesSpecialiseesCampingNamer::generateName()` → `'camp_0_0'` (aucun param) ; `RessourcesSpecialiseesIopNamer::generateName()` → `'iop_0_0'` (aucun param) ; `RessourcesSpecialiseesManifestationTemporaireNamer::generateName()` → `'temp_0_0'` (aucun param) ; `RessourcesSpecialiseesZoneNamer::generateName()` → `'zone_0_0_0'` ou `'zone_<classement>_0_0'` (classements uniquement) ; `RessourcesSpecialiseesCelluleNamer::generateName()` → `'cell_0_0'` ou `'cell_<typeActivite>_0'` (activités uniquement). Les Voters (`EtablissementCelluleVoter`, `EtablissementZoneVoter`) cherchent les ressources via `ResourcesRepository` et valident les accès identiquement au legacy. |
-| **Fichiers concernés** | `src/Service/RessourcesSpecialisees/Etablissement/Namer/*Namer.php`, `src/Repository/ResourcesRepository.php:92-279`, `src/Security/Voter/Etablissement/EtablissementCelluleVoter.php:35-60`, `src/Security/Voter/Etablissement/EtablissementZoneVoter.php:35-60`, `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233` |
+| **Cas particulier — Cellules** | Bien que le code legacy théorise une ressource `cell_<typeActivite>_<categorie>`, le formulaire front legacy n'expose **jamais** le paramètre catégorie pour les cellules (voir `ressources-specialisees.phtml:259` où seul `champ_types` est affiché au lieu de `champ_categorie`). En pratique, la ressource cellule est **toujours** `cell_<typeActivite>_0`, ce qui correspond exactement au comportement Symfony où la catégorie est hardcodée à `0` dans `RessourcesSpecialiseesCelluleNamer.php:26`. |
+| **Solution** | `RessourcesSpecialiseesCampingNamer::generateName()` → `'camp_0_0'` (aucun param) ; `RessourcesSpecialiseesIopNamer::generateName()` → `'iop_0_0'` (aucun param) ; `RessourcesSpecialiseesManifestationTemporaireNamer::generateName()` → `'temp_0_0'` (aucun param) ; `RessourcesSpecialiseesZoneNamer::generateName()` → `'zone_0_0_0'` ou `'zone_<classement>_0_0'` (classements uniquement) ; `RessourcesSpecialiseesCelluleNamer::generateName()` → `'cell_0_0'` ou `'cell_<typeActivite>_0'` (activités uniquement, catégorie **jamais** exposée au front). Les Voters (`EtablissementCelluleVoter`, `EtablissementZoneVoter`) cherchent les ressources via `ResourcesRepository` et valident les accès identiquement au legacy. |
+| **Fichiers concernés** | `src/Service/RessourcesSpecialisees/Etablissement/Namer/*Namer.php`, `src/Repository/ResourcesRepository.php:92-279`, `src/Security/Voter/Etablissement/EtablissementCelluleVoter.php:35-60`, `src/Security/Voter/Etablissement/EtablissementZoneVoter.php:35-60`, `prevarisc/application/models/DbTable/Utilisateur.php:185-321`, `prevarisc/application/plugins/ACL.php:120-233`, `prevarisc/application/views/scripts/users/ressources-specialisees.phtml:254-282` |
 
-**Vérification effectuée** : Analyse comparative du code source Symfony et legacy confirmant que les ressources sont générées identiquement avec les mêmes paramètres `_0` pour les options non affichées. La résolution dynamique des droits fonctionne à l'identique entre les deux implémentations.
+**Vérification effectuée** : 
+1. Analyse du code source Symfony et legacy confirmant la génération identique des ressources spécialisées.
+2. Audit du formulaire front legacy (`ressources-specialisees.phtml`) : sélecteur cellule affiche uniquement types d'activité (case '3': `$('.champ_types').show();`), jamais les catégories (qui restent à `0`).
+3. Conclusion : la théorie du code (catégorie supportée) diverge de la pratique du front (jamais accessible), ce qui aligne implicitly le legacy sur Symfony (catégorie toujours `0`).
 
-**Statut** : ✅ Écart fermé — Symfony aligné avec le legacy. Implémentation correcte tant sur le plan métier que technique.
+**Statut** : ✅ Écart fermé — Symfony aligné avec le legacy. Implémentation correcte tant sur le plan métier que technique. Le fait que la catégorie des cellules soit toujours `0` est un comportement fonctionnellement confirmé des deux côtés, malgré la théorie du code legacy.
 
 ---
 

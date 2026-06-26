@@ -219,7 +219,7 @@ Au-delà des ressources génériques, le système permet de créer des **ressour
 
 Une ressource spécialisée sur les établissements combine plusieurs critères de filtrage qui varient selon le **genre** de l'établissement :
 
-> **Note importante** : Lors de la création d'une ressource spécialisée, seuls les critères visibles dans la modale de sélection **front** sont sérialisés dans le nom de la ressource (ex: `cell_<typeActivite>_0`, `zone_<classement>_0_0`). Les autres paramètres comme les groupements, commissions ou communes sont marqués `0` dans la ressource stockée, et remplacés dynamiquement **lors de la vérification des droits** par les valeurs réelles de l'utilisateur (selon son profil). Cela permet une configuration centralisée et une résolution des droits au runtime.
+> **Note importante** : Lors de la création d'une ressource spécialisée, seuls les critères visibles dans la modale de sélection **front** sont sérialisés dans le nom de la ressource (ex: `cell_<typeActivite>_0`, `zone_<classement>_0_0`). Les autres paramètres comme les groupements, commissions ou communes sont marqués `0` dans la ressource stockée, et remplacés dynamiquement **lors de la vérification des droits** par les valeurs réelles de l'utilisateur (selon son profil). Cela permet une configuration centralisée et une résolution des droits au runtime. **Important pour les Cellules** : bien que le code théorise une ressource `cell_<typeActivite>_<categorie>`, le formulaire front n'expose jamais le paramètre catégorie (seuls les types d'activité sont sélectionnables). La catégorie reste donc toujours `0` en pratique — c'est un comportement volontaire pour les cellules.
 
 **Établissement recevant du public (ERP) :**
 
