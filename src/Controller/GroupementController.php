@@ -51,7 +51,7 @@ class GroupementController extends AbstractController
     private $contactService;
 
     /** @var TagAwareAdapterInterface */
-    private $cacheSearch;
+    private $searchCache;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -59,14 +59,14 @@ class GroupementController extends AbstractController
         GroupementTypeRepository $groupementTypeRepository,
         GroupementCommunes $groupementCommunes,
         Contact $contactService,
-        TagAwareAdapterInterface $cacheSearch
+        TagAwareAdapterInterface $searchCache
     ) {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
         $this->groupementTypeRepository = $groupementTypeRepository;
         $this->groupementCommunes = $groupementCommunes;
         $this->contactService = $contactService;
-        $this->cacheSearch = $cacheSearch;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -136,7 +136,7 @@ class GroupementController extends AbstractController
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
                 if ('1' === $reaffectationAutomatique) {
                     $this->groupementCommunes->reaffectationPreventioniste($groupement);
-                    $this->cacheSearch->invalidateTags(['search']);
+                    $this->searchCache->invalidateTags(['search']);
                 }
             }
 

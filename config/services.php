@@ -31,7 +31,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
         ->bind('$debugEnabled', '%app.debug%')
         ->bind(FlashBagInterface::class, ref('session.flash_bag'))
-        ->bind('$cacheSearch', ref('cache.search'))
+        ->bind('$searchCache', ref('cache.search'))
     ;
 
     $services->load('App\\', __DIR__.'/../src/')
