@@ -89,6 +89,10 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 
 **Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy -> ajout de la vérification du privilège `add_etablissement`.
 
+**Analyse `editsite`** : Dans le legacy, `editsite` est une chaîne sentinelle toujours ajoutée en tête du tableau de ressources pour les sites (genre 1, ACL.php:466). `hasNonDeveloppedResource('editsite')` est donc toujours `true` pour tout site (vide ou non) ; il n'a pas d'impact sur la correction — il sert uniquement à identifier le sujet comme un site, rôle déjà joué par `EtablissementSiteVoter` en Symfony.
+
+**Statut** : **Corrigé** — `EtablissementSiteVoter::voteOnAttribute` vérifie désormais, en modification (`edit_ets`), si l'utilisateur possède le privilège `add_etablissement` avant les contrôles de ressources. Si oui, l'accès est accordé immédiatement pour tout site (vide ou non), aligné sur ACL.php:275. Quatre tests ajoutés. Commit : `
+
 ---
 
 ### Écart 5 — La déconnexion Symfony ne reproduit pas toute la logique legacy
