@@ -170,6 +170,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$searchCache', ref('cache.search'))
         ->tag('controller.service_arguments');
 
+    $services->set('App\Controller\GroupementController')
+        ->arg('$cacheSearch', ref('cache.search'))
+        ->tag('controller.service_arguments');
+
     $services->set('App\Service\Dashboard\DashboardBlocConfig')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->arg('$nextCommissionsDays', '%app.dashboard.next_commissions_days%')
