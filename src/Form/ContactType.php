@@ -2,7 +2,8 @@
 
 namespace App\Form;
 
-use App\Entity\Fonction;
+use App\Constant\Fonction;
+use App\Entity\Fonction as FonctionEntity;
 use App\Entity\UtilisateurCivilite;
 use App\Entity\UtilisateurInformations;
 use Doctrine\ORM\EntityRepository;
@@ -14,24 +15,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ContactType extends AbstractType
 {
-    /** ID de la fonction "Maire" en base (ID_FONCTION = 2). */
-    const FONCTION_MAIRE_ID = 2;
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isEdit = $options['is_edit'];
 
         $builder
             ->add('fonction', EntityType::class, [
-                'class' => Fonction::class,
+                'class' => FonctionEntity::class,
                 'choice_label' => 'libelle',
-                'query_builder' => function (EntityRepository $er) use ($isEdit) {
-                    $qb = $er->createQueryBuilder('f')->orderBy('f.libelle', 'ASC');
+                'query_builder' => function (EntityRepository $entityRepository) use ($isEdit) {
+                    $queryBuilder = $entityRepository->createQueryBuilder('f');
                     if (!$isEdit) {
-                        $qb->where('f.id != :maireId')->setParameter('maireId', self::FONCTION_MAIRE_ID);
+                        $queryBuilder->where('f.id != :maireId')->setParameter('maireId', Fonction::MAIRE);
                     }
 
-                    return $qb;
+                    return $queryBuilder;
                 },
             ])
             ->add('societe', null, [
