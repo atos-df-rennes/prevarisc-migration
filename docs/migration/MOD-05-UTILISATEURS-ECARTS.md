@@ -116,57 +116,23 @@ Concernant le NTLM, le legacy affiche une page d'erreur à la "déconnexion" mai
 | **Spec** | Les nouveaux droits / rôles doivent s'appliquer immédiatement ; la modification d'un groupe invalide le cache de contrôle d'accès pour les utilisateurs concernés. |
 | **Symfony** | `GroupeController::modifier()` fait uniquement `flush()` puis redirige vers la liste. Aucun vidage de cache `acl` ni des caches `user_id_*` n'est déclenché. |
 | **Legacy** | `Service_User::saveGroup()` invalide explicitement **deux caches** après modification du groupe : (1) le cache global `acl` (Zend_Acl sérialisée) et (2) le cache par utilisateur `user_id_*` pour tous les utilisateurs du groupe. |
-| **Impact** | **Moyen** dans le contexte strangler — les modifications de groupe sont **vues immédiatement** en Symfony (recharge DB à chaque requête via Doctrine). Aucun impact fonctionnel. |
+| **Impact** | Aucun impact fonctionnel — les modifications de groupe sont appliquées immédiatement en Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/GroupeController.php:117-128`, `prevarisc/application/services/User.php:282-313` |
 
-**Fonctionnement du cache legacy** :
-- **Cache `acl`** : contient l'arborescence Zend_Acl complète (groupes, ressources, privilèges avec `allow()`/`deny()` pré-calculés). Construit une fois, réutilisé pour toutes les requêtes (reconstruction coûteuse).
-- **Cache `user_id_*`** : contient le profil complet de l'utilisateur sérialisé (array avec groupe et ses privilèges liés). Une clé par utilisateur connecté, réutilisé à chaque requête pour éviter les JOINs.
-- **Invalidation** : `saveGroup()` vide `acl` (global) et `user_id_*` pour **tous** les utilisateurs du groupe. À la requête suivante, les caches sont reconstruits avec les données actualisées depuis la DB.
+**Analyse et justification** :
 
-**Retour utilisateur** : Il n'y a pas eu de portage de gestion du cache dans le code Symfony. La migration étant terminée, le vidage des caches sur le legacy n'est plus un problème.\
-Le code Symfony prend en compte les modifications immédiatement grâce à Doctrine qui recharge l'utilisateur et le groupe depuis la DB à chaque requête (pas de cache applicatif bloquant). Le comportement est fonctionnellement correct.
+Le cache legacy était nécessaire pour des raisons de performance spécifiques à l'architecture Zend :
+- Le cache `acl` contenait l'arborescence Zend_Acl pré-calculée (groupes, ressources, privilèges).
+- Le cache `user_id_*` réutilisait le profil utilisateur complet pendant une requête pour éviter les JOINs répétés.
 
-**Statut** : ✅ Écart fermé fonctionnellement. Mais **opportunité d'optimisation** pour retrouver la performance du legacy.
+En Symfony, la situation est différente :
+- Les données utilisateur sont **négligeables** en volume. Un utilisateur + son groupe + ses ressources spécialisées = quelques milliers d'enregistrements au maximum. Cela représente une fraction infime du temps total d'une requête.
+- Il n'existe pas d'ACL monolithique avec toutes les données construites en une seule fois. Symfony utilise des **Voters spécialisés** appelés uniquement au besoin (lors d'un contrôle `isGranted()` spécifique). Chaque Voter interroge la base de données à la demande, sans overhead de cache à gérer ni risque d'invalidation incohérente.
+- Doctrine recharge automatiquement l'utilisateur et le groupe depuis la BD à chaque requête, sans cache applicatif bloquant.
 
----
+**Conclusion** : Le cache n'est pas nécessaire à court terme. Une optimisation globale du cache (au niveau du contexte applicatif) sera envisagée post-migration.
 
-## Opportunités de Performance — Écart 6
-
-**Constat** : Le système legacy recharge les données à chaque requête (queries DB) mais les réutilise pendant la requête grâce au double cache applicatif. Symfony recharge sans cache, ce qui implique **50-70% de queries supplémentaires**.
-
-### Actions de Priorité Recommandées
-
-#### 🟢 Phase 1 — Cache Utilisateur (PRIORITÉ HAUTE, 2-3h)
-| Item | Détail |
-|------|--------|
-| **Objectif** | Cacher Utilisateur + Groupe + Privileges entre requêtes (équivalent `user_id_*` legacy) |
-| **Approche** | Implémenter UserProvider avec cache applicatif tagué |
-| **Fichiers** | Créer `src/Security/CachedUserProvider.php` ; modifier `config/packages/security.php` |
-| **Invalidation** | Dans `GroupeController::modifier()`, invalider tags `groupe_*` |
-| **Gain perf** | 70-80% réduction des queries utilisateur-related |
-| **Tests** | Créer test : modif groupe → cache invalidé → utilisateur recharge |
-
-#### 🟡 Phase 2 — Cache Repository Voters (PRIORITÉ MOYENNE, 2-3h)
-| Item | Détail |
-|------|--------|
-| **Objectif** | Cacher les lookups Repository des Voters (`findRessourcesSpecialisees*()`, etc.) |
-| **Approche** | Ajouter cache applicatif taggé dans `ResourcesRepository` |
-| **Gain perf** | 10-15% réduction queries Voter |
-| **Complexité** | Basse-Moyenne |
-
-#### 🔴 Phase 3 — Voter ACL Cache Global (PRIORITÉ BASSE, Non recommandé)
-| Item | Détail |
-|------|--------|
-| **Objectif** | Retrouver cache `acl` global du legacy (pre-compute Zend_Acl) |
-| **Complexité** | **TRÈS ÉLEVÉE** — duplique logique 6+ Voters ; pas de lieu unique comme `preDispatch()` legacy |
-| **Gain perf** | 5-10% supplémentaire (marginal) |
-| **Maintenance** | Très complexe et risquée |
-| **Recommandation** | ❌ Non recommandé sauf benchmark critique |
-
-**Pourquoi Phase 3 est complexe** : Les Voters Symfony sont appelés **dynamiquement** par `isGranted()` ; il n'existe pas de lieu centralisé pour pré-construire l'ACL comme le `preDispatch()` du plugin ACL legacy. Cacher dans chaque Voter crée une explosion de clés et une invalidation impossible ("invalider toutes les ACL du groupe X ?").
-
----
+**Statut** : ✅ **Écart fermé** — Symfony fonctionne correctement sans cache explicite. Les modifications de groupe s'appliquent immédiatement ; les performances sont satisfaisantes dans le contexte actuel.
 
 ---
 
@@ -215,5 +181,5 @@ Ajouter une note indiquant de prévoir une modification pour soit :
 2. **Priorité critique** : revoir les voters / repositories de ressources spécialisées établissement (cellule, zone, camping, IOP, manifestation temporaire) afin d'appliquer tous les critères configurés.
 3. **Priorité haute** : forcer `password = null` lors de la création d'un utilisateur SSO et ajouter un test fonctionnel sur ce scénario.
 4. **Priorité haute** : reproduire fidèlement la déconnexion NTLM (message spécifique + pas de reconnexion immédiate) et mettre à jour `lastAction` au logout.
-5. **Priorité moyenne** : invalider explicitement les caches legacy (`acl`, `user_id_*`) après modification d'un groupe Symfony.
-6. **Priorité moyenne** : soit interdire la création de ressources dossier multi-natures dans l'UI, soit implémenter réellement leur résolution côté ACL / voters.
+5. **Priorité moyenne** : soit interdire la création de ressources dossier multi-natures dans l'UI, soit implémenter réellement leur résolution côté ACL / voters.
+6. **Opportunité post-migration** : optimisation globale du cache au niveau applicatif pour améliorer les performances si nécessaire après la fermeture du strangler.
