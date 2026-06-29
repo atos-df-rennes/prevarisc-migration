@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,18 +50,23 @@ class GroupementController extends AbstractController
      */
     private $contactService;
 
+    /** @var TagAwareAdapterInterface */
+    private $searchCache;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         CommuneRepository $communeRepository,
         GroupementTypeRepository $groupementTypeRepository,
         GroupementCommunes $groupementCommunes,
-        Contact $contactService
+        Contact $contactService,
+        TagAwareAdapterInterface $searchCache
     ) {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
         $this->groupementTypeRepository = $groupementTypeRepository;
         $this->groupementCommunes = $groupementCommunes;
         $this->contactService = $contactService;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -130,6 +136,7 @@ class GroupementController extends AbstractController
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
                 if ('1' === $reaffectationAutomatique) {
                     $this->groupementCommunes->reaffectationPreventioniste($groupement);
+                    $this->searchCache->invalidateTags(['search']);
                 }
             }
 

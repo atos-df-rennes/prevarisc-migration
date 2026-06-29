@@ -11,10 +11,10 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 22 (RG-GRP-001 à RG-GRP-022) |
-| Écarts spec ↔ Symfony | 6 (2 résolus) |
+| Écarts spec ↔ Symfony | 6 (3 résolus) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 5 |
-| Impact critique | 1 (cache de recherche non invalidé après réaffectation) |
+| Écarts Symfony ↔ Legacy | 4 |
+| Impact critique | 0 |
 
 ---
 
@@ -75,12 +75,12 @@ Aucune action à prévoir sur ce point.
 |---|--------|
 | **Règles** | RG-GRP-015 |
 | **Spec** | Après réaffectation, le cache global de recherche doit être vidé. |
-| **Symfony** | La soumission avec `reaffectationAutomatique=1` appelle seulement `GroupementCommunes::reaffectationPreventioniste()` ; aucune invalidation du `cacheSearch` n'est déclenchée ensuite (`src/Controller/GroupementController.php:126-145`, `src/Service/GroupementCommunes.php:26-69`). |
+| **Symfony** | ✅ **CORRIGÉ** — Le contrôleur injecte désormais `TagAwareAdapterInterface $cacheSearch` et appelle `$this->cacheSearch->invalidateTags(['search'])` après `GroupementCommunes::reaffectationPreventioniste()` (`src/Controller/GroupementController.php:129-137`, `config/services.php`). |
 | **Legacy** | `preventionnisteAction()` appelle le service puis exécute `getResource('cacheSearch')->clean(Zend_Cache::CLEANING_MODE_ALL)` (`application/controllers/GroupementController.php:241-247`). |
-| **Impact** | **Élevé** — les nouvelles affectations peuvent ne pas être visibles immédiatement dans les écrans ou exports reposant sur le cache de recherche. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Service/GroupementCommunes.php`, `prevarisc/application/controllers/GroupementController.php` |
+| **Impact** | ✅ **RÉSOLU** — les nouvelles affectations sont maintenant immédiatement visibles dans les écrans et exports reposant sur le cache de recherche. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Service/GroupementCommunes.php`, `prevarisc-migration/config/services.php`, `prevarisc/application/controllers/GroupementController.php` |
 
-**Retour utilisateur** : Écart de migration confirmé. Vider le cache Symfony `$cacheSearch` qui est un cache `TagAwareInterface`. Voir `services.php` pour l'autowiring.
+**Retour utilisateur** : ✅ Corrigé le 2026-06-29. Cache Symfony `TagAwareAdapterInterface` injecté dans le contrôleur ; invalidation des tags `['search']` declenchée après `reaffectationPreventioniste()` ; autowiring configuré dans `services.php` avec `ref('cache.search')`.
 
 ---
 
@@ -147,9 +147,8 @@ Aucun action à prévoir sur ce point.
 
 ## Recommandations
 
-1. **Priorité haute** : invalider explicitement le `cacheSearch` après `GroupementCommunes::reaffectationPreventioniste()` (ou appeler le même mécanisme transitoire que les autres écrans Symfony encore dépendants du cache Zend).
-2. **Priorité haute** : décider si la migration doit conserver strictement le comportement legacy de recalcul total des associations ; si oui, remplacer la simple synchronisation Doctrine par une logique explicite pour les communes/préventionnistes et la date de début.
-3. **Priorité moyenne** : ajouter une vraie vue Symfony de consultation embarquée du groupement et remplacer les liens `/groupement/view?...` encore pointés vers le legacy.
-4. **Priorité moyenne** : après création, rediriger vers `admin_groupement?id=<nouvel_id>` pour présélectionner immédiatement le groupement créé.
-5. **Priorité basse** : expliciter les tris (`types` et `groupements`) et créer automatiquement une fiche `UtilisateurInformations` vide si le métier souhaite rester strictement conforme au legacy.
-6. **Priorité basse** : ajouter une garde serveur sur la réaffectation quand aucun préventionniste n'est affecté, afin de rendre RG-GRP-011 réellement opposable.
+1. **Priorité haute** : décider si la migration doit conserver strictement le comportement legacy de recalcul total des associations ; si oui, remplacer la simple synchronisation Doctrine par une logique explicite pour les communes/préventionnistes et la date de début.
+2. **Priorité moyenne** : ajouter une vraie vue Symfony de consultation embarquée du groupement et remplacer les liens `/groupement/view?...` encore pointés vers le legacy.
+3. **Priorité moyenne** : après création, rediriger vers `admin_groupement?id=<nouvel_id>` pour présélectionner immédiatement le groupement créé.
+4. **Priorité basse** : expliciter les tris (`types` et `groupements`) et créer automatiquement une fiche `UtilisateurInformations` vide si le métier souhaite rester strictement conforme au legacy.
+5. **Priorité basse** : ajouter une garde serveur sur la réaffectation quand aucun préventionniste n'est affecté, afin de rendre RG-GRP-011 réellement opposable.
