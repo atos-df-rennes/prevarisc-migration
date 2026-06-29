@@ -31,6 +31,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
         ->bind('$debugEnabled', '%app.debug%')
         ->bind(FlashBagInterface::class, ref('session.flash_bag'))
+        ->bind('$cacheSearch', ref('cache.search'))
     ;
 
     $services->load('App\\', __DIR__.'/../src/')
@@ -50,8 +51,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Controller\Etablissement\EtablissementController')
         ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
-        ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%')
-        ->arg('$searchCache', ref('cache.search'));
+        ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
@@ -124,22 +124,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\CouchesCarto')
         ->arg('$cache', ref('cache.ign_capabilities'));
 
-    $services->set('App\Service\EtablissementSearchService')
-        ->arg('$searchCache', ref('cache.search'));
+    $services->set('App\Service\EtablissementSearchService');
 
-    $services->set('App\Service\DossierSearchService')
-        ->arg('$searchCache', ref('cache.search'));
+    $services->set('App\Service\DossierSearchService');
 
     $services->set('App\Controller\TableauDesPeriodicitesController')
-        ->arg('$searchCache', ref('cache.search'))
         ->tag('controller.service_arguments');
 
     $services->set('App\Controller\ElementsSupprimesController')
-        ->arg('$searchCache', ref('cache.search'))
         ->tag('controller.service_arguments');
 
-    $services->set('App\Service\Dossier\DossierSauvegardeService')
-        ->arg('$searchCache', ref('cache.search'));
+    $services->set('App\Service\Dossier\DossierSauvegardeService');
 
     $services->set('App\Service\EtablissementPieceJointeService')
         ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
@@ -167,11 +162,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('App\Controller\Dossier\DossierController')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
-        ->arg('$searchCache', ref('cache.search'))
-        ->tag('controller.service_arguments');
-
-    $services->set('App\Controller\GroupementController')
-        ->arg('$cacheSearch', ref('cache.search'))
         ->tag('controller.service_arguments');
 
     $services->set('App\Service\Dashboard\DashboardBlocConfig')
