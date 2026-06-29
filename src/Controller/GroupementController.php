@@ -104,7 +104,7 @@ class GroupementController extends AbstractController
 
             $this->addFlash('success', 'Le groupement '.$groupement->getLibelle().' a été créé.');
 
-            return $this->redirectToRoute('admin_groupement');
+            return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
         return $this->render('groupement/_form_ajout.html.twig', [
