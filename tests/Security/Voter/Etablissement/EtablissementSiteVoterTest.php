@@ -305,4 +305,148 @@ class EtablissementSiteVoterTest extends TestCase
 
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
+
+    /**
+     * Test : Site vide + MODIFICATION + privilège add_etablissement → ACCESS_GRANTED.
+     * Miroir du comportement legacy ACL.php:275 : le privilège add_etablissement accorde
+     * l'accès en modification à un site vide.
+     */
+    public function testSiteVideAvecPrivilegeAddEtablissementAccordeModification(): void
+    {
+        $site = $this->createMockSite([]);
+
+        $privilege = $this->createMock(Privileges::class);
+
+        $userPrivileges = $this->createMock(Collection::class);
+        $userPrivileges->method('contains')->with($privilege)->willReturn(true);
+
+        $groupe = $this->createMock(Groupe::class);
+        $groupe->method('getPrivileges')->willReturn($userPrivileges);
+
+        $user = $this->createMock(Utilisateur::class);
+        $user->method('getGroupe')->willReturn($groupe);
+
+        $token = $this->createMockToken($user);
+
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository->method('findOneBy')
+            ->with(['name' => EtablissementVoter::CREATE])
+            ->willReturn($privilege);
+
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->expects(self::never())->method('hasAtLeastOneAccessible');
+
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, $resourcesRepository, $privilegesRepository);
+
+        $result = $siteVoter->vote($token, $site, [EtablissementVoter::MODIFICATION]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    /**
+     * Test : Site non-vide + MODIFICATION + privilège add_etablissement → ACCESS_GRANTED.
+     * Miroir du comportement legacy ACL.php:275 : le privilège add_etablissement accorde
+     * l'accès en modification même si les fils ne sont pas accessibles.
+     */
+    public function testSiteAvecFilsEtPrivilegeAddEtablissementAccordeModification(): void
+    {
+        $erpFils = $this->createMockErpFils();
+        $site = $this->createMockSite([$erpFils]);
+
+        $privilege = $this->createMock(Privileges::class);
+
+        $userPrivileges = $this->createMock(Collection::class);
+        $userPrivileges->method('contains')->with($privilege)->willReturn(true);
+
+        $groupe = $this->createMock(Groupe::class);
+        $groupe->method('getPrivileges')->willReturn($userPrivileges);
+
+        $user = $this->createMock(Utilisateur::class);
+        $user->method('getGroupe')->willReturn($groupe);
+
+        $token = $this->createMockToken($user);
+
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository->method('findOneBy')
+            ->with(['name' => EtablissementVoter::CREATE])
+            ->willReturn($privilege);
+
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        // Le collectionAccessChecker ne doit pas être appelé : add_etablissement court-circuite
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->expects(self::never())->method('hasAtLeastOneAccessible');
+
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, $resourcesRepository, $privilegesRepository);
+
+        $result = $siteVoter->vote($token, $site, [EtablissementVoter::MODIFICATION]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    /**
+     * Test : Site non-vide + MODIFICATION + sans privilège add_etablissement + fils refusent → ACCESS_DENIED.
+     * Vérifie que l'absence de add_etablissement laisse le contrôle aux fils.
+     */
+    public function testSiteAvecFilsSansPrivilegeAddEtablissementRefuseModification(): void
+    {
+        $erpFils = $this->createMockErpFils();
+        $site = $this->createMockSite([$erpFils]);
+
+        $user = $this->createMockUser();
+        $token = $this->createMockToken($user);
+
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        // Le privilège add_etablissement n'existe pas ou l'utilisateur ne l'a pas
+        $privilegesRepository->method('findOneBy')->willReturn(null);
+
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker->expects(self::once())
+            ->method('hasAtLeastOneAccessible')
+            ->willReturn(false);
+
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, $resourcesRepository, $privilegesRepository);
+
+        $result = $siteVoter->vote($token, $site, [EtablissementVoter::MODIFICATION]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    /**
+     * Test : Site vide + LECTURE + privilège add_etablissement → ACCESS_DENIED si pas de ressource établissement.
+     * Vérifie que add_etablissement n'accorde PAS l'accès en lecture (uniquement en modification).
+     */
+    public function testSiteVideAvecPrivilegeAddEtablissementRefuseLecture(): void
+    {
+        $site = $this->createMockSite([]);
+
+        $privilege = $this->createMock(Privileges::class);
+
+        $userPrivileges = $this->createMock(Collection::class);
+        $userPrivileges->method('contains')->willReturn(false);
+
+        $groupe = $this->createMock(Groupe::class);
+        $groupe->method('getPrivileges')->willReturn($userPrivileges);
+
+        $user = $this->createMock(Utilisateur::class);
+        $user->method('getGroupe')->willReturn($groupe);
+
+        $token = $this->createMockToken($user);
+
+        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        // add_etablissement ne doit pas être vérifié pour LECTURE
+        $privilegesRepository->expects(self::never())->method('findOneBy');
+
+        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $resourcesRepository->method('findRessourcesSpecialiseesEtablissement')->willReturn([]);
+
+        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+
+        $siteVoter = new EtablissementSiteVoter($collectionAccessChecker, $resourcesRepository, $privilegesRepository);
+
+        $result = $siteVoter->vote($token, $site, [EtablissementVoter::LECTURE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
 }
