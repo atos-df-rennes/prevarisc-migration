@@ -47,6 +47,8 @@
 | **Fichiers concernés** | `prevarisc-migration/templates/etablissement/_informations/_carto.html.twig`, `prevarisc/application/controllers/GroupementController.php`, `prevarisc/application/views/scripts/groupement/view.phtml` |
 
 **Retour utilisateur** : Écart de migration confirmé. Migrer la consultation embarquée et mettre à jour les liens pour pointer vers le Symfony ensuite.
+La route sera modifiée par `/groupement/<id>/informations` pour suivre la nomenclature des établissements.
+Pour les contacts, on reprendra le partial `templates/contact/_fiche.html.twig` avec les modales et le JS nécessaires. Etant donné que nous n'aurons sur cette page pas besoin d'ajouter des contacts, on dupliquera le JS d'un autre template (ex: `template/dossier/contacts/contacts.html.twig`) plutôt que de réutiliser le JS `contats-panel.js` qui contient trop d'informations.
 
 ---
 
