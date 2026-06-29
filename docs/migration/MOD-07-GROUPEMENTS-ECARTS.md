@@ -90,12 +90,14 @@ Aucune action à prévoir sur ce point.
 |---|--------|
 | **Règles** | RG-GRP-016, §4.1 |
 | **Spec** | La liste doit être regroupée par type puis triée alphabétiquement par libellé au sein de chaque type. |
-| **Symfony** | L'index récupère les types via `findAll()` puis affiche directement `type.groupements` sans `ORDER BY` explicite ni `@OrderBy` sur la relation (`src/Controller/GroupementController.php:69-85`, `src/Entity/GroupementType.php:38-43`). |
-| **Legacy** | Le helper `listeGroupement()` reconstruit chaque `<optgroup>` avec une requête `order('LIBELLE_GROUPEMENT ASC')` pour les groupements (`application/views/helpers/ListeGroupement.php:17-28`). |
-| **Impact** | Faible à moyen — selon l'ordre renvoyé par Doctrine/SQL, l'affichage peut devenir non déterministe et s'écarter du tri attendu par la spec. |
+| **Symfony** | ✅ **CORRIGÉ** — L'index utilise maintenant `findAll()` pour les types (ordre par ID, comme en legacy), et la relation `groupements` est annotée avec `@ORM\OrderBy({"libelle" = "ASC"})` pour trier alphabétiquement les groupements au sein de chaque type (`src/Controller/GroupementController.php:77`, `src/Entity/GroupementType.php:45`). |
+| **Legacy** | Le helper `listeGroupement()` récupère les types via `fetchAll()` (ordre par ID) et reconstruit chaque `<optgroup>` avec une requête `order('LIBELLE_GROUPEMENT ASC')` pour les groupements (`application/views/helpers/ListeGroupement.php:12-28`). |
+| **Impact** | ✅ **RÉSOLU** — l'affichage est maintenant déterministe et suit l'ordre spécifié (types par ID, groupements triés alphabétiquement au sein de chaque type). |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Entity/GroupementType.php`, `prevarisc/application/views/helpers/ListeGroupement.php` |
 
 **Retour utilisateur** : Écart de migration confirmé. L'ordre peut en effet différer et il faudrait mettre un tri explicite via annotation `@OrderBy` et remplacer le `findAll()` par `findBy(['libelle' => 'ASC])`.
+
+**✅ Correction 2026-06-29** : Appliquées les corrections demandées — annotation `@ORM\OrderBy({"libelle" = "ASC"})` sur la relation `groupements` de l'entité `GroupementType` pour trier les groupements alphabétiquement au sein de chaque type. Les types conservent l'ordre par ID (via `findAll()`), comme en legacy. Le comportement est maintenant aligné avec la spécification et le legacy.
 
 ---
 
