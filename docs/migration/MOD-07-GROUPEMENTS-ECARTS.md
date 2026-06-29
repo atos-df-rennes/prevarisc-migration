@@ -11,7 +11,7 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 22 (RG-GRP-001 à RG-GRP-022) |
-| Écarts spec ↔ Symfony | 6 (1 résolu) |
+| Écarts spec ↔ Symfony | 6 (2 résolus) |
 | Écarts spec ↔ Legacy | 1 |
 | Écarts Symfony ↔ Legacy | 5 |
 | Impact critique | 1 (cache de recherche non invalidé après réaffectation) |
@@ -41,14 +41,12 @@
 |---|--------|
 | **Règles** | §4.2 |
 | **Spec** | Une vue simplifiée en lecture seule doit exister pour l'affichage embarqué dans d'autres modules. |
-| **Symfony** | Aucun contrôleur ni template Symfony n'expose d'équivalent à `/groupement/view`; le template établissement continue de pointer vers l'URL legacy `/groupement/view?id=...` (`templates/etablissement/_informations/_carto.html.twig:235-242`). |
+| **Symfony** | ✅ **CORRIGÉ** — Route `GET /groupement/{id}/informations` (nom `groupement_informations`) ajoutée dans `GroupementController::informations()` ; template `templates/groupement/informations.html.twig` affiche libellé, type, préventionnistes, coordonnées du contact principal et contacts liés (éditables via modales, sans ajout) ; le lien dans `_carto.html.twig` pointe maintenant vers la route Symfony. |
 | **Legacy** | `viewAction()` + `views/scripts/groupement/view.phtml` affichent le libellé, le type, les coordonnées, les préventionnistes et les contacts en lecture seule (`application/controllers/GroupementController.php:68-73`, `application/views/scripts/groupement/view.phtml:1-67`). |
-| **Impact** | Moyen — la consultation embarquée fonctionne encore via le fallback legacy, mais elle n'est pas réellement migrée côté Symfony. |
-| **Fichiers concernés** | `prevarisc-migration/templates/etablissement/_informations/_carto.html.twig`, `prevarisc/application/controllers/GroupementController.php`, `prevarisc/application/views/scripts/groupement/view.phtml` |
+| **Impact** | ✅ **RÉSOLU** — la consultation embarquée est migrée côté Symfony ; les liens ne pointent plus vers le legacy. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/templates/groupement/informations.html.twig`, `prevarisc-migration/templates/etablissement/_informations/_carto.html.twig` |
 
-**Retour utilisateur** : Écart de migration confirmé. Migrer la consultation embarquée et mettre à jour les liens pour pointer vers le Symfony ensuite.
-La route sera modifiée par `/groupement/<id>/informations` pour suivre la nomenclature des établissements.
-Pour les contacts, on reprendra le partial `templates/contact/_fiche.html.twig` avec les modales et le JS nécessaires. Etant donné que nous n'aurons sur cette page pas besoin d'ajouter des contacts, on dupliquera le JS d'un autre template (ex: `template/dossier/contacts/contacts.html.twig`) plutôt que de réutiliser le JS `contats-panel.js` qui contient trop d'informations.
+**Retour utilisateur** : ✅ Corrigé le 2026-06-29. Route `/groupement/<id>/informations` créée ; template avec affichage lecture seule (libellé, type, préventionnistes, coordonnées) et contacts éditables (edit/delete via modales) sans bouton d'ajout ; JS dupliqué depuis le pattern dossier/contacts.
 
 ---
 
