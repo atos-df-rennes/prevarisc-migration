@@ -13,7 +13,7 @@
 | Règles de gestion analysées | 16 (RG-CTT-001 à RG-CTT-016) |
 | Écarts spec ↔ Symfony | 5 (2 traités ✅) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 5 (2 corrigés ✅) |
+| Écarts Symfony ↔ Legacy | 5 (3 corrigés ✅) |
 | Impact critique | 0 (1 risque critique éliminé ✅) |
 
 ---
@@ -36,18 +36,18 @@
 
 ---
 
-### Écart 2 — L'héritage des contacts d'établissement ne remonte qu'au parent direct
+### Écart 2 — L'héritage des contacts d'établissement ne remonte qu'au parent direct ✅ Corrigé
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-CTT-009, RG-CTT-015, § 6 |
 | **Spec** | Une cellule doit afficher les contacts du parent direct **et** du grand-parent (maximum deux niveaux), notamment le DUS. |
-| **Symfony** | L'onglet Contacts ne parcourt que `getParents()` sur l'établissement courant, puis charge les contacts de ces parents directs (`src/Controller/Etablissement/EtablissementContactController.php:60-69`). L'entité `Etablissement` n'expose ici qu'une collection de parents directs (`src/Entity/Etablissement.php:929-932`). |
-| **Legacy** | Le legacy remonte explicitement deux niveaux via `getAllParents()` qui renvoie `[parent, grand-parent]` (`application/models/DbTable/Etablissement.php:255-263`), puis fusionne les contacts des deux niveaux (`application/controllers/EtablissementController.php:453-461`). |
-| **Impact** | **Élevé** — un DUS porté uniquement par le grand-parent ne sera pas visible dans l'onglet Contacts Symfony d'une cellule, contrairement au legacy et à la spec. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php`, `prevarisc-migration/src/Entity/Etablissement.php`, `prevarisc/application/models/DbTable/Etablissement.php`, `prevarisc/application/controllers/EtablissementController.php` |
+| **Symfony (avant)** | L'onglet Contacts ne parcourait que `getParents()` sur l'établissement courant, sans remonter au niveau 2 (`src/Controller/Etablissement/EtablissementContactController.php:63-69`). De plus, aucun filtre n'excluait les établissements supprimés de l'héritage. |
+| **Legacy** | Le legacy remonte explicitement deux niveaux via `getAllParents()` qui renvoie `[parent, grand-parent]` (`application/models/DbTable/Etablissement.php:255-263`), en excluant les établissements supprimés, puis fusionne les contacts des deux niveaux (`application/controllers/EtablissementController.php:453-461`). |
+| **Solution** | Double boucle dans le controller (parents niveau 1, puis grand-parents niveau 2). Le filtre sur les suppressions est appliqué dans `findContactsOrderedByNom()` via `andWhere('e.dateSuppression IS NULL')` — méthode qui retourne désormais `?Etablissement` via `getOneOrNullResult()`. Les parents/grand-parents supprimés retournent `null` et sont ignorés par un `continue`. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php`, `prevarisc-migration/src/Repository/EtablissementRepository.php` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy pour remonter de deux niveaux.
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy pour remonter de deux niveaux. Attention à bien filtrer les établissements supprimés, comme le fait le legacy. ✅ **Corrigé**
 
 ---
 
@@ -107,7 +107,7 @@
 ## Recommandations
 
 1. **Priorité critique** ✅ Traitée : correction de la logique de suppression dans les contrôleurs pour vérifier les associations restantes **avant** suppression, éliminant la dépendance au timing Doctrine.
-2. **Priorité haute** : compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController` pour restaurer la visibilité du DUS hérité.
+2. **Priorité haute** ✅ Traitée : compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController`, en excluant les établissements supprimés via `findContactsOrderedByNom()`.
 3. **Priorité moyenne** ✅ Traitée : filtrage contextuel de la fonction « Maire » dans `ContactType` — masquée en création standard, visible en édition via `is_edit: true`.
 4. **Priorité moyenne** : relever l'autocomplétion à 100 résultats maximum pour retrouver le comportement attendu par la spec et par l'UI legacy.
 5. **Priorité basse** : définir une stratégie d'invalidation de cache cohérente côté Symfony, ou documenter explicitement dans la spec que cette règle n'est plus applicable.
