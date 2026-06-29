@@ -193,6 +193,16 @@ class GroupementController extends AbstractController
     }
 
     /**
+     * @Route("/groupement/{id}/informations", name="groupement_informations", methods={"GET"})
+     */
+    public function informations(Groupement $groupement): Response
+    {
+        return $this->render('groupement/informations.html.twig', [
+            'groupement' => $groupement,
+        ]);
+    }
+
+    /**
      * @Route("/admin/groupements/{id}/contacts", name="admin_groupement_contacts")
      */
     public function contacts(Groupement $groupement): Response
