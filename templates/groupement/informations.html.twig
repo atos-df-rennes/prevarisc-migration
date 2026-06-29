@@ -1,9 +1,9 @@
-{% extends 'layouts/admin.html.twig' %}
+{% extends 'layouts/dashboard.html.twig' %}
 
 {% block title %}Groupement / {{ groupement.libelle }}{% endblock %}
 
-{% block body %}
-<h3 class="page-header">
+{% block body_structure %}
+<h3 class="page-header mt-0">
     <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
     {{ groupement.libelle }}
     {% if groupement.type %}
