@@ -139,12 +139,24 @@ Tests : PHPStan ✓, tests unitaires ✓ (608 tests, 1101 assertions).
 | **Règles** | §4.2, §8.9 |
 | **Spec** | Les nouveaux droits / rôles doivent s'appliquer immédiatement ; la modification d'un groupe invalide le cache de contrôle d'accès pour les utilisateurs concernés. |
 | **Symfony** | `GroupeController::modifier()` fait uniquement `flush()` puis redirige vers la liste. Aucun vidage de cache `acl` ni des caches `user_id_*` n'est déclenché. |
-| **Legacy** | `Service_User::saveGroup()` invalide explicitement les caches utilisateur et le cache ACL après modification du groupe. |
-| **Impact** | **Moyen** dans le contexte strangler — après modification d'un libellé de groupe ou de ses métadonnées, les pages legacy peuvent continuer à utiliser un cache obsolète jusqu'à vidage manuel. |
+| **Legacy** | `Service_User::saveGroup()` invalide explicitement **deux caches** après modification du groupe : (1) le cache global `acl` (Zend_Acl sérialisée) et (2) le cache par utilisateur `user_id_*` pour tous les utilisateurs du groupe. |
+| **Impact** | Aucun impact fonctionnel — les modifications de groupe sont appliquées immédiatement en Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/GroupeController.php:117-128`, `prevarisc/application/services/User.php:282-313` |
 
-**Retour utilisateur** : Il n'y a pas eu de portage de gestion du cache dans le code Symfony. La migration étant finie, le vidage des caches sur le legacy n'est plus un problème.\
-Il faudrait en revanche vérifier si une mise en cache des utilisateurs est nécessaire côté Symfony ou non. En l'état, le code Symfony est censé prendre en compte les modifications immédiatement, ce qui est fonctionnellement correct.
+**Analyse et justification** :
+
+Le cache legacy était nécessaire pour des raisons de performance spécifiques à l'architecture Zend :
+- Le cache `acl` contenait l'arborescence Zend_Acl pré-calculée (groupes, ressources, privilèges).
+- Le cache `user_id_*` réutilisait le profil utilisateur complet pendant une requête pour éviter les JOINs répétés.
+
+En Symfony, la situation est différente :
+- Les données utilisateur sont **négligeables** en volume. Un utilisateur + son groupe + ses ressources spécialisées = quelques milliers d'enregistrements au maximum. Cela représente une fraction infime du temps total d'une requête.
+- Il n'existe pas d'ACL monolithique avec toutes les données construites en une seule fois. Symfony utilise des **Voters spécialisés** appelés uniquement au besoin (lors d'un contrôle `isGranted()` spécifique). Chaque Voter interroge la base de données à la demande, sans overhead de cache à gérer ni risque d'invalidation incohérente.
+- Doctrine recharge automatiquement l'utilisateur et le groupe depuis la BD à chaque requête, sans cache applicatif bloquant.
+
+**Conclusion** : Le cache n'est pas nécessaire à court terme. Une optimisation globale du cache (au niveau du contexte applicatif) sera envisagée post-migration.
+
+**Statut** : ✅ **Écart fermé** — Symfony fonctionne correctement sans cache explicite. Les modifications de groupe s'appliquent immédiatement ; les performances sont satisfaisantes dans le contexte actuel.
 
 ---
 
@@ -200,5 +212,5 @@ Il faudrait en revanche vérifier si une mise en cache des utilisateurs est néc
 2. **Priorité critique** : revoir les voters / repositories de ressources spécialisées établissement (cellule, zone, camping, IOP, manifestation temporaire) afin d'appliquer tous les critères configurés.
 3. **Priorité haute** : forcer `password = null` lors de la création d'un utilisateur SSO et ajouter un test fonctionnel sur ce scénario.
 4. **Priorité haute** : reproduire fidèlement la déconnexion NTLM (message spécifique + pas de reconnexion immédiate) et mettre à jour `lastAction` au logout.
-5. **Priorité moyenne** : invalider explicitement les caches legacy (`acl`, `user_id_*`) après modification d'un groupe Symfony.
-6. **Priorité moyenne** : soit interdire la création de ressources dossier multi-natures dans l'UI, soit implémenter réellement leur résolution côté ACL / voters.
+5. **Priorité moyenne** : soit interdire la création de ressources dossier multi-natures dans l'UI, soit implémenter réellement leur résolution côté ACL / voters.
+6. **Opportunité post-migration** : optimisation globale du cache au niveau applicatif pour améliorer les performances si nécessaire après la fermeture du strangler.
