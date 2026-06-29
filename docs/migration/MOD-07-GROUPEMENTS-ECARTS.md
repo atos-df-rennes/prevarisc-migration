@@ -115,6 +115,8 @@ Aucune action à prévoir sur ce point.
 **Retour utilisateur** : Écart de migration accepté. La création d'une ligne vide n'est pas nécessaire et pollue la base plus qu'autre chose. Si l'absence de création de cette ligne n'entraîne pas de crash ou de mauvais affichage front, on laisse en l'état et la fiche sera créée au besoin lorsque les informations seront renseignées.\
 Aucun action à prévoir sur ce point.
 
+**✅ Validation 2026-06-29** : Retour utilisateur vérifié et conforme au code migré. Confirmé : (1) Formulaire Symfony crée un sous-formulaire vide pour `informations` même si la valeur est NULL, grâce à `required: false` et la `data_class` de `UtilisateurInformationsType` ; (2) Template d'affichage vérifie correctement `{% if groupement.informations %}` avant d'afficher les coordonnées ; (3) Pas de crash ou de mauvais affichage. Comportement métier correct : fiche créée au moment de la saisie. Décision acceptée sans action corrective.
+
 ---
 
 ### Écart 7 — La précondition « au moins un préventionniste » n'est vérifiée qu'en interface, pas côté serveur
