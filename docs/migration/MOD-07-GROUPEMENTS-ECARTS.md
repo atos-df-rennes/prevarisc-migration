@@ -11,9 +11,9 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 22 (RG-GRP-001 à RG-GRP-022) |
-| Écarts spec ↔ Symfony | 7 |
+| Écarts spec ↔ Symfony | 6 (1 résolu) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 6 |
+| Écarts Symfony ↔ Legacy | 5 |
 | Impact critique | 1 (cache de recherche non invalidé après réaffectation) |
 
 ---
@@ -26,12 +26,12 @@
 |---|--------|
 | **Règles** | §4.3 |
 | **Spec** | Après validation, le groupement est créé **et automatiquement sélectionné** dans la liste. |
-| **Symfony** | `create()` persiste le groupement puis redirige vers `admin_groupement` sans transmettre l'identifiant créé ; l'index ne peut présélectionner qu'un `id` présent en query string (`src/Controller/GroupementController.php:74-85, 101-107`). |
+| **Symfony** | ✅ **CORRIGÉ** — `create()` persiste le groupement puis redirige vers `admin_groupement?id=<nouvel_id>` ; l'index peut maintenant présélectionner le groupement via le paramètre query string (`src/Controller/GroupementController.php:74-85, 101-107`). |
 | **Legacy** | La création AJAX ajoute immédiatement l'option dans le bon `<optgroup>` et la marque `selected`, puis recharge la fiche (`application/views/scripts/groupement/index.phtml:116-126`). |
-| **Impact** | Faible à moyen — le groupement est bien créé, mais le parcours décrit par la spec (« créer puis compléter la fiche ») est moins fluide dans Symfony. |
+| **Impact** | ✅ **RÉSOLU** — le groupement créé est automatiquement présélectionné et le parcours utilisateur est maintenant fluide (créer → compléter la fiche). |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/templates/groupement/index.html.twig`, `prevarisc/application/views/scripts/groupement/index.phtml` |
 
-**Retour utilisateur** : Écart de migration confirmé. Passer l'`id` du groupement nouvellement créé en query string lors du retour vers `admin_groupement`.
+**Retour utilisateur** : ✅ Corrigé le 2026-06-29. Passage de l'`id` du groupement nouvellement créé en query string lors du retour vers `admin_groupement` (ligne 107).
 
 ---
 
