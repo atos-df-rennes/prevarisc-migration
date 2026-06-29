@@ -11,9 +11,9 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 22 (RG-GRP-001 à RG-GRP-022) |
-| Écarts spec ↔ Symfony | 6 (3 résolus) |
+| Écarts spec ↔ Symfony | 6 (4 résolus) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 4 |
+| Écarts Symfony ↔ Legacy | 3 |
 | Impact critique | 0 |
 
 ---
@@ -125,12 +125,14 @@ Aucun action à prévoir sur ce point.
 |---|--------|
 | **Règles** | RG-GRP-011, §4.6 |
 | **Spec** | La réaffectation ne peut être déclenchée que si le groupement possède au moins un préventionniste. |
-| **Symfony** | Le bouton n'est affiché que si la collection n'est pas vide (`templates/groupement/_form_affectations.html.twig:14-18`), mais le contrôleur ne revérifie pas cette précondition avant d'appeler le service (`src/Controller/GroupementController.php:126-145`). |
+| **Symfony** | ✅ **CORRIGÉ** — Le contrôleur vérifie maintenant `if ($groupement->getPreventionnistes()->count() > 0)` avant d'appeler `reaffectationPreventioniste()` (`src/Controller/GroupementController.php:137-139`). Le bouton demeure affiché conditionnellement en interface (`templates/groupement/_form_affectations.html.twig:14-18`). |
 | **Legacy** | Même logique : le bouton n'est affiché que si la liste n'est pas vide (`application/views/scripts/groupement/display.phtml:70-83`), mais `preventionnisteAction()` exécute la réaffectation sans garde serveur (`application/controllers/GroupementController.php:241-247`). |
-| **Impact** | Faible — l'écart n'est exploitable qu'en forgeant la requête, mais la contrainte métier de la spec n'est pas réellement sécurisée ni en Symfony ni en legacy. |
-| **Fichiers concernés** | `prevarisc-migration/templates/groupement/_form_affectations.html.twig`, `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc/application/views/scripts/groupement/display.phtml`, `prevarisc/application/controllers/GroupementController.php` |
+| **Impact** | ✅ **RÉSOLU** — La contrainte métier RG-GRP-011 est maintenant réellement sécurisée côté serveur Symfony, empêchant un appel direct via URL de contourner la validation. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/templates/groupement/_form_affectations.html.twig`, `prevarisc/application/views/scripts/groupement/display.phtml`, `prevarisc/application/controllers/GroupementController.php` |
 
 **Retour utilisateur** : OK, ajouter la vérification de la condition côté controller pour se prémunir d'un appel direct via URL.
+
+**✅ Correction 2026-06-29** : Vérification serveur ajoutée — ligne 137-139 du contrôleur : `if ($groupement->getPreventionnistes()->count() > 0)` avant `reaffectationPreventioniste()`. Validation PHPStan confirmée. Comportement maintenant strictement conforme à RG-GRP-011.
 
 ---
 
