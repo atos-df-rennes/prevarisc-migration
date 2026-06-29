@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Entity\Utilisateur;
+use App\Service\LastActionUpdater;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -16,6 +18,10 @@ use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
  * Effectue le nettoyage complémentaire : session Zend_Auth, username en session,
  * et logout CAS si le SSO CAS est actif.
  *
+ * La mise à jour de LASTACTION_UTILISATEUR est effectuée ici (et non uniquement dans
+ * LastActionSubscriber) car kernel.terminate se déclenche APRÈS l'invalidation du token,
+ * rendant $security->getUser() null au moment du logout.
+ *
  * Enregistré via security.firewalls.main.logout.handlers dans security.php.
  */
 class LogoutHandler implements LogoutHandlerInterface
@@ -23,12 +29,19 @@ class LogoutHandler implements LogoutHandlerInterface
     /** @var ZendSessionBridge */
     private $zendSessionBridge;
 
+    /** @var LastActionUpdater */
+    private $lastActionUpdater;
+
     /** @var bool */
     private $casEnabled;
 
-    public function __construct(ZendSessionBridge $zendSessionBridge, bool $casEnabled)
-    {
+    public function __construct(
+        ZendSessionBridge $zendSessionBridge,
+        LastActionUpdater $lastActionUpdater,
+        bool $casEnabled
+    ) {
         $this->zendSessionBridge = $zendSessionBridge;
+        $this->lastActionUpdater = $lastActionUpdater;
         $this->casEnabled = $casEnabled;
     }
 
@@ -41,6 +54,14 @@ class LogoutHandler implements LogoutHandlerInterface
      */
     public function logout(Request $request, Response $response, TokenInterface $token): void
     {
+        // Mettre à jour la dernière action avant l'invalidation du token.
+        // $token->getUser() est encore disponible à ce stade, contrairement à
+        // kernel.terminate où le token a déjà été invalidé.
+        $utilisateur = $token->getUser();
+        if ($utilisateur instanceof Utilisateur) {
+            $this->lastActionUpdater->update($utilisateur);
+        }
+
         // 1. Effacer la session Zend_Auth (compatibilité controllers legacy)
         $this->zendSessionBridge->clearAuthentication();
 
