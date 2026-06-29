@@ -65,6 +65,8 @@
 Comme indiqué, le champ `DATEDEBUT_GROUPEMENTPREVENTIONNISTE` n'est utilisé nul part dans l'application et on laisse donc en l'état pour l'instant. Si ces champs venaient à être utilisés, ils seraient de nouveau implémentés pour permettre leur utilisation dans des vues.\
 Aucune action à prévoir sur ce point.
 
+**✅ Validation 2026-06-29** : Retour utilisateur vérifié et conforme au code migré. Confirmé : (1) Collections Doctrine synchronisent automatiquement les associations ManyToMany sans suppression explicite ; (2) champ `DATEDEBUT_GROUPEMENTPREVENTIONNISTE` est orphelin (aucune utilisation dans templates, repositories, ou controllers) ; (3) comportement métier des affectations correct. Décision acceptée sans action corrective.
+
 ---
 
 ### Écart 4 — La réaffectation Symfony n'invalide pas le cache global de recherche
