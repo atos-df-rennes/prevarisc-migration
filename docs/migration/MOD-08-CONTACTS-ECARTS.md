@@ -11,25 +11,26 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 16 (RG-CTT-001 à RG-CTT-016) |
-| Écarts spec ↔ Symfony | 5 (1 traité ✅) |
+| Écarts spec ↔ Symfony | 5 (2 traités ✅) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 5 (1 corrigé ✅) |
+| Écarts Symfony ↔ Legacy | 5 (2 corrigés ✅) |
 | Impact critique | 0 (1 risque critique éliminé ✅) |
 
 ---
 
 ## Écarts détaillés
 
-### Écart 1 — La fonction « Maire » reste proposée lors de la création
+### Écart 1 — La fonction « Maire » reste proposée lors de la création ✅ Corrigé
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-CTT-005, § 3.2, § 8.2 |
 | **Spec** | La fonction « Maire » ne doit pas être proposée en création standard. Elle n'est visible qu'en édition d'un contact existant portant déjà cette fonction, ou en contexte « commune ». |
-| **Symfony** | `ContactType` expose toujours le champ `fonction` sans filtrer les choix (`src/Form/ContactType.php:18-22`). Aucun contexte de formulaire ne masque « Maire ». |
+| **Symfony (avant)** | `ContactType` exposait toujours le champ `fonction` sans filtrer les choix (`src/Form/ContactType.php`). Aucun contexte de formulaire ne masquait « Maire ». |
 | **Legacy** | Le formulaire Zend exclut explicitement `ID_FONCTION = 2` tant qu'on n'édite pas un contact existant (`application/views/scripts/contact/form.phtml:21-35`). |
-| **Impact** | **Moyen** — Symfony permet de créer des contacts « Maire » hors du contexte prévu par la règle métier et par le legacy. |
-| **Fichiers concernés** | `prevarisc-migration/src/Form/ContactType.php`, `prevarisc/application/views/scripts/contact/form.phtml` |
+| **Contexte « commune »** | Analysé et conforme : Symfony gère ce contexte via `CommuneUtilisateurInformationsType` qui n'expose pas le champ `fonction` du tout. La fonction « Maire » (ID=2) est conservée en base lors de l'édition sans être modifiable via l'UI, ce qui est aligné avec le masquage legacy (`application/views/scripts/gestion-des-communes/display.phtml:13`). Aucune présélection supplémentaire n'est nécessaire. |
+| **Solution** | Ajout d'une option `is_edit` (défaut `false`) à `ContactType`. Un `query_builder` filtre `ID_FONCTION = 2` en création. `ContactController::edit()` passe `is_edit: true` pour rendre « Maire » visible en édition. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Form/ContactType.php`, `prevarisc-migration/src/Controller/ContactController.php` |
 
 **Retour utilisateur** : Écart de migration confirmé. Par ailleurs je ne constate pas de présélection de la valeur "Maire". J'ai uniquement constaté le masquage de cette fonction à l'ajout et l'affichage lors de la modification. Une analyse du contexte "commune" est à effectuer pour déterminer sur quels écrans et suite à quelles actions ce contexte apparaît et déclenche la règle de présélection.
 
@@ -107,6 +108,6 @@
 
 1. **Priorité critique** ✅ Traitée : correction de la logique de suppression dans les contrôleurs pour vérifier les associations restantes **avant** suppression, éliminant la dépendance au timing Doctrine.
 2. **Priorité haute** : compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController` pour restaurer la visibilité du DUS hérité.
-3. **Priorité moyenne** : ajouter un filtrage contextuel des fonctions dans `ContactType` afin de masquer « Maire » en création standard et ne l'autoriser qu'en édition / contexte commune.
+3. **Priorité moyenne** ✅ Traitée : filtrage contextuel de la fonction « Maire » dans `ContactType` — masquée en création standard, visible en édition via `is_edit: true`.
 4. **Priorité moyenne** : relever l'autocomplétion à 100 résultats maximum pour retrouver le comportement attendu par la spec et par l'UI legacy.
 5. **Priorité basse** : définir une stratégie d'invalidation de cache cohérente côté Symfony, ou documenter explicitement dans la spec que cette règle n'est plus applicable.

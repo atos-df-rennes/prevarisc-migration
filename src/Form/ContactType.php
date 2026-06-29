@@ -2,9 +2,11 @@
 
 namespace App\Form;
 
-use App\Entity\Fonction;
+use App\Constant\Fonction;
+use App\Entity\Fonction as FonctionEntity;
 use App\Entity\UtilisateurCivilite;
 use App\Entity\UtilisateurInformations;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,10 +17,20 @@ class ContactType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isEdit = $options['is_edit'];
+
         $builder
             ->add('fonction', EntityType::class, [
-                'class' => Fonction::class,
+                'class' => FonctionEntity::class,
                 'choice_label' => 'libelle',
+                'query_builder' => function (EntityRepository $entityRepository) use ($isEdit) {
+                    $queryBuilder = $entityRepository->createQueryBuilder('f');
+                    if (!$isEdit) {
+                        $queryBuilder->where('f.id != :maireId')->setParameter('maireId', Fonction::MAIRE);
+                    }
+
+                    return $queryBuilder;
+                },
             ])
             ->add('societe', null, [
                 'required' => false,
@@ -72,6 +84,8 @@ class ContactType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => UtilisateurInformations::class,
+            'is_edit' => false,
         ]);
+        $resolver->setAllowedTypes('is_edit', 'bool');
     }
 }

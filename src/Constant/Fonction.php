@@ -9,6 +9,8 @@ namespace App\Constant;
  */
 final class Fonction
 {
+    public const MAIRE = 2;
+
     public const EXPLOITANT = 7;
 
     public const DIRECTEUR_UNIQUE_DE_SECURITE = 8;

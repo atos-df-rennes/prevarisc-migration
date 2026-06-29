@@ -108,6 +108,7 @@ class ContactController extends AbstractController
                 'elementLie' => $elementLie,
                 'elementId' => $elementId,
             ]),
+            'is_edit' => true,
         ]);
         $form->handleRequest($request);
 
