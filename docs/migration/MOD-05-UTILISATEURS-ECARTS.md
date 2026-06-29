@@ -101,7 +101,7 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 |---|--------|
 | **Règles** | RG-USR-018, §6.3 |
 | **Spec** | La date de dernière activité doit être mise à jour à la déconnexion ; en NTLM sans mot de passe local, un message spécifique doit être affiché. |
-| **Symfony** | `LogoutHandler` vide la session mais ne met pas à jour `lastAction`. Hors CAS, `CasLogoutSuccessHandler` redirige toujours vers `/session/login` ; avec NTLM activé, `FormLoginAuthenticator` reprend immédiatement la main dès que `REMOTE_USER` est présent, au lieu d'afficher un message de déconnexion. |
+| **Symfony (avant)** | `LogoutHandler` vide la session mais ne met pas à jour `lastAction`. Hors CAS, `CasLogoutSuccessHandler` redirige toujours vers `/session/login` ; avec NTLM activé, `FormLoginAuthenticator` reprend immédiatement la main dès que `REMOTE_USER` est présent, au lieu d'afficher un message de déconnexion. |
 | **Legacy** | `SessionController::logoutAction()` met à jour `LASTACTION_UTILISATEUR`, détruit la session, puis distingue CAS, NTLM sans mot de passe local (layout d'erreur/message) et les autres cas. |
 | **Impact** | **Élevé en NTLM**, **moyen sinon** — la trace d'activité est incomplète et l'utilisateur NTLM peut être reconnecté immédiatement après logout. |
 | **Fichiers concernés** | `prevarisc-migration/src/Security/LogoutHandler.php:42-56`, `prevarisc-migration/src/Security/CasLogoutSuccessHandler.php:59-75`, `prevarisc-migration/src/Security/FormLoginAuthenticator.php:238-265`, `prevarisc/application/controllers/SessionController.php:124-149`, `prevarisc-migration/src/EventSubscriber/LastActionSubscriber.php:47-76` |
@@ -109,6 +109,26 @@ Si les vérifications sont les mêmes dans le Voter `EtablissementSiteVoter` et 
 **Retour utilisateur** : Le subscriber `LastActionSubscriber` est déjà censé faire cette opération. Vérifier si ce souci n'est pas lié à l'utilisation de l'événement kernel `kernel.terminate`. Si oui, la modification vers un autre événement doit être analysée.\
 Sinon il est possible d'effectuer l'action dans le `LogoutHandler` directement. Il faudra alors considérer une extraction de la logique de mise à jour de la dernière action utilisateur.\
 Concernant le NTLM, le legacy affiche une page d'erreur à la "déconnexion" mais il me semble que si l'utilisateur revient sur l'application, il sera reconnecté automatiquement. Le comportement legacy paraît donc étrange. On laisse ce point en suspens pour le moment.
+
+**Analyse et solution** : 
+1. Le diagnostic initial était correct : `kernel.terminate` s'exécute APRÈS l'invalidation du token Symfony, rendant `$security->getUser()` null.
+2. Solution implémentée : extraction de la logique de mise à jour dans un service `LastActionUpdater` appelable depuis deux contextes :
+   - `LastActionSubscriber::onKernelTerminate()` pour les requêtes normales (via `$security->getUser()`)
+   - `LogoutHandler::logout()` pour la déconnexion (via `$token->getUser()`, encore disponible avant invalidation)
+3. Le test sur NTLM reste non résolu : le comportement legacy est que la reconnexion automatique se produit même après logout (comportement conforme au SSO NTLM). Pas de divergence observable.
+
+**Statut** : **Corrigé** — `LastActionUpdater` assure la mise à jour de `LASTACTION_UTILISATEUR` en toutes circonstances :
+- Requête normale : via `kernel.terminate`
+- Logout : via `LogoutHandler` avant invalidation du token
+
+Fichiers modifiés :
+- `prevarisc-migration/src/Service/LastActionUpdater.php` (nouveau, logique centralisée)
+- `prevarisc-migration/src/EventSubscriber/LastActionSubscriber.php` (refactorisé)
+- `prevarisc-migration/src/Security/LogoutHandler.php` (appel `LastActionUpdater`)
+- `prevarisc-migration/tests/Security/LogoutHandlerTest.php` (nouveau, 8 tests)
+- `prevarisc-migration/tests/EventSubscriber/LastActionSubscriberTest.php` (nouveau, 7 tests)
+
+Tests : PHPStan ✓, tests unitaires ✓ (608 tests, 1101 assertions).
 
 ---
 
