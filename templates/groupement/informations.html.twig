@@ -28,7 +28,7 @@
                             {% if info.nom or info.prenom %}
                                 <dt>Contact</dt>
                                 <dd>
-                                    {% if info.civilite %}{{ info.civilite }} {% endif %}{{ info.prenom }} {{ info.nom }}
+                                    {% if info.civilite %}{{ info.civilite.libelle }} {% endif %}{{ info.prenom }} {{ info.nom }}
                                     {% if info.societe %}<br><em>{{ info.societe }}</em>{% endif %}
                                 </dd>
                             {% elseif info.societe %}
@@ -99,7 +99,7 @@
                 {% if groupement.preventionnistes|length > 0 %}
                     <ul class="list-unstyled mb-0">
                         {% for preventionniste in groupement.preventionnistes %}
-                            <li>{{ preventionniste.prenom }} {{ preventionniste.nom }}</li>
+                            {{ include('utilisateurs/_user_card.html.twig', {user: preventionniste}) }}
                         {% endfor %}
                     </ul>
                 {% else %}
