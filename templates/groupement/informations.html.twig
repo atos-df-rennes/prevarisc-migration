@@ -1,0 +1,183 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ groupement.libelle }}{% endblock %}
+
+{% block body %}
+<h3 class="page-header">
+    <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+    {{ groupement.libelle }}
+    {% if groupement.type %}
+        <small>{{ groupement.type.libelle }}</small>
+    {% endif %}
+</h3>
+
+<div class="row">
+    <div class="col-md-6">
+
+        {# Préventionnistes #}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Préventionnistes affectés
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% if groupement.preventionnistes|length > 0 %}
+                    <ul class="list-unstyled mb-0">
+                        {% for preventionniste in groupement.preventionnistes %}
+                            <li>{{ preventionniste.prenom }} {{ preventionniste.nom }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-center mb-0">Aucun préventionniste affecté</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Coordonnées du contact principal #}
+        {% if groupement.informations %}
+            {% set info = groupement.informations %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span> Coordonnées
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    {% if info.nom or info.prenom or info.societe %}
+                        <dl class="dl-horizontal" style="margin-bottom: 0;">
+                            {% if info.nom or info.prenom %}
+                                <dt>Contact</dt>
+                                <dd>
+                                    {% if info.civilite %}{{ info.civilite }} {% endif %}{{ info.prenom }} {{ info.nom }}
+                                    {% if info.societe %}<br><em>{{ info.societe }}</em>{% endif %}
+                                </dd>
+                            {% elseif info.societe %}
+                                <dt>Société</dt>
+                                <dd>{{ info.societe }}</dd>
+                            {% endif %}
+
+                            {% if info.telephoneFixe %}
+                                <dt><span class="glyphicon glyphicon-earphone" aria-hidden="true"></span> Tél. fixe</dt>
+                                <dd>{{ info.telephoneFixe }}</dd>
+                            {% endif %}
+
+                            {% if info.telephonePortable %}
+                                <dt><span class="glyphicon glyphicon-phone" aria-hidden="true"></span> Portable</dt>
+                                <dd>{{ info.telephonePortable }}</dd>
+                            {% endif %}
+
+                            {% if info.telephoneFax %}
+                                <dt><span class="glyphicon glyphicon-print" aria-hidden="true"></span> Fax</dt>
+                                <dd>{{ info.telephoneFax }}</dd>
+                            {% endif %}
+
+                            {% if info.mail %}
+                                <dt><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Courriel</dt>
+                                <dd><a href="mailto:{{ info.mail }}">{{ info.mail }}</a></dd>
+                            {% endif %}
+
+                            {% if info.siteWeb %}
+                                <dt><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Site web</dt>
+                                {% if info.siteWeb starts with 'http://' or info.siteWeb starts with 'https://' %}
+                                    <dd><a href="{{ info.siteWeb }}" target="_blank" rel="noopener noreferrer">{{ info.siteWeb }}</a></dd>
+                                {% else %}
+                                    <dd>{{ info.siteWeb }}</dd>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if info.numeroAdresse or info.rueAdresse or info.codePostalAdresse or info.villeAdresse %}
+                                <dt><span class="glyphicon glyphicon-home" aria-hidden="true"></span> Adresse</dt>
+                                <dd>
+                                    {{ info.numeroAdresse }} {{ info.rueAdresse }}
+                                    {% if info.numeroAdresse or info.rueAdresse %}<br>{% endif %}
+                                    {{ info.codePostalAdresse }} {{ info.villeAdresse }}
+                                </dd>
+                            {% endif %}
+
+                            {% if info.observations %}
+                                <dt><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Observations</dt>
+                                <dd>{{ info.observations }}</dd>
+                            {% endif %}
+                        </dl>
+                    {% else %}
+                        <p class="text-center mb-0">Aucune coordonnée renseignée</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {# Contacts liés #}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Contacts liés au groupement
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% set contacts = groupement.sortedContacts %}
+                {% if contacts|length > 0 %}
+                    <div class="panel-list">
+                        {% for contact in contacts %}
+                            {{ include('contact/_fiche.html.twig', {can_edit: true, contact: contact}) }}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center mb-0">Aucun contact lié à ce groupement</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{# Modale édition contact #}
+{{ include('contact/_modal_ajout.html.twig') }}
+
+{# Modale suppression contact #}
+{{ include('contact/_modal_suppression.html.twig') }}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var groupementId = "{{ groupement.id }}";
+            var contactId;
+
+            $('.delete-contact-button').on('click', function () {
+                contactId = $(this).attr('data-contact-id');
+
+                $.ajax({
+                    type: "GET",
+                    url: Routing.generate('admin_groupement_contacts_delete', {id: groupementId, contact: contactId}),
+                    success: function(html) {
+                        $('#modal-suppression-contact .modal-content').html(html);
+                        $('#modal-suppression-contact').modal('show');
+                    },
+                    error: function() {
+                        $.toast.error("Erreur lors du chargement du formulaire de suppression.");
+                    }
+                });
+            });
+
+            $('.edit-contact-button').on('click', function () {
+                contactId = $(this).attr('data-contact-id');
+
+                $.ajax({
+                    url: Routing.generate('contact_edit', {id: contactId, elementLie: 'groupement', elementId: groupementId}),
+                    success: function(result) {
+                        $('#ajout-contact #ajout-contact-label').html('Modifier un contact');
+                        $('#ajout-contact .modal-body').html(result);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -238,7 +238,7 @@
                 <ul class="list-unstyled">
                     {% for groupement in groupements_de_communes %}
                         <li>
-                            <a href="/groupement/view?id={{ (groupement|first).id }}">{{ (groupement|first).libelle }} ({{ groupement.libelle }})</a>
+                            <a href="{{ path('groupement_informations', {id: (groupement|first).id}) }}">{{ (groupement|first).libelle }} ({{ groupement.libelle }})</a>
                         </li>
                     {% endfor %}
                 </ul>
