@@ -35,6 +35,7 @@ $(document).ready(function() {
                     labelField: 'name',
                     searchField: 'name',
                     plugins: ['remove_button'],
+                    maxOptions: 100,
                     shouldLoad: function(query) {
                         return query.length > 2;
                     },

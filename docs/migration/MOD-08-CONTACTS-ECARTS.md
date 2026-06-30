@@ -13,7 +13,7 @@
 | Règles de gestion analysées | 16 (RG-CTT-001 à RG-CTT-016) |
 | Écarts spec ↔ Symfony | 5 (2 traités ✅) |
 | Écarts spec ↔ Legacy | 1 |
-| Écarts Symfony ↔ Legacy | 5 (3 corrigés ✅) |
+| Écarts Symfony ↔ Legacy | 5 (4 corrigés ✅) |
 | Impact critique | 0 (1 risque critique éliminé ✅) |
 
 ---
@@ -64,18 +64,19 @@
 
 ---
 
-### Écart 4 — L'autocomplétion Symfony est plafonnée à 10 résultats au lieu de 100
+### Écart 4 — L'autocomplétion Symfony est plafonnée à 10 résultats au lieu de 100 ✅ Corrigé
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-CTT-012, RG-CTT-013, § 5.5 |
 | **Spec** | La recherche doit démarrer à partir de 3 caractères et proposer jusqu'à **100** résultats. |
-| **Symfony** | Le front respecte bien le seuil des 3 caractères, mais le repository applique `setMaxResults(10)` (`src/Repository/UtilisateurInformationsRepository.php:48-67`). |
+| **Symfony (avant)** | Le front respecte bien le seuil des 3 caractères, mais le repository applique `setMaxResults(10)` (`src/Repository/UtilisateurInformationsRepository.php:48-67`). |
 | **Legacy** | Le widget jQuery autocomplete est configuré avec `max: 100` (`application/views/scripts/contact/index.phtml:206-221`). Le backend Zend ne réduit pas la requête à 10 résultats (`application/models/DbTable/UtilisateurInformations.php:75-84`). |
 | **Impact** | **Moyen** — en base volumineuse, Symfony masque une partie importante des contacts existants que le legacy pouvait encore proposer. |
-| **Fichiers concernés** | `prevarisc-migration/src/Repository/UtilisateurInformationsRepository.php`, `prevarisc/application/views/scripts/contact/index.phtml`, `prevarisc/application/models/DbTable/UtilisateurInformations.php` |
+| **Solution** | Augmentation du `setMaxResults(100)` dans `findByNameNotInUser()` du repository. Ajout de `maxOptions: 100` dans la configuration TomSelect du JavaScript pour limiter l'affichage à 100 résultats côté client. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Repository/UtilisateurInformationsRepository.php` (ligne 65), `prevarisc-migration/public/js/contacts-panel.js` (ligne 37) |
 
-**Retour utilisateur** : Écart de migration confirmé. Modifier le `setMaxResults` pour mettre 100 résultats. Mettre la restriction sur le TomSelect également via `maxOptions`.
+**Retour utilisateur** : Écart de migration confirmé. Modifier le `setMaxResults` pour mettre 100 résultats. Mettre la restriction sur le TomSelect également via `maxOptions`. ✅ **Corrigé**
 
 ---
 
@@ -111,5 +112,5 @@
 1. **Priorité critique** ✅ Traitée : correction de la logique de suppression dans les contrôleurs pour vérifier les associations restantes **avant** suppression, éliminant la dépendance au timing Doctrine.
 2. **Priorité haute** ✅ Traitée : compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController`, en excluant les établissements supprimés via `findContactsOrderedByNom()`.
 3. **Priorité moyenne** ✅ Traitée : filtrage contextuel de la fonction « Maire » dans `ContactType` — masquée en création standard, visible en édition via `is_edit: true`.
-4. **Priorité moyenne** : relever l'autocomplétion à 100 résultats maximum pour retrouver le comportement attendu par la spec et par l'UI legacy.
+4. **Priorité moyenne** ✅ Traitée : relever l'autocomplétion à 100 résultats maximum via `setMaxResults(100)` et `maxOptions: 100` pour retrouver le comportement attendu par la spec et par l'UI legacy.
 5. **Priorité basse** : définir une stratégie d'invalidation de cache cohérente côté Symfony, ou documenter explicitement dans la spec que cette règle n'est plus applicable.
