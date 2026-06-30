@@ -60,10 +60,10 @@ final class MaintenanceInfo implements \JsonSerializable
 
         return new self(
             $active,
-            self::normalizeString($response->typeMaintenance ?? null),
-            self::normalizeString($response->descMaintenance ?? null),
+            PlatauDtoHelper::normalizeString($response->typeMaintenance ?? null),
+            PlatauDtoHelper::normalizeString($response->descMaintenance ?? null),
             $prochaineMaintenance,
-            self::normalizeString($response->descProchaineMaintenance ?? null)
+            PlatauDtoHelper::normalizeString($response->descProchaineMaintenance ?? null)
         );
     }
 
@@ -144,17 +144,5 @@ final class MaintenanceInfo implements \JsonSerializable
             'descProchaineMaintenance' => $this->descProchaineMaintenance,
             'message' => $this->toDisplayMessage(),
         ];
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private static function normalizeString($value): ?string
-    {
-        if (!is_string($value) || '' === trim($value)) {
-            return null;
-        }
-
-        return $value;
     }
 }

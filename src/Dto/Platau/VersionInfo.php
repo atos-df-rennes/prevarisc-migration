@@ -30,9 +30,9 @@ final class VersionInfo implements \JsonSerializable
     public static function fromApiResponse(\stdClass $response): self
     {
         return new self(
-            self::normalizeString($response->version ?? null),
-            self::normalizeString($response->versionModel ?? null),
-            self::normalizeString($response->versionNomenclature ?? null)
+            PlatauDtoHelper::normalizeString($response->version ?? null),
+            PlatauDtoHelper::normalizeString($response->versionModel ?? null),
+            PlatauDtoHelper::normalizeString($response->versionNomenclature ?? null)
         );
     }
 
@@ -61,17 +61,5 @@ final class VersionInfo implements \JsonSerializable
             'versionModel' => $this->versionModel,
             'versionNomenclature' => $this->versionNomenclature,
         ];
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private static function normalizeString($value): ?string
-    {
-        if (!is_string($value) || '' === trim($value)) {
-            return null;
-        }
-
-        return $value;
     }
 }

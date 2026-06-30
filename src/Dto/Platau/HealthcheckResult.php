@@ -23,41 +23,41 @@ final class HealthcheckResult implements \JsonSerializable
     private $message;
 
     /** @var VersionInfo|null */
-    private $version;
+    private $versionInfo;
 
     /** @var MaintenanceInfo|null */
-    private $maintenance;
+    private $maintenanceInfo;
 
     private function __construct(
         bool $success,
         ?int $errorSource,
         ?string $message,
-        ?VersionInfo $version,
-        ?MaintenanceInfo $maintenance
+        ?VersionInfo $versionInfo,
+        ?MaintenanceInfo $maintenanceInfo
     ) {
         $this->success = $success;
         $this->errorSource = $errorSource;
         $this->message = $message;
-        $this->version = $version;
-        $this->maintenance = $maintenance;
+        $this->versionInfo = $versionInfo;
+        $this->maintenanceInfo = $maintenanceInfo;
     }
 
     /**
      * Healthcheck réussi : Plat'AU est disponible.
      */
-    public static function success(VersionInfo $version, ?MaintenanceInfo $maintenance): self
+    public static function success(VersionInfo $versionInfo, ?MaintenanceInfo $maintenanceInfo): self
     {
         $message = "La connexion à Plat'AU a fonctionnée.";
 
         $versionParts = array_filter([
-            null !== $version->getVersion()
-                ? htmlspecialchars($version->getVersion(), ENT_QUOTES, 'UTF-8')
+            null !== $versionInfo->getVersion()
+                ? htmlspecialchars($versionInfo->getVersion(), ENT_QUOTES, 'UTF-8')
                 : null,
-            null !== $version->getVersionModel()
-                ? 'Modèle : '.htmlspecialchars($version->getVersionModel(), ENT_QUOTES, 'UTF-8')
+            null !== $versionInfo->getVersionModel()
+                ? 'Modèle : '.htmlspecialchars($versionInfo->getVersionModel(), ENT_QUOTES, 'UTF-8')
                 : null,
-            null !== $version->getVersionNomenclature()
-                ? 'Nomenclature : '.htmlspecialchars($version->getVersionNomenclature(), ENT_QUOTES, 'UTF-8')
+            null !== $versionInfo->getVersionNomenclature()
+                ? 'Nomenclature : '.htmlspecialchars($versionInfo->getVersionNomenclature(), ENT_QUOTES, 'UTF-8')
                 : null,
         ]);
 
@@ -65,7 +65,7 @@ final class HealthcheckResult implements \JsonSerializable
             $message .= '<br><small>'.implode(' / ', $versionParts).'</small>';
         }
 
-        return new self(true, null, $message, $version, $maintenance);
+        return new self(true, null, $message, $versionInfo, $maintenanceInfo);
     }
 
     /**
@@ -86,14 +86,14 @@ final class HealthcheckResult implements \JsonSerializable
      * Erreur côté Plat'AU : état dégradé ou code HTTP non-2xx.
      * La version et les informations de maintenance sont incluses si disponibles.
      */
-    public static function platauError(string $reason, ?VersionInfo $version, ?MaintenanceInfo $maintenance): self
+    public static function platauError(string $reason, ?VersionInfo $versionInfo, ?MaintenanceInfo $maintenanceInfo): self
     {
         return new self(
             false,
             HealthcheckErrorSource::PLATAU,
             htmlspecialchars($reason, ENT_QUOTES, 'UTF-8'),
-            $version,
-            $maintenance
+            $versionInfo,
+            $maintenanceInfo
         );
     }
 
@@ -112,14 +112,14 @@ final class HealthcheckResult implements \JsonSerializable
         return $this->message;
     }
 
-    public function getVersion(): ?VersionInfo
+    public function getVersionInfo(): ?VersionInfo
     {
-        return $this->version;
+        return $this->versionInfo;
     }
 
-    public function getMaintenance(): ?MaintenanceInfo
+    public function getMaintenanceInfo(): ?MaintenanceInfo
     {
-        return $this->maintenance;
+        return $this->maintenanceInfo;
     }
 
     /**
@@ -131,8 +131,8 @@ final class HealthcheckResult implements \JsonSerializable
             'success' => $this->success,
             'errorSource' => $this->errorSource,
             'message' => $this->message,
-            'version' => $this->version,
-            'maintenance' => $this->maintenance,
+            'version' => $this->versionInfo,
+            'maintenance' => $this->maintenanceInfo,
         ];
     }
 }
