@@ -134,11 +134,9 @@ class GroupementController extends AbstractController
 
             if ($form->has('reaffectationAutomatique')) {
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
-                if ('1' === $reaffectationAutomatique) {
-                    if ($groupement->getPreventionnistes()->count() > 0) {
-                        $this->groupementCommunes->reaffectationPreventioniste($groupement);
-                        $this->searchCache->invalidateTags(['search']);
-                    }
+                if ('1' === $reaffectationAutomatique && $groupement->getPreventionnistes()->count() > 0) {
+                    $this->groupementCommunes->reaffectationPreventioniste($groupement);
+                    $this->searchCache->invalidateTags(['search']);
                 }
             }
 
