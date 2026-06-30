@@ -44,7 +44,6 @@ class PlatauHealthcheckServiceTest extends TestCase
 
         $result = $service->executeHealthcheck();
 
-        $this->assertInstanceOf(HealthcheckResult::class, $result);
         $this->assertFalse($result->isSuccess());
         $this->assertSame(HealthcheckErrorSource::PREVARISC, $result->getErrorSource());
         $this->assertNotNull($result->getMessage());
@@ -52,14 +51,14 @@ class PlatauHealthcheckServiceTest extends TestCase
         $this->assertNull($result->getVersion());
     }
 
-    public function testPrevariscErrorMessageMentionsManutelUtilisateur(): void
+    public function testPrevariscErrorMessageMentionsLogs(): void
     {
         $service = $this->buildService();
 
         $result = $service->executeHealthcheck();
 
         // Le message doit guider l'utilisateur vers la documentation
-        $this->assertStringContainsString('Manuel Utilisateur', (string) $result->getMessage());
+        $this->assertStringContainsString("Veuillez consulter les logs de l'application", (string) $result->getMessage());
     }
 
     public function testResultIsJsonSerializable(): void

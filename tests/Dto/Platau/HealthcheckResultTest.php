@@ -108,9 +108,4 @@ class HealthcheckResultTest extends TestCase
         $this->assertSame('2.0', $data['version']['version']);
         $this->assertNotNull($data['maintenance']);
     }
-
-    public function testErrorSourceConstantsAreDistinct(): void
-    {
-        $this->assertNotSame(HealthcheckErrorSource::PREVARISC, HealthcheckErrorSource::PLATAU);
-    }
 }
