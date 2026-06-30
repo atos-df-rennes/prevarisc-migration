@@ -3,7 +3,6 @@
 namespace App\Tests\Service;
 
 use App\Constant\Platau\HealthcheckErrorSource;
-use App\Dto\Platau\HealthcheckResult;
 use App\Service\PlatauHealthcheckService;
 use App\Service\ProxyConfigurationService;
 use PHPUnit\Framework\TestCase;

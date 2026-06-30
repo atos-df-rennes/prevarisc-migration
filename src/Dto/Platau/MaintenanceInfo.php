@@ -112,8 +112,9 @@ final class MaintenanceInfo implements \JsonSerializable
         if ($this->active) {
             $line = '<strong>Maintenance en cours</strong>';
             if (null !== $this->typeMaintenance) {
-                $line .= ' <small>(' . htmlspecialchars($this->typeMaintenance, ENT_QUOTES, 'UTF-8') . ')</small>';
+                $line .= ' <small>('.htmlspecialchars($this->typeMaintenance, ENT_QUOTES, 'UTF-8').')</small>';
             }
+
             $parts[] = $line;
             if (null !== $this->descMaintenance) {
                 $parts[] = htmlspecialchars($this->descMaintenance, ENT_QUOTES, 'UTF-8');
@@ -121,7 +122,7 @@ final class MaintenanceInfo implements \JsonSerializable
         }
 
         if (null !== $this->prochaineMaintenance) {
-            $parts[] = '<strong>Prochaine maintenance</strong> : ' . htmlspecialchars($this->prochaineMaintenance, ENT_QUOTES, 'UTF-8');
+            $parts[] = '<strong>Prochaine maintenance</strong> : '.htmlspecialchars($this->prochaineMaintenance, ENT_QUOTES, 'UTF-8');
             if (null !== $this->descProchaineMaintenance) {
                 $parts[] = htmlspecialchars($this->descProchaineMaintenance, ENT_QUOTES, 'UTF-8');
             }

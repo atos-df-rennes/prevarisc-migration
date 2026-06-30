@@ -22,7 +22,7 @@ class HealthcheckResultTest extends TestCase
         $this->assertNull($data['errorSource']);
         $this->assertNull($data['maintenance']);
         $this->assertNotNull($data['message']);
-        $this->assertStringContainsString("fonctionnée", $data['message']);
+        $this->assertStringContainsString('fonctionnée', $data['message']);
         $this->assertStringContainsString('<small>', $data['message']);
         $this->assertStringContainsString('1.0.0', $data['message']);
         $this->assertStringContainsString('model-1', $data['message']);
@@ -82,7 +82,7 @@ class HealthcheckResultTest extends TestCase
 
     public function testPlatauErrorFactory(): void
     {
-        $result = HealthcheckResult::platauError("État général dégradé.", null, null);
+        $result = HealthcheckResult::platauError('État général dégradé.', null, null);
 
         $json = json_encode($result);
         $data = json_decode((string) $json, true);
@@ -97,7 +97,7 @@ class HealthcheckResultTest extends TestCase
     {
         $version = new VersionInfo('2.0', null, null);
         $maintenance = new MaintenanceInfo(false, null, null, '01/07/2026 à 22h00', 'Mise à jour majeure');
-        $result = HealthcheckResult::platauError("BDD dégradée.", $version, $maintenance);
+        $result = HealthcheckResult::platauError('BDD dégradée.', $version, $maintenance);
 
         $json = json_encode($result);
         $data = json_decode((string) $json, true);

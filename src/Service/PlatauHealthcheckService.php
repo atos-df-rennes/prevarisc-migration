@@ -324,7 +324,7 @@ class PlatauHealthcheckService
             return ['body' => null, 'httpCode' => 0];
         }
 
-        $httpCode = (int) curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
+        $httpCode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
         curl_close($curlHandle);
 
         if (!is_string($data) || '' === $data) {

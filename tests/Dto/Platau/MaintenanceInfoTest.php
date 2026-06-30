@@ -3,7 +3,6 @@
 namespace App\Tests\Dto\Platau;
 
 use App\Dto\Platau\MaintenanceInfo;
-use App\Dto\Platau\VersionInfo;
 use PHPUnit\Framework\TestCase;
 
 class MaintenanceInfoTest extends TestCase

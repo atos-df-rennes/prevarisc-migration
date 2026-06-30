@@ -54,15 +54,15 @@ final class HealthcheckResult implements \JsonSerializable
                 ? htmlspecialchars($version->getVersion(), ENT_QUOTES, 'UTF-8')
                 : null,
             null !== $version->getVersionModel()
-                ? 'Modèle : ' . htmlspecialchars($version->getVersionModel(), ENT_QUOTES, 'UTF-8')
+                ? 'Modèle : '.htmlspecialchars($version->getVersionModel(), ENT_QUOTES, 'UTF-8')
                 : null,
             null !== $version->getVersionNomenclature()
-                ? 'Nomenclature : ' . htmlspecialchars($version->getVersionNomenclature(), ENT_QUOTES, 'UTF-8')
+                ? 'Nomenclature : '.htmlspecialchars($version->getVersionNomenclature(), ENT_QUOTES, 'UTF-8')
                 : null,
         ]);
 
         if (!empty($versionParts)) {
-            $message .= '<br><small>' . implode(' / ', $versionParts) . '</small>';
+            $message .= '<br><small>'.implode(' / ', $versionParts).'</small>';
         }
 
         return new self(true, null, $message, $version, $maintenance);
