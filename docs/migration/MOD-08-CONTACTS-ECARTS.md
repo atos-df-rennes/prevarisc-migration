@@ -91,6 +91,8 @@
 | **Impact** | **Faible à moyen** — la spec n'est pas tenue dans Symfony ; l'écart existait déjà partiellement en legacy mais n'a pas été repris ni corrigé. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/ContactController.php`, `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php`, `prevarisc-migration/src/Controller/Dossier/DossierContactController.php`, `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Controller/Commission/CommissionContactsController.php`, `prevarisc/application/controllers/ContactController.php` |
 
+**Retour utilisateur** : Écart de migration accepté. Le mécanisme de cache de l'entité n'a pour le moment pas été ajouté. De plus le legacy semble indiquer que l'invalidation ne fonctionnait pas correctement. Aucune action à prévoir sur ce point.
+
 ---
 
 ## Comportements alignés (confirmés)
