@@ -124,17 +124,46 @@ En cas d'échec ou pour forcer un renvoi, l'utilisateur dispose de trois mécani
 2. Le jeton d'accès obtenu est réutilisé tant qu'il est valide (avec une marge de sécurité de 5 minutes avant expiration).
 3. Le système interroge le point de vérification de santé de Plat'AU avec ce jeton.
 4. La réponse est analysée : l'état général et l'état de la base de données de Plat'AU sont vérifiés.
+5. Les informations de version et de maintenance (si présentes) sont extraites de la réponse.
 
 ### 5.3 Résultats affichés
 
-| Résultat | Message affiché | Type d'alerte |
-|----------|----------------|---------------|
-| Connexion réussie | « La connexion à Plat'AU a fonctionné. » | Information (bleu) |
-| Échec côté Prevarisc | « La connexion à Plat'AU depuis Prevarisc a échoué. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2 » | Erreur (rouge) |
-| Plat'AU en erreur | « Plat'AU est en erreur. Veuillez réessayer ultérieurement. » | Erreur (rouge) |
+#### En cas de succès
+
+| Élément | Affichage |
+|---------|-----------|
+| Message | « La connexion à Plat'AU a fonctionnée. » |
+| Type | Information (bleu) |
+| Pièces supplémentaires | Version Plat'AU, version du modèle, version nomenclature (si disponibles) affichées en caractères réduits |
+
+#### En cas de maintenance programmée (même en cas de succès)
+
+| Élément | Affichage |
+|---------|-----------|
+| Message | Toast indépendant sans fermeture automatique avec les informations de maintenance en cours ou prévue |
+| Type | Avertissement (orange) |
+| Contenu | Type de maintenance, description, date et heure de la prochaine maintenance (le cas échéant) |
+
+#### En cas d'erreur
+
+| Condition | Message affiché | Type d'alerte |
+|-----------|----------------|---------------|
+| Prevarisc : configuration ou réseau | « La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2 » | Erreur (rouge) |
+| Plat'AU : état général dégradé | « Plat'AU est en erreur (état général dégradé). Veuillez réessayer ultérieurement. » | Erreur (rouge) |
+| Plat'AU : base de données dégradée | « Plat'AU est en erreur (base de données dégradée). Veuillez réessayer ultérieurement. » | Erreur (rouge) |
+| Plat'AU : code HTTP non-2xx | « Plat'AU est en erreur (HTTP XXX). Veuillez réessayer ultérieurement. » | Erreur (rouge) |
 | Erreur technique | « Une erreur s'est produite lors de la vérification de la connexion à Plat'AU. » | Erreur (rouge) |
 
-### 5.4 Désactivation de la vérification
+### 5.4 Classification des erreurs
+
+Le système différencie deux origines d'erreur :
+
+- **Erreur Prevarisc** : Impossible de contacter Plat'AU (configuration absente, réseau indisponible, token PISTE inaccessible, réponse JSON malformée).
+- **Erreur Plat'AU** : Plat'AU a répondu mais signale un problème (code HTTP 5xx, état général dégradé, base de données dégradée).
+
+Cette distinction guide l'administrateur vers le responsable approprié (configuration locale vs. incident sur Plat'AU).
+
+### 5.5 Désactivation de la vérification
 
 La vérification peut être désactivée indépendamment du module Plat'AU via un paramètre de configuration dédié. Cela permet de conserver les fonctionnalités Plat'AU sans vérifier la connexion à chaque chargement du tableau de bord.
 
@@ -213,22 +242,27 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 | **RG-PLT-030** | L'authentification PISTE utilise le protocole OAuth2 en mode « client credentials ». Les identifiants sont définis dans la configuration Plat'AU. |
 | **RG-PLT-031** | Le jeton d'authentification PISTE est mis en cache et réutilisé tant qu'il est valide, avec une marge de sécurité de 5 minutes avant son expiration. |
 | **RG-PLT-032** | La communication avec Plat'AU peut transiter par un serveur proxy si celui-ci est configuré dans l'environnement. |
+| **RG-PLT-033** | Le système détecte le code HTTP de la réponse Plat'AU et classe l'erreur comme « Prevarisc » (impossible de joindre) ou « Plat'AU » (réponse 5xx ou état dégradé). |
+| **RG-PLT-034** | En cas de succès, les informations de version Plat'AU (version, versionModel, versionNomenclature) sont extraites et affichées en caractères réduits dans le toast. |
+| **RG-PLT-035** | Si des informations de maintenance sont présentes (active ou programmée), un toast indépendant sans fermeture automatique est affiché en parallèle du toast de succès/erreur. |
+| **RG-PLT-036** | Les messages d'erreur et de maintenance sont construits côté serveur, en français et échappés HTML pour prévenir les injections XSS. |
+| **RG-PLT-037** | En cas de maintenance programmée, la date et heure sont formatées côté serveur au format « JJ/MM/AAAA à HHhMM ». |
 
 ### Recherche
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-033** | La recherche de dossiers propose un filtre par **provenance** : « Provenant de Plat'AU » ou « Ne provenant pas de Plat'AU ». Ce filtre n'est visible que si le module est activé. |
-| **RG-PLT-034** | La saisie d'un identifiant au format `XXX-XXX-XXX` dans le champ de recherche libre déclenche automatiquement une recherche par identifiant de consultation Plat'AU. |
-| **RG-PLT-035** | L'export tableur des résultats de recherche inclut une colonne « Identifiant Plat'AU » lorsque le filtre de provenance Plat'AU est sélectionné. |
+| **RG-PLT-038** | La recherche de dossiers propose un filtre par **provenance** : « Provenant de Plat'AU » ou « Ne provenant pas de Plat'AU ». Ce filtre n'est visible que si le module est activé. |
+| **RG-PLT-039** | La saisie d'un identifiant au format `XXX-XXX-XXX` dans le champ de recherche libre déclenche automatiquement une recherche par identifiant de consultation Plat'AU. |
+| **RG-PLT-040** | L'export tableur des résultats de recherche inclut une colonne « Identifiant Plat'AU » lorsque le filtre de provenance Plat'AU est sélectionné. |
 
 ### Droits d'accès
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-036** | L'accès au bloc « Dossiers Plat'AU à traiter » est soumis à un droit spécifique. |
-| **RG-PLT-037** | L'accès au bloc « Dossiers Plat'AU avec des pièces jointes non envoyées » est soumis à un droit spécifique. |
-| **RG-PLT-038** | L'accès au bloc « Dossiers Plat'AU avec de nouvelles pièces jointes » est soumis à un droit spécifique. |
+| **RG-PLT-041** | L'accès au bloc « Dossiers Plat'AU à traiter » est soumis à un droit spécifique. |
+| **RG-PLT-042** | L'accès au bloc « Dossiers Plat'AU avec des pièces jointes non envoyées » est soumis à un droit spécifique. |
+| **RG-PLT-043** | L'accès au bloc « Dossiers Plat'AU avec de nouvelles pièces jointes » est soumis à un droit spécifique. |
 
 ---
 

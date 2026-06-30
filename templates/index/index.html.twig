@@ -125,14 +125,14 @@
                     success: function(result) {
                         const res = typeof result === 'object' ? result : JSON.parse(result);
 
-                        if (res.healthcheckOk) {
-                            $.toast.success("La connexion à Plat'AU a fonctionnée.");
+                        if (res.success) {
+                            $.toast.success(res.message, { autoClose: false });
                         } else {
-                            if (res.errorOrigin === 'prevarisc') {
-                                $.toast.error("La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2");
-                            } else if (res.errorOrigin === 'PlatAU') {
-                                $.toast.error("Plat'AU est en erreur. Veuillez réessayer ultérieurement.");
-                            }
+                            $.toast.error(res.message, { autoClose: false });
+                        }
+
+                        if (res.maintenance !== null && res.maintenance !== undefined) {
+                            $.toast.warning(res.maintenance.message, { autoClose: false });
                         }
                     },
                     error: function() {
