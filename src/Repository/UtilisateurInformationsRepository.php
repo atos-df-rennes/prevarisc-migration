@@ -62,7 +62,7 @@ class UtilisateurInformationsRepository extends ServiceEntityRepository
                 )
             )
             ->setParameter('name', '%'.$name.'%')
-            ->setMaxResults(10)
+            ->setMaxResults(100)
             ->getQuery()
             ->getResult()
         ;
