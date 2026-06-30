@@ -75,6 +75,8 @@
 | **Impact** | **Moyen** — en base volumineuse, Symfony masque une partie importante des contacts existants que le legacy pouvait encore proposer. |
 | **Fichiers concernés** | `prevarisc-migration/src/Repository/UtilisateurInformationsRepository.php`, `prevarisc/application/views/scripts/contact/index.phtml`, `prevarisc/application/models/DbTable/UtilisateurInformations.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. Modifier le `setMaxResults` pour mettre 100 résultats. Mettre la restriction sur le TomSelect également via `maxOptions`.
+
 ---
 
 ### Écart 5 — L'invalidation de cache prévue par la spec n'est pas portée en Symfony
