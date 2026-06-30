@@ -9,7 +9,6 @@ use App\Form\ContactType;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -57,21 +56,12 @@ class EtablissementContactController extends AbstractController implements Etabl
      */
     public function contacts(Etablissement $etablissement): Response
     {
-        $contacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId())->getSortedContacts();
-        $contactsParents = new ArrayCollection();
-
-        foreach ($etablissement->getParents() as $parent) {
-            $parentWithContacts = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
-
-            foreach ($parentWithContacts->getSortedContacts() as $contactParent) {
-                $contactsParents->add($contactParent);
-            }
-        }
+        $dto = $this->etablissementRepository->findContactsWithInheritance($etablissement->getId());
 
         return $this->render('etablissement/contacts.html.twig', [
             'etablissement' => $etablissement,
-            'contacts' => $contacts,
-            'contacts_parents' => $contactsParents,
+            'contacts' => $dto->contacts,
+            'contacts_parents' => $dto->contactsParents,
         ]);
     }
 

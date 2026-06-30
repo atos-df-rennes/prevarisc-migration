@@ -2,11 +2,14 @@
 
 namespace App\Repository;
 
+use App\Dto\EtablissementContactsDto;
 use App\Dto\Repository\EtablissementDashboardDto;
 use App\Entity\Etablissement;
+use App\Entity\Fonction;
 use App\Entity\UtilisateurInformations;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -93,7 +96,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
     /**
      * Retourne l'établissement demandé avec la liste des contacts ordonnée par nom.
      */
-    public function findContactsOrderedByNom(int $id): Etablissement
+    public function findContactsOrderedByNom(int $id): ?Etablissement
     {
         $queryBuilder = $this->createQueryBuilder('e');
         $query = $queryBuilder
@@ -102,13 +105,135 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             ->leftJoin('e.contacts', 'c')
             ->leftJoin('c.fonction', 'f')
             ->where('e.id = :id')
+            ->andWhere('e.dateSuppression IS NULL')
             ->orderBy('c.nom', 'ASC')
             ->addOrderBy('c.prenom', 'ASC')
             ->setParameter('id', $id)
             ->getQuery()
         ;
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
+    }
+
+    /**
+     * Récupère les contacts propres et hérités (2 niveaux) d'un établissement en une seule requête SQL.
+     *
+     * Remplace les boucles N+1 de EtablissementContactController::contacts() :
+     * - Branch "self"   : contacts directs de l'établissement courant
+     * - Branch "parent" : contacts des parents directs (niveau 1) et grands-parents (niveau 2)
+     *
+     * Seuls les établissements non supprimés (DATESUPPRESSION_ETABLISSEMENT IS NULL) sont pris en compte
+     * pour les branches parentes. La fonction Fonction est chargée en eager via LEFT JOIN.
+     *
+     * Compatible MySQL 5.6 (UNION ALL + ORDER BY en fin d'union).
+     */
+    public function findContactsWithInheritance(int $id): EtablissementContactsDto
+    {
+        $resultSetMapping = new ResultSetMapping();
+        $resultSetMapping->addEntityResult(UtilisateurInformations::class, 'c');
+        $resultSetMapping->addFieldResult('c', 'ID_UTILISATEURINFORMATIONS', 'id');
+        $resultSetMapping->addFieldResult('c', 'NOM_UTILISATEURINFORMATIONS', 'nom');
+        $resultSetMapping->addFieldResult('c', 'PRENOM_UTILISATEURINFORMATIONS', 'prenom');
+        $resultSetMapping->addFieldResult('c', 'TELFIXE_UTILISATEURINFORMATIONS', 'telephoneFixe');
+        $resultSetMapping->addFieldResult('c', 'TELPORTABLE_UTILISATEURINFORMATIONS', 'telephonePortable');
+        $resultSetMapping->addFieldResult('c', 'TELFAX_UTILISATEURINFORMATIONS', 'telephoneFax');
+        $resultSetMapping->addFieldResult('c', 'MAIL_UTILISATEURINFORMATIONS', 'mail');
+        $resultSetMapping->addFieldResult('c', 'SOCIETE_UTILISATEURINFORMATIONS', 'societe');
+        $resultSetMapping->addFieldResult('c', 'NUMEROADRESSE_UTILISATEURINFORMATIONS', 'numeroAdresse');
+        $resultSetMapping->addFieldResult('c', 'RUEADRESSE_UTILISATEURINFORMATIONS', 'rueAdresse');
+        $resultSetMapping->addFieldResult('c', 'CPADRESSE_UTILISATEURINFORMATIONS', 'codePostalAdresse');
+        $resultSetMapping->addFieldResult('c', 'VILLEADRESSE_UTILISATEURINFORMATIONS', 'villeAdresse');
+        $resultSetMapping->addFieldResult('c', 'WEB_UTILISATEURINFORMATIONS', 'siteWeb');
+        $resultSetMapping->addFieldResult('c', 'OBS_UTILISATEURINFORMATIONS', 'observations');
+        // Fonction chargée en eager (LEFT JOIN) ; alias préfixé pour éviter un conflit de colonne
+        $resultSetMapping->addJoinedEntityResult(Fonction::class, 'f', 'c', 'fonction');
+        $resultSetMapping->addFieldResult('f', 'f_ID_FONCTION', 'id');
+        $resultSetMapping->addFieldResult('f', 'f_LIBELLE_FONCTION', 'libelle');
+        $resultSetMapping->addScalarResult('origin', 'origin');
+
+        $selectCols = <<<'SQL'
+            c.ID_UTILISATEURINFORMATIONS,
+            c.NOM_UTILISATEURINFORMATIONS,
+            c.PRENOM_UTILISATEURINFORMATIONS,
+            c.TELFIXE_UTILISATEURINFORMATIONS,
+            c.TELPORTABLE_UTILISATEURINFORMATIONS,
+            c.TELFAX_UTILISATEURINFORMATIONS,
+            c.MAIL_UTILISATEURINFORMATIONS,
+            c.SOCIETE_UTILISATEURINFORMATIONS,
+            c.NUMEROADRESSE_UTILISATEURINFORMATIONS,
+            c.RUEADRESSE_UTILISATEURINFORMATIONS,
+            c.CPADRESSE_UTILISATEURINFORMATIONS,
+            c.VILLEADRESSE_UTILISATEURINFORMATIONS,
+            c.WEB_UTILISATEURINFORMATIONS,
+            c.OBS_UTILISATEURINFORMATIONS,
+            f.ID_FONCTION AS f_ID_FONCTION,
+            f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION
+SQL;
+
+        $sql = <<<SQL
+            SELECT
+                {$selectCols},
+                'self' AS origin
+            FROM etablissementcontact ec
+            JOIN etablissement e0
+                ON e0.ID_ETABLISSEMENT = ec.ID_ETABLISSEMENT
+                AND e0.DATESUPPRESSION_ETABLISSEMENT IS NULL
+            JOIN utilisateurinformations c
+                ON c.ID_UTILISATEURINFORMATIONS = ec.ID_UTILISATEURINFORMATIONS
+            LEFT JOIN fonction f ON f.ID_FONCTION = c.ID_FONCTION
+            WHERE ec.ID_ETABLISSEMENT = :id
+
+            UNION ALL
+
+            SELECT
+                {$selectCols},
+                'parent' AS origin
+            FROM etablissementlie el1
+            JOIN etablissement e1
+                ON e1.ID_ETABLISSEMENT = el1.ID_ETABLISSEMENT
+                AND e1.DATESUPPRESSION_ETABLISSEMENT IS NULL
+            JOIN etablissementcontact ec ON ec.ID_ETABLISSEMENT = el1.ID_ETABLISSEMENT
+            JOIN utilisateurinformations c
+                ON c.ID_UTILISATEURINFORMATIONS = ec.ID_UTILISATEURINFORMATIONS
+            LEFT JOIN fonction f ON f.ID_FONCTION = c.ID_FONCTION
+            WHERE el1.ID_FILS_ETABLISSEMENT = :id
+
+            UNION ALL
+
+            SELECT
+                {$selectCols},
+                'parent' AS origin
+            FROM etablissementlie el1
+            JOIN etablissementlie el2 ON el2.ID_FILS_ETABLISSEMENT = el1.ID_ETABLISSEMENT
+            JOIN etablissement e2
+                ON e2.ID_ETABLISSEMENT = el2.ID_ETABLISSEMENT
+                AND e2.DATESUPPRESSION_ETABLISSEMENT IS NULL
+            JOIN etablissementcontact ec ON ec.ID_ETABLISSEMENT = el2.ID_ETABLISSEMENT
+            JOIN utilisateurinformations c
+                ON c.ID_UTILISATEURINFORMATIONS = ec.ID_UTILISATEURINFORMATIONS
+            LEFT JOIN fonction f ON f.ID_FONCTION = c.ID_FONCTION
+            WHERE el1.ID_FILS_ETABLISSEMENT = :id
+
+            ORDER BY origin DESC, NOM_UTILISATEURINFORMATIONS ASC, PRENOM_UTILISATEURINFORMATIONS ASC
+SQL;
+
+        $rows = $this->getEntityManager()
+            ->createNativeQuery($sql, $resultSetMapping)
+            ->setParameter('id', $id)
+            ->getResult();
+
+        $contacts = [];
+        $contactsParents = [];
+
+        foreach ($rows as $row) {
+            if ('self' === $row['origin']) {
+                $contacts[] = $row[0];
+            } else {
+                $contactsParents[] = $row[0];
+            }
+        }
+
+        return new EtablissementContactsDto($contacts, $contactsParents);
     }
 
     /**
