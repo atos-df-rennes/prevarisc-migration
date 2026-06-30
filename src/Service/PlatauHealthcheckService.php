@@ -88,7 +88,7 @@ class PlatauHealthcheckService
 
             if (null === $pisteData) {
                 return HealthcheckResult::prevariscError(
-                    "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+                    "La connexion à Plat'AU depuis Prevarisc a échouée. Impossible d'obtenir un identifiant de connexion à PISTE. Veuillez consulter les logs de l'application."
                 );
             }
 
@@ -101,7 +101,7 @@ class PlatauHealthcheckService
             $this->logger->error("Le token PISTE n'est pas disponible.");
 
             return HealthcheckResult::prevariscError(
-                "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+                "La connexion à Plat'AU depuis Prevarisc a échouée. L'identifiant de connexion à PISTE n'est pas lisible. Veuillez consulter les logs de l'application."
             );
         }
 
@@ -110,7 +110,7 @@ class PlatauHealthcheckService
         if (null === $platauResponse['body']) {
             // Erreur cURL (transport) : on ne peut pas atteindre Plat'AU
             return HealthcheckResult::prevariscError(
-                "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+                "La connexion à Plat'AU depuis Prevarisc a échouée. La réponse Plat'AU n'a pas pu être récupérée. Veuillez consulter les logs de l'application."
             );
         }
 
@@ -136,7 +136,7 @@ class PlatauHealthcheckService
             $this->logger->error("Erreur lors de la vérification de la santé de Plat'AU : réponse JSON invalide.");
 
             return HealthcheckResult::prevariscError(
-                "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+                "La connexion à Plat'AU depuis Prevarisc a échouée. La réponse Plat'AU n'a pas pu être lue correctement. Veuillez consulter les logs de l'application."
             );
         }
 
