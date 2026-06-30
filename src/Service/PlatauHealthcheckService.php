@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Dto\Platau\HealthcheckResult;
+use App\Dto\Platau\MaintenanceInfo;
+use App\Dto\Platau\VersionInfo;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -70,9 +73,12 @@ class PlatauHealthcheckService
     /**
      * Vérifie la santé de Plat'AU.
      *
-     * @return array<string, mixed> {healthcheckOk: bool, errorOrigin?: string}
+     * Retourne un HealthcheckResult indiquant :
+     *  - en cas de succès : version et informations de maintenance éventuelles
+     *  - en cas d'erreur Prevarisc : configuration, réseau ou token indisponible
+     *  - en cas d'erreur Plat'AU : état dégradé ou code HTTP non-2xx
      */
-    public function executeHealthcheck(): array
+    public function executeHealthcheck(): HealthcheckResult
     {
         $pisteTokenData = $this->getPisteTokenData();
         $pisteToken = $pisteTokenData['access_token'] ?? null;
@@ -81,10 +87,9 @@ class PlatauHealthcheckService
             $pisteData = $this->requestPisteToken();
 
             if (null === $pisteData) {
-                return [
-                    'healthcheckOk' => false,
-                    'errorOrigin' => 'prevarisc',
-                ];
+                return HealthcheckResult::prevariscError(
+                    "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+                );
             }
 
             $this->storePisteToken($pisteData);
@@ -95,45 +100,81 @@ class PlatauHealthcheckService
         if (!is_string($pisteToken)) {
             $this->logger->error("Le token PISTE n'est pas disponible.");
 
-            return [
-                'healthcheckOk' => false,
-                'errorOrigin' => 'prevarisc',
-            ];
+            return HealthcheckResult::prevariscError(
+                "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+            );
         }
 
-        $platauHealth = $this->requestPlatauHealthcheck($pisteToken);
-        $platauHealthDecoded = json_decode((string) $platauHealth);
+        $platauResponse = $this->requestPlatauHealthcheck($pisteToken);
 
-        if (!is_object($platauHealthDecoded)) {
-            $this->logger->error("Erreur lors de la vérification de la santé de Plat'AU.");
-
-            return [
-                'healthcheckOk' => false,
-                'errorOrigin' => 'prevarisc',
-            ];
+        if (null === $platauResponse['body']) {
+            // Erreur cURL (transport) : on ne peut pas atteindre Plat'AU
+            return HealthcheckResult::prevariscError(
+                "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+            );
         }
+
+        $httpCode = $platauResponse['httpCode'];
+
+        $platauHealthDecoded = json_decode($platauResponse['body']);
+
+        // Code HTTP non-2xx : Plat'AU a répondu mais signale un problème
+        if ($httpCode < 200 || $httpCode >= 300) {
+            $this->logger->error(sprintf("Healthcheck Plat'AU : code HTTP %d.", $httpCode));
+
+            $maintenance = $platauHealthDecoded instanceof \stdClass ? $this->buildMaintenanceInfo($platauHealthDecoded) : null;
+            $version = $platauHealthDecoded instanceof \stdClass ? VersionInfo::fromApiResponse($platauHealthDecoded) : null;
+
+            return HealthcheckResult::platauError(
+                sprintf("Plat'AU est en erreur (HTTP %d). Veuillez réessayer ultérieurement.", $httpCode),
+                $version,
+                $maintenance
+            );
+        }
+
+        if (!$platauHealthDecoded instanceof \stdClass) {
+            $this->logger->error("Erreur lors de la vérification de la santé de Plat'AU : réponse JSON invalide.");
+
+            return HealthcheckResult::prevariscError(
+                "La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2"
+            );
+        }
+
+        $version = VersionInfo::fromApiResponse($platauHealthDecoded);
+        $maintenance = $this->buildMaintenanceInfo($platauHealthDecoded);
 
         if (true !== ($platauHealthDecoded->etatGeneral ?? null)) {
             $this->logger->error("L'état général de Plat'AU est en erreur.");
 
-            return [
-                'healthcheckOk' => false,
-                'errorOrigin' => 'PlatAU',
-            ];
+            return HealthcheckResult::platauError(
+                "Plat'AU est en erreur (état général dégradé). Veuillez réessayer ultérieurement.",
+                $version,
+                $maintenance
+            );
         }
 
         if (true !== ($platauHealthDecoded->etatBdd ?? null)) {
             $this->logger->error("L'état BDD de Plat'AU est en erreur.");
 
-            return [
-                'healthcheckOk' => false,
-                'errorOrigin' => 'PlatAU',
-            ];
+            return HealthcheckResult::platauError(
+                "Plat'AU est en erreur (base de données dégradée). Veuillez réessayer ultérieurement.",
+                $version,
+                $maintenance
+            );
         }
 
-        return [
-            'healthcheckOk' => true,
-        ];
+        return HealthcheckResult::success($version, $maintenance);
+    }
+
+    /**
+     * Construit un MaintenanceInfo depuis la réponse API, ou retourne null
+     * si aucune information de maintenance n'est à afficher.
+     */
+    private function buildMaintenanceInfo(\stdClass $response): ?MaintenanceInfo
+    {
+        $info = MaintenanceInfo::fromApiResponse($response);
+
+        return $info->hasAnyMaintenanceInfo() ? $info : null;
     }
 
     /**
@@ -252,15 +293,17 @@ class PlatauHealthcheckService
 
     /**
      * Effectue le healthcheck sur l'API Plat'AU.
+     *
+     * @return array{body: string|null, httpCode: int}
      */
-    private function requestPlatauHealthcheck(string $pisteToken): ?string
+    private function requestPlatauHealthcheck(string $pisteToken): array
     {
         $url = $this->getConstInFile($this->platauServiceFilePath, 'PLATAU_URL');
 
         if (null === $url) {
             $this->logger->error("L'URL de Plat'AU n'a pas pu être récupérée correctement.");
 
-            return null;
+            return ['body' => null, 'httpCode' => 0];
         }
 
         $curlOptions = $this->buildBaseCurlOptions();
@@ -278,18 +321,19 @@ class PlatauHealthcheckService
             $this->logger->error($error);
             curl_close($curlHandle);
 
-            return null;
+            return ['body' => null, 'httpCode' => 0];
         }
 
+        $httpCode = (int) curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
         curl_close($curlHandle);
 
         if (!is_string($data) || '' === $data) {
             $this->logger->error("Le healthcheck n'a rien renvoyé. Vérifiez que l'URL de Plat'AU est correctement renseignée.");
 
-            return null;
+            return ['body' => null, 'httpCode' => $httpCode];
         }
 
-        return $data;
+        return ['body' => $data, 'httpCode' => $httpCode];
     }
 
     /**
@@ -387,6 +431,10 @@ class PlatauHealthcheckService
      */
     private function getConstInFile(string $filepath, string $const): ?string
     {
+        if (!file_exists($filepath)) {
+            return null;
+        }
+
         $fileContent = file($filepath);
 
         if (false === $fileContent) {
