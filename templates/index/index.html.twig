@@ -126,9 +126,9 @@
                         const res = typeof result === 'object' ? result : JSON.parse(result);
 
                         if (res.success) {
-                            $.toast.success(res.message);
+                            $.toast.success(res.message, { autoClose: false });
                         } else {
-                            $.toast.error(res.message);
+                            $.toast.error(res.message, { autoClose: false });
                         }
 
                         if (res.maintenance !== null && res.maintenance !== undefined) {
