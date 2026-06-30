@@ -151,24 +151,28 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         $resultSetMapping->addFieldResult('f', 'f_LIBELLE_FONCTION', 'libelle');
         $resultSetMapping->addScalarResult('origin', 'origin');
 
-        $sql = <<<'SQL'
+        $selectCols = <<<'SQL'
+            c.ID_UTILISATEURINFORMATIONS,
+            c.NOM_UTILISATEURINFORMATIONS,
+            c.PRENOM_UTILISATEURINFORMATIONS,
+            c.TELFIXE_UTILISATEURINFORMATIONS,
+            c.TELPORTABLE_UTILISATEURINFORMATIONS,
+            c.TELFAX_UTILISATEURINFORMATIONS,
+            c.MAIL_UTILISATEURINFORMATIONS,
+            c.SOCIETE_UTILISATEURINFORMATIONS,
+            c.NUMEROADRESSE_UTILISATEURINFORMATIONS,
+            c.RUEADRESSE_UTILISATEURINFORMATIONS,
+            c.CPADRESSE_UTILISATEURINFORMATIONS,
+            c.VILLEADRESSE_UTILISATEURINFORMATIONS,
+            c.WEB_UTILISATEURINFORMATIONS,
+            c.OBS_UTILISATEURINFORMATIONS,
+            f.ID_FONCTION AS f_ID_FONCTION,
+            f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION
+SQL;
+
+        $sql = <<<SQL
             SELECT
-                c.ID_UTILISATEURINFORMATIONS,
-                c.NOM_UTILISATEURINFORMATIONS,
-                c.PRENOM_UTILISATEURINFORMATIONS,
-                c.TELFIXE_UTILISATEURINFORMATIONS,
-                c.TELPORTABLE_UTILISATEURINFORMATIONS,
-                c.TELFAX_UTILISATEURINFORMATIONS,
-                c.MAIL_UTILISATEURINFORMATIONS,
-                c.SOCIETE_UTILISATEURINFORMATIONS,
-                c.NUMEROADRESSE_UTILISATEURINFORMATIONS,
-                c.RUEADRESSE_UTILISATEURINFORMATIONS,
-                c.CPADRESSE_UTILISATEURINFORMATIONS,
-                c.VILLEADRESSE_UTILISATEURINFORMATIONS,
-                c.WEB_UTILISATEURINFORMATIONS,
-                c.OBS_UTILISATEURINFORMATIONS,
-                f.ID_FONCTION AS f_ID_FONCTION,
-                f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION,
+                {$selectCols},
                 'self' AS origin
             FROM etablissementcontact ec
             JOIN etablissement e0
@@ -182,22 +186,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             UNION ALL
 
             SELECT
-                c.ID_UTILISATEURINFORMATIONS,
-                c.NOM_UTILISATEURINFORMATIONS,
-                c.PRENOM_UTILISATEURINFORMATIONS,
-                c.TELFIXE_UTILISATEURINFORMATIONS,
-                c.TELPORTABLE_UTILISATEURINFORMATIONS,
-                c.TELFAX_UTILISATEURINFORMATIONS,
-                c.MAIL_UTILISATEURINFORMATIONS,
-                c.SOCIETE_UTILISATEURINFORMATIONS,
-                c.NUMEROADRESSE_UTILISATEURINFORMATIONS,
-                c.RUEADRESSE_UTILISATEURINFORMATIONS,
-                c.CPADRESSE_UTILISATEURINFORMATIONS,
-                c.VILLEADRESSE_UTILISATEURINFORMATIONS,
-                c.WEB_UTILISATEURINFORMATIONS,
-                c.OBS_UTILISATEURINFORMATIONS,
-                f.ID_FONCTION AS f_ID_FONCTION,
-                f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION,
+                {$selectCols},
                 'parent' AS origin
             FROM etablissementlie el1
             JOIN etablissement e1
@@ -212,22 +201,7 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
             UNION ALL
 
             SELECT
-                c.ID_UTILISATEURINFORMATIONS,
-                c.NOM_UTILISATEURINFORMATIONS,
-                c.PRENOM_UTILISATEURINFORMATIONS,
-                c.TELFIXE_UTILISATEURINFORMATIONS,
-                c.TELPORTABLE_UTILISATEURINFORMATIONS,
-                c.TELFAX_UTILISATEURINFORMATIONS,
-                c.MAIL_UTILISATEURINFORMATIONS,
-                c.SOCIETE_UTILISATEURINFORMATIONS,
-                c.NUMEROADRESSE_UTILISATEURINFORMATIONS,
-                c.RUEADRESSE_UTILISATEURINFORMATIONS,
-                c.CPADRESSE_UTILISATEURINFORMATIONS,
-                c.VILLEADRESSE_UTILISATEURINFORMATIONS,
-                c.WEB_UTILISATEURINFORMATIONS,
-                c.OBS_UTILISATEURINFORMATIONS,
-                f.ID_FONCTION AS f_ID_FONCTION,
-                f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION,
+                {$selectCols},
                 'parent' AS origin
             FROM etablissementlie el1
             JOIN etablissementlie el2 ON el2.ID_FILS_ETABLISSEMENT = el1.ID_ETABLISSEMENT
