@@ -145,10 +145,6 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
         $resultSetMapping->addFieldResult('c', 'VILLEADRESSE_UTILISATEURINFORMATIONS', 'villeAdresse');
         $resultSetMapping->addFieldResult('c', 'WEB_UTILISATEURINFORMATIONS', 'siteWeb');
         $resultSetMapping->addFieldResult('c', 'OBS_UTILISATEURINFORMATIONS', 'observations');
-        $resultSetMapping->addFieldResult('c', 'DATE_PRV2', 'datePrv2');
-        $resultSetMapping->addFieldResult('c', 'DATE_RECYCLAGE', 'dateRecyclage');
-        $resultSetMapping->addFieldResult('c', 'DATE_SID', 'dateSid');
-        $resultSetMapping->addFieldResult('c', 'GRADE_UTILISATEURINFORMATIONS', 'grade');
         // Fonction chargée en eager (LEFT JOIN) ; alias préfixé pour éviter un conflit de colonne
         $resultSetMapping->addJoinedEntityResult(Fonction::class, 'f', 'c', 'fonction');
         $resultSetMapping->addFieldResult('f', 'f_ID_FONCTION', 'id');
@@ -171,16 +167,13 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                 c.VILLEADRESSE_UTILISATEURINFORMATIONS,
                 c.WEB_UTILISATEURINFORMATIONS,
                 c.OBS_UTILISATEURINFORMATIONS,
-                c.DATE_PRV2,
-                c.DATE_RECYCLAGE,
-                c.DATE_SID,
-                c.GRADE_UTILISATEURINFORMATIONS,
                 f.ID_FONCTION AS f_ID_FONCTION,
                 f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION,
                 'self' AS origin
             FROM etablissementcontact ec
             JOIN etablissement e0
                 ON e0.ID_ETABLISSEMENT = ec.ID_ETABLISSEMENT
+                AND e0.DATESUPPRESSION_ETABLISSEMENT IS NULL
             JOIN utilisateurinformations c
                 ON c.ID_UTILISATEURINFORMATIONS = ec.ID_UTILISATEURINFORMATIONS
             LEFT JOIN fonction f ON f.ID_FONCTION = c.ID_FONCTION
@@ -203,10 +196,6 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                 c.VILLEADRESSE_UTILISATEURINFORMATIONS,
                 c.WEB_UTILISATEURINFORMATIONS,
                 c.OBS_UTILISATEURINFORMATIONS,
-                c.DATE_PRV2,
-                c.DATE_RECYCLAGE,
-                c.DATE_SID,
-                c.GRADE_UTILISATEURINFORMATIONS,
                 f.ID_FONCTION AS f_ID_FONCTION,
                 f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION,
                 'parent' AS origin
@@ -237,10 +226,6 @@ class EtablissementRepository extends ServiceEntityRepository implements HasCont
                 c.VILLEADRESSE_UTILISATEURINFORMATIONS,
                 c.WEB_UTILISATEURINFORMATIONS,
                 c.OBS_UTILISATEURINFORMATIONS,
-                c.DATE_PRV2,
-                c.DATE_RECYCLAGE,
-                c.DATE_SID,
-                c.GRADE_UTILISATEURINFORMATIONS,
                 f.ID_FONCTION AS f_ID_FONCTION,
                 f.LIBELLE_FONCTION AS f_LIBELLE_FONCTION,
                 'parent' AS origin
