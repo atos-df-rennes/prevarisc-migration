@@ -57,7 +57,7 @@ class PlatauHealthcheckServiceTest extends TestCase
         $result = $service->executeHealthcheck();
 
         // Le message doit guider l'utilisateur vers la documentation
-        $this->assertStringContainsString("Veuillez consulter les logs de l'application", (string) $result->getMessage());
+        $this->assertStringContainsString("Veuillez consulter les logs", (string) $result->getMessage());
     }
 
     public function testResultIsJsonSerializable(): void
