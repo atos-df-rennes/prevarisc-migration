@@ -80,7 +80,7 @@
 
 ---
 
-### Écart 5 — L'invalidation de cache prévue par la spec n'est pas portée en Symfony
+### Écart 5 — L'invalidation de cache prévue par la spec n'est pas portée en Symfony ✅ Accepté
 
 | | Détail |
 |---|--------|
@@ -89,9 +89,10 @@
 | **Symfony** | Aucun des contrôleurs migrés de contacts n'appelle de mécanisme d'invalidation après ajout / édition / suppression. |
 | **Legacy** | Le legacy tente d'invalider le cache à l'ajout (`application/controllers/ContactController.php:135-137`) et à l'édition (`application/controllers/ContactController.php:170-175`), mais l'implémentation reste partielle et la suppression vise une clé incorrecte (`application/controllers/ContactController.php:257-258`, usage de l'id contact au lieu de l'id entité). |
 | **Impact** | **Faible à moyen** — la spec n'est pas tenue dans Symfony ; l'écart existait déjà partiellement en legacy mais n'a pas été repris ni corrigé. |
+| **Justification** | L'écart a été accepté en retour utilisateur : le mécanisme de cache n'a pas été ajouté car le legacy montrait une implémentation partielle et défaillante. Aucune régression fonctionnelle ne résulte de ce choix — c'est une décision de priorisation. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/ContactController.php`, `prevarisc-migration/src/Controller/Etablissement/EtablissementContactController.php`, `prevarisc-migration/src/Controller/Dossier/DossierContactController.php`, `prevarisc-migration/src/Controller/GroupementController.php`, `prevarisc-migration/src/Controller/Commission/CommissionContactsController.php`, `prevarisc/application/controllers/ContactController.php` |
 
-**Retour utilisateur** : Écart de migration accepté. Le mécanisme de cache de l'entité n'a pour le moment pas été ajouté. De plus le legacy semble indiquer que l'invalidation ne fonctionnait pas correctement. Aucune action à prévoir sur ce point.
+**Retour utilisateur** : Écart de migration accepté. Le mécanisme de cache de l'entité n'a pour le moment pas été ajouté. De plus le legacy semble indiquer que l'invalidation ne fonctionnait pas correctement. **Aucune action à prévoir sur ce point.** ✅ **Validé — pas de correction requise**
 
 ---
 
