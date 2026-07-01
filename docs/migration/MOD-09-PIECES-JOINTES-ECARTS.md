@@ -73,6 +73,8 @@
 | **Impact** | **Élevé** — risque d'interprétation incorrecte des données existantes (plans legacy vus comme « liste principale »), plus création de miniatures superflues pour les images non mises en avant. |
 | **Fichiers concernés** | `prevarisc-migration/templates/etablissement/add_piece_jointe.html.twig`, `prevarisc-migration/src/Constant/PlacementEtablissementPj.php`, `prevarisc-migration/src/Repository/EtablissementPieceJointeRepository.php`, `prevarisc-migration/src/Service/EtablissementPieceJointeService.php`, `prevarisc/application/views/scripts/piece-jointe/form.phtml` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy, modifier les valeurs des constantes du fichier `PlacementEtablissementPj.php`. Quelle procédure pour le point sur les miniatures ?
+
 ---
 
 ### Écart 5 — La date d'ajout est stockée/affichée sans heure alors que la spec parle d'une date-heure
