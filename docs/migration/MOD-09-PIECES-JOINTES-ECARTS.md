@@ -27,6 +27,8 @@
 | **Impact** | **Élevé** — fonctionnalité métier absente côté Symfony ; les PJ de dossier ne peuvent plus être rattachées aux établissements associés comme en legacy. |
 | **Fichiers concernés** | `prevarisc-migration/templates/dossier/pieces_jointes/form.html.twig`, `prevarisc-migration/src/Controller/Dossier/DossierPiecesJointesController.php`, `prevarisc/application/views/scripts/piece-jointe/form.phtml`, `prevarisc/application/controllers/PieceJointeController.php` |
 
+**Retour utilisateur** : Bien que le formulaire legacy permette de cocher un établissement lié et que le controller traite la soumission, aucune miniature n'est créée pour l'affichage dans l'établissement et l'image n'apparaît donc jamais en front sur l'établissement. La fonctionnalité est fonctionnellement du code mort
+
 ---
 
 ### Écart 2 — La sélection unique d'une pièce jointe pour le passage en commission n'est pas disponible
