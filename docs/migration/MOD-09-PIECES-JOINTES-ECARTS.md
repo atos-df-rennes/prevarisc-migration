@@ -41,6 +41,8 @@
 | **Impact** | **Élevé** — la règle métier est présente en base mais plus exploitable dans l'UI Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierPiecesJointesController.php`, `prevarisc-migration/templates/dossier/pieces_jointes/_piece_jointe_row.html.twig`, `prevarisc/application/views/scripts/piece-jointe/index.phtml` |
 
+**Retour utilisateur** : Je n'ai jamais vu cette fonctionnalité dans l'application. Vérifier qu'il ne s'agit pas de code mort inatteignable.
+
 ---
 
 ### Écart 3 — Le téléchargement des pièces jointes de date de commission dépend encore du routing legacy
