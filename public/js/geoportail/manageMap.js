@@ -272,9 +272,10 @@ function getCapabilitiesLayers(parser, format, baseFormat, result) {
 }
 
 function putMarkerAt(viewer, center) {
-    // Retrait du marqueur si déjà présent
+    // Retrait du marqueur si déjà présent — on cible uniquement la couche marqueur
+    // (l'ancienne condition source.layer_===undefined supprimait aussi les couches WMS utilisateur)
     viewer.getLayers().forEach((layer) => {
-        if (layer.get('source').layer_ === undefined) {
+        if (layer.get('id') === 'Position du marqueur') {
             viewer.removeLayer(layer)
         }
     })

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CoucheCarto;
 use App\Form\CoucheCartoType;
 use App\Form\ReOrderCoucheCartoType;
+use App\Repository\CacheRepository;
 use App\Repository\CoucheCartoRepository;
 use App\Service\CouchesCarto;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,17 +26,20 @@ class CouchesCartographiquesController extends AbstractController
 
     /** @var LoggerInterface */
     private $logger;
-    /**
-     * @var CoucheCartoRepository
-     */
+
+    /** @var CoucheCartoRepository */
     private $coucheCartoRepository;
 
-    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository)
+    /** @var CacheRepository */
+    private $cacheRepository;
+
+    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository, CacheRepository $cacheRepository)
     {
         $this->couchesCarto = $couchesCarto;
         $this->serializer = $serializer;
         $this->logger = $logger;
         $this->coucheCartoRepository = $coucheCartoRepository;
+        $this->cacheRepository = $cacheRepository;
     }
 
     /**
@@ -78,6 +82,7 @@ class CouchesCartographiquesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($coucheCarto);
             $entityManager->flush();
+            $this->invalidateLegacyCache();
 
             $this->addFlash('success', 'La couche cartographique a été ajoutée.');
 
@@ -116,6 +121,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $entityManager->persist($coucheCarto);
             $entityManager->flush();
+            $this->invalidateLegacyCache();
             $this->addFlash('success', 'La couche cartographique IGN a été ajoutée.');
 
             return $this->redirectToRoute('couches_cartographiques');
@@ -149,6 +155,7 @@ class CouchesCartographiquesController extends AbstractController
             }
 
             $entityManager->flush();
+            $this->invalidateLegacyCache();
 
             return $this->redirectToRoute('couches_cartographiques');
         }
@@ -168,6 +175,7 @@ class CouchesCartographiquesController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $this->invalidateLegacyCache();
 
             $this->addFlash('success', 'La couche cartographique a bien été modifiée.');
 
@@ -188,11 +196,20 @@ class CouchesCartographiquesController extends AbstractController
     {
         try {
             $this->coucheCartoRepository->remove($coucheCarto);
+            $this->invalidateLegacyCache();
             $this->addFlash('success', 'La couche cartographique a été supprimée.');
         } catch (\Exception $exception) {
             $this->addFlash('danger', 'La couche cartographique n\'a pas été supprimée. Veuillez rééssayez. ('.$exception->getMessage().')');
         }
 
         return $this->redirectToRoute('couches_cartographiques');
+    }
+
+    private function invalidateLegacyCache(): void
+    {
+        $cache = $this->cacheRepository->find('couches_cartographiques');
+        if (null !== $cache) {
+            $this->cacheRepository->remove($cache);
+        }
     }
 }
