@@ -89,6 +89,8 @@
 | **Impact** | **Moyen** — la précision horaire demandée par la spec n'est ni conservée ni visible dans les deux implémentations. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierPiecesJointesController.php`, `prevarisc-migration/src/Controller/Commission/CalendrierDesCommissionsPiecesJointesController.php`, `prevarisc-migration/src/Entity/PieceJointe.php`, `prevarisc-migration/templates/dossier/pieces_jointes/_piece_jointe_row.html.twig`, `prevarisc/application/controllers/PieceJointeController.php`, `prevarisc/application/views/scripts/piece-jointe/display.phtml` |
 
+**Retour utilisateur** : Le legacy faisant foi, modifier la spec pour indiquer que l'on utilise uniquement la date. Ajuster l'implémentation Symfony pour n'utiliser que des Date et pas des DateTime.
+
 ---
 
 ### Écart 6 — Le legacy ne respecte pas toujours le nom par défaut « sans extension »
