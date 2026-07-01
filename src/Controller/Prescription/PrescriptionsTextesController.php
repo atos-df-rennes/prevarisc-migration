@@ -36,6 +36,22 @@ class PrescriptionsTextesController extends AbstractController
     }
 
     /**
+     * @var Prescriptions
+     */
+    private $servicePrescTextes;
+
+    /**
+     * @var PrescriptionTexteListeRepository
+     */
+    private $prescriptionTexteListeRepository;
+
+    public function __construct(Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    {
+        $this->servicePrescTextes = $servicePrescTextes;
+        $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
+    }
+
+    /**
      * @Route("/admin/prescriptions/textes/", name="admin_prescriptions_textes")
      */
     public function gestionTextes(): Response

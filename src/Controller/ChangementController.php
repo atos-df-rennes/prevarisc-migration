@@ -34,6 +34,22 @@ class ChangementController extends AbstractController
     }
 
     /**
+     * @var ChangementRepository
+     */
+    private $changementRepository;
+
+    /**
+     * @var Changement
+     */
+    private $changement;
+
+    public function __construct(ChangementRepository $changementRepository, Changement $changement)
+    {
+        $this->changementRepository = $changementRepository;
+        $this->changement = $changement;
+    }
+
+    /**
      * @Route("/admin/changement", name="admin_changement")
      */
     public function index(Request $request): Response
