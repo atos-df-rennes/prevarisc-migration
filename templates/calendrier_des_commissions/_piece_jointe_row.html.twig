@@ -1,6 +1,6 @@
 <tr id="pj-row-{{ pj.id }}">
     <td>
-        <a href="/piece-jointe/get/id/{{ dateCommission.id }}/idpj/{{ pj.id }}/type/dateCommission"
+        <a href="{{ path('piece_jointe_get_date_commission', {id: dateCommission.id, idpj: pj.id}) }}"
            target="_blank" rel="noopener noreferrer">
             {{ pj.nom }}{{ pj.extension }}
         </a>

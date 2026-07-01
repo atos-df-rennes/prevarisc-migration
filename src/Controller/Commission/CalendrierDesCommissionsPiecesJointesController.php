@@ -122,7 +122,7 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
             $pj->setDescription('' !== $description ? $description : null);
             $pj->setDate(new \DateTime());
 
-            $this->pieceJointeRepository->add($pj, false);
+            $this->pieceJointeRepository->add($pj);
 
             $filePath = $this->dataStore->getFilePath($pj, 'dateCommission', (int) $dateCommission->getId(), true);
             $fichier->move(dirname($filePath), basename($filePath));
