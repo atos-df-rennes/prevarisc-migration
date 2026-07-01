@@ -120,7 +120,7 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
             $pj->setExtension($extension);
             $pj->setNom($nom);
             $pj->setDescription('' !== $description ? $description : null);
-            $pj->setDate(new \DateTime());
+            $pj->setDate(new \DateTime('today'));
 
             $this->pieceJointeRepository->add($pj);
 
