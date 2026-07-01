@@ -75,6 +75,7 @@ class PieceJointeController extends AbstractController
             throw $this->createNotFoundException('Fichier introuvable ou illisible.');
         }
 
+        // @todo: utiliser la constante DataStoreObjectType lors du merge sur develop/
         $filename = $this->dataStore->getFormattedFilename($pieceJointe, 'etablissement', $id);
 
         $response = new BinaryFileResponse($filePath);
@@ -116,6 +117,7 @@ class PieceJointeController extends AbstractController
             throw $this->createNotFoundException('Fichier introuvable ou illisible.');
         }
 
+        // @todo: utiliser la constante DataStoreObjectType lors du merge sur develop/
         $filename = $this->dataStore->getFormattedFilename($pieceJointe, 'dateCommission', $id);
 
         $response = new BinaryFileResponse($filePath);
