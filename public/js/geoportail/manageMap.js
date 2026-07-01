@@ -44,7 +44,7 @@ function symfonyValueFallbackToZendValue(symfonyValue, zendValue) {
 
 function addUserLayers(viewer, layers) {
     layers.forEach(function(layer) {
-        const isBaseLayer = symfonyValueFallbackToZendValue(layer.isBaseLayer, layer.ISBASELAYER_COUCHECARTO)
+        const isBaseLayer = symfonyValueFallbackToZendValue(layer.isBaseLayer, symfonyValueFallbackToZendValue(layer.baseLayer, layer.ISBASELAYER_COUCHECARTO))
         if (isBaseLayer) {
             return
         }
