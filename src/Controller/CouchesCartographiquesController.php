@@ -53,8 +53,7 @@ class CouchesCartographiquesController extends AbstractController
             'key_googlemap' => $this->getParameter('app.google_map_key'),
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
-            // @todo: Le chemin n'est pas correct, à modifier
-            'autoconf_path' => file_exists($documentRoot.$autoconfPath),
+            'autoconf_path' => file_exists($documentRoot.$autoconfPath) ? $autoconfPath : '',
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),
