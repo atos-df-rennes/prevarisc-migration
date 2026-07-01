@@ -81,7 +81,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $this->addFlash('success', 'La couche cartographique a été ajoutée.');
 
-            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
+            return $this->redirectToRoute('couches_cartographiques');
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
@@ -118,7 +118,7 @@ class CouchesCartographiquesController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'La couche cartographique IGN a été ajoutée.');
 
-            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
+            return $this->redirectToRoute('couches_cartographiques');
         }
 
         $couchesIGN = $this->couchesCarto->getCouchesIGN();
@@ -150,7 +150,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $entityManager->flush();
 
-            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
+            return $this->redirectToRoute('couches_cartographiques');
         }
 
         return $this->render('couches_cartographiques/change_order.html.twig', [
@@ -171,7 +171,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $this->addFlash('success', 'La couche cartographique a bien été modifiée.');
 
-            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
+            return $this->redirectToRoute('couches_cartographiques');
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
@@ -193,6 +193,6 @@ class CouchesCartographiquesController extends AbstractController
             $this->addFlash('danger', 'La couche cartographique n\'a pas été supprimée. Veuillez rééssayez. ('.$exception->getMessage().')');
         }
 
-        return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
+        return $this->redirectToRoute('couches_cartographiques');
     }
 }
