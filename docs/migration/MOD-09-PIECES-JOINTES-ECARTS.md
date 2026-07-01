@@ -107,6 +107,8 @@
 
 **Retour utilisateur** : Correction d'un bug du legacy dans le code Symfony -> amélioration donc aucune action à prévoir sur ce point.
 
+**Validation utilisateur** (2026-07-01) : Correction appliquée. La méthode `pathinfo(..., PATHINFO_FILENAME)` a été alignée dans les deux contrôleurs (`DossierPiecesJointesController.php:220` et `CalendrierDesCommissionsPiecesJointesController.php:115`) pour extraire correctement le nom du fichier sans extension, quel que soit sa longueur (`.jpeg`, `.docx`, etc.). Le bug legacy qui tronquait brutalement les 4 derniers caractères est donc corrigé.
+
 ---
 
 ## Comportements alignés (confirmés)
