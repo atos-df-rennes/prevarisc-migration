@@ -193,7 +193,12 @@ final class CouchesCarto
                 return $couchesIGN;
             }
 
-            $couchesIGN[$format] = $this->getCapabilitiesLayers($capabilities, $format);
+            try {
+                $couchesIGN[$format] = $this->getCapabilitiesLayers($capabilities, $format);
+            } catch (\Exception $exception) {
+                $this->logger->error(sprintf('Erreur lors du parsing des capabilities IGN pour le format %s : %s', $format, $exception->getMessage()));
+                $couchesIGN[$format] = [];
+            }
         }
 
         return $couchesIGN;
