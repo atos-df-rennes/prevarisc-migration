@@ -54,34 +54,6 @@ class UtilisateursController extends AbstractController
     }
 
     /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
-
-    /**
-     * @var GroupeRepository
-     */
-    private $groupeRepository;
-
-    /**
-     * @var Avatar
-     */
-    private $avatar;
-
-    /**
-     * @var Image
-     */
-    private $image;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image)
-    {
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->groupeRepository = $groupeRepository;
-        $this->avatar = $avatar;
-        $this->image = $image;
-    }
-
-    /**
      * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
      */
     public function utilisateurs(): Response
