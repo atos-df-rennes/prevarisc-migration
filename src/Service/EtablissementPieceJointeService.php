@@ -121,7 +121,10 @@ final class EtablissementPieceJointeService
             $this->entityManager->persist($etablissementPJ);
             $this->entityManager->flush();
 
-            if (in_array($extension, $imageExtensions)) {
+            if (
+                in_array($extension, $imageExtensions)
+                && in_array($placement, PlacementEtablissementPj::MISES_EN_AVANT, true)
+            ) {
                 $miniaturePjHelper = clone $pieceJointe;
                 $miniaturePjHelper->setExtension('.jpg');
                 $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId(), true);
