@@ -44,11 +44,6 @@ function symfonyValueFallbackToZendValue(symfonyValue, zendValue) {
 
 function addUserLayers(viewer, layers) {
     layers.forEach(function(layer) {
-        const isBaseLayer = symfonyValueFallbackToZendValue(layer.baseLayer, layer.ISBASELAYER_COUCHECARTO)
-        if (isBaseLayer) {
-            return
-        }
-
         const type = symfonyValueFallbackToZendValue(layer.type, layer.TYPE_COUCHECARTO)
         switch (type) {
             case 'WMS':
