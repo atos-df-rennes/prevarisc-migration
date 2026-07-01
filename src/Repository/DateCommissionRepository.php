@@ -49,6 +49,25 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne la date de commission passée en paramètre uniquement si la pièce jointe
+     * lui est bien rattachée (relation ManyToMany DateCommission <-> PieceJointe).
+     */
+    public function findOneByPieceJointe(int $dateCommissionId, int $pieceJointeId): ?DateCommission
+    {
+        $queryBuilder = $this->createQueryBuilder('dc');
+
+        return $queryBuilder
+            ->join('dc.piecesJointes', 'pj')
+            ->where('dc.id = :dateCommissionId')
+            ->andWhere('pj.id = :pieceJointeId')
+            ->setParameter('dateCommissionId', $dateCommissionId)
+            ->setParameter('pieceJointeId', $pieceJointeId)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
      * Retourne les dates de commission liées à la date de commission passée en paramètre.
      *
      * @return DateCommission[]

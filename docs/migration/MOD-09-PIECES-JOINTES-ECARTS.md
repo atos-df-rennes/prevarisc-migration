@@ -59,6 +59,8 @@
 
 **Retour utilisateur** : Écart de migration confirmé. Implémenter dans `PieceJointeController.php` sur le même modèle qu'établissement (`linkedObjectType` à modifier par `dateCommission` et Repository à modifier aussi (soit créer `DateCommissionPieceJointeRepository`, soit utiliser `DateCommissionRepository` avec `findOneBy['dateCommission' => $dateCommission, 'piecesJointe' => $pieceJointe]`.
 
+**Correction appliquée** (2026-07-01) : Ajout de la route Symfony native `piece_jointe_get_date_commission` (`src/Controller/PieceJointeController.php::getDateCommission()`), sur le même modèle que `getEtablissement()` : vérification de l'existence de la pièce jointe, contrôle du rattachement à la date de commission via la nouvelle méthode `DateCommissionRepository::findOneByPieceJointe()` (jointure DQL sur la relation `ManyToMany` `DateCommission::piecesJointes`), puis téléchargement via `DataStore` (le type `dateCommission` était déjà pris en charge par `SimpleFileDataStore`). Le template `templates/calendrier_des_commissions/_piece_jointe_row.html.twig` pointe désormais vers `path('piece_jointe_get_date_commission', ...)` au lieu de l'URL Zend historique. La dépendance au contrôleur legacy pour ce flux est supprimée.
+
 ---
 
 ### Écart 4 — Les valeurs de placement établissement ne sont pas compatibles avec le legacy et la génération des miniatures est plus large que prévu
@@ -112,7 +114,7 @@
 
 ## Recommandations
 1. ~~Porter en priorité la liaison PJ dossier ↔ établissements et la sélection « passage en commission »~~ — Écarts 1 et 2 confirmés comme code mort legacy, aucune reprise nécessaire.
-2. Ajouter une vraie route Symfony de téléchargement pour les PJ de date de commission afin de supprimer la dépendance au contrôleur Zend.
+2. ~~Ajouter une vraie route Symfony de téléchargement pour les PJ de date de commission afin de supprimer la dépendance au contrôleur Zend.~~ — Écart 3 corrigé.
 3. Clarifier puis migrer la sémantique des valeurs `PLACEMENT_ETABLISSEMENTPJ` avant toute reprise de données, sinon les plans legacy seront interprétés à tort.
 4. Décider explicitement si la date d'ajout doit rester une simple date (comme historiquement) ou devenir une vraie date-heure conforme à la spec.
 5. Conserver le correctif Symfony sur le nom par défaut et documenter ce bug legacy dans le rapport de migration.
