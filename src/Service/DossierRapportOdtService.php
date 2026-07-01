@@ -1226,7 +1226,6 @@ class DossierRapportOdtService
         $dpj = new DossierPieceJointe();
         $dpj->setPieceJointe($pj);
         $dpj->setDossier($dossier);
-        $dpj->setPieceJointeCommission(false);
 
         $this->em->persist($dpj);
         $this->em->flush();

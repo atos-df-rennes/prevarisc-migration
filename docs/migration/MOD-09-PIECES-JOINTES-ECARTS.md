@@ -43,7 +43,7 @@
 
 **Retour utilisateur** : Je n'ai jamais vu cette fonctionnalité dans l'application. Vérifier qu'il ne s'agit pas de code mort inatteignable.
 
-**Validation utilisateur** (2026-07-01) : Confirmé — code mort inatteignable en legacy. Le handler JS `.select` (`application/views/scripts/piece-jointe/index.phtml:150-176`) ne cible aucun élément réel : `display.phtml` ne génère jamais de case à cocher avec la classe `select`. De plus, l'endpoint appelé côté serveur (`/dossier/fonction?do=pjPassageCommission`) ne correspond à aucune `fonctionAction` dans `DossierController` (ni ailleurs dans le legacy) — l'appel AJAX échouerait systématiquement. La fonctionnalité n'a donc jamais été opérationnelle. **✅ Aucune action requise — la non-reprise en Symfony ne constitue pas une régression**.
+**Validation utilisateur** (2026-07-01) : Confirmé — code mort inatteignable en legacy. Le handler JS `.select` (`application/views/scripts/piece-jointe/index.phtml:150-176`) ne cible aucun élément réel : `display.phtml` ne génère jamais de case à cocher avec la classe `select`. De plus, l'endpoint appelé côté serveur (`/dossier/fonction?do=pjPassageCommission`) ne correspond à aucune `fonctionAction` dans `DossierController` (ni ailleurs dans le legacy) — l'appel AJAX échouerait systématiquement. La fonctionnalité n'a donc jamais été opérationnelle. **✅ Correction appliquée** — suppression de l'initialisation morte `$dpj->setPieceJointeCommission(false)` dans `DossierPiecesJointesController.php` et `DossierRapportOdtService.php` (le champ `pieceJointeCommission` de l'entité `DossierPieceJointe` est conservé pour la compatibilité des données existantes, mais n'est plus positionné explicitement à la création puisque non exploité).
 
 ---
 
