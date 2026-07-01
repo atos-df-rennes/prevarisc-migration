@@ -44,6 +44,11 @@ function symfonyValueFallbackToZendValue(symfonyValue, zendValue) {
 
 function addUserLayers(viewer, layers) {
     layers.forEach(function(layer) {
+        const isBaseLayer = symfonyValueFallbackToZendValue(layer.isBaseLayer, layer.ISBASELAYER_COUCHECARTO)
+        if (isBaseLayer) {
+            return
+        }
+
         const type = symfonyValueFallbackToZendValue(layer.type, layer.TYPE_COUCHECARTO)
         switch (type) {
             case 'WMS':
@@ -83,10 +88,9 @@ function addWmsLayer(viewer, wmsLayer) {
         layer.setZIndex(ordre)
     }
 
-    layer.set('title', nom)
+    // Le SDK lit getLayerInfo(layer).id pour nommer la couche dans le switcher
+    layer.set('id', nom)
     viewer.getLibMap().addLayer(layer)
-    // La couche la plus récente est toujours en tête du switcher (index 0)
-    $('.GPlayerName').eq(0).text(nom).attr('title', nom)
 }
 
 function addWmtsLayer(viewer, wmtsLayer) {
@@ -159,10 +163,8 @@ function addWmtsLayer(viewer, wmtsLayer) {
                 layer.setZIndex(ordre)
             }
 
-            layer.set('title', nom)
+            layer.set('id', nom)
             viewer.getLibMap().addLayer(layer)
-            // La couche la plus récente est toujours en tête du switcher (index 0)
-            $('.GPlayerName').eq(0).text(nom).attr('title', nom)
         }
     })
 }
@@ -294,11 +296,8 @@ function putMarkerAt(viewer, center) {
         source: vectorSource,
         style: styleMarker
     });
-    vectorLayer.set('title', 'Position du marqueur')
+    vectorLayer.set('id', 'Position du marqueur')
     viewer.addLayer(vectorLayer);
-
-    // On renomme la couche
-    $('.GPlayerName').eq(0).text('Position du marqueur');
 }
 
 function updateCoordinates(center, sourceProj, destProj) {
