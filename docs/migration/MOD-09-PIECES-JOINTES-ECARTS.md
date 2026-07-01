@@ -105,6 +105,8 @@
 | **Impact** | **Faible à moyen** — nom par défaut potentiellement tronqué de manière incorrecte en legacy ; Symfony corrige ce point. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierPiecesJointesController.php`, `prevarisc-migration/src/Controller/Commission/CalendrierDesCommissionsPiecesJointesController.php`, `prevarisc/application/controllers/PieceJointeController.php` |
 
+**Retour utilisateur** : Correction d'un bug du legacy dans le code Symfony -> amélioration donc aucune action à prévoir sur ce point.
+
 ---
 
 ## Comportements alignés (confirmés)
