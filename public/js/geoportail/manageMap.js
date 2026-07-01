@@ -62,6 +62,8 @@ function addUserLayers(viewer, layers) {
 }
 
 function addWmsLayer(viewer, wmsLayer) {
+    const nom = symfonyValueFallbackToZendValue(wmsLayer.nom, wmsLayer.NOM_COUCHECARTO)
+
     const source = new ol.source.TileWMS({
         url: symfonyValueFallbackToZendValue(wmsLayer.url, wmsLayer.URL_COUCHECARTO),
         params: {
@@ -81,15 +83,14 @@ function addWmsLayer(viewer, wmsLayer) {
         layer.setZIndex(ordre)
     }
 
-    viewer.getLibMap().addLayer(layer);
-
-    const nom = symfonyValueFallbackToZendValue(wmsLayer.nom, wmsLayer.NOM_COUCHECARTO)
-    // On renomme les couches utilisateurs
-    $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(nom)
-    .attr('title', nom)
+    layer.set('title', nom)
+    viewer.getLibMap().addLayer(layer)
+    // La couche la plus récente est toujours en tête du switcher (index 0)
+    $('.GPlayerName').eq(0).text(nom).attr('title', nom)
 }
 
 function addWmtsLayer(viewer, wmtsLayer) {
+    const nom = symfonyValueFallbackToZendValue(wmtsLayer.nom, wmtsLayer.NOM_COUCHECARTO)
     const format = 'wmts'
     const baseFormat = 'wmts'
     // Projection EPSG:3857
@@ -130,6 +131,11 @@ function addWmtsLayer(viewer, wmtsLayer) {
             Permet d'avoir des informations complémentaires non renseignées par l'utilisateur pour l'ajout de la couche */
             const wmtsLayerCapability = wmtsCapabilities.find(wmtsCapability => wmtsCapability.internalName === symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO))
 
+            if (!wmtsLayerCapability) {
+                console.error('Couche WMTS introuvable dans les capabilities : ' + symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO))
+                return
+            }
+
             const source = new ol.source.WMTS({
                 url: symfonyValueFallbackToZendValue(wmtsLayer.url, wmtsLayer.URL_COUCHECARTO),
                 layer: symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO),
@@ -153,12 +159,10 @@ function addWmtsLayer(viewer, wmtsLayer) {
                 layer.setZIndex(ordre)
             }
 
-            viewer.getLibMap().addLayer(layer);
-
-            const nom = symfonyValueFallbackToZendValue(wmtsLayer.nom, wmtsLayer.NOM_COUCHECARTO)
-            // On renomme les couches utilisateurs
-            $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(nom)
-              .attr('title', nom)
+            layer.set('title', nom)
+            viewer.getLibMap().addLayer(layer)
+            // La couche la plus récente est toujours en tête du switcher (index 0)
+            $('.GPlayerName').eq(0).text(nom).attr('title', nom)
         }
     })
 }
@@ -290,10 +294,11 @@ function putMarkerAt(viewer, center) {
         source: vectorSource,
         style: styleMarker
     });
+    vectorLayer.set('title', 'Position du marqueur')
     viewer.addLayer(vectorLayer);
 
     // On renomme la couche
-    $('.GPlayerName').eq(-(viewer.getLayers().getLength())).text('Position du marqueur');
+    $('.GPlayerName').eq(0).text('Position du marqueur');
 }
 
 function updateCoordinates(center, sourceProj, destProj) {
