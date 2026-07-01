@@ -91,7 +91,7 @@ final class EtablissementPieceJointeService
         }
 
         $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-        $placement = in_array($mise_en_avant, PlacementEtablissementPj::ALL) && in_array($extension, $imageExtensions)
+        $placement = in_array($mise_en_avant, PlacementEtablissementPj::MISES_EN_AVANT) && in_array($extension, $imageExtensions)
             ? $mise_en_avant
             : PlacementEtablissementPj::LISTE;
 
@@ -121,7 +121,10 @@ final class EtablissementPieceJointeService
             $this->entityManager->persist($etablissementPJ);
             $this->entityManager->flush();
 
-            if (in_array($extension, $imageExtensions)) {
+            if (
+                in_array($extension, $imageExtensions)
+                && in_array($placement, PlacementEtablissementPj::MISES_EN_AVANT, true)
+            ) {
                 $miniaturePjHelper = clone $pieceJointe;
                 $miniaturePjHelper->setExtension('.jpg');
                 $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId(), true);

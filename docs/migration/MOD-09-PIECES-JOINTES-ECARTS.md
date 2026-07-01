@@ -73,6 +73,10 @@
 | **Impact** | **Élevé** — risque d'interprétation incorrecte des données existantes (plans legacy vus comme « liste principale »), plus création de miniatures superflues pour les images non mises en avant. |
 | **Fichiers concernés** | `prevarisc-migration/templates/etablissement/add_piece_jointe.html.twig`, `prevarisc-migration/src/Constant/PlacementEtablissementPj.php`, `prevarisc-migration/src/Repository/EtablissementPieceJointeRepository.php`, `prevarisc-migration/src/Service/EtablissementPieceJointeService.php`, `prevarisc/application/views/scripts/piece-jointe/form.phtml` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner sur le legacy, modifier les valeurs des constantes du fichier `PlacementEtablissementPj.php`. Quelle procédure pour le point sur les miniatures ?
+
+**Correction appliquée** (2026-07-01) : Alignement complet sur le legacy. (1) Constantes `PlacementEtablissementPj` inversées : `LISTE = null`, `DIAPORAMA = 1`, `PLANS = 0` (le legacy utilisait `null` pour liste, `1` pour diaporama, `0` pour plans). (2) Template Symfony ajusté : valeurs radio `value=""` (liste), `value="1"` (diaporama), `value="0"` (plans). (3) Repository `getPlans()` corrigé : condition `placement = 0` au lieu de `placement = 2`. (4) Service `EtablissementPieceJointeService` restreint : la génération de miniature 450 px est désormais conditionnée à `placement !== null && in_array(placement, [DIAPORAMA, PLANS])`, éliminant les miniatures superflues pour les images non mises en avant. Cette modification assure que les données legacy (plans avec `placement = 0`) sont correctement interprétées et que les miniatures ne sont créées que pour les images réellement exposées.
+
 ---
 
 ### Écart 5 — La date d'ajout est stockée/affichée sans heure alors que la spec parle d'une date-heure
