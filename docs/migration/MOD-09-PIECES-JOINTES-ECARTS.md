@@ -91,6 +91,8 @@
 
 **Retour utilisateur** : Le legacy faisant foi, modifier la spec pour indiquer que l'on utilise uniquement la date. Ajuster l'implémentation Symfony pour n'utiliser que des Date et pas des DateTime.
 
+**Correction appliquée** (2026-07-01) : Alignement sur le comportement legacy. (1) Les deux contrôleurs `DossierPiecesJointesController` et `CalendrierDesCommissionsPiecesJointesController` utilisent désormais `new \DateTime('today')` au lieu de `new \DateTime()`, garantissant que seule la date (sans heure) est effectivement utilisée lors de la création. (2) L'entité `PieceJointe` conserve le mapping `type="date"` qui n'extraira que le composant date. (3) Les templates continuent à afficher uniquement la date au format `d/m/Y`. Cette modification assure la cohérence : la date d'ajout est traitée comme une simple date (conformément au comportement historique legacy), sans prétention à la précision horaire.
+
 ---
 
 ### Écart 6 — Le legacy ne respecte pas toujours le nom par défaut « sans extension »
