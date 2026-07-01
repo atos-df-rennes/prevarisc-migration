@@ -57,6 +57,8 @@
 | **Impact** | **Élevé** — la consultation des PJ de commission reste couplée au legacy ; la migration n'est pas autonome sur ce flux. |
 | **Fichiers concernés** | `prevarisc-migration/templates/calendrier_des_commissions/_piece_jointe_row.html.twig`, `prevarisc-migration/src/Controller/PieceJointeController.php`, `prevarisc/application/controllers/PieceJointeController.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. Implémenter dans `PieceJointeController.php` sur le même modèle qu'établissement (`linkedObjectType` à modifier par `dateCommission` et Repository à modifier aussi (soit créer `DateCommissionPieceJointeRepository`, soit utiliser `DateCommissionRepository` avec `findOneBy['dateCommission' => $dateCommission, 'piecesJointe' => $pieceJointe]`.
+
 ---
 
 ### Écart 4 — Les valeurs de placement établissement ne sont pas compatibles avec le legacy et la génération des miniatures est plus large que prévu
