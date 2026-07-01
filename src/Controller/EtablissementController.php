@@ -26,14 +26,17 @@ class EtablissementController extends AbstractController
      * @var EtablissementService
      */
     private $etablissementService;
+
     /**
      * @var EtablissementRepository
      */
     private $etablissementRepository;
+
     /**
      * @var UtilisateurInformationsRepository
      */
     private $utilisateurInformationsRepository;
+
     /**
      * @var Contact
      */

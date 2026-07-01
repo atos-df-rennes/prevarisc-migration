@@ -20,6 +20,7 @@ class TextesApplicablesController extends AbstractController
      * @var TexteApplicableRepository
      */
     private $texteApplicableRepository;
+
     /**
      * @var \App\Service\TexteApplicable
      */

@@ -20,6 +20,7 @@ class ChangementController extends AbstractController
      * @var ChangementRepository
      */
     private $changementRepository;
+
     /**
      * @var Changement
      */

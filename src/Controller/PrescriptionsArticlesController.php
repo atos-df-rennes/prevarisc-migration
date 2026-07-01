@@ -22,6 +22,7 @@ class PrescriptionsArticlesController extends AbstractController
      * @var Prescriptions
      */
     private $servicePresc;
+
     /**
      * @var PrescriptionArticleListeRepository
      */

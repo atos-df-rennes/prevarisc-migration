@@ -27,14 +27,17 @@ class UtilisateursController extends AbstractController
      * @var UtilisateurRepository
      */
     private $utilisateurRepository;
+
     /**
      * @var GroupeRepository
      */
     private $groupeRepository;
+
     /**
      * @var Avatar
      */
     private $avatar;
+
     /**
      * @var Image
      */

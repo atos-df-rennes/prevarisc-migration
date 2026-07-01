@@ -27,18 +27,22 @@ class ChampController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+
     /**
      * @var FormFactoryInterface
      */
     private $formFactory;
+
     /**
      * @var ChampRepository
      */
     private $champRepository;
+
     /**
      * @var ChampValeurListeRepository
      */
     private $champValeurListeRepository;
+
     /**
      * @var TypeChampRepository
      */

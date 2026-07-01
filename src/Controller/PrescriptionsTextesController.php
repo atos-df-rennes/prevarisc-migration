@@ -22,6 +22,7 @@ class PrescriptionsTextesController extends AbstractController
      * @var Prescriptions
      */
     private $servicePrescTextes;
+
     /**
      * @var PrescriptionTexteListeRepository
      */
