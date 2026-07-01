@@ -19,11 +19,27 @@ use Symfony\Component\Routing\Annotation\Route;
 class PrescriptionsTextesController extends AbstractController
 {
     /**
+     * @var Prescriptions
+     */
+    private $servicePrescTextes;
+
+    /**
+     * @var PrescriptionTexteListeRepository
+     */
+    private $prescriptionTexteListeRepository;
+
+    public function __construct(Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    {
+        $this->servicePrescTextes = $servicePrescTextes;
+        $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
+    }
+
+    /**
      * @Route("/admin/prescriptions/textes/", name="admin_prescriptions_textes")
      */
-    public function gestionTextes(Prescriptions $servicePrescTextes): Response
+    public function gestionTextes(): Response
     {
-        $listeTextes = $servicePrescTextes->getTextesListe();
+        $listeTextes = $this->servicePrescTextes->getTextesListe();
 
         return $this->render('prescriptions_textes/textes.html.twig', [
             'liste_textes' => $listeTextes,
@@ -68,8 +84,7 @@ class PrescriptionsTextesController extends AbstractController
      */
     public function suppressionTexte(
         Request $request,
-        PrescriptionTexteListe $texteListe,
-        PrescriptionTexteListeRepository $prescriptionTexteListeRepository
+        PrescriptionTexteListe $texteListe
     ): Response {
         $form = $this->createForm(ReplacePrescriptionTexteListeType::class);
         $form->handleRequest($request);
@@ -82,7 +97,7 @@ class PrescriptionsTextesController extends AbstractController
             }
 
             try {
-                $prescriptionTexteListeRepository->replaceAndRemove($texteListe, $newTexte);
+                $this->prescriptionTexteListeRepository->replaceAndRemove($texteListe, $newTexte);
                 $this->addFlash('success', 'Le texte a bien été supprimé');
             } catch (\Exception $e) {
                 $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du texte (".$e->getMessage().')');

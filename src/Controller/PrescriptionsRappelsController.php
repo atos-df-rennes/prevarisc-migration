@@ -17,13 +17,23 @@ use Symfony\Component\Routing\Annotation\Route;
 class PrescriptionsRappelsController extends AbstractController
 {
     /**
+     * @var Prescriptions
+     */
+    private $prescriptions;
+
+    public function __construct(Prescriptions $prescriptions)
+    {
+        $this->prescriptions = $prescriptions;
+    }
+
+    /**
      * @Route("/admin/prescriptions/rappels", name="admin_prescriptions_rappels")
      */
-    public function index(Prescriptions $prescriptions): Response
+    public function index(): Response
     {
         return $this->render('prescriptions_rappels/index.html.twig', [
-            'listePrescEtude' => $prescriptions->getPrescriptions('etude'),
-            'listePrescVisite' => $prescriptions->getPrescriptions('visite'),
+            'listePrescEtude' => $this->prescriptions->getPrescriptions('etude'),
+            'listePrescVisite' => $this->prescriptions->getPrescriptions('visite'),
         ]);
     }
 

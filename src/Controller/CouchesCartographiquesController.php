@@ -26,20 +26,22 @@ class CouchesCartographiquesController extends AbstractController
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger)
+    /** @var CoucheCartoRepository */
+    private $coucheCartoRepository;
+
+    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository)
     {
         $this->couchesCarto = $couchesCarto;
         $this->serializer = $serializer;
         $this->logger = $logger;
+        $this->coucheCartoRepository = $coucheCartoRepository;
     }
 
     /**
      * @Route("/admin/couches-cartographiques", name="couches_cartographiques")
      */
-    public function index(CoucheCartoRepository $coucheCartoRepository): Response
+    public function index(): Response
     {
-        /** @var string $documentRoot */
-        $documentRoot = $_SERVER['DOCUMENT_ROOT'];
         /** @var string $autoconfPath */
         $autoconfPath = $this->getParameter('app.carto_autoconf_path');
 
@@ -49,14 +51,13 @@ class CouchesCartographiquesController extends AbstractController
             'key_googlemap' => $this->getParameter('app.google_map_key'),
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
-            // @todo: Le chemin n'est pas correct, à modifier
-            'autoconf_path' => file_exists($documentRoot.$autoconfPath),
+            'autoconf_path' => file_exists($autoconfPath) ? $autoconfPath : '',
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),
             'geoconcept_layer' => $this->getParameter('app.geoconcept_layer'),
-            'couches_cartographiques' => $coucheCartoRepository->findAllOrdered(),
-            'couches_cartographiques_json_encoded' => $this->serializer->serialize($coucheCartoRepository->findAllOrdered(), 'json')
+            'couches_cartographiques' => $this->coucheCartoRepository->findAllOrdered(),
+            'couches_cartographiques_json_encoded' => $this->serializer->serialize($this->coucheCartoRepository->findAllOrdered(), 'json')
         ]);
     }
 
@@ -76,7 +77,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $this->addFlash('success', 'La couche cartographique a été ajoutée.');
 
-            return $this->redirectToRoute('couches_cartographiques');
+            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
@@ -113,7 +114,7 @@ class CouchesCartographiquesController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'La couche cartographique IGN a été ajoutée.');
 
-            return $this->redirectToRoute('couches_cartographiques');
+            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
         }
 
         $couchesIGN = $this->couchesCarto->getCouchesIGN();
@@ -131,9 +132,9 @@ class CouchesCartographiquesController extends AbstractController
     /**
      * @Route("/admin/couches-cartographiques/reordonner", name="couches_cartographiques_order")
      */
-    public function changerOrdre(Request $request, CoucheCartoRepository $coucheCartoRepository, EntityManagerInterface $entityManager): Response
+    public function changerOrdre(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $couchesCarto = $coucheCartoRepository->findAllOrdered();
+        $couchesCarto = $this->coucheCartoRepository->findAllOrdered();
 
         $form = $this->createForm(ReOrderCoucheCartoType::class, ['couchesCarto' => $couchesCarto]);
 
@@ -145,7 +146,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $entityManager->flush();
 
-            return $this->redirectToRoute('couches_cartographiques');
+            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
         }
 
         return $this->render('couches_cartographiques/change_order.html.twig', [
@@ -166,7 +167,7 @@ class CouchesCartographiquesController extends AbstractController
 
             $this->addFlash('success', 'La couche cartographique a bien été modifiée.');
 
-            return $this->redirectToRoute('couches_cartographiques');
+            return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
@@ -179,15 +180,15 @@ class CouchesCartographiquesController extends AbstractController
     /**
      * @Route("/admin/couches-cartographiques/{id}/supprimer", name="couche_cartographique_delete")
      */
-    public function supprimer(CoucheCarto $coucheCarto, CoucheCartoRepository $coucheCartoRepository): Response
+    public function supprimer(CoucheCarto $coucheCarto): Response
     {
         try {
-            $coucheCartoRepository->remove($coucheCarto);
+            $this->coucheCartoRepository->remove($coucheCarto);
             $this->addFlash('success', 'La couche cartographique a été supprimée.');
         } catch (\Exception $exception) {
             $this->addFlash('danger', 'La couche cartographique n\'a pas été supprimée. Veuillez rééssayez. ('.$exception->getMessage().')');
         }
 
-        return $this->redirectToRoute('couches_cartographiques');
+        return $this->redirect('/legacy/admin/couches-cartographiques/vider-cache');
     }
 }

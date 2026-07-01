@@ -131,9 +131,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.carto_default_lat', '%env(float:PREVARISC_CARTO_DEFAULT_LAT)%');
 
-    $parameters->set('env(PREVARISC_CARTO_AUTOCONF_PATH)', '');
+    $parameters->set('env(PREVARISC_IGN_AUTOCONF)', '');
 
-    $parameters->set('app.carto_autoconf_path', '%env(string:PREVARISC_CARTO_AUTOCONF_PATH)%');
+    $parameters->set('app.carto_autoconf_path', '%app.prevarisc_path%/public%env(string:PREVARISC_IGN_AUTOCONF)%');
 
     $parameters->set('env(PREVARISC_PLUGIN_GOOGLEMAPKEY)', '');
 

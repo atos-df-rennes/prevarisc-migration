@@ -21,22 +21,44 @@ use Symfony\Component\Routing\Annotation\Route;
 class TableauDesPeriodicitesController extends AbstractController
 {
     /**
+     * @var PeriodiciteRepository
+     */
+    private $periodiciteRepository;
+
+    /**
+     * @var EtablissementTypeRepository
+     */
+    private $etablissementTypeRepository;
+
+    /**
+     * @var EtablissementCategorieRepository
+     */
+    private $etablissementCategorieRepository;
+
+    /**
+     * @var IghClasseRepository
+     */
+    private $ighClasseRepository;
+
+    public function __construct(PeriodiciteRepository $periodiciteRepository, EtablissementTypeRepository $etablissementTypeRepository, EtablissementCategorieRepository $etablissementCategorieRepository, IghClasseRepository $ighClasseRepository)
+    {
+        $this->periodiciteRepository = $periodiciteRepository;
+        $this->etablissementTypeRepository = $etablissementTypeRepository;
+        $this->etablissementCategorieRepository = $etablissementCategorieRepository;
+        $this->ighClasseRepository = $ighClasseRepository;
+    }
+
+    /**
      * @Route("/admin/tableau-des-periodicites", name="admin_tableau_des_periodicites")
      */
-    public function index(
-        PeriodiciteRepository $periodiciteRepository,
-        EtablissementTypeRepository $etablissementTypeRepository,
-        EtablissementCategorieRepository $etablissementCategorieRepository,
-        IghClasseRepository $ighClasseRepository
-    ): Response {
-        $periodicites = $periodiciteRepository->findAll();
-        $types = $etablissementTypeRepository->findAll();
-        $categories = $etablissementCategorieRepository->findAll();
-        $classes = $ighClasseRepository->findAll();
+    public function index(): Response
+    {
+        $periodicites = $this->periodiciteRepository->findAll();
+        $types = $this->etablissementTypeRepository->findAll();
+        $categories = $this->etablissementCategorieRepository->findAll();
+        $classes = $this->ighClasseRepository->findAll();
         $localSommeilTypes = $this->getParameter('app.local_sommeil_types');
-
         $result = [];
-
         foreach ($periodicites as $singlePeriodicite) {
             $result[$singlePeriodicite->getCategorie()][$singlePeriodicite->getType()][$singlePeriodicite->getLocalSommeil()] = $singlePeriodicite->getPeriodicite();
         }
@@ -54,14 +76,14 @@ class TableauDesPeriodicitesController extends AbstractController
     /**
      * @Route("/admin/tableau-des-periodicites/sauvegarder", name="admin_tableau_des_periodicites_save")
      */
-    public function save(Request $request, PeriodiciteRepository $periodiciteRepository): Response
+    public function save(Request $request): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
 
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
             $clesTableauDesPeriodicites = ClesTableauDesPeriodicites::fromRequest($periodiciteKey);
 
-            $periodiciteEntity = $periodiciteRepository->findOneBy([
+            $periodiciteEntity = $this->periodiciteRepository->findOneBy([
                 'categorie' => $clesTableauDesPeriodicites->categorie(),
                 'type' => $clesTableauDesPeriodicites->type(),
                 'localSommeil' => $clesTableauDesPeriodicites->localSommeil(),

@@ -24,14 +24,42 @@ use Symfony\Component\Routing\Annotation\Route;
 class UtilisateursController extends AbstractController
 {
     /**
+     * @var UtilisateurRepository
+     */
+    private $utilisateurRepository;
+
+    /**
+     * @var GroupeRepository
+     */
+    private $groupeRepository;
+
+    /**
+     * @var Avatar
+     */
+    private $avatar;
+
+    /**
+     * @var Image
+     */
+    private $image;
+
+    public function __construct(UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image)
+    {
+        $this->utilisateurRepository = $utilisateurRepository;
+        $this->groupeRepository = $groupeRepository;
+        $this->avatar = $avatar;
+        $this->image = $image;
+    }
+
+    /**
      * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
      */
-    public function utilisateurs(UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository): Response
+    public function utilisateurs(): Response
     {
         return $this->render('utilisateurs/index.html.twig', [
-            'utilisateurs_actifs' => $utilisateurRepository->findActives(),
-            'utilisateurs_inactifs' => $utilisateurRepository->findInactives(),
-            'groupes' => $groupeRepository->findAll(),
+            'utilisateurs_actifs' => $this->utilisateurRepository->findActives(),
+            'utilisateurs_inactifs' => $this->utilisateurRepository->findInactives(),
+            'groupes' => $this->groupeRepository->findAll(),
             'groupe_id' => null,
         ]);
     }
@@ -39,7 +67,7 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/admin/utilisateurs/ajouter", name="admin_utilisateurs_add")
      */
-    public function ajouter(Request $request, Avatar $avatar, Image $image): Response
+    public function ajouter(Request $request): Response
     {
         $utilisateur = new Utilisateur();
 
@@ -72,12 +100,12 @@ class UtilisateursController extends AbstractController
             $photo = $form->get('photo')->getData();
 
             if ($photo && $photo instanceof UploadedFile) {
-                $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
-                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
-                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
-                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::SMALL_WIDTH, $this->avatar::SMALL_WIDTH)
+                    ->save($this->avatar->path($this->avatar::SMALL_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::MEDIUM_WIDTH)
+                    ->save($this->avatar->path($this->avatar::MEDIUM_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::LARGE_WIDTH)
+                    ->save($this->avatar->path($this->avatar::LARGE_DIRECTORY, $userId));
             }
 
             $this->addFlash('success', "L'utilisateur a bien été ajouté.");
@@ -94,7 +122,7 @@ class UtilisateursController extends AbstractController
     /**
      * @Route("/admin/utilisateurs/{id}/modifier", name="admin_utilisateurs_edit")
      */
-    public function modifier(Request $request, Avatar $avatar, Image $image, Utilisateur $utilisateur): Response
+    public function modifier(Request $request, Utilisateur $utilisateur): Response
     {
         $form = $this->createForm(UtilisateurType::class, $utilisateur);
 
@@ -123,12 +151,12 @@ class UtilisateursController extends AbstractController
             $photo = $form->get('photo')->getData();
 
             if ($photo && $photo instanceof UploadedFile) {
-                $image->resize($photo->getPathname(), $avatar::SMALL_WIDTH, $avatar::SMALL_WIDTH)
-                    ->save($avatar->path($avatar::SMALL_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::MEDIUM_WIDTH)
-                    ->save($avatar->path($avatar::MEDIUM_DIRECTORY, $userId));
-                $image->resize($photo->getPathname(), $avatar::LARGE_WIDTH)
-                    ->save($avatar->path($avatar::LARGE_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::SMALL_WIDTH, $this->avatar::SMALL_WIDTH)
+                    ->save($this->avatar->path($this->avatar::SMALL_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::MEDIUM_WIDTH)
+                    ->save($this->avatar->path($this->avatar::MEDIUM_DIRECTORY, $userId));
+                $this->image->resize($photo->getPathname(), $this->avatar::LARGE_WIDTH)
+                    ->save($this->avatar->path($this->avatar::LARGE_DIRECTORY, $userId));
             }
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
