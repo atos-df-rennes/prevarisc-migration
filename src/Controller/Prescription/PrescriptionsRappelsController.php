@@ -30,16 +30,6 @@ class PrescriptionsRappelsController extends AbstractController
     }
 
     /**
-     * @var Prescriptions
-     */
-    private $prescriptions;
-
-    public function __construct(Prescriptions $prescriptions)
-    {
-        $this->prescriptions = $prescriptions;
-    }
-
-    /**
      * @Route("/admin/prescriptions/rappels", name="admin_prescriptions_rappels")
      */
     public function index(): Response

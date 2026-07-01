@@ -32,16 +32,6 @@ class CommunesController extends AbstractController
     }
 
     /**
-     * @var CommuneRepository
-     */
-    private $communeRepository;
-
-    public function __construct(CommuneRepository $communeRepository)
-    {
-        $this->communeRepository = $communeRepository;
-    }
-
-    /**
      * @Route("/admin/communes", name="admin_communes")
      */
     public function index(): Response
