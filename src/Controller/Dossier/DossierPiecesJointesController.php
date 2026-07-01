@@ -227,7 +227,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $pj->setDescription(is_string($descriptionRaw) && '' !== $descriptionRaw ? $descriptionRaw : null);
         $pj->setDate(new \DateTime('today'));
 
-
         // Statut par défaut : 'not_exported' (parité avec le DEFAULT 1 en base de données)
         $statutNotExported = $this->pieceJointeStatutRepository->findOneBy(['nomStatut' => 'not_exported']);
         if (null !== $statutNotExported) {

@@ -112,7 +112,7 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 
             /** @var string $rawNom */
             $rawNom = $request->request->get('nomFichier', '');
-            $nom = '' !== $rawNom ? $rawNom : substr((string) $fichier->getClientOriginalName(), 0, -strlen($extension));
+            $nom = '' !== $rawNom ? $rawNom : pathinfo($fichier->getClientOriginalName(), PATHINFO_FILENAME);
             /** @var string $description */
             $description = $request->request->get('descriptionFichier', '');
 
