@@ -73,7 +73,7 @@ function addWmsLayer(viewer, wmsLayer) {
 
     const layer = new ol.layer.Tile({
         source: source,
-        visible: symfonyValueFallbackToZendValue(wmsLayer.transparent, wmsLayer.TRANSPARENT_COUCHECARTO) !== 1
+        visible: !symfonyValueFallbackToZendValue(wmsLayer.transparent, wmsLayer.TRANSPARENT_COUCHECARTO)
     })
 
     const ordre = symfonyValueFallbackToZendValue(wmsLayer.ordre, wmsLayer.ORDRE_COUCHECARTO)
@@ -145,7 +145,7 @@ function addWmtsLayer(viewer, wmtsLayer) {
 
             const layer = new ol.layer.Tile({
                 source: source,
-                visible: symfonyValueFallbackToZendValue(wmtsLayer.transparent, wmtsLayer.TRANSPARENT_COUCHECARTO) !== 1
+                visible: !symfonyValueFallbackToZendValue(wmtsLayer.transparent, wmtsLayer.TRANSPARENT_COUCHECARTO)
             })
 
             const ordre = symfonyValueFallbackToZendValue(wmtsLayer.ordre, wmtsLayer.ORDRE_COUCHECARTO)
