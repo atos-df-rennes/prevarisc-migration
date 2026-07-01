@@ -41,6 +41,10 @@
 | **Impact** | **Élevé** — la règle métier est présente en base mais plus exploitable dans l'UI Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierPiecesJointesController.php`, `prevarisc-migration/templates/dossier/pieces_jointes/_piece_jointe_row.html.twig`, `prevarisc/application/views/scripts/piece-jointe/index.phtml` |
 
+**Retour utilisateur** : Je n'ai jamais vu cette fonctionnalité dans l'application. Vérifier qu'il ne s'agit pas de code mort inatteignable.
+
+**Validation utilisateur** (2026-07-01) : Confirmé — code mort inatteignable en legacy. Le handler JS `.select` (`application/views/scripts/piece-jointe/index.phtml:150-176`) ne cible aucun élément réel : `display.phtml` ne génère jamais de case à cocher avec la classe `select`. De plus, l'endpoint appelé côté serveur (`/dossier/fonction?do=pjPassageCommission`) ne correspond à aucune `fonctionAction` dans `DossierController` (ni ailleurs dans le legacy) — l'appel AJAX échouerait systématiquement. La fonctionnalité n'a donc jamais été opérationnelle. **✅ Correction appliquée** — suppression de l'initialisation morte `$dpj->setPieceJointeCommission(false)` dans `DossierPiecesJointesController.php` et `DossierRapportOdtService.php` (le champ `pieceJointeCommission` de l'entité `DossierPieceJointe` est conservé pour la compatibilité des données existantes, mais n'est plus positionné explicitement à la création puisque non exploité).
+
 ---
 
 ### Écart 3 — Le téléchargement des pièces jointes de date de commission dépend encore du routing legacy
@@ -105,7 +109,7 @@
 ---
 
 ## Recommandations
-1. Porter en priorité la liaison PJ dossier ↔ établissements et la sélection « passage en commission », ce sont les deux régressions métier les plus visibles.
+1. ~~Porter en priorité la liaison PJ dossier ↔ établissements et la sélection « passage en commission »~~ — Écarts 1 et 2 confirmés comme code mort legacy, aucune reprise nécessaire.
 2. Ajouter une vraie route Symfony de téléchargement pour les PJ de date de commission afin de supprimer la dépendance au contrôleur Zend.
 3. Clarifier puis migrer la sémantique des valeurs `PLACEMENT_ETABLISSEMENTPJ` avant toute reprise de données, sinon les plans legacy seront interprétés à tort.
 4. Décider explicitement si la date d'ajout doit rester une simple date (comme historiquement) ou devenir une vraie date-heure conforme à la spec.
