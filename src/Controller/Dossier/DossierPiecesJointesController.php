@@ -253,6 +253,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $dpj = new DossierPieceJointe();
         $dpj->setPieceJointe($pj);
         $dpj->setDossier($dossier);
+        $dpj->setPieceJointeCommission(false);
 
         $this->entityManager->persist($dpj);
 
