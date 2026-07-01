@@ -91,7 +91,7 @@ final class EtablissementPieceJointeService
         }
 
         $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-        $placement = in_array($mise_en_avant, PlacementEtablissementPj::ALL) && in_array($extension, $imageExtensions)
+        $placement = in_array($mise_en_avant, PlacementEtablissementPj::MISES_EN_AVANT) && in_array($extension, $imageExtensions)
             ? $mise_en_avant
             : PlacementEtablissementPj::LISTE;
 
