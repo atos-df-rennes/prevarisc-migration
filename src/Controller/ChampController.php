@@ -27,10 +27,30 @@ class ChampController extends AbstractController
 {
     /** @var EntityManagerInterface */
     private $entityManager;
+    /**
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+    /**
+     * @var ChampRepository
+     */
+    private $champRepository;
+    /**
+     * @var ChampValeurListeRepository
+     */
+    private $champValeurListeRepository;
+    /**
+     * @var TypeChampRepository
+     */
+    private $typeChampRepository;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory, ChampRepository $champRepository, ChampValeurListeRepository $champValeurListeRepository, TypeChampRepository $typeChampRepository)
     {
         $this->entityManager = $entityManager;
+        $this->formFactory = $formFactory;
+        $this->champRepository = $champRepository;
+        $this->champValeurListeRepository = $champValeurListeRepository;
+        $this->typeChampRepository = $typeChampRepository;
     }
 
     /**
@@ -44,13 +64,9 @@ class ChampController extends AbstractController
         Request $request,
         CapsuleRubrique $formulaire,
         Rubrique $rubrique,
-        Champ $champ,
-        FormFactoryInterface $formFactory,
-        ChampRepository $champRepository,
-        ChampValeurListeRepository $champValeurListeRepository,
-        TypeChampRepository $typeChampRepository
+        Champ $champ
     ): Response {
-        $champ = $champRepository->findAllInformations($champ);
+        $champ = $this->champRepository->findAllInformations($champ);
         $formChamp = $this->createForm(ChampType::class, $champ, [
             'is_edit' => true,
         ]);
@@ -81,8 +97,8 @@ class ChampController extends AbstractController
         if ('Parent' === $initialType->getType()) {
             $champEnfant = new Champ();
 
-            $types = $typeChampRepository->findAllowedTypeForParent();
-            $formChampEnfant = $formFactory->createNamed('champ_enfant', ChampType::class, $champEnfant, [
+            $types = $this->typeChampRepository->findAllowedTypeForParent();
+            $formChampEnfant = $this->formFactory->createNamed('champ_enfant', ChampType::class, $champEnfant, [
                 'types' => $types,
             ]);
 
@@ -107,7 +123,7 @@ class ChampController extends AbstractController
             'champ' => $champ,
             'form_champ' => $formChamp->createView(),
             'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
-            'champ_valeurs_liste' => $champValeurListeRepository->findAll(),
+            'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
             'form_champ_enfant' => $formChampEnfant ? $formChampEnfant->createView() : null
         ]);
     }
