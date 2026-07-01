@@ -23,9 +23,11 @@
 | **Règles** | RG-PJ-005, § 5.1.1 |
 | **Spec** | Lors du dépôt sur un dossier, l'utilisateur peut cocher un ou plusieurs établissements rattachés au dossier pour créer les liaisons associées. |
 | **Symfony** | Le formulaire d'ajout de PJ dossier ne contient que `fichier`, `nomFichier` et `descriptionFichier`, sans liste d'établissements (`templates/dossier/pieces_jointes/form.html.twig:8-21`). L'action d'ajout crée seulement `PieceJointe` puis `DossierPieceJointe`, sans traiter d'éventuel `etab[]` (`src/Controller/Dossier/DossierPiecesJointesController.php:220-264`). |
-| **Legacy** | Le legacy charge `listeEtablissement` pour le type `dossier` (`application/controllers/PieceJointeController.php:165-169`), affiche les cases à cocher `etab[]` (`application/views/scripts/piece-jointe/form.phtml:25-31`) puis crée les liaisons établissement↔PJ dans `addAction()` (`application/controllers/PieceJointeController.php:238-255`). |
-| **Impact** | **Élevé** — fonctionnalité métier absente côté Symfony ; les PJ de dossier ne peuvent plus être rattachées aux établissements associés comme en legacy. |
+| **Legacy** | Le legacy charge `listeEtablissement` pour le type `dossier` (`application/controllers/PieceJointeController.php:165-169`), affiche les cases à cocher `etab[]` (`application/views/scripts/piece-jointe/form.phtml:25-31`) puis crée les liaisons établissement↔PJ dans `addAction()` (`application/controllers/PieceJointeController.php:238-255`). **Cependant**, aucune miniature n'est générée pour l'affichage des PJ dossier liées aux établissements (miniatures créées uniquement pour le type `établissement` ligne 257-284). |
+| **Impact** | **Nul** — fonctionnalité morte en legacy. Les liaisons établissement↔PJ sont créées mais jamais exploitées (aucune miniature, aucun affichage front). La suppression ne cause aucune régression. |
 | **Fichiers concernés** | `prevarisc-migration/templates/dossier/pieces_jointes/form.html.twig`, `prevarisc-migration/src/Controller/Dossier/DossierPiecesJointesController.php`, `prevarisc/application/views/scripts/piece-jointe/form.phtml`, `prevarisc/application/controllers/PieceJointeController.php` |
+
+**Validation utilisateur** (2026-07-01) : Confirmé — le formulaire legacy crée les liaisons mais aucune miniature n'est générée. Le code est mort. La migration Symfony supprime cette fonction inutilisée. **✅ Aucune action requise — amélioration implicite**.
 
 ---
 
