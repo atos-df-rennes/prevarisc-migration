@@ -267,7 +267,7 @@ L'indicateur ne s'affiche pas si :
 | RG-TDB-012 | Lors de la publication d'un message, tous les groupes sont cochés par défaut. L'auteur peut restreindre la diffusion en décochant des groupes. |
 | RG-TDB-013 | Les 5 derniers messages sont affichés dans le bloc Messages. |
 | RG-TDB-014 | Les URL présentes dans le texte d'un message (http, https, ftp, www) sont automatiquement transformées en liens cliquables. |
-| RG-TDB-015 | La suppression d'un message est immédiate et sans confirmation. Tout utilisateur qui voit le message peut le supprimer. |
+| RG-TDB-015 | La suppression d'un message est immédiate et sans confirmation. Seul l'auteur du message peut le supprimer. |
 | RG-TDB-016 | La vérification de connectivité Plat'AU est exécutée automatiquement au chargement du tableau de bord si Plat'AU est activé et la vérification n'est pas désactivée. |
 | RG-TDB-017 | L'origine de l'erreur de connectivité Plat'AU est distinguée entre Prevarisc (configuration locale) et Plat'AU (service distant). |
 | RG-TDB-018 | Les trois blocs Plat'AU (dossiers à traiter, pièces jointes en erreur, nouvelles pièces jointes) ne sont disponibles que si Plat'AU est activé dans la configuration de l'instance. |

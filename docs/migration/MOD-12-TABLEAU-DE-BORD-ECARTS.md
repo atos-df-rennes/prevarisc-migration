@@ -20,16 +20,16 @@
 
 ## Écarts détaillés
 
-### Écart 1 — La suppression d'un message est limitée à son auteur dans Symfony
+### Écart 1 — La suppression d'un message est limitée à son auteur dans Symfony ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-TDB-015 |
-| **Spec** | La suppression d'un message est immédiate, sans confirmation, et **tout utilisateur qui voit le message peut le supprimer**. |
+| **Spec** | La suppression d'un message est immédiate, sans confirmation, et **seul l'auteur du message peut le supprimer**. |
 | **Symfony** | `IndexController::deleteMessage()` refuse explicitement la suppression si le message appartient à un autre utilisateur (`AccessDeniedException` quand `news->getUtilisateur()->getId() !== currentUser->getId()`). |
 | **Legacy** | `deleteMessageAction()` supprime directement le message demandé, sans contrôle supplémentaire sur l'auteur. |
-| **Impact** | **Élevé** — régression fonctionnelle directe sur le fil d'actualité : un utilisateur peut voir un message sans pouvoir le supprimer, contrairement à la spec et au comportement historique. |
-| **Fichiers concernés** | `docs/specs/MOD-12-TABLEAU-DE-BORD.md:270`, `prevarisc-migration/src/Controller/IndexController.php:239-247`, `prevarisc/application/controllers/IndexController.php:132-143` |
+| **Impact** | **Résolu** — La spec a été mise à jour (2026-07-02) pour refléter l'amélioration de sécurité implémentée en Symfony. C'est une amélioration intentionnelle qui renforce la sécurité du système. |
+| **Fichiers concernés** | `docs/specs/MOD-12-TABLEAU-DE-BORD.md:270`, `prevarisc-migration/src/Controller/IndexController.php:239-247` |
 
 **Retour utilisateur** : Écart de migration/spec accepté. Il s'agit d'une amélioration de sécurité qui aurait dû être présente lors de l'implémentation de la fonctionnalité et qui était référencée comme bug dans un ancien ticket sur notre outil de ticketing. Modifier la spec pour correspondre à ce comportement.
 
@@ -64,6 +64,5 @@
 
 ## Recommandations
 
-1. **Priorité haute** : supprimer le contrôle "auteur uniquement" dans `IndexController::deleteMessage()` pour rétablir RG-TDB-015.
-2. **Priorité moyenne** : réintroduire une zone dédiée de statut Plat'AU sur le dashboard avec message de chargement puis bandeau persistant de résultat.
-3. **Priorité moyenne** : conserver les toasts si souhaité, mais en complément du bandeau embarqué afin de rester conforme à la spec et au legacy.
+1. **Priorité moyenne** : réintroduire une zone dédiée de statut Plat'AU sur le dashboard avec message de chargement puis bandeau persistant de résultat.
+2. **Priorité moyenne** : conserver les toasts si souhaité, mais en complément du bandeau embarqué afin de rester conforme à la spec et au legacy.
