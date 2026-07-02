@@ -12,7 +12,7 @@
 | Règles de gestion analysées | 15 (RG-TXT-001 à RG-TXT-015) |
 | Écarts spec ↔ Symfony | 5 |
 | Écarts spec ↔ Legacy | 2 |
-| Écarts Symfony ↔ Legacy | 5 |
+| Écarts Symfony ↔ Legacy | 4 |
 
 ---
 
@@ -22,10 +22,11 @@
 |---|---|
 | **Règles** | RG-TXT-009, RG-TXT-010, RG-TXT-011, § 5.2, § 7.4 |
 | **Spec** | Lorsqu'un texte est ajouté/retiré dans un dossier de type visite ou groupe de visites, la modification doit être répercutée sur le premier établissement rattaché ; cette synchronisation ne s'applique pas aux études. |
-| **Symfony** | L'écran dossier édite simplement la collection Doctrine puis exécute `flush()` (`src/Controller/Dossier/DossierController.php:717-730`). La copie initiale à la création existe bien (`src/Service/Dossier/DossierCreationService.php:80-90`), mais aucune logique symétrique d'ajout/retrait vers l'établissement n'est exécutée lors des modifications du dossier. |
+| **Symfony (avant)** | L'écran dossier édite simplement la collection Doctrine puis exécute `flush()` (`src/Controller/Dossier/DossierController.php:717-730`). La copie initiale à la création existe bien (`src/Service/Dossier/DossierCreationService.php:80-90`), mais aucune logique symétrique d'ajout/retrait vers l'établissement n'est exécutée lors des modifications du dossier. |
+| **Symfony (après)** | La méthode `editTextesApplicables()` du contrôleur appelle désormais `DossierCreationService::synchroniserTextesApplicablesVersEtablissement($dossier)` après la sauvegarde (`src/Controller/Dossier/DossierController.php:743-769`). Cette nouvelle méthode synchronise les textes du dossier vers le premier établissement pour les types visite/groupe de visites, reproduisant exactement le comportement legacy. |
 | **Legacy** | Le service legacy `saveTextesApplicables()` récupère le premier établissement pour les types visite/groupe, puis supprime ou crée les liaisons à la fois dans `dossiertextesappl` et `etablissementtextapp` (`application/services/Dossier.php:211-247`). |
-| **Impact** | **Élevé** — la fiche établissement et le dossier peuvent diverger en Symfony alors qu'ils restent synchronisés en legacy pour les visites. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierController.php`, `prevarisc-migration/src/Service/Dossier/DossierCreationService.php`, `prevarisc/application/services/Dossier.php` |
+| **Impact** | ✅ **Résolu** — la fiche établissement et le dossier restent synchronisés en Symfony comme en legacy. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Controller/Dossier/DossierController.php`, `prevarisc-migration/src/Service/Dossier/DossierCreationService.php` |
 
 ---
 
