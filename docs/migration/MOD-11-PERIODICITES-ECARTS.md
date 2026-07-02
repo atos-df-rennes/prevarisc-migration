@@ -71,6 +71,8 @@
 | **Impact** | **Faible à moyen** — pas de régression Symfony, mais un comportement legacy moins robuste à garder en tête pour l'analyse d'écarts. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php`, `prevarisc/application/controllers/TableauDesPeriodicitesController.php` |
 
+**Retour utilisateur** : amélioration Symfony pour garantir la cohérence de l'ensemble des valeurs, aucune action à prévoir.
+
 ---
 
 ### Écart 5 — Le typage interne autour de `ID_TYPE` reste fragile dans la migration Symfony
