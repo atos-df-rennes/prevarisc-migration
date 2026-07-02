@@ -27,6 +27,8 @@
 | **Impact** | **Élevé** — la fiche établissement et le dossier peuvent diverger en Symfony alors qu'ils restent synchronisés en legacy pour les visites. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierController.php`, `prevarisc-migration/src/Service/Dossier/DossierCreationService.php`, `prevarisc/application/services/Dossier.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy. D'après ma compréhension du code legacy `application/services/Dossier.php`, on souhaite une synchronisation exacte. Dans le code Symfony, au lieu d'avoir des `if` pour supprimer/ajouter, on pourrait donc vider la collection `Etablissement` et cloner celle du `Dossier` (pourvu que les liens soient correctement faits sur les bons objets) pour simplifier le code. Pour la vérification du type du dossier, comparer avec les constantes disponibles (`DossierType::TYPES_VISITE`).
+
 ---
 
 ### Écart 2 — L'ordre d'affichage par défaut n'est pas réellement calculé « en fin de liste »
