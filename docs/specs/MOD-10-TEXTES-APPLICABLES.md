@@ -239,10 +239,10 @@ L'héritage automatique (RG-TXT-008) ne se déclenche que pour les natures de do
 | Nature | Description |
 |--------|-------------|
 | Visite périodique (simple) | VP |
-| Visite de contrôle (simple) | VC |
+| Visite Chantier (simple) | VC |
 | Visite inopinée (simple) | VI |
 | Visite périodique (groupe) | VP groupe |
-| Visite de contrôle (groupe) | VC groupe |
+| Visite Chantier (groupe) | VC groupe |
 | Visite inopinée (groupe) | VI groupe |
 
 Les autres natures de dossiers (études, levées de réserves, réceptions de travaux, etc.) ne bénéficient pas de cet héritage.
