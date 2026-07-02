@@ -30,17 +30,18 @@
 
 ---
 
-### Écart 2 — L'ordre d'affichage par défaut n'est pas réellement calculé « en fin de liste »
+### Écart 2 — L'ordre d'affichage par défaut n'est pas réellement calculé « en fin de liste » ✅ VALIDÉ
 | | Détail |
 |---|---|
 | **Règles** | RG-TXT-003 |
 | **Spec** | Un nouveau texte doit recevoir un ordre d'affichage en fin de liste, c'est-à-dire la valeur maximale cohérente dans sa catégorie. |
-| **Symfony** | Le champ caché `num` utilise une valeur fixe `9999` quand il est vide (`src/Form/TexteApplicableType.php:30-32`) ; aucun calcul de `MAX(num)+1` n'est effectué à l'enregistrement. |
-| **Legacy** | Le legacy utilise aussi une valeur fixe (`99999`) à la création **et** à l'édition (`application/controllers/GestionTextesApplicablesController.php:31-46`), ce qui déplace en plus un texte modifié en fin de liste à chaque sauvegarde. |
-| **Impact** | **Moyen** — la règle métier est approximée dans les deux implémentations ; le legacy ajoute une dérive supplémentaire en réordonnant les textes édités. |
-| **Fichiers concernés** | `prevarisc-migration/src/Form/TexteApplicableType.php`, `prevarisc/application/controllers/GestionTextesApplicablesController.php` |
+| **Symfony** | Le champ caché `num` utilise une valeur fixe `9999` quand il est vide (`src/Form/TexteApplicableType.php:30-32`) ; aucun calcul de `MAX(num)+1` n'est effectué à l'enregistrement. Contrairement au legacy, Symfony **ne réinitialise pas** `num` à chaque édition. |
+| **Legacy** | Le legacy utilise aussi une valeur fixe (`99999`) à la création **et** à l'édition (`application/controllers/GestionTextesApplicablesController.php:31-46`), ce qui déplace **systématiquement** un texte modifié en fin de liste à chaque sauvegarde. |
+| **Impact** | **Faible** — la règle métier est approximée dans les deux implémentations ; **Symfony améliore** le comportement en évitant le reset involontaire du legacy. Aucune régression fonctionnelle. |
+| **Status** | 🟢 **FERMÉ** — Aucune action. La détection de catégorie n'étant pas triviale, la solution fixe `9999` est acceptable pour la migration. |
+| **Fichiers concernés** | `prevarisc-migration/src/Form/TexteApplicableType.php`, `prevarisc-migration/src/Controller/TextesApplicablesController.php` |
 
-**Retour utilisateur** : Le code Symfony corrige un des problèmes et l'autre était déjà présent en legacy. La détection de la catégorie d'un texte applicable n'étant pas triviale au vu des tables/relations, on laisse en l'état pour le moment. Aucune action à prévoir sur ce point.
+**Retour utilisateur** (validé) : Le code Symfony corrige un des problèmes (pas de reset à l'édition) et l'autre était déjà présent en legacy (valeur fixe). La détection de la catégorie d'un texte applicable n'étant pas triviale au vu des tables/relations, on laisse en l'état pour le moment. Aucune action à prévoir sur ce point.
 
 ---
 
