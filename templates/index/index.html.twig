@@ -119,10 +119,13 @@
             });
 
             {% if not deactivatePlatau and not platauNoHealthcheck %}
+                const enCoursToastId = $.toast.info("Vérification de la connexion à Plat'AU", { autoClose: false });
+                
                 $.ajax({
                     type: 'GET',
                     url: Routing.generate('accueil_platau_healthcheck'),
                     success: function(result) {
+                        $.toast.close(enCoursToastId);
                         const res = typeof result === 'object' ? result : JSON.parse(result);
 
                         if (res.success) {
@@ -136,6 +139,7 @@
                         }
                     },
                     error: function() {
+                        $.toast.close(enCoursToastId);
                         $.toast.error("Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.");
                     }
                 });

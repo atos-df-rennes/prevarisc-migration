@@ -676,13 +676,13 @@ ecarts:
   - number: 2
     title: L'indicateur de connectivité Plat'AU n'affiche plus l'état de chargement
       ni le bandeau embarqué attendu
-    action: check
+    action: fix
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-02'
+    validated_by: implementation
+    notes: Toast "Vérification en cours..." added before AJAX call using enCoursToastId pattern. Toast is closed when result arrives (success, error, or maintenance), then result toast is displayed. Complies with spec and improves UX.
     files_modified:
-    - prevarisc-migration/templates/index/index.html.twig:121-141
+    - prevarisc-migration/templates/index/index.html.twig:121-146
   MOD-13:
   - number: 1
     title: L'ouverture d'un dossier Plat'AU n'est plus bloquée quand le module est
