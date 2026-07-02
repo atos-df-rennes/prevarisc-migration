@@ -61,7 +61,7 @@
 
 ---
 
-### Écart 4 — La sauvegarde legacy de la matrice n'est pas atomique, contrairement à Symfony
+### Écart 4 — La sauvegarde legacy de la matrice n'est pas atomique, contrairement à Symfony — ✅ VALIDÉ
 | | Détail |
 |---|---|
 | **Règles** | § 4.2 |
@@ -69,7 +69,10 @@
 | **Symfony** | Symfony prépare l'ensemble des entités puis exécute un `flush()` unique (`src/Controller/TableauDesPeriodicitesController.php:102-123`). |
 | **Legacy** | Le legacy sauvegarde ligne par ligne dans une boucle (`application/controllers/TableauDesPeriodicitesController.php:44-57`). En cas d'échec en cours de route, une partie de la matrice peut être déjà persistée. |
 | **Impact** | **Faible à moyen** — pas de régression Symfony, mais un comportement legacy moins robuste à garder en tête pour l'analyse d'écarts. |
+| **Statut** | ✅ **VALIDÉ** (2026-07-02) — amélioration Symfony pour garantir la cohérence de l'ensemble des valeurs, aucune action à prévoir |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php`, `prevarisc/application/controllers/TableauDesPeriodicitesController.php` |
+
+**Retour utilisateur** : amélioration Symfony pour garantir la cohérence de l'ensemble des valeurs, aucune action à prévoir. ✅ Écart confirmé comme conforme.
 
 ---
 
@@ -104,4 +107,5 @@
 1. ✅ **Écart 1 — Validation serveur 0 ≤ periodicite ≤ 999** — RÉSOLU (2026-07-02). Validation ajoutée dans `TableauDesPeriodicitesController::save()`.
 2. ✅ **Écart 2 — Vidage du cache** — RÉSOLU (2026-07-02). Cache vidé nativement via `$this->searchCache->invalidateTags(['search'])`.
 3. ✅ **Écart 3 — POST + CSRF pour l'application globale** — VALIDÉ (2026-07-02). Amélioration de sécurité correctement implémentée ; conserver ce mécanisme, ne pas réintroduire de déclenchement en `GET`.
-4. Documenter le point de fragilité de typage autour de `ID_TYPE` pour éviter des régressions lors d'une future refactorisation Doctrine.
+4. ✅ **Écart 4 — Atomicité de la sauvegarde de la matrice** — VALIDÉ (2026-07-02). Symfony utilise un `flush()` unique (atomic), contre ligne-par-ligne en legacy. C'est une amélioration sans régression ; aucune action requise.
+5. Documenter le point de fragilité de typage autour de `ID_TYPE` pour éviter des régressions lors d'une future refactorisation Doctrine.
