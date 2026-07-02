@@ -83,6 +83,8 @@
 | **Impact** | **Faible** — pas de casse visible aujourd'hui, mais comportement réseau inutilement ambigu et moins propre que le flux legacy. |
 | **Fichiers concernés** | `prevarisc-migration/templates/textes_applicables/index.html.twig`, `prevarisc-migration/src/Controller/TextesApplicablesController.php`, `prevarisc/application/controllers/GestionTextesApplicablesController.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. Renvoyer une réponse JSON et adapter le template pour utiliser le composant `toast-notification` du projet. Mettre un toast de chargement lors de l'exécution de la requête et un toast de succès/échec au retour. Un exemple est disponible au niveau des formulaires personnalisés. (e.g. @/home/dev/prevarisc-infra/prevarisc-migration/public/js/formulaire/ordonnancement/ordonnancement.js)
+
 ---
 
 ### Écart 6 — La liste des natures déclenchant l'héritage des textes ne correspond pas littéralement à la spec
