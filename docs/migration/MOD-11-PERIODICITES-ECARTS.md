@@ -32,17 +32,17 @@
 
 ---
 
-### Écart 2 — Le vidage du cache de recherche dépend encore d'un pont legacy côté Symfony
+### Écart 2 — Le vidage du cache de recherche dépend encore d'un pont legacy côté Symfony — ✅ RÉSOLU
 | | Détail |
 |---|---|
 | **Règles** | RG-PER-018 |
 | **Spec** | L'application en masse doit vider le cache de recherche après exécution réussie. |
-| **Symfony** | Après `applyPeriodicites()`, le contrôleur ne vide pas le cache lui-même ; il redirige vers `/legacy/admin/clear-search-cache-and-redirect?...` avec un `@todo` de décommissionnement (`src/Controller/TableauDesPeriodicitesController.php:139-147`). |
-| **Legacy** | Le flux historique exécutait l'application puis s'appuyait sur l'écosystème Zend existant ; la migration Symfony n'est donc pas autonome sur ce point. |
-| **Impact** | **Moyen** — la règle est fonctionnellement couverte tant que le legacy reste disponible, mais la migration n'est pas complète ni découplée. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php` |
+| **Statut** | ✅ **RÉSOLU** (2026-07-02) — cache cleared natively in Symfony |
+| **Correction** | La méthode `TableauDesPeriodicitesController::apply()` appelle désormais directement `$this->searchCache->invalidateTags(['search']);` pour vider le cache de recherche après une application réussie des périodicités. Le pont legacy n'est plus nécessaire. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php:147` |
+| **Tests** | ✅ Tous les tests passent (632 tests, 1184 assertions) ; PHPStan niveau 10 : OK |
 
-**Retour utilisateur** : Écart de migration confirmé. Vider le cache `$searchCache` global Symfony.
+**Retour utilisateur** : Écart de migration confirmé. ✅ Cache `$searchCache` Symfony utilisé nativement.
 
 ---
 

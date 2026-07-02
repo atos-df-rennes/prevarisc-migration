@@ -623,11 +623,11 @@ ecarts:
     - prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php
   - number: 2
     title: Le vidage du cache de recherche dépend encore d'un pont legacy côté Symfony
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-02'
+    validated_by: system
+    notes: Vérification que le cache est vidé nativement via $this->searchCache->invalidateTags(['search']); dans apply(). Le pont legacy n'est plus utilisé.
     files_modified:
     - prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php
   - number: 3
