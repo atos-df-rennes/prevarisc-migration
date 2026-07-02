@@ -68,7 +68,7 @@ class TextesApplicablesController extends AbstractController
 
                 return $this->redirectToRoute('admin_textes_applicables');
             } catch (\Exception $e) {
-                $this->addFlash('danger', 'Erreur lors de la sauvegarde du texte : ' . $e->getMessage());
+                $this->addFlash('danger', 'Erreur lors de la sauvegarde du texte : '.$e->getMessage());
             }
         }
 
@@ -96,7 +96,7 @@ class TextesApplicablesController extends AbstractController
 
                 return $this->redirectToRoute('admin_textes_applicables');
             } catch (\Exception $e) {
-                $this->addFlash('danger', 'Erreur lors de la sauvegarde du texte : ' . $e->getMessage());
+                $this->addFlash('danger', 'Erreur lors de la sauvegarde du texte : '.$e->getMessage());
             }
         }
 
