@@ -55,6 +55,8 @@
 | **Impact** | **Moyen** — en cas d'exception Doctrine ou SQL, Symfony ne restitue pas le comportement attendu par la spec ni par le legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TextesApplicablesController.php`, `prevarisc/application/controllers/GestionTextesApplicablesController.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy.
+
 ---
 
 ### Écart 4 — Les textes déjà associés ne sont plus mis en gras dans les écrans de modification Symfony
