@@ -634,10 +634,10 @@ ecarts:
     title: L'action « Appliquer sur TOUS les établissements » était un GET sans protection
       CSRF en legacy
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-02'
+    validated_by: system
+    notes: Vérification confirmée — route POST avec token CSRF validé dans apply(). Amélioration de sécurité correctement implémentée en Symfony.
     files_modified:
     - prevarisc-migration/templates/tableau_des_periodicites/index.html.twig
     - prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php

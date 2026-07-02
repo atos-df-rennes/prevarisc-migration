@@ -46,15 +46,18 @@
 
 ---
 
-### Écart 3 — L'action « Appliquer sur TOUS les établissements » était un GET sans protection CSRF en legacy
+### Écart 3 — L'action « Appliquer sur TOUS les établissements » était un GET sans protection CSRF en legacy — ✅ VALIDÉ
 | | Détail |
 |---|---|
 | **Règles** | § 4.3, RG-PER-011 |
 | **Spec** | L'application en masse doit demander confirmation et garantir une exécution maîtrisée. |
-| **Symfony** | Symfony exécute l'action via un formulaire `POST` avec token CSRF (`src/Controller/TableauDesPeriodicitesController.php:127-137`, `templates/tableau_des_periodicites/index.html.twig:114-119`). |
+| **Symfony** | Symfony exécute l'action via un formulaire `POST` avec token CSRF (`src/Controller/TableauDesPeriodicitesController.php:127-150`, `templates/tableau_des_periodicites/index.html.twig:114-119`). |
 | **Legacy** | Le legacy exposait un lien direct `/tableau-des-periodicites/apply` déclenché en `GET`, avec une simple confirmation JS (`application/views/scripts/tableau-des-periodicites/index.phtml:84-86`). |
 | **Impact** | **Faible à moyen** — amélioration nette en Symfony ; le legacy restait plus exposé aux déclenchements non désirés. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php`, `prevarisc-migration/templates/tableau_des_periodicites/index.html.twig`, `prevarisc/application/views/scripts/tableau-des-periodicites/index.phtml` |
+| **Statut** | ✅ **VALIDÉ** (2026-07-02) — vérification confirmée : route POST avec protection CSRF implémentée correctement |
+
+**Retour utilisateur** : Amélioration de l'existant correctement implémentée en Symfony. ✅ Écart confirmé comme conforme.
 
 ---
 
@@ -99,6 +102,6 @@
 
 ## Recommandations
 1. ✅ **Écart 1 — Validation serveur 0 ≤ periodicite ≤ 999** — RÉSOLU (2026-07-02). Validation ajoutée dans `TableauDesPeriodicitesController::save()`.
-2. Remplacer la redirection `/legacy/admin/clear-search-cache-and-redirect` par un mécanisme Symfony natif avant la suppression définitive du legacy.
-3. Conserver l'amélioration Symfony sur le `POST + CSRF` pour l'action d'application globale ; ne pas réintroduire de déclenchement en `GET`.
+2. ✅ **Écart 2 — Vidage du cache** — RÉSOLU (2026-07-02). Cache vidé nativement via `$this->searchCache->invalidateTags(['search'])`.
+3. ✅ **Écart 3 — POST + CSRF pour l'application globale** — VALIDÉ (2026-07-02). Amélioration de sécurité correctement implémentée ; conserver ce mécanisme, ne pas réintroduire de déclenchement en `GET`.
 4. Documenter le point de fragilité de typage autour de `ID_TYPE` pour éviter des régressions lors d'une future refactorisation Doctrine.
