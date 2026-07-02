@@ -86,6 +86,8 @@
 | **Impact** | **Faible** — pas de bug métier observé, mais point de fragilité technique si le typage ou la source des identifiants évolue. |
 | **Fichiers concernés** | `prevarisc-migration/src/Entity/Periodicite.php`, `prevarisc-migration/src/Entity/EtablissementType.php`, `prevarisc-migration/src/Repository/PeriodiciteRepository.php` |
 
+**Retour utilisateur** : Les typages indiqués correspondent aux types renseignés en base (table `periodicite`, ID_TYPE = varrchar(10), table `type`, ID_TYPE = int unsigned). Bien que la fragilité soit réelle, cela reflète l'état de la base de données et permet de visualiser la fragilité pour action future. Aucune modification à prévoir.
+
 ---
 
 ## Comportements alignés (confirmés)
