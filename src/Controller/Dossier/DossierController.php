@@ -751,6 +751,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Synchronise les textes applicables vers le premier établissement (pour visites et groupes de visites)
+            // avant le flush pour éviter les transactions multiples
+            $this->dossierCreationService->synchroniserTextesApplicablesVersEtablissement($dossier);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Les textes applicables ont été mis à jour avec succès.');
