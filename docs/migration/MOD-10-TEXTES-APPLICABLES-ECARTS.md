@@ -10,9 +10,9 @@
 | Indicateur | Valeur |
 |---|---|
 | Règles de gestion analysées | 15 (RG-TXT-001 à RG-TXT-015) |
-| Écarts spec ↔ Symfony | 5 |
+| Écarts spec ↔ Symfony | 4 |
 | Écarts spec ↔ Legacy | 2 |
-| Écarts Symfony ↔ Legacy | 4 |
+| Écarts Symfony ↔ Legacy | 3 |
 
 ---
 
@@ -45,17 +45,16 @@
 
 ---
 
-### Écart 3 — La gestion d'erreur à la sauvegarde n'est pas restituée dans Symfony
+### Écart 3 — La gestion d'erreur à la sauvegarde n'est pas restituée dans Symfony ✅ RÉSOLU
 | | Détail |
 |---|---|
 | **Règles** | § 4.2, RG-TXT-013 |
 | **Spec** | En cas d'échec de sauvegarde, l'application doit afficher « Erreur lors de la sauvegarde du texte » avec le détail de l'erreur, puis revenir à la liste. |
-| **Symfony** | Les actions `ajouter()` et `modifier()` appellent directement `serviceTexteApplicable->save(...)` puis affichent un message de succès (`src/Controller/TextesApplicablesController.php:51-68`, `79-92`). Aucun `try/catch` ni message d'erreur métier n'encadre la sauvegarde. |
+| **Symfony (avant)** | Les actions `ajouter()` et `modifier()` appellent directement `serviceTexteApplicable->save(...)` puis affichent un message de succès (`src/Controller/TextesApplicablesController.php:51-68`, `79-92`). Aucun `try/catch` ni message d'erreur métier n'encadre la sauvegarde. |
+| **Symfony (après)** | Les actions `ajouter()` et `modifier()` encapsulent maintenant l'appel `serviceTexteApplicable->save(...)` dans un bloc `try/catch` qui restitue le flash `Erreur lors de la sauvegarde du texte : {détail}` en cas d'exception, reproduisant exactement le comportement legacy (`src/Controller/TextesApplicablesController.php:59-73`, `85-99`). |
 | **Legacy** | Le contrôleur Zend encapsule la sauvegarde dans un `try/catch` et remonte un flash `Erreur lors de la sauvegarde du texte` avec `getMessage()` (`application/controllers/GestionTextesApplicablesController.php:26-68`). |
-| **Impact** | **Moyen** — en cas d'exception Doctrine ou SQL, Symfony ne restitue pas le comportement attendu par la spec ni par le legacy. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/TextesApplicablesController.php`, `prevarisc/application/controllers/GestionTextesApplicablesController.php` |
-
-**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy.
+| **Impact** | ✅ **Résolu** — en cas d'exception Doctrine ou SQL, Symfony restitue désormais le message d'erreur attendu par la spec et le legacy. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Controller/TextesApplicablesController.php` |
 
 ---
 
