@@ -88,15 +88,18 @@
 
 ---
 
-### Écart 6 — La liste des natures déclenchant l'héritage des textes ne correspond pas littéralement à la spec
+### Écart 6 — La liste des natures déclenchant l'héritage des textes — ✅ RÉSOLU
 | | Détail |
 |---|---|
 | **Règles** | RG-TXT-008, § 7.7 |
-| **Spec** | L'héritage automatique concerne les visites périodiques, de contrôle et inopinées (simples et groupes). |
+| **Spec (avant)** | L'héritage automatique concerne les visites périodiques, de contrôle et inopinées (simples et groupes). |
+| **Spec (après)** | L'héritage automatique concerne les visites périodiques, Chantier et inopinées (simples et groupes). L'acronyme VC = Visite Chantier, pas Visite Contrôle. |
 | **Symfony** | La constante utilisée pour la copie vaut `[21, 22, 24, 26, 27, 29]` (`src/Constant/DossierNature.php:70-76`) et le service de création s'y réfère directement (`src/Service/Dossier/DossierCreationService.php:82-90`). |
-| **Legacy** | Le comportement historique repose sur la même logique métier lors de la création dossier, mais avec le même jeu de natures côté application. |
-| **Impact** | **Moyen** — la migration est cohérente avec le legacy, mais pas totalement avec la formulation littérale de la spec ; une validation métier est nécessaire pour confirmer que l'ensemble `[21,22,24,26,27,29]` est bien le référentiel attendu. |
-| **Fichiers concernés** | `prevarisc-migration/src/Constant/DossierNature.php`, `prevarisc-migration/src/Service/Dossier/DossierCreationService.php` |
+| **Legacy** | Identique : `[21, 22, 24, 26, 27, 29]` avec commentaire explicite « VP (21-26), VC (22-27), VI (24-29) » (`application/controllers/DossierController.php:1013-1020`). |
+| **Impact** | ✅ **Résolu** — code Symfony et legacy alignés ; spec corrigée pour clarifier que VC = Visite Chantier (22, 27) et non Visite Contrôle (23, 28). |
+| **Fichiers modifiés** | `prevarisc-migration/docs/specs/MOD-10-TEXTES-APPLICABLES.md` (section 7.7, table natures) |
+
+**Retour utilisateur** (validé) : La spec était incorrecte. Le code legacy utilise bien les natures `[21,22,24,26,27,29]` depuis son implémentation. L'acronyme VC = Visite Chantier, pas Visite Contrôle. Spec corrigée. ✅ **FAIT**
 
 ---
 
