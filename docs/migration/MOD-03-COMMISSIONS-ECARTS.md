@@ -234,6 +234,13 @@ Note : les contacts du dossier/établissement, les coordonnées de la mairie et 
 
 ## Recommandations
 
-Tous les écarts ont été traités. Aucune action complémentaire requise sur ce module.
+✅ **Tous les écarts ont été traités** :
 
-> **Note résiduelle** : Les contacts du dossier/établissement, coordonnées de la mairie et avis d'exploitation ne sont pas inclus dans la DESCRIPTION du flux webcal (Écart B). Cette divergence mineure avec le legacy est documentée et jugée acceptable.
+1. ✅ Écart 1 — validé. Les règles de compétence ne combinent pas explicitement le critère étude/visite, comportement legacy conservé. Aucune action requise (retour utilisateur 2026-06-24).
+2. ✅ Écart 2 — validé. Les natures de dossier et axe « commune » ne sont pas filtrés pour les documents, comportement legacy conservé. Spec corrigée (2026-06-24).
+3. ✅ Écart 3 — validé. Représentation webcal des événements alignée, VEVENT par couple DateCommission × Dossier, SUMMARY enrichi (2026-06-24).
+4. ✅ Écarts 4-7 (Créateurs de commission, ODJ/PV, Webcal, Contacts) — tous validés et alignés entre legacy et Symfony.
+
+**Note résiduelle** : Les contacts du dossier/établissement, coordonnées de la mairie et avis d'exploitation ne sont pas inclus dans la DESCRIPTION du flux webcal (Écart B). Cette divergence mineure avec le legacy est documentée et jugée acceptable.
+
+Aucune action complémentaire requise sur ce module.

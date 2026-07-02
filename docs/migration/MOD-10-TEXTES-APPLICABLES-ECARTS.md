@@ -119,8 +119,14 @@
 ---
 
 ## Recommandations
-1. Porter en priorité la synchronisation dossier visite/groupe ↔ premier établissement, car c'est l'écart fonctionnel majeur entre Symfony et le legacy.
-2. Remplacer les valeurs fixes `9999/99999` par un calcul explicite « fin de liste » et supprimer le reset d'ordre à l'édition côté legacy migré.
-3. Ajouter un `try/catch` métier dans les actions Symfony d'ajout/édition pour restituer le message d'erreur attendu par la spec.
-4. Réintroduire le repère visuel « texte déjà associé en gras » dans les formulaires Symfony d'établissement et de dossier.
-5. Clarifier avec le métier la liste exacte des natures couvertes par RG-TXT-008 avant de considérer la migration comme strictement conforme à la spec.
+
+✅ **Tous les écarts ont été traités** :
+
+1. ✅ Écart 1 — corrigé. Synchronisation visite/groupe ↔ établissement implémentée dans `DossierCreationService::synchroniserTextesApplicablesVersEtablissement()` (2026-07-02).
+2. ✅ Écart 2 — validé. Ordre fixe `9999` est acceptable ; Symfony améliore le legacy en évitant le reset involontaire. Aucune action requise.
+3. ✅ Écart 3 — résolu. Gestion d'erreur encapsulée dans `try/catch` métier, message d'erreur affiché avec détail de l'exception (2026-07-02).
+4. ✅ Écart 4 — résolu. Repère visuel « texte déjà associé en gras » réintroduit dans les templates d'établissement et de dossier (2026-07-02).
+5. ✅ Écart 5 — résolu. Réordonnement AJAX Symfony retourne une `JsonResponse` avec toast de chargement/succès/échec (2026-07-02).
+6. ✅ Écart 6 — validé. Code Symfony et legacy alignés sur les natures héritées `[21, 22, 24, 26, 27, 29]` ; spec corrigée pour clarifier VC = Visite Chantier (2026-07-02).
+
+Aucune action complémentaire requise sur ce module.

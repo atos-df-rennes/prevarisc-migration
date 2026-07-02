@@ -114,11 +114,15 @@
 
 ## Recommandations
 
-1. ~~Corriger en priorité le verrouillage serveur (RG-DOS-021) sur les routes de modification encore ouvertes en accès direct.~~ **Résolu** (Écart 3).
-2. ~~Ajouter un garde explicite sur la désactivation Plat'AU dans le module Dossier Symfony pour réaligner RG-DOS-044.~~ **Résolu** (Écart 5).
-3. Mettre à jour la spec RG-DOS-015 pour distinguer explicitement le mode affichage (masquage de `AVIS_COMMISSION` selon les cases cochées) du mode édition (pas de masquage), et préciser que seul `AVIS_COMMISSION` est concerné, pas la date de commission/visite.
-4. Documenter dans la spec ou le manifest que la suppression reste en strangler via le legacy, afin d'éviter de la signaler à tort comme non migrée lors des prochains audits.
-5. Documenter dans la spec que RG-DOS-003 (multi-natures) et RG-DOS-041 (CNE) décrivent des comportements non implémentés dans aucune base de code, pour clarifier qu'il ne s'agit pas de régressions à traiter en migration.
+✅ **Tous les écarts ont été traités ou documentés** :
+
+1. ✅ Verrouillage serveur (RG-DOS-021) — corrigé. Gardes `hasVerrou()` ajoutées sur toutes les routes de modification manquantes (Écart 3).
+2. ✅ Désactivation Plat'AU (RG-DOS-044) — corrigé. Paramètre `$deactivatePlatau` injecté et vérification ajoutée dans `index()` et `edit()` (Écart 5).
+3. ✅ Suppression dossier (RG-DOS-024, RG-DOS-025) — entièrement migrée (2026-06-24). `DossierSuppressionService` instancie, `deleteAction()` remplace le strangler. Cache Symfony + cache legacy nettoyés en double canal.
+4. ✅ Spec RG-DOS-015 — mise à jour effectuée. Distinction mode affichage (masquage de `AVIS_COMMISSION` uniquement) vs mode édition (pas de masquage).
+5. ✅ Spec RG-DOS-003 (multi-natures) et RG-DOS-041 (CNE) — documenté que ces comportements ne sont pas implémentés dans aucune base de code.
+
+Aucune action complémentaire requise sur ce module.
 
 ---
 

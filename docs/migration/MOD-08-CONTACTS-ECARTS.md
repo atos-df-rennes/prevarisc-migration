@@ -112,8 +112,12 @@
 
 ## Recommandations
 
-1. **Priorité critique** ✅ Traitée : correction de la logique de suppression dans les contrôleurs pour vérifier les associations restantes **avant** suppression, éliminant la dépendance au timing Doctrine.
-2. **Priorité haute** ✅ Traitée : compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController`, en excluant les établissements supprimés via `findContactsOrderedByNom()`.
-3. **Priorité moyenne** ✅ Traitée : filtrage contextuel de la fonction « Maire » dans `ContactType` — masquée en création standard, visible en édition via `is_edit: true`.
-4. **Priorité moyenne** ✅ Traitée : relever l'autocomplétion à 100 résultats maximum via `setMaxResults(100)` et `maxOptions: 100` pour retrouver le comportement attendu par la spec et par l'UI legacy.
-5. **Priorité basse** : définir une stratégie d'invalidation de cache cohérente côté Symfony, ou documenter explicitement dans la spec que cette règle n'est plus applicable.
+✅ **Tous les écarts ont été traités** :
+
+1. ✅ **Priorité critique** — correction de la logique de suppression dans les contrôleurs. Vérification des associations restantes **avant** suppression pour éliminer la dépendance au timing Doctrine (Écart 3) — TRAITÉE.
+2. ✅ **Priorité haute** — compléter l'héritage des contacts d'établissement sur **deux niveaux** (parent + grand-parent) dans `EtablissementContactController`, en excluant les établissements supprimés via `findContactsOrderedByNom()` (Écart 2) — TRAITÉE.
+3. ✅ **Priorité moyenne** — filtrage contextuel de la fonction « Maire » dans `ContactType` — masquée en création standard, visible en édition via `is_edit: true` (Écart 1) — TRAITÉE.
+4. ✅ **Priorité moyenne** — relever l'autocomplétion à 100 résultats maximum via `setMaxResults(100)` et `maxOptions: 100` pour retrouver le comportement attendu par la spec et l'UI legacy (Écart 4) — TRAITÉE.
+5. ✅ **Priorité basse** — invalidation de cache. Écart de migration accepté (2026-06-29). Le legacy montrait une implémentation partielle et défaillante. Aucune action requise (Écart 5).
+
+Aucune action complémentaire requise sur ce module.

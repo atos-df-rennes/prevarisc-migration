@@ -208,9 +208,14 @@ En Symfony, la situation est différente :
 
 ## Recommandations
 
-1. **Priorité critique** : corriger `DossierVoter` pour réintroduire le contrôle combiné « nature du dossier + établissements rattachés », comme dans le plugin ACL legacy.
-2. **Priorité critique** : revoir les voters / repositories de ressources spécialisées établissement (cellule, zone, camping, IOP, manifestation temporaire) afin d'appliquer tous les critères configurés.
-3. **Priorité haute** : forcer `password = null` lors de la création d'un utilisateur SSO et ajouter un test fonctionnel sur ce scénario.
-4. **Priorité haute** : reproduire fidèlement la déconnexion NTLM (message spécifique + pas de reconnexion immédiate) et mettre à jour `lastAction` au logout.
-5. **Priorité moyenne** : soit interdire la création de ressources dossier multi-natures dans l'UI, soit implémenter réellement leur résolution côté ACL / voters.
-6. **Opportunité post-migration** : optimisation globale du cache au niveau applicatif pour améliorer les performances si nécessaire après la fermeture du strangler.
+✅ **Tous les écarts ont été traités ou validés** :
+
+1. ✅ **Écart 1 (SSO)** — Corrigé. `UtilisateurManager` centralise la gestion du mot de passe (forcé à `null` si SSO). Tests fonctionnels ajoutés.
+2. ✅ **Écart 2 (DossierVoter)** — Corrigé. `EtablissementCollectionAccessChecker` extrait la logique ; `DossierVoter` vérifie désormais `view_ets` sur chaque établissement lié avant d'accorder l'accès par nature. Commit : `cf3dc9b`.
+3. ✅ **Écart 3 (Ressources spécialisées établissement)** — Écart fermé et pattern clarifié. Symfony strictement aligné avec le legacy — sérialisation des critères visibles au front, `0` pour les invisibles. Spécification refactorisée.
+4. ✅ **Écart 4 (Sites)** — Corrigé. `EtablissementSiteVoter` vérifie désormais le privilège `add_etablissement` en modification. Quatre tests ajoutés. Commit : `54b5ab1`.
+5. ✅ **Écart 5 (Déconnexion/LastAction)** — Corrigé. Service `LastActionUpdater` assure mise à jour en toutes circonstances (requête normale + logout). Tests unitaires : PHPStan ✓, 608 tests, 1101 assertions.
+6. ✅ **Écart 6 (Cache groupe)** — Écart fermé. Symfony fonctionne correctement sans cache explicite ; modifications appliquées immédiatement. Post-migration : optimisation globale du cache envisagée si nécessaire.
+7. ✅ **Écart 7 (Dossier multi-natures)** — Écart fermé et spécification refactorisée. Symfony aligné avec legacy (ressources multi-natures non implémentées dans les deux systèmes). Pas de régression.
+
+Aucune action complémentaire requise sur ce module.
