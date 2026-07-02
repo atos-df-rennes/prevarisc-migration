@@ -68,6 +68,8 @@
 | **Impact** | **Faible à moyen** — perte d'un repère visuel prévu par la spec et utile sur les listes volumineuses. |
 | **Fichiers concernés** | `prevarisc-migration/templates/etablissement/edit_textes_applicables.html.twig`, `prevarisc/application/views/scripts/etablissement/edit-textes-applicables.phtml` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy.
+
 ---
 
 ### Écart 5 — Le réordonnement AJAX Symfony renvoie une redirection HTTP au lieu d'une réponse légère
