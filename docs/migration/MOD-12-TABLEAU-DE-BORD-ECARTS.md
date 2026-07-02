@@ -31,6 +31,8 @@
 | **Impact** | **Élevé** — régression fonctionnelle directe sur le fil d'actualité : un utilisateur peut voir un message sans pouvoir le supprimer, contrairement à la spec et au comportement historique. |
 | **Fichiers concernés** | `docs/specs/MOD-12-TABLEAU-DE-BORD.md:270`, `prevarisc-migration/src/Controller/IndexController.php:239-247`, `prevarisc/application/controllers/IndexController.php:132-143` |
 
+**Retour utilisateur** : Écart de migration/spec accepté. Il s'agit d'une amélioration de sécurité qui aurait dû être présente lors de l'implémentation de la fonctionnalité et qui était référencée comme bug dans un ancien ticket sur notre outil de ticketing. Modifier la spec pour correspondre à ce comportement.
+
 ---
 
 ### Écart 2 — L'indicateur de connectivité Plat'AU n'affiche plus l'état de chargement ni le bandeau embarqué attendu
