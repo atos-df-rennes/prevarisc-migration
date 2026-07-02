@@ -46,6 +46,8 @@
 | **Impact** | **Moyen** — la vérification existe, mais l'UX décrite dans la spec n'est pas reproduite : absence d'état intermédiaire visible et de zone dédiée en haut du tableau de bord. |
 | **Fichiers concernés** | `docs/specs/MOD-12-TABLEAU-DE-BORD.md:226-248`, `prevarisc-migration/templates/index/index.html.twig:121-141`, `prevarisc/application/views/scripts/index/index.phtml:132-170` |
 
+**Retour utilisateur** : Écart de migration partiellement confirmé. Le remplacement du bandeau par des toasts est intentionnel pour améliorer l'UI/UX. Cependant il manque en effet un toast temporaire "Vérification en cours..." -> ajouter ce toast via le pattern `const enCoursToastId`. 
+
 ---
 
 ## Comportements alignés (confirmés)
