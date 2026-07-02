@@ -40,6 +40,8 @@
 | **Impact** | **Moyen** — la règle métier est approximée dans les deux implémentations ; le legacy ajoute une dérive supplémentaire en réordonnant les textes édités. |
 | **Fichiers concernés** | `prevarisc-migration/src/Form/TexteApplicableType.php`, `prevarisc/application/controllers/GestionTextesApplicablesController.php` |
 
+**Retour utilisateur** : Le code Symfony corrige un des problèmes et l'autre était déjà présent en legacy. La détection de la catégorie d'un texte applicable n'étant pas triviale au vu des tables/relations, on laisse en l'état pour le moment. Aucune action à prévoir sur ce point.
+
 ---
 
 ### Écart 3 — La gestion d'erreur à la sauvegarde n'est pas restituée dans Symfony
