@@ -98,6 +98,8 @@
 | **Impact** | **Moyen** — la migration est cohérente avec le legacy, mais pas totalement avec la formulation littérale de la spec ; une validation métier est nécessaire pour confirmer que l'ensemble `[21,22,24,26,27,29]` est bien le référentiel attendu. |
 | **Fichiers concernés** | `prevarisc-migration/src/Constant/DossierNature.php`, `prevarisc-migration/src/Service/Dossier/DossierCreationService.php` |
 
+**Retour utilisateur** : La spec est incorrecte. Le code legacy utilise bien les natures mentionnées (`[21,22,24,26,27,29]`) depuis que ce fonctionnement a été implémenté. L'acronyme VC correspond à `Visite Chantier` et pas `Visite Contrôle`. Corrige la spec.
+
 ---
 
 ## Comportements alignés (confirmés)
