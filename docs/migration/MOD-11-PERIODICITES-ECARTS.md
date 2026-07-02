@@ -42,6 +42,8 @@
 | **Impact** | **Moyen** — la règle est fonctionnellement couverte tant que le legacy reste disponible, mais la migration n'est pas complète ni découplée. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php` |
 
+**Retour utilisateur** : Écart de migration confirmé. Vider le cache `$searchCache` global Symfony.
+
 ---
 
 ### Écart 3 — L'action « Appliquer sur TOUS les établissements » était un GET sans protection CSRF en legacy
