@@ -58,14 +58,18 @@ class TextesApplicablesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // @todo: gestion de l'affichage prescription
-            // la valeur oui/non n'est pas conservée, peut-être le gérer mais quid des conséquences d'affichage/masquaque
-            $prescription = (bool) $form->get('prescription')->getData();
-            $this->serviceTexteApplicable->save($texteApplicable, $prescription);
+            try {
+                // @todo: gestion de l'affichage prescription
+                // la valeur oui/non n'est pas conservée, peut-être le gérer mais quid des conséquences d'affichage/masquaque
+                $prescription = (bool) $form->get('prescription')->getData();
+                $this->serviceTexteApplicable->save($texteApplicable, $prescription);
 
-            $this->addFlash('success', 'Texte applicable ajouté.');
+                $this->addFlash('success', 'Texte applicable ajouté.');
 
-            return $this->redirectToRoute('admin_textes_applicables');
+                return $this->redirectToRoute('admin_textes_applicables');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Erreur lors de la sauvegarde du texte : ' . $e->getMessage());
+            }
         }
 
         return $this->render('textes_applicables/ajout.html.twig', [
@@ -84,12 +88,16 @@ class TextesApplicablesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $prescription = (bool) $form->get('prescription')->getData();
-            $this->serviceTexteApplicable->save($texteApplicable, $prescription);
+            try {
+                $prescription = (bool) $form->get('prescription')->getData();
+                $this->serviceTexteApplicable->save($texteApplicable, $prescription);
 
-            $this->addFlash('success', 'Texte applicable modifié.');
+                $this->addFlash('success', 'Texte applicable modifié.');
 
-            return $this->redirectToRoute('admin_textes_applicables');
+                return $this->redirectToRoute('admin_textes_applicables');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Erreur lors de la sauvegarde du texte : ' . $e->getMessage());
+            }
         }
 
         return $this->render('textes_applicables/ajout.html.twig', [
