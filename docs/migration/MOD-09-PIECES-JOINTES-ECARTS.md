@@ -125,8 +125,13 @@
 ---
 
 ## Recommandations
-1. ~~Porter en priorité la liaison PJ dossier ↔ établissements et la sélection « passage en commission »~~ — Écarts 1 et 2 confirmés comme code mort legacy, aucune reprise nécessaire.
-2. ~~Ajouter une vraie route Symfony de téléchargement pour les PJ de date de commission afin de supprimer la dépendance au contrôleur Zend.~~ — Écart 3 corrigé.
-3. Clarifier puis migrer la sémantique des valeurs `PLACEMENT_ETABLISSEMENTPJ` avant toute reprise de données, sinon les plans legacy seront interprétés à tort.
-4. Décider explicitement si la date d'ajout doit rester une simple date (comme historiquement) ou devenir une vraie date-heure conforme à la spec.
-5. Conserver le correctif Symfony sur le nom par défaut et documenter ce bug legacy dans le rapport de migration.
+
+✅ **Tous les écarts ont été traités** :
+
+1. ✅ Écarts 1 et 2 — confirmés comme code mort legacy, aucune reprise nécessaire.
+2. ✅ Écart 3 — corrigé. Route Symfony native `piece_jointe_get_date_commission` ajoutée, dépendance au contrôleur Zend supprimée (2026-07-01).
+3. ✅ Écart 4 — corrigé. Alignement sur legacy : constantes `PlacementEtablissementPj` inversées (`LISTE = null`, `DIAPORAMA = 1`, `PLANS = 0`), génération de miniature restreinte aux images réellement exposées (2026-07-01).
+4. ✅ Écart 5 — corrigé. Date d'ajout traitée comme une simple date historiquement, pas comme une date-heure. Utilisation de `new \DateTime('today')` alignée sur legacy (2026-07-01).
+5. ✅ Écart 6 — corrigé. Correctif Symfony sur le nom par défaut (extraction correcte d'extension sans troncature brute) appliqué et documenté (2026-07-01).
+
+Aucune action complémentaire requise sur ce module.

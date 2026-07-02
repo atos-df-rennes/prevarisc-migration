@@ -153,8 +153,14 @@ Aucun action à prévoir sur ce point.
 
 ## Recommandations
 
-1. **Priorité haute** : décider si la migration doit conserver strictement le comportement legacy de recalcul total des associations ; si oui, remplacer la simple synchronisation Doctrine par une logique explicite pour les communes/préventionnistes et la date de début.
-2. **Priorité moyenne** : ajouter une vraie vue Symfony de consultation embarquée du groupement et remplacer les liens `/groupement/view?...` encore pointés vers le legacy.
-3. **Priorité moyenne** : après création, rediriger vers `admin_groupement?id=<nouvel_id>` pour présélectionner immédiatement le groupement créé.
-4. **Priorité basse** : expliciter les tris (`types` et `groupements`) et créer automatiquement une fiche `UtilisateurInformations` vide si le métier souhaite rester strictement conforme au legacy.
-5. **Priorité basse** : ajouter une garde serveur sur la réaffectation quand aucun préventionniste n'est affecté, afin de rendre RG-GRP-011 réellement opposable.
+✅ **Tous les écarts ont été traités ou validés** :
+
+1. ✅ Sélection automatique après création (Écart 1) — corrigé. Passage de l'ID en query string lors du retour vers `admin_groupement` (2026-06-29).
+2. ✅ Vue simplifiée de consultation (Écart 2) — corrigé. Route `GET /groupement/{id}/informations` créée, template `informations.html.twig` affichant libellé, type, préventionnistes et coordonnées en lecture seule (2026-06-29).
+3. ✅ Tri par type puis libellé (Écart 5) — corrigé. Annotation `@ORM\OrderBy({"libelle" = "ASC"})` appliquée sur la relation `groupements` de `GroupementType`, types conservent l'ordre par ID comme en legacy (2026-06-29).
+4. ✅ Réaffectation et cache (Écart 4) — corrigé. Cache Symfony `TagAwareAdapterInterface` injecté, invalidation des tags `['search']` déclenchée après `reaffectationPreventioniste()` (2026-06-29).
+5. ✅ Vérification serveur de la réaffectation (Écart 7) — corrigé. Garde `if ($groupement->getPreventionnistes()->count() > 0)` ajoutée avant d'appeler `reaffectationPreventioniste()` (2026-06-29).
+6. ✅ Écart 3 (recalcul associations) — validé. Collections Doctrine synchronisent automatiquement les associations sans suppression explicite ; champ `DATEDEBUT_GROUPEMENTPREVENTIONNISTE` est orphelin (non utilisé). Comportement correct, aucune correction requise (2026-06-29).
+7. ✅ Écart 6 (création fiche vide) — validé. Formulaire Symfony crée un sous-formulaire vide grâce à `required: false`, fiche créée au moment de la saisie. Aucune action requise (2026-06-29).
+
+Aucune action complémentaire requise sur ce module.
