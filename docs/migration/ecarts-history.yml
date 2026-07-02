@@ -655,9 +655,9 @@ ecarts:
     title: Le typage interne autour de `ID_TYPE` reste fragile dans la migration Symfony
     action: check
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-02'
+    validated_by: system
+    notes: Vérification confirmée — ID_TYPE en varchar(10) dans periodicite, int unsigned dans type. Comportement correct reflétant le schéma BDD. Point de fragilité documenté pour future refactorisation.
     files_modified:
     - prevarisc-migration/src/Entity/Periodicite.php
     - prevarisc-migration/src/Repository/PeriodiciteRepository.php

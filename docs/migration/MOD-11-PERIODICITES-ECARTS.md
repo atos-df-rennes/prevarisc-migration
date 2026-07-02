@@ -76,15 +76,18 @@
 
 ---
 
-### Écart 5 — Le typage interne autour de `ID_TYPE` reste fragile dans la migration Symfony
+### Écart 5 — Le typage interne autour de `ID_TYPE` reste fragile dans la migration Symfony — ✅ VALIDÉ
 | | Détail |
 |---|---|
 | **Règles** | RG-PER-002, RG-PER-004, RG-PER-005 |
 | **Spec** | La matrice est indexée par catégorie, type/classe et local à sommeil selon le genre d'établissement. |
-| **Symfony** | L'entité `Periodicite` mappe `ID_TYPE` en `string` (`src/Entity/Periodicite.php`), tandis que `EtablissementType` reste un identifiant entier (`src/Entity/EtablissementType.php:17-25`). Le repository convertit implicitement l'identifiant de type d'établissement vers `gn4(...)` (`src/Repository/PeriodiciteRepository.php:111-123`). |
+| **Symfony** | L'entité `Periodicite` mappe `ID_TYPE` en `string` (`src/Entity/Periodicite.php:43`), tandis que `EtablissementType` reste un identifiant entier (`src/Entity/EtablissementType.php:24`). Le repository convertit implicitement l'identifiant de type d'établissement vers `gn4(...)` (`src/Repository/PeriodiciteRepository.php:36-49`). |
 | **Legacy** | Le legacy travaillait avec des identifiants SQL plus permissifs et n'exposait pas cette tension de typage dans le code PHP. |
 | **Impact** | **Faible** — pas de bug métier observé, mais point de fragilité technique si le typage ou la source des identifiants évolue. |
 | **Fichiers concernés** | `prevarisc-migration/src/Entity/Periodicite.php`, `prevarisc-migration/src/Entity/EtablissementType.php`, `prevarisc-migration/src/Repository/PeriodiciteRepository.php` |
+| **Statut** | ✅ **VALIDÉ** (2026-07-02) — vérification confirmée : `ID_TYPE` en varchar(10) dans `periodicite`, int unsigned dans `type` ; comportement correct reflétant le schéma BDD |
+
+**Retour utilisateur** : Les typages indiqués correspondent aux types renseignés en base (table `periodicite`, ID_TYPE = varchar(10), table `type`, ID_TYPE = int unsigned). Bien que la fragilité soit réelle, cela reflète l'état de la base de données et permet de visualiser la fragilité pour action future. Aucune modification à prévoir. ✅ Écart confirmé comme conforme.
 
 ---
 
@@ -108,4 +111,4 @@
 2. ✅ **Écart 2 — Vidage du cache** — RÉSOLU (2026-07-02). Cache vidé nativement via `$this->searchCache->invalidateTags(['search'])`.
 3. ✅ **Écart 3 — POST + CSRF pour l'application globale** — VALIDÉ (2026-07-02). Amélioration de sécurité correctement implémentée ; conserver ce mécanisme, ne pas réintroduire de déclenchement en `GET`.
 4. ✅ **Écart 4 — Atomicité de la sauvegarde de la matrice** — VALIDÉ (2026-07-02). Symfony utilise un `flush()` unique (atomic), contre ligne-par-ligne en legacy. C'est une amélioration sans régression ; aucune action requise.
-5. Documenter le point de fragilité de typage autour de `ID_TYPE` pour éviter des régressions lors d'une future refactorisation Doctrine.
+5. ✅ **Écart 5 — Fragilité de typage autour de `ID_TYPE`** — VALIDÉ (2026-07-02). Comportement correct reflétant le schéma BDD (varchar(10) vs int unsigned) ; documenter le point de fragilité pour éviter des régressions lors d'une future refactorisation Doctrine.
