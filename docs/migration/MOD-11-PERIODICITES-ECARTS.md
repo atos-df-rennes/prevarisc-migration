@@ -27,6 +27,8 @@
 | **Impact** | **Moyen** — une soumission hors interface (ou un contournement client) peut injecter des valeurs hors plage, contrairement à la spec. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php`, `prevarisc-migration/templates/tableau_des_periodicites/index.html.twig`, `prevarisc/application/controllers/TableauDesPeriodicitesController.php`, `prevarisc/application/views/scripts/tableau-des-periodicites/index.phtml` |
 
+**Retour utilisateur** : Écart de spec confirmé. Ajouter une borne côté serveur.
+
 ---
 
 ### Écart 2 — Le vidage du cache de recherche dépend encore d'un pont legacy côté Symfony
