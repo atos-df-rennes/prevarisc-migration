@@ -8,6 +8,7 @@ use App\Repository\TexteApplicableRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -108,29 +109,33 @@ class TextesApplicablesController extends AbstractController
     /**
      * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder", options={"expose"=true})
      */
-    public function ordonner(Request $request): Response
+    public function ordonner(Request $request): JsonResponse
     {
-        $tableUpdate = $request->request->get('tableUpdate');
+        try {
+            $tableUpdate = $request->request->get('tableUpdate');
 
-        if (!\is_string($tableUpdate)) {
-            throw new \Exception('Le format de la table de mise à jour est incorrect.');
-        }
-
-        $taIds = explode(',', $tableUpdate);
-
-        foreach ($taIds as $key => $id) {
-            $texteApplicable = $this->texteApplicableRepository->find($id);
-
-            if (null === $texteApplicable) {
-                continue;
+            if (!\is_string($tableUpdate)) {
+                throw new \Exception('Le format de la table de mise à jour est incorrect.');
             }
 
-            $texteApplicable->setNum($key);
-            $this->entityManager->persist($texteApplicable);
+            $taIds = explode(',', $tableUpdate);
+
+            foreach ($taIds as $key => $id) {
+                $texteApplicable = $this->texteApplicableRepository->find($id);
+
+                if (null === $texteApplicable) {
+                    continue;
+                }
+
+                $texteApplicable->setNum($key);
+                $this->entityManager->persist($texteApplicable);
+            }
+
+            $this->entityManager->flush();
+
+            return new JsonResponse(['success' => true, 'message' => 'Ordre des textes applicables mis à jour.']);
+        } catch (\Exception $exception) {
+            return new JsonResponse(['success' => false, 'error' => 'Erreur lors de la mise à jour de l\'ordre : '.$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $this->entityManager->flush();
-
-        return $this->redirectToRoute('admin_textes_applicables');
     }
 }
