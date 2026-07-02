@@ -62,7 +62,7 @@
      * 
      * @param {string} type - Type de notification (success, error, warning, info)
      * @param {string} message - Message à afficher
-     * @param {object} options - Options de configuration
+     * @param {object} [options] - Options de configuration (facultatif)
      */
     function showToast(type, message, options) {
         options = $.extend({}, DEFAULT_CONFIG, options || {});
@@ -134,9 +134,11 @@
      * Affiche une notification depuis une réponse JSON Symfony
      * 
      * @param {object} response - Réponse JSON avec { success: bool, error?: string, message?: string }
-     * @param {object} options - Options de configuration
+     * @param {object} [options] - Options de configuration (facultatif)
      */
     function showToastFromResponse(response, options) {
+        options = options || {};
+
         if (response.success === true) {
             const message = response.message || 'Opération réussie';
             return showToast('success', message, options);

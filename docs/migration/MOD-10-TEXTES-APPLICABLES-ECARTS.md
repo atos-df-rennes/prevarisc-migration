@@ -73,15 +73,18 @@
 
 ---
 
-### Écart 5 — Le réordonnement AJAX Symfony renvoie une redirection HTTP au lieu d'une réponse légère
+### Écart 5 — Le réordonnement AJAX Symfony renvoie une redirection HTTP au lieu d'une réponse légère ✅ RÉSOLU
 | | Détail |
 |---|---|
 | **Règles** | RG-TXT-004 |
 | **Spec** | Le réordonnement doit être enregistré en arrière-plan sans rechargement de page. |
-| **Symfony** | Le JS appelle `admin_textes_applicables_updateorder` en AJAX (`templates/textes_applicables/index.html.twig:22-26`), mais le contrôleur répond par `redirectToRoute(...)` (`src/Controller/TextesApplicablesController.php:103-126`). La page ne se recharge pas, mais la réponse HTTP n'est pas adaptée au mode AJAX. |
+| **Symfony (avant)** | Le JS appelle `admin_textes_applicables_updateorder` en AJAX (`templates/textes_applicables/index.html.twig:22-26`), mais le contrôleur répond par `redirectToRoute(...)` (`src/Controller/TextesApplicablesController.php:103-126`). La page ne se recharge pas, mais la réponse HTTP n'est pas adaptée au mode AJAX. |
+| **Symfony (après)** | L'action `ordonner()` retourne désormais une `JsonResponse` (`{success, message}` ou `{success: false, error}`) encapsulée dans un `try/catch` (`src/Controller/TextesApplicablesController.php:112-139`). Le template affiche un toast de chargement (`$.toast.info(..., { autoClose: false })`) pendant la requête, puis un toast de succès/échec via `$.toast.fromResponse()` ou `$.toast.error()` selon le résultat, en s'appuyant sur le composant `toast-notifications.js` déjà chargé globalement (`templates/base.html.twig:50`), sur le même modèle que `public/js/gestionodj.js` (`templates/textes_applicables/index.html.twig:10-38`). |
 | **Legacy** | Le legacy désactive explicitement le rendu et retourne une réponse vide pour `updateorderAction()` (`application/controllers/GestionTextesApplicablesController.php:74-86`). |
-| **Impact** | **Faible** — pas de casse visible aujourd'hui, mais comportement réseau inutilement ambigu et moins propre que le flux legacy. |
-| **Fichiers concernés** | `prevarisc-migration/templates/textes_applicables/index.html.twig`, `prevarisc-migration/src/Controller/TextesApplicablesController.php`, `prevarisc/application/controllers/GestionTextesApplicablesController.php` |
+| **Impact** | ✅ **Résolu** — la réponse HTTP est désormais adaptée au mode AJAX et l'utilisateur reçoit un retour visuel explicite (chargement puis succès/échec). |
+| **Fichiers modifiés** | `prevarisc-migration/templates/textes_applicables/index.html.twig`, `prevarisc-migration/src/Controller/TextesApplicablesController.php` |
+
+**Retour utilisateur** (traité) : Écart de migration confirmé. Renvoyer une réponse JSON et adapter le template pour utiliser le composant `toast-notification` du projet. Mettre un toast de chargement lors de l'exécution de la requête et un toast de succès/échec au retour. Un exemple est disponible au niveau des formulaires personnalisés. (e.g. @/home/dev/prevarisc-infra/prevarisc-migration/public/js/formulaire/ordonnancement/ordonnancement.js) ✅ **FAIT**
 
 ---
 

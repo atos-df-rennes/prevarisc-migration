@@ -9,9 +9,9 @@
         $(document).ready(function() {
             $(".sortTexteAppl").sortable({
                 update: function(event, ui) {
-                    var id = $(this).attr('id');
-                    var listeTexteApplUpdate = [];
-                    var listeOrder = "";
+                    const id = $(this).attr('id');
+                    const listeTexteApplUpdate = [];
+                    let listeOrder = '';
                     $("#"+id+" > li").each(function(){
                         //on parcourt les li pour récolter les changements et mettre à jour dans la base
                         //on recupere id du li en cours
@@ -19,10 +19,25 @@
                         listeOrder += liId+",";
                         listeTexteApplUpdate.push(liId);
                     });
+                    const enCoursToastId = $.toast.info('Mise à jour de l\'ordre en cours…', { autoClose: false });
+
                     $.ajax({
                         url: Routing.generate('admin_textes_applicables_updateorder'),
                         data: "tableUpdate="+listeTexteApplUpdate,
-                        type:"POST",
+                        type: "POST",
+                        dataType: "json",
+                        success: function(response) {
+                            $.toast.close(enCoursToastId);
+                            $.toast.fromResponse(response);
+                        },
+                        error: function(xhr) {
+                            $.toast.close(enCoursToastId);
+                            let msg = 'Erreur lors de la mise à jour de l\'ordre.';
+                            if (xhr.responseJSON && xhr.responseJSON.error) {
+                                msg = xhr.responseJSON.error;
+                            }
+                            $.toast.error(msg);
+                        }
                     });
                 }
             });
