@@ -99,6 +99,10 @@ class TableauDesPeriodicitesController extends AbstractController
                 throw new \InvalidArgumentException("Le type de la périodicité n'est pas correct. Type attendu : entier.");
             }
 
+            if ($periodicite < 0 || $periodicite > 999) {
+                throw new \InvalidArgumentException("La périodicité doit être comprise entre 0 et 999 mois inclus.");
+            }
+
             if (null !== $periodiciteEntity) {
                 if ($periodicite === $periodiciteEntity->getPeriodicite()) {
                     continue;

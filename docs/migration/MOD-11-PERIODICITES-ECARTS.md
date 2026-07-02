@@ -17,15 +17,18 @@
 ---
 
 ## Écarts détaillés
-### Écart 1 — La borne métier 0..999 mois n'est pas validée côté serveur
+### Écart 1 — La borne métier 0..999 mois n'est pas validée côté serveur — ✅ RÉSOLU
+
 | | Détail |
 |---|---|
 | **Règles** | RG-PER-001, § 3.2 |
 | **Spec** | Les périodicités sont des entiers en mois, limités à trois chiffres, donc de `0` à `999`. |
-| **Symfony** | La sauvegarde valide seulement « entier » via `FILTER_VALIDATE_INT` (`src/Controller/TableauDesPeriodicitesController.php:88-100`) ; aucune borne `min/max` n'est contrôlée. Le template limite bien `maxlength="3"`, mais seulement côté navigateur (`templates/tableau_des_periodicites/index.html.twig:66-76`, `99-100`). |
-| **Legacy** | Le legacy sauvegarde chaque valeur postée sans vérification métier de borne (`application/controllers/TableauDesPeriodicitesController.php:44-57`) ; lui aussi se repose uniquement sur `maxlength="3"` dans la vue (`application/views/scripts/tableau-des-periodicites/index.phtml:40-49`, `74-75`). |
-| **Impact** | **Moyen** — une soumission hors interface (ou un contournement client) peut injecter des valeurs hors plage, contrairement à la spec. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php`, `prevarisc-migration/templates/tableau_des_periodicites/index.html.twig`, `prevarisc/application/controllers/TableauDesPeriodicitesController.php`, `prevarisc/application/views/scripts/tableau-des-periodicites/index.phtml` |
+| **Statut** | ✅ **RÉSOLU** (2026-07-02) — validation serveur ajoutée dans `save()` |
+| **Correction** | La méthode `TableauDesPeriodicitesController::save()` valide désormais que chaque périodicité est entre 0 et 999 inclus. Une `InvalidArgumentException` est levée avec le message explicite « La périodicité doit être comprise entre 0 et 999 mois inclus. » en cas de dépassement de la plage. |
+| **Fichiers modifiés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php:102-104` |
+| **Tests** | ✅ Tous les tests passent (632 tests, 1184 assertions) ; PHPStan niveau 10 : OK |
+
+**Retour utilisateur** : Écart de spec confirmé. ✅ Borne côté serveur ajoutée.
 
 ---
 
@@ -93,7 +96,7 @@
 ---
 
 ## Recommandations
-1. Ajouter une vraie validation serveur `0 <= periodicite <= 999` dans l'action de sauvegarde de la matrice et, si possible, au niveau formulaire/DTO.
+1. ✅ **Écart 1 — Validation serveur 0 ≤ periodicite ≤ 999** — RÉSOLU (2026-07-02). Validation ajoutée dans `TableauDesPeriodicitesController::save()`.
 2. Remplacer la redirection `/legacy/admin/clear-search-cache-and-redirect` par un mécanisme Symfony natif avant la suppression définitive du legacy.
 3. Conserver l'amélioration Symfony sur le `POST + CSRF` pour l'action d'application globale ; ne pas réintroduire de déclenchement en `GET`.
 4. Documenter le point de fragilité de typage autour de `ID_TYPE` pour éviter des régressions lors d'une future refactorisation Doctrine.
