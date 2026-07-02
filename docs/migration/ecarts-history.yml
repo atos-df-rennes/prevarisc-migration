@@ -664,13 +664,14 @@ ecarts:
     - prevarisc-migration/src/Entity/EtablissementType.php
   MOD-12:
   - number: 1
-    title: La suppression d'un message est limitée à son auteur dans Symfony
+    title: La suppression d'un message est limitée à son auteur dans Symfony ✅ VALIDÉ
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-02'
+    validated_by: user
+    notes: Spec updated to reflect security improvement (author-only deletion). This is an intentional security enhancement replacing previous behavior.
     files_modified:
+    - prevarisc-migration/docs/specs/MOD-12-TABLEAU-DE-BORD.md:270
     - prevarisc-migration/src/Controller/IndexController.php:239-247
   - number: 2
     title: L'indicateur de connectivité Plat'AU n'affiche plus l'état de chargement
@@ -1017,6 +1018,6 @@ ecarts:
     - prevarisc-migration/src/Service/Doc.php:21-38
 metadata:
   last_updated: '2026-07-02'
-  updated_by: system
-  total_ecarts_processed: 91
+  updated_by: user
+  total_ecarts_processed: 92
 
