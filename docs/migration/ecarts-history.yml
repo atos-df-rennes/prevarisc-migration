@@ -645,10 +645,10 @@ ecarts:
     title: La sauvegarde legacy de la matrice n'est pas atomique, contrairement à
       Symfony
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-02'
+    validated_by: user
+    notes: Amélioration Symfony (atomic flush vs ligne par ligne en legacy). Pas de régression, pas d'action requise.
     files_modified:
     - prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php
   - number: 5
