@@ -58,17 +58,18 @@
 
 ---
 
-### Écart 4 — Les textes déjà associés ne sont plus mis en gras dans les écrans de modification Symfony
+### Écart 4 — Les textes déjà associés ne sont plus mis en gras dans les écrans de modification Symfony ✅ RÉSOLU
 | | Détail |
 |---|---|
 | **Règles** | § 5.1, § 5.2 |
 | **Spec** | Dans les écrans d'association établissement/dossier, les textes déjà associés doivent être cochés **et affichés en gras**. |
-| **Symfony** | Le template Symfony se contente d'un `form_row(texte_applicable)` sans style conditionnel pour les éléments déjà cochés (`templates/etablissement/edit_textes_applicables.html.twig:18-25`). |
-| **Legacy** | Le legacy applique explicitement `font-weight: bold` si le texte est déjà lié à l'établissement (`application/views/scripts/etablissement/edit-textes-applicables.phtml:15-19`). |
-| **Impact** | **Faible à moyen** — perte d'un repère visuel prévu par la spec et utile sur les listes volumineuses. |
-| **Fichiers concernés** | `prevarisc-migration/templates/etablissement/edit_textes_applicables.html.twig`, `prevarisc/application/views/scripts/etablissement/edit-textes-applicables.phtml` |
+| **Symfony (avant)** | Le template Symfony se contente d'un `form_row(texte_applicable)` sans style conditionnel pour les éléments déjà cochés (`templates/etablissement/edit_textes_applicables.html.twig:18-25`). |
+| **Symfony (après)** | Les templates Symfony remplacent `form_row()` par un rendu personnalisé qui applique `font-weight: bold` aux textes déjà associés (détection via `texte_applicable.vars.checked`). Les labels sont maintenant enveloppés dans une balise `<label>` avec style conditionnel (`src/Form/TextesApplicablesEtablissementType.php`, `templates/etablissement/edit_textes_applicables.html.twig:24-29`, `templates/dossier/textes_applicables/edit_textes_applicables.html.twig:24-29`). |
+| **Legacy** | Le legacy applique explicitement `font-weight: bold` si le texte est déjà lié à l'établissement/dossier (`application/views/scripts/etablissement/edit-textes-applicables.phtml:15-19`). |
+| **Impact** | ✅ **Résolu** — le repère visuel « texte associé en gras » est maintenant présent dans Symfony, reproduisant exactement le comportement legacy. |
+| **Fichiers modifiés** | `prevarisc-migration/templates/etablissement/edit_textes_applicables.html.twig`, `prevarisc-migration/templates/dossier/textes_applicables/edit_textes_applicables.html.twig` |
 
-**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy.
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy. ✅ **FAIT**
 
 ---
 

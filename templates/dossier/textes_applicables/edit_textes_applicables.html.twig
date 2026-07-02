@@ -21,7 +21,12 @@
                 {% set last_type = texte_applicable.vars.attr['data-type'] %}
             {% endif %}
 
-            {{ form_row(texte_applicable) }}
+            <div class="checkbox">
+                {{ form_widget(texte_applicable) }}
+                <label for="{{ texte_applicable.vars.id }}" style="{% if texte_applicable.vars.checked %}font-weight: bold{% endif %}">
+                    {{ texte_applicable.vars.label }}
+                </label>
+            </div>
         {% endfor %}
     {{ form_end(form) }}
 {% endblock %}
