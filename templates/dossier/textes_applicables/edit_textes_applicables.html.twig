@@ -3,7 +3,7 @@
 {% block title %}{{ parent() }} / Édition des textes applicables{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
+    {{ form_start(form, {attr: {class: 'checkbox--checked__label--bold'}}) }}
         {{ form_errors(form) }}
 
         <div class='action-buttons pull-right'>
@@ -21,12 +21,7 @@
                 {% set last_type = texte_applicable.vars.attr['data-type'] %}
             {% endif %}
 
-            <div class="checkbox">
-                {{ form_widget(texte_applicable) }}
-                <label for="{{ texte_applicable.vars.id }}" style="{% if texte_applicable.vars.checked %}font-weight: bold{% endif %}">
-                    {{ texte_applicable.vars.label }}
-                </label>
-            </div>
+            {{ form_row(texte_applicable) }}
         {% endfor %}
     {{ form_end(form) }}
 {% endblock %}
