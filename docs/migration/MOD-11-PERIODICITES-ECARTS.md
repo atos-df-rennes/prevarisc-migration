@@ -56,6 +56,8 @@
 | **Impact** | **Faible à moyen** — amélioration nette en Symfony ; le legacy restait plus exposé aux déclenchements non désirés. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/TableauDesPeriodicitesController.php`, `prevarisc-migration/templates/tableau_des_periodicites/index.html.twig`, `prevarisc/application/views/scripts/tableau-des-periodicites/index.phtml` |
 
+**Retour utilisateur** : Amélioration de l'existant, aucune action nécessaire.
+
 ---
 
 ### Écart 4 — La sauvegarde legacy de la matrice n'est pas atomique, contrairement à Symfony
