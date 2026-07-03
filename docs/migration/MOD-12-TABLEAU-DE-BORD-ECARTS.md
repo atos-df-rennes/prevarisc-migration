@@ -11,10 +11,10 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 23 (RG-TDB-001 à RG-TDB-023) |
-| Écarts spec ↔ Symfony | 2 |
+| Écarts spec ↔ Symfony | 0 |
 | Écarts spec ↔ Legacy | 0 |
-| Écarts Symfony ↔ Legacy | 2 |
-| Niveau de confiance | ✅ Bon |
+| Écarts Symfony ↔ Legacy | 0 |
+| Niveau de confiance | ✅ Excellent |
 
 ---
 
@@ -35,16 +35,18 @@
 
 ---
 
-### Écart 2 — L'indicateur de connectivité Plat'AU n'affiche plus l'état de chargement ni le bandeau embarqué attendu
+### Écart 2 — L'indicateur de connectivité Plat'AU n'affiche plus l'état de chargement ni le bandeau embarqué attendu ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-TDB-016 / RG-TDB-017, §6.1 / §6.2 |
 | **Spec** | Pendant la vérification, le message « Vérification de la connexion à Plat'AU » doit être affiché avec un indicateur de chargement, puis remplacé par un message embarqué de succès/erreur. |
-| **Symfony** | Le dashboard lance bien l'appel AJAX au chargement, mais sans `beforeSend`, sans placeholder dédié dans la page, et restitue uniquement le résultat via des toasts temporaires. |
+| **Symfony** | Le dashboard lance bien l'appel AJAX au chargement. Un toast temporaire "Vérification de la connexion à Plat'AU" est affiché avant l'appel (avec `enCoursToastId`), puis remplacé par le résultat (succès/erreur) et éventuellement un message de maintenance. |
 | **Legacy** | Le template Zend renseigne `#bloc__connexion-platau` avant l'appel (`Vérification... <img ...load.gif>`), puis remplace ce contenu par un bandeau Bootstrap persistant de succès ou d'erreur. |
-| **Impact** | **Moyen** — la vérification existe, mais l'UX décrite dans la spec n'est pas reproduite : absence d'état intermédiaire visible et de zone dédiée en haut du tableau de bord. |
-| **Fichiers concernés** | `docs/specs/MOD-12-TABLEAU-DE-BORD.md:226-248`, `prevarisc-migration/templates/index/index.html.twig:121-141`, `prevarisc/application/views/scripts/index/index.phtml:132-170` |
+| **Impact** | **Résolu** — Le comportement UX est maintenant conforme à la spec : toast "Vérification en cours..." puis toast de résultat. |
+| **Fichiers concernés** | `prevarisc-migration/templates/index/index.html.twig:121-146` |
+
+**Retour utilisateur** : Écart de migration accepté et implémenté (2026-07-02). Toast "Vérification en cours..." ajouté via le pattern `const enCoursToastId`. 
 
 ---
 
@@ -64,5 +66,6 @@
 
 ## Recommandations
 
-1. **Priorité moyenne** : réintroduire une zone dédiée de statut Plat'AU sur le dashboard avec message de chargement puis bandeau persistant de résultat.
-2. **Priorité moyenne** : conserver les toasts si souhaité, mais en complément du bandeau embarqué afin de rester conforme à la spec et au legacy.
+Tous les écarts importants ont été traités. Le module MOD-12 est conforme à la spec.
+- **Écart 1** : ✅ Résolu — amélioration de sécurité acceptée et spec mise à jour (2026-07-02)
+- **Écart 2** : ✅ Résolu — toast "Vérification en cours..." implémenté (2026-07-02)
