@@ -100,7 +100,7 @@ class TableauDesPeriodicitesController extends AbstractController
             }
 
             if ($periodicite < 0 || $periodicite > 999) {
-                throw new \InvalidArgumentException("La périodicité doit être comprise entre 0 et 999 mois inclus.");
+                throw new \InvalidArgumentException('La périodicité doit être comprise entre 0 et 999 mois inclus.');
             }
 
             if (null !== $periodiciteEntity) {
