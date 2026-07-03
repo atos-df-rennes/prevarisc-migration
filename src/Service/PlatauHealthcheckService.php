@@ -346,6 +346,8 @@ class PlatauHealthcheckService
     {
         $options = [
             CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_CONNECTTIMEOUT => 5,
         ];
 
         return array_replace($options, $this->proxyConfiguration->getCurlOptions());
