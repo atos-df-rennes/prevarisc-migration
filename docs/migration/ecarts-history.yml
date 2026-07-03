@@ -910,6 +910,15 @@ ecarts:
     files_modified:
     - prevarisc-migration/src/Controller/CommunesController.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 6
+    title: 'E-06 — §7.6 : mode embarqué de la fiche commune'
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ VALIDÉ — Investigation exhaustive confirme la spécification : le mécanisme embarqué prévu dans le legacy (masquer l'identité et le bouton via $this->ext) n'est jamais utilisé. Recherche approfondie : (1) GestionDesCommunesController::displayAction() assigne $this->view->assign('ext', $this->_request->ext), (2) display.phtml masque les blocs si $this->ext != true, (3) MAIS aucun controller ne passe ext=true, (4) seul appel (index.phtml) charge le template sans paramètre ext. Résultat : fonctionnalité définie mais complètement vide. Aucune implémentation Symfony requise puisque aucun point d'entrée réel ne l'appelle. Pas de régression. Specification mark now 🟢 FERMÉ / VALIDÉ.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1175,5 +1184,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 105
+  total_ecarts_processed: 106
 
