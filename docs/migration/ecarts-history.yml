@@ -858,6 +858,27 @@ ecarts:
     - prevarisc-migration/src/Service/FusionDesCommunes.php
     - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 2
+    title: 'E-02 — RG-CMN-015 : suppression des règles de commission liées aux communes
+      absorbées lors d''une fusion'
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: '✅ RÉSOLU — Ajout de FusionDesCommunes::deleteCommissionRegles(), appelée
+      avant la suppression de chaque commune absorbée. Les CommissionRegle rattachées
+      à la commune (via CommissionRegleRepository::findBy([''commune'' => ...])) sont
+      supprimées explicitement via EntityManager::remove(), plutôt que de s''appuyer
+      uniquement sur la contrainte ON DELETE CASCADE de NUMINSEE_COMMUNE : les tables
+      de jointure commissionreglecategorie, commissionregleclasse et commissionregletype
+      n''ont pas de contrainte de clé étrangère en base et auraient sinon conservé
+      des lignes orphelines. Test unitaire ajouté couvrant ce comportement. Suite
+      de tests complète (634 tests) verte, PHPStan niveau 10 sans erreur et CS-Fixer/Rector/Twig-CS-Fixer
+      sans erreur.'
+    files_modified:
+    - prevarisc-migration/src/Service/FusionDesCommunes.php
+    - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1123,5 +1144,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 102
+  total_ecarts_processed: 103
 
