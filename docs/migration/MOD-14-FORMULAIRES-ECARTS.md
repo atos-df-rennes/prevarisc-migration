@@ -37,6 +37,8 @@
 | **Impact** | **Moyen** — la consultation des descriptifs reste possible, mais l'ergonomie de navigation et de filtrage décrite par la spec n'est pas reproduite. |
 | **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:260-277,302`, `prevarisc-migration/templates/components/_formulaire_personnalise.html.twig:12-21`, `prevarisc/application/views/scripts/formulaire/_table_of_content.phtml:5-105` |
 
+**Retour utilisateur** : la table des matières latérale a été retirée car elle prenait trop de largeur et dégradait l'expérience utilisateur en termes de lecture des informations. Par ailleurs, je ne vois pas cette table des matières latérale sur l'affichage legacy (pas présente en lecture, masquée en édition).
+
 ---
 
 ### Écart 2 — En édition, la table des matières latérale est remplacée par une modale minimaliste
@@ -49,6 +51,8 @@
 | **Legacy** | La vue Zend s'appuie sur la même sidebar de table des matières complète pendant l'édition. |
 | **Impact** | **Moyen** — le masquage par rubrique existe toujours, mais l'outil n'est plus conforme à l'ergonomie attendue et devient moins efficace sur de gros formulaires. |
 | **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:260-277,302`, `prevarisc-migration/templates/components/_formulaire_personnalise_edit.html.twig:143-193`, `prevarisc/application/views/scripts/formulaire/_table_of_content.phtml:5-105` |
+
+**Retour utilisateur** : la table des matières latérale a été retirée car elle prenait trop de largeur et dégradait l'expérience utilisateur en termes de lecture des informations. Par ailleurs, je ne vois pas cette table des matières latérale sur l'affichage legacy (pas présente en lecture, masquée en édition).
 
 ---
 
