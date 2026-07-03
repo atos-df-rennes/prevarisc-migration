@@ -72,6 +72,8 @@
 | **Impact** | **Faible** — la donnée est correctement remplie quand le filtre est actif, mais le comportement reste plus large que la formulation de la spec. |
 | **Fichiers concernés** | `docs/specs/MOD-13-PLATAU.md:223`, `prevarisc-migration/src/Service/SearchExport.php:155-197`, `prevarisc/application/controllers/SearchController.php:400-473` |
 
+**Retour utilisateur**: Modifie la spec pour indiquer que l'en-tête est toujours renseigné mais que la valeur l'est de manière conditionnelle.
+
 ---
 
 ## Comportements alignés (confirmés)
