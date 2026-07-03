@@ -743,13 +743,14 @@ ecarts:
     - prevarisc/application/views/scripts/formulaire/_table_of_content.phtml:1-10,242-244
   - number: 3
     title: En lecture, les champs Date n'affichent plus le nom du jour
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: Created DateExtension Twig filter (date_fr) to format dates with day name. Updated _formulaire_personnalise.html.twig (2 occurrences). Aligns with legacy Service_Utils_Date::formatDateWithDayName(). Tests and PHPStan pass.
     files_modified:
-    - prevarisc-migration/templates/components/_formulaire_personnalise.html.twig:154-156
+    - prevarisc-migration/src/Twig/DateExtension.php
+    - prevarisc-migration/templates/components/_formulaire_personnalise.html.twig:111,155
   - number: 4
     title: La suppression d'une valeur de liste n'est pas immédiate côté Symfony
     action: check

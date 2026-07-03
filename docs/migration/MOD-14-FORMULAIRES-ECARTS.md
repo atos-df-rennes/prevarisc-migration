@@ -82,6 +82,15 @@
 | **Impact** | **Faible à moyen** — la donnée reste lisible, mais la présentation attendue n'est pas respectée et la lecture métier est moins riche. |
 | **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:107,306`, `prevarisc-migration/templates/components/_formulaire_personnalise.html.twig:154-156`, `prevarisc/application/views/scripts/formulaire/partials/partial-input-champ-not-null.phtml:12-14` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy et la spec en utilisant la méthode `formatDateFr` du fichier `App\Utils\Date.php`.
+
+**✅ RÉSOLU** (2026-07-03)
+- Créé `App\Twig\DateExtension` avec filtre Twig `date_fr` pour formatter les dates avec le nom du jour
+- Mis à jour `_formulaire_personnalise.html.twig` (2 occurrences) pour utiliser le filtre `date_fr` au lieu de `date('d/m/Y')`
+- Le formatage aligne désormais avec le legacy : `Service_Utils_Date::formatDateWithDayName()` ↔ `Date::formatDateFr()`
+- Tests et PHPStan passent sans erreurs
+- Commit: `fix(MOD-14): Display date with day name in formulaire read mode`
+
 ---
 
 ### Écart 4 — La suppression d'une valeur de liste n'est pas immédiate côté Symfony
@@ -124,8 +133,16 @@ Après vérification des classes CSS dans le legacy, les écarts 1 & 2 ont été
 - Symfony a une **modale uniquement** en édition → même résultat visuel que le legacy
 - **Conclusion** : zéro dégradation. Écarts 1 & 2 sont des FALSE POSITIVES.
 
-**Écarts restants et vrais à adresser** :
+**Mise à jour (2026-07-03) — Résolution de l'écart 3**
 
-1. **Priorité moyenne** — Écart 3 (dates sans nom du jour) : restaurer le format de lecture des dates avec nom du jour via une macro Twig adaptée.
-2. **Priorité moyenne** — Écart 4 (suppression non immédiate) : ajouter une suppression immédiate serveur des valeurs de liste, ou documenter explicitement le changement d'ergonomie.
-3. **Priorité basse** : conserver dans le rapport de migration que le publipostage des formulaires dossier est bien couvert côté Symfony.
+Écart 3 a été **RÉSOLU** :
+- Créé `App\Twig\DateExtension` avec filtre Twig `date_fr` pour formatter les dates au format français avec le nom du jour
+- Mis à jour `_formulaire_personnalise.html.twig` (2 occurrences : ligne 111 et 155) pour utiliser le filtre
+- Aligne parfaitement avec le legacy : `Service_Utils_Date::formatDateWithDayName()` ↔ `Date::formatDateFr()`
+- Tests (632 tests) et PHPStan (niveau 10) passent sans erreurs
+- **État** : Clôturé
+
+**Écarts restants à adresser** :
+
+1. **Priorité moyenne** — Écart 4 (suppression non immédiate) : ajouter une suppression immédiate serveur des valeurs de liste, ou documenter explicitement le changement d'ergonomie.
+2. **Priorité basse** : conserver dans le rapport de migration que le publipostage des formulaires dossier est bien couvert côté Symfony.
