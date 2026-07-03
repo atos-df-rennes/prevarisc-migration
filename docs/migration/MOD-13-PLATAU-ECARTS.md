@@ -55,6 +55,8 @@
 | **Impact** | **Moyen à élevé** — le contrôle manuel de connectivité peut fonctionner derrière proxy, mais les échanges métier asynchrones de la passerelle peuvent rester inopérants dans ce contexte réseau. |
 | **Fichiers concernés** | `docs/specs/MOD-13-PLATAU.md:214-215,265-267`, `prevarisc-migration/src/Service/PlatauHealthcheckService.php:296-307`, `prevarisc-passerelle-platau/README.md:48-77`, `prevarisc-passerelle-platau/src/Service/PlatauAbstract.php:38-102`, `prevarisc/application/services/PlatauClient.php:7-19` |
 
+**Retour utilisateur** : La passerelle Plat'AU est un composant à part et hors scope de cette revue.
+
 ---
 
 ### Écart 3 — L'export recherche ajoute toujours l'en-tête « Identifiant PLATAU », même sans filtre provenance Plat'AU
