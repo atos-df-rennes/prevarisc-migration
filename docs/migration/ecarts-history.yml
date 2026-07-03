@@ -807,6 +807,37 @@ ecarts:
     - prevarisc-migration/src/Controller/CouchesCartographiquesController.php
     - prevarisc-migration/config/prevarisc.php
     - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+  - number: 5
+    title: Cache des capabilities IGN (Point à vérifier #1)
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: user
+    notes: ✅ VALIDÉ — Cache is strategically applied to IGN capabilities calls in CouchesCarto, which is the most expensive operation. GetCapabilities responses are cached for 1 week, improving performance on repeated loads. The repository call and display are trivial and do not require application-level caching. No invalidation on CRUD is necessary; the architecture is correct as confirmed by user feedback.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+    - prevarisc-migration/src/Service/CouchesCarto.php
+  - number: 6
+    title: Support multi-clés IGN et nouvelle URL (Point à vérifier #2)
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: user
+    notes: ✅ VALIDÉ — Adaptation to new IGN service URL (data.geopf.fr) is transparent for multi-key behavior. The warning message « Le chargement de la page d'ajout d'une couche IGN peut prendre du temps si vous avez renseigné plusieurs clés » remains displayed on the layer list, fulfilling its informational role. Multi-key support is preserved; no behavior regression confirmed by user feedback.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+    - prevarisc-migration/src/Service/CouchesCarto.php
+    - prevarisc-migration/templates/couches_cartographiques/index.html.twig
+  - number: 7
+    title: Placement du message de chargement long (Point à vérifier #3)
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: user
+    notes: ✅ VALIDÉ — The warning message is displayed on the layer list (before clicking "Add IGN Layer" button), which is acceptable for informing users of potential load delays. This placement at the entry point is effective and requires no modification. User confirmed this is acceptable in current state.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+    - prevarisc-migration/templates/couches_cartographiques/index.html.twig
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1072,5 +1103,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 98
+  total_ecarts_processed: 101
 
