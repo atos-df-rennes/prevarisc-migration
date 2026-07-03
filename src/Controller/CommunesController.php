@@ -56,12 +56,12 @@ class CommunesController extends AbstractController
      */
     public function informations(Request $request, Commune $commune): Response
     {
-        // Initialize fonction to MAIRE if not set
+        // Force la fonction à maire pour les communes
         $utilisateurInformations = $commune->getUtilisateurInformations();
-        if ($utilisateurInformations && !$utilisateurInformations->getFonction()) {
-            $mairiFonction = $this->fonctionRepository->find(Fonction::MAIRE);
-            if ($mairiFonction) {
-                $utilisateurInformations->setFonction($mairiFonction);
+        if ($utilisateurInformations) {
+            $fonctionMaire = $this->fonctionRepository->find(Fonction::MAIRE);
+            if ($fonctionMaire) {
+                $utilisateurInformations->setFonction($fonctionMaire);
             }
         }
 
