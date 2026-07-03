@@ -223,7 +223,7 @@ Les couches cartographiques configurées dans le module d'administration sont ut
 | **RG-CAR-015** | Le réordonnancement met à jour l'ordre de toutes les couches en une seule opération. |
 | **RG-CAR-016** | Sur la fiche de consultation d'un établissement, plusieurs fournisseurs peuvent coexister sous forme d'onglets distincts (contrairement à l'écran d'administration qui n'affiche qu'un seul fournisseur par priorité). |
 | **RG-CAR-017** | L'accès à l'écran d'administration des couches cartographiques est restreint au profil administrateur. |
-| **RG-CAR-018** | Le formulaire d'ajout d'une couche IGN propose un sélecteur de format d'image modifiable pour les couches WMS. Pour les couches WMTS, le format est fixe et déterminé par le catalogue. |
+| **RG-CAR-018** | Le formulaire d'ajout d'une couche IGN sélectionne automatiquement le format d'image optimal en interrogeant le catalogue IGN (GetCapabilities). Pour les couches WMS, le format est extrait du flux (LegendURL) ; pour les couches WMTS, il est extrait du Format element avec fallback sur PNG. L'utilisateur n'intervient pas dans le choix du format. |
 
 ---
 
