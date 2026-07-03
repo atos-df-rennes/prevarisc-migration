@@ -82,6 +82,8 @@
 | **Impact** | **Faible à moyen** — la donnée reste lisible, mais la présentation attendue n'est pas respectée et la lecture métier est moins riche. |
 | **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:107,306`, `prevarisc-migration/templates/components/_formulaire_personnalise.html.twig:154-156`, `prevarisc/application/views/scripts/formulaire/partials/partial-input-champ-not-null.phtml:12-14` |
 
+**Retour utilisateur** : Écart de migration confirmé. Aligner avec le legacy et la spec en utilisant la méthode `formatDateFr` du fichier `App\Utils\Date.php`.
+
 ---
 
 ### Écart 4 — La suppression d'une valeur de liste n'est pas immédiate côté Symfony
