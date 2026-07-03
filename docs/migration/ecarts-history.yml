@@ -786,6 +786,16 @@ ecarts:
     - prevarisc-migration/src/Form/OrdreCoucheCartoType.php
     - prevarisc-migration/templates/couches_cartographiques/change_order.html.twig
     - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+  - number: 3
+    title: Accès réservé aux administrateurs
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ VALIDÉ — RG-CAR-017 verified. The CouchesCartographiquesController has @IsGranted("admin") annotation at class level (line 20), protecting all routes from non-admin access. Legacy controller enforced access via menu_admin layout. Symfony global security config requires ROLE_USER for all paths except /session/login. The @IsGranted("admin") annotation provides explicit admin-level restriction. No regression detected; spec is accurate.
+    files_modified:
+    - prevarisc-migration/src/Controller/CouchesCartographiquesController.php
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1051,5 +1061,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 96
+  total_ecarts_processed: 97
 
