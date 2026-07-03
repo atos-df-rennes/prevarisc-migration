@@ -45,6 +45,8 @@
 
 ### Écart 2 — Le support proxy n'est visible que pour le healthcheck Symfony, pas pour les flux asynchrones de la passerelle
 
+**✅ VALIDÉ (hors scope)**
+
 | | Détail |
 |---|--------|
 | **Règles** | RG-PLT-032, §7.8 |
@@ -52,10 +54,10 @@
 | **Symfony** | Le healthcheck Symfony est aligné : `PlatauHealthcheckService` reconstruit les options cURL via `ProxyConfigurationService`, en continuité du legacy. |
 | **Passerelle** | La config documentée dans `README.md` ne prévoit aucun bloc proxy, et `PlatauAbstract` ne définit ni option proxy dans `OptionsResolver`, ni paramètre `proxy` dans le client Guzzle utilisé par les commandes `lecture-notifications`, `export-pec`, `export-avis`. |
 | **Legacy** | `Service_PlatauClient` charge bien `PREVARISC_PROXY_*` et configure `CURLOPT_PROXYTYPE`, `CURLOPT_PROXYPORT`, `CURLOPT_PROXY`, `CURLOPT_PROXYUSERPWD`. |
-| **Impact** | **Moyen à élevé** — le contrôle manuel de connectivité peut fonctionner derrière proxy, mais les échanges métier asynchrones de la passerelle peuvent rester inopérants dans ce contexte réseau. |
+| **Impact** | **Aucun** — la passerelle Plat'AU est un composant externe hors du scope de cette migration Symfony. |
 | **Fichiers concernés** | `docs/specs/MOD-13-PLATAU.md:214-215,265-267`, `prevarisc-migration/src/Service/PlatauHealthcheckService.php:296-307`, `prevarisc-passerelle-platau/README.md:48-77`, `prevarisc-passerelle-platau/src/Service/PlatauAbstract.php:38-102`, `prevarisc/application/services/PlatauClient.php:7-19` |
 
-**Retour utilisateur** : La passerelle Plat'AU est un composant à part et hors scope de cette revue.
+**Retour utilisateur** : La passerelle Plat'AU est un composant à part et hors scope de cette revue. Aucune action requise.
 
 ---
 
@@ -89,10 +91,9 @@
 
 ## Recommandations
 
-1. **Priorité haute** : ajouter un support proxy explicite dans la passerelle (`README` + résolution de config + options Guzzle), pour aligner tous les flux Plat'AU sur RG-PLT-032.
-2. **Priorité moyenne** : décider si l'export recherche doit masquer complètement la colonne « Identifiant PLATAU » quand le filtre provenance n'est pas sélectionné, ou si la spec doit être assouplie pour refléter le comportement historique.
-3. **Priorité moyenne** : documenter explicitement, dans la doc technique de migration, que les échanges entrants/sortants Plat'AU sont externalisés dans `prevarisc-passerelle-platau` et non exécutés par l'application Symfony elle-même.
+1. **Priorité basse** : documenter explicitement, dans la doc technique de migration, que les échanges entrants/sortants Plat'AU (lecture-notifications, export-pec, export-avis) sont externalisés dans `prevarisc-passerelle-platau` et non exécutés par l'application Symfony elle-même. Cela clarifierait pourquoi le proxy n'est visible que dans le healthcheck Symfony (RG-PLT-032 est une responsabilité de la passerelle, hors scope).
 
 ### Synthèse des validations (2026-07-03)
 
 - ✅ **Écart 1 — Blocage dossier Plat'AU désactivé** : VALIDÉ. La garde sur `PREVARISC_DEACTIVATE_PLATAU` est correctement implémentée dans les méthodes `index()` et `edit()` de `DossierController`, configuration properly injected. Tests et PHPStan passent.
+- ✅ **Écart 2 — Support proxy passerelle** : VALIDÉ (hors scope). La passerelle Plat'AU est un composant externe indépendant ; aucune action requise dans le scope Symfony.
