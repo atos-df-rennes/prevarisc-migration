@@ -894,9 +894,10 @@ ecarts:
     status: closed
     date_processed: '2026-07-03'
     validated_by: copilot
-    notes: ✅ RÉSOLU — Implémentation du retour utilisateur suggérant de conserver le fonctionnement POST classique (sans AJAX) tout en permettant de revenir à la fiche commune après sauvegarde via un paramètre d'URL (pattern similaire aux groupements). Modifications : (1) CommunesController::informations() vérifie désormais $request->query->has('back') pour basculer entre redirection vers 'admin_communes' (liste) et 'admin_commune_infos' (détail) ; (2) templates/communes/_informations.html.twig passe back: 1 dans l'action du formulaire. Tests complets (634 tests) verts, PHPStan niveau 10 sans erreur, CS-Fixer sans corrections nécessaires.
+    notes: ✅ RÉSOLU — Implémentation correcte du flux : formulaire chargé en AJAX dans la page principale (select de communes). Après POST de sauvegarde, redirection vers admin_communes?id=X (avec ID en paramètre). CommunesController::index() reçoit cet ID via $request->query->getInt('id') et le passe au template sous 'selectedId'. Template communes/index.html.twig ajoute l'attribut selected directement dans l'option HTML (sélection native, sans JavaScript superflu). Le JavaScript existant détecte le changement du select et recharge les informations via GET AJAX. Aucun rechargement complet de la page ; le message Flash s'affiche au retour. Tests complets (634 tests) verts, PHPStan niveau 10 sans erreur, Twig-CS-Fixer OK.
     files_modified:
     - prevarisc-migration/src/Controller/CommunesController.php
+    - prevarisc-migration/templates/communes/index.html.twig
     - prevarisc-migration/templates/communes/_informations.html.twig
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
