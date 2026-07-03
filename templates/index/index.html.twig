@@ -139,13 +139,13 @@
                             $.toast.warning(res.maintenance.message, { autoClose: false });
                         }
                     },
-                    error: function() {
+                    error: function(jqXHR) {
                         $.toast.close(enCoursToastId);
-                        $.toast.error("Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.");
-                    },
-                    timeout: function() {
-                        $.toast.close(enCoursToastId);
-                        $.toast.error("Vérification Plat'AU : délai expiré. Service indisponible ou lent.");
+                        if (jqXHR.statusText === 'timeout') {
+                            $.toast.error("Vérification Plat'AU : délai expiré. Service indisponible ou lent.");
+                        } else {
+                            $.toast.error("Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.");
+                        }
                     }
                 });
             {% endif %}
