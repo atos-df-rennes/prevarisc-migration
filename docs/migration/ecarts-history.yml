@@ -879,6 +879,15 @@ ecarts:
     - prevarisc-migration/src/Service/FusionDesCommunes.php
     - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 3
+    title: 'E-03 — RG-CMN-017 : arrêt global sur erreur de cohérence lors d''une fusion'
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ VALIDÉ — Le retour utilisateur confirme que le comportement Symfony (traitement partiel avec erreurs loggées) est une amélioration justifiée du legacy (arrêt global). Le JSON peut contenir plusieurs fusions ; le fait que la 1ère échoue ne doit pas empêcher les 2e et 3e de s'exécuter si elles sont valides. Aucune action requise. Le code Symfony (continue + logger.error()) est aligné avec cette attente. Legacy examiné via Service_FusionCommand::mergeArrayCommune() qui fait return true dès la 1ère erreur, stoppant tout. Spécification originale demandait un arrêt global, mais le feedback utilisateur l'invalidait. Conclusion — comportement Symfony conforme aux attentes réelles de l'utilisateur.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
