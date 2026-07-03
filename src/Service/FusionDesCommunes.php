@@ -151,6 +151,21 @@ final class FusionDesCommunes
     }
 
     /**
+     * Supprime les liaisons groupement-commune associées à la commune absorbée.
+     *
+     * La commune est le côté inverse de la relation ManyToMany ; le retrait se fait
+     * donc via chaque groupement (côté propriétaire), ce qui provoque la suppression
+     * automatique des lignes correspondantes dans la table de jointure groupementcommune.
+     */
+    private function deleteGroupementCommuneLiaisons(\App\Entity\Commune $commune): void
+    {
+        foreach ($commune->getGroupements() as $groupement) {
+            $groupement->removeCommune($commune);
+            $this->entityManager->persist($groupement);
+        }
+    }
+
+    /**
      * @param Commune[] $communes
      */
     private function deleteCommunes(array $communes): void
@@ -162,6 +177,8 @@ final class FusionDesCommunes
                 if (null === $communeEntity) {
                     throw new \Exception(sprintf("La commune %s n'existe pas en base de données.", $commune->numinsee()));
                 }
+
+                $this->deleteGroupementCommuneLiaisons($communeEntity);
 
                 $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);
                 $utilisateurInformations = $communeEntity->getUtilisateurInformations();

@@ -838,6 +838,26 @@ ecarts:
     files_modified:
     - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
     - prevarisc-migration/templates/couches_cartographiques/index.html.twig
+  MOD-16:
+  - number: 1
+    title: 'E-01 — RG-CMN-014 : suppression des liaisons groupement–commune lors
+      d''une fusion'
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Ajout de FusionDesCommunes::deleteGroupementCommuneLiaisons(),
+      appelée avant la suppression de chaque commune absorbée. La relation Commune↔Groupement
+      étant un ManyToMany dont Groupement est le côté propriétaire, le retrait se
+      fait via Groupement::removeCommune() puis persist(), ce qui supprime automatiquement
+      la ligne correspondante dans la table de jointure groupementcommune (pas de
+      boucle SQL manuelle comme dans le legacy). Test unitaire ajouté couvrant ce
+      comportement. Suite de tests complète (633 tests) verte, PHPStan niveau 10 et
+      CS-Fixer sans erreur sur les fichiers modifiés.
+    files_modified:
+    - prevarisc-migration/src/Service/FusionDesCommunes.php
+    - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1103,5 +1123,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 101
+  total_ecarts_processed: 102
 
