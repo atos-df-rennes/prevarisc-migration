@@ -712,11 +712,12 @@ ecarts:
       sans filtre provenance Plat'AU
     action: check
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: Header always written (line 177), values conditional on provenance=='1' (line 203). Legacy identical. Behavior correct and compliant.
     files_modified:
-    - prevarisc-migration/src/Service/SearchExport.php:155-197
+    - prevarisc-migration/src/Service/SearchExport.php:177,203
+    - prevarisc/application/controllers/SearchController.php:421,471
   MOD-14:
   - number: 1
     title: La table des matières en consultation est fortement simplifiée par rapport

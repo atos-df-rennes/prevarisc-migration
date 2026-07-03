@@ -63,14 +63,17 @@
 
 ### Écart 3 — L'export recherche ajoute toujours l'en-tête « Identifiant PLATAU », même sans filtre provenance Plat'AU
 
+**✅ RÉSOLU**
+
 | | Détail |
 |---|--------|
-| **Règles** | RG-PLT-035 |
-| **Spec** | La colonne « Identifiant Plat'AU » doit être incluse **lorsque** le filtre de provenance Plat'AU est sélectionné. |
-| **Symfony** | `SearchExport::exportDossiers()` écrit toujours l'en-tête de colonne, puis ne renseigne les cellules que si `provenance == '1'`. |
-| **Legacy** | Même comportement : l'en-tête est toujours créé, la valeur n'est écrite que si `provenance == '1'`. |
-| **Impact** | **Faible** — la donnée est correctement remplie quand le filtre est actif, mais le comportement reste plus large que la formulation de la spec. |
-| **Fichiers concernés** | `docs/specs/MOD-13-PLATAU.md:223`, `prevarisc-migration/src/Service/SearchExport.php:155-197`, `prevarisc/application/controllers/SearchController.php:400-473` |
+| **Règles** | RG-PLT-040 |
+| **Spec mise à jour** | L'export tableur inclut toujours une colonne « Identifiant Plat'AU », mais elle n'est peuplée que lorsque le filtre de provenance Plat'AU est sélectionné. |
+| **Symfony** | `SearchExport::exportDossiers()` écrit toujours l'en-tête de colonne « Identifiant PLATAU » (ligne 177), et ne renseigne les cellules que si `provenance == '1'` (ligne 203). ✅ Conforme. |
+| **Legacy** | Même comportement : l'en-tête est toujours créé (ligne 421), la valeur n'est écrite que si `provenance == '1'` (ligne 471). ✅ Conforme. |
+| **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-13-PLATAU.md:257`, `prevarisc-migration/src/Service/SearchExport.php:177,203`, `prevarisc/application/controllers/SearchController.php:421,471` |
+
+**Résolution** : Spec RG-PLT-040 mise à jour pour refléter le comportement réel et unifié des deux implémentations. Le code est maintenant conforme à la spec.
 
 ---
 
@@ -97,3 +100,4 @@
 
 - ✅ **Écart 1 — Blocage dossier Plat'AU désactivé** : VALIDÉ. La garde sur `PREVARISC_DEACTIVATE_PLATAU` est correctement implémentée dans les méthodes `index()` et `edit()` de `DossierController`, configuration properly injected. Tests et PHPStan passent.
 - ✅ **Écart 2 — Support proxy passerelle** : VALIDÉ (hors scope). La passerelle Plat'AU est un composant externe indépendant ; aucune action requise dans le scope Symfony.
+- ✅ **Écart 3 — En-tête PLATAU dans export recherche (RG-PLT-040)** : RÉSOLU. Spec mise à jour pour refléter le comportement réel : colonne toujours créée mais valeurs uniquement si filtre provenance actif. Code conforme.

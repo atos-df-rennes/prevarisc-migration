@@ -254,7 +254,7 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 |---|-------|
 | **RG-PLT-038** | La recherche de dossiers propose un filtre par **provenance** : « Provenant de Plat'AU » ou « Ne provenant pas de Plat'AU ». Ce filtre n'est visible que si le module est activé. |
 | **RG-PLT-039** | La saisie d'un identifiant au format `XXX-XXX-XXX` dans le champ de recherche libre déclenche automatiquement une recherche par identifiant de consultation Plat'AU. |
-| **RG-PLT-040** | L'export tableur des résultats de recherche inclut une colonne « Identifiant Plat'AU » lorsque le filtre de provenance Plat'AU est sélectionné. |
+| **RG-PLT-040** | L'export tableur des résultats de recherche inclut toujours une colonne « Identifiant Plat'AU », mais elle n'est peuplée que lorsque le filtre de provenance Plat'AU est sélectionné. |
 
 ### Droits d'accès
 
