@@ -701,10 +701,10 @@ ecarts:
     title: Le support proxy n'est visible que pour le healthcheck Symfony, pas pour
       les flux asynchrones de la passerelle
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: Validated as out-of-scope. The passerelle Plat'AU is an independent external component. RG-PLT-032 proxy support is the responsibility of the passerelle, not the Symfony application.
     files_modified:
     - prevarisc-migration/src/Service/PlatauHealthcheckService.php:296-307
   - number: 3
@@ -1022,5 +1022,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 93
+  total_ecarts_processed: 94
 
