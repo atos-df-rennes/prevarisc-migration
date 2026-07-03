@@ -723,22 +723,24 @@ ecarts:
     title: La table des matières en consultation est fortement simplifiée par rapport
       à la spec
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: User feedback CORRECT. Legacy sidebar is hidden-tablet (display:none) in edit view too. Spec describes feature that never existed in legacy. Ecart is FALSE POSITIVE — eliminated as non-issue.
     files_modified:
     - prevarisc-migration/templates/components/_formulaire_personnalise.html.twig:12-21
+    - prevarisc/application/views/scripts/formulaire/_table_of_content.phtml:1-10,242-244
   - number: 2
     title: En édition, la table des matières latérale est remplacée par une modale
       minimaliste
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: User feedback CORRECT. Legacy sidebar is hidden-tablet (display:none) in edit. Same visual result in both legacy and Symfony (modal-only). Spec refers to feature that never existed in legacy. Ecart is FALSE POSITIVE — eliminated as non-issue. Same root cause as ecart 1.
     files_modified:
     - prevarisc-migration/templates/components/_formulaire_personnalise_edit.html.twig:143-193
+    - prevarisc/application/views/scripts/formulaire/_table_of_content.phtml:1-10,242-244
   - number: 3
     title: En lecture, les champs Date n'affichent plus le nom du jour
     action: check
