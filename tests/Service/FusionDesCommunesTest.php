@@ -4,11 +4,14 @@ namespace App\Tests\Service;
 
 use App\Dto\FusionDesCommunes\Commune as CommuneDto;
 use App\Dto\FusionDesCommunes\FusionDeCommunes;
+use App\Entity\Commission;
+use App\Entity\CommissionRegle;
 use App\Entity\Commune;
 use App\Entity\Groupement;
 use App\Entity\Utilisateur;
 use App\Entity\UtilisateurInformations;
 use App\Repository\AdresseRueRepository;
+use App\Repository\CommissionRegleRepository;
 use App\Repository\CommuneRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\UtilisateurRepository;
@@ -42,6 +45,9 @@ final class FusionDesCommunesTest extends TestCase
     /** @var UtilisateurRepository|MockObject */
     private $utilisateurRepository;
 
+    /** @var CommissionRegleRepository|MockObject */
+    private $commissionRegleRepository;
+
     protected function setUp(): void
     {
         $this->serializer = $this->createMock(SerializerInterface::class);
@@ -51,6 +57,7 @@ final class FusionDesCommunesTest extends TestCase
         $this->etablissementAdresseRepository = $this->createMock(EtablissementAdresseRepository::class);
         $this->adresseRueRepository = $this->createMock(AdresseRueRepository::class);
         $this->utilisateurRepository = $this->createMock(UtilisateurRepository::class);
+        $this->commissionRegleRepository = $this->createMock(CommissionRegleRepository::class);
     }
 
     private function buildService(): FusionDesCommunes
@@ -62,7 +69,8 @@ final class FusionDesCommunesTest extends TestCase
             $this->communeRepository,
             $this->etablissementAdresseRepository,
             $this->adresseRueRepository,
-            $this->utilisateurRepository
+            $this->utilisateurRepository,
+            $this->commissionRegleRepository
         );
     }
 
@@ -106,9 +114,61 @@ final class FusionDesCommunesTest extends TestCase
         $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
         $this->adresseRueRepository->method('findBy')->willReturn([]);
         $this->utilisateurRepository->method('findOneBy')->willReturn($utilisateur);
+        $this->commissionRegleRepository->method('findBy')->willReturn([]);
 
         $this->buildService()->fusionner('{}');
 
         self::assertFalse($groupement->getCommunes()->contains($ancienneCommune));
+    }
+
+    /**
+     * E-02 : lors d'une fusion, les règles de commission liées aux communes
+     * absorbées doivent être supprimées.
+     */
+    public function testFusionSupprimeLesReglesDeCommission(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+
+        $informations = new UtilisateurInformations();
+        $ancienneCommune->setUtilisateurInformations($informations);
+
+        $utilisateur = new Utilisateur();
+
+        $regle = new CommissionRegle();
+        $regle->setCommune($ancienneCommune);
+        $regle->setCommission(new Commission());
+
+        $fusion = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+
+        $this->communeRepository->method('find')->willReturnMap([
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn($utilisateur);
+        $this->commissionRegleRepository->method('findBy')->willReturnMap([
+            [['commune' => $ancienneCommune], null, null, null, [$regle]],
+        ]);
+
+        $removedEntities = [];
+        $this->entityManager->method('remove')->willReturnCallback(static function ($entity) use (&$removedEntities): void {
+            $removedEntities[] = $entity;
+        });
+
+        $this->buildService()->fusionner('{}');
+
+        self::assertContains($regle, $removedEntities);
     }
 }

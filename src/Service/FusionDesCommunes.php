@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Dto\FusionDesCommunes\Commune;
 use App\Dto\FusionDesCommunes\FusionDeCommunes;
 use App\Repository\AdresseRueRepository;
+use App\Repository\CommissionRegleRepository;
 use App\Repository\CommuneRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\UtilisateurRepository;
@@ -35,6 +36,9 @@ final class FusionDesCommunes
     /** @var UtilisateurRepository */
     private $utilisateurRepository;
 
+    /** @var CommissionRegleRepository */
+    private $commissionRegleRepository;
+
     public function __construct(
         SerializerInterface $serializer,
         LoggerInterface $logger,
@@ -42,7 +46,8 @@ final class FusionDesCommunes
         CommuneRepository $communeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
         AdresseRueRepository $adresseRueRepository,
-        UtilisateurRepository $utilisateurRepository
+        UtilisateurRepository $utilisateurRepository,
+        CommissionRegleRepository $commissionRegleRepository
     ) {
         $this->serializer = $serializer;
         $this->logger = $logger;
@@ -51,6 +56,7 @@ final class FusionDesCommunes
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
         $this->adresseRueRepository = $adresseRueRepository;
         $this->utilisateurRepository = $utilisateurRepository;
+        $this->commissionRegleRepository = $commissionRegleRepository;
     }
 
     /**
@@ -166,6 +172,25 @@ final class FusionDesCommunes
     }
 
     /**
+     * Supprime les règles de commission associées à la commune absorbée.
+     *
+     * Contrairement à la contrainte de clé étrangère NUMINSEE_COMMUNE (ON DELETE CASCADE),
+     * les tables de jointure liées (commissionreglecategorie, commissionregleclasse,
+     * commissionregletype) n'ont pas de contrainte de clé étrangère en base : une
+     * suppression au niveau SQL laisserait donc des lignes orphelines. On passe donc
+     * explicitement par Doctrine pour que les collections ManyToMany et les entités
+     * liées (étude/visite, local sommeil) soient nettoyées correctement.
+     */
+    private function deleteCommissionRegles(\App\Entity\Commune $commune): void
+    {
+        $regles = $this->commissionRegleRepository->findBy(['commune' => $commune]);
+
+        foreach ($regles as $regle) {
+            $this->entityManager->remove($regle);
+        }
+    }
+
+    /**
      * @param Commune[] $communes
      */
     private function deleteCommunes(array $communes): void
@@ -179,6 +204,7 @@ final class FusionDesCommunes
                 }
 
                 $this->deleteGroupementCommuneLiaisons($communeEntity);
+                $this->deleteCommissionRegles($communeEntity);
 
                 $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);
                 $utilisateurInformations = $communeEntity->getUtilisateurInformations();
