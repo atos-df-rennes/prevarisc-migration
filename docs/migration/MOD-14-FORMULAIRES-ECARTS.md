@@ -104,6 +104,8 @@
 | **Impact** | **Moyen** — un utilisateur peut croire la suppression terminée alors qu'elle reste annulable tant que le formulaire n'est pas enregistré. |
 | **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:328-333`, `prevarisc-migration/public/js/formulaire/add-collection-widget.js:61-79`, `prevarisc-migration/src/Controller/ChampController.php:83-87`, `prevarisc/application/controllers/FormulaireController.php:401-407` |
 
+**Retour utilisateur** : Écart de migration accepté. Il s'agit d'une protection contre d'éventuelles suppressions involontaires et permet l'annulation à tout moment. Mettre à jour la spécification en ce sens pour conserver le comportement Symfony.
+
 ---
 
 ## Comportements alignés (confirmés)
