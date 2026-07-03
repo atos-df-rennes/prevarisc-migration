@@ -83,9 +83,11 @@ Chaque commune peut être associée à une fiche de coordonnées représentant s
 
 1. L'administrateur modifie les champs souhaités dans le formulaire de coordonnées.
 2. Il clique sur « Sauvegarder ».
-3. L'enregistrement est effectué en arrière-plan (appel asynchrone) sans rechargement de la page.
-4. Un message de confirmation « Sauvegarde réussie ! La commune [libellé] a été enregistrée » s'affiche en cas de succès.
-5. Un message d'erreur s'affiche en cas d'échec, indiquant la cause.
+3. Le formulaire est soumis en POST. Le système enregistre les données en base.
+4. La page est rechargée avec un retour à la liste des communes (sélecteur déroulant) en ayant préalablement sélectionné la commune qui vient d'être modifiée.
+5. Cette sélection automatique du select déclenche le chargement AJAX de la fiche (comportement standard du chargement de commune).
+6. Un message de confirmation « Sauvegarde réussie ! La commune [libellé] a été enregistrée » s'affiche via un flash message au-dessus de la liste.
+7. Un message d'erreur s'affiche en cas d'échec, indiquant la cause.
 
 **Création automatique de la fiche mairie :**
 
@@ -173,7 +175,7 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 | **RG-CMN-005** | Si la fiche de coordonnées référencée est introuvable (données incohérentes), le système en recrée une nouvelle et met à jour la référence. |
 | **RG-CMN-006** | La fonction du contact mairie est fixée automatiquement à la valeur « Mairie » et n'est pas modifiable par l'utilisateur. |
 | **RG-CMN-007** | Le champ « Société » n'est pas proposé sur la fiche d'une commune. |
-| **RG-CMN-008** | La sauvegarde des coordonnées de mairie se fait de manière asynchrone, sans rechargement de la page. |
+| **RG-CMN-008** | La sauvegarde des coordonnées de mairie s'effectue via POST classique. Après enregistrement en base, le système redirige vers la liste des communes en sélectionnant automatiquement la commune modifiée (via un paramètre d'URL). Cette sélection déclenche le chargement AJAX de la fiche. L'utilisateur voit le message Flash de succès/erreur, puis la fiche mise à jour (ou inchangée en cas d'erreur). Pas de rechargement complet de page. |
 | **RG-CMN-009** | Le fichier de fusion doit être au format JSON. Un seul fichier est accepté par opération d'import. |
 | **RG-CMN-010** | Avant toute fusion, le code INSEE cible doit exister dans le référentiel et correspondre à une commune unique. |
 | **RG-CMN-011** | Le libellé de la commune cible dans le fichier de fusion doit correspondre exactement au libellé en base. Toute divergence bloque l'opération. |

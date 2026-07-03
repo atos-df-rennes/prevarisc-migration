@@ -888,6 +888,18 @@ ecarts:
     notes: ✅ VALIDÉ — Le retour utilisateur confirme que le comportement Symfony (traitement partiel avec erreurs loggées) est une amélioration justifiée du legacy (arrêt global). Le JSON peut contenir plusieurs fusions ; le fait que la 1ère échoue ne doit pas empêcher les 2e et 3e de s'exécuter si elles sont valides. Aucune action requise. Le code Symfony (continue + logger.error()) est aligné avec cette attente. Legacy examiné via Service_FusionCommand::mergeArrayCommune() qui fait return true dès la 1ère erreur, stoppant tout. Spécification originale demandait un arrêt global, mais le feedback utilisateur l'invalidait. Conclusion — comportement Symfony conforme aux attentes réelles de l'utilisateur.
     files_modified:
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 4
+    title: 'E-04 — RG-CMN-008 : sauvegarde asynchrone de la fiche mairie'
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Implémentation correcte du flux : formulaire chargé en AJAX dans la page principale (select de communes). Après POST de sauvegarde, redirection vers admin_communes?id=X (avec ID en paramètre). CommunesController::index() reçoit cet ID via $request->query->getInt('id') et le passe au template sous 'selectedId'. Template communes/index.html.twig ajoute l'attribut selected directement dans l'option HTML (sélection native, sans JavaScript superflu). Le JavaScript existant détecte le changement du select et recharge les informations via GET AJAX. Aucun rechargement complet de la page ; le message Flash s'affiche au retour. Tests complets (634 tests) verts, PHPStan niveau 10 sans erreur, Twig-CS-Fixer OK.
+    files_modified:
+    - prevarisc-migration/src/Controller/CommunesController.php
+    - prevarisc-migration/templates/communes/index.html.twig
+    - prevarisc-migration/templates/communes/_informations.html.twig
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1153,5 +1165,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 103
+  total_ecarts_processed: 104
 

@@ -34,12 +34,14 @@ class CommunesController extends AbstractController
     /**
      * @Route("/admin/communes", name="admin_communes")
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $communes = $this->communeRepository->findBy([], ['libelle' => 'ASC']);
+        $selectedId = $request->query->getInt('id');
 
         return $this->render('communes/index.html.twig', [
             'communes' => $communes,
+            'selectedId' => $selectedId,
         ]);
     }
 
@@ -57,7 +59,7 @@ class CommunesController extends AbstractController
 
             $this->addFlash('success', \sprintf('La commune %s a bien été enregistrée.', $commune->getLibelle()));
 
-            return $this->redirectToRoute('admin_communes');
+            return $this->redirectToRoute('admin_communes', ['id' => $commune->getId()]);
         }
 
         return $this->render('communes/_informations.html.twig', [
