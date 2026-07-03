@@ -335,7 +335,7 @@ Un champ de type « Parent » sans champ enfant est affiché avec un avertisseme
 
 - Supprimer une **rubrique** entraîne la suppression de tous ses champs, champs enfants et valeurs de liste associées.
 - Supprimer un **champ parent** entraîne la suppression de tous ses champs enfants.
-- Supprimer une **valeur de liste** est immédiate et ne nécessite pas de sauvegarde du champ.
+- Supprimer une **valeur de liste** : la suppression intervient lors de la sauvegarde du champ (soumission du formulaire). Cela permet à l'utilisateur de revenir en arrière en cas d'erreur et constitue une protection contre d'éventuelles suppressions involontaires.
 
 ### 7.5 Import destructif
 

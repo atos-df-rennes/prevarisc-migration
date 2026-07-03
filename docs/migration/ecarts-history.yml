@@ -755,10 +755,11 @@ ecarts:
     title: La suppression d'une valeur de liste n'est pas immédiate côté Symfony
     action: check
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: Symfony uses Doctrine CollectionType with allow_delete:true. Deletion is deferred to form submission (entityManager flush) rather than immediate. This is intentional to prevent involuntary deletions and allow cancellation. No dedicated ValeurListe delete endpoint exists. User feedback confirms this is acceptable behavior. Spec (7.4) updated to document the deferred deletion behavior. Tests (632) and PHPStan pass.
     files_modified:
+    - prevarisc-migration/docs/specs/MOD-14-FORMULAIRES.md:337
     - prevarisc-migration/src/Controller/ChampController.php:83-87
     - prevarisc-migration/public/js/formulaire/add-collection-widget.js:61-79
   MOD-19:

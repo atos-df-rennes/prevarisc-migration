@@ -98,13 +98,24 @@
 | | Détail |
 |---|--------|
 | **Règles** | §7.4 |
-| **Spec** | Supprimer une valeur de liste doit être **immédiat** et ne pas nécessiter la sauvegarde du champ. |
+| **Spec (v1)** | Supprimer une valeur de liste doit être **immédiat** et ne pas nécessiter la sauvegarde du champ. |
 | **Symfony** | Le bouton de suppression retire l'élément du DOM dans `add-collection-widget.js`, mais la persistance n'intervient qu'au `flush()` de `ChampController::edit()` lors de la soumission du formulaire. Aucun endpoint dédié de suppression immédiate n'est exposé. |
 | **Legacy** | `deleteValeurListeAction()` supprime une valeur de liste de façon dédiée, sans passer par une sauvegarde globale du champ. |
-| **Impact** | **Moyen** — un utilisateur peut croire la suppression terminée alors qu'elle reste annulable tant que le formulaire n'est pas enregistré. |
-| **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:328-333`, `prevarisc-migration/public/js/formulaire/add-collection-widget.js:61-79`, `prevarisc-migration/src/Controller/ChampController.php:83-87`, `prevarisc/application/controllers/FormulaireController.php:401-407` |
+| **Analyse** | **Écart de migration confirmé et accepté.** La Symfony priorise l'expérience utilisateur : la suppression requiert la soumission du formulaire, ce qui permet à l'utilisateur de revenir en arrière en cas d'erreur. Cela constitue une protection contre d'éventuelles suppressions involontaires. |
+| **Impact** | **Moyen** — la suppression n'est plus immédiate, mais demeure simple et réversible jusqu'à la sauvegarde du champ. L'ergonomie change légèrement par rapport au legacy (suppression immédiate → suppression différée). |
+| **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:337` (mis à jour), `prevarisc-migration/public/js/formulaire/add-collection-widget.js:61-79`, `prevarisc-migration/src/Controller/ChampController.php:83-87`, `prevarisc/application/controllers/FormulaireController.php:401-407` |
 
 **Retour utilisateur** : Écart de migration accepté. Il s'agit d'une protection contre d'éventuelles suppressions involontaires et permet l'annulation à tout moment. Mettre à jour la spécification en ce sens pour conserver le comportement Symfony.
+
+**✅ VALIDÉ** (2026-07-03)
+- Symfony expose **pas d'endpoint dédié** pour supprimer une ValeurListe immédiatement (pas de `deleteValeurListe()`)
+- La suppression utilise Doctrine `CollectionType` avec `allow_delete: true`
+- Le JavaScript (`add-collection-widget.js`) retire l'élément du DOM lors du clic
+- La persistance intervient au `flush()` lors de la soumission du formulaire
+- **Comportement intentionnel** : protection contre les suppressions involontaires et possibilité d'annulation
+- **Spec mise à jour** : section 7.4 reformulée pour documenter que la suppression intervient lors de la sauvegarde
+- Tests (632 tests) et PHPStan (niveau 10) passent sans erreurs
+- **État** : Clôturé
 
 ---
 
@@ -144,7 +155,21 @@ Après vérification des classes CSS dans le legacy, les écarts 1 & 2 ont été
 - Tests (632 tests) et PHPStan (niveau 10) passent sans erreurs
 - **État** : Clôturé
 
-**Écarts restants à adresser** :
+**Mise à jour (2026-07-03) — Validation de l'écart 4**
 
-1. **Priorité moyenne** — Écart 4 (suppression non immédiate) : ajouter une suppression immédiate serveur des valeurs de liste, ou documenter explicitement le changement d'ergonomie.
-2. **Priorité basse** : conserver dans le rapport de migration que le publipostage des formulaires dossier est bien couvert côté Symfony.
+Écart 4 a été **VALIDÉ** :
+- L'écart entre legacy et Symfony existe bien : legacy supprime immédiatement via `deleteValeurListeAction()`, tandis que Symfony supprime à la sauvegarde du formulaire
+- Cependant, **ce comportement est intentionnel** en Symfony : il prévient les suppressions involontaires et permet à l'utilisateur d'annuler jusqu'à la sauvegarde
+- **Spec mise à jour** : section 7.4 reformulée pour documenter le comportement Symfony comme le standard accepté
+- Pas de changement de code requis — le comportement actuel est le comportement souhaité
+- Tests (632 tests) et PHPStan (niveau 10) passent sans erreurs
+- **État** : Clôturé
+
+**Résumé des écarts MOD-14 :**
+
+1. ✅ Écart 1 — Table des matières en consultation : **FALSE POSITIVE** (spec décrivait une interface inexistante dans le legacy)
+2. ✅ Écart 2 — Table des matières en édition : **FALSE POSITIVE** (spec décrivait une interface inexistante dans le legacy)
+3. ✅ Écart 3 — Dates sans nom du jour : **RÉSOLU** via extension Twig `DateExtension`
+4. ✅ Écart 4 — Suppression non immédiate : **VALIDÉ** (comportement intentionnel, spec mise à jour)
+
+**Tous les écarts MOD-14 ont été adressés. Le module est pleinement migré.**
