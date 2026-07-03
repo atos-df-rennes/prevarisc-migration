@@ -182,7 +182,7 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 | **RG-CMN-014** | Lors d'une fusion, les liaisons groupement–commune des communes absorbées sont supprimées sans report sur la commune cible. |
 | **RG-CMN-015** | Lors d'une fusion, les règles de commission portant sur les communes absorbées sont supprimées sans report sur la commune cible. |
 | **RG-CMN-016** | Lors d'une fusion, la commune absorbée est définitivement supprimée du référentiel après le transfert de ses données. |
-| **RG-CMN-017** | En cas d'échec d'un contrôle de cohérence sur une opération de fusion, le traitement global est interrompu. Les erreurs sont journalisées. |
+| **RG-CMN-017** | En cas d'échec d'un contrôle de cohérence sur une opération de fusion d'une commune donnée, l'opération est ignorée et le traitement continue avec la fusion suivante (s'il y en a). Les erreurs sont journalisées pour analyse. Cela permet le traitement partiel d'un lot : si fusion #1 échoue, les fusions #2 et #3 peuvent réussir si elles sont valides. |
 | **RG-CMN-018** | La commune est une donnée de référence transversale. Sa suppression ou modification impacte les modules Établissements, Groupements, Commissions et Voirie. |
 | **RG-CMN-019** | Le fichier de fusion est supprimé du serveur après traitement, qu'il ait réussi ou échoué. |
 
