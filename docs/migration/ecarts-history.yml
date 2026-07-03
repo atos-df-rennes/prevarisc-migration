@@ -762,6 +762,19 @@ ecarts:
     - prevarisc-migration/docs/specs/MOD-14-FORMULAIRES.md:337
     - prevarisc-migration/src/Controller/ChampController.php:83-87
     - prevarisc-migration/public/js/formulaire/add-collection-widget.js:61-79
+  MOD-15:
+  - number: 1
+    title: Format WMS modifiable lors de l'ajout IGN
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ VALIDÉ — The CouchesCarto service correctly retrieves the format from IGN GetCapabilities. The Symfony implementation auto-selects the format (vs legacy dropdown) which is confirmed as an improvement by the user. The format is intelligently determined and correctly sent to the backend. No regression; intentional change.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+    - prevarisc-migration/src/Controller/CouchesCartographiquesController.php
+    - prevarisc-migration/src/Service/CouchesCarto.php
+    - prevarisc-migration/templates/couches_cartographiques/ajoutIGN.html.twig
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1027,5 +1040,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 94
+  total_ecarts_processed: 95
 
