@@ -37,6 +37,8 @@
 | **Impact** | **Élevé** — non-conformité directe à la règle d'activation/désactivation du module, avec comportement divergent sur des dossiers déjà synchronisés depuis Plat'AU. |
 | **Fichiers concernés** | `docs/specs/MOD-13-PLATAU.md:149-150,249-252`, `prevarisc-migration/src/Controller/Dossier/DossierController.php:226-244`, `prevarisc/application/controllers/DossierController.php:211-216` |
 
+**Retour utilisateur** : Comportement implémenté après détection de cet écart. A priori aucune action à effectuer.
+
 ---
 
 ### Écart 2 — Le support proxy n'est visible que pour le healthcheck Symfony, pas pour les flux asynchrones de la passerelle
