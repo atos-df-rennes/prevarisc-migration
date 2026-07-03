@@ -781,9 +781,10 @@ ecarts:
     status: closed
     date_processed: '2026-07-03'
     validated_by: copilot
-    notes: ✅ RÉSOLU — Added GreaterThanOrEqual(1) constraint to OrdreCoucheCartoType and HTML5 min=1 attribute. Validation now enforces minimum value of 1 and required field, matching legacy behavior. All tests pass, PHPStan clean.
+    notes: ✅ RÉSOLU — Added GreaterThanOrEqual(1) constraint to OrdreCoucheCartoType and HTML5 min=1 attribute. Validation now enforces minimum value of 1 and required field, matching legacy behavior. Added form_errors() in template to display validation errors to users. All tests pass, PHPStan clean.
     files_modified:
     - prevarisc-migration/src/Form/OrdreCoucheCartoType.php
+    - prevarisc-migration/templates/couches_cartographiques/change_order.html.twig
     - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
   MOD-19:
   - number: 1
