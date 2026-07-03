@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Constant\Fonction;
 use App\Entity\Commune;
 use App\Form\CommuneType;
 use App\Repository\CommuneRepository;
+use App\Repository\FonctionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,10 +27,14 @@ class CommunesController extends AbstractController
     /** @var CommuneRepository */
     private $communeRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, CommuneRepository $communeRepository)
+    /** @var FonctionRepository */
+    private $fonctionRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, CommuneRepository $communeRepository, FonctionRepository $fonctionRepository)
     {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
+        $this->fonctionRepository = $fonctionRepository;
     }
 
     /**
@@ -50,6 +56,15 @@ class CommunesController extends AbstractController
      */
     public function informations(Request $request, Commune $commune): Response
     {
+        // Initialize fonction to MAIRE if not set
+        $utilisateurInformations = $commune->getUtilisateurInformations();
+        if ($utilisateurInformations && !$utilisateurInformations->getFonction()) {
+            $mairiFonction = $this->fonctionRepository->find(Fonction::MAIRE);
+            if ($mairiFonction) {
+                $utilisateurInformations->setFonction($mairiFonction);
+            }
+        }
+
         $form = $this->createForm(CommuneType::class, $commune);
 
         $form->handleRequest($request);
