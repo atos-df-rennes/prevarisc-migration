@@ -775,6 +775,16 @@ ecarts:
     - prevarisc-migration/src/Controller/CouchesCartographiquesController.php
     - prevarisc-migration/src/Service/CouchesCarto.php
     - prevarisc-migration/templates/couches_cartographiques/ajoutIGN.html.twig
+  - number: 2
+    title: Ordre d'affichage ≥ 1 et obligatoire
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Added GreaterThanOrEqual(1) constraint to OrdreCoucheCartoType and HTML5 min=1 attribute. Validation now enforces minimum value of 1 and required field, matching legacy behavior. All tests pass, PHPStan clean.
+    files_modified:
+    - prevarisc-migration/src/Form/OrdreCoucheCartoType.php
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1040,5 +1050,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 95
+  total_ecarts_processed: 96
 
