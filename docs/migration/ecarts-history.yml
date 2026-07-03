@@ -796,6 +796,17 @@ ecarts:
     files_modified:
     - prevarisc-migration/src/Controller/CouchesCartographiquesController.php
     - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
+  - number: 4
+    title: Fichier d'autoconfiguration IGN
+    action: check
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ VALIDÉ — The IGN autoconf path is correctly implemented. The controller retrieves the real file path via the `app.carto_autoconf_path` parameter (configured in config/prevarisc.php from PREVARISC_IGN_AUTOCONF environment variable), checks file existence with `file_exists()`, and passes the string path (or empty string) to template. No boolean is ever transmitted. Implementation fully aligns with legacy behavior. All tests pass (632 OK).
+    files_modified:
+    - prevarisc-migration/src/Controller/CouchesCartographiquesController.php
+    - prevarisc-migration/config/prevarisc.php
+    - prevarisc-migration/docs/migration/MOD-15-CARTOGRAPHIE-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1061,5 +1072,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 97
+  total_ecarts_processed: 98
 
