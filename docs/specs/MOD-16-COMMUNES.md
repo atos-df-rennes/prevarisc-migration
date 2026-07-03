@@ -216,9 +216,3 @@ La fusion supprime les associations groupement–commune et commission–commune
 ### 7.5 Fusion de multiples communes en une seule opération
 
 Le fichier de fusion peut contenir plusieurs opérations de fusion indépendantes. Chaque opération est validée et exécutée séquentiellement. Si une opération échoue à la validation (contrôle de cohérence), le traitement s'interrompt immédiatement : les opérations suivantes ne sont pas exécutées.
-
-### 7.6 Affichage embarqué de la fiche commune
-
-La fiche de coordonnées d'une commune peut être affichée en mode embarqué dans d'autres contextes (par exemple depuis un autre module). Dans ce mode :
-- Les informations d'identité (code INSEE, code postal) et le bouton de sauvegarde ne sont pas affichés.
-- Seul le formulaire de coordonnées est visible.
