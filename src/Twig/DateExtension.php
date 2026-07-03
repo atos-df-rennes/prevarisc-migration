@@ -23,14 +23,10 @@ class DateExtension extends AbstractExtension
 
     /**
      * Formate une date en libellé français court avec le nom du jour (ex: "Lundi 12 Jan 2026").
-     *
-     * @param \DateTimeInterface|null $date
-     *
-     * @return string
      */
     public function formatDateFr(?\DateTimeInterface $date): string
     {
-        if (!$date) {
+        if (null === $date) {
             return '';
         }
 
