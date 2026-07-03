@@ -87,6 +87,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $groupement = new Groupement();
         $groupement->addCommune($ancienneCommune);
+
         $ancienneCommune->addGroupement($groupement);
 
         self::assertTrue($groupement->getCommunes()->contains($ancienneCommune));
