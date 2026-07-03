@@ -58,7 +58,7 @@ class CommunesController extends AbstractController
     {
         // Force la fonction à maire pour les communes
         $utilisateurInformations = $commune->getUtilisateurInformations();
-        if ($utilisateurInformations) {
+        if (null !== $utilisateurInformations) {
             $fonctionMaire = $this->fonctionRepository->find(Fonction::MAIRE);
             if ($fonctionMaire) {
                 $utilisateurInformations->setFonction($fonctionMaire);
