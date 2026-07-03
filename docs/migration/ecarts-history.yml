@@ -688,12 +688,15 @@ ecarts:
     title: L'ouverture d'un dossier Plat'AU n'est plus bloquée quand le module est
       désactivé
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: Guard properly implemented in index() and edit() methods. Configuration correctly injected via services.php. Tests pass.
     files_modified:
-    - prevarisc-migration/src/Controller/Dossier/DossierController.php:226-244
+    - prevarisc-migration/src/Controller/Dossier/DossierController.php:252-254
+    - prevarisc-migration/src/Controller/Dossier/DossierController.php:424-426
+    - prevarisc-migration/config/platau.php:3-6
+    - prevarisc-migration/config/services.php:155-168
   - number: 2
     title: Le support proxy n'est visible que pour le healthcheck Symfony, pas pour
       les flux asynchrones de la passerelle
@@ -1017,7 +1020,7 @@ ecarts:
     - prevarisc-migration/src/Service/Doc.php
     - prevarisc-migration/src/Service/Doc.php:21-38
 metadata:
-  last_updated: '2026-07-02'
-  updated_by: user
-  total_ecarts_processed: 92
+  last_updated: '2026-07-03'
+  updated_by: copilot
+  total_ecarts_processed: 93
 
