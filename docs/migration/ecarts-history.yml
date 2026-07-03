@@ -900,6 +900,16 @@ ecarts:
     - prevarisc-migration/templates/communes/index.html.twig
     - prevarisc-migration/templates/communes/_informations.html.twig
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 5
+    title: 'E-05 — RG-CMN-006 : fonction du contact fixée à « Mairie »'
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Implémentation ultra-minimaliste dans CommunesController::informations(). Avant la création du formulaire, le code récupère utilisateurInformations et initialise la fonction à Fonction::MAIRE (ID=2) si elle est vide. Le formulaire n'expose aucun champ fonction puisque cette propriété est gérée entièrement côté serveur via le setter. Pas de champ caché, pas de complexity inutile. CommuneUtilisateurInformationsType reste inchangé (pas de modification nécessaire). Tests complets (634 tests) verts, PHPStan niveau 10 sans erreur.
+    files_modified:
+    - prevarisc-migration/src/Controller/CommunesController.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1165,5 +1175,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 104
+  total_ecarts_processed: 105
 
