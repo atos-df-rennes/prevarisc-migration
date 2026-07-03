@@ -888,6 +888,17 @@ ecarts:
     notes: ✅ VALIDÉ — Le retour utilisateur confirme que le comportement Symfony (traitement partiel avec erreurs loggées) est une amélioration justifiée du legacy (arrêt global). Le JSON peut contenir plusieurs fusions ; le fait que la 1ère échoue ne doit pas empêcher les 2e et 3e de s'exécuter si elles sont valides. Aucune action requise. Le code Symfony (continue + logger.error()) est aligné avec cette attente. Legacy examiné via Service_FusionCommand::mergeArrayCommune() qui fait return true dès la 1ère erreur, stoppant tout. Spécification originale demandait un arrêt global, mais le feedback utilisateur l'invalidait. Conclusion — comportement Symfony conforme aux attentes réelles de l'utilisateur.
     files_modified:
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 4
+    title: 'E-04 — RG-CMN-008 : sauvegarde asynchrone de la fiche mairie'
+    action: fix
+    status: closed
+    date_processed: '2026-07-03'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Implémentation du retour utilisateur suggérant de conserver le fonctionnement POST classique (sans AJAX) tout en permettant de revenir à la fiche commune après sauvegarde via un paramètre d'URL (pattern similaire aux groupements). Modifications : (1) CommunesController::informations() vérifie désormais $request->query->has('back') pour basculer entre redirection vers 'admin_communes' (liste) et 'admin_commune_infos' (détail) ; (2) templates/communes/_informations.html.twig passe back: 1 dans l'action du formulaire. Tests complets (634 tests) verts, PHPStan niveau 10 sans erreur, CS-Fixer sans corrections nécessaires.
+    files_modified:
+    - prevarisc-migration/src/Controller/CommunesController.php
+    - prevarisc-migration/templates/communes/_informations.html.twig
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1153,5 +1164,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-03'
   updated_by: copilot
-  total_ecarts_processed: 103
+  total_ecarts_processed: 104
 
