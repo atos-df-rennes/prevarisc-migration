@@ -108,7 +108,7 @@
         <span>{{ (champ_data.valeur.longStr ?? '')|nl2br }}</span>
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
-        <span>{{ champ_data.valeur.date ? champ_data.valeur.date|date('d/m/Y') : '' }}</span>
+        <span>{{ champ_data.valeur.date|date_fr }}</span>
 
     {% else %}
         <span class="text-muted">Aucune donnée</span>
@@ -152,7 +152,7 @@
                                 {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
                                     {{ (valeur.longStr ?? '')|nl2br }}
                                 {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
-                                    {{ valeur.date ? valeur.date|date('d/m/Y') : '' }}
+                                    {{ valeur.date|date_fr }}
                                 {% endif %}
                             </td>
                         {% endfor %}
