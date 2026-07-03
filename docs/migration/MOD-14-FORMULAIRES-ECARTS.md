@@ -12,6 +12,8 @@
 |------------|--------|
 | Règles de gestion analysées | 27 (RG-FOR-001 à RG-FOR-027) |
 | Écarts confirmés | 4 |
+| Écarts FALSE POSITIVES (éliminés) | 2 (écarts 1 & 2 — table des matières) |
+| Écarts réels restants | 2 (écarts 3 & 4) |
 | Points encore incertains | 0 |
 | Niveau de confiance | ✅ Bon |
 
@@ -20,7 +22,8 @@
 - Le cœur du module est bien migré : administration des capsules/rubriques/champs, import/export, types de champs, ordonnancement, descriptifs établissement **et dossier**, persistance par entité.
 - Les formulaires dossier existent bien côté Symfony pour **vérifications techniques** et **effectifs & dégagements** ; l'absence supposée de ces écrans était une fausse piste.
 - Les noms de fusion et l'injection dans les documents ODT sont bien présents via `ChampNamer`, `ChampCreator`, `OdtWriter`, `DossierRapportOdtService` et `CommissionDocumentGenerationService`.
-- Les écarts restants sont surtout des écarts d'interface et de fidélité fine au legacy : table des matières simplifiée, rendu lecture des dates, suppression immédiate des valeurs de liste.
+- **Écarts 1 & 2 (table des matières) : FALSE POSITIVES.** La spec décrivait une interface qui n'a jamais existé dans le legacy non plus (sidebar masquée). Aucune dégradation.
+- Les écarts réels sont surtout des écarts d'interface fine : rendu lecture des dates, suppression immédiate des valeurs de liste.
 
 ---
 
@@ -39,6 +42,12 @@
 
 **Retour utilisateur** : la table des matières latérale a été retirée car elle prenait trop de largeur et dégradait l'expérience utilisateur en termes de lecture des informations. Par ailleurs, je ne vois pas cette table des matières latérale sur l'affichage legacy (pas présente en lecture, masquée en édition).
 
+**CHECK VALIDATION** (2026-07-03) : **Retour utilisateur CORRECT**
+- Legacy édition : sidebar DANS le DOM mais masquée `.hidden-tablet { display: none; }` → visuellement masquée (inexistante à l'écran)
+- Legacy lecture : pas de sidebar du tout
+- Symfony édition : modale uniquement
+- **Conclusion** : la spec décrit une interface que le legacy n'avait JAMAIS. Les écarts 1 & 2 décrivent une situation spec vs. legacy qui n'existe pas. Écarts éliminés par fausse prémisse.
+
 ---
 
 ### Écart 2 — En édition, la table des matières latérale est remplacée par une modale minimaliste
@@ -53,6 +62,12 @@
 | **Fichiers concernés** | `docs/specs/MOD-14-FORMULAIRES.md:260-277,302`, `prevarisc-migration/templates/components/_formulaire_personnalise_edit.html.twig:143-193`, `prevarisc/application/views/scripts/formulaire/_table_of_content.phtml:5-105` |
 
 **Retour utilisateur** : la table des matières latérale a été retirée car elle prenait trop de largeur et dégradait l'expérience utilisateur en termes de lecture des informations. Par ailleurs, je ne vois pas cette table des matières latérale sur l'affichage legacy (pas présente en lecture, masquée en édition).
+
+**CHECK VALIDATION** (2026-07-03) : **Retour utilisateur CORRECT**
+- Legacy édition : sidebar DANS le DOM mais masquée `.hidden-tablet { display: none; }` → visuellement masquée (inexistante à l'écran)
+- Legacy lecture : pas de sidebar du tout
+- Symfony édition : modale uniquement
+- **Conclusion** : la spec décrit une interface que le legacy n'avait JAMAIS. Les écarts 1 & 2 décrivent une situation spec vs. legacy qui n'existe pas. Écarts éliminés par fausse prémisse.
 
 ---
 
@@ -101,7 +116,16 @@
 
 ## Recommandations
 
-1. **Priorité moyenne** : réintroduire une vraie table des matières latérale commune lecture/édition (recherche, « Tous », ancres, repli) pour retrouver le comportement de référence.
-2. **Priorité moyenne** : restaurer le format de lecture des dates avec nom du jour, au moins dans les macros de rendu en lecture seule.
-3. **Priorité moyenne** : ajouter une suppression immédiate serveur des valeurs de liste, ou documenter explicitement le changement d'ergonomie si ce comportement est volontaire.
-4. **Priorité basse** : conserver dans le rapport de migration que le publipostage des formulaires dossier est bien couvert côté Symfony, afin d'éviter de requalifier à tort ce point comme écart futur.
+**Mise à jour (2026-07-03) — Validation des écarts 1 & 2**
+
+Après vérification des classes CSS dans le legacy, les écarts 1 & 2 ont été éliminés car basés sur une fausse prémisse :
+- La spec décrit une **sidebar visible et persistante** en édition
+- Le legacy a également une **sidebar masquée** (`.hidden-tablet { display: none; }`) en édition → invisible à l'écran
+- Symfony a une **modale uniquement** en édition → même résultat visuel que le legacy
+- **Conclusion** : zéro dégradation. Écarts 1 & 2 sont des FALSE POSITIVES.
+
+**Écarts restants et vrais à adresser** :
+
+1. **Priorité moyenne** — Écart 3 (dates sans nom du jour) : restaurer le format de lecture des dates avec nom du jour via une macro Twig adaptée.
+2. **Priorité moyenne** — Écart 4 (suppression non immédiate) : ajouter une suppression immédiate serveur des valeurs de liste, ou documenter explicitement le changement d'ergonomie.
+3. **Priorité basse** : conserver dans le rapport de migration que le publipostage des formulaires dossier est bien couvert côté Symfony.
