@@ -28,14 +28,18 @@
 
 ### Écart 1 — L'ouverture d'un dossier Plat'AU n'est plus bloquée quand le module est désactivé
 
+**✅ VALIDÉ**
+
 | | Détail |
 |---|--------|
 | **Règles** | RG-PLT-002, §7.4 |
 | **Spec** | Si un dossier possède un identifiant de consultation Plat'AU et que le module est désactivé, l'ouverture du dossier doit être bloquée avec une erreur explicite. |
-| **Symfony** | `DossierController::index()` charge systématiquement les données Plat'AU via `getPlatauDataForView()` sans garde préalable sur `PREVARISC_DEACTIVATE_PLATAU`. Je n'ai pas trouvé de contrôle équivalent dans les parcours Symfony du dossier. |
-| **Legacy** | `DossierController` bloque explicitement l'accès : si `ID_PLATAU` est présent et que `PREVARISC_DEACTIVATE_PLATAU` est vrai, une exception « Plat'AU est désactivé » est levée. |
-| **Impact** | **Élevé** — non-conformité directe à la règle d'activation/désactivation du module, avec comportement divergent sur des dossiers déjà synchronisés depuis Plat'AU. |
-| **Fichiers concernés** | `docs/specs/MOD-13-PLATAU.md:149-150,249-252`, `prevarisc-migration/src/Controller/Dossier/DossierController.php:226-244`, `prevarisc/application/controllers/DossierController.php:211-216` |
+| **Symfony** | ✅ **Conforme** — `DossierController::index()` (ligne 252-254) et `DossierController::edit()` (ligne 424-426) incluent le garde préalable sur `$this->deactivatePlatau`. Configuration injected via `services.php` et déclarée dans `config/platau.php`. Exception levée avec message explicite : `"Plat'AU est désactivé, vous ne pouvez pas voir ce dossier"`. |
+| **Legacy** | ✅ Comportement identique : `DossierController` bloque explicitement l'accès si `ID_PLATAU` est présent et que `PREVARISC_DEACTIVATE_PLATAU` est vrai. |
+| **Impact** | **Résolu** — Conformité rétablie à la règle d'activation/désactivation du module. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/Dossier/DossierController.php:252-254,424-426`, `prevarisc-migration/config/platau.php:3-6`, `prevarisc-migration/config/services.php:155-168` |
+
+**Retour utilisateur** : Comportement implémenté après détection de cet écart. Validation confirmée par examen du code et exécution des tests (tests et PHPStan passent sans erreur).
 
 ---
 
@@ -83,7 +87,10 @@
 
 ## Recommandations
 
-1. **Priorité haute** : réintroduire une garde centralisée sur l'ouverture des dossiers Plat'AU lorsque `PREVARISC_DEACTIVATE_PLATAU` est actif.
-2. **Priorité haute** : ajouter un support proxy explicite dans la passerelle (`README` + résolution de config + options Guzzle), pour aligner tous les flux Plat'AU sur RG-PLT-032.
-3. **Priorité moyenne** : décider si l'export recherche doit masquer complètement la colonne « Identifiant PLATAU » quand le filtre provenance n'est pas sélectionné, ou si la spec doit être assouplie pour refléter le comportement historique.
-4. **Priorité moyenne** : documenter explicitement, dans la doc technique de migration, que les échanges entrants/sortants Plat'AU sont externalisés dans `prevarisc-passerelle-platau` et non exécutés par l'application Symfony elle-même.
+1. **Priorité haute** : ajouter un support proxy explicite dans la passerelle (`README` + résolution de config + options Guzzle), pour aligner tous les flux Plat'AU sur RG-PLT-032.
+2. **Priorité moyenne** : décider si l'export recherche doit masquer complètement la colonne « Identifiant PLATAU » quand le filtre provenance n'est pas sélectionné, ou si la spec doit être assouplie pour refléter le comportement historique.
+3. **Priorité moyenne** : documenter explicitement, dans la doc technique de migration, que les échanges entrants/sortants Plat'AU sont externalisés dans `prevarisc-passerelle-platau` et non exécutés par l'application Symfony elle-même.
+
+### Synthèse des validations (2026-07-03)
+
+- ✅ **Écart 1 — Blocage dossier Plat'AU désactivé** : VALIDÉ. La garde sur `PREVARISC_DEACTIVATE_PLATAU` est correctement implémentée dans les méthodes `index()` et `edit()` de `DossierController`, configuration properly injected. Tests et PHPStan passent.
