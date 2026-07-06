@@ -1128,6 +1128,25 @@ ecarts:
       post-migration. Tests OK (642 tests). Aucune correction de code à effectuer.
     files_modified:
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+  - number: 7
+    title: Variables `gn2` / `gn3` non portées correctement — utilisation des constantes
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Retour utilisateur : le code Symfony et le code legacy mappent tous
+      les deux l'information GN depuis ID_GENRE. Suppression du commentaire confus
+      "GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée" qui
+      causait une confusion. Remplacement des comparaisons en dur (2 === $gn et 3 === $gn)
+      par les constantes GenreEtablissement::ERP et GenreEtablissement::CELLULE dans
+      src/Service/DossierRapportOdtService.php. Ajout de l'import
+      use App\Constant\GenreEtablissement; en début du fichier. Amélioration du commentaire
+      pour clarifier que ERP = 2 et CELLULE = 3. Code Symfony et legacy confirmés
+      équivalents. PHPStan et PHP-CS-Fixer OK, 642 tests OK.
+    files_modified:
+    - prevarisc-migration/src/Service/DossierRapportOdtService.php
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   - number: 9
     action: fix
     status: closed
@@ -1407,7 +1426,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-06'
   updated_by: copilot
-  total_ecarts_processed: 113
+  total_ecarts_processed: 114
   modules_completed:
     - MOD-16
     - MOD-17
