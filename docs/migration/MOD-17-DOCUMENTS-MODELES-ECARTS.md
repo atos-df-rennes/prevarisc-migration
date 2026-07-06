@@ -102,7 +102,7 @@
 | **Legacy** | Ouvrait une petite boîte de chargement avec une barre GIF |
 | **Impact** | Écart UX probable si l'on applique la spec à la lettre |
 | **Fichiers modifiés** | `templates/documents/_modal_ajout.html.twig`, `templates/documents/ajout.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
-**Retour utilisateur** : Écart de migration confirmé. Ajouter la boite de dialog dans le code Symfony. Adapter les chemins pour utiliser la fonction `asset` Symfony et pas des chemins en dur.
+**Retour utilisateur** : Écart de migration confirmé. Plutôt qu'ajouter une boite de dialogue pour la progression, peut-on appliquer le pattern existant sur le projet ? C'est-à-dire disable le bouton d'envoi au clic et modifier le texte pour avoir une icône refresh spinning avec "Envoi en cours..." ? Pour information, l'id du bouton est `#document_submit`. (Précision: le contenu du formulaire est chargé via AJAX et ce bouton n'est donc disponible dans le DOM qu'au clic sur le bouton "Ajouter un document" qui construit la modale et fait l'appel AJAX)
 
 ---
 
