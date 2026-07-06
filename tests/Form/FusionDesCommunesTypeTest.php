@@ -3,6 +3,7 @@
 namespace App\Tests\Form;
 
 use App\Form\FusionDesCommunesType;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -18,12 +19,13 @@ final class FusionDesCommunesTypeTest extends TestCase
     public function testFormTypeBuildsWithFichierField(): void
     {
         $type = new FusionDesCommunesType();
-        
+
         $addedFields = [];
         $builder = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder) {
+            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
+
                 return $builder;
             }
         );
@@ -37,12 +39,13 @@ final class FusionDesCommunesTypeTest extends TestCase
     public function testFichierFieldHasValidationConstraints(): void
     {
         $type = new FusionDesCommunesType();
-        
+
         $addedFields = [];
         $builder = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder) {
+            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
+
                 return $builder;
             }
         );
@@ -60,12 +63,13 @@ final class FusionDesCommunesTypeTest extends TestCase
     public function testFileConstraintAllowsJsonMimeType(): void
     {
         $type = new FusionDesCommunesType();
-        
+
         $addedFields = [];
         $builder = $this->createMock(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder) {
+            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
+
                 return $builder;
             }
         );
@@ -73,7 +77,7 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type->buildForm($builder, []);
 
         $constraints = $addedFields['fichier']['options']['constraints'] ?? [];
-        
+
         $fileConstraint = null;
         foreach ($constraints as $constraint) {
             if ($constraint instanceof File) {
@@ -86,5 +90,3 @@ final class FusionDesCommunesTypeTest extends TestCase
         self::assertContains('application/json', $fileConstraint->mimeTypes, 'Should accept application/json mime type');
     }
 }
-
-
