@@ -1111,6 +1111,23 @@ ecarts:
     - prevarisc-migration/src/Form/DocumentType.php
     - prevarisc-migration/templates/documents/index.html.twig
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+  - number: 6
+    title: Décrémentation du compteur sans reload — validation écart accepté
+    action: check
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Écart de migration accepté par retour utilisateur. Le code Symfony
+      actuel implémente une recharge complète de la page après suppression de document
+      via window.location.reload() dans templates/documents/index.html.twig (lignes 32-35),
+      tandis que le legacy utilisait une suppression de ligne en place avec décrémentation
+      du compteur. Le résultat métier est identique : le document est supprimé et le
+      compteur est réactualisé. La divergence UX (full reload vs. DOM update in-place)
+      est acceptée par l'utilisateur qui envisage une amélioration future via Stimulus/Turbo
+      post-migration. Tests OK (642 tests). Aucune correction de code à effectuer.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   - number: 9
     action: fix
     status: closed
