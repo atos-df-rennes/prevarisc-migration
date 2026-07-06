@@ -985,16 +985,6 @@ ecarts:
     - prevarisc-migration/src/Exception/FusionFonctionnelleException.php
     - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
-  - number: 11
-    title: 'V-04 — RG-CMN-019 : suppression du fichier d''import après traitement'
-    action: check
-    status: closed
-    date_processed: '2026-07-06'
-    validated_by: copilot
-    notes: '✅ RÉSOLU — Écart détecté : la spécification demande « Le fichier importé doit être supprimé après traitement, succès ou échec. » Le code Symfony initial ne supprimait PAS explicitement le fichier, contrairement au legacy. Investigation confirme : (1) PHP ne supprime pas automatiquement les fichiers uploadés après la requête ; (2) ils restent dans /tmp jusqu''au nettoyage OS (24h+) ; (3) le legacy appelle explicitement unlink() pour respecter la spec. Implémenté le 2026-07-06 : FusionDesCommunesController::index() récupère le chemin du fichier avec getRealPath(), puis le supprime dans un bloc finally avec @unlink($cheminFichier), garantissant la suppression en cas de succès OU d''exception. Comportement legacy rétabli, spécification respectée. Suite complète (642 tests, 1207 assertions) verte, PHPStan niveau 10 OK.'
-    files_modified:
-    - prevarisc-migration/src/Controller/FusionDesCommunesController.php
-    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1260,5 +1250,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-06'
   updated_by: copilot
-  total_ecarts_processed: 111
+  total_ecarts_processed: 110
 
