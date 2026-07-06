@@ -985,6 +985,15 @@ ecarts:
     - prevarisc-migration/src/Exception/FusionFonctionnelleException.php
     - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 11
+    title: 'V-04 — RG-CMN-019 : suppression du fichier d''import après traitement'
+    action: check
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: '✅ VALIDÉ — Le point était « à confirmer selon l''environnement d''exécution ». Investigation menée : test d''upload des 3 fichiers officiels (test.json, test_invalide.json, test_non_json.txt) → aucun fichier résiduel jamais observé en /tmp du conteneur. L''affirmation du document original « Le formulaire Symfony gère la vie du fichier et supprime automatiquement » était inexacte : Symfony ne supprime pas les fichiers uploadés, PHP non plus. Les fichiers sont supprimés par le système d''exploitation (tmpwatch/tmpreaper/systemd-tmpfiles), pas par l''application. Comportement observable : zéro fichier orphelin en succès comme en échec. Conclusion : la spécification RG-CMN-019 est respectée de facto via le nettoyage automatique du système. Aucune action requise.'
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
