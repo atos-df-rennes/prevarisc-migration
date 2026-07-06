@@ -120,12 +120,15 @@ Documents modèles
 
 **Affichage :**
 
-1. L'écran affiche en premier les **documents visibles après verrouillage** avec le nombre de fichiers entre parenthèses.
-2. En dessous, les commissions sont regroupées par type de commission (titre de section).
-3. Pour chaque commission, le nom est affiché suivi du nombre de modèles entre parenthèses.
-4. Si une commission ne possède aucun modèle, son nom est affiché sans lien, sans compteur.
-5. Un clic sur le nom d'une commission déroule/replie la liste de ses fichiers.
-6. Chaque fichier est un lien cliquable permettant de le télécharger.
+1. L'écran affiche en premier les **documents visibles après verrouillage** dans un panel Bootstrap avec titre et badge compteur.
+2. Ce panel est repliable : un clic sur le titre déroule/replie la liste des documents transversaux.
+3. En dessous, les commissions sont regroupées par type de commission (titre de section).
+4. Pour chaque commission, un panel Bootstrap affiche le nom suivie du nombre de modèles en badge.
+5. Chaque panel est repliable : un clic sur le titre déroule/replie la liste des fichiers de la commission.
+6. Un chevron (flèche) indique l'état du panel (dépliée vers le bas ou repliée vers la droite).
+7. Les noms de fichiers sont affichés en texte brut, sans lien direct de téléchargement.
+8. Pour chaque fichier, deux boutons d'action sont présents : « Télécharger » (accès au fichier) et « Supprimer » (suppression du modèle), alignés à droite.
+9. Si une commission ne possède aucun modèle, le texte « Aucun document disponible » s'affiche dans le corps du panel, qui reste affiché avec badge 0.
 
 ### 5.2 Ajouter un modèle
 

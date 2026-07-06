@@ -11,12 +11,13 @@
 | Indicateur | Valeur |
 |------------|--------|
 | Règles de gestion analysées | 16 |
-| Écarts confirmés | 4 |
-| Points à vérifier | 5 |
-| Niveau de risque | Moyen |
-| Niveau de confiance | Bon |
+| Écarts confirmés | 2 |
+| Écarts résolus (2026-07-06) | 3 |
+| Points à vérifier | 4 |
+| Niveau de risque | Bas |
+| Niveau de confiance | Très bon |
 
-**Constats clés** : Le périmètre principal est bien migré (administration des modèles, upload ODT, écrasement silencieux par nom, espace transversal, génération depuis dossier). Les validations métier majeures sont présentes. Les écarts confirmés concernent surtout l'écran d'administration (absence de repli/dépli des commissions, badge `0` sur commission vide, gestion non bloquante d'un répertoire manquant). Un point technique important subsiste : l'administration liste tous les fichiers du répertoire, alors que la génération ne prend en compte que les `.odt`.
+**Constats clés** : Le périmètre principal est bien migré (administration des modèles, upload ODT, écrasement silencieux par nom, espace transversal, génération depuis dossier). Les validations métier majeures sont présentes. Les écarts UX d'administration (absence de repli/dépli des commissions, affichage du badge `0`, typo "Visbles") ont été résolus via une refonte en panels Bootstrap collapsibles. Les écarts fonctionnels restants concernent la gestion bloquante d'un répertoire manquant et le filtrage des fichiers non-ODT en administration. Un point technique important subsiste : l'administration liste tous les fichiers du répertoire, alors que la génération ne prend en compte que les `.odt`.
 
 ---
 
@@ -41,7 +42,7 @@
 
 ---
 
-### Écart 2 — Absence de repli/dépli des commissions ✅ À migrer
+### Écart 2 — Absence de repli/dépli des commissions ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -51,6 +52,8 @@
 | **Legacy** | Utilisait un lien `.commission` et un `toggle()` sur le tableau associé |
 | **Impact** | Régression UX : la navigation accordéon du legacy n'est plus présente |
 | **Fichiers modifiés** | `templates/documents/index.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
+
+**Résolution (2026-07-06)** : Rétablissement du comportement de repli/dépli en implémentant un panel Bootstrap collapsible (lien `panel-title__link` avec `data-toggle="collapse"`) pour chaque commission, ainsi que pour la section des documents transversaux. Le chevron indique visuellement l'état (glyphicon-chevron-down vers le bas = dépliée, rotate -90° = repliée), géré par la CSS existante `.panel-title .collapsed .caret-toggle` sans JavaScript custom. Pattern réutilisé depuis les composants existants du projet (`_formulaire_personnalise.html.twig`, `_membre_panel_macro.html.twig`). Lint et tests OK.
 
 ---
 
@@ -177,8 +180,8 @@
 **Écart 1 — Commission sans modèle (affichage du badge `0`)** ✅ RÉSOLU (2026-07-06)  
 Retour utilisateur : conserver le badge `0` (plutôt que le supprimer) et refondre l'affichage en panel (titre + badge en en-tête, contenu en body), avec nom de document en texte brut, boutons d'action "Télécharger"/"Supprimer" alignés à droite, et texte "Aucun document disponible" si la liste est vide. Implémenté dans `templates/documents/index.html.twig`.
 
-**Écart 2 — Absence de repli/dépli des commissions**  
-Rétablir le comportement de repli/dépli des commissions si l'objectif est l'iso-fonctionnalité stricte de l'écran d'administration.
+**Écart 2 — Absence de repli/dépli des commissions** ✅ RÉSOLU (2026-07-06)  
+Rétablissement du comportement d'accordéon via panel Bootstrap collapsible. Chaque commission et la section transversale sont maintenant repliables via un clic sur le titre, avec chevron indiquant l'état (visuel + gestion CSS standard). Pattern Bootstrap réutilisé depuis d'autres composants du projet (aucun JS custom).
 
 **Écart 3 — Répertoire de commission inexistant (gestion bloquante)**  
 Décider du niveau de sévérité attendu pour un répertoire manquant : si la spec prime, l'erreur doit redevenir bloquante ; si l'amélioration UX est conservée, il faut documenter l'écart.

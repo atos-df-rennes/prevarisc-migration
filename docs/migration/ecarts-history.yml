@@ -1032,7 +1032,26 @@ ecarts:
     - prevarisc-migration/templates/documents/index.html.twig
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   - number: 2
-    title: Aucun document disponible + faute d'orthographe "Visbles"
+    title: Absence de repli/dépli des commissions — rétablissement via panel collapsible
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Rétablissement du comportement de repli/dépli des commissions en
+      implémentant un panel Bootstrap collapsible pour chaque commission et pour la
+      section transversale. Le pattern utilise data-toggle="collapse" couplé avec
+      panel-title__link et chevron glyphicon-chevron-down (rotation gérée par CSS
+      existante .panel-title .collapsed .caret-toggle dans utilities.css). Aucun
+      JavaScript custom. Pattern réutilisé depuis composants existants du projet
+      (_formulaire_personnalise.html.twig, _membre_panel_macro.html.twig). Lint et
+      tests (642 tests) OK. Également met à jour la spécification MOD-17 pour
+      documenter la nouvelle structure UX avec panels collapsibles.
+    files_modified:
+    - prevarisc-migration/templates/documents/index.html.twig
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+    - prevarisc-migration/docs/specs/MOD-17-DOCUMENTS-MODELES.md
+  - number: 9
     action: fix
     status: closed
     date_processed: '2026-07-06'
