@@ -956,6 +956,35 @@ ecarts:
     - prevarisc-migration/src/Entity/Commune.php
     - prevarisc-migration/src/Controller/CommunesController.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 10
+    title: 'V-03 — §5.2.5 : coexistence des messages succès + erreur lors des lots
+      mixtes de fusion'
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: '✅ RÉSOLU — Distinction des erreurs techniques et fonctionnelles lors
+      de la fusion des communes. Ajout de deux exceptions dédiées : FusionTechniqueException
+      (fichier illisible, JSON invalide → arrêt total du traitement, flash danger)
+      et FusionFonctionnelleException (commune introuvable, libellé incohérent, informations
+      manquantes → lot ignoré, traitement des lots suivants poursuivi). FusionDesCommunes::fusionner()
+      retourne désormais un DTO ResultatFusion agrégeant les lots réussis et échoués ;
+      verifierCommune() (ex-communeExists) lève une exception fonctionnelle au lieu
+      de retourner false. Le contrôleur compose les flashs en conséquence : success
+      global si tout OK, success partiel + un warning par lot KO, ou info si rien
+      à traiter — succès et avertissements peuvent coexister, rétablissant et enrichissant
+      le comportement legacy (processComplete/hasErrors). Contenu dynamique échappé
+      via htmlspecialchars avant affichage |raw. 5 tests unitaires ajoutés. Suite
+      complète (642 tests, 1207 assertions) verte, PHPStan niveau 10 OK, CS-Fixer/Twig-CS-Fixer
+      OK.'
+    files_modified:
+    - prevarisc-migration/src/Controller/FusionDesCommunesController.php
+    - prevarisc-migration/src/Service/FusionDesCommunes.php
+    - prevarisc-migration/src/Dto/FusionDesCommunes/ResultatFusion.php
+    - prevarisc-migration/src/Exception/FusionTechniqueException.php
+    - prevarisc-migration/src/Exception/FusionFonctionnelleException.php
+    - prevarisc-migration/tests/Service/FusionDesCommunesTest.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1221,5 +1250,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-06'
   updated_by: copilot
-  total_ecarts_processed: 109
+  total_ecarts_processed: 110
 

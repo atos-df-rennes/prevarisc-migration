@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\FusionDesCommunes\ResultatFusion;
+use App\Exception\FusionTechniqueException;
 use App\Form\FusionDesCommunesType;
 use App\Service\FusionDesCommunes;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -39,14 +41,14 @@ class FusionDesCommunesController extends AbstractController
             $fichier = $form->get('fichier')->getData();
 
             try {
-                $this->fusionDesCommunes->fusionner(file_get_contents($fichier));
-            } catch (\Exception $exception) {
+                $resultat = $this->fusionDesCommunes->fusionner(file_get_contents($fichier));
+            } catch (FusionTechniqueException $exception) {
                 $this->addFlash('danger', $exception->getMessage());
 
                 return $this->redirectToRoute('admin_fusion_des_communes');
             }
 
-            $this->addFlash('success', 'Les communes ont bien été fusionnées.');
+            $this->ajouterFlashResultat($resultat);
 
             return $this->redirectToRoute('admin_fusion_des_communes');
         }
@@ -54,5 +56,36 @@ class FusionDesCommunesController extends AbstractController
         return $this->render('fusion_des_communes/index.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Compose les messages flash à partir du résultat de fusion :
+     * succès global, succès partiel avec avertissements par lot KO, ou
+     * information si aucune fusion n'était à traiter.
+     */
+    private function ajouterFlashResultat(ResultatFusion $resultat): void
+    {
+        foreach ($resultat->echecs() as $echec) {
+            $this->addFlash('warning', \sprintf(
+                "La commune %s n'a pas pu être fusionnée : %s",
+                htmlspecialchars($echec['nom'], \ENT_QUOTES),
+                htmlspecialchars($echec['message'], \ENT_QUOTES)
+            ));
+        }
+
+        if ($resultat->aDesSucces()) {
+            $this->addFlash(
+                'success',
+                $resultat->aDesEchecs()
+                    ? 'Certaines communes ont bien été fusionnées. Consultez les avertissements pour les communes non traitées.'
+                    : 'Les communes ont bien été fusionnées.'
+            );
+
+            return;
+        }
+
+        if (!$resultat->aDesEchecs()) {
+            $this->addFlash('info', 'Aucune commune à fusionner.');
+        }
     }
 }
