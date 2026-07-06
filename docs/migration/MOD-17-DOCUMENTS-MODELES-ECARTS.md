@@ -120,6 +120,7 @@
 | **Legacy** | Retirait la ligne et décrémentait le compteur en place |
 | **Impact** | Résultat final identique, mais expérience utilisateur moins fluide |
 | **Fichiers modifiés** | `templates/documents/index.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
+**Retour utilisateur** : Écart de migration accepté en l'état. Pourra utiliser Stimulus/Turbo post-migration.
 
 ---
 
