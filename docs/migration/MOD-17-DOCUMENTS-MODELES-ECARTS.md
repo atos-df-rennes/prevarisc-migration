@@ -74,7 +74,7 @@
 
 ---
 
-### Écart 4 — Liste d'administration non filtrée aux ODT
+### Écart 4 — Liste d'administration non filtrée aux ODT ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -85,6 +85,8 @@
 | **Impact** | Incohérence interne : un fichier non-ODT peut apparaître dans l'admin alors qu'il n'est jamais proposé dans la génération |
 | **Fichiers modifiés** | `src/Service/Documents.php`, `src/Controller/Dossier/DossierRapportController.php` |
 **Retour utilisateur** : Écart confirmé. Même si le legacy n'implémente pas cela, corriger et faire la vérification dans le code Symfony.
+
+**Résolution (2026-07-06)** : Ajout du filtre `.name('*.odt')` dans la méthode `Documents::findForCommission()` pour aligner l'administration avec la génération des rapports. Seuls les fichiers `.odt` sont désormais listés dans l'interface d'administration, éliminant l'incohérence où des fichiers non-ODT pouvaient apparaître mais jamais être utilisés. Lint et tests (642 tests) OK.
 
 ---
 
@@ -191,8 +193,8 @@ Rétablissement du comportement d'accordéon via panel Bootstrap collapsible. Ch
 **Écart 3 — Répertoire de commission inexistant (gestion bloquante)** ✅ VALIDÉ (2026-07-06)  
 Écart de migration accepté par retour utilisateur. Le comportement non-bloquant (affichage d'une alerte sans arrêter la page) améliore l'UX en permettant de visualiser les commissions fonctionnelles tout en alertant l'administrateur des problèmes de répertoires. Spécification MOD-17-DOCUMENTS-MODELES.md section 8.5 mise à jour pour refléter ce comportement accepté.
 
-**Écart 4 — Liste d'administration non filtrée aux ODT**  
-Filtrer les fichiers `.odt` dans `Documents::findForCommission()` pour aligner l'administration avec la génération des rapports.
+**Écart 4 — Liste d'administration non filtrée aux ODT** ✅ RÉSOLU (2026-07-06)  
+Filtrage des fichiers `.odt` implémenté dans `Documents::findForCommission()` via `->name('*.odt')` pour aligner l'administration avec la génération des rapports. Seuls les fichiers ODT sont désormais visibles, éliminant l'incohérence où des fichiers non-ODT pouvaient apparaître mais jamais être utilisés.
 
 **Écart 9 — Libellé de l'espace transversal (faute orthographique)** ✅ RÉSOLU (2026-07-06)  
 Faute corrigée : `Visbles après verrouillage` → `Visibles après verrouillage`.

@@ -1071,6 +1071,23 @@ ecarts:
     - prevarisc-migration/templates/documents/index.html.twig
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
     - prevarisc-migration/docs/specs/MOD-17-DOCUMENTS-MODELES.md
+  - number: 4
+    title: Liste d'administration non filtrée aux ODT
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Retour utilisateur confirmé : implémenter le filtrage des fichiers
+      `.odt` pour aligner l'administration avec la génération des rapports. Ajout du
+      filtre `->name('*.odt')` dans Documents::findForCommission() (src/Service/Documents.php).
+      Seuls les fichiers ODT sont désormais affichés dans l'interface d'administration,
+      éliminant l'incohérence où des fichiers non-ODT pouvaient apparaître mais jamais
+      être utilisés. Aligne le comportement avec DossierRapportController qui utilise
+      déjà ce filtre lors de la génération. Lint et tests (642 tests) OK.
+    files_modified:
+    - prevarisc-migration/src/Service/Documents.php
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   - number: 9
     action: fix
     status: closed
