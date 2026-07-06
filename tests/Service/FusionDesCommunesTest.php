@@ -10,6 +10,7 @@ use App\Entity\Commune;
 use App\Entity\Groupement;
 use App\Entity\Utilisateur;
 use App\Entity\UtilisateurInformations;
+use App\Exception\FusionTechnicalException;
 use App\Repository\AdresseRueRepository;
 use App\Repository\CommissionRegleRepository;
 use App\Repository\CommuneRepository;
@@ -170,5 +171,127 @@ final class FusionDesCommunesTest extends TestCase
         $this->buildService()->fusionner('{}');
 
         self::assertContains($regle, $removedEntities);
+    }
+
+    /**
+     * V-03 : lorsque tous les lots réussissent, le résultat indique un succès
+     * global sans aucun avertissement.
+     */
+    public function testFusionRetourneUnSuccesGlobal(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+        $ancienneCommune->setUtilisateurInformations(new UtilisateurInformations());
+
+        $fusion = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+        $this->communeRepository->method('find')->willReturnMap([
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn(new Utilisateur());
+        $this->commissionRegleRepository->method('findBy')->willReturn([]);
+
+        $resultat = $this->buildService()->fusionner('{}');
+
+        self::assertTrue($resultat->hasSuccess());
+        self::assertFalse($resultat->hasFailures());
+        self::assertSame(['Nouvelle Commune'], $resultat->succes());
+    }
+
+    /**
+     * V-03 : l'échec fonctionnel d'un lot (commune cible introuvable) ne lève pas
+     * d'exception mais est enregistré comme un échec dans le résultat.
+     */
+    public function testLotIntrouvableEstUnEchecFonctionnel(): void
+    {
+        $fusion = new FusionDeCommunes('Commune Fantôme', 'GHOST', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+        $this->communeRepository->method('find')->willReturn(null);
+
+        $resultat = $this->buildService()->fusionner('{}');
+
+        self::assertFalse($resultat->hasSuccess());
+        self::assertTrue($resultat->hasFailures());
+        self::assertCount(1, $resultat->echecs());
+        self::assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
+    }
+
+    /**
+     * V-03 : lorsqu'un lot échoue et qu'un autre réussit, le traitement continue
+     * et le résultat combine succès et avertissement (succès partiel).
+     */
+    public function testFusionPartielleContinueApresUnEchec(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+        $ancienneCommune->setUtilisateurInformations(new UtilisateurInformations());
+
+        $fusionKo = new FusionDeCommunes('Commune Fantôme', 'GHOST', [
+            new CommuneDto('Ancienne KO', 'OLDKO'),
+        ]);
+        $fusionOk = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusionKo, $fusionOk]);
+        $this->communeRepository->method('find')->willReturnMap([
+            ['GHOST', null, null, null],
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn(new Utilisateur());
+        $this->commissionRegleRepository->method('findBy')->willReturn([]);
+
+        $resultat = $this->buildService()->fusionner('{}');
+
+        self::assertTrue($resultat->hasSuccess());
+        self::assertTrue($resultat->hasFailures());
+        self::assertSame(['Nouvelle Commune'], $resultat->succes());
+        self::assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
+    }
+
+    /**
+     * V-03 : un contenu de fichier illisible constitue une erreur technique qui
+     * interrompt tout le traitement.
+     */
+    public function testFichierIllisibleLeveUneExceptionTechnique(): void
+    {
+        $this->expectException(FusionTechnicalException::class);
+
+        $this->buildService()->fusionner(false);
+    }
+
+    /**
+     * V-03 : un JSON invalide constitue une erreur technique qui interrompt tout
+     * le traitement.
+     */
+    public function testJsonInvalideLeveUneExceptionTechnique(): void
+    {
+        $this->serializer->method('deserialize')->willThrowException(new \RuntimeException('JSON invalide'));
+
+        $this->expectException(FusionTechnicalException::class);
+
+        $this->buildService()->fusionner('{invalide');
     }
 }
