@@ -12,7 +12,6 @@
                     const $submitBtn = $('#document_submit');
                     if ($submitBtn.length > 0) {
                         $submitBtn.prop('disabled', true);
-                        const originalText = $submitBtn.text();
                         $submitBtn.html('<span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> Envoi en cours...');
                     }
                 });
