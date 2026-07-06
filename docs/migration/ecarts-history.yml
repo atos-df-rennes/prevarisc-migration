@@ -1051,6 +1051,26 @@ ecarts:
     - prevarisc-migration/templates/documents/index.html.twig
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
     - prevarisc-migration/docs/specs/MOD-17-DOCUMENTS-MODELES.md
+  - number: 3
+    title: Répertoire de commission inexistant (gestion bloquante) — validation de comportement accepté
+    action: check
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Retour utilisateur accepté : changement d'une gestion bloquante
+      (legacy : opendir(...) || exit(...)) à une gestion non bloquante (Symfony :
+      alerte non bloquante). L'implémentation Symfony est conforme : CommissionDocumentBuilder
+      capture DirectoryNotFoundException et crée CommissionDocument avec documents=null ;
+      le template affiche une alerte sans bloquer l'affichage des autres commissions.
+      Spécification MOD-17-DOCUMENTS-MODELES.md section 8.5 mise à jour pour refléter
+      le nouveau comportement accepté (alerte non bloquante plutôt que blocante).
+      Tests OK (642 tests).
+    files_modified:
+    - prevarisc-migration/src/Service/Commission/CommissionDocumentBuilder.php
+    - prevarisc-migration/templates/documents/index.html.twig
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+    - prevarisc-migration/docs/specs/MOD-17-DOCUMENTS-MODELES.md
   - number: 9
     action: fix
     status: closed

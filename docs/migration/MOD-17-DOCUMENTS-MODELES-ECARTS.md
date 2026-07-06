@@ -57,16 +57,20 @@
 
 ---
 
-### Écart 3 — Répertoire de commission inexistant (gestion bloquante)
+### Écart 3 — Répertoire de commission inexistant (gestion bloquante) ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | §8.5 |
-| **Spec** | Le répertoire manquant doit provoquer une erreur bloquante |
+| **Spec (legacy)** | Le répertoire manquant doit provoquer une erreur bloquante |
 | **Symfony** | Le builder crée un objet avec `documents = null`, et la vue affiche une alerte non bloquante |
 | **Legacy** | Faisait un `opendir(...) \|\| exit(...)`, donc arrêt bloquant |
-| **Impact** | Divergence fonctionnelle : Symfony laisse la page vivre là où le legacy bloquait |
-| **Fichiers modifiés** | `src/Service/Commission/CommissionDocumentBuilder.php`, `templates/documents/index.html.twig`, `prevarisc/application/controllers/GestionDesDocumentsController.php` |
+| **Impact** | Divergence fonctionnelle acceptée : Symfony laisse la page vivre là où le legacy bloquait |
+| **Fichiers modifiés** | `src/Service/Commission/CommissionDocumentBuilder.php`, `templates/documents/index.html.twig`, `prevarisc/application/controllers/GestionDesDocumentsController.php`, `docs/specs/MOD-17-DOCUMENTS-MODELES.md` |
+
+**Retour utilisateur** : Écart de migration accepté. L'arrêt bloquant ne permet pas d'afficher les éléments pour lesquels il n'y a pas d'erreur. Ce nouveau fonctionnement permet de visualiser les éléments qui sont corrects tout en indiquant à l'administrateur que certains éléments ont un problème. Aucune correction de code à effectuer. Mettre à jour la spécification dans specs/ pour définir ce nouveau fonctionnement.
+
+**Validation (2026-07-06)** : ✅ Code conforme au retour utilisateur. CommissionDocumentBuilder.php capture l'exception DirectoryNotFoundException et crée un CommissionDocument avec documents=null plutôt que de relancer l'exception. templates/documents/index.html.twig affiche une alerte non bloquante ("Le répertoire de cette commission n'existe pas ou n'est pas accessible") lorsque documents est null, permettant la visualisation des autres commissions. MOD-17-DOCUMENTS-MODELES.md section 8.5 mise à jour pour refléter le nouveau comportement (alerte non bloquante au lieu d'erreur bloquante). Comportement validé conforme à la spécification acceptée par l'utilisateur. Tests OK (642 tests).
 
 ---
 
@@ -183,8 +187,8 @@ Retour utilisateur : conserver le badge `0` (plutôt que le supprimer) et refond
 **Écart 2 — Absence de repli/dépli des commissions** ✅ RÉSOLU (2026-07-06)  
 Rétablissement du comportement d'accordéon via panel Bootstrap collapsible. Chaque commission et la section transversale sont maintenant repliables via un clic sur le titre, avec chevron indiquant l'état (visuel + gestion CSS standard). Pattern Bootstrap réutilisé depuis d'autres composants du projet (aucun JS custom).
 
-**Écart 3 — Répertoire de commission inexistant (gestion bloquante)**  
-Décider du niveau de sévérité attendu pour un répertoire manquant : si la spec prime, l'erreur doit redevenir bloquante ; si l'amélioration UX est conservée, il faut documenter l'écart.
+**Écart 3 — Répertoire de commission inexistant (gestion bloquante)** ✅ VALIDÉ (2026-07-06)  
+Écart de migration accepté par retour utilisateur. Le comportement non-bloquant (affichage d'une alerte sans arrêter la page) améliore l'UX en permettant de visualiser les commissions fonctionnelles tout en alertant l'administrateur des problèmes de répertoires. Spécification MOD-17-DOCUMENTS-MODELES.md section 8.5 mise à jour pour refléter ce comportement accepté.
 
 **Écart 4 — Liste d'administration non filtrée aux ODT**  
 Filtrer les fichiers `.odt` dans `Documents::findForCommission()` pour aligner l'administration avec la génération des rapports.

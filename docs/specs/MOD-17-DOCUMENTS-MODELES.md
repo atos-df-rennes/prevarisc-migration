@@ -242,7 +242,7 @@ Lors de la génération pour un établissement dont l'activité principale est �
 
 ### 8.5 Répertoire de documents inexistant
 
-Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une erreur bloquante. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
+Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une alerte non bloquante pour cette commission tout en continuant à afficher les éléments sans erreur. Cela permet à l'administrateur de visualiser les commissions fonctionnelles tout en étant averti des problèmes de répertoires manquants. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
 
 ### 8.6 Suppression d'une commission
 
