@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
+use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
 use App\Constant\StatutEtablissement;
 use App\Constant\TypeActivite;
@@ -405,13 +406,12 @@ class DossierRapportOdtService
             // =====================================================================
             // GN (Groupement de Nuit)
             // =====================================================================
-            // GN dérivé de ID_GENRE (2 = établissement, 3 = cellule) — la colonne
-            // GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée.
+            // GN dérivé de ID_GENRE (ERP = 2, CELLULE = 3)
             $gn = (int) ($rawEtabInfos['ID_GENRE'] ?? '0');
-            if (2 === $gn) {
+            if (GenreEtablissement::ERP === $gn) {
                 $this->addChamp($odf, 'gn2', '×');
                 $this->addChamp($odf, 'gn3', '');
-            } elseif (3 === $gn) {
+            } elseif (GenreEtablissement::CELLULE === $gn) {
                 $this->addChamp($odf, 'gn2', '');
                 $this->addChamp($odf, 'gn3', '×');
             }

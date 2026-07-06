@@ -127,7 +127,7 @@
 
 ---
 
-### Écart 7 — Variables `gn2` / `gn3` non portées correctement
+### Écart 7 — Variables `gn2` / `gn3` non portées correctement ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -137,8 +137,16 @@
 | **Legacy** | Utilisait la donnée métier d'origine |
 | **Impact** | Risque de divergence sur certains modèles ODT selon l'interprétation métier attendue |
 | **Fichiers modifiés** | `src/Service/DossierRapportOdtService.php` |
+
 **Retour utilisateur** : Le code Symfony et le code legacy mappe tous les deux l'information GN depuis `ID_GENRE` donc implémentation équivalente. Je ne comprend pas la mention à `GN_ETABLISSEMENTINFORMATIONS` qui n'est mentionné nul part dans le legacy ? (Une hallucination lors de la migration ?) On peut selon moi supprimer ce commentaire portant à confusion.
 Remplacer les comparaisons avec int en dur (2 & 3) par les constantes dans le fichier `GenreEtablissement` (ERP & CELLULE).
+
+**Résolution (2026-07-06)** : 
+1. Suppression du commentaire confus "GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée."
+2. Ajout de l'import `use App\Constant\GenreEtablissement;` en début de fichier
+3. Remplacement des comparaisons en dur : `if (2 === $gn)` → `if (GenreEtablissement::ERP === $gn)` et `elseif (3 === $gn)` → `elseif (GenreEtablissement::CELLULE === $gn)`
+4. Amélioration du commentaire pour clarifier que ERP = 2 et CELLULE = 3
+Lint (PHPStan, PHP-CS-Fixer) et tests (642 tests) OK.
 
 ---
 
@@ -213,5 +221,8 @@ Implémentation du pattern utilisateur demandé : désactivation du bouton d'env
 **Écart 6 — Décrémentation du compteur sans reload** ✅ VALIDÉ (2026-07-06)  
 Écart de migration accepté par retour utilisateur. Le comportement Symfony implémente une recharge complète de la page après suppression de document, alors que le legacy retirait la ligne et décrémentait le compteur en place. Le résultat métier est identique (document supprimé, compteur réactualisé). La divergence UX est acceptée avec envisagement d'une amélioration future via Stimulus/Turbo. Aucune correction de code à effectuer.
 
-**Écarts 7–8 (points à vérifier restants)**  
-Valider métier l'amélioration de l'UX du composant de suppression (sans reload), les variables ODT non portées (`gn2/gn3`, effectifs, dégagements) avant de conclure à une iso-fonctionnalité complète.
+**Écart 7 — Variables `gn2` / `gn3` non portées correctement** ✅ RÉSOLU (2026-07-06)  
+Suppression du commentaire confus "GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée" et remplacement des comparaisons en dur (2, 3) par les constantes `GenreEtablissement::ERP` et `GenreEtablissement::CELLULE` dans `src/Service/DossierRapportOdtService.php`. Code Symfony et legacy mappent tous les deux l'information GN depuis `ID_GENRE`, implémentation confirmée équivalente. Lint et tests OK.
+
+**Écart 8 (point à vérifier restant)**  
+Valider métier les variables ODT non portées (effectifs, dégagements) avant de conclure à une iso-fonctionnalité complète.
