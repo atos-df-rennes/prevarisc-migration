@@ -137,6 +137,8 @@
 | **Legacy** | Utilisait la donnée métier d'origine |
 | **Impact** | Risque de divergence sur certains modèles ODT selon l'interprétation métier attendue |
 | **Fichiers modifiés** | `src/Service/DossierRapportOdtService.php` |
+**Retour utilisateur** : Le code Symfony et le code legacy mappe tous les deux l'information GN depuis `ID_GENRE` donc implémentation équivalente. Je ne comprend pas la mention à `GN_ETABLISSEMENTINFORMATIONS` qui n'est mentionné nul part dans le legacy ? (Une hallucination lors de la migration ?) On peut selon moi supprimer ce commentaire portant à confusion.
+Remplacer les comparaisons avec int en dur (2 & 3) par les constantes dans le fichier `GenreEtablissement` (ERP & CELLULE).
 
 ---
 
