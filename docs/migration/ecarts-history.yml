@@ -943,6 +943,19 @@ ecarts:
     - prevarisc-migration/src/Entity/Commune.php
     - prevarisc-migration/src/Controller/CommunesController.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 9
+    title: 'V-02 — RG-CMN-005 : recréation si la fiche référencée est incohérente'
+    action: check
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: ✅ VALIDÉ — Mécanisme Symfony standard confirmé : (1) CommuneUtilisateurInformationsType a data_class = UtilisateurInformations, (2) lors du binding du formulaire, Symfony instantie automatiquement une nouvelle UtilisateurInformations si commune.utilisateurInformations est null, (3) la relation OneToOne avec cascade={"persist"} assure que cette nouvelle instance est persistée lors du flush. Le retour utilisateur confirme ce comportement : « s'il n'y a plus de liaison, la fiche sera recréée par Symfony à la sauvegarde ». Code Symfony et legacy examinés, comportement Symfony conforme à la spécification. Aucune modification requise. Suite de tests (637 tests, 1194 assertions) verte, PHPStan niveau 10 OK.
+    files_modified:
+    - prevarisc-migration/src/Form/CommuneUtilisateurInformationsType.php
+    - prevarisc-migration/src/Form/CommuneType.php
+    - prevarisc-migration/src/Entity/Commune.php
+    - prevarisc-migration/src/Controller/CommunesController.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1208,5 +1221,5 @@ ecarts:
 metadata:
   last_updated: '2026-07-06'
   updated_by: copilot
-  total_ecarts_processed: 108
+  total_ecarts_processed: 109
 
