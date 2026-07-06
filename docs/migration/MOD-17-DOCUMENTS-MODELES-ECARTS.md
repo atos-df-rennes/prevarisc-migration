@@ -84,6 +84,7 @@
 | **Legacy** | La génération restait centrée sur les ODT ; l'administration ne distinguait pas mieux |
 | **Impact** | Incohérence interne : un fichier non-ODT peut apparaître dans l'admin alors qu'il n'est jamais proposé dans la génération |
 | **Fichiers modifiés** | `src/Service/Documents.php`, `src/Controller/Dossier/DossierRapportController.php` |
+**Retour utilisateur** : Écart confirmé. Même si le legacy n'implémente pas cela, corriger et faire la vérification dans le code Symfony.
 
 ---
 
