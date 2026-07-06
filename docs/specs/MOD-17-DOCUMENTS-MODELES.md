@@ -151,16 +151,17 @@ Il n'existe pas de fonction « remplacer » explicite. Le remplacement s'effectu
 
 ### 5.4 Supprimer un modèle
 
-**Déclencheur :** Lien « Suppression du document » en face de chaque fichier dans la liste.
+**Déclencheur :** Bouton « Supprimer » en face de chaque fichier dans la liste.
 
 **Étapes :**
 
-1. L'utilisateur clique sur « Suppression du document ».
+1. L'utilisateur clique sur le bouton « Supprimer ».
 2. Une fenêtre de confirmation apparaît avec le message : *« Vous êtes sur le point de supprimer le fichier "[nom]". Une fois ce fichier supprimé il ne pourra plus être utilisé lors de la génération des rapports. »*
 3. L'utilisateur clique sur « Supprimer » pour confirmer ou « Annuler » pour abandonner.
-4. En cas de confirmation, le fichier est supprimé. La ligne disparaît du tableau et le compteur de la commission est décrémenté.
-5. Si le compteur atteint zéro, le tableau de la commission est masqué.
-6. En cas d'erreur (fichier introuvable, erreur système), un message d'erreur est affiché.
+4. En cas de confirmation, le fichier est supprimé et la page se recharge automatiquement.
+5. Après rechargement, la liste est mise à jour : le fichier supprimé disparaît et le compteur de la commission est décrémenté.
+6. Si le compteur atteint zéro, le panel de la commission affiche « Aucun document disponible ».
+7. En cas d'erreur (fichier introuvable, erreur système), la page se recharge et un message d'erreur est affiché.
 
 ---
 
