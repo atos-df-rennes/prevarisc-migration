@@ -38,6 +38,7 @@ class FusionDesCommunesController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $fichier */
             $fichier = $form->get('fichier')->getData();
+            $cheminFichier = $fichier->getRealPath();
 
             try {
                 $resultat = $this->fusionDesCommunes->fusionner(file_get_contents($fichier));
@@ -45,6 +46,10 @@ class FusionDesCommunesController extends AbstractController
                 $this->addFlash('danger', $exception->getMessage());
 
                 return $this->redirectToRoute('admin_fusion_des_communes');
+            } finally {
+                if ($cheminFichier && file_exists($cheminFichier)) {
+                    @unlink($cheminFichier);
+                }
             }
 
             foreach ($this->fusionDesCommunes->composerFlashsResultat($resultat) as $flash) {
