@@ -102,6 +102,7 @@
 | **Legacy** | Ouvrait une petite boîte de chargement avec une barre GIF |
 | **Impact** | Écart UX probable si l'on applique la spec à la lettre |
 | **Fichiers modifiés** | `templates/documents/_modal_ajout.html.twig`, `templates/documents/ajout.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
+**Retour utilisateur** : Écart de migration confirmé. Ajouter la boite de dialog dans le code Symfony. Adapter les chemins pour utiliser la fonction `asset` Symfony et pas des chemins en dur.
 
 ---
 
