@@ -919,6 +919,17 @@ ecarts:
     notes: ✅ VALIDÉ — Investigation exhaustive confirme la spécification : le mécanisme embarqué prévu dans le legacy (masquer l'identité et le bouton via $this->ext) n'est jamais utilisé. Recherche approfondie : (1) GestionDesCommunesController::displayAction() assigne $this->view->assign('ext', $this->_request->ext), (2) display.phtml masque les blocs si $this->ext != true, (3) MAIS aucun controller ne passe ext=true, (4) seul appel (index.phtml) charge le template sans paramètre ext. Résultat : fonctionnalité définie mais complètement vide. Aucune implémentation Symfony requise puisque aucun point d'entrée réel ne l'appelle. Pas de régression. Specification mark now 🟢 FERMÉ / VALIDÉ.
     files_modified:
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 7
+    title: 'E-07 — RG-CMN-009 : validation stricte du fichier JSON'
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Implémentation des validations Symfony dans FusionDesCommunesType.php. Le champ fichier reçoit désormais deux contraintes de validation : (1) NotBlank() avec message personnalisé « Un fichier est requis. », (2) File() avec MIME types restreints à application/json et text/plain, avec message « Le fichier doit être au format JSON. ». Champ marqué required: true. Cette approche remplace les anciennes validations Zend Count=1 et Extension=json. Test unitaire complet ajouté (FusionDesCommunesTypeTest.php) avec 3 tests couvrant la configuration du formulaire, la présence des contraintes et l'acceptation du MIME type JSON. Suite de tests complète (637 tests, 1194 assertions) verte, PHPStan niveau 10 sans erreur.
+    files_modified:
+    - prevarisc-migration/src/Form/FusionDesCommunesType.php
+    - prevarisc-migration/tests/Form/FusionDesCommunesTypeTest.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1182,7 +1193,7 @@ ecarts:
     - prevarisc-migration/src/Service/Doc.php
     - prevarisc-migration/src/Service/Doc.php:21-38
 metadata:
-  last_updated: '2026-07-03'
+  last_updated: '2026-07-06'
   updated_by: copilot
-  total_ecarts_processed: 106
+  total_ecarts_processed: 107
 
