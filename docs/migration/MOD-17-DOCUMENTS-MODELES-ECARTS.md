@@ -110,7 +110,7 @@
 
 ---
 
-### Écart 6 — Décrémentation du compteur sans reload
+### Écart 6 — Décrémentation du compteur sans reload ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
@@ -120,6 +120,10 @@
 | **Legacy** | Retirait la ligne et décrémentait le compteur en place |
 | **Impact** | Résultat final identique, mais expérience utilisateur moins fluide |
 | **Fichiers modifiés** | `templates/documents/index.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
+
+**Retour utilisateur** : Écart de migration accepté en l'état. Pourra utiliser Stimulus/Turbo post-migration.
+
+**Validation (2026-07-06)** : ✅ Écart confirmé et comportement accepté. Code Symfony actuel implémente une recharge complète de la page après suppression (success et error) via `window.location.reload()` dans `templates/documents/index.html.twig` (ligne 32-35). Code legacy utilisait une suppression de ligne en place avec décrémentation du compteur (sans reload). Le résultat métier est identique : le document est supprimé et le compteur est réactualisé. La divergence UX (full reload vs. DOM update in-place) est acceptée par l'utilisateur qui envisage une amélioration future via Stimulus/Turbo post-migration. Tests OK (642 tests). Aucune correction de code à effectuer.
 
 ---
 
@@ -204,5 +208,8 @@ Filtrage des fichiers `.odt` implémenté dans `Documents::findForCommission()` 
 **Écart 5 — Barre de progression à l'upload** ✅ RÉSOLU (2026-07-06)  
 Implémentation du pattern utilisateur demandé : désactivation du bouton d'envoi au clic avec remplacement du texte par une icône `glyphicon-refresh spinning` (pattern existant du projet) et "Envoi en cours...". Bouton identifié par `id="document_submit"` dans `src/Form/DocumentType.php`, gestionnaire JavaScript dans `templates/documents/index.html.twig` liant l'événement submit après chargement du formulaire via AJAX. Lint et tests OK.
 
-**Écarts 6–8 (points à vérifier restants)**  
+**Écart 6 — Décrémentation du compteur sans reload** ✅ VALIDÉ (2026-07-06)  
+Écart de migration accepté par retour utilisateur. Le comportement Symfony implémente une recharge complète de la page après suppression de document, alors que le legacy retirait la ligne et décrémentait le compteur en place. Le résultat métier est identique (document supprimé, compteur réactualisé). La divergence UX est acceptée avec envisagement d'une amélioration future via Stimulus/Turbo. Aucune correction de code à effectuer.
+
+**Écarts 7–8 (points à vérifier restants)**  
 Valider métier l'amélioration de l'UX du composant de suppression (sans reload), les variables ODT non portées (`gn2/gn3`, effectifs, dégagements) avant de conclure à une iso-fonctionnalité complète.
