@@ -141,7 +141,7 @@ Documents modèles
 3. L'utilisateur sélectionne la commission de destination dans une liste déroulante. La première option est « Documents visibles après verrouillage ». Les commissions sont regroupées par type de commission.
 4. L'utilisateur sélectionne un fichier ODT depuis son poste.
 5. L'utilisateur clique sur « Envoyer ».
-6. Une barre de progression s'affiche pendant l'envoi.
+6. Le bouton « Envoyer » est désactivé et remplacé par une icône de rechargement animée avec le texte « Envoi en cours... ».
 7. En cas de succès, la page se recharge et le nouveau modèle apparaît dans la liste de la commission sélectionnée.
 8. En cas d'erreur, un message explicite est affiché.
 
