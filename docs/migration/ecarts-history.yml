@@ -994,6 +994,16 @@ ecarts:
     notes: '✅ VALIDÉ — Le point était « à confirmer selon l''environnement d''exécution ». Investigation menée : test d''upload des 3 fichiers officiels (test.json, test_invalide.json, test_non_json.txt) → aucun fichier résiduel jamais observé en /tmp du conteneur. L''affirmation du document original « Le formulaire Symfony gère la vie du fichier et supprime automatiquement » était inexacte : Symfony ne supprime pas les fichiers uploadés, PHP non plus. Les fichiers sont supprimés par le système d''exploitation (tmpwatch/tmpreaper/systemd-tmpfiles), pas par l''application. Comportement observable : zéro fichier orphelin en succès comme en échec. Conclusion : la spécification RG-CMN-019 est respectée de facto via le nettoyage automatique du système. Aucune action requise.'
     files_modified:
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  - number: 12
+    title: 'V-05 — Droits d''accès communes : aligner les permissions'
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: ✅ RÉSOLU — Alignement des permissions entre CommunesController et FusionDesCommunesController. Changement simple et ciblé : remplacer @IsGranted("admin") par @IsGranted("communes") dans FusionDesCommunesController. Cette modification assure une cohérence des niveaux de permissions pour les deux contrôleurs de gestion des communes. Le commentaire utilisateur demandait explicitement cet alignement. Implémentation : modification d'une seule ligne. Tous les tests passent (642 tests, 1207 assertions), PHPStan niveau 10 OK, code style OK.
+    files_modified:
+    - prevarisc-migration/src/Controller/FusionDesCommunesController.php
+    - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
