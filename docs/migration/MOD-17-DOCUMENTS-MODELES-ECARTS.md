@@ -12,12 +12,12 @@
 |------------|--------|
 | Règles de gestion analysées | 16 |
 | Écarts confirmés | 2 |
-| Écarts résolus (2026-07-06) | 3 |
-| Points à vérifier | 4 |
+| Écarts résolus (2026-07-06) | 4 |
+| Points à vérifier | 3 |
 | Niveau de risque | Bas |
 | Niveau de confiance | Très bon |
 
-**Constats clés** : Le périmètre principal est bien migré (administration des modèles, upload ODT, écrasement silencieux par nom, espace transversal, génération depuis dossier). Les validations métier majeures sont présentes. Les écarts UX d'administration (absence de repli/dépli des commissions, affichage du badge `0`, typo "Visbles") ont été résolus via une refonte en panels Bootstrap collapsibles. Les écarts fonctionnels restants concernent la gestion bloquante d'un répertoire manquant et le filtrage des fichiers non-ODT en administration. Un point technique important subsiste : l'administration liste tous les fichiers du répertoire, alors que la génération ne prend en compte que les `.odt`.
+**Constats clés** : Le périmètre principal est bien migré (administration des modèles, upload ODT, écrasement silencieux par nom, espace transversal, génération depuis dossier). Les validations métier majeures sont présentes. Les écarts UX d'administration (absence de repli/dépli des commissions, affichage du badge `0`, typo "Visbles") et l'UX d'upload (progression lors de l'envoi) ont été résolus via une refonte en panels Bootstrap collapsibles et un gestionnaire JavaScript affichant l'état d'envoi. Les écarts fonctionnels résolus concernent la gestion bloquante d'un répertoire manquant et le filtrage des fichiers non-ODT en administration. Un point technique important subsiste : l'administration liste tous les fichiers du répertoire, alors que la génération ne prend en compte que les `.odt`.
 
 ---
 
@@ -90,9 +90,9 @@
 
 ---
 
-## Points à vérifier
+## Points à vérifier (résolus) / Écarts résolus
 
-### Écart 5 — Barre de progression à l'upload
+### Écart 5 — Barre de progression à l'upload ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -101,8 +101,12 @@
 | **Symfony** | Aucun composant de progression visible dans les templates Symfony consultés |
 | **Legacy** | Ouvrait une petite boîte de chargement avec une barre GIF |
 | **Impact** | Écart UX probable si l'on applique la spec à la lettre |
-| **Fichiers modifiés** | `templates/documents/_modal_ajout.html.twig`, `templates/documents/ajout.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
+| **Fichiers modifiés** | `templates/documents/_modal_ajout.html.twig`, `templates/documents/ajout.html.twig`, `src/Form/DocumentType.php`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
 **Retour utilisateur** : Écart de migration confirmé. Plutôt qu'ajouter une boite de dialogue pour la progression, peut-on appliquer le pattern existant sur le projet ? C'est-à-dire disable le bouton d'envoi au clic et modifier le texte pour avoir une icône refresh spinning avec "Envoi en cours..." ? Pour information, l'id du bouton est `#document_submit`. (Précision: le contenu du formulaire est chargé via AJAX et ce bouton n'est donc disponible dans le DOM qu'au clic sur le bouton "Ajouter un document" qui construit la modale et fait l'appel AJAX)
+
+**Résolution (2026-07-06)** : Implémentation du pattern demandé en deux parties :
+1. Ajout d'un attribut `id="document_submit"` au bouton submit dans `src/Form/DocumentType.php` pour permettre l'identification du bouton en JavaScript.
+2. Ajout d'un gestionnaire JavaScript dans `templates/documents/index.html.twig` qui écoute l'événement submit du formulaire. Au clic du bouton d'envoi, le bouton est désactivé et son texte est remplacé par une icône `glyphicon-refresh spinning` (pattern existant du projet, défini dans `public/css/utilities.css`) avec le texte "Envoi en cours...". Le formulaire étant chargé dynamiquement via AJAX, la fonction `bindDocumentSubmit()` est appelée après chaque chargement du formulaire pour lier le gestionnaire. Lint (TWIG-CS-Fixer, PHP-CS-Fixer) et tests (642 tests) OK.
 
 ---
 
@@ -197,8 +201,8 @@ Rétablissement du comportement d'accordéon via panel Bootstrap collapsible. Ch
 **Écart 4 — Liste d'administration non filtrée aux ODT** ✅ RÉSOLU (2026-07-06)  
 Filtrage des fichiers `.odt` implémenté dans `Documents::findForCommission()` via `->name('*.odt')` pour aligner l'administration avec la génération des rapports. Seuls les fichiers ODT sont désormais visibles, éliminant l'incohérence où des fichiers non-ODT pouvaient apparaître mais jamais être utilisés.
 
-**Écart 9 — Libellé de l'espace transversal (faute orthographique)** ✅ RÉSOLU (2026-07-06)  
-Faute corrigée : `Visbles après verrouillage` → `Visibles après verrouillage`.
+**Écart 5 — Barre de progression à l'upload** ✅ RÉSOLU (2026-07-06)  
+Implémentation du pattern utilisateur demandé : désactivation du bouton d'envoi au clic avec remplacement du texte par une icône `glyphicon-refresh spinning` (pattern existant du projet) et "Envoi en cours...". Bouton identifié par `id="document_submit"` dans `src/Form/DocumentType.php`, gestionnaire JavaScript dans `templates/documents/index.html.twig` liant l'événement submit après chargement du formulaire via AJAX. Lint et tests OK.
 
-**Écarts 5–8 (points à vérifier restants)**  
-Valider métier les variables ODT non portées (`gn2/gn3`, effectifs, dégagements) et améliorer l'UX du composant de suppression (sans reload) et de progress bar upload avant de conclure à une iso-fonctionnalité complète.
+**Écarts 6–8 (points à vérifier restants)**  
+Valider métier l'amélioration de l'UX du composant de suppression (sans reload), les variables ODT non portées (`gn2/gn3`, effectifs, dégagements) avant de conclure à une iso-fonctionnalité complète.

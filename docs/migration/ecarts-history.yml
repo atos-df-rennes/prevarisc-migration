@@ -1088,6 +1088,29 @@ ecarts:
     files_modified:
     - prevarisc-migration/src/Service/Documents.php
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+  - number: 5
+    title: Barre de progression à l'upload — implémentation du pattern spinner
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Retour utilisateur : plutôt qu'une boîte de dialogue de progression,
+      appliquer le pattern existant du projet (désactivation du bouton d'envoi au clic
+      et affichage d'une icône glyphicon-refresh spinning avec "Envoi en cours...").
+      Implémentation en deux parties : 1) Ajout d'un id="document_submit" au bouton
+      submit dans src/Form/DocumentType.php pour permettre l'identification en JavaScript.
+      2) Gestionnaire JavaScript dans templates/documents/index.html.twig qui écoute
+      l'événement submit du formulaire. Au clic du bouton d'envoi, le bouton est
+      désactivé et son texte est remplacé par l'icône glyphicon-refresh spinning
+      (pattern existant, défini dans public/css/utilities.css) avec "Envoi en cours...".
+      Le formulaire étant chargé dynamiquement via AJAX, la fonction bindDocumentSubmit()
+      est appelée après chaque chargement du formulaire pour lier le gestionnaire.
+      Lint (twig-cs-fixer, php-cs-fixer) OK, 642 tests OK.
+    files_modified:
+    - prevarisc-migration/src/Form/DocumentType.php
+    - prevarisc-migration/templates/documents/index.html.twig
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   - number: 9
     action: fix
     status: closed

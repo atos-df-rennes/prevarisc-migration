@@ -46,7 +46,7 @@ class DocumentType extends AbstractType
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Envoyer',
-                'attr' => ['class' => 'btn-success'],
+                'attr' => ['class' => 'btn-success', 'id' => 'document_submit'],
             ])
         ;
     }
