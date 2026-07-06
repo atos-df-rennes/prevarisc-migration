@@ -1021,7 +1021,13 @@ ecarts:
       devenu un bouton d'action "Supprimer". Les boutons d'actions sont alignés à
       droite (pull-right). Le badge `0` est conservé lorsque le panel n'a aucun document
       (comportement voulu par l'utilisateur), avec un texte "Aucun document disponible"
-      affiché dans le corps du panel. Lint (twig-cs-fixer, php-cs-fixer) OK.
+      affiché dans le corps du panel. Complément : ajout d'un chevron de dépliage/repliage
+      par panel en réutilisant le pattern Bootstrap collapse existant (panel-title__link +
+      data-toggle="collapse" + span.caret-toggle.glyphicon-chevron-down, rotation gérée
+      par la CSS existante .panel-title .collapsed .caret-toggle dans utilities.css,
+      sans JS custom). Ajout d'icônes glyphicon sur les boutons d'action en reprenant
+      les patterns existants : glyphicon-download-alt pour "Télécharger", glyphicon-trash
+      pour "Supprimer". Lint (twig-cs-fixer, php-cs-fixer) OK, 642 tests OK.
     files_modified:
     - prevarisc-migration/templates/documents/index.html.twig
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md

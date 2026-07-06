@@ -37,6 +37,8 @@
 
 **Résolution (2026-07-06)** : `templates/documents/index.html.twig` refondu pour utiliser un `panel panel-default` (comme dans `templates/dossier/liaisons/index.html.twig`) avec `panel-heading` (titre + badge, y compris badge `0`) et `panel-body`. Chaque document est affiché en texte brut avec deux boutons d'action alignés à droite (`pull-right`) : "Télécharger" (lien vers `document.filepath`) et "Supprimer" (déclenche la modale de suppression existante). Quand la liste est vide, le texte "Aucun document disponible" est affiché dans le panel-body, panel conservé avec badge `0`. Twig-CS-Fixer et PHP-CS-Fixer OK.
 
+**Complément (2026-07-06)** : Ajout d'un chevron de dépliage/repliage sur chaque panel, en réutilisant le pattern Bootstrap collapse déjà présent dans le projet (`templates/components/_formulaire_personnalise.html.twig`, `templates/commissions/_membre_panel_macro.html.twig`) : lien `panel-title__link` avec `data-toggle="collapse"`/`data-target` et `span.caret-toggle.glyphicon-chevron-down`, dont la rotation est gérée par la classe CSS existante `.panel-title .collapsed .caret-toggle` (`public/css/utilities.css`), sans JavaScript custom (Bootstrap gère nativement le collapse). Ajout également d'icônes glyphicon sur les boutons d'action, en s'appuyant sur les patterns déjà utilisés ailleurs dans le projet : `glyphicon-download-alt` pour "Télécharger" (cf. `templates/dossier/pieces_jointes/index.html.twig`) et `glyphicon-trash` pour "Supprimer" (cf. `templates/commissions/_membre_panel_macro.html.twig`). Lint et tests (642 tests) OK.
+
 ---
 
 ### Écart 2 — Absence de repli/dépli des commissions ✅ À migrer
