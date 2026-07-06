@@ -41,12 +41,12 @@ final class ResultatFusion
         return $this->echecs;
     }
 
-    public function aDesSucces(): bool
+    public function hasSuccess(): bool
     {
         return [] !== $this->succes;
     }
 
-    public function aDesEchecs(): bool
+    public function hasFailures(): bool
     {
         return [] !== $this->echecs;
     }

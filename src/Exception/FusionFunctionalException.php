@@ -8,6 +8,6 @@ namespace App\Exception;
  * pas le traitement global : le lot concerné est ignoré et signalé en avertissement,
  * les lots suivants continuent d'être traités.
  */
-final class FusionFonctionnelleException extends \RuntimeException
+final class FusionFunctionalException extends \RuntimeException
 {
 }

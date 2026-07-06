@@ -10,7 +10,7 @@ use App\Entity\Commune;
 use App\Entity\Groupement;
 use App\Entity\Utilisateur;
 use App\Entity\UtilisateurInformations;
-use App\Exception\FusionTechniqueException;
+use App\Exception\FusionTechnicalException;
 use App\Repository\AdresseRueRepository;
 use App\Repository\CommissionRegleRepository;
 use App\Repository\CommuneRepository;
@@ -204,8 +204,8 @@ final class FusionDesCommunesTest extends TestCase
 
         $resultat = $this->buildService()->fusionner('{}');
 
-        self::assertTrue($resultat->aDesSucces());
-        self::assertFalse($resultat->aDesEchecs());
+        self::assertTrue($resultat->hasSuccess());
+        self::assertFalse($resultat->hasFailures());
         self::assertSame(['Nouvelle Commune'], $resultat->succes());
     }
 
@@ -224,8 +224,8 @@ final class FusionDesCommunesTest extends TestCase
 
         $resultat = $this->buildService()->fusionner('{}');
 
-        self::assertFalse($resultat->aDesSucces());
-        self::assertTrue($resultat->aDesEchecs());
+        self::assertFalse($resultat->hasSuccess());
+        self::assertTrue($resultat->hasFailures());
         self::assertCount(1, $resultat->echecs());
         self::assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
     }
@@ -265,8 +265,8 @@ final class FusionDesCommunesTest extends TestCase
 
         $resultat = $this->buildService()->fusionner('{}');
 
-        self::assertTrue($resultat->aDesSucces());
-        self::assertTrue($resultat->aDesEchecs());
+        self::assertTrue($resultat->hasSuccess());
+        self::assertTrue($resultat->hasFailures());
         self::assertSame(['Nouvelle Commune'], $resultat->succes());
         self::assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
     }
@@ -277,7 +277,7 @@ final class FusionDesCommunesTest extends TestCase
      */
     public function testFichierIllisibleLeveUneExceptionTechnique(): void
     {
-        $this->expectException(FusionTechniqueException::class);
+        $this->expectException(FusionTechnicalException::class);
 
         $this->buildService()->fusionner(false);
     }
@@ -290,7 +290,7 @@ final class FusionDesCommunesTest extends TestCase
     {
         $this->serializer->method('deserialize')->willThrowException(new \RuntimeException('JSON invalide'));
 
-        $this->expectException(FusionTechniqueException::class);
+        $this->expectException(FusionTechnicalException::class);
 
         $this->buildService()->fusionner('{invalide');
     }

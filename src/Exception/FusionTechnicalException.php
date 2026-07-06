@@ -7,6 +7,6 @@ namespace App\Exception;
  * (fichier illisible, JSON invalide, etc.). Elle interrompt l'intégralité du
  * traitement : aucune fusion n'est réalisée.
  */
-final class FusionTechniqueException extends \RuntimeException
+final class FusionTechnicalException extends \RuntimeException
 {
 }
