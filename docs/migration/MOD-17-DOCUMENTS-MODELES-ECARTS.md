@@ -22,7 +22,7 @@
 
 ## Écarts détaillés
 
-### Écart 1 — Commission sans modèle (affichage du badge `0`) 
+### Écart 1 — Commission sans modèle (affichage du badge `0`) ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -32,6 +32,10 @@
 | **Legacy** | Affichait uniquement le libellé de la commission, sans compteur |
 | **Impact** | Écart UX visible par rapport à la spec et au comportement historique |
 | **Fichiers modifiés** | `templates/documents/index.html.twig`, `prevarisc/application/views/scripts/gestion-des-documents/index.phtml` |
+
+**Retour utilisateur** : Remplacer l'affichage titre + badge + tableau par un panel (titre + badge en en-tête, contenu dans le body), en s'appuyant sur les panels existants du code Symfony. Le nom du document ne permet plus de télécharger directement : il est affiché en texte brut, avec un bouton d'action "Télécharger" ajouté à droite. Le texte "Suppression du document" devient un bouton d'action "Supprimer", aligné à droite avec le bouton "Télécharger". Si aucun document n'est disponible, afficher le texte "Aucun document disponible" en conservant le panel avec titre + badge `0`.
+
+**Résolution (2026-07-06)** : `templates/documents/index.html.twig` refondu pour utiliser un `panel panel-default` (comme dans `templates/dossier/liaisons/index.html.twig`) avec `panel-heading` (titre + badge, y compris badge `0`) et `panel-body`. Chaque document est affiché en texte brut avec deux boutons d'action alignés à droite (`pull-right`) : "Télécharger" (lien vers `document.filepath`) et "Supprimer" (déclenche la modale de suppression existante). Quand la liste est vide, le texte "Aucun document disponible" est affiché dans le panel-body, panel conservé avec badge `0`. Twig-CS-Fixer et PHP-CS-Fixer OK.
 
 ---
 
@@ -128,7 +132,7 @@
 
 ---
 
-### Écart 9 — Libellé de l'espace transversal (faute orthographique)
+### Écart 9 — Libellé de l'espace transversal (faute orthographique) ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -138,6 +142,8 @@
 | **Legacy** | Affichait un libellé proche, également imparfait, mais l'intention fonctionnelle restait claire |
 | **Impact** | Écart cosmétique mineur |
 | **Fichiers modifiés** | `templates/documents/index.html.twig` |
+
+**Résolution (2026-07-06)** : Faute corrigée dans `templates/documents/index.html.twig` : `Visbles après verrouillage` → `Visibles après verrouillage`. Corrigé dans le cadre de la refonte du panel de l'écart 1 (même fichier).
 
 ---
 
@@ -166,8 +172,8 @@
 
 ## Recommandations
 
-**Écart 1 — Commission sans modèle (affichage du badge `0`)**  
-Supprimer le badge `0` quand une commission n'a aucun modèle afin d'aligner l'UI avec la spec.
+**Écart 1 — Commission sans modèle (affichage du badge `0`)** ✅ RÉSOLU (2026-07-06)  
+Retour utilisateur : conserver le badge `0` (plutôt que le supprimer) et refondre l'affichage en panel (titre + badge en en-tête, contenu en body), avec nom de document en texte brut, boutons d'action "Télécharger"/"Supprimer" alignés à droite, et texte "Aucun document disponible" si la liste est vide. Implémenté dans `templates/documents/index.html.twig`.
 
 **Écart 2 — Absence de repli/dépli des commissions**  
 Rétablir le comportement de repli/dépli des commissions si l'objectif est l'iso-fonctionnalité stricte de l'écran d'administration.
@@ -178,5 +184,8 @@ Décider du niveau de sévérité attendu pour un répertoire manquant : si la s
 **Écart 4 — Liste d'administration non filtrée aux ODT**  
 Filtrer les fichiers `.odt` dans `Documents::findForCommission()` pour aligner l'administration avec la génération des rapports.
 
-**Écarts 5–9 (points à vérifier)**  
+**Écart 9 — Libellé de l'espace transversal (faute orthographique)** ✅ RÉSOLU (2026-07-06)  
+Faute corrigée : `Visbles après verrouillage` → `Visibles après verrouillage`.
+
+**Écarts 5–8 (points à vérifier restants)**  
 Valider métier les variables ODT non portées (`gn2/gn3`, effectifs, dégagements) et améliorer l'UX du composant de suppression (sans reload) et de progress bar upload avant de conclure à une iso-fonctionnalité complète.

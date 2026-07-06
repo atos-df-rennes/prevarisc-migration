@@ -1004,6 +1004,42 @@ ecarts:
     files_modified:
     - prevarisc-migration/src/Controller/FusionDesCommunesController.php
     - prevarisc-migration/docs/migration/MOD-16-COMMUNES-ECARTS.md
+  MOD-17:
+  - number: 1
+    title: Commission sans modèle (affichage du badge `0`) — refonte panel + actions
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Retour utilisateur : remplacement de l'affichage titre + badge + tableau
+      par un panel Bootstrap (panel-heading avec titre + badge, panel-body avec le
+      contenu), en s'appuyant sur les panels existants du code Symfony (ex.
+      dossier/liaisons/index.html.twig). Le nom du document est désormais affiché en
+      texte brut (suppression du lien de téléchargement direct sur le nom) ; un bouton
+      d'action "Télécharger" a été ajouté et le texte "Suppression du document" est
+      devenu un bouton d'action "Supprimer". Les boutons d'actions sont alignés à
+      droite (pull-right). Le badge `0` est conservé lorsque le panel n'a aucun document
+      (comportement voulu par l'utilisateur), avec un texte "Aucun document disponible"
+      affiché dans le corps du panel. Lint (twig-cs-fixer, php-cs-fixer) OK.
+    files_modified:
+    - prevarisc-migration/templates/documents/index.html.twig
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+  - number: 2
+    title: Aucun document disponible + faute d'orthographe "Visbles"
+    action: fix
+    status: closed
+    date_processed: '2026-07-06'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Retour utilisateur : lorsqu'aucun document n'est disponible dans un
+      panel (espace transversal ou commission), affichage d'un texte "Aucun document
+      disponible" tout en conservant le panel avec titre + badge `0`. Correction de la
+      faute d'orthographe "Visbles après verrouillage" en "Visibles après
+      verrouillage". Lint (twig-cs-fixer, php-cs-fixer) OK.
+    files_modified:
+    - prevarisc-migration/templates/documents/index.html.twig
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1269,7 +1305,8 @@ ecarts:
 metadata:
   last_updated: '2026-07-06'
   updated_by: copilot
-  total_ecarts_processed: 111
+  total_ecarts_processed: 113
   modules_completed:
     - MOD-16
+    - MOD-17
 
