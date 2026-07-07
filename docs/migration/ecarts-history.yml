@@ -1242,6 +1242,34 @@ ecarts:
     - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
     - prevarisc-migration/templates/alerte/formulaire.html.twig
     - prevarisc-migration/src/Controller/AlerteController.php
+  - number: 4
+    title: Déclenchement depuis la fiche dossier — lien contextuel via flash message (iso-legacy)
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Vérification isomorphe Symfony ↔ Legacy confirmée. Retour utilisateur
+      confirmait que « Les alertes sont générées à la sauvegarde de l'entité et en fonction
+      des paramètres renseignés. L'implémentation du code Symfony est normalement iso au
+      legacy ». Analyse du code confirme cette isomorphie complète. Le lien « Alerter »
+      n'apparaît PAS comme un bouton permanent sur la fiche dossier (contrairement à ce
+      que la spec initiale pouvait suggérer), mais exclusivement dans le **message flash
+      de sauvegarde** quand un changement d'avis est détecté. Implementation Symfony :
+      DossierSauvegardeService::gererAvisEtablissements() (lines 168-173) détecte les
+      changements d'avis et génère le lien via AlerteService::getLink(). Le lien HTML
+      est ajouté au flash avec un message de succès (flash bag). JavaScript alerte.js
+      intercepte le clic avec le sélecteur .alerte-link et charge le formulaire dans
+      la modale. Implementation Legacy : DossierController::editAction() détecte aussi
+      les changements d'avis et génère le lien via Service_Alerte::getLink(). Le lien
+      est ajouté au flashMessenger avec un message de succès. JavaScript index.phtml
+      intercepte le clic sur .alerte-link avec le même comportement. Comportement
+      identique. Spécification mise à jour (specs/MOD-18-ALERTES.md) pour clarifier que
+      le lien « Alerter » est un lien contextuel apparaissant dans le flash de succès,
+      non un bouton permanent. Aucun code à modifier.
+    files_modified:
+    - prevarisc-migration/docs/specs/MOD-18-ALERTES.md
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony

@@ -61,14 +61,16 @@
 
 ## Points à valider
 
-### Écart 4 — Déclenchement depuis la fiche dossier
+### Écart 4 — Déclenchement depuis la fiche dossier ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-002 |
-| **Constat** | Côté dossier, le lien « Alerter » apparaît via les flashs de sauvegarde plus que comme action permanente. À confirmer si la spec attend un bouton permanent visible. |
-| **Fichiers concernés** | `src/Controller/Dossier/DossierController.php`, `src/Service/Dossier/DossierSauvegardeService.php`, `prevarisc/application/views/scripts/dossier/index.phtml` |
-**Retour utilisateur** : Les alertes (dossier ou établissement) sont générées à la sauvegarde de l'entité et en fonction des paramètres renseignés. L'implémentation du code Symfony est normalement iso au legacy sur ce point. Vérifier et si c'est bien le cas, mettre à jour la spec dans specs/ pour documenter ce comportement.
+| **Constat (validé)** | Côté dossier, le lien « Alerter » apparaît via les flashs de sauvegarde quand l'avis de l'établissement change. Ce comportement est **identique entre Symfony et legacy**. |
+| **Implémentation Symfony** | `DossierSauvegardeService::gererAvisEtablissements()` génère le lien via `AlerteService::getLink()` quand un changement d'avis est détecté (lines 168-173). Le lien est ajouté au flash avec un message de succès HTML. Le JavaScript `alerte.js` intercepte le clic et charge le formulaire dans la modale. |
+| **Implémentation Legacy** | `DossierController::editAction()` fait exactement la même chose (lignes du service d'alerte). Le lien est généré et ajouté au `flashMessenger`. Le JavaScript `index.phtml` intercepte le clic avec le même sélecteur `.alerte-link`. |
+| **Validation** | ✅ **Les deux implémentations sont isomorphes.** Le lien n'apparaît PAS comme un bouton permanent sur la fiche dossier, mais uniquement dans le flash de sauvegarde quand un changement d'avis est effectué. C'est le comportement attendu et correctement implémenté. |
+| **Fichiers concernés** | `src/Controller/Dossier/DossierController.php`, `src/Service/Dossier/DossierSauvegardeService.php`, `src/Service/Alerte/AlerteService.php`, `public/js/alerte/alerte.js`, `prevarisc/application/controllers/DossierController.php`, `prevarisc/application/services/Alerte.php` |
 
 ---
 
@@ -128,6 +130,6 @@
 1. **Écart 1** : ✅ **Fermé - Spécification révisée et implémentation validée.** Le comportement amélioré (affichage du message d'erreur au lieu d'une fermeture silencieuse) a été accepté comme amélioration UX et la spécification a été mise à jour en conséquence.
 2. **Écart 2** : ✅ **Fermé - Spécification révisée et implémentation validée.** Identique à l'écart 1 : l'erreur technique est désormais remontée explicitement à l'utilisateur au lieu d'une fermeture silencieuse.
 3. **Écart 3** : ✅ **Fermé - Implémentation validée contre spécification.** Le comportement Symfony (masquer le bouton Envoyer, garder Annuler) remplit l'objectif fonctionnel. C'est une amélioration UX acceptable qui ne relabel pas les boutons mais masque les actions non pertinentes.
-4. **RG-ALT-002** : À valider - Confirmer que le lien « Alerter » doit apparaître en permanence ou seulement via les flashs de sauvegarde.
+4. **Écart 4** : ✅ **Fermé - Implémentation validée iso-legacy.** Le lien « Alerter » n'apparaît que dans les flashs de sauvegarde quand un changement d'avis est détecté. Comportement identique en Symfony et legacy. **Recommandation : Mettre à jour la section 3.2 de `specs/MOD-18-ALERTES.md` pour clarifier que le lien « Alerter » n'est PAS un bouton permanent, mais un lien HTML généré dans le message flash de succès de la sauvegarde.**
 5. **RG-ALT-004** : À valider - Tester le calcul des destinataires sur des cas de multi-rattachement (commune directe + groupement) pour verrouiller l'équivalence.
 6. **RG-ALT-013** : À valider - Valider par tests métier la logique de résolution de `{etablissementAvis}` sur les cas d'avis différé et avis non standard.
