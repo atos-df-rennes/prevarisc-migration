@@ -90,6 +90,7 @@
 | **Legacy** | Les actions dossier et établissement récupèrent toutes deux `$_SERVER['HTTP_REFERER']` puis redirigent vers cette URL (`prevarisc/application/controllers/DossierController.php:3575-3593`, `prevarisc/application/controllers/EtablissementController.php:675-694`). |
 | **Impact** | **Moyen** — la navigation post-action n'est plus homogène entre les deux types d'éléments. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/ElementsSupprimesController.php`, `prevarisc/application/controllers/DossierController.php`, `prevarisc/application/controllers/EtablissementController.php` |
+**Retour utilisateur** : Écart de migration accepté. Le rétablissement d'un dossier peut se faire depuis la page du dossier ou depuis la page d'administration. Le rétablissement d'un établissement ne peut se faire que depuis la page d'administration, d'où la non-utilisation du referrer et le redirect permanent vers la page des éléments supprimés. Mets à jour la spec en ce sens.
 
 ---
 
