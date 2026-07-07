@@ -1359,55 +1359,57 @@ ecarts:
   - number: 1
     title: Le module est totalement absent côté Symfony
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: user
+    notes: Module MOD-19 (Statistiques) closed as non-applicable. Module removed - unused, full of errors, poor UX. No migration needed.
     files_modified:
-    - prevarisc-migration/src
-    - prevarisc-migration/templates
+    - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   - number: 2
-    title: Le legacy est explicitement marqué « non fonctionnel » et l'extraction
-      4 ne filtre pas la bonne période
+    title: Le legacy est explicitement marqué « non fonctionnel » et l'extraction 4 ne filtre pas la bonne période
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
-    files_modified: []
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: user
+    notes: Module MOD-19 (Statistiques) closed as non-applicable. Legacy code explicitly marked as non-functional, not to be migrated.
+    files_modified:
+    - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   - number: 3
     title: Aucun contrôle d'accès métier n'est implémenté dans le legacy
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
-    files_modified: []
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: user
+    notes: Module MOD-19 (Statistiques) closed as non-applicable. No access control in legacy, not to be migrated.
+    files_modified:
+    - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   - number: 4
-    title: Les dates de référence sont concaténées dans le SQL avec une validation
-      minimale
+    title: Les dates de référence sont concaténées dans le SQL avec une validation minimale
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
-    files_modified: []
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: user
+    notes: Module MOD-19 (Statistiques) closed as non-applicable. Legacy has SQL injection risks, not to be migrated.
+    files_modified:
+    - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   - number: 5
     title: Aucune pagination n'est prévue malgré les volumes potentiels
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
-    files_modified: []
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: user
+    notes: Module MOD-19 (Statistiques) closed as non-applicable. No pagination in legacy, not to be migrated.
+    files_modified:
+    - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   - number: 6
     title: L'interface legacy conserve des fragilités fonctionnelles et de présentation
     action: check
     status: closed
-    date_processed: '2026-05-22'
+    date_processed: '2026-07-07'
     validated_by: user
-    notes: Extracted from ecart specification
-    files_modified: []
+    notes: Module MOD-19 (Statistiques) closed as non-applicable. Poor UX and functional issues, not to be migrated.
+    files_modified:
+    - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   MOD-20:
   - number: 1
     title: En absence de droits, Symfony renvoie un refus d'accès générique au lieu
@@ -1620,8 +1622,9 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 119
+  total_ecarts_processed: 125
   modules_completed:
     - MOD-16
     - MOD-17
+    - MOD-19
 
