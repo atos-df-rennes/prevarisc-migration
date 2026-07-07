@@ -61,7 +61,7 @@
 
 ## Points à valider
 
-### Point 1 — Déclenchement depuis la fiche dossier
+### Écart 4 — Déclenchement depuis la fiche dossier
 
 | | Détail |
 |---|--------|
@@ -71,7 +71,7 @@
 
 ---
 
-### Point 2 — Union des périmètres (rattachement direct + groupement)
+### Écart 5 — Union des périmètres (rattachement direct + groupement)
 
 | | Détail |
 |---|--------|
@@ -81,7 +81,7 @@
 
 ---
 
-### Point 3 — Priorité de l'avis différé
+### Écart 6 — Priorité de l'avis différé
 
 | | Détail |
 |---|--------|
@@ -91,7 +91,7 @@
 
 ---
 
-### Point 4 — Avis non standard
+### Écart 7 — Avis non standard
 
 | | Détail |
 |---|--------|
