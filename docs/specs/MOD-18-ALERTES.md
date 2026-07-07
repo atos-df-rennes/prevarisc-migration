@@ -39,7 +39,9 @@ L'objet de l'e-mail est automatiquement complété par le **libellé de l'établ
 
 **Format de l'objet :** `<libellé établissement> (<commune>) - <description du changement>`
 
-Le déclenchement est **manuel** : l'utilisateur clique sur un bouton « Alerter » présent sur la fiche de l'établissement ou la fiche du dossier.
+Le déclenchement est **manuel** : lorsqu'un changement d'avis, statut ou classement survient sur un établissement, l'utilisateur reçoit un **lien « Alerter »** dans le message de succès de la sauvegarde. Ce lien permet d'ouvrir le formulaire d'alerte pour envoyer une notification aux utilisateurs habilités.
+
+**Note sur le lien « Alerter »** : Le lien « Alerter » n'est pas un bouton permanent sur la fiche dossier ou établissement. Il apparaît exclusivement dans le **message flash de succès** affiché après la sauvegarde de l'entité lorsqu'un changement significatif est détecté (changement d'avis, statut ou classement). Cet accès contextuel assure que l'utilisateur est informé de la possibilité d'alerter au moment où c'est pertinent.
 
 ### 3.2 Destinataires automatiques
 
