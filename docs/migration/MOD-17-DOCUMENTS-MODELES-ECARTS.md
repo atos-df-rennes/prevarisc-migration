@@ -160,6 +160,7 @@ Lint (PHPStan, PHP-CS-Fixer) et tests (642 tests) OK.
 | **Legacy** | Disposait vraisemblablement d'un calcul ou d'une alimentation dédiée |
 | **Impact** | Les modèles utilisant ces variables produiront des champs vides, sans erreur, mais potentiellement avec perte de contenu |
 | **Fichiers modifiés** | `src/Service/DossierRapportOdtService.php` |
+**Retour utilisateur** : Champs retirés car désormais dynamiques et non plus fixes. Supprimer les références.
 
 ---
 
