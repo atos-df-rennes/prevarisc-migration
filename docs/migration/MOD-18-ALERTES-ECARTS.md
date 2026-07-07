@@ -30,6 +30,7 @@
 | **Legacy** | Le service mail retourne `false` silencieusement. La modale se ferme normalement après clic sur Envoyer. |
 | **Divergence** | Régression UX : l'utilisateur voit une notification d'erreur alors que la spec et le legacy décrivent un échec silencieux avec fermeture. |
 | **Fichiers concernés** | `src/Controller/AlerteController.php`, `templates/alerte/formulaire.html.twig`, `prevarisc/application/services/Mail.php`, `prevarisc/application/views/scripts/dossier/index.phtml` |
+**Retour utilisateur** : Écart de migration accepté. Le comportement n'est pas une régression UX mais une **amélioration** UX. L'utilisateur voit désormais un message et comprend qu'une erreur est survenue et qu'une éventuelle action de sa part est attendue là où le legacy échouait silencieusement sans aucune information. Mets à jour la spec dans specs/ avec ce nouveau fonctionnement.
 
 ---
 
