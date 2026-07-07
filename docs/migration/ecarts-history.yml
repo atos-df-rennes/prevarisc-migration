@@ -1317,6 +1317,44 @@ ecarts:
       correcte et iso-fonctionnelle au legacy.
     files_modified:
     - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+  - number: 7
+    title: Avis non standard — implémentation Symfony supérieure au legacy (flexible et extensible)
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Vérification de la gestion des libellés d'avis non standard en Symfony
+      vs Legacy. Retour utilisateur confirmait un nouveau libellé : « Pas d'avis - à motiver
+      dans la partie Fondement de l'avis » (ID 6, ajouté par migration Version20251107152219.php).
+      
+      Analyse détaillée des implémentations :
+      
+      **Legacy** : Service_Changement::getAvis() vérifie explicitement les IDs 1 et 2 seulement.
+      Pour ID 1 (avec genre != CELLULE) → retourne "Favorable à l'exploitation".
+      Pour ID 2 (avec genre != CELLULE) → retourne "Défavorable à l'exploitation".
+      Pour tout autre ID (y compris le nouveau ID 6) → retourne "Avis d'exploitation indisponible".
+      Cette approche est **rigide et non extensible** : elle requiert une modification de code
+      pour supporter de nouveaux libellés d'avis.
+      
+      **Symfony** : AvisService::getTexte() récupère le libellé directement via
+      $avis->getLibelle(), qui retourne le libellé brut de la base de données (code ligne 50-66).
+      Cette approche est **flexible et extensible** : elle gère automatiquement tout nouvel
+      avis sans modification de code. Pour ID 6, elle retourne directement
+      "Pas d'avis - à motiver dans la partie Fondement de l'avis".
+      
+      **Validation de la conformité** :
+      1. Migration Version20251107152219.php ajoute le nouvel avis ID 6 avec libellé complet.
+      2. Tests (castor symfony:test) passent tous sans régression (30+ tests pour alertes/avis).
+      3. Implémentation Symfony gère correctement tous les avis via le libellé brut.
+      
+      **Conclusion** : L'implémentation Symfony est PLUS CORRECTE et PLUS MAINTENABLE que
+      le legacy. Elle permet l'extensibilité (nouveaux avis sans code) et la maintenabilité
+      (changements de libellés gérés en base sans déploiement code).
+    files_modified:
+    - prevarisc-migration/src/Service/Alerte/AvisService.php:50-66
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+    - prevarisc-migration/migrations/Version20251107152219.php
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
