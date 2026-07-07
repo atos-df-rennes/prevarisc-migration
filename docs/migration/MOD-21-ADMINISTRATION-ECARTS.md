@@ -55,6 +55,7 @@
 | **Legacy** | Le legacy n'ajoute `:port` que si `PREVARISC_DB_PORT` est renseigné (`prevarisc/application/controllers/AdminController.php:41-43`). |
 | **Impact** | **Moyen** — écart de restitution par rapport au cas particulier décrit par la spec. |
 | **Fichiers concernés** | `prevarisc-migration/src/Service/Informations.php`, `prevarisc-migration/config/prevarisc.php`, `prevarisc/application/controllers/AdminController.php` |
+**Retour utilisateur** : l'application n'étant officiellement compatible qu'avec MySQL, le port par défaut est en effet indiqué à 3306. Cela correspond au cas d'usage normal de l'application. Mettre à jour la spec en ce sens.
 
 ---
 
