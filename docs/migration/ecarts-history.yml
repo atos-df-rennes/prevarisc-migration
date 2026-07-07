@@ -1446,16 +1446,14 @@ ecarts:
     - prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig
     - prevarisc-migration/docs/migration/MOD-20-RETABLISSEMENT-ECARTS.md
   - number: 4
-    title: Le dossier supprimé n'affiche plus l'établissement lié entre crochets devant
-      le nom
+    title: Le dossier supprimé n'affiche plus l'établissement lié entre crochets devant le nom
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: user
+    notes: 'Specification deviation ACCEPTED. Legacy displays establishment in brackets inline [EST]. Symfony displays as badges after folder name. User feedback: "less compact but more readable". Specification updated to reflect Symfony approach as intentional UX improvement for modern Bootstrap UI.'
     files_modified:
-    - prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig:38-45
-    - prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig
+    - prevarisc-migration/docs/migration/MOD-20-RETABLISSEMENT-ECARTS.md
   - number: 5
     title: Le rétablissement d'un établissement ne redirige plus vers la page précédente
     action: check
