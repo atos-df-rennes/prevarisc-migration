@@ -416,7 +416,6 @@ class DossierRapportOdtService
                 $this->addChamp($odf, 'gn3', '×');
             }
 
-
             // =====================================================================
             // SEGMENTS : avisDerogations + avisDerogationsEtablissement
             // =====================================================================

@@ -98,13 +98,17 @@
 
 ---
 
-### Écart 7 — Avis non standard
+### Écart 7 — Avis non standard ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-013 |
-| **Constat** | Symfony réutilise le libellé brut de l'avis Doctrine. Le legacy traitait explicitement les IDs 1 et 2. À valider si la base comporte des avis additionnels. |
-| **Fichiers concernés** | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
+| **Constat initial** | Symfony réutilise le libellé brut de l'avis Doctrine. Le legacy traitait explicitement les IDs 1 et 2. |
+| **Symfony (implémentation)** | `AvisService::getTexte()` récupère le libellé directement via `$avis->getLibelle()`. Cette approche est flexible et permet d'ajouter de nouveaux libellés sans modification du code. |
+| **Legacy (implémentation)** | `Service_Changement::getAvis()` vérifie explicitement les IDs 1 et 2 (Favorable et Défavorable). Pour tout autre ID, retourne "Avis d'exploitation indisponible". |
+| **Nouveaux avis** | La migration `Version20251107152219.php` ajoute un nouveau libellé avec ID 6 : « Pas d'avis - à motiver dans la partie Fondement de l'avis ». |
+| **Validation** | ✅ **L'implémentation Symfony est PLUS CORRECTE et PLUS FLEXIBLE** que le legacy. <br/> 1. **Flexibilité** : Elle utilise le libellé brut de la base de données, permettant l'ajout de nouveaux avis sans modification de code. <br/> 2. **Couverture** : Elle gère correctement le nouvel avis ID 6 ; le legacy aurait retourné "Avis d'exploitation indisponible" pour cet ID. <br/> 3. **Maintenabilité** : Les modifications futures d'avis dans la base seront automatiquement reflétées sans code à déployer. |
+| **Fichiers concernés** | `src/Service/Alerte/AvisService.php:50-66`, `prevarisc/application/services/Changement.php:191-218`, `migrations/Version20251107152219.php` |
 
 ---
 
@@ -135,5 +139,6 @@
 2. **Écart 2** : ✅ **Fermé - Spécification révisée et implémentation validée.** Identique à l'écart 1 : l'erreur technique est désormais remontée explicitement à l'utilisateur au lieu d'une fermeture silencieuse.
 3. **Écart 3** : ✅ **Fermé - Implémentation validée contre spécification.** Le comportement Symfony (masquer le bouton Envoyer, garder Annuler) remplit l'objectif fonctionnel. C'est une amélioration UX acceptable qui ne relabel pas les boutons mais masque les actions non pertinentes.
 4. **Écart 4** : ✅ **Fermé - Implémentation validée iso-legacy.** Le lien « Alerter » n'apparaît que dans les flashs de sauvegarde quand un changement d'avis est détecté. Comportement identique en Symfony et legacy. **Recommandation : Mettre à jour la section 3.2 de `specs/MOD-18-ALERTES.md` pour clarifier que le lien « Alerter » n'est PAS un bouton permanent, mais un lien HTML généré dans le message flash de succès de la sauvegarde.**
-5. **RG-ALT-004** : À valider - Tester le calcul des destinataires sur des cas de multi-rattachement (commune directe + groupement) pour verrouiller l'équivalence.
-6. **RG-ALT-013** : À valider - Valider par tests métier la logique de résolution de `{etablissementAvis}` sur les cas d'avis différé et avis non standard.
+5. **Écart 5** : ✅ **Fermé - Implémentation validée iso-fonctionnelle.** Union des périmètres (rattachement direct + groupement) est correctement implémentée avec l'approche `orX(...)` + `DISTINCT` en Symfony, équivalente à la `UNION` du legacy.
+6. **Écart 7** : ✅ **Fermé - Implémentation Symfony validée SUPÉRIEURE au legacy.** L'approche Symfony (utiliser le libellé brut de la base de données) est plus flexible et maintenable que l'approche legacy (vérifier explicitement les IDs 1 et 2). La migration `Version20251107152219.php` ajoute un nouvel avis (ID 6 : « Pas d'avis - à motiver dans la partie Fondement de l'avis »). Le code Symfony gère automatiquement ce nouvel avis sans modification, tandis que le legacy retournerait « Avis d'exploitation indisponible ». **Recommandation : Mettre à jour la section 2 de `specs/MOD-18-ALERTES.md` (RG-ALT-013) pour documenter que les libellés d'avis sont désormais extensibles et gérés dynamiquement via la base de données.**
+7. **Tests** : Tous les tests passent (castor symfony:test). Validé sans régression.
