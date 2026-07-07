@@ -20,16 +20,15 @@
 
 ## Écarts détaillés
 
-### Écart 1 — La présence de `PREVARISC_BRANCH` n'ignore pas réellement la vérification distante
+### Écart 1 — Vérification de mise à jour toujours active (comportement amélioré)
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ADM-004, RG-ADM-005 |
-| **Spec** | Si la branche de déploiement est explicitement définie, la vérification de mise à jour doit être totalement ignorée. |
-| **Symfony** | `VersionBuilder` bascule bien vers `EnvironmentType` quand `PREVARISC_BRANCH` est défini (`prevarisc-migration/src/Builder/VersionBuilder.php:38-45`), mais `AdminController` appelle toujours `isUpToDate()` (`prevarisc-migration/src/Controller/Admin/AdminController.php:40-45`) et `EnvironmentType::isUpToDate()` fait malgré tout une requête GitHub sur les tags (`prevarisc-migration/src/VersionType/EnvironmentType.php:43-68`). |
-| **Legacy** | Le legacy saute entièrement le contrôle distant quand `PREVARISC_BRANCH` est défini (`prevarisc/application/controllers/AdminController.php:13-27`). |
-| **Impact** | **Critique** — la spec de contournement des environnements déployés sur branche n'est plus respectée. |
-| **Fichiers concernés** | `prevarisc-migration/src/Builder/VersionBuilder.php`, `prevarisc-migration/src/VersionType/EnvironmentType.php`, `prevarisc-migration/src/Controller/Admin/AdminController.php`, `prevarisc/application/controllers/AdminController.php` |
+| **Comportement détecté** | `VersionBuilder` bascule bien vers `EnvironmentType` quand `PREVARISC_BRANCH` est défini (`prevarisc-migration/src/Builder/VersionBuilder.php:38-45`), et `EnvironmentType::isUpToDate()` effectue une requête GitHub sur les tags pour vérifier les mises à jour disponibles (`prevarisc-migration/src/VersionType/EnvironmentType.php:43-68`). Le legacy, lui, sautait entièrement le contrôle distant quand `PREVARISC_BRANCH` était défini (`prevarisc/application/controllers/AdminController.php:13-27`). |
+| **Validation** | ✅ VALIDÉ — Écart confirmé mais reclassé en amélioration justifiée par l'utilisateur. |
+| **Justification** | L'utilisateur a explicitement validé que ce comportement constitue une amélioration : « peu importe la manière dont est déployée l'application, le fait de savoir si une nouvelle version existe est intéressant. Par ailleurs, le contrôle distant gère bien les erreurs réseau et ne risque donc pas de créer des erreurs. » La spécification MOD-21-ADMINISTRATION.md a été mise à jour pour refléter ce nouveau comportement attendu (RG-ADM-004 et section 5 « Cas particuliers »). |
+| **Fichiers concernés** | `prevarisc-migration/src/Builder/VersionBuilder.php`, `prevarisc-migration/src/VersionType/EnvironmentType.php`, `prevarisc-migration/src/Controller/Admin/AdminController.php`, `docs/specs/MOD-21-ADMINISTRATION.md` |
 
 ---
 
@@ -126,8 +125,12 @@
 
 ## Recommandations
 
-1. **Corriger la logique de version** : quand `PREVARISC_BRANCH` est défini, ne plus appeler de vérification distante ; sinon documenter explicitement le comportement souhaité.
-2. **Revoir la cible de vérification et le timeout** : paramétrer la branche stable, conserver un timeout explicite de 3 secondes et valider le dépôt de référence attendu.
-3. **Limiter `findConnected()` à 1 000 comptes** pour retrouver le comportement métier documenté.
-4. **Ajouter les fallbacks d'affichage** manquants (`db_url` sans port par défaut, projection Geoconcept à `Non paramétrée`, wording `Aucuns`).
-5. **Mettre à jour la spec** si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
+### ✅ Écart 1 — Validé (2026-07-07)
+La vérification de mise à jour reste activée même quand `PREVARISC_BRANCH` est défini. Spécification mise à jour (RG-ADM-004). Écart fermé.
+
+### En cours de traitement
+
+2. **Revoir la cible de vérification et le timeout** (Écart 2) : paramétrer la branche stable, conserver un timeout explicite de 3 secondes et valider le dépôt de référence attendu.
+3. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
+4. **Ajouter les fallbacks d'affichage** manquants (Écarts 3, 4, 6) : `db_url` sans port par défaut, projection Geoconcept à `Non paramétrée`, wording `Aucuns`.
+5. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
