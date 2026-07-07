@@ -1293,6 +1293,30 @@ ecarts:
       Implémentation Symfony confirmée correcte et iso-fonctionnelle au legacy.
     files_modified:
     - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+  - number: 6
+    title: Priorité de l'avis différé — implémentations fonctionnellement équivalentes
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Analyse exhaustive de l'équivalence fonctionnelle confirmée, malgré
+      une divergence apparente dans l'approche. Retour utilisateur demandait vérification
+      car « le legacy vérifie presence_avis_differe mais vérifie aussi 'avisDiff' === $avisType
+      qui correspond au dossier donnant avis ». Analyse détaillée : (1) Legacy :
+      presence_avis_differe = boolean pré-calculé (true si ANY avis différé existe) + appel
+      à getAvisEtablissement() qui récupère le dernier avis différé, compare dates
+      (dossierDonnantAvis > avisDiffere → retourne 'avisDoss', else 'avisDiff'). Puis
+      getAvis() vérifie (presence_avis_differe && avisType == 'avisDiff'). (2) Symfony :
+      AvisService::getTexte() récupère directement le dernier avis différé, vérifie
+      null !== $dossierAvisDiffere && null !== $dossierDonnantAvis && dateAvisDiffere >=
+      dateDossierDonnantAvis. Logique de comparaison de dates identique (avis différé
+      prioritaire si date >= dossier donnant avis). Requêtes DB identiques (ORDER BY date
+      DESC, LIMIT 1). Amélioration Symfony : requête dynamique sans dépendre d'un boolean
+      pré-calculé potentiellement stale. Aucun code à modifier. Implémentation validée
+      correcte et iso-fonctionnelle au legacy.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
