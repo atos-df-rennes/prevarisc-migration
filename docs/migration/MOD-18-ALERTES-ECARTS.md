@@ -68,6 +68,7 @@
 | **Règles** | RG-ALT-002 |
 | **Constat** | Côté dossier, le lien « Alerter » apparaît via les flashs de sauvegarde plus que comme action permanente. À confirmer si la spec attend un bouton permanent visible. |
 | **Fichiers concernés** | `src/Controller/Dossier/DossierController.php`, `src/Service/Dossier/DossierSauvegardeService.php`, `prevarisc/application/views/scripts/dossier/index.phtml` |
+**Retour utilisateur** : Les alertes (dossier ou établissement) sont générées à la sauvegarde de l'entité et en fonction des paramètres renseignés. L'implémentation du code Symfony est normalement iso au legacy sur ce point. Vérifier et si c'est bien le cas, mettre à jour la spec dans specs/ pour documenter ce comportement.
 
 ---
 
