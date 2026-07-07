@@ -86,14 +86,15 @@
 
 ---
 
-### Écart 6 — Priorité de l'avis différé
+### Écart 6 — Priorité de l'avis différé ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-013 |
-| **Constat** | `AvisService` ne passe dans cette branche que si `dossierAvisDiffere` **et** `dossierDonnantAvis` sont tous deux présents. Le legacy se base d'abord sur `presence_avis_differe`. Risque de divergence silencieuse selon les données. |
-| **Fichiers concernés** | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
-**Retour utilisateur** : Implémentation normalement équivalente, le legacy vérifie `presence_avis_differe` mais vérifie aussi `'avisDiff' === $avisType` qui correspond au dossier donnant avis sur l'établissement. Vérifier de manière exhaustive le comportement.
+| **Symfony (implémentation)** | `AvisService::getTexte()` : Récupère le dernier avis différé via `findLastDossierAvisDiffere()`. Compare les dates : si `dateAvisDiffere >= dateDossierDonnantAvis`, affiche « Présence d'un dossier avec avis differé ». Sinon, affiche l'avis du dossier donnant avis. |
+| **Legacy (implémentation)** | `Service_Changement::getAvis()` : Utilise le boolean `presence_avis_differe` (true si ANY avis différé existe) ET l'avisType calculé par `getAvisEtablissement()`. Ce dernier récupère le dernier avis différé et compare dates : si `dossierDonnantAvis.date > avisDiffere.date` → retourne 'avisDoss', sinon 'avisDiff'. |
+| **Validation** | ✅ **Les deux implémentations sont fonctionnellement équivalentes.** Analyse détaillée : <br/> 1. **Récupération du dernier avis différé** : Identique (ORDER BY date DESC, LIMIT 1) <br/> 2. **Logique de comparaison de dates** : Équivalente (si avis différé >= dossier donnant avis, priorité au différé) <br/> 3. **Gestion des null** : Symfony vérifie explicitement `null !== $dossierAvisDiffere && null !== $dossierDonnantAvis` ; legacy passe par les flags `presence_avis_differe && 'avisDiff' === $avisType`. <br/> **Amélioration Symfony** : Requête dynamique directement sur la base de données, sans dépendre d'un boolean pré-calculé potentiellement stale. |
+| **Fichiers concernés** | `src/Service/Alerte/AvisService.php:44-58`, `src/Repository/DossierRepository.php:355-369`, `prevarisc/application/services/Changement.php:191-218`, `prevarisc/application/services/Etablissement.php:1616-1643` |
 
 ---
 
