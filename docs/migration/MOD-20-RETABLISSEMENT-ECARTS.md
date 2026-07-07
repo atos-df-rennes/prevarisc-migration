@@ -30,6 +30,7 @@
 | **Legacy** | Le contrôleur charge la page, puis la vue affiche explicitement `error/not-allowed.phtml` si l'utilisateur n'a aucun droit (`prevarisc/application/controllers/RetablirController.php:17-23`, `prevarisc/application/views/scripts/retablir/index.phtml:1-3`). |
 | **Impact** | **Élevé** — la règle métier d'affichage d'un message dédié n'est plus respectée côté Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/ElementsSupprimesController.php`, `prevarisc/application/controllers/RetablirController.php`, `prevarisc/application/views/scripts/retablir/index.phtml` |
+**Retour utilisateur** : Une page dédiée est présente dans `templates/bundles/TwigBundle/Exception/error403.html.twig` et elle est appelée si les Voters refusent l'accès.
 
 ---
 
