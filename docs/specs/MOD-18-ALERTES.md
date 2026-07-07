@@ -155,7 +155,7 @@ Le bouton « Envoyer » est alors remplacé par « Fermer ».
 | **Établissement de genre « cellule »** | La mention « à l'exploitation » est supprimée de l'avis. L'avis affiché est simplement « Favorable » ou « Défavorable ». |
 | **Avis différé** | Si un dossier avec avis différé existe sur l'établissement, l'avis affiché est « Présence d'un dossier avec avis différé », indépendamment de l'avis courant. |
 | **Aucun avis disponible** | La balise avis est résolue en « Avis d'exploitation indisponible ». |
-| **Service de messagerie désactivé** | Aucun e-mail n'est envoyé. L'envoi échoue silencieusement (retour négatif). |
-| **Erreur technique lors de l'envoi** | L'envoi retourne un résultat négatif. Aucune notification d'erreur spécifique n'est affichée à l'utilisateur dans la fenêtre modale (la modale se ferme normalement). |
+| **Service de messagerie désactivé** | Aucun e-mail n'est envoyé. L'utilisateur reçoit un message d'erreur explicite dans une notification toast : « L'envoi d'email est désactivé dans la configuration ». La modale reste ouverte pour permettre une éventuelle correction. |
+| **Erreur technique lors de l'envoi** | L'envoi retourne un résultat négatif. Un message d'erreur est affiché dans une notification toast. La modale reste ouverte pour permettre la réédition du message et une nouvelle tentative. |
 | **Tous les destinataires retirés** | Le formulaire bascule en mode « aucun destinataire ». Le bouton « Envoyer » devient « Fermer ». L'utilisateur peut fermer et rouvrir la modale pour retrouver la liste initiale. |
 | **Balise non résolvable** | Si une donnée de l'établissement est absente ou non renseignée, la balise est remplacée par une chaîne vide. |
