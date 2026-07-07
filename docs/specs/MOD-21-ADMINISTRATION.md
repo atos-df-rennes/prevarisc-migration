@@ -139,7 +139,7 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | **RG-ADM-002** | La vérification de mise à jour compare la révision locale à la dernière révision de la branche stable du dépôt officiel. |
 | **RG-ADM-003** | Si la révision locale diffère de la révision distante, le badge « Mise à jour disponible » est affiché. |
 | **RG-ADM-004** | La vérification de mise à jour est toujours effectuée, indépendamment de la configuration de la branche de déploiement. Cela offre une visibilité complète sur la disponibilité d'une nouvelle version, quel que soit le contexte de déploiement. |
-| **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. Le délai d'attente maximal pour contacter le dépôt officiel est de 3 secondes. |
+| **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. Le délai d'attente maximal pour contacter le dépôt officiel est de **3 secondes**. La branche stable ciblée est `refs/heads/2.5` (ou équivalent `2.x` pour les dépôts configurés différemment). |
 
 ### Services cartographiques
 

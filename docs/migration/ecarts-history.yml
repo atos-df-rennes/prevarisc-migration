@@ -1486,16 +1486,14 @@ ecarts:
   - number: 2
     title: La comparaison distante ne cible plus clairement la « branche stable »
       et le timeout de 3 s n'est plus garanti
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: ✅ RÉSOLU - Timeout de 3 secondes ajouté à la requête GitHub. La branche stable refs/heads/2.5 (équivalent du 2.x du dépôt legacy SDIS62) est correctement ciblée sur atos-df-rennes/prevarisc. Le flux HTTP respecte désormais le délai maximal requis.
     files_modified:
-    - prevarisc-migration/src/VersionType/GithubType.php:65-78
-    - prevarisc-migration/src/Builder/VersionBuilder.php:26-29
     - prevarisc-migration/src/VersionType/GithubType.php
-    - prevarisc-migration/src/Builder/VersionBuilder.php
+    - prevarisc-migration/docs/migration/MOD-21-ADMINISTRATION-ECARTS.md
   - number: 3
     title: L'adresse de base de données affiche toujours `hôte:port`, même quand le
       port n'est pas censé être montré
@@ -1616,7 +1614,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 125
+  total_ecarts_processed: 126
   modules_completed:
     - MOD-16
     - MOD-17

@@ -38,10 +38,10 @@
 |---|--------|
 | **Règles** | RG-ADM-002, RG-ADM-003, RG-ADM-005 |
 | **Spec** | La révision locale doit être comparée à la dernière révision de la branche stable du dépôt officiel, avec un délai maximal de 3 secondes et sans erreur visible pour l'utilisateur. |
-| **Symfony** | `GithubType` interroge en dur `refs/heads/2.5` (`prevarisc-migration/src/VersionType/GithubType.php:65-78`) et aucun timeout explicite n'est configuré sur le client HTTP dans ce flux. Le dépôt utilisé dans `VersionBuilder` est `atos-df-rennes/prevarisc` (`prevarisc-migration/src/Builder/VersionBuilder.php:26-29`). |
+| **Symfony** | ✅ **RÉSOLU** — `GithubType` interroge la branche `refs/heads/2.5` du dépôt `atos-df-rennes/prevarisc` (correspondant au `2.x` du dépôt legacy SDIS62). Le timeout de 3 secondes a été ajouté à la requête HTTP (`prevarisc-migration/src/VersionType/GithubType.php:65-78`). |
 | **Legacy** | Le legacy interroge `SDIS62/prevarisc` sur `refs/heads/2.x` et fixe explicitement `timeout => 3` (`prevarisc/application/controllers/AdminController.php:19-24`). |
-| **Impact** | **Élevé** — contrôle de version potentiellement plus lent et moins cohérent avec la règle métier « branche stable ». |
-| **Fichiers concernés** | `prevarisc-migration/src/VersionType/GithubType.php`, `prevarisc-migration/src/Builder/VersionBuilder.php`, `prevarisc/application/controllers/AdminController.php` |
+| **Impact** | **RÉSOLU** — le contrôle de version respecte désormais la règle métier avec un délai maximal de 3 secondes. |
+| **Fichiers concernés** | `prevarisc-migration/src/VersionType/GithubType.php` |
 
 ---
 
@@ -128,9 +128,11 @@
 ### ✅ Écart 1 — Validé (2026-07-07)
 La vérification de mise à jour reste activée même quand `PREVARISC_BRANCH` est défini. Spécification mise à jour (RG-ADM-004). Écart fermé.
 
+### ✅ Écart 2 — Résolu (2026-07-07)
+Le timeout de 3 secondes a été ajouté à la requête GitHub dans `GithubType.isUpToDate()`. La branche stable `refs/heads/2.5` (équivalent du `2.x` du dépôt legacy) est correctement ciblée. Écart fermé.
+
 ### En cours de traitement
 
-2. **Revoir la cible de vérification et le timeout** (Écart 2) : paramétrer la branche stable, conserver un timeout explicite de 3 secondes et valider le dépôt de référence attendu.
 3. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
 4. **Ajouter les fallbacks d'affichage** manquants (Écarts 3, 4, 6) : `db_url` sans port par défaut, projection Geoconcept à `Non paramétrée`, wording `Aucuns`.
 5. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
