@@ -68,6 +68,7 @@
 | **Legacy** | Le legacy applique bien le fallback `?: 'Non paramétrée'` (`prevarisc/application/controllers/AdminController.php:33-39`). |
 | **Impact** | **Moyen** — la restitution Geoconcept n'est plus conforme au comportement décrit. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/AdminController.php`, `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc-migration/config/prevarisc.php`, `prevarisc/application/controllers/AdminController.php` |
+**Retour utilisateur** : Écart de migration confirmé, aligner avec le legacy.
 
 ---
 
