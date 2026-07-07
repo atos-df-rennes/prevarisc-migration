@@ -105,6 +105,7 @@
 | **Règles** | RG-ALT-013 |
 | **Constat** | Symfony réutilise le libellé brut de l'avis Doctrine. Le legacy traitait explicitement les IDs 1 et 2. À valider si la base comporte des avis additionnels. |
 | **Fichiers concernés** | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
+**Retour utilisateur** : Un nouveau libellé existe "Pas d'avis - à motiver dans la partie Fondement de l'avis". C'est pourquoi le traitement n'est pas explicite sur les IDs 1 et 2. Mettre à jour la spec dans specs/ pour refléter ce comportement.
 
 ---
 
