@@ -1508,18 +1508,14 @@ ecarts:
   - number: 4
     title: La projection Geoconcept vide n'est pas remplacée par « Non paramétrée
       »
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: ✅ RÉSOLU - Le fallback `?: 'Non paramétrée'` a été ajouté à la projection Geoconcept dans AdminController (ligne 59). Le comportement est désormais aligné avec le legacy. Tests et analyse PHPStan valident la correction (642 tests passent).
     files_modified:
-    - prevarisc-migration/templates/admin/index.html.twig
-    - prevarisc-migration/src/Controller/Admin/AdminController.php:55-62
-    - prevarisc-migration/templates/admin/index.html.twig:94-104
-    - prevarisc-migration/config/prevarisc.php
     - prevarisc-migration/src/Controller/Admin/AdminController.php
-    - prevarisc-migration/config/prevarisc.php:189-191
+    - prevarisc-migration/docs/migration/MOD-21-ADMINISTRATION-ECARTS.md
   - number: 5
     title: La liste des utilisateurs connectés n'est pas limitée aux 1 000 premiers
       comptes évalués
@@ -1612,7 +1608,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 127
+  total_ecarts_processed: 128
   modules_completed:
     - MOD-16
     - MOD-17

@@ -64,10 +64,11 @@
 |---|--------|
 | **Règles** | RG-ADM-010, RG-ADM-011 |
 | **Spec** | Si la projection Geoconcept n'est pas renseignée, la valeur « Non paramétrée » doit être affichée. |
-| **Symfony** | La projection est injectée telle quelle dans `geoconcept_infos` (`prevarisc-migration/src/Controller/Admin/AdminController.php:55-62`) et le template l'affiche sans fallback (`prevarisc-migration/templates/admin/index.html.twig:94-104`). Par défaut, `PREVARISC_PLUGIN_GEOCONCEPT_PROJECTION` vaut chaîne vide (`prevarisc-migration/config/prevarisc.php:189-191`). |
+| **Symfony** | ✅ **RÉSOLU** — La projection est maintenant injectée avec un fallback `?: 'Non paramétrée'` dans `geoconcept_infos` (`prevarisc-migration/src/Controller/Admin/AdminController.php:59`). Le template l'affiche sans traitement supplémentaire (`prevarisc-migration/templates/admin/index.html.twig:94-104`), et le fallback garantit que la valeur « Non paramétrée » est affichée quand la configuration est vide. |
 | **Legacy** | Le legacy applique bien le fallback `?: 'Non paramétrée'` (`prevarisc/application/controllers/AdminController.php:33-39`). |
-| **Impact** | **Moyen** — la restitution Geoconcept n'est plus conforme au comportement décrit. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/AdminController.php`, `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc-migration/config/prevarisc.php`, `prevarisc/application/controllers/AdminController.php` |
+| **Impact** | **Résolu** — la restitution Geoconcept est désormais conforme au comportement décrit et alignée avec le legacy. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/Admin/AdminController.php` (mod.) |
+| **Retour utilisateur** | ✅ Écart de migration confirmé et résolu, alignement avec le legacy validé. |
 
 ---
 
@@ -134,8 +135,11 @@ Le timeout de 3 secondes a été ajouté à la requête GitHub dans `GithubType.
 ### ✅ Écart 3 — Validé (2026-07-07)
 Le port 3306 est correctement affiché pour la base de données (par défaut MySQL). Spécification mise à jour (§ 3.3 et cas particuliers) pour refléter cette réalité. Écart fermé.
 
+### ✅ Écart 4 — Résolu (2026-07-07)
+Le fallback `?: 'Non paramétrée'` a été ajouté au paramètre `app.geoconcept_projection` dans le `AdminController` (ligne 59). L'affichage Geoconcept est désormais aligné avec le legacy. Écart fermé.
+
 ### En cours de traitement
 
-4. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
-5. **Ajouter les fallbacks d'affichage** manquants (Écarts 4, 6) : projection Geoconcept à `Non paramétrée`, wording `Aucuns`.
-6. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
+5. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
+6. **Ajouter les fallbacks d'affichage** manquants (Écart 6) : wording `Aucuns`.
+7. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
