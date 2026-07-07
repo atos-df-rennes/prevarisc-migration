@@ -30,6 +30,7 @@
 | **Legacy** | Le legacy saute entièrement le contrôle distant quand `PREVARISC_BRANCH` est défini (`prevarisc/application/controllers/AdminController.php:13-27`). |
 | **Impact** | **Critique** — la spec de contournement des environnements déployés sur branche n'est plus respectée. |
 | **Fichiers concernés** | `prevarisc-migration/src/Builder/VersionBuilder.php`, `prevarisc-migration/src/VersionType/EnvironmentType.php`, `prevarisc-migration/src/Controller/Admin/AdminController.php`, `prevarisc/application/controllers/AdminController.php` |
+**Retour utilisateur** : Ce comportement est selon moi une amélioration du fonctionnement. En effet, peu importe la manière dont est déployée l'application, le fait de savoir si une nouvelle version existe est intéressant. Par ailleurs, le contrôle distant gère bien les erreurs réseau et ne risque donc pas de créer des erreurs. Mets à jour la spec en ce sens.
 
 ---
 
