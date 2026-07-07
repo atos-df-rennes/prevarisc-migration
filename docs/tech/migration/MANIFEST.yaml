@@ -455,3 +455,44 @@ dossier_suppression:
     Redirect :
     - Après suppression, redirect vers page de recherche Symfony (search_dossier)
       via /legacy/vider-cache-etablissement?ids=[...]&target=/rechercher/dossier
+
+statistiques:
+  status: not_applicable
+  reason: "Module supprimé — non utilisé en production, nombreuses erreurs structurelles, UX très pauvre"
+  legacy_files:
+    - prevarisc/application/controllers/StatistiquesController.php
+    - prevarisc/application/models/DbTable/Statistiques.php
+    - prevarisc/application/views/scripts/statistiques/index.phtml
+    - prevarisc/application/views/scripts/statistiques/extraction.phtml
+    - prevarisc/application/views/scripts/statistiques/extraction.xml.phtml
+  migrated_files: []
+  updated_at: "2026-07-07"
+  notes: >
+    Décision : MOD-19 Statistiques n'est pas applicable à la migration Symfony.
+
+    Raisons de fermeture :
+    1. Module inutilisé en production — pas de demande métier active
+    2. Code legacy explicitement marqué « non fonctionnel et non utilisé actuellement. A ne pas migrer. »
+      (en-tête du contrôleur legacy)
+    3. Nombreuses erreurs structurelles :
+       - Absence totale de contrôle d'accès métier (aucune vérification ACL)
+       - Dates concaténées dans le SQL sans validation ni requêtes paramétrées (risque injection)
+       - Pas de pagination malgré les volumes potentiels d'ERP
+       - Libellés erronés (« Prevenstionniste ») et gestion d'erreurs incomplète
+    4. UX très pauvre — interface obsolète, API jQuery dépréciée, calcul de date limite fragile
+
+    Actions prises :
+    - Tous les 6 écarts MOD-19 fermés comme « non applicable » (2026-07-07)
+    - Documentation complète conservée : MOD-19-STATISTIQUES-ECARTS.md
+    - Entrée MANIFEST : statut not_applicable
+    - Lien /statistiques supprimé de la navigation Symfony (legacy_header.phtml conserve le lien legacy)
+
+    Réouverture future :
+    Si un besoin métier confirmé émerge, réécriture Symfony complète requise plutôt que migration legacy :
+    - Architecture : Service dédié StatistiquesService + Repository spécialisé
+    - Sécurité : Voters de sécurité (@Security / @IsGranted), audit des accès
+    - Requêtes : QueryBuilder avec paramètres bindés, pas de concaténation
+    - Pagination : limit/offset systématique
+    - Tests : validation des 4 extractions (RG-STA-001 à RG-STA-019)
+  ecart_documentation: docs/migration/MOD-19-STATISTIQUES-ECARTS.md
+  ecart_history: docs/migration/ecarts-history.yml
