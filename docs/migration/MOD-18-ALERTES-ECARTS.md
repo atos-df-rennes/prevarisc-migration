@@ -46,17 +46,16 @@
 
 ---
 
-### Écart 3 — Libellé du bouton quand aucun destinataire n'est disponible
+### Écart 3 — Libellé du bouton quand aucun destinataire n'est disponible ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-009 |
-| **Spec** | Si aucun destinataire n'est disponible, le bouton Envoyer doit être remplacé par un bouton « Fermer ». |
-| **Symfony (état actuel)** | Symfony masque le bouton Envoyer et conserve seulement le bouton `Annuler`. |
-| **Legacy** | Le legacy renomme explicitement le bouton principal en `Fermer` (transforme `Envoyer` → `Fermer`). |
-| **Divergence** | Écart UX mineur mais réel : libellé du bouton principal non aligné. |
-| **Fichiers concernés** | `templates/alerte/formulaire.html.twig`, `prevarisc/application/views/scripts/changement/alerteform.phtml` |
-**Retour utilisateur** : Le comportement est en réalité amélioré. On n'ajoute pas un bouton qui ne doit pas être affiché et on conserve seulement ceux nécessaires. Le libellé Fermer/Annuler correspond à la même action. Rien à faire ici. Vérifier la spec dans specs/.
+| **Spec (mise à jour)** | Quand aucun destinataire n'est disponible, l'utilisateur doit pouvoir fermer la modale. Le bouton « Annuler » (ou équivalent « Fermer ») remplit cette fonction. Le libellé du bouton est secondaire ; ce qui prime est la possibilité de fermer la modale. |
+| **Symfony (implémentation)** | Masque le bouton Envoyer et conserve le bouton `Annuler`, qui ferme la modale avec `data-dismiss="modal"`. |
+| **Legacy** | Renomme explicitement le bouton principal en `Fermer` (transforme `Envoyer` → `Fermer`). |
+| **Validation** | ✅ **Les deux approches remplissent l'objectif fonctionnel.** L'approche Symfony est une **amélioration UX** : elle ne relabel pas un bouton existant, mais masque simplement les actions non pertinentes en gardant le bouton de fermeture visible. L'implémentation est conforme à la spécification. |
+| **Fichiers concernés** | `src/Controller/AlerteController.php:95-96`, `templates/alerte/formulaire.html.twig:56-62`, `prevarisc/application/views/scripts/changement/alerteform.phtml` |
 
 ---
 
@@ -127,7 +126,7 @@
 
 1. **Écart 1** : ✅ **Fermé - Spécification révisée et implémentation validée.** Le comportement amélioré (affichage du message d'erreur au lieu d'une fermeture silencieuse) a été accepté comme amélioration UX et la spécification a été mise à jour en conséquence.
 2. **Écart 2** : ✅ **Fermé - Spécification révisée et implémentation validée.** Identique à l'écart 1 : l'erreur technique est désormais remontée explicitement à l'utilisateur au lieu d'une fermeture silencieuse.
-3. **Écart 3** : À traiter - Remplacer le bouton « Annuler » seul par un bouton « Fermer » quand aucun destinataire n'est disponible.
+3. **Écart 3** : ✅ **Fermé - Implémentation validée contre spécification.** Le comportement Symfony (masquer le bouton Envoyer, garder Annuler) remplit l'objectif fonctionnel. C'est une amélioration UX acceptable qui ne relabel pas les boutons mais masque les actions non pertinentes.
 4. **RG-ALT-002** : À valider - Confirmer que le lien « Alerter » doit apparaître en permanence ou seulement via les flashs de sauvegarde.
 5. **RG-ALT-004** : À valider - Tester le calcul des destinataires sur des cas de multi-rattachement (commune directe + groupement) pour verrouiller l'équivalence.
 6. **RG-ALT-013** : À valider - Valider par tests métier la logique de résolution de `{etablissementAvis}` sur les cas d'avis différé et avis non standard.
