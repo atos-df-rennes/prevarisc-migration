@@ -1436,16 +1436,15 @@ ecarts:
     - prevarisc-migration/docs/migration/ecarts-history.yml
   - number: 3
     title: Symfony n'affiche pas la date de suppression au format lisible demandé
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: 'Fixed by using existing date_fr filter from DateExtension.php. Templates now display deletion dates as "Le Jour DD Mois AAAA" (e.g., "Le Dimanche 12 Jan 2025"), matching legacy MONTH_NAME_SHORT format. PHPStan level 10 passes.'
     files_modified:
-    - prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig:21-23
-    - prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig:21-23
     - prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig
     - prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig
+    - prevarisc-migration/docs/migration/MOD-20-RETABLISSEMENT-ECARTS.md
   - number: 4
     title: Le dossier supprimé n'affiche plus l'établissement lié entre crochets devant
       le nom

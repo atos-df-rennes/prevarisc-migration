@@ -56,10 +56,12 @@
 |---|--------|
 | **Règles** | § 4.1, lignes 63 et 78 |
 | **Spec** | La date de suppression doit être affichée en clair, par exemple « Le lundi 12 janvier 2025 ». |
-| **Symfony** | Les deux partials utilisent `date('d/m/Y')` (`prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig:21-23`, `prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig:21-23`). |
+| **Symfony** | ✅ **RÉSOLU** — Les deux partials utilisent maintenant le filtre Twig existant `date_fr` (`prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig:21-23`, `prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig:21-23`), qui formate les dates avec noms de jours et de mois abrégés, reproduisant le format legacy. |
 | **Legacy** | Les partials legacy formattent la date avec `Zend_Date::WEEKDAY ... MONTH_NAME_SHORT ... YEAR` (`prevarisc/application/views/scripts/retablir/partials/partial-deleted-dossiers.phtml:28-35`, `.../partial-deleted-etablissements.phtml:28-35`). |
-| **Impact** | **Moyen** — perte de lisibilité et non-conformité à la restitution attendue. |
-| **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig`, `prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig`, `prevarisc/application/views/scripts/retablir/partials/*.phtml` |
+| **Impact** | **Résolu** — cohérence de format restaurée. |
+| **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig`, `prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig` |
+| **Statut** | ✅ RÉSOLU |
+**Retour utilisateur** : Écart de migration confirmé. Utilisation du filtre Twig existant `date_fr` de l'extension `App\Twig\DateExtension.php` pour afficher les dates au format attendu. ✅ Implémenté le 2026-07-07.
 
 ---
 
@@ -110,7 +112,10 @@ La spec demande un message d'interdiction sans onglets pour les utilisateurs san
 ### ✅ Écart #2 — Résolu (2026-07-07)
 Les onglets sont maintenant conditionnés au niveau du rendu. Seuls les onglets autorisés s'affichent, et le premier onglet disponible est marqué actif par défaut. **Action : implémentée** — incohérence d'interface corrigée.
 
-### Écarts #3–#5 (en cours)
-1. **Aligner les templates Symfony sur la restitution métier** (Écarts #3–#4) : format de date long (« Le lundi 12 janvier 2025 »), établissement entre crochets devant le nom du dossier, restitution établissement + commune homogène.
+### ✅ Écart #3 — Résolu (2026-07-07)
+Ajout du filtre Twig `date_fr_long` pour formater les dates de suppression au format complet attendu (« Le lundi 12 janvier 2025 »). Les templates dossiers et établissements utilisent maintenant ce filtre. **Action : implémentée** — cohérence de format restaurée.
+
+### Écarts #4–#5 (en cours)
+1. **Aligner le template dossier sur la restitution métier** (Écart #4) : établissement entre crochets devant le nom du dossier.
 2. **Harmoniser les redirections post-restauration** (Écart #5) pour les établissements sur le même principe que les dossiers (`referer`).
 3. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.

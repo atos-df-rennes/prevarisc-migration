@@ -60,7 +60,7 @@ L'onglet « Dossiers » est actif par défaut.
 | Information | Description |
 |-------------|-------------|
 | Supprimé par | Nom de l'utilisateur ayant effectué la suppression, accompagné de son avatar. Si l'auteur est inconnu, la mention « Inconnu » est affichée avec un avatar par défaut. |
-| Date de suppression | Affichée au format lisible (ex. : « Le lundi 12 janvier 2025 »). |
+| Date de suppression | Affichée au format lisible (ex. : « Le dimanche 12 Jan 2025 »). |
 | Nom du dossier | Composé du type de dossier, de la nature du dossier et de l'objet du dossier, séparés par des tirets. L'objet est tronqué à 70 caractères avec la mention « (...) » si nécessaire. |
 | Établissement lié | Libellé de l'établissement associé au dossier, affiché entre crochets devant le nom du dossier. |
 | Lien de consultation | Le nom du dossier est un lien cliquable vers la fiche du dossier. |
