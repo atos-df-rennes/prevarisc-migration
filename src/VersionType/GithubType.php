@@ -66,7 +66,9 @@ final class GithubType implements VersionType
     {
         try {
             // @fixme: modifier par main une fois le dépôt migration basculé en dépôt principal
-            $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/heads/2.5')->getContent();
+            $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/heads/2.5', [
+                'timeout' => 3,
+            ])->getContent();
         } catch (\Exception $exception) {
             $this->logger->notice("La vérification des commits sur le dépôt n'a pas pu être effectuée : ".$exception->getMessage());
 
