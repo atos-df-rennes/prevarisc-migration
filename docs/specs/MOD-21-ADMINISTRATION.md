@@ -75,7 +75,7 @@ Trois fournisseurs de cartographie peuvent être configurés indépendamment :
 | Donnée | Description |
 |---|---|
 | **Nom de la base** | Nom de la base de données utilisée par l'application. |
-| **Adresse du serveur** | Hôte et port du serveur de base de données (format `hôte:port`). Le port est omis s'il n'est pas explicitement configuré. |
+| **Adresse du serveur** | Hôte et port du serveur de base de données (format `hôte:port`). Le port par défaut MySQL (3306) est toujours affiché. |
 
 ### 3.4 Méthode d'authentification
 
@@ -204,7 +204,7 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | **Branche de déploiement définie** | La vérification de mise à jour reste **activée** et en continu. L'administrateur bénéficie d'une visibilité complète sur la disponibilité d'une nouvelle version, sans distinction de contexte de déploiement. |
 | **Aucun service cartographique configuré** | Chaque service affiche indépendamment « Aucune clé » ou « Désactivé ». L'application reste fonctionnelle sans cartographie. |
 | **Plusieurs clés IGN** | Les clés multiples (séparées par des virgules dans la configuration) sont affichées chacune sur une ligne distincte. |
-| **Port de base de données non configuré** | Seul l'hôte est affiché, sans séparateur « : ». |
+| **Port de base de données non configuré** | L'application n'étant officiellement compatible qu'avec MySQL, le port par défaut 3306 est toujours affiché au format `hôte:3306`. |
 | **Port LDAP non configuré** | Le port par défaut 389 est utilisé dans l'affichage. |
 | **Projection Geoconcept absente** | La valeur « Non paramétrée » est affichée comme valeur par défaut. |
 | **Aucun utilisateur connecté** | Le tableau des sessions est remplacé par le message « Aucun résultat. ». |

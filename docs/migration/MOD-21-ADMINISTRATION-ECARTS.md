@@ -50,11 +50,11 @@
 | | Détail |
 |---|--------|
 | **Règles** | § 3.3, cas particulier « Port de base de données non configuré » |
-| **Spec** | Le port doit être omis s'il n'est pas explicitement configuré. |
-| **Symfony** | `Informations::dbUrl()` concatène toujours `dbHost . ':' . dbPort` (`prevarisc-migration/src/Service/Informations.php:9-12`). Or `PREVARISC_DB_PORT` a une valeur par défaut à 3306 (`prevarisc-migration/config/prevarisc.php:46-48`), donc l'affichage contiendra systématiquement un port. |
-| **Legacy** | Le legacy n'ajoute `:port` que si `PREVARISC_DB_PORT` est renseigné (`prevarisc/application/controllers/AdminController.php:41-43`). |
-| **Impact** | **Moyen** — écart de restitution par rapport au cas particulier décrit par la spec. |
-| **Fichiers concernés** | `prevarisc-migration/src/Service/Informations.php`, `prevarisc-migration/config/prevarisc.php`, `prevarisc/application/controllers/AdminController.php` |
+| **Spec (mise à jour 2026-07-07)** | Le port par défaut MySQL (3306) est toujours affiché, car l'application n'est officiellement compatible qu'avec MySQL. Format : `hôte:3306`. |
+| **Symfony** | `Informations::dbUrl()` concatène `dbHost . ':' . dbPort` (`prevarisc-migration/src/Service/Informations.php:9-12`). Le port par défaut est 3306 (`prevarisc-migration/config/prevarisc.php:46-48`), donc l'affichage contiendra systématiquement `:3306`. |
+| **Legacy** | Le legacy utilisait une logique conditionnelle `getenv('PREVARISC_DB_PORT') ? ':'.port : ''` mais la configuration par défaut donnait le même résultat (port 3306 affiché). |
+| **Impact** | **Validé** — écart résolu par mise à jour de la spécification pour refléter le comportement réel et justifié par la compatibilité officielle MySQL uniquement. |
+| **Fichiers concernés** | `prevarisc-migration/docs/specs/MOD-21-ADMINISTRATION.md` (mise à jour) |
 
 ---
 
@@ -131,8 +131,11 @@ La vérification de mise à jour reste activée même quand `PREVARISC_BRANCH` e
 ### ✅ Écart 2 — Résolu (2026-07-07)
 Le timeout de 3 secondes a été ajouté à la requête GitHub dans `GithubType.isUpToDate()`. La branche stable `refs/heads/2.5` (équivalent du `2.x` du dépôt legacy) est correctement ciblée. Écart fermé.
 
+### ✅ Écart 3 — Validé (2026-07-07)
+Le port 3306 est correctement affiché pour la base de données (par défaut MySQL). Spécification mise à jour (§ 3.3 et cas particuliers) pour refléter cette réalité. Écart fermé.
+
 ### En cours de traitement
 
-3. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
-4. **Ajouter les fallbacks d'affichage** manquants (Écarts 3, 4, 6) : `db_url` sans port par défaut, projection Geoconcept à `Non paramétrée`, wording `Aucuns`.
-5. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
+4. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
+5. **Ajouter les fallbacks d'affichage** manquants (Écarts 4, 6) : projection Geoconcept à `Non paramétrée`, wording `Aucuns`.
+6. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
