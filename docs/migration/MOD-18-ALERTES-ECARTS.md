@@ -93,6 +93,7 @@
 | **Règles** | RG-ALT-013 |
 | **Constat** | `AvisService` ne passe dans cette branche que si `dossierAvisDiffere` **et** `dossierDonnantAvis` sont tous deux présents. Le legacy se base d'abord sur `presence_avis_differe`. Risque de divergence silencieuse selon les données. |
 | **Fichiers concernés** | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
+**Retour utilisateur** : Implémentation normalement équivalente, le legacy vérifie `presence_avis_differe` mais vérifie aussi `'avisDiff' === $avisType` qui correspond au dossier donnant avis sur l'établissement. Vérifier de manière exhaustive le comportement.
 
 ---
 
