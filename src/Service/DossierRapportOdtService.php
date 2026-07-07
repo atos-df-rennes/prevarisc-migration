@@ -416,13 +416,6 @@ class DossierRapportOdtService
                 $this->addChamp($odf, 'gn3', '×');
             }
 
-            // =====================================================================
-            // Effectifs/dégagements (non portés — pas d'équivalent migré)
-            // =====================================================================
-            $this->addChamp($odf, 'descriptionEffectifDossier', null);
-            $this->addChamp($odf, 'descriptionDegagementDossier', null);
-            $this->addChamp($odf, 'descriptionEffectifEtablissement', null);
-            $this->addChamp($odf, 'descriptionDegagementEtablissement', null);
 
             // =====================================================================
             // SEGMENTS : avisDerogations + avisDerogationsEtablissement

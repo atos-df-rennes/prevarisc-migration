@@ -150,7 +150,7 @@ Lint (PHPStan, PHP-CS-Fixer) et tests (642 tests) OK.
 
 ---
 
-### Écart 8 — Effectifs / dégagements non injectés
+### Écart 8 — Effectifs / dégagements non injectés ✅ RÉSOLU
 
 | | Détail |
 |---|--------|
@@ -161,6 +161,8 @@ Lint (PHPStan, PHP-CS-Fixer) et tests (642 tests) OK.
 | **Impact** | Les modèles utilisant ces variables produiront des champs vides, sans erreur, mais potentiellement avec perte de contenu |
 | **Fichiers modifiés** | `src/Service/DossierRapportOdtService.php` |
 **Retour utilisateur** : Champs retirés car désormais dynamiques et non plus fixes. Supprimer les références.
+
+**Résolution (2026-07-07)** : Suppression des 4 lignes qui ajoutaient explicitement à `null` les champs `descriptionEffectifDossier`, `descriptionDegagementDossier`, `descriptionEffectifEtablissement` et `descriptionDegagementEtablissement` dans `DossierRapportOdtService.php` (lignes 422-425). Ces champs étant désormais gérés dynamiquement (non plus en tant que variables statiques), leur initialisation explicite à `null` était redondante et masquait leur véritable nature. Tests (642 tests) et PHPStan OK.
 
 ---
 
@@ -225,5 +227,5 @@ Implémentation du pattern utilisateur demandé : désactivation du bouton d'env
 **Écart 7 — Variables `gn2` / `gn3` non portées correctement** ✅ RÉSOLU (2026-07-06)  
 Suppression du commentaire confus "GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée" et remplacement des comparaisons en dur (2, 3) par les constantes `GenreEtablissement::ERP` et `GenreEtablissement::CELLULE` dans `src/Service/DossierRapportOdtService.php`. Code Symfony et legacy mappent tous les deux l'information GN depuis `ID_GENRE`, implémentation confirmée équivalente. Lint et tests OK.
 
-**Écart 8 (point à vérifier restant)**  
-Valider métier les variables ODT non portées (effectifs, dégagements) avant de conclure à une iso-fonctionnalité complète.
+**Écart 8 — Effectifs / dégagements non injectés** ✅ RÉSOLU (2026-07-07)  
+Ces champs étaient explicitement initialisés à `null` alors qu'ils sont désormais gérés dynamiquement. Suppression des 4 lignes (422-425) et du commentaire confus "Effectifs/dégagements (non portés — pas d'équivalent migré)" dans `src/Service/DossierRapportOdtService.php`. Ces champs n'étant plus des variables statiques mais gérés dynamiquement, leur initialisation explicite à `null` était redondante et masquait leur vraie nature. La suppression permet au code de gérer ces données de manière cohérente sans artifices de remplissage statique. Tests (642 tests) et PHPStan OK.
