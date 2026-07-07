@@ -40,7 +40,7 @@ Le panneau est organisé en deux blocs visuels : « Informations générales » 
 | **Version applicative** | Numéro de version de l'instance Prevarisc déployée. |
 | **Indicateur de mise à jour** | Comparaison entre la révision locale et la dernière révision publiée sur le dépôt officiel (branche stable). Si une mise à jour est disponible, un badge informatif « Mise à jour disponible » s'affiche à côté de la version. |
 
-> Si la branche de déploiement est explicitement définie dans la configuration de l'environnement, la vérification de mise à jour est désactivée (la comparaison avec le dépôt officiel n'a pas lieu).
+> La vérification de mise à jour est **toujours activée**, même quand la branche de déploiement est explicitement définie dans la configuration de l'environnement. Cela permet à l'administrateur de savoir si une nouvelle version est disponible, indépendamment du mode de déploiement. La requête distante gère les erreurs réseau sans exposer les défaillances à l'utilisateur.
 
 ### 3.2 Configuration des services cartographiques
 
@@ -138,7 +138,7 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | **RG-ADM-001** | La version applicative est toujours affichée en haut du panneau d'administration. |
 | **RG-ADM-002** | La vérification de mise à jour compare la révision locale à la dernière révision de la branche stable du dépôt officiel. |
 | **RG-ADM-003** | Si la révision locale diffère de la révision distante, le badge « Mise à jour disponible » est affiché. |
-| **RG-ADM-004** | Si la branche de déploiement est explicitement définie dans la configuration d'environnement, la vérification de mise à jour est entièrement ignorée. |
+| **RG-ADM-004** | La vérification de mise à jour est toujours effectuée, indépendamment de la configuration de la branche de déploiement. Cela offre une visibilité complète sur la disponibilité d'une nouvelle version, quel que soit le contexte de déploiement. |
 | **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. Le délai d'attente maximal pour contacter le dépôt officiel est de 3 secondes. |
 
 ### Services cartographiques
@@ -201,7 +201,7 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | Cas | Comportement attendu |
 |---|---|
 | **Réseau indisponible lors de la vérification de mise à jour** | Aucune erreur n'est affichée. Le badge de mise à jour n'apparaît simplement pas. L'administrateur ne peut pas distinguer « application à jour » de « vérification impossible ». |
-| **Branche de déploiement définie** | La vérification de mise à jour est totalement ignorée. Cela concerne typiquement les environnements de développement ou de test déployés sur une branche spécifique. |
+| **Branche de déploiement définie** | La vérification de mise à jour reste **activée** et en continu. L'administrateur bénéficie d'une visibilité complète sur la disponibilité d'une nouvelle version, sans distinction de contexte de déploiement. |
 | **Aucun service cartographique configuré** | Chaque service affiche indépendamment « Aucune clé » ou « Désactivé ». L'application reste fonctionnelle sans cartographie. |
 | **Plusieurs clés IGN** | Les clés multiples (séparées par des virgules dans la configuration) sont affichées chacune sur une ligne distincte. |
 | **Port de base de données non configuré** | Seul l'hôte est affiché, sans séparateur « : ». |

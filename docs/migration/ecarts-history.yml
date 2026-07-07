@@ -1471,10 +1471,10 @@ ecarts:
     title: La présence de `PREVARISC_BRANCH` n'ignore pas réellement la vérification
       distante
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: ✅ VALIDÉ - Écart confirmé mais reclassé comme amélioration justifiée. L'utilisateur a validé que le comportement Symfony (appel GitHub même avec PREVARISC_BRANCH) constitue une amélioration par rapport au legacy qui l'ignorait totalement. Le contrôle distant gère bien les erreurs réseau. Spécification mise à jour.
     files_modified:
     - prevarisc-migration/src/Builder/VersionBuilder.php
     - prevarisc-migration/src/Builder/VersionBuilder.php:38-45
@@ -1482,6 +1482,7 @@ ecarts:
     - prevarisc-migration/src/Controller/Admin/AdminController.php:40-45
     - prevarisc-migration/src/Controller/Admin/AdminController.php
     - prevarisc-migration/src/VersionType/EnvironmentType.php:43-68
+    - prevarisc-migration/docs/migration/MOD-21-ADMINISTRATION-ECARTS.md
   - number: 2
     title: La comparaison distante ne cible plus clairement la « branche stable »
       et le timeout de 3 s n'est plus garanti
