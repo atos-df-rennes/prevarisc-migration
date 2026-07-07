@@ -1412,16 +1412,16 @@ ecarts:
     - docs/migration/MOD-19-STATISTIQUES-ECARTS.md
   MOD-20:
   - number: 1
-    title: En absence de droits, Symfony renvoie un refus d'accès générique au lieu
-      d'un message dédié
+    title: En absence de droits, Symfony renvoie un refus d'accès via le template d'erreur 403
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: 'Specification requirement: user must see access denial message without tabs. Implementation verified: @Security annotation + error403.html.twig template satisfies requirement. Both Symfony (security layer) and legacy (view layer) achieve same functional result.'
     files_modified:
     - prevarisc-migration/src/Controller/ElementsSupprimesController.php:19-21
-    - prevarisc-migration/src/Controller/ElementsSupprimesController.php
+    - prevarisc-migration/templates/bundles/TwigBundle/Exception/error403.html.twig
+    - prevarisc-migration/docs/migration/MOD-20-RETABLISSEMENT-ECARTS.md
   - number: 2
     title: Les onglets sont affichés même quand l'utilisateur n'a accès qu'à un seul
       périmètre

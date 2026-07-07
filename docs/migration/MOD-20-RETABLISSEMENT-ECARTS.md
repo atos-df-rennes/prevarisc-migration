@@ -20,16 +20,18 @@
 
 ## Écarts détaillés
 
-### Écart 1 — En absence de droits, Symfony renvoie un refus d'accès générique au lieu d'un message dédié
+### Écart 1 — En absence de droits, Symfony renvoie un refus d'accès via le template d'erreur 403
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-RET-001, RG-RET-002 |
 | **Spec** | Un utilisateur sans droit de suppression dossier/établissement doit voir un message d'interdiction d'accès, sans onglet. |
-| **Symfony** | Le contrôleur est bloqué par une annotation de sécurité de classe (`@Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")`) (`prevarisc-migration/src/Controller/ElementsSupprimesController.php:19-21`). La page n'est donc jamais rendue pour afficher un message spécifique. |
+| **Symfony** | Le contrôleur est bloqué par une annotation de sécurité de classe (`@Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")`) (`prevarisc-migration/src/Controller/ElementsSupprimesController.php:19-21`). Lorsque le test échoue, Symfony lève une `AccessDeniedException` qui est capturée par le gestionnaire d'exceptions et rendue via `templates/bundles/TwigBundle/Exception/error403.html.twig`, affichant le message « Accès non autorisé ! ». |
 | **Legacy** | Le contrôleur charge la page, puis la vue affiche explicitement `error/not-allowed.phtml` si l'utilisateur n'a aucun droit (`prevarisc/application/controllers/RetablirController.php:17-23`, `prevarisc/application/views/scripts/retablir/index.phtml:1-3`). |
-| **Impact** | **Élevé** — la règle métier d'affichage d'un message dédié n'est plus respectée côté Symfony. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/ElementsSupprimesController.php`, `prevarisc/application/controllers/RetablirController.php`, `prevarisc/application/views/scripts/retablir/index.phtml` |
+| **Impact** | **Résolu** — la spec est satisfaite par deux approches différentes mais fonctionnellement équivalentes : le legacy fait le test en vue, Symfony le fait au niveau sécurité. Le résultat est identique : message d'interdiction affiché sans onglet. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/ElementsSupprimesController.php`, `prevarisc-migration/templates/bundles/TwigBundle/Exception/error403.html.twig`, `prevarisc/application/controllers/RetablirController.php`, `prevarisc/application/views/scripts/retablir/index.phtml` |
+| **Statut** | ✅ VALIDÉ |
+**Retour utilisateur** : Une page dédiée est présente dans `templates/bundles/TwigBundle/Exception/error403.html.twig` et elle est appelée si les Voters refusent l'accès.
 
 ---
 
@@ -100,8 +102,11 @@
 
 ## Recommandations
 
-1. **Corriger l'expérience d'accès** : soit rendre la page avec un message « non autorisé » conforme à la spec, soit documenter explicitement l'abandon de ce comportement au profit d'un 403 générique.
-2. **Masquer les onglets non autorisés** et calculer dynamiquement l'onglet actif par défaut selon les droits disponibles.
-3. **Aligner les templates Symfony sur la restitution métier** : format de date long, établissement entre crochets devant le nom du dossier, restitution établissement + commune homogène.
-4. **Harmoniser les redirections post-restauration** pour les établissements sur le même principe que les dossiers (`referer`).
-5. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.
+### ✅ Écart #1 — Validé (2026-07-07)
+La spec demande un message d'interdiction sans onglets pour les utilisateurs sans droits. Symfony satisfait cette exigence via le template `error403.html.twig` appelé automatiquement par le gestionnaire d'exceptions `@Security`. **Action : aucune** — comportement conforme.
+
+### Écarts #2–#5 (en cours)
+1. **Masquer les onglets non autorisés** (Écart #2) et calculer dynamiquement l'onglet actif par défaut selon les droits disponibles.
+2. **Aligner les templates Symfony sur la restitution métier** (Écart #3–#4) : format de date long (« Le lundi 12 janvier 2025 »), établissement entre crochets devant le nom du dossier, restitution établissement + commune homogène.
+3. **Harmoniser les redirections post-restauration** (Écart #5) pour les établissements sur le même principe que les dossiers (`referer`).
+4. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.
