@@ -1147,6 +1147,24 @@ ecarts:
     files_modified:
     - prevarisc-migration/src/Service/DossierRapportOdtService.php
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+  - number: 8
+    title: Effectifs / dégagements non injectés — suppression des champs statiques null
+    action: fix
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ RÉSOLU — Retour utilisateur : ces champs étaient explicitement initialisés à `null`
+      dans DossierRapportOdtService.php alors qu'ils sont désormais gérés dynamiquement.
+      Suppression des 4 lignes (422-425) qui ajoutaient à `null` : descriptionEffectifDossier,
+      descriptionDegagementDossier, descriptionEffectifEtablissement, descriptionDegagementEtablissement.
+      Suppression également du commentaire confus "Effectifs/dégagements (non portés — pas
+      d'équivalent migré)". Ces champs n'étant plus initialisés comme variables statiques
+      mais gérés dynamiquement, leur initialisation explicite à null était redondante et
+      masquait la vraie nature de ces données. Tests OK (642 tests), PHPStan OK.
+    files_modified:
+    - prevarisc-migration/src/Service/DossierRapportOdtService.php
+    - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
   - number: 9
     action: fix
     status: closed
@@ -1424,9 +1442,9 @@ ecarts:
     - prevarisc-migration/src/Service/Doc.php
     - prevarisc-migration/src/Service/Doc.php:21-38
 metadata:
-  last_updated: '2026-07-06'
+  last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 114
+  total_ecarts_processed: 115
   modules_completed:
     - MOD-16
     - MOD-17
