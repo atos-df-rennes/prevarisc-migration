@@ -42,6 +42,7 @@
 | **Legacy** | Le legacy interroge `SDIS62/prevarisc` sur `refs/heads/2.x` et fixe explicitement `timeout => 3` (`prevarisc/application/controllers/AdminController.php:19-24`). |
 | **Impact** | **Élevé** — contrôle de version potentiellement plus lent et moins cohérent avec la règle métier « branche stable ». |
 | **Fichiers concernés** | `prevarisc-migration/src/VersionType/GithubType.php`, `prevarisc-migration/src/Builder/VersionBuilder.php`, `prevarisc/application/controllers/AdminController.php` |
+**Retour utilisateur** : Branche en dur OK => correspond à 2.x du dépôt SDIS mais pour notre dépôt maintenu. Timeout de 3s absent et à ajouter.
 
 ---
 
