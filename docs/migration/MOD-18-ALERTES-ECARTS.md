@@ -81,6 +81,7 @@
 | **Règles** | RG-ALT-004 |
 | **Constat** | Symfony utilise `orX(...)` avec `DISTINCT` et jointures. Le legacy utilisait une `UNION` SQL. Le résultat semble aligné, mais à valider sur des cas de multi-appartenance. |
 | **Fichiers concernés** | `src/Repository/UtilisateurRepository.php`, `prevarisc/application/models/DbTable/Utilisateur.php` |
+**Retour utilisateur** : vérifier que les implémentations sont alignées.
 
 ---
 
