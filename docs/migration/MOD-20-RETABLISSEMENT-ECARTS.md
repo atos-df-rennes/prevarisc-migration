@@ -75,6 +75,7 @@
 | **Legacy** | Le partial legacy place bien `[LIBELLE_ETABLISSEMENTINFORMATIONS]` dans le lien, avant le nom du dossier (`prevarisc/application/views/scripts/retablir/partials/partial-deleted-dossiers.phtml:72-82`). |
 | **Impact** | **Moyen** — présentation différente de la spec et du legacy, moins compacte pour l'utilisateur. |
 | **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig`, `prevarisc/application/views/scripts/retablir/partials/partial-deleted-dossiers.phtml` |
+**Retour utilisateur** : Écart de migration accepté. Le rendu est moins compact mais plus lisible pour l'utilisateur. Mettre à jour la spec en ce sens.
 
 ---
 
