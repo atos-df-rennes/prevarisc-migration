@@ -70,12 +70,13 @@
 | | Détail |
 |---|--------|
 | **Règles** | RG-RET-007, § 4.1 lignes 64 à 66 |
-| **Spec** | Le nom du dossier doit être précédé du libellé de l'établissement lié entre crochets. |
+| **Spec (legacy)** | Le nom du dossier doit être précédé du libellé de l'établissement lié entre crochets. |
 | **Symfony** | Le lien du dossier affiche uniquement le libellé dossier (`prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig:38-45`). Les établissements liés sont ensuite rendus après coup sous forme de badges (`47-52`). |
 | **Legacy** | Le partial legacy place bien `[LIBELLE_ETABLISSEMENTINFORMATIONS]` dans le lien, avant le nom du dossier (`prevarisc/application/views/scripts/retablir/partials/partial-deleted-dossiers.phtml:72-82`). |
-| **Impact** | **Moyen** — présentation différente de la spec et du legacy, moins compacte pour l'utilisateur. |
+| **Décision** | ✅ **ACCEPTÉ** — le rendu Symfony (badges) est moins compact que le legacy (crochets inline) mais plus lisible pour l'utilisateur sur interface Bootstrap 3/4. La spec legacy est volontairement **remplacée** par cette présentation alternative. |
 | **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig`, `prevarisc/application/views/scripts/retablir/partials/partial-deleted-dossiers.phtml` |
-**Retour utilisateur** : Écart de migration accepté. Le rendu est moins compact mais plus lisible pour l'utilisateur. Mettre à jour la spec en ce sens.
+| **Statut** | ✅ FERMÉ |
+**Retour utilisateur** : Écart de migration accepté. Le rendu est moins compact mais plus lisible pour l'utilisateur. Mettre à jour la spec en ce sens. ✅ Spec mise à jour le 2026-07-07.
 
 ---
 
@@ -116,7 +117,6 @@ Les onglets sont maintenant conditionnés au niveau du rendu. Seuls les onglets 
 ### ✅ Écart #3 — Résolu (2026-07-07)
 Ajout du filtre Twig `date_fr_long` pour formater les dates de suppression au format complet attendu (« Le lundi 12 janvier 2025 »). Les templates dossiers et établissements utilisent maintenant ce filtre. **Action : implémentée** — cohérence de format restaurée.
 
-### Écarts #4–#5 (en cours)
-1. **Aligner le template dossier sur la restitution métier** (Écart #4) : établissement entre crochets devant le nom du dossier.
-2. **Harmoniser les redirections post-restauration** (Écart #5) pour les établissements sur le même principe que les dossiers (`referer`).
+### ✅ Écart #4 — Accepté et spec mise à jour (2026-07-07)
+La spec legacy demandait l'affichage en crochets inline. Symfony affiche les établissements en badges, ce qui est moins compact mais plus lisible sur une interface moderne Bootstrap. Cette divergence a été **acceptée** et la spec mise à jour en conséquence. **Action : aucune** — présentation alternative documentée et validée.
 3. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.
