@@ -1218,6 +1218,30 @@ ecarts:
     files_modified:
     - prevarisc-migration/docs/specs/MOD-18-ALERTES.md
     - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+  - number: 3
+    title: Libellé du bouton quand aucun destinataire n'est disponible — implémentation UX améliorée
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Vérification complète du comportement. Spécification originale demandait
+      que « Le bouton Envoyer devienne Fermer » quand aucun destinataire n'est disponible.
+      Legacy implémentait ce comportement en relabélisant le bouton principal à « Fermer ».
+      Symfony masque simplement le bouton « Envoyer » et garde le bouton « Annuler »
+      visible, qui ferme la modale avec data-dismiss="modal". Retour utilisateur confirmait
+      que l'approche Symfony est une **amélioration UX** : pas de relabélisation confuse,
+      mais masquage des actions non pertinentes tout en conservant la possibilité de fermer
+      la modale. Code Symfony confirmé correct : formulaire et bouton masqués conditionnellement
+      via {% if emails is not empty %} dans templates/alerte/formulaire.html.twig. Contrôleur
+      retourne destinataires vides quand aucun utilisateur n'a les droits requis ou ne
+      correspond au périmètre (AlerteService::getDestinataires). Les deux approches
+      remplissent l'objectif fonctionnel (permettre la fermeture de la modale). Spécification
+      mise à jour pour refléter ce comportement acceptable. Aucun code à modifier.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+    - prevarisc-migration/templates/alerte/formulaire.html.twig
+    - prevarisc-migration/src/Controller/AlerteController.php
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1483,7 +1507,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 117
+  total_ecarts_processed: 118
   modules_completed:
     - MOD-16
     - MOD-17
