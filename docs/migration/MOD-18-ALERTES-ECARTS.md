@@ -56,6 +56,7 @@
 | **Legacy** | Le legacy renomme explicitement le bouton principal en `Fermer` (transforme `Envoyer` → `Fermer`). |
 | **Divergence** | Écart UX mineur mais réel : libellé du bouton principal non aligné. |
 | **Fichiers concernés** | `templates/alerte/formulaire.html.twig`, `prevarisc/application/views/scripts/changement/alerteform.phtml` |
+**Retour utilisateur** : Le comportement est en réalité amélioré. On n'ajoute pas un bouton qui ne doit pas être affiché et on conserve seulement ceux nécessaires. Le libellé Fermer/Annuler correspond à la même action. Rien à faire ici. Vérifier la spec dans specs/.
 
 ---
 
