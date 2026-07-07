@@ -1425,14 +1425,15 @@ ecarts:
   - number: 2
     title: Les onglets sont affichés même quand l'utilisateur n'a accès qu'à un seul
       périmètre
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: 'Fixed by conditionally rendering tab headers based on permissions. Template now wraps tabs and content in permission checks. First available tab is dynamically set as active. PHPStan level 10 and test suite pass.'
     files_modified:
-    - prevarisc-migration/templates/elements_supprimes/index.html.twig:14-17
     - prevarisc-migration/templates/elements_supprimes/index.html.twig
+    - prevarisc-migration/docs/migration/MOD-20-RETABLISSEMENT-ECARTS.md
+    - prevarisc-migration/docs/migration/ecarts-history.yml
   - number: 3
     title: Symfony n'affiche pas la date de suppression au format lisible demandé
     action: check
