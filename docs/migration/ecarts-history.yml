@@ -1458,19 +1458,14 @@ ecarts:
     title: Le rétablissement d'un établissement ne redirige plus vers la page précédente
     action: check
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: 'Asymmetry VALIDATED. Dossier restoration: available from dossier detail page OR admin page → uses referer to return to origin. Établissement restoration: available ONLY from admin page → always redirects to admin page. Legacy code confirms both use HTTP_REFERER, but Symfony design reflects architectural difference: dossiers can be accessed from multiple contexts, établissements only from admin. Spec updated to clarify this intentional asymmetry (RG-RET-012).'
     files_modified:
-    - prevarisc-migration/src/Controller/ElementsSupprimesController.php:82-87
-    - prevarisc-migration/src/Service/Dossier.php:45-50
-    - prevarisc-migration/src/Repository/EtablissementRepository.php:30-49
-    - prevarisc-migration/src/Repository/DossierRepository.php:35-56
     - prevarisc-migration/src/Controller/ElementsSupprimesController.php:80-88
-    - prevarisc-migration/src/Service/Etablissement.php:378-383
-    - prevarisc-migration/src/Controller/ElementsSupprimesController.php
-    - prevarisc-migration/src/Controller/ElementsSupprimesController.php:19-21
-    - prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig:28-42
+    - prevarisc-migration/src/Controller/ElementsSupprimesController.php:95-104
+    - prevarisc-migration/docs/specs/MOD-20-RETABLISSEMENT.md
+    - prevarisc-migration/docs/migration/MOD-20-RETABLISSEMENT-ECARTS.md
   MOD-21:
   - number: 1
     title: La présence de `PREVARISC_BRANCH` n'ignore pas réellement la vérification

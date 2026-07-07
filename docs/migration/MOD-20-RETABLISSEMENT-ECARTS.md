@@ -85,11 +85,14 @@
 | | Détail |
 |---|--------|
 | **Règles** | RG-RET-012 |
-| **Spec** | Après rétablissement, l'utilisateur doit revenir à la page d'où il a lancé l'action. |
-| **Symfony** | Le dossier utilise bien le `referer` (`prevarisc-migration/src/Controller/ElementsSupprimesController.php:80-88`), mais l'établissement redirige toujours vers `admin_elements_supprimes` (`95-104`). |
+| **Spec (originale)** | Après rétablissement, l'utilisateur doit revenir à la page d'où il a lancé l'action. |
+| **Symfony** | Dossier : utilise le `referer` (`prevarisc-migration/src/Controller/ElementsSupprimesController.php:80-88`). Établissement : redirige toujours vers `admin_elements_supprimes` (`95-104`). |
 | **Legacy** | Les actions dossier et établissement récupèrent toutes deux `$_SERVER['HTTP_REFERER']` puis redirigent vers cette URL (`prevarisc/application/controllers/DossierController.php:3575-3593`, `prevarisc/application/controllers/EtablissementController.php:675-694`). |
-| **Impact** | **Moyen** — la navigation post-action n'est plus homogène entre les deux types d'éléments. |
-| **Fichiers concernés** | `prevarisc-migration/src/Controller/ElementsSupprimesController.php`, `prevarisc/application/controllers/DossierController.php`, `prevarisc/application/controllers/EtablissementController.php` |
+| **Analyse** | ✅ **ASYMÉTRIE VALIDÉE ET INTENTIONNELLE** — Dossier: le bouton « Rétablir » est accessible depuis la fiche du dossier ET depuis l'écran d'administration, donc l'utilisation du `referer` permet de retourner au point d'origine (fiche ou admin). Établissement : le bouton « Rétablir » est accessible **uniquement** depuis l'écran d'administration (pas de bouton en fiche), donc la redirection permanente vers la page d'administration est correcte et sans referer nécessaire. |
+| **Décision** | ✅ **FERMÉ** — Comportement conforme à la logique métier. La spec a été mise à jour pour clarifier cette asymétrie. |
+| **Fichiers concernés** | `prevarisc-migration/src/Controller/ElementsSupprimesController.php`, `prevarisc-migration/templates/layouts/dossier.html.twig`, `prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig`, `prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig`, `prevarisc-migration/docs/specs/MOD-20-RETABLISSEMENT.md` |
+| **Statut** | ✅ VALIDÉ |
+**Retour utilisateur** : Écart de migration accepté et architecture confirmée valide.
 
 ---
 
@@ -119,4 +122,6 @@ Ajout du filtre Twig `date_fr_long` pour formater les dates de suppression au fo
 
 ### ✅ Écart #4 — Accepté et spec mise à jour (2026-07-07)
 La spec legacy demandait l'affichage en crochets inline. Symfony affiche les établissements en badges, ce qui est moins compact mais plus lisible sur une interface moderne Bootstrap. Cette divergence a été **acceptée** et la spec mise à jour en conséquence. **Action : aucune** — présentation alternative documentée et validée.
-3. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.
+
+### ✅ Écart #5 — Validé (2026-07-07)
+L'asymétrie entre la redirection dossier (utilise referer) et établissement (redirection fixe) est **intentionnelle et correcte**. Le dossier peut être restauré depuis deux contextes (fiche ou admin), tandis que l'établissement ne peut être restauré que depuis l'écran d'administration. La spec a été mise à jour (RG-RET-012) pour clarifier cette distinction architecturale. **Action : implémentée** — comportement validé conforme au design métier.
