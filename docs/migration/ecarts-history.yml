@@ -1270,6 +1270,29 @@ ecarts:
     files_modified:
     - prevarisc-migration/docs/specs/MOD-18-ALERTES.md
     - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+  - number: 5
+    title: Union des périmètres (rattachement direct + groupement) — implémentations fonctionnellement équivalentes
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Analyse détaillée de l'équivalence fonctionnelle entre les deux
+      implémentations. Symfony utilise une requête unique avec orX() et DISTINCT
+      pour combiner commune directe (u.commune = :numInsee) ET via groupement
+      (gc.id = :numInsee). Legacy utilise UNION de deux SELECT : l'une pour commune
+      directe, l'autre pour commune via groupement. Analyse comparée des structures
+      de requête confirme l'équivalence fonctionnelle complète. Points de convergence :
+      (1) même filtre d'email (IS NOT NULL, != ''), (2) même filtre de privilege
+      (alerte_avis, alerte_statut, alerte_classement), (3) même condition de commune
+      (directe OU via groupement), (4) même déduplication (UNION vs DISTINCT + GROUP BY).
+      Cas critiques validés : (A) Utilisateur avec commune directe ET via groupement →
+      apparaît 1x dans les deux cas (UNION déduplique, DISTINCT + GROUP BY déduplique).
+      (B) Utilisateur via groupement uniquement → inclus dans les deux cas. (C) Utilisateur
+      commune directe uniquement → inclus dans les deux cas. Aucun code à modifier.
+      Implémentation Symfony confirmée correcte et iso-fonctionnelle au legacy.
+    files_modified:
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1535,7 +1558,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 118
+  total_ecarts_processed: 119
   modules_completed:
     - MOD-16
     - MOD-17

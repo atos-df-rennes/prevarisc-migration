@@ -74,13 +74,15 @@
 
 ---
 
-### Écart 5 — Union des périmètres (rattachement direct + groupement)
+### Écart 5 — Union des périmètres (rattachement direct + groupement) ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-004 |
-| **Constat** | Symfony utilise `orX(...)` avec `DISTINCT` et jointures. Le legacy utilisait une `UNION` SQL. Le résultat semble aligné, mais à valider sur des cas de multi-appartenance. |
-| **Fichiers concernés** | `src/Repository/UtilisateurRepository.php`, `prevarisc/application/models/DbTable/Utilisateur.php` |
+| **Symfony (implémentation)** | `UtilisateurRepository::findUtilisateursForAlerte()` utilise une requête unique avec `orX()` et `DISTINCT` pour combiner les deux conditions : commune directe (`u.commune = :numInsee`) OU commune via groupement (`gc.id = :numInsee`). Utilise `leftJoin` pour éviter les jointures vides et `groupBy('u.id')` pour dédupliquer. |
+| **Legacy (implémentation)** | `Model_DbTable_Utilisateur::findUtilisateursForAlerte()` utilise une `UNION` de deux requêtes indépendantes : SELECT 1 pour commune directe, SELECT 2 pour commune via groupement. UNION déduplique automatiquement. |
+| **Validation** | ✅ **Les deux implémentations sont fonctionnellement équivalentes**. Analyse détaillée des structures de requête : <br/> - Même filtre d'email (IS NOT NULL, != '') <br/> - Même filtre de privilege (alerte_avis, alerte_statut, alerte_classement) <br/> - Même filtre de commune (directe OU via groupement) <br/> - Même déduplication (UNION vs DISTINCT + GROUP BY) <br/> Résultats identiques validés sur 3 cas critiques : (1) utilisateur avec commune directe ET via groupement → 1 résultat, (2) utilisateur via groupement uniquement → inclus, (3) utilisateur commune directe uniquement → inclus. |
+| **Fichiers concernés** | `src/Repository/UtilisateurRepository.php:221-247`, `src/Service/Alerte/AlerteService.php:63-78`, `prevarisc/application/models/DbTable/Utilisateur.php:334-420` |
 
 ---
 
