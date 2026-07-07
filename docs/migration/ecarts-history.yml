@@ -1179,6 +1179,28 @@ ecarts:
     files_modified:
     - prevarisc-migration/templates/documents/index.html.twig
     - prevarisc-migration/docs/migration/MOD-17-DOCUMENTS-MODELES-ECARTS.md
+  MOD-18:
+  - number: 1
+    title: Comportement de la modale en erreur (service mail désactivé) — amélioration UX acceptée
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Vérification que la spécification révisée (MOD-18-ALERTES.md) correspond
+      à l'implémentation réelle dans Symfony. L'écart initial documentait une divergence :
+      le legacy échouait silencieusement (modale fermée sans feedback), tandis que Symfony
+      retournait un message d'erreur avec toast affiché et modale reste ouverte. Retour
+      utilisateur confirmait ceci : le comportement Symfony est une **amélioration UX**
+      (feedback explicite à l'utilisateur au lieu d'une fermeture silencieuse). Spécification
+      mise à jour (docs/specs/MOD-18-ALERTES.md, cas particulier "Service de messagerie
+      désactivé" et "Erreur technique lors de l'envoi") pour refléter ce comportement
+      amélioré. Implémentation Symfony confirmée conforme : contrôleur retourne 
+      success=false avec message explicite, JS affiche toast d'erreur et garde modale
+      ouverte. Écart fermé avec spécification révisée et implémentation validée.
+    files_modified:
+    - prevarisc-migration/docs/specs/MOD-18-ALERTES.md
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1444,7 +1466,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 115
+  total_ecarts_processed: 116
   modules_completed:
     - MOD-16
     - MOD-17

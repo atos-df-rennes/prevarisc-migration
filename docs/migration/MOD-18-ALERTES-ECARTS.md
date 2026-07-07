@@ -20,17 +20,16 @@
 
 ## Écarts détaillés
 
-### Écart 1 — Comportement de la modale en erreur (service mail désactivé)
+### Écart 1 — Comportement de la modale en erreur (service mail désactivé) ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-012 |
-| **Spec** | Si le service mail est désactivé, aucun email n'est envoyé et l'échec reste silencieux. La modale se ferme normalement. |
-| **Symfony (état actuel)** | Le contrôleur retourne un JSON `success=false` avec message explicite. Le JS affiche un toast d'erreur et laisse la modale ouverte sans fermeture. |
-| **Legacy** | Le service mail retourne `false` silencieusement. La modale se ferme normalement après clic sur Envoyer. |
-| **Divergence** | Régression UX : l'utilisateur voit une notification d'erreur alors que la spec et le legacy décrivent un échec silencieux avec fermeture. |
-| **Fichiers concernés** | `src/Controller/AlerteController.php`, `templates/alerte/formulaire.html.twig`, `prevarisc/application/services/Mail.php`, `prevarisc/application/views/scripts/dossier/index.phtml` |
-**Retour utilisateur** : Écart de migration accepté. Le comportement n'est pas une régression UX mais une **amélioration** UX. L'utilisateur voit désormais un message et comprend qu'une erreur est survenue et qu'une éventuelle action de sa part est attendue là où le legacy échouait silencieusement sans aucune information. Mets à jour la spec dans specs/ avec ce nouveau fonctionnement.
+| **Spec (mise à jour)** | Si le service mail est désactivé, l'envoi échoue et l'utilisateur reçoit un message d'erreur explicite via une notification toast. La modale reste ouverte pour permettre une action corrective. |
+| **Symfony (implémentation)** | Le contrôleur retourne un JSON `success=false` avec le message : « L'envoi d'email est désactivé dans la configuration ». Le JS affiche un toast d'erreur et laisse la modale ouverte sans la fermer. |
+| **Legacy** | Le service mail retourne `false` silencieusement. La modale se ferme normalement après clic sur Envoyer, sans donner aucun retour à l'utilisateur. |
+| **Validation** | ✅ **L'implémentation Symfony est conforme à la spécification révisée.** Le comportement représente une **amélioration UX** : l'utilisateur obtient désormais un feedback explicite au lieu d'une fermeture silencieuse. |
+| **Fichiers concernés** | `src/Controller/AlerteController.php:179-183`, `templates/alerte/formulaire.html.twig:93-101`, `docs/specs/MOD-18-ALERTES.md:157-158` |
 
 ---
 
@@ -94,8 +93,9 @@
 
 ## Recommandations
 
-1. **Écart 1 & 2** : Réaligner le comportement de la modale en erreur vers une **fermeture silencieuse** ou documenter explicitement l'évolution UX souhaitée.
-2. **Écart 3** : Remplacer le bouton « Annuler » seul par un bouton « Fermer » quand aucun destinataire n'est disponible.
-3. **RG-ALT-002** : Confirmer que le lien « Alerter » doit apparaître en permanence ou seulement via les flashs de sauvegarde.
-4. **RG-ALT-004** : Tester le calcul des destinataires sur des cas de multi-rattachement (commune directe + groupement) pour verrouiller l'équivalence.
-5. **RG-ALT-013** : Valider par tests métier la logique de résolution de `{etablissementAvis}` sur les cas d'avis différé et avis non standard.
+1. **Écart 1** : ✅ **Fermé - Spécification révisée et implémentation validée.** Le comportement amélioré (affichage du message d'erreur au lieu d'une fermeture silencieuse) a été accepté comme amélioration UX et la spécification a été mise à jour en conséquence.
+2. **Écart 2** : À traiter - Réaligner le comportement de la modale en cas d'erreur technique vers une fermeture silencieuse ou documenter explicitement l'évolution UX souhaitée.
+3. **Écart 3** : À traiter - Remplacer le bouton « Annuler » seul par un bouton « Fermer » quand aucun destinataire n'est disponible.
+4. **RG-ALT-002** : À valider - Confirmer que le lien « Alerter » doit apparaître en permanence ou seulement via les flashs de sauvegarde.
+5. **RG-ALT-004** : À valider - Tester le calcul des destinataires sur des cas de multi-rattachement (commune directe + groupement) pour verrouiller l'équivalence.
+6. **RG-ALT-013** : À valider - Valider par tests métier la logique de résolution de `{etablissementAvis}` sur les cas d'avis différé et avis non standard.
