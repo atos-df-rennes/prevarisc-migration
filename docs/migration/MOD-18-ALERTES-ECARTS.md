@@ -61,12 +61,43 @@
 
 ## Points à valider
 
-| Règle | Sujet | Constat | Fichiers |
-|-------|-------|---------|----------|
-| RG-ALT-002 | Déclenchement depuis la fiche dossier | Côté dossier, le lien « Alerter » apparaît via les flashs de sauvegarde plus que comme action permanente. À confirmer si la spec attend un bouton permanent visible. | `src/Controller/Dossier/DossierController.php`, `src/Service/Dossier/DossierSauvegardeService.php`, `prevarisc/application/views/scripts/dossier/index.phtml` |
-| RG-ALT-004 | Union des périmètres (rattachement direct + groupement) | Symfony utilise `orX(...)` avec `DISTINCT` et jointures. Le legacy utilisait une `UNION` SQL. Le résultat semble aligné, mais à valider sur des cas de multi-appartenance. | `src/Repository/UtilisateurRepository.php`, `prevarisc/application/models/DbTable/Utilisateur.php` |
-| RG-ALT-013 | Priorité de l'avis différé | `AvisService` ne passe dans cette branche que si `dossierAvisDiffere` **et** `dossierDonnantAvis` sont tous deux présents. Le legacy se base d'abord sur `presence_avis_differe`. Risque de divergence silencieuse selon les données. | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
-| RG-ALT-013 | Avis non standard | Symfony réutilise le libellé brut de l'avis Doctrine. Le legacy traitait explicitement les IDs 1 et 2. À valider si la base comporte des avis additionnels. | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
+### Point 1 — Déclenchement depuis la fiche dossier
+
+| | Détail |
+|---|--------|
+| **Règles** | RG-ALT-002 |
+| **Constat** | Côté dossier, le lien « Alerter » apparaît via les flashs de sauvegarde plus que comme action permanente. À confirmer si la spec attend un bouton permanent visible. |
+| **Fichiers concernés** | `src/Controller/Dossier/DossierController.php`, `src/Service/Dossier/DossierSauvegardeService.php`, `prevarisc/application/views/scripts/dossier/index.phtml` |
+
+---
+
+### Point 2 — Union des périmètres (rattachement direct + groupement)
+
+| | Détail |
+|---|--------|
+| **Règles** | RG-ALT-004 |
+| **Constat** | Symfony utilise `orX(...)` avec `DISTINCT` et jointures. Le legacy utilisait une `UNION` SQL. Le résultat semble aligné, mais à valider sur des cas de multi-appartenance. |
+| **Fichiers concernés** | `src/Repository/UtilisateurRepository.php`, `prevarisc/application/models/DbTable/Utilisateur.php` |
+
+---
+
+### Point 3 — Priorité de l'avis différé
+
+| | Détail |
+|---|--------|
+| **Règles** | RG-ALT-013 |
+| **Constat** | `AvisService` ne passe dans cette branche que si `dossierAvisDiffere` **et** `dossierDonnantAvis` sont tous deux présents. Le legacy se base d'abord sur `presence_avis_differe`. Risque de divergence silencieuse selon les données. |
+| **Fichiers concernés** | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
+
+---
+
+### Point 4 — Avis non standard
+
+| | Détail |
+|---|--------|
+| **Règles** | RG-ALT-013 |
+| **Constat** | Symfony réutilise le libellé brut de l'avis Doctrine. Le legacy traitait explicitement les IDs 1 et 2. À valider si la base comporte des avis additionnels. |
+| **Fichiers concernés** | `src/Service/Alerte/AvisService.php`, `prevarisc/application/services/Changement.php` |
 
 ---
 
