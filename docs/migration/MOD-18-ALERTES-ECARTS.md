@@ -33,16 +33,16 @@
 
 ---
 
-### Écart 2 — Comportement de la modale en erreur (erreur technique lors de l'envoi)
+### Écart 2 — Comportement de la modale en erreur (erreur technique lors de l'envoi) ✅ VALIDÉ
 
 | | Détail |
 |---|--------|
 | **Règles** | RG-ALT-012 |
-| **Spec** | En cas d'erreur technique, aucune notification spécifique n'est affichée. La modale se ferme normalement. |
-| **Symfony (état actuel)** | En cas d'échec métier ou AJAX, Symfony affiche un toast d'erreur et réactive le bouton Envoyer sans fermer la modale. |
-| **Legacy** | Ferme la boîte de dialogue immédiatement après clic sur Envoyer, sans attendre la réponse du service (comportement non-bloquant). |
-| **Divergence** | Régression UX confirmée par rapport à la spec et au legacy. |
-| **Fichiers concernés** | `templates/alerte/formulaire.html.twig`, `prevarisc/application/views/scripts/dossier/index.phtml` |
+| **Spec (mise à jour)** | En cas d'erreur technique (exception de transport), l'utilisateur reçoit un message d'erreur explicite via une notification toast. La modale reste ouverte pour permettre la réédition du message et une nouvelle tentative. |
+| **Symfony (implémentation)** | Le contrôleur capture les exceptions `TransportExceptionInterface` et retourne `success=false` avec le message d'erreur du transport (`$transportException->getMessage()`). Le JS affiche un toast d'erreur et réactive le bouton Envoyer sans fermer la modale. |
+| **Legacy** | Ferme la boîte de dialogue immédiatement après clic sur Envoyer, sans attendre la réponse du service (comportement non-bloquant, aucun feedback d'erreur). |
+| **Validation** | ✅ **L'implémentation Symfony est conforme à la spécification révisée.** Le comportement représente une **amélioration UX** : l'utilisateur obtient un feedback explicite sur l'erreur technique, permettant une correction et une nouvelle tentative au lieu d'une fermeture silencieuse. |
+| **Fichiers concernés** | `src/Controller/AlerteController.php:211-215`, `templates/alerte/formulaire.html.twig:93-101`, `docs/specs/MOD-18-ALERTES.md:160` |
 
 ---
 
@@ -94,7 +94,7 @@
 ## Recommandations
 
 1. **Écart 1** : ✅ **Fermé - Spécification révisée et implémentation validée.** Le comportement amélioré (affichage du message d'erreur au lieu d'une fermeture silencieuse) a été accepté comme amélioration UX et la spécification a été mise à jour en conséquence.
-2. **Écart 2** : À traiter - Réaligner le comportement de la modale en cas d'erreur technique vers une fermeture silencieuse ou documenter explicitement l'évolution UX souhaitée.
+2. **Écart 2** : ✅ **Fermé - Spécification révisée et implémentation validée.** Identique à l'écart 1 : l'erreur technique est désormais remontée explicitement à l'utilisateur au lieu d'une fermeture silencieuse.
 3. **Écart 3** : À traiter - Remplacer le bouton « Annuler » seul par un bouton « Fermer » quand aucun destinataire n'est disponible.
 4. **RG-ALT-002** : À valider - Confirmer que le lien « Alerter » doit apparaître en permanence ou seulement via les flashs de sauvegarde.
 5. **RG-ALT-004** : À valider - Tester le calcul des destinataires sur des cas de multi-rattachement (commune directe + groupement) pour verrouiller l'équivalence.

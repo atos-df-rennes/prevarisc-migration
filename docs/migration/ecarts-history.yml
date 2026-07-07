@@ -1201,6 +1201,23 @@ ecarts:
     files_modified:
     - prevarisc-migration/docs/specs/MOD-18-ALERTES.md
     - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
+  - number: 2
+    title: Comportement de la modale en erreur (erreur technique) — amélioration UX acceptée (identique écart #1)
+    action: check
+    status: closed
+    date_processed: '2026-07-07'
+    validated_by: copilot
+    notes: >-
+      ✅ VALIDÉ — Vérification identique à l'écart #1. Les deux écarts couvrent le même
+      comportement amélioré : en cas d'erreur (configuration ou transport), Symfony
+      retourne success=false avec message explicite, JS affiche toast d'erreur, modale
+      reste ouverte. Legacy échouait silencieusement sans feedback. L'implémentation
+      Symfony est une amélioration UX acceptée. Code identique dans AlerteController.php
+      (ligne 211-215 pour TransportExceptionInterface). Spécification révisée pour
+      documenter ce comportement dans les deux cas.
+    files_modified:
+    - prevarisc-migration/docs/specs/MOD-18-ALERTES.md
+    - prevarisc-migration/docs/migration/MOD-18-ALERTES-ECARTS.md
   MOD-19:
   - number: 1
     title: Le module est totalement absent côté Symfony
@@ -1466,7 +1483,7 @@ ecarts:
 metadata:
   last_updated: '2026-07-07'
   updated_by: copilot
-  total_ecarts_processed: 116
+  total_ecarts_processed: 117
   modules_completed:
     - MOD-16
     - MOD-17
