@@ -60,6 +60,7 @@
 | **Legacy** | Les partials legacy formattent la date avec `Zend_Date::WEEKDAY ... MONTH_NAME_SHORT ... YEAR` (`prevarisc/application/views/scripts/retablir/partials/partial-deleted-dossiers.phtml:28-35`, `.../partial-deleted-etablissements.phtml:28-35`). |
 | **Impact** | **Moyen** — perte de lisibilité et non-conformité à la restitution attendue. |
 | **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/_dossiers.html.twig`, `prevarisc-migration/templates/elements_supprimes/_etablissements.html.twig`, `prevarisc/application/views/scripts/retablir/partials/*.phtml` |
+**Retour utilisateur** : Écart de migration confirmé. Le code Symfony ne dispose pas de code PHP pour afficher **exactement** cela. Je propose d'utiliser le filtre de l'extension Twig `App\Twig\DateExtension.php` déjà existant et qui affiche globalement ce que l'on attend. Une passe ultérieure sera effectuée pour harmoniser tous les affichages de date.
 
 ---
 
