@@ -41,10 +41,12 @@
 |---|--------|
 | **Règles** | RG-RET-003, RG-RET-004, RG-RET-005 |
 | **Spec** | L'utilisateur ne doit voir que les onglets autorisés ; l'onglet « Dossiers » n'est actif par défaut que s'il est effectivement disponible. |
-| **Symfony** | Les deux onglets sont toujours rendus dans l'en-tête (`prevarisc-migration/templates/elements_supprimes/index.html.twig:14-17`), alors que seul le contenu est conditionné par `is_granted()` (`20-34`). Un utilisateur disposant uniquement de `delete_etablissement` voit donc un onglet `Dossiers` actif mais vide. |
-| **Legacy** | Même divergence : les deux onglets sont toujours affichés (`prevarisc/application/views/scripts/retablir/index.phtml:6-9`) et seuls les panneaux sont conditionnés (`11-27`). |
-| **Impact** | **Critique** — incohérence d'interface pour les profils partiellement habilités. |
+| **Symfony** | ✅ **RÉSOLU** — Les onglets sont maintenant conditionnés par permission au niveau du rendu de l'en-tête. Le template récupère les permissions `delete_dossier` et `delete_etablissement` et ne rend que les onglets correspondants. L'onglet actif est déterminé dynamiquement : le premier onglet disponible est marqué `active` et `in active` selon l'ordre des permissions. |
+| **Legacy** | Les deux onglets sont toujours affichés (`prevarisc/application/views/scripts/retablir/index.phtml:6-9`) mais seuls les panneaux sont conditionnés (`11-27`). La divergence avec Symfony est intentionnelle : Symfony applique le principe de moindre surprise en masquant les onglets non autorisés. |
+| **Impact** | **Résolu** — cohérence d'interface restaurée pour les profils partiellement habilités. |
 | **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/index.html.twig`, `prevarisc/application/views/scripts/retablir/index.phtml` |
+| **Statut** | ✅ RÉSOLU |
+**Retour utilisateur** : Écart de spec confirmé. Conditionner l'affichage de tout le bloc (onglet + contenu) à la permission associée. ✅ Implémenté le 2026-07-07.
 
 ---
 
@@ -105,8 +107,10 @@
 ### ✅ Écart #1 — Validé (2026-07-07)
 La spec demande un message d'interdiction sans onglets pour les utilisateurs sans droits. Symfony satisfait cette exigence via le template `error403.html.twig` appelé automatiquement par le gestionnaire d'exceptions `@Security`. **Action : aucune** — comportement conforme.
 
-### Écarts #2–#5 (en cours)
-1. **Masquer les onglets non autorisés** (Écart #2) et calculer dynamiquement l'onglet actif par défaut selon les droits disponibles.
-2. **Aligner les templates Symfony sur la restitution métier** (Écart #3–#4) : format de date long (« Le lundi 12 janvier 2025 »), établissement entre crochets devant le nom du dossier, restitution établissement + commune homogène.
-3. **Harmoniser les redirections post-restauration** (Écart #5) pour les établissements sur le même principe que les dossiers (`referer`).
-4. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.
+### ✅ Écart #2 — Résolu (2026-07-07)
+Les onglets sont maintenant conditionnés au niveau du rendu. Seuls les onglets autorisés s'affichent, et le premier onglet disponible est marqué actif par défaut. **Action : implémentée** — incohérence d'interface corrigée.
+
+### Écarts #3–#5 (en cours)
+1. **Aligner les templates Symfony sur la restitution métier** (Écarts #3–#4) : format de date long (« Le lundi 12 janvier 2025 »), établissement entre crochets devant le nom du dossier, restitution établissement + commune homogène.
+2. **Harmoniser les redirections post-restauration** (Écart #5) pour les établissements sur le même principe que les dossiers (`referer`).
+3. **Conserver provisoirement l'invalidation de cache via le legacy**, mais prévoir sa suppression une fois le cache Zend retiré.
