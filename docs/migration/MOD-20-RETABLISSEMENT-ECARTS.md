@@ -45,6 +45,7 @@
 | **Legacy** | Même divergence : les deux onglets sont toujours affichés (`prevarisc/application/views/scripts/retablir/index.phtml:6-9`) et seuls les panneaux sont conditionnés (`11-27`). |
 | **Impact** | **Critique** — incohérence d'interface pour les profils partiellement habilités. |
 | **Fichiers concernés** | `prevarisc-migration/templates/elements_supprimes/index.html.twig`, `prevarisc/application/views/scripts/retablir/index.phtml` |
+**Retour utilisateur** : Écart de spec confirmé. Conditionner l'affichage de tout le bloc (onglet + contenu) à la permission associée.
 
 ---
 
