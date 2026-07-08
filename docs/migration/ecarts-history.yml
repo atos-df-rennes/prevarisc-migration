@@ -1531,13 +1531,15 @@ ecarts:
     title: Le libellé des plugins tiers diffère du wording attendu quand aucun plugin
       n'est configuré
     action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    status: closed
+    date_processed: '2026-07-08'
+    validated_by: copilot
+    notes: ✅ VALIDÉ - Wording Symfony « Aucun » (singulier) est grammaticalement correct. User feedback confirme que « Aucuns » (pluriel) est une erreur : « "Aucun" est la forme correcte. "Aucuns" au pluriel existe uniquement dans des cas particuliers ». Spécification mise à jour (section 3.7, RG-ADM-026, cas particuliers) pour refléter la forme correcte.
     files_modified:
-    - prevarisc-migration/templates/admin/index.html.twig:129-136
+    - prevarisc-migration/templates/admin/index.html.twig:136
     - prevarisc-migration/templates/admin/index.html.twig
+    - prevarisc-migration/docs/specs/MOD-21-ADMINISTRATION.md
+    - prevarisc-migration/docs/migration/MOD-21-ADMINISTRATION-ECARTS.md
   - number: 7
     title: Le panneau Symfony expose un périmètre plus large que celui documenté
     action: check
