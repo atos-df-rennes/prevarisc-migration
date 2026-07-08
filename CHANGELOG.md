@@ -55,7 +55,6 @@
 
 ##### Couches-cartographiques
 
-* Affichage/masquage des couches et nommages corrects (#276) ([2480b3](https://github.com/atos-df-rennes/prevarisc-migration/commit/2480b3c1f75c2666767ce1e4329c07be86c7cbea))
 * Validation des valeurs lors du réordonnancement des couches (#305) ([0ee2ae](https://github.com/atos-df-rennes/prevarisc-migration/commit/0ee2aeed87bc0b35033e94f2d159717e4d8d0f82))
 
 ##### Dossier
@@ -147,6 +146,19 @@
 ##### Pieces-jointes
 
 * Téléchargement des pièces jointes des dates de commission (#280) ([a6aa9b](https://github.com/atos-df-rennes/prevarisc-migration/commit/a6aa9b242600f928535bbd70ba782403c218ac49))
+
+
+---
+
+## [2.8.20](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.19...v2.8.20) (08-07-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Corrige la structure de la base et les données erronées avant application des migrations ([a93810](https://github.com/atos-df-rennes/prevarisc-migration/commit/a938105d2c2a3a49446dfe2ff078c269c07e6339))
+
+##### Couches-carto
+
+* Affichage/masquage des couches et nommages corrects (#276) ([2480b3](https://github.com/atos-df-rennes/prevarisc-migration/commit/2480b3c1f75c2666767ce1e4329c07be86c7cbea))
 
 
 ---
