@@ -1567,15 +1567,13 @@ ecarts:
   - number: 2
     title: Les liens de contribution restent relatifs et non fonctionnels dans l'application
       web
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-08'
+    validated_by: copilot
+    notes: Replaced relative links (../CONTRIBUTING.md) with absolute GitHub URLs in about.md and support.md. All tests pass.
     files_modified:
     - prevarisc-migration/docs/about.md
-    - prevarisc-migration/docs/about.md:11-17
-    - prevarisc-migration/docs/support.md:17-25
     - prevarisc-migration/docs/support.md
   - number: 3
     title: Un document absent ou un `doc` invalide produit une page vide sans retour
