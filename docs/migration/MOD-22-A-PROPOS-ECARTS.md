@@ -44,6 +44,7 @@
 | **Legacy** | Même lien relatif hérité du legacy, donc même défaut fonctionnel. |
 | **Impact** | **Moyen** — l'utilisateur clique vers une ressource qui n'est pas fournie par l'application. |
 | **Fichiers concernés** | `prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md` |
+**Retour utilisateur** : Référence vers le fichier en contexte web non fonctionnelle. Quelle suggestion ? Remplacer par un lien absolu vers Github ? Cela ne prend pas en compte les modifications du fichier effectuées au fil des versions et sert toujours la dernière version du fichier.
 
 ---
 
