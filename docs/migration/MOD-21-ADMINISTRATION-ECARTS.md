@@ -110,6 +110,7 @@
 | **Legacy** | Ces informations supplémentaires n'étaient pas affichées par le panneau legacy (`prevarisc/application/views/scripts/admin/index.phtml:1-117`). |
 | **Impact** | **Faible à moyen** — extension fonctionnelle utile, mais non couverte par la spec actuelle. |
 | **Fichiers concernés** | `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc/application/views/scripts/admin/index.phtml` |
+**Retour utilisateur** : Écart de migration accepté. Les informations présentes dans le bloc Symfony sont bien des configurations et sont utiles pour les administrateurs. Mettre à jour la spec pour documenter cela.
 
 ---
 
