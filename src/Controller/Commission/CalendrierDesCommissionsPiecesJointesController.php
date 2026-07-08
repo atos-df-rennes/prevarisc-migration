@@ -145,35 +145,6 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
     }
 
     /**
-     * Téléchargement d'une pièce jointe d'une date de commission.
-     *
-     * Port direct de PieceJointeController::getAction() (type=dateCommission).
-     *
-     * @Route("/commissions/calendrier/pieces-jointes/{id}/telecharger/{idPj}", name="calendrier_des_commissions_pj_telecharger", methods={"GET"}, requirements={"id"="\d+", "idPj"="\d+"})
-     *
-     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idPj"})
-     */
-    public function download(DateCommission $dateCommission, PieceJointe $pj): Response
-    {
-        if (!$dateCommission->getPiecesJointes()->contains($pj)) {
-            throw $this->createNotFoundException("Cette pièce jointe n'appartient pas à cette date de commission.");
-        }
-
-        $filePath = $this->dataStore->getFilePath($pj, 'dateCommission', (int) $dateCommission->getId());
-        if (!is_readable($filePath)) {
-            throw $this->createNotFoundException('Fichier introuvable ou illisible.');
-        }
-
-        $response = new BinaryFileResponse($filePath);
-        $response->setContentDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $pj->getNom().$pj->getExtension()
-        );
-
-        return $response;
-    }
-
-    /**
      * Supprime une pièce jointe d'une date de commission.
      *
      * @Route("/commissions/calendrier/pieces-jointes/{id}/supprimer/{idPj}", name="calendrier_des_commissions_pj_supprimer", methods={"DELETE", "POST"}, requirements={"id"="\d+", "idPj"="\d+"}, options={"expose"=true})
