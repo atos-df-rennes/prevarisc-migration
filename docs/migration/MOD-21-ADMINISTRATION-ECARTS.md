@@ -96,6 +96,7 @@
 | **Legacy** | Le template legacy affiche `Aucuns` (`prevarisc/application/views/scripts/admin/index.phtml:76-79`). |
 | **Impact** | **Faible** — écart purement rédactionnel, sans impact fonctionnel. |
 | **Fichiers concernés** | `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc/application/views/scripts/admin/index.phtml` |
+**Retour utilisateur** : "Aucun" est la forme correcte. "Aucuns" au pluriel existe uniquement dans des cas particuliers (précède un nom grammaticalement toujours pluriel) et nous ne sommes pas dans un tel cas.
 
 ---
 
