@@ -1544,20 +1544,14 @@ ecarts:
     title: Le panneau Symfony expose un périmètre plus large que celui documenté
     action: check
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-08'
+    validated_by: copilot
+    notes: ✅ VALIDÉ - Spécification mise à jour pour documenter la nouvelle section 3.9 « Paramètres de plateforme » avec 5 nouveaux blocs d'information (chemin fichiers, relance periodicité, unité periodicité, connexion Plat'AU, nombre dossiers affichés). Nouvelles règles RG-ADM-029 à RG-ADM-033 ajoutées. Extension fonctionnelle acceptée par l'utilisateur ("Les informations... sont utiles pour les administrateurs"). Spec complétée, écart fermé.
     files_modified:
-    - prevarisc-migration/templates/admin/index.html.twig:70-104
-    - prevarisc-migration/templates/admin/index.html.twig:46-51
-    - prevarisc-migration/src/Service/Informations.php:27-33
-    - prevarisc-migration/src/Repository/UtilisateurRepository.php:46-65
-    - prevarisc-migration/src/Controller/Admin/AdminController.php:63-65
-    - prevarisc-migration/src/Controller/Admin/AdminController.php:14-17
-    - prevarisc-migration/templates/admin/index.html.twig:24-37
-    - prevarisc-migration/templates/admin/index.html.twig:107-127
-    - prevarisc-migration/src/Service/Informations.php:40-60
-    - prevarisc-migration/templates/admin/index.html.twig:53-68
+    - prevarisc-migration/templates/admin/index.html.twig
+    - prevarisc-migration/src/Controller/Admin/AdminController.php
+    - prevarisc-migration/docs/specs/MOD-21-ADMINISTRATION.md
+    - prevarisc-migration/docs/migration/MOD-21-ADMINISTRATION-ECARTS.md
     - prevarisc-migration/templates/admin/index.html.twig
     - prevarisc-migration/templates/admin/index.html.twig:183-213
   MOD-22:

@@ -10,8 +10,8 @@
 
 | Indicateur | Valeur |
 |------------|--------|
-| Règles de gestion analysées | 28 (RG-ADM-001 à RG-ADM-028) |
-| Écarts spec ↔ Symfony | 7 |
+| Règles de gestion analysées | 35 (RG-ADM-001 à RG-ADM-035) |
+| Écarts spec ↔ Symfony | 6 (écart 7 résolu par mise à jour de la spec) |
 | Écarts spec ↔ Legacy | 0 |
 | Écarts Symfony ↔ Legacy | 5 |
 | Impact critique | 2 (vérification de mise à jour et liste des utilisateurs connectés) |
@@ -104,13 +104,13 @@
 
 | | Détail |
 |---|--------|
-| **Règles** | § 1, § 3, RG-ADM-028 |
-| **Spec** | Le panneau est un écran de lecture seule centré sur version, cartographie, base, authentification, cache, utilisateurs connectés et composants tiers. |
-| **Symfony** | Le template ajoute des blocs non documentés dans MOD-21 : `Chemin des fichiers`, `Relance périodicité`, `Unité periodicité`, `Connexion à Plat'AU`, `Nb dossiers affichés` (`prevarisc-migration/templates/admin/index.html.twig:46-51`, `142-178`). |
+| **Règles** | § 1, § 3, RG-ADM-028 (à présent RG-ADM-034 et RG-ADM-035) |
+| **Spec** | Le panneau est un écran de lecture seule qui affiche la version, la cartographie, la base de données, l'authentification, le cache, les utilisateurs connectés, les composants tiers et les paramètres de plateforme. |
+| **Symfony** | Le template affiche tous les blocs documentés plus les paramètres de plateforme : `Chemin des fichiers`, `Relance périodicité`, `Unité periodicité`, `Connexion à Plat'AU`, `Nb dossiers affichés` (`prevarisc-migration/templates/admin/index.html.twig:46-51`, `142-178`). |
 | **Legacy** | Ces informations supplémentaires n'étaient pas affichées par le panneau legacy (`prevarisc/application/views/scripts/admin/index.phtml:1-117`). |
-| **Impact** | **Faible à moyen** — extension fonctionnelle utile, mais non couverte par la spec actuelle. |
-| **Fichiers concernés** | `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc/application/views/scripts/admin/index.phtml` |
-**Retour utilisateur** : Écart de migration accepté. Les informations présentes dans le bloc Symfony sont bien des configurations et sont utiles pour les administrateurs. Mettre à jour la spec pour documenter cela.
+| **Impact** | ✅ **VALIDÉ** — Extension fonctionnelle acceptée par l'utilisateur. La spécification MOD-21-ADMINISTRATION.md a été mise à jour pour documenter la section 3.9 « Paramètres de plateforme » et les règles RG-ADM-029 à RG-ADM-033. |
+| **Justification** | L'utilisateur a confirmé que cet élargissement du périmètre est bénéfique : « Les informations présentes dans le bloc Symfony sont bien des configurations et sont utiles pour les administrateurs. » La spécification a été complétée pour refléter le comportement réel. |
+| **Fichiers concernés** | `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc-migration/src/Controller/Admin/AdminController.php`, `docs/specs/MOD-21-ADMINISTRATION.md` (mise à jour sections 3.9, 4) |
 
 ---
 
@@ -118,12 +118,13 @@
 
 | Règles | Sujet | Constat |
 |--------|-------|---------|
-| RG-ADM-001 / RG-ADM-027 / RG-ADM-028 | Panneau admin en lecture seule, réservé aux administrateurs | ✅ Aligné : `@IsGranted("admin")` en Symfony (`prevarisc-migration/src/Controller/Admin/AdminController.php:14-17`) et écran purement consultatif dans les deux stacks. |
+| RG-ADM-001 / RG-ADM-034 / RG-ADM-035 | Panneau admin en lecture seule, réservé aux administrateurs | ✅ Aligné : `@IsGranted("admin")` en Symfony (`prevarisc-migration/src/Controller/Admin/AdminController.php:14-17`) et écran purement consultatif dans les deux stacks. |
 | RG-ADM-006 à RG-ADM-010 | Clés IGN / Google et bloc Geoconcept activé ou désactivé | ✅ Aligné sur le principe : clés IGN séparées (`prevarisc-migration/src/Service/Informations.php:27-33`, `prevarisc-migration/templates/admin/index.html.twig:70-104`) et affichage Geoconcept conditionné à l'URL. |
 | RG-ADM-012 à RG-ADM-017 | Ordre de priorité des méthodes d'authentification + renforcement sécurité | ✅ Aligné : CAS → NTLM → LDAP → BDD, avec indicateur indépendant de renforcement (`prevarisc-migration/src/Service/Informations.php:40-60`, `prevarisc-migration/templates/admin/index.html.twig:24-37`). |
 | RG-ADM-018 / RG-ADM-019 | État du cache | ✅ Aligné : détail complet si activé, simple mention `Désactivé` sinon (`prevarisc-migration/templates/admin/index.html.twig:53-68`). |
 | RG-ADM-020 / RG-ADM-022 / RG-ADM-023 | Tableau des utilisateurs connectés | ✅ Aligné sur le principe : heuristique `lastAction` et affichage tableau/« Aucun résultat » (`prevarisc-migration/src/Repository/UtilisateurRepository.php:46-65`, `prevarisc-migration/templates/admin/index.html.twig:183-213`). |
 | RG-ADM-024 / RG-ADM-025 | API HTTP et proxy | ✅ Aligné : activation calculée à partir des paramètres de configuration (`prevarisc-migration/src/Controller/Admin/AdminController.php:63-65`, `prevarisc-migration/templates/admin/index.html.twig:107-127`). |
+| RG-ADM-029 à RG-ADM-033 | Paramètres de plateforme | ✅ Aligné : tous les paramètres (chemin fichiers, periodicité, Plat'AU, nombre dossiers) sont affichés correctement via le template et le contrôleur (`prevarisc-migration/src/Controller/Admin/AdminController.php:45-48`, `prevarisc-migration/templates/admin/index.html.twig:148-178`). |
 
 ---
 
@@ -147,6 +148,12 @@ Le fallback `?: 'Non paramétrée'` a été ajouté au paramètre `app.geoconcep
 ### ✅ Écart 6 — Validé (2026-07-08)
 Le wording Symfony « Aucun » (singulier) est grammaticalement correct. La spécification a été mise à jour pour refléter cette forme correcte (section 3.7, RG-ADM-026, cas particuliers). Écart fermé, comportement validé contre user feedback.
 
-### En cours de traitement
+### ✅ Écart 7 — Validé (2026-07-08)
+La spécification MOD-21-ADMINISTRATION.md a été mise à jour pour documenter la nouvelle section 3.9 « Paramètres de plateforme » qui couvre :
+- Chemin des fichiers (RG-ADM-029)
+- Relance de périodicité (RG-ADM-030)
+- Unité de périodicité (RG-ADM-031)
+- Connexion à Plat'AU (RG-ADM-032)
+- Nombre de dossiers affichés (RG-ADM-033)
 
-7. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
+Ces blocs d'information supplémentaires sont considérés comme faisant partie du périmètre fonctionnel accepté par l'utilisateur : « Les informations présentes dans le bloc Symfony sont bien des configurations et sont utiles pour les administrateurs. » Écart fermé, spec complétée.
