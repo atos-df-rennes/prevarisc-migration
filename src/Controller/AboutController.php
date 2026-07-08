@@ -28,7 +28,7 @@ class AboutController extends AbstractController
 
         switch ($doc) {
             case 'dev':
-                $title .= ' / Dévelopeurs';
+                $title .= ' / Développeurs';
                 break;
             case 'support':
                 $title .= ' / Aide';

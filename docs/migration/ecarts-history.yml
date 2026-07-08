@@ -1557,14 +1557,13 @@ ecarts:
   MOD-22:
   - number: 1
     title: Le titre « Développeurs » contient une faute dans Symfony
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-08'
+    validated_by: copilot
+    notes: Fixed typo Dévelopeurs → Développeurs in AboutController::index()
     files_modified:
-    - prevarisc-migration/src/Controller/AboutController.php:29-32
-    - prevarisc-migration/src/Controller/AboutController.php
+    - prevarisc-migration/src/Controller/AboutController.php:32
   - number: 2
     title: Les liens de contribution restent relatifs et non fonctionnels dans l'application
       web
