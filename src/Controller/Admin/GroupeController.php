@@ -178,6 +178,7 @@ class GroupeController extends AbstractController
 
             $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
 
+            // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
             return $this->redirect('/legacy/admin/groupes/matrice-des-droits');
         }
 

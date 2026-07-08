@@ -205,6 +205,7 @@ class DossierSauvegardeService
             throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
         }
 
+        // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
         return sprintf(
             '/legacy/dossier/vider-cache?id=%d&etablissements=%s&target=%s',
             $dossier->getId(),

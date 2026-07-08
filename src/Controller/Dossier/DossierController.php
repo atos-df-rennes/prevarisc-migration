@@ -1066,6 +1066,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             if ([] !== $etablissementsIds) {
                 $idsJson = json_encode($etablissementsIds);
 
+                // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
                 return $this->redirect(sprintf(
                     '/legacy/etablissement/vider-cache?ids=%s&target=%s',
                     urlencode(false !== $idsJson ? $idsJson : '[]'),
