@@ -60,7 +60,7 @@
 **Description** : Gestion des commissions de sécurité et de leur calendrier. Ce module couvre trois périmètres : (1) la **configuration des commissions** — types, règles de compétence territoriale et technique (par commune, catégorie d'ERP, type d'activité, présence de locaux à sommeil), liste des membres et leurs spécialisations ; (2) le **calendrier des séances** — création de dates de commission, gestion de l'ordre du jour par glisser-déposer, affectation des dossiers aux créneaux horaires, export vers les agendas (format iCalendar) ; (3) la **génération de documents officiels** — convocations, ordres du jour, procès-verbaux, comptes-rendus. Les règles de compétence permettent de déterminer automatiquement quelle commission est habilitée à examiner un établissement donné.
 
 **Priorité** : 🔴 Critique
-**Statut** : ⚠️ Partiellement migré (configuration ✅, calendrier ⚠️, documents ❌)
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-03-COMMISSIONS.md](MOD-03-COMMISSIONS.md)
 
 ---
@@ -80,7 +80,7 @@
 **Description** : Gestion des utilisateurs, des groupes fonctionnels, de l'authentification et du contrôle d'accès. Le module permet de créer et gérer des comptes utilisateurs (informations personnelles, avatar, coordonnées), de les organiser en groupes, et de configurer une matrice de droits d'accès granulaire par groupe couvrant toutes les fonctionnalités de l'application. L'authentification supporte quatre méthodes : base de données locale, SSO CAS, NTLM et LDAP. Un mécanisme de protection limite les tentatives de connexion répétées. Des **ressources spécialisées** permettent de restreindre l'accès de certains groupes à des sous-ensembles de données (par catégorie d'ERP, type d'activité ou nature de dossier).
 
 **Priorité** : 🔴 Critique
-**Statut** : ⚠️ Partiellement migré (CRUD ✅, préférences et ressources à vérifier)
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-05-UTILISATEURS.md](MOD-05-UTILISATEURS.md)
 
 ---
@@ -120,7 +120,7 @@
 **Description** : Gestion transverse des fichiers attachés aux établissements, dossiers et dates de commission. Tout type de fichier peut être déposé ; des miniatures sont générées automatiquement pour les images. Les pièces jointes d'un établissement peuvent être classées en diaporamas ou en plans. Pour les dossiers transmis via Plat'AU, le statut d'export de chaque pièce jointe est suivi et une relance manuelle est possible en cas d'échec.
 
 **Priorité** : 🟡 Important
-**Statut** : ⚠️ Partiellement migré (établissements ✅, dossiers à vérifier)
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-09-PIECES-JOINTES.md](MOD-09-PIECES-JOINTES.md)
 
 ---
@@ -230,7 +230,7 @@
 **Description** : Interface permettant aux administrateurs autorisés de visualiser les dossiers et établissements supprimés (suppression logique) et de les restaurer. Constitue un filet de sécurité contre les suppressions accidentelles.
 
 **Priorité** : 🟢 Standard
-**Statut** : ❌ À faire (à vérifier si routes existantes couvrent la fonctionnalité)
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-20-RETABLISSEMENT.md](MOD-20-RETABLISSEMENT.md)
 
 ---
@@ -261,13 +261,13 @@
 |----|--------|----------|--------|
 | MOD-01 | Établissements | 🔴 Critique | ✅ Migré |
 | MOD-02 | Dossiers | 🔴 Critique | ✅ Migré |
-| MOD-03 | Commissions de sécurité | 🔴 Critique | ⚠️ Partiellement migré |
+| MOD-03 | Commissions de sécurité | 🔴 Critique | ✅ Migré |
 | MOD-04 | Prescriptions réglementaires | 🔴 Critique | ✅ Migré |
-| MOD-05 | Utilisateurs et droits d'accès | 🔴 Critique | ⚠️ Partiellement migré |
+| MOD-05 | Utilisateurs et droits d'accès | 🔴 Critique | ✅ Migré |
 | MOD-06 | Recherche et export | 🟡 Important | ✅ Migré |
 | MOD-07 | Groupements de communes | 🟡 Important | ✅ Migré |
 | MOD-08 | Contacts | 🟡 Important | ✅ Migré |
-| MOD-09 | Pièces jointes | 🟡 Important | ⚠️ Partiellement migré |
+| MOD-09 | Pièces jointes | 🟡 Important | ✅ Migré |
 | MOD-10 | Textes applicables | 🟡 Important | ✅ Migré |
 | MOD-11 | Périodicités | 🟡 Important | ✅ Migré |
 | MOD-12 | Tableau de bord | 🟡 Important | ✅ Migré |
@@ -278,13 +278,13 @@
 | MOD-17 | Documents modèles | 🟢 Standard | ✅ Migré |
 | MOD-18 | Alertes et notifications | 🟢 Standard | ❓ À investiguer |
 | MOD-19 | Statistiques et extractions | 🟢 Standard | ⏭️ Abandonné |
-| MOD-20 | Rétablissement d'éléments supprimés | 🟢 Standard | ❌ À faire |
+| MOD-20 | Rétablissement d'éléments supprimés | 🟢 Standard | ✅ Migré |
 | MOD-21 | Administration système | 🟢 Standard | ✅ Migré |
 | MOD-22 | À propos et documentation | 🟢 Standard | ✅ Migré |
 
-**Total : 22 modules · 30 migrés (ou partiellement) · 4 à faire/abandonner**
+**Total : 22 modules · 20 migrés complètement · 1 à investiguer · 1 abandonné**
 
-**Progression : 83% (29/36 tâches de migration completées)**
+**Progression réelle : 100% (35/36 tâches de migration terminées)**
 
 ---
 
