@@ -82,6 +82,7 @@
 | **Legacy** | Le legacy récupère d'abord 1 000 utilisateurs actifs via le service de recherche, puis filtre ceux encore « en ligne » (`prevarisc/application/controllers/AdminController.php:71-79`). |
 | **Impact** | **Critique** — au-delà de 1 000 comptes, Symfony peut analyser un volume plus large que celui prévu par la règle métier et par le legacy. |
 | **Fichiers concernés** | `prevarisc-migration/src/Repository/UtilisateurRepository.php`, `prevarisc/application/controllers/AdminController.php` |
+**Retour utilisateur** : Écart de migration confirmé, aligner sur le legacy et la spec.
 
 ---
 
