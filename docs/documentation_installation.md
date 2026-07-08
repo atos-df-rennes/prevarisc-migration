@@ -147,7 +147,7 @@ PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre 
 
 ## Installation de Prevarisc
 
-* Depuis le navigateur Iceweasel, télécharger le fichier compressé de prevarisc depuis "https://github.com/atos-df-rennes/prevarisc" dans votre dossier "Downloads"
+* Depuis le navigateur Iceweasel, télécharger le fichier compressé de prevarisc depuis "https://github.com/atos-df-rennes/prevarisc-migration" dans votre dossier "Downloads"
 * Taper : ```mv /home/$USER/Downloads/prevarisc-master.zip /var/www/``` ou $USER est votre nom d’utilisateur de la session
 * Taper : ```7z x prevarisc-master.zip```
 * Taper : ```mv prevarisc-master prevarisc```

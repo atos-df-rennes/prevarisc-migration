@@ -36,14 +36,14 @@
 
 ### Écart 2 — Les liens de contribution restent relatifs et non fonctionnels dans l'application web
 
-| | Détail |
-|---|--------|
-| **Règles** | Note 5, § 3.1, § 3.3 |
-| **Spec** | Les pages « À propos » et « Aide » exposent un lien vers le guide de contribution ; la note de spec signale que ce lien relatif n'est pas fonctionnel en contexte web. |
-| **Symfony** | ✅ **RÉSOLU** — Les fichiers Markdown ont été mis à jour pour pointer vers une URL GitHub absolue (`https://github.com/atos-df-rennes/prevarisc/blob/master/CONTRIBUTING.md`) dans les pages « À propos » et « Aide » (`prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md`). |
-| **Legacy** | Même lien relatif hérité du legacy, donc même défaut fonctionnel. |
-| **Impact** | **Moyen** — l'utilisateur clique maintenant vers une ressource fonctionnelle et accessible en contexte web. |
-| **Fichiers concernés** | `prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md` |
+| | Détail                                                                                                                                                                                                                                                                                                     |
+|---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Règles** | Note 5, § 3.1, § 3.3                                                                                                                                                                                                                                                                                       |
+| **Spec** | Les pages « À propos » et « Aide » exposent un lien vers le guide de contribution ; la note de spec signale que ce lien relatif n'est pas fonctionnel en contexte web.                                                                                                                                     |
+| **Symfony** | ✅ **RÉSOLU** — Les fichiers Markdown ont été mis à jour pour pointer vers une URL GitHub absolue (`https://github.com/atos-df-rennes/prevarisc-migration/blob/main/CONTRIBUTING.md`) dans les pages « À propos » et « Aide » (`prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md`). |
+| **Legacy** | Même lien relatif hérité du legacy, donc même défaut fonctionnel.                                                                                                                                                                                                                                          |
+| **Impact** | **Moyen** — l'utilisateur clique maintenant vers une ressource fonctionnelle et accessible en contexte web.                                                                                                                                                                                                |
+| **Fichiers concernés** | `prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md`                                                                                                                                                                                                                                 |
 **Retour utilisateur** : Écart résolu en remplaçant les liens relatifs par une URL GitHub absolue. Cette approche garantit une fonctionnalité complète tout en servant toujours la dernière version du fichier sur le dépôt.
 
 ---
