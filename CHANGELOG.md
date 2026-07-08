@@ -4,6 +4,23 @@
 
 <!--- END HEADER -->
 
+## [2.8.20](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.19...v2.8.20) (08-07-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Corrige la structure de la base et les données erronées avant application des migrations ([a93810](https://github.com/atos-df-rennes/prevarisc-migration/commit/a938105d2c2a3a49446dfe2ff078c269c07e6339))
+
+##### Couches-carto
+
+* Affichage/masquage des couches et nommages corrects (#276) ([2480b3](https://github.com/atos-df-rennes/prevarisc-migration/commit/2480b3c1f75c2666767ce1e4329c07be86c7cbea))
+
+##### Dossier
+
+* La sauvegarde des documents d'urbanisme n'étaient pas prise en compte (#224) ([3d1f5b](https://github.com/atos-df-rennes/prevarisc-migration/commit/3d1f5bf4a2a1c24c20694b1268442e807490a55d))
+
+
+---
+
 ## [2.8.19](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.18...v2.8.19) (11-05-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
