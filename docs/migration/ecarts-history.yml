@@ -1580,24 +1580,12 @@ ecarts:
       utilisateur
     action: check
     status: closed
-    date_processed: '2026-05-22'
-    validated_by: user
-    notes: Extracted from ecart specification
+    date_processed: '2026-07-08'
+    validated_by: copilot
+    notes: "Fix validated: Whitelist of 4 documents (about, dev, support, tos) via AboutDocument constant. Invalid values throw NotFoundException → 404 HTTP. Robust and spec-compliant."
     files_modified:
-    - prevarisc-migration/src/Controller/IndexController.php:274-284
-    - prevarisc-migration/templates/base.html.twig:69-71
-    - prevarisc-migration/templates/about/index.html.twig:1-7
-    - prevarisc-migration/config/packages/security.php:58-67
-    - prevarisc-migration/src/Controller/AboutController.php:24-26
-    - prevarisc-migration/templates/about/index.html.twig:5-7
-    - prevarisc-migration/src/Controller/AboutController.php:21-47
-    - prevarisc-migration/templates/_footer.html.twig:1-11
-    - prevarisc-migration/templates/about/index.html.twig
-    - prevarisc-migration/src/Controller/AboutController.php:21-26
-    - prevarisc-migration/docs/dev.md:1-80
+    - prevarisc-migration/src/Constant/AboutDocument.php
     - prevarisc-migration/src/Controller/AboutController.php
-    - prevarisc-migration/src/Service/Doc.php
-    - prevarisc-migration/src/Service/Doc.php:21-38
 metadata:
   last_updated: '2026-07-08'
   updated_by: copilot

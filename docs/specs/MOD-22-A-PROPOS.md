@@ -1,7 +1,7 @@
 # MOD-22 — À propos et documentation
 
-> **Version :** 1.0
-> **Date :** 2025-07-17
+> **Version :** 1.1  
+> **Date** : 2026-07-08 (mise à jour : gestion d'erreur écart #3)
 > **Statut :** Spécification initiale issue de l'analyse du legacy
 
 ---
@@ -114,7 +114,7 @@ Chaque opération est documentée avec son chemin d'accès, ses paramètres (req
 
 3. **Absence de pagination et de recherche** : les pages sont affichées intégralement, sans mécanisme de recherche dans le contenu ni de navigation par sections.
 
-4. **Aucune gestion d'erreur visible** : si le fichier source d'une page est absent ou illisible, le comportement n'est pas défini côté utilisateur (pas de page d'erreur dédiée).
+4. **Gestion d'erreur pour documents invalides** : si un utilisateur accède à une URL `/about/{doc}` avec une valeur `{doc}` non reconnue (hors de la liste : `about`, `dev`, `support`, `tos`), l'application retourne une page d'erreur HTTP 404. Les quatre documents attendus sont énumérés dans la constante `AboutDocument::ALL`.
 
 5. **Lien de contribution — URL GitHub absolue** : les pages « À propos » et « Aide » contiennent un lien vers le guide de contribution du projet. La cible est une **URL GitHub absolue** (`https://github.com/atos-df-rennes/prevarisc-migration/blob/main/CONTRIBUTING.md`) qui fonctionne complètement dans le contexte de l'application web et sert toujours la version courante du fichier dans le dépôt.
 
