@@ -1519,14 +1519,14 @@ ecarts:
   - number: 5
     title: La liste des utilisateurs connectés n'est pas limitée aux 1 000 premiers
       comptes évalués
-    action: check
-    status: open
-    date_processed: '2026-05-22'
-    validated_by: pending
-    notes: Extracted from ecart specification
+    action: fix
+    status: closed
+    date_processed: '2026-07-08'
+    validated_by: copilot
+    notes: ✅ RÉSOLU - `findConnected()` applique maintenant `setMaxResults(1000)` sur la requête Doctrine pour limiter l'évaluation à un échantillon maximal de 1 000 utilisateurs, conforme au legacy. Tests et analyse PHPStan passent (642 tests, 0 erreurs).
     files_modified:
     - prevarisc-migration/src/Repository/UtilisateurRepository.php
-    - prevarisc-migration/src/Repository/UtilisateurRepository.php:46-65
+    - prevarisc-migration/docs/migration/MOD-21-ADMINISTRATION-ECARTS.md
   - number: 6
     title: Le libellé des plugins tiers diffère du wording attendu quand aucun plugin
       n'est configuré
@@ -1606,9 +1606,9 @@ ecarts:
     - prevarisc-migration/src/Service/Doc.php
     - prevarisc-migration/src/Service/Doc.php:21-38
 metadata:
-  last_updated: '2026-07-07'
+  last_updated: '2026-07-08'
   updated_by: copilot
-  total_ecarts_processed: 128
+  total_ecarts_processed: 129
   modules_completed:
     - MOD-16
     - MOD-17

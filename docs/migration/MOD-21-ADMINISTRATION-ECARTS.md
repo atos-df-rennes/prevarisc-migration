@@ -78,11 +78,11 @@
 |---|--------|
 | **Règles** | RG-ADM-020, RG-ADM-021 |
 | **Spec** | Le calcul des utilisateurs connectés doit être limité à un échantillon maximal de 1 000 utilisateurs. |
-| **Symfony** | `findConnected()` filtre bien sur `lastAction > now - session.gc_maxlifetime`, mais sans `setMaxResults(1000)` (`prevarisc-migration/src/Repository/UtilisateurRepository.php:46-65`). |
+| **Symfony** | ✅ **RÉSOLU** — `findConnected()` applique maintenant `setMaxResults(1000)` sur la requête Doctrine (`prevarisc-migration/src/Repository/UtilisateurRepository.php:46-70`). |
 | **Legacy** | Le legacy récupère d'abord 1 000 utilisateurs actifs via le service de recherche, puis filtre ceux encore « en ligne » (`prevarisc/application/controllers/AdminController.php:71-79`). |
-| **Impact** | **Critique** — au-delà de 1 000 comptes, Symfony peut analyser un volume plus large que celui prévu par la règle métier et par le legacy. |
-| **Fichiers concernés** | `prevarisc-migration/src/Repository/UtilisateurRepository.php`, `prevarisc/application/controllers/AdminController.php` |
-**Retour utilisateur** : Écart de migration confirmé, aligner sur le legacy et la spec.
+| **Impact** | **Résolu** — l'évaluation est désormais limitée à un échantillon de 1 000 utilisateurs maximum, conformément au comportement legacy et à la règle métier. |
+| **Fichiers concernés** | `prevarisc-migration/src/Repository/UtilisateurRepository.php` (mod.) |
+| **Retour utilisateur** | ✅ Écart de migration confirmé et résolu, alignement avec le legacy validé. |
 
 ---
 
@@ -139,8 +139,10 @@ Le port 3306 est correctement affiché pour la base de données (par défaut MyS
 ### ✅ Écart 4 — Résolu (2026-07-07)
 Le fallback `?: 'Non paramétrée'` a été ajouté au paramètre `app.geoconcept_projection` dans le `AdminController` (ligne 59). L'affichage Geoconcept est désormais aligné avec le legacy. Écart fermé.
 
+### ✅ Écart 5 — Résolu (2026-07-08)
+`findConnected()` applique maintenant `setMaxResults(1000)` sur la requête Doctrine pour limiter l'évaluation à un échantillon maximal de 1 000 utilisateurs. Écart fermé, tests validés.
+
 ### En cours de traitement
 
-5. **Limiter `findConnected()` à 1 000 comptes** (Écart 5) pour retrouver le comportement métier documenté.
 6. **Ajouter les fallbacks d'affichage** manquants (Écart 6) : wording `Aucuns`.
 7. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
