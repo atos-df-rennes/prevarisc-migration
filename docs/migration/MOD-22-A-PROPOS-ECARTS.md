@@ -40,11 +40,11 @@
 |---|--------|
 | **Règles** | Note 5, § 3.1, § 3.3 |
 | **Spec** | Les pages « À propos » et « Aide » exposent un lien vers le guide de contribution ; la note de spec signale que ce lien relatif n'est pas fonctionnel en contexte web. |
-| **Symfony** | Les fichiers Markdown pointent toujours vers `../CONTRIBUTING.md` (`prevarisc-migration/docs/about.md:11-17`, `prevarisc-migration/docs/support.md:17-25`). |
+| **Symfony** | ✅ **RÉSOLU** — Les fichiers Markdown ont été mis à jour pour pointer vers une URL GitHub absolue (`https://github.com/atos-df-rennes/prevarisc/blob/master/CONTRIBUTING.md`) dans les pages « À propos » et « Aide » (`prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md`). |
 | **Legacy** | Même lien relatif hérité du legacy, donc même défaut fonctionnel. |
-| **Impact** | **Moyen** — l'utilisateur clique vers une ressource qui n'est pas fournie par l'application. |
+| **Impact** | **Moyen** — l'utilisateur clique maintenant vers une ressource fonctionnelle et accessible en contexte web. |
 | **Fichiers concernés** | `prevarisc-migration/docs/about.md`, `prevarisc-migration/docs/support.md` |
-**Retour utilisateur** : Référence vers le fichier en contexte web non fonctionnelle. Quelle suggestion ? Remplacer par un lien absolu vers Github ? Cela ne prend pas en compte les modifications du fichier effectuées au fil des versions et sert toujours la dernière version du fichier.
+**Retour utilisateur** : Écart résolu en remplaçant les liens relatifs par une URL GitHub absolue. Cette approche garantit une fonctionnalité complète tout en servant toujours la dernière version du fichier sur le dépôt.
 
 ---
 
@@ -76,7 +76,6 @@
 
 ## Recommandations
 
-1. **Corriger le libellé `Dévelopeurs`** dans `AboutController`.
-2. **Remplacer les liens relatifs de contribution** par une URL GitHub absolue ou par une page interne réellement servie par l'application.
-3. **Fiabiliser la route `/about/{doc}`** : whitelister les 4 documents attendus (`about`, `tos`, `support`, `dev`) et renvoyer un 404 ou un message métier clair si le document n'existe pas.
-4. **Ajouter une garde dans `Doc::get()`** (`is_file`, `is_readable`) pour éviter les pages vides silencieuses.
+1. **Écart #1** — ✅ **FERMÉ** — Le libellé « Développeurs » a été corrigé dans le contrôleur (voir MOD-22-ECARTS.md).
+2. **Écart #2** — ✅ **RÉSOLU** — Les liens de contribution relatifs ont été remplacés par une URL GitHub absolue. L'utilisateur accède maintenant à la ressource de manière fonctionnelle en contexte web (2026-07-08).
+3. **Écart #3** — **TODO** — À adresser : fiabiliser la route `/about/{doc}` en whitelistant les 4 documents attendus et implémenter une gestion d'erreur visible (404 ou message métier).
