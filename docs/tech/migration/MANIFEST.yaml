@@ -390,7 +390,6 @@ recherche:
     - prevarisc-migration/config/services.php
     - prevarisc-migration/templates/search/
     - prevarisc-migration/docs/specs/MOD-06-RECHERCHE.md
-    - prevarisc-migration/docs/migration/MOD-06-RECHERCHE-ECARTS.md
   updated_at: "2026-05-23"
   notes: >
     Migration du module de recherche (établissements + dossiers + exports).
@@ -411,8 +410,6 @@ recherche:
     Écart documenté (Écart 4) :
     - RG-RCH-034 : établissementinformationsactuel utilisé dans les deux implémentations,
       le legacy fait autorité, écart documenté dans la spec
-
-    Rapport d'écarts : docs/migration/MOD-06-RECHERCHE-ECARTS.md
 
 dossier_suppression:
   status: migrated
@@ -483,7 +480,6 @@ statistiques:
 
     Actions prises :
     - Tous les 6 écarts MOD-19 fermés comme « non applicable » (2026-07-07)
-    - Documentation complète conservée : MOD-19-STATISTIQUES-ECARTS.md
     - Entrée MANIFEST : statut not_applicable
     - Lien /statistiques supprimé de la navigation Symfony (legacy_header.phtml conserve le lien legacy)
 
@@ -494,5 +490,3 @@ statistiques:
     - Requêtes : QueryBuilder avec paramètres bindés, pas de concaténation
     - Pagination : limit/offset systématique
     - Tests : validation des 4 extractions (RG-STA-001 à RG-STA-019)
-  ecart_documentation: docs/migration/MOD-19-STATISTIQUES-ECARTS.md
-  ecart_history: docs/migration/ecarts-history.yml
