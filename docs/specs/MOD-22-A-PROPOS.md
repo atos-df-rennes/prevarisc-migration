@@ -116,7 +116,7 @@ Chaque opération est documentée avec son chemin d'accès, ses paramètres (req
 
 4. **Aucune gestion d'erreur visible** : si le fichier source d'une page est absent ou illisible, le comportement n'est pas défini côté utilisateur (pas de page d'erreur dédiée).
 
-5. **Lien de contribution relatif** : les pages « À propos » et « Aide » contiennent un lien vers un guide de contribution dont la cible est un chemin relatif dans le dépôt de code. Ce lien n'est pas fonctionnel dans le contexte de l'application web.
+5. **Lien de contribution — URL GitHub absolue** : les pages « À propos » et « Aide » contiennent un lien vers le guide de contribution du projet. La cible est une **URL GitHub absolue** (`https://github.com/atos-df-rennes/prevarisc/blob/master/CONTRIBUTING.md`) qui fonctionne complètement dans le contexte de l'application web et sert toujours la version courante du fichier dans le dépôt.
 
 6. **Adresse e-mail de contact** : `prevarisc.ext@atos.net` — présente sur les pages « À propos » et « Aide ».
 
