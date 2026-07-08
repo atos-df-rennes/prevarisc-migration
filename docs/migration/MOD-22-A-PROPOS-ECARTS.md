@@ -30,6 +30,7 @@
 | **Legacy** | Le legacy n'ajoutait pas de titre spécifique, il se contentait d'une vue générique `display-text` (`prevarisc/application/controllers/AboutController.php:7-11`). |
 | **Impact** | **Faible** — défaut de libellé visible sur la page technique Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/AboutController.php` |
+**Retour utilisateur** : Écart de migration confirmé, aligner avec la spec.
 
 ---
 
