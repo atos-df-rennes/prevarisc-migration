@@ -42,6 +42,9 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
 
     /**
      * Renvoie les utilisateurs actifs dont la dernière action date de moins d'un jour.
+     *
+     * Limité à 1000 utilisateurs maximum, en cohérence avec le legacy.
+     * Comportement métier : évaluation d'un échantillon d'utilisateurs plutôt que la totalité.
      */
     public function findConnected(): array
     {
@@ -59,6 +62,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->setParameter('session', date('Y-m-d H:i:s', time() - ini_get('session.gc_maxlifetime')))
             ->groupBy('u.id')
             ->orderBy('ui.nom', 'ASC')
+            ->setMaxResults(1000)
             ->getQuery()
         ;
 

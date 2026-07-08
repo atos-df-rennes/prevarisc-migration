@@ -119,24 +119,33 @@
             });
 
             {% if not deactivatePlatau and not platauNoHealthcheck %}
+                const enCoursToastId = $.toast.info("Vérification de la connexion à Plat'AU", { autoClose: false });
+
                 $.ajax({
                     type: 'GET',
                     url: Routing.generate('accueil_platau_healthcheck'),
+                    timeout: 5000,
                     success: function(result) {
+                        $.toast.close(enCoursToastId);
                         const res = typeof result === 'object' ? result : JSON.parse(result);
 
-                        if (res.healthcheckOk) {
-                            $.toast.success("La connexion à Plat'AU a fonctionnée.");
+                        if (res.success) {
+                            $.toast.success(res.message, { autoClose: false });
                         } else {
-                            if (res.errorOrigin === 'prevarisc') {
-                                $.toast.error("La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2");
-                            } else if (res.errorOrigin === 'PlatAU') {
-                                $.toast.error("Plat'AU est en erreur. Veuillez réessayer ultérieurement.");
-                            }
+                            $.toast.error(res.message, { autoClose: false });
+                        }
+
+                        if (res.maintenance !== null && res.maintenance !== undefined) {
+                            $.toast.warning(res.maintenance.message, { autoClose: false });
                         }
                     },
-                    error: function() {
-                        $.toast.error("Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.");
+                    error: function(jqXHR) {
+                        $.toast.close(enCoursToastId);
+                        if (jqXHR.statusText === 'timeout') {
+                            $.toast.error("Vérification Plat'AU : délai expiré. Service indisponible ou lent.");
+                        } else {
+                            $.toast.error("Une erreur s'est produite lors de la vérification de la connexion à Plat'AU.");
+                        }
                     }
                 });
             {% endif %}

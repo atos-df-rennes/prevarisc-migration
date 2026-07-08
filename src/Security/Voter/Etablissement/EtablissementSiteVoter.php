@@ -7,18 +7,13 @@ use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
-use App\Service\Voter\EtablissementVoterFactory;
-use Psr\Log\LoggerInterface;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
-    /** @var EtablissementVoterFactory */
-    private $voterFactory;
-
-    /** @var LoggerInterface */
-    private $logger;
+    /** @var EtablissementCollectionAccessChecker */
+    private $collectionAccessChecker;
 
     /** @var ResourcesRepository */
     private $resourcesRepository;
@@ -27,13 +22,11 @@ class EtablissementSiteVoter extends EtablissementVoter
     private $privilegesRepository;
 
     public function __construct(
-        EtablissementVoterFactory $voterFactory,
-        LoggerInterface $logger,
+        EtablissementCollectionAccessChecker $collectionAccessChecker,
         ResourcesRepository $resourcesRepository,
         PrivilegesRepository $privilegesRepository
     ) {
-        $this->voterFactory = $voterFactory;
-        $this->logger = $logger;
+        $this->collectionAccessChecker = $collectionAccessChecker;
         $this->resourcesRepository = $resourcesRepository;
         $this->privilegesRepository = $privilegesRepository;
     }
@@ -48,11 +41,19 @@ class EtablissementSiteVoter extends EtablissementVoter
      * L'accès à un site est accordé si l'accès à au moins un de ses fils est accordé.
      * Un site peut avoir des fils de différents genres (ERP, IGH, Habitation, etc.).
      * Si le site est vide, l'accès est accordé si l'utilisateur a au moins une ressource établissement.
+     *
+     * En modification, le privilège 'add_etablissement' accorde l'accès à tout site (vide ou non),
+     * aligné sur le comportement legacy (ACL.php:275 — ressource editsite + privilège add_etablissement).
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;
+        }
+
+        // Legacy : le privilège 'add_etablissement' accorde l'accès en modification à tout site
+        if (self::MODIFICATION === $attribute && $this->userHasAddEtablissementPrivilege($token)) {
+            return true;
         }
 
         /** @var Etablissement $subject */
@@ -67,48 +68,29 @@ class EtablissementSiteVoter extends EtablissementVoter
         }
 
         // Site avec fils : Vérifier l'accès à au moins un fils
-        foreach ($etablissementsFils as $etablissementFils) {
-            try {
-                $latestInformations = $etablissementFils->getLatestInformations();
-            } catch (\OutOfBoundsException $e) {
-                $this->logger->warning('Établissement fils sans informations', [
-                    'etablissement_fils_id' => $etablissementFils->getId(),
-                    'exception' => $e->getMessage(),
-                ]);
-                continue;
-            }
+        return $this->collectionAccessChecker->hasAtLeastOneAccessible($etablissementsFils, $attribute, $token);
+    }
 
-            $genre = $latestInformations->getGenre();
-            if (null === $genre) {
-                $this->logger->warning('Établissement fils sans genre', [
-                    'etablissement_fils_id' => $etablissementFils->getId(),
-                ]);
-                continue;
-            }
-
-            $genreId = $genre->getId();
-            if (null === $genreId) {
-                $this->logger->warning('Genre sans ID', [
-                    'etablissement_fils_id' => $etablissementFils->getId(),
-                ]);
-                continue;
-            }
-
-            $voter = $this->voterFactory->getVoterForGenre($genreId);
-            if (null === $voter) {
-                $this->logger->warning('Aucun voter trouvé pour le genre', [
-                    'etablissement_fils_id' => $etablissementFils->getId(),
-                    'genre_id' => $genreId,
-                ]);
-                continue;
-            }
-
-            if (VoterInterface::ACCESS_GRANTED === $voter->vote($token, $etablissementFils, [$attribute])) {
-                return true;
-            }
+    /**
+     * Vérifie si l'utilisateur possède le privilège 'add_etablissement'.
+     * Miroir du comportement legacy ACL.php:275 qui accorde l'édition d'un site à tout utilisateur
+     * disposant de ce privilège, que le site soit vide ou non.
+     */
+    private function userHasAddEtablissementPrivilege(TokenInterface $token): bool
+    {
+        /** @var Utilisateur $user */
+        $user = $token->getUser();
+        $groupe = $user->getGroupe();
+        if (null === $groupe) {
+            return false;
         }
 
-        return false;
+        $privilege = $this->privilegesRepository->findOneBy(['name' => self::CREATE]);
+        if (null === $privilege) {
+            return false;
+        }
+
+        return $groupe->getPrivileges()->contains($privilege);
     }
 
     /**

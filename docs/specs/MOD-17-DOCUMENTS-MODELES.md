@@ -120,12 +120,15 @@ Documents modèles
 
 **Affichage :**
 
-1. L'écran affiche en premier les **documents visibles après verrouillage** avec le nombre de fichiers entre parenthèses.
-2. En dessous, les commissions sont regroupées par type de commission (titre de section).
-3. Pour chaque commission, le nom est affiché suivi du nombre de modèles entre parenthèses.
-4. Si une commission ne possède aucun modèle, son nom est affiché sans lien, sans compteur.
-5. Un clic sur le nom d'une commission déroule/replie la liste de ses fichiers.
-6. Chaque fichier est un lien cliquable permettant de le télécharger.
+1. L'écran affiche en premier les **documents visibles après verrouillage** dans un panel Bootstrap avec titre et badge compteur.
+2. Ce panel est repliable : un clic sur le titre déroule/replie la liste des documents transversaux.
+3. En dessous, les commissions sont regroupées par type de commission (titre de section).
+4. Pour chaque commission, un panel Bootstrap affiche le nom suivie du nombre de modèles en badge.
+5. Chaque panel est repliable : un clic sur le titre déroule/replie la liste des fichiers de la commission.
+6. Un chevron (flèche) indique l'état du panel (dépliée vers le bas ou repliée vers la droite).
+7. Les noms de fichiers sont affichés en texte brut, sans lien direct de téléchargement.
+8. Pour chaque fichier, deux boutons d'action sont présents : « Télécharger » (accès au fichier) et « Supprimer » (suppression du modèle), alignés à droite.
+9. Si une commission ne possède aucun modèle, le texte « Aucun document disponible » s'affiche dans le corps du panel, qui reste affiché avec badge 0.
 
 ### 5.2 Ajouter un modèle
 
@@ -138,7 +141,7 @@ Documents modèles
 3. L'utilisateur sélectionne la commission de destination dans une liste déroulante. La première option est « Documents visibles après verrouillage ». Les commissions sont regroupées par type de commission.
 4. L'utilisateur sélectionne un fichier ODT depuis son poste.
 5. L'utilisateur clique sur « Envoyer ».
-6. Une barre de progression s'affiche pendant l'envoi.
+6. Le bouton « Envoyer » est désactivé et remplacé par une icône de rechargement animée avec le texte « Envoi en cours... ».
 7. En cas de succès, la page se recharge et le nouveau modèle apparaît dans la liste de la commission sélectionnée.
 8. En cas d'erreur, un message explicite est affiché.
 
@@ -148,16 +151,17 @@ Il n'existe pas de fonction « remplacer » explicite. Le remplacement s'effectu
 
 ### 5.4 Supprimer un modèle
 
-**Déclencheur :** Lien « Suppression du document » en face de chaque fichier dans la liste.
+**Déclencheur :** Bouton « Supprimer » en face de chaque fichier dans la liste.
 
 **Étapes :**
 
-1. L'utilisateur clique sur « Suppression du document ».
+1. L'utilisateur clique sur le bouton « Supprimer ».
 2. Une fenêtre de confirmation apparaît avec le message : *« Vous êtes sur le point de supprimer le fichier "[nom]". Une fois ce fichier supprimé il ne pourra plus être utilisé lors de la génération des rapports. »*
 3. L'utilisateur clique sur « Supprimer » pour confirmer ou « Annuler » pour abandonner.
-4. En cas de confirmation, le fichier est supprimé. La ligne disparaît du tableau et le compteur de la commission est décrémenté.
-5. Si le compteur atteint zéro, le tableau de la commission est masqué.
-6. En cas d'erreur (fichier introuvable, erreur système), un message d'erreur est affiché.
+4. En cas de confirmation, le fichier est supprimé et la page se recharge automatiquement.
+5. Après rechargement, la liste est mise à jour : le fichier supprimé disparaît et le compteur de la commission est décrémenté.
+6. Si le compteur atteint zéro, le panel de la commission affiche « Aucun document disponible ».
+7. En cas d'erreur (fichier introuvable, erreur système), la page se recharge et un message d'erreur est affiché.
 
 ---
 
@@ -239,7 +243,7 @@ Lors de la génération pour un établissement dont l'activité principale est �
 
 ### 8.5 Répertoire de documents inexistant
 
-Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une erreur bloquante. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
+Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une alerte non bloquante pour cette commission tout en continuant à afficher les éléments sans erreur. Cela permet à l'administrateur de visualiser les commissions fonctionnelles tout en étant averti des problèmes de répertoires manquants. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
 
 ### 8.6 Suppression d'une commission
 

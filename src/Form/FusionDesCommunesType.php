@@ -6,6 +6,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class FusionDesCommunesType extends AbstractType
 {
@@ -14,6 +16,19 @@ class FusionDesCommunesType extends AbstractType
         $builder
             ->add('fichier', FileType::class, [
                 'help' => 'Format JSON.',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Un fichier est requis.',
+                    ]),
+                    new File([
+                        'mimeTypes' => [
+                            'application/json',
+                            'text/plain',
+                        ],
+                        'mimeTypesMessage' => 'Le fichier doit être au format JSON.',
+                    ]),
+                ],
             ])
         ;
     }

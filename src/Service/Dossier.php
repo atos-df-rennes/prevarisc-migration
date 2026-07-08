@@ -55,22 +55,55 @@ final class Dossier
      * Effectue la suppression logique de tous les dossiers non encore supprimés
      * associés à un établissement (RG-ETB-019).
      *
-     * Utilise une mise à jour SQL directe pour éviter de charger toutes les entités en mémoire.
+     * Utilise des requêtes SQL directes pour éviter de charger toutes les entités en mémoire.
+     *
+     * Iso-legacy (Service_Dossier::deleteByEtab + delete($id, $date, $uniqueEtab=true)) :
+     * - Seuls les dossiers liés EXCLUSIVEMENT à cet établissement sont supprimés.
+     *   Un dossier partagé avec d'autres établissements non supprimés est préservé.
+     * - Les affectations commission (dossieraffectation) sont supprimées pour chaque
+     *   dossier effectivement supprimé.
      */
     public function deleteByEtablissement(EtablissementEntity $etablissement, Utilisateur $user): void
     {
         $date = (new \DateTime())->format('Y-m-d');
         $conn = $this->entityManager->getConnection();
+        $etabId = $etablissement->getId();
+        $userId = $user->getId();
 
+        // Condition iso-legacy $uniqueEtab : le dossier n'est lié qu'à au plus
+        // 1 établissement non supprimé (l'établissement courant en cours de suppression).
+        $exclusif = '(
+            SELECT COUNT(*)
+            FROM etablissementdossier ed2
+            INNER JOIN etablissement e2 ON e2.ID_ETABLISSEMENT = ed2.ID_ETABLISSEMENT
+            WHERE ed2.ID_DOSSIER = d.ID_DOSSIER
+              AND e2.DATESUPPRESSION_ETABLISSEMENT IS NULL
+        ) <= 1';
+
+        // Suppression des affectations commission des dossiers exclusifs
+        $conn->executeStatement(
+            'DELETE da
+             FROM dossieraffectation da
+             INNER JOIN dossier d ON d.ID_DOSSIER = da.ID_DOSSIER_AFFECT
+             INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
+             WHERE ed.ID_ETABLISSEMENT = :etabId
+               AND d.DATESUPPRESSION_DOSSIER IS NULL
+               AND '.$exclusif,
+            ['etabId' => $etabId]
+        );
+
+        // Suppression logique des dossiers exclusivement liés à cet établissement
         $conn->executeStatement(
             'UPDATE dossier d
              INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
              SET d.DATESUPPRESSION_DOSSIER = :date, d.DELETED_BY = :userId
-             WHERE ed.ID_ETABLISSEMENT = :etabId AND d.DATESUPPRESSION_DOSSIER IS NULL',
+             WHERE ed.ID_ETABLISSEMENT = :etabId
+               AND d.DATESUPPRESSION_DOSSIER IS NULL
+               AND '.$exclusif,
             [
                 'date' => $date,
-                'userId' => $user->getId(),
-                'etabId' => $etablissement->getId(),
+                'userId' => $userId,
+                'etabId' => $etabId,
             ]
         );
     }

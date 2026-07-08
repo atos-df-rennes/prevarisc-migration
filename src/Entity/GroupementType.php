@@ -39,6 +39,8 @@ class GroupementType
      * @var Collection<int, Groupement>
      *
      * @ORM\OneToMany(targetEntity=Groupement::class, mappedBy="type")
+     *
+     * @ORM\OrderBy({"libelle" = "ASC"})
      */
     private $groupements;
 

@@ -83,9 +83,11 @@ Chaque commune peut être associée à une fiche de coordonnées représentant s
 
 1. L'administrateur modifie les champs souhaités dans le formulaire de coordonnées.
 2. Il clique sur « Sauvegarder ».
-3. L'enregistrement est effectué en arrière-plan (appel asynchrone) sans rechargement de la page.
-4. Un message de confirmation « Sauvegarde réussie ! La commune [libellé] a été enregistrée » s'affiche en cas de succès.
-5. Un message d'erreur s'affiche en cas d'échec, indiquant la cause.
+3. Le formulaire est soumis en POST. Le système enregistre les données en base.
+4. La page est rechargée avec un retour à la liste des communes (sélecteur déroulant) en ayant préalablement sélectionné la commune qui vient d'être modifiée.
+5. Cette sélection automatique du select déclenche le chargement AJAX de la fiche (comportement standard du chargement de commune).
+6. Un message de confirmation « Sauvegarde réussie ! La commune [libellé] a été enregistrée » s'affiche via un flash message au-dessus de la liste.
+7. Un message d'erreur s'affiche en cas d'échec, indiquant la cause.
 
 **Création automatique de la fiche mairie :**
 
@@ -173,7 +175,7 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 | **RG-CMN-005** | Si la fiche de coordonnées référencée est introuvable (données incohérentes), le système en recrée une nouvelle et met à jour la référence. |
 | **RG-CMN-006** | La fonction du contact mairie est fixée automatiquement à la valeur « Mairie » et n'est pas modifiable par l'utilisateur. |
 | **RG-CMN-007** | Le champ « Société » n'est pas proposé sur la fiche d'une commune. |
-| **RG-CMN-008** | La sauvegarde des coordonnées de mairie se fait de manière asynchrone, sans rechargement de la page. |
+| **RG-CMN-008** | La sauvegarde des coordonnées de mairie s'effectue via POST classique. Après enregistrement en base, le système redirige vers la liste des communes en sélectionnant automatiquement la commune modifiée (via un paramètre d'URL). Cette sélection déclenche le chargement AJAX de la fiche. L'utilisateur voit le message Flash de succès/erreur, puis la fiche mise à jour (ou inchangée en cas d'erreur). Pas de rechargement complet de page. |
 | **RG-CMN-009** | Le fichier de fusion doit être au format JSON. Un seul fichier est accepté par opération d'import. |
 | **RG-CMN-010** | Avant toute fusion, le code INSEE cible doit exister dans le référentiel et correspondre à une commune unique. |
 | **RG-CMN-011** | Le libellé de la commune cible dans le fichier de fusion doit correspondre exactement au libellé en base. Toute divergence bloque l'opération. |
@@ -182,7 +184,7 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 | **RG-CMN-014** | Lors d'une fusion, les liaisons groupement–commune des communes absorbées sont supprimées sans report sur la commune cible. |
 | **RG-CMN-015** | Lors d'une fusion, les règles de commission portant sur les communes absorbées sont supprimées sans report sur la commune cible. |
 | **RG-CMN-016** | Lors d'une fusion, la commune absorbée est définitivement supprimée du référentiel après le transfert de ses données. |
-| **RG-CMN-017** | En cas d'échec d'un contrôle de cohérence sur une opération de fusion, le traitement global est interrompu. Les erreurs sont journalisées. |
+| **RG-CMN-017** | En cas d'échec d'un contrôle de cohérence sur une opération de fusion d'une commune donnée, l'opération est ignorée et le traitement continue avec la fusion suivante (s'il y en a). Les erreurs sont journalisées pour analyse. Cela permet le traitement partiel d'un lot : si fusion #1 échoue, les fusions #2 et #3 peuvent réussir si elles sont valides. |
 | **RG-CMN-018** | La commune est une donnée de référence transversale. Sa suppression ou modification impacte les modules Établissements, Groupements, Commissions et Voirie. |
 | **RG-CMN-019** | Le fichier de fusion est supprimé du serveur après traitement, qu'il ait réussi ou échoué. |
 
@@ -214,9 +216,3 @@ La fusion supprime les associations groupement–commune et commission–commune
 ### 7.5 Fusion de multiples communes en une seule opération
 
 Le fichier de fusion peut contenir plusieurs opérations de fusion indépendantes. Chaque opération est validée et exécutée séquentiellement. Si une opération échoue à la validation (contrôle de cohérence), le traitement s'interrompt immédiatement : les opérations suivantes ne sont pas exécutées.
-
-### 7.6 Affichage embarqué de la fiche commune
-
-La fiche de coordonnées d'une commune peut être affichée en mode embarqué dans d'autres contextes (par exemple depuis un autre module). Dans ce mode :
-- Les informations d'identité (code INSEE, code postal) et le bouton de sauvegarde ne sont pas affichés.
-- Seul le formulaire de coordonnées est visible.

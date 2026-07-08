@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @IsGranted("periodicites")
@@ -36,8 +36,8 @@ class TableauDesPeriodicitesController extends AbstractController
     /** @var IghClasseRepository */
     private $ighClasseRepository;
 
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
+    /** @var TagAwareCacheInterface */
+    private $searchCache;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -45,14 +45,14 @@ class TableauDesPeriodicitesController extends AbstractController
         EtablissementTypeRepository $etablissementTypeRepository,
         EtablissementCategorieRepository $etablissementCategorieRepository,
         IghClasseRepository $ighClasseRepository,
-        UrlGeneratorInterface $urlGenerator
+        TagAwareCacheInterface $searchCache
     ) {
         $this->entityManager = $entityManager;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->etablissementTypeRepository = $etablissementTypeRepository;
         $this->etablissementCategorieRepository = $etablissementCategorieRepository;
         $this->ighClasseRepository = $ighClasseRepository;
-        $this->urlGenerator = $urlGenerator;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -99,6 +99,10 @@ class TableauDesPeriodicitesController extends AbstractController
                 throw new \InvalidArgumentException("Le type de la périodicité n'est pas correct. Type attendu : entier.");
             }
 
+            if ($periodicite < 0 || $periodicite > 999) {
+                throw new \InvalidArgumentException('La périodicité doit être comprise entre 0 et 999 mois inclus.');
+            }
+
             if (null !== $periodiciteEntity) {
                 if ($periodicite === $periodiciteEntity->getPeriodicite()) {
                     continue;
@@ -140,11 +144,9 @@ class TableauDesPeriodicitesController extends AbstractController
             $this->periodiciteRepository->applyPeriodicites();
             $this->addFlash('success', 'Les périodicités ont bien été appliquées à tous les établissements.');
 
-            $target = $this->urlGenerator->generate('admin_tableau_des_periodicites');
+            $this->searchCache->invalidateTags(['search']);
 
-            // @todo Décommissionnement legacy : remplacer par return $this->redirect($target);
-            // Cette redirection via le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
-            return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$target);
+            return $this->redirectToRoute('admin_tableau_des_periodicites');
         } catch (\Throwable $throwable) {
             $this->addFlash('danger', 'Erreur lors de l\'application des périodicités : '.$throwable->getMessage());
         }

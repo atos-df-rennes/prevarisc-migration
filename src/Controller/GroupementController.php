@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,18 +50,23 @@ class GroupementController extends AbstractController
      */
     private $contactService;
 
+    /** @var TagAwareAdapterInterface */
+    private $searchCache;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         CommuneRepository $communeRepository,
         GroupementTypeRepository $groupementTypeRepository,
         GroupementCommunes $groupementCommunes,
-        Contact $contactService
+        Contact $contactService,
+        TagAwareAdapterInterface $searchCache
     ) {
         $this->entityManager = $entityManager;
         $this->communeRepository = $communeRepository;
         $this->groupementTypeRepository = $groupementTypeRepository;
         $this->groupementCommunes = $groupementCommunes;
         $this->contactService = $contactService;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -104,7 +110,7 @@ class GroupementController extends AbstractController
 
             $this->addFlash('success', 'Le groupement '.$groupement->getLibelle().' a été créé.');
 
-            return $this->redirectToRoute('admin_groupement');
+            return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
         return $this->render('groupement/_form_ajout.html.twig', [
@@ -128,8 +134,9 @@ class GroupementController extends AbstractController
 
             if ($form->has('reaffectationAutomatique')) {
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
-                if ('1' === $reaffectationAutomatique) {
+                if ('1' === $reaffectationAutomatique && $groupement->getPreventionnistes()->count() > 0) {
                     $this->groupementCommunes->reaffectationPreventioniste($groupement);
+                    $this->searchCache->invalidateTags(['search']);
                 }
             }
 
@@ -188,6 +195,16 @@ class GroupementController extends AbstractController
 
         return $this->render('groupement/_form_delete.html.twig', [
             'form' => $form->createView(),
+            'groupement' => $groupement,
+        ]);
+    }
+
+    /**
+     * @Route("/groupement/{id}/informations", name="groupement_informations", methods={"GET"})
+     */
+    public function informations(Groupement $groupement): Response
+    {
+        return $this->render('groupement/informations.html.twig', [
             'groupement' => $groupement,
         ]);
     }
@@ -296,9 +313,11 @@ class GroupementController extends AbstractController
                 return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
             }
 
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::GROUPEMENT);
+
             $groupement->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::GROUPEMENT)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 

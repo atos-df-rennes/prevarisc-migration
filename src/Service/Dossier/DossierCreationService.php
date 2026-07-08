@@ -221,4 +221,40 @@ class DossierCreationService
         $this->copierTextesApplicables($dossier, $etablissement);
         $this->copierDocumentsDerniereVP($dossier, $etablissement);
     }
+
+    /**
+     * Synchronise les textes applicables du dossier vers le premier établissement.
+     *
+     * Pour les visites et groupes de visites, met à jour les textes applicables
+     * du premier établissement rattaché en synchronisant ceux du dossier.
+     * Cette opération s'effectue lors de la modification des textes applicables.
+     */
+    public function synchroniserTextesApplicablesVersEtablissement(Dossier $dossier): void
+    {
+        $type = $dossier->getType();
+
+        if (null === $type || !in_array($type->getId(), DossierType::TYPES_VISITE, true)) {
+            return;
+        }
+
+        $etablissements = $dossier->getEtablissements();
+
+        if (0 === $etablissements->count()) {
+            return;
+        }
+
+        // Récupère le premier établissement
+        $premierEtablissement = $etablissements->first();
+
+        if (false === $premierEtablissement) {
+            return;
+        }
+
+        // Vide et resynchronise la collection des textes applicables de l'établissement
+        $premierEtablissement->getTextesApplicables()->clear();
+
+        foreach ($dossier->getTextesApplicables() as $texte) {
+            $premierEtablissement->addTextesApplicable($texte);
+        }
+    }
 }

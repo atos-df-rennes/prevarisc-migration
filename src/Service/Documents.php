@@ -31,6 +31,7 @@ final class Documents
             ->files()
             ->in($this->realDataPath.$idCommission)
             ->ignoreVCS(true)
+            ->name('*.odt')
             ->sortByName();
 
         if (!$finder->hasResults()) {

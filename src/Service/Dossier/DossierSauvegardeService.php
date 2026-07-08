@@ -16,6 +16,7 @@ use App\Service\DossierFields;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierSauvegardeService
 {
@@ -37,13 +38,17 @@ class DossierSauvegardeService
     /** @var DossierFields */
     private $dossierFields;
 
+    /** @var TagAwareCacheInterface */
+    private $searchCache;
+
     public function __construct(
         DossierDonnantAvisService $dossierDonnantAvisService,
         AlerteService $alerteService,
         AuthorizationCheckerInterface $authorizationChecker,
         FlashBagInterface $flashBag,
         UrlGeneratorInterface $urlGenerator,
-        DossierFields $dossierFields
+        DossierFields $dossierFields,
+        TagAwareCacheInterface $searchCache
     ) {
         $this->dossierDonnantAvisService = $dossierDonnantAvisService;
         $this->alerteService = $alerteService;
@@ -51,6 +56,7 @@ class DossierSauvegardeService
         $this->flashBag = $flashBag;
         $this->urlGenerator = $urlGenerator;
         $this->dossierFields = $dossierFields;
+        $this->searchCache = $searchCache;
     }
 
     /**
@@ -174,24 +180,24 @@ class DossierSauvegardeService
      *
      * Passe toujours par le legacy pour vider le cache de recherche (cacheSearch).
      * Si des établissements ont été modifiés, passe par la route de vidage de cache dossier
-     * qui gère en plus le cache de chaque établissement concerné.
-     * Sinon, passe par la route de vidage du cache de recherche seul.
+     * Construit l'URL de redirection après sauvegarde d'un dossier.
      *
-     * @todo Décommissionnement legacy : supprimer ce passage par le legacy et retourner $target directement.
-     * Les deux routes /legacy/* ne servent qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
+     * Invalide le cache de recherche Symfony (tag "search"), puis retourne la cible
+     * directement lorsqu'aucun établissement n'est concerné.
+     * Lorsque des établissements sont modifiés, le cache Symfony est également invalidé
+     * et le passage par le legacy permet de vider le cache individuel de chaque établissement.
      *
      * @param int[]       $etablissementsIds IDs des établissements modifiés
-     * @param string|null $target            URL cible après vidage de cache (null = dossier_index par défaut)
+     * @param string|null $target            URL cible (null = dossier_index par défaut)
      */
     public function construireUrlRedirection(Dossier $dossier, array $etablissementsIds, ?string $target = null): string
     {
         $target = $target ?? $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
 
+        $this->searchCache->invalidateTags(['search']);
+
         if ([] === $etablissementsIds) {
-            return sprintf(
-                '/legacy/admin/clear-search-cache-and-redirect?target=%s',
-                urlencode($target)
-            );
+            return $target;
         }
 
         $etablissementsJson = json_encode($etablissementsIds);
@@ -199,6 +205,7 @@ class DossierSauvegardeService
             throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
         }
 
+        // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
         return sprintf(
             '/legacy/dossier/vider-cache?id=%d&etablissements=%s&target=%s',
             $dossier->getId(),

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constant\AboutDocument;
 use App\Service\Doc;
 use Michelf\Markdown;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,19 +22,23 @@ class AboutController extends AbstractController
     /**
      * @Route("/about/{doc}", name="about")
      */
-    public function index(string $doc = 'about'): Response
+    public function index(string $doc = AboutDocument::ABOUT): Response
     {
+        if (!in_array($doc, AboutDocument::ALL)) {
+            throw $this->createNotFoundException("Le document que vous avez demandé n'a pas été trouvé.");
+        }
+
         $text = Markdown::defaultTransform($this->docService->get($doc));
         $title = 'À propos';
 
         switch ($doc) {
-            case 'dev':
-                $title .= ' / Dévelopeurs';
+            case AboutDocument::DEVELOPERS:
+                $title .= ' / Développeurs';
                 break;
-            case 'support':
+            case AboutDocument::SUPPORT:
                 $title .= ' / Aide';
                 break;
-            case 'tos':
+            case AboutDocument::TERMS_OF_SERVICE:
                 $title .= " / Conditions d'utilisation";
                 break;
             default:

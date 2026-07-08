@@ -30,9 +30,7 @@ class CouchesCartographiquesController extends AbstractController
     /** @var LoggerInterface */
     private $logger;
 
-    /**
-     * @var CoucheCartoRepository
-     */
+    /** @var CoucheCartoRepository */
     private $coucheCartoRepository;
 
     public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository)
@@ -48,8 +46,6 @@ class CouchesCartographiquesController extends AbstractController
      */
     public function index(): Response
     {
-        /** @var string $documentRoot */
-        $documentRoot = $this->getParameter('kernel.project_dir').'/public';
         /** @var string $autoconfPath */
         $autoconfPath = $this->getParameter('app.carto_autoconf_path');
 
@@ -59,8 +55,7 @@ class CouchesCartographiquesController extends AbstractController
             'key_googlemap' => $this->getParameter('app.google_map_key'),
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
-            // @todo: Le chemin n'est pas correct, à modifier
-            'autoconf_path' => file_exists($documentRoot.$autoconfPath),
+            'autoconf_path' => file_exists($autoconfPath) ? $autoconfPath : '',
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),

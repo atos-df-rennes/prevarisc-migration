@@ -56,7 +56,7 @@ class AdminController extends AbstractController
                 'URL' => $this->getParameter('app.geoconcept_url'),
                 'Layer' => $this->getParameter('app.geoconcept_layer'),
                 'App ID' => $this->getParameter('app.geoconcept_app_id'),
-                'Projection' => $this->getParameter('app.geoconcept_projection'),
+                'Projection' => $this->getParameter('app.geoconcept_projection') ?: 'Non paramétrée',
                 'Token' => $this->getParameter('app.geoconcept_token'),
                 'Geocoder URL' => $this->getParameter('app.geoconcept_geocoder'),
             ],

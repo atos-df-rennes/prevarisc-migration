@@ -217,13 +217,13 @@ Les couches cartographiques configurées dans le module d'administration sont ut
 | **RG-CAR-009** | La suppression d'une couche est immédiate et définitive, sans demande de confirmation. |
 | **RG-CAR-010** | L'ajout d'une couche IGN pré-remplit automatiquement les champs à partir du catalogue des capacités du service IGN (nom, identifiant dans le flux, URL, type, format). |
 | **RG-CAR-011** | Les coordonnées par défaut de l'instance sont utilisées pour centrer les cartes en l'absence de géolocalisation spécifique. Si elles ne sont pas configurées, les coordonnées par défaut sont : longitude 2.7149, latitude 50.4727. |
-| **RG-CAR-012** | La liste des couches cartographiques est mise en cache. Le cache est invalidé à chaque ajout, modification ou suppression de couche. |
+| **RG-CAR-012** | Le cache est appliqué aux appels IGN GetCapabilities (opération la plus coûteuse), avec une durée de 1 semaine. La liste des couches vient du repository Doctrine et ne nécessite pas de cache applicatif (opération triviale). |
 | **RG-CAR-013** | La configuration peut contenir plusieurs clés IGN (séparées par des virgules). Chaque clé donne accès à un sous-ensemble du catalogue IGN. |
 | **RG-CAR-014** | Sur la fiche de consultation d'un établissement, les onglets cartographiques ne sont affichés que si l'établissement possède au moins une adresse avec des coordonnées géographiques renseignées (latitude et longitude). |
 | **RG-CAR-015** | Le réordonnancement met à jour l'ordre de toutes les couches en une seule opération. |
 | **RG-CAR-016** | Sur la fiche de consultation d'un établissement, plusieurs fournisseurs peuvent coexister sous forme d'onglets distincts (contrairement à l'écran d'administration qui n'affiche qu'un seul fournisseur par priorité). |
 | **RG-CAR-017** | L'accès à l'écran d'administration des couches cartographiques est restreint au profil administrateur. |
-| **RG-CAR-018** | Le formulaire d'ajout d'une couche IGN propose un sélecteur de format d'image modifiable pour les couches WMS. Pour les couches WMTS, le format est fixe et déterminé par le catalogue. |
+| **RG-CAR-018** | Le formulaire d'ajout d'une couche IGN sélectionne automatiquement le format d'image optimal en interrogeant le catalogue IGN (GetCapabilities). Pour les couches WMS, le format est extrait du flux (LegendURL) ; pour les couches WMTS, il est extrait du Format element avec fallback sur PNG. L'utilisateur n'intervient pas dans le choix du format. |
 
 ---
 

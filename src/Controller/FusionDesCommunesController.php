@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\FusionTechnicalException;
 use App\Form\FusionDesCommunesType;
 use App\Service\FusionDesCommunes;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @IsGranted("admin")
+ * @IsGranted("communes")
  */
 class FusionDesCommunesController extends AbstractController
 {
@@ -39,14 +40,16 @@ class FusionDesCommunesController extends AbstractController
             $fichier = $form->get('fichier')->getData();
 
             try {
-                $this->fusionDesCommunes->fusionner(file_get_contents($fichier));
-            } catch (\Exception $exception) {
+                $resultat = $this->fusionDesCommunes->fusionner(file_get_contents($fichier));
+            } catch (FusionTechnicalException $exception) {
                 $this->addFlash('danger', $exception->getMessage());
 
                 return $this->redirectToRoute('admin_fusion_des_communes');
             }
 
-            $this->addFlash('success', 'Les communes ont bien été fusionnées.');
+            foreach ($this->fusionDesCommunes->composerFlashsResultat($resultat) as $flash) {
+                $this->addFlash($flash['type'], $flash['message']);
+            }
 
             return $this->redirectToRoute('admin_fusion_des_communes');
         }
