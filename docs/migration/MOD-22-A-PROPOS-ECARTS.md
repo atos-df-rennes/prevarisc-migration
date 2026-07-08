@@ -58,6 +58,7 @@
 | **Legacy** | Le legacy faisait déjà un `file_get_contents()` direct sans garde ni message utilisateur (`prevarisc/application/controllers/AboutController.php:13-35`).                                                                                                                                                                                                                                 |
 | **Impact** | **Moyen** — robustesse insuffisante ; une URL `/about/xxx` inconnue débouche sur un écran vide plutôt qu'un 404 métier.                                                                                                                                                                                                                                                                   |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/AboutController.php`, `prevarisc-migration/src/Service/Doc.php`, `prevarisc-migration/templates/about/index.html.twig`, `prevarisc/application/controllers/AboutController.php`                                                                                                                                                                       |
+**Retour utilisateur** : Correction effectuée par l'utilisateur, à vérifier. Mettre à jour la spec.
 
 ---
 
