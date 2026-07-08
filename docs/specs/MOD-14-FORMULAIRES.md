@@ -76,7 +76,7 @@ L'utilisateur final peut, lors de la consultation d'un descriptif :
 - Plier ou déplier chaque rubrique.
 - Masquer ou afficher les rubriques à l'aide d'une table des matières (modale en édition, liste d'ancres en lecture).
 
-**Note (2026-07-03)** : Une specification antérieure décrivait une table des matières latérale riche avec recherche et case « Tous ». Validation du legacy a révélé que cette interface n'a jamais existé en production (masquée par CSS). Cette version simplifiée (modale/ancres) représente le comportement réel du système. Voir MOD-14-FORMULAIRES-ECARTS.md pour détails.
+**Note (2026-07-03)** : Une specification antérieure décrivait une table des matières latérale riche avec recherche et case « Tous ». Validation du legacy a révélé que cette interface n'a jamais existé en production (masquée par CSS). Cette version simplifiée (modale/ancres) représente le comportement réel du système.
 
 ### 3.3 Champs
 
@@ -269,7 +269,7 @@ Une **table des matières** latérale liste les rubriques, avec :
 
 L'état d'affichage (visible/masqué) de chaque rubrique est **mémorisé par établissement** : chaque utilisateur (ou établissement) peut avoir un paramétrage d'affichage différent du réglage par défaut.
 
-**Note (2026-07-03)** : Validation du legacy Zend a révélé que cette table des matières latérale n'était jamais affichée en production. Bien que le template soit présent dans le DOM, il est masqué par CSS (`.hidden-tablet { display: none; }`). L'interface réelle en édition utilise une modale minimaliste. Cette spécification décrit un comportement aspirationnel plutôt que celui réellement implémenté dans le legacy. Voir MOD-14-FORMULAIRES-ECARTS.md pour détails.
+**Note (2026-07-03)** : Validation du legacy Zend a révélé que cette table des matières latérale n'était jamais affichée en production. Bien que le template soit présent dans le DOM, il est masqué par CSS (`.hidden-tablet { display: none; }`). L'interface réelle en édition utilise une modale minimaliste. Cette spécification décrit un comportement aspirationnel plutôt que celui réellement implémenté dans le legacy.
 
 ### 5.2 Descriptif de dossier
 
@@ -277,7 +277,7 @@ La fiche d'un dossier comporte des onglets personnalisables similaires, aliment�
 
 Les capsules « dossier » incluent notamment les onglets de vérifications techniques et d'effectifs & dégagements du dossier.
 
-**Note (2026-07-03)** : Comme pour le descriptif d'établissement, la table des matières riche décrite en §5.1 n'était pas affichée en production dans le legacy. Voir MOD-14-FORMULAIRES-ECARTS.md pour détails.
+**Note (2026-07-03)** : Comme pour le descriptif d'établissement, la table des matières riche décrite en §5.1 n'était pas affichée en production dans le legacy.
 
 Le descriptif de dossier peut également être inclus dans la **génération de documents** (publipostage), où chaque champ est identifié par son **nom de fusion**.
 

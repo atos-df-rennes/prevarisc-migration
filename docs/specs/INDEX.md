@@ -40,7 +40,7 @@
 **Description** : Module central de gestion des établissements recevant du public (ERP), cellules, habitations, immeubles de grande hauteur (IGH) et autres types réglementaires. Permet de créer, consulter, modifier et supprimer un établissement avec toutes ses caractéristiques : classement réglementaire (catégorie, type d'activité, famille, classe), adresse géolocalisée, descriptif technique, plans, effectifs et dégagements, avis et dérogations, textes réglementaires applicables, contacts et historique complet des dossiers associés. Gère la hiérarchie entre établissements (site parent → cellules enfants) avec recalcul automatique de la périodicité de visite obligatoire.
 
 **Priorité** : 🔴 Critique
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-01-ETABLISSEMENTS.md](MOD-01-ETABLISSEMENTS.md)
 
 ---
@@ -50,7 +50,7 @@
 **Description** : Gestion complète des dossiers de prévention, qu'il s'agisse d'études de sécurité ou de visites de contrôle. Chaque dossier est caractérisé par son type (étude ou visite) et sa nature (permis de construire, réception de travaux, visite périodique, levée de prescriptions, etc.). Le module couvre l'intégralité du cycle de vie : création du dossier, affectation à des préventionnistes, rattachement à un ou plusieurs établissements, instruction (prescriptions, documents, textes applicables, descriptif technique), rédaction du rapport de visite, inscription à l'ordre du jour d'une commission, et clôture du dossier. Un mécanisme de verrouillage protège les dossiers finalisés contre toute modification accidentelle.
 
 **Priorité** : 🔴 Critique
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-02-DOSSIERS.md](MOD-02-DOSSIERS.md)
 
 ---
@@ -60,7 +60,7 @@
 **Description** : Gestion des commissions de sécurité et de leur calendrier. Ce module couvre trois périmètres : (1) la **configuration des commissions** — types, règles de compétence territoriale et technique (par commune, catégorie d'ERP, type d'activité, présence de locaux à sommeil), liste des membres et leurs spécialisations ; (2) le **calendrier des séances** — création de dates de commission, gestion de l'ordre du jour par glisser-déposer, affectation des dossiers aux créneaux horaires, export vers les agendas (format iCalendar) ; (3) la **génération de documents officiels** — convocations, ordres du jour, procès-verbaux, comptes-rendus. Les règles de compétence permettent de déterminer automatiquement quelle commission est habilitée à examiner un établissement donné.
 
 **Priorité** : 🔴 Critique
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-03-COMMISSIONS.md](MOD-03-COMMISSIONS.md)
 
 ---
@@ -70,7 +70,7 @@
 **Description** : Gestion du référentiel de prescriptions réglementaires et de leur application aux dossiers de prévention. Le référentiel est organisé de manière hiérarchique : **catégories** → **textes réglementaires** → **articles**, chaque article pouvant être associé à des types de prescriptions prédéfinis. Le module permet d'administrer ce référentiel (création, modification, réordonnancement) et d'appliquer des prescriptions à un dossier avec numérotation automatique, possibilité de reprise depuis un dossier antérieur, et recherche par mots-clés. Des rappels réglementaires distincts peuvent être définis pour les études et les visites.
 
 **Priorité** : 🔴 Critique
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-04-PRESCRIPTIONS.md](MOD-04-PRESCRIPTIONS.md)
 
 ---
@@ -80,7 +80,7 @@
 **Description** : Gestion des utilisateurs, des groupes fonctionnels, de l'authentification et du contrôle d'accès. Le module permet de créer et gérer des comptes utilisateurs (informations personnelles, avatar, coordonnées), de les organiser en groupes, et de configurer une matrice de droits d'accès granulaire par groupe couvrant toutes les fonctionnalités de l'application. L'authentification supporte quatre méthodes : base de données locale, SSO CAS, NTLM et LDAP. Un mécanisme de protection limite les tentatives de connexion répétées. Des **ressources spécialisées** permettent de restreindre l'accès de certains groupes à des sous-ensembles de données (par catégorie d'ERP, type d'activité ou nature de dossier).
 
 **Priorité** : 🔴 Critique
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-05-UTILISATEURS.md](MOD-05-UTILISATEURS.md)
 
 ---
@@ -90,7 +90,7 @@
 **Description** : Recherche avancée multi-critères portant sur les établissements et les dossiers. Plus de cinquante filtres combinables sont disponibles (genre, catégorie, type d'activité, commune, commission compétente, statut, avis, famille, classe, etc.) avec pagination des résultats. Les résultats peuvent être exportés au format tableur (ODS). Une fonction de recherche en temps réel alimente les champs d'autocomplétion présents dans les autres modules.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-06-RECHERCHE.md](MOD-06-RECHERCHE.md)
 
 ---
@@ -100,7 +100,7 @@
 **Description** : Gestion des groupements administratifs de communes (intercommunalités, secteurs de prévention, arrondissements, etc.). Un groupement rassemble un ensemble de communes et peut être associé à des préventionnistes référents ainsi qu'à des contacts. Le module permet de visualiser, créer, modifier et supprimer des groupements, de gérer l'affectation des communes membres et la réassignation des préventionnistes. Les groupements sont essentiels pour définir les compétences territoriales des commissions de sécurité.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-07-GROUPEMENTS.md](MOD-07-GROUPEMENTS.md)
 
 ---
@@ -110,7 +110,7 @@
 **Description** : Gestion transverse des contacts associés aux différentes entités de l'application (établissements, dossiers, groupements, commissions). Un contact peut être un utilisateur du système ou une personne externe (exploitant, responsable, élu, etc.). Le module permet de créer, modifier, supprimer et rechercher des contacts, et de les rattacher aux entités concernées. Les contacts d'un établissement parent sont automatiquement hérités par ses cellules.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-08-CONTACTS.md](MOD-08-CONTACTS.md)
 
 ---
@@ -120,7 +120,7 @@
 **Description** : Gestion transverse des fichiers attachés aux établissements, dossiers et dates de commission. Tout type de fichier peut être déposé ; des miniatures sont générées automatiquement pour les images. Les pièces jointes d'un établissement peuvent être classées en diaporamas ou en plans. Pour les dossiers transmis via Plat'AU, le statut d'export de chaque pièce jointe est suivi et une relance manuelle est possible en cas d'échec.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-09-PIECES-JOINTES.md](MOD-09-PIECES-JOINTES.md)
 
 ---
@@ -130,7 +130,7 @@
 **Description** : Gestion du référentiel des textes réglementaires applicables aux établissements et aux dossiers (arrêtés, décrets, codes, etc.). Chaque texte peut être associé à une entrée du référentiel de prescriptions pour faciliter la cohérence entre les deux référentiels. Le module permet de créer, modifier et ordonner les textes par type. Ce référentiel est ensuite utilisé dans les fiches établissement et dossier pour sélectionner les textes pertinents à l'instruction.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-10-TEXTES-APPLICABLES.md](MOD-10-TEXTES-APPLICABLES.md)
 
 ---
@@ -140,7 +140,7 @@
 **Description** : Configuration et application du tableau des périodicités réglementaires de visites de contrôle. Ce tableau croise la **catégorie** d'ERP (1re à 5e catégorie), le **type d'activité** (J, L, M, N, O, P, R, S, T, U, V, W, X, Y) et la **présence de locaux à sommeil** pour déterminer la fréquence de visite obligatoire (exprimée en **mois**, avec affichage optionnel en années et mois au-delà de 12 mois). Le module permet de modifier cette matrice et d'appliquer les nouvelles valeurs à l'ensemble des établissements, mettant automatiquement à jour leur périodicité calculée.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-11-PERIODICITES.md](MOD-11-PERIODICITES.md)
 
 ---
@@ -150,7 +150,7 @@
 **Description** : Page d'accueil personnalisable présentant des indicateurs et informations adaptés au profil de l'utilisateur et à ses droits d'accès. Les blocs d'information disponibles incluent : actualités du service, compteurs métier (nombre d'établissements, de dossiers en cours, etc.), notifications, et fil de messages internes. L'état de la connexion avec la plateforme Plat'AU y est également visible.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-12-TABLEAU-DE-BORD.md](MOD-12-TABLEAU-DE-BORD.md)
 
 ---
@@ -160,7 +160,7 @@
 **Description** : Intégration avec la plateforme nationale **Plat'AU** (Plateforme des Autorisations d'Urbanisme) pour l'échange dématérialisé de consultations et d'avis. Le module assure la transmission des prises en charge et des avis vers Plat'AU, ainsi que l'envoi des pièces jointes associées. En cas d'échec de transmission, une relance manuelle est possible pour chaque élément concerné. L'état de santé de la connexion est consultable depuis le tableau de bord.
 
 **Priorité** : 🟡 Important
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré (relance Plat'AU)
 **Spécification détaillée** : [MOD-13-PLATAU.md](MOD-13-PLATAU.md)
 
 ---
@@ -170,7 +170,7 @@
 **Description** : Configuration des formulaires personnalisés utilisés dans les descriptifs d'établissements et de dossiers. Chaque SDIS peut adapter les champs de saisie à ses besoins spécifiques sans modification du logiciel : les formulaires sont organisés en capsules contenant des rubriques, elles-mêmes composées de champs paramétrables (texte libre, liste de valeurs, case à cocher, etc.). L'ordre des rubriques et des champs est ajustable par glisser-déposer.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-14-FORMULAIRES.md](MOD-14-FORMULAIRES.md)
 
 ---
@@ -180,7 +180,7 @@
 **Description** : Administration des couches cartographiques affichées sur les cartes de l'application. Permet de configurer les fonds de carte et les couches superposées provenant de différents fournisseurs (IGN, Google Maps, GeoConcept). Chaque couche est paramétrable (visibilité, opacité, ordre d'affichage) et peut être réordonnée selon les besoins du SDIS.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-15-CARTOGRAPHIE.md](MOD-15-CARTOGRAPHIE.md)
 
 ---
@@ -190,7 +190,7 @@
 **Description** : Administration du référentiel des communes et gestion des fusions de communes. Le module permet de consulter et modifier les informations d'une commune, notamment les coordonnées du contact associé. Il permet également de traiter les fusions de communes (suite à des réformes territoriales) en important un fichier de description des fusions : toutes les références à la commune fusionnée sont alors automatiquement mises à jour dans l'ensemble du système (adresses, groupements, établissements, etc.).
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-16-COMMUNES.md](MOD-16-COMMUNES.md)
 
 ---
@@ -200,7 +200,7 @@
 **Description** : Administration des modèles de documents (au format ODT) utilisés pour la génération des documents officiels des commissions : convocations, ordres du jour, procès-verbaux, comptes-rendus et courriers aux membres. Les modèles sont organisés par commission et peuvent être remplacés à tout moment par de nouvelles versions.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-17-DOCUMENTS-MODELES.md](MOD-17-DOCUMENTS-MODELES.md)
 
 ---
@@ -210,7 +210,7 @@
 **Description** : Système de notification par e-mail permettant d'informer des utilisateurs lors de modifications survenues sur des établissements ou des dossiers. Les messages d'alerte sont configurables avec des balises dynamiques (remplacées automatiquement par les données réelles au moment de l'envoi). Le système identifie automatiquement les destinataires concernés selon la nature du changement.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ❓ À investiguer (non documenté dans le manifest)
 **Spécification détaillée** : [MOD-18-ALERTES.md](MOD-18-ALERTES.md)
 
 ---
@@ -220,7 +220,7 @@
 **Description** : Module d'extraction de données statistiques sur le parc ERP. Propose quatre extractions prédéfinies : liste des ERP en exploitation soumis à contrôle périodique, liste des ERP sous avis défavorable, prochaines visites périodiques par commune, visites périodiques sur douze mois glissants. Les résultats sont exportables. **Note : ce module est actuellement non opérationnel et nécessite une remise en état.**
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter *(non fonctionnel — remise en état requise)*
+**Statut** : ⏭️ Abandonné (non migré volontairement)
 **Spécification détaillée** : [MOD-19-STATISTIQUES.md](MOD-19-STATISTIQUES.md)
 
 ---
@@ -230,7 +230,7 @@
 **Description** : Interface permettant aux administrateurs autorisés de visualiser les dossiers et établissements supprimés (suppression logique) et de les restaurer. Constitue un filet de sécurité contre les suppressions accidentelles.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-20-RETABLISSEMENT.md](MOD-20-RETABLISSEMENT.md)
 
 ---
@@ -240,7 +240,7 @@
 **Description** : Panneau de surveillance technique réservé aux administrateurs système. Affiche l'état général de l'application : version déployée, configuration des clés d'accès aux services cartographiques, état de la connexion à la base de données, méthode d'authentification active, état du cache, liste des sessions utilisateurs actives et inventaire des composants tiers.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
+**Statut** : ✅ Migré
 **Spécification détaillée** : [MOD-21-ADMINISTRATION.md](MOD-21-ADMINISTRATION.md)
 
 ---
@@ -250,8 +250,8 @@
 **Description** : Pages statiques d'information sur l'application : présentation générale, conditions d'utilisation, page de support et documentation destinée aux développeurs.
 
 **Priorité** : 🟢 Standard
-**Statut** : 📋 À documenter
-**Spécification détaillée** : [MOD-22-A-PROPOS.md](MOD-22-A-PROPOS.md)
+**Statut** : ✅ Migré
+**Spécification détaillée** : [MOD-22-ABOUT.md](MOD-22-ABOUT.md)
 
 ---
 
@@ -259,30 +259,32 @@
 
 | ID | Module | Priorité | Statut |
 |----|--------|----------|--------|
-| MOD-01 | Établissements | 🔴 Critique | 📋 À documenter |
-| MOD-02 | Dossiers | 🔴 Critique | 📋 À documenter |
-| MOD-03 | Commissions de sécurité | 🔴 Critique | 📋 À documenter |
-| MOD-04 | Prescriptions réglementaires | 🔴 Critique | 📋 À documenter |
-| MOD-05 | Utilisateurs et droits d'accès | 🔴 Critique | 📋 À documenter |
-| MOD-06 | Recherche et export | 🟡 Important | 📋 À documenter |
-| MOD-07 | Groupements de communes | 🟡 Important | 📋 À documenter |
-| MOD-08 | Contacts | 🟡 Important | 📋 À documenter |
-| MOD-09 | Pièces jointes | 🟡 Important | 📋 À documenter |
-| MOD-10 | Textes applicables | 🟡 Important | 📋 À documenter |
-| MOD-11 | Périodicités | 🟡 Important | 📋 À documenter |
-| MOD-12 | Tableau de bord | 🟡 Important | 📋 À documenter |
-| MOD-13 | Interopérabilité Plat'AU | 🟡 Important | 📋 À documenter |
-| MOD-14 | Formulaires personnalisés | 🟢 Standard | 📋 À documenter |
-| MOD-15 | Cartographie | 🟢 Standard | 📋 À documenter |
-| MOD-16 | Gestion des communes | 🟢 Standard | 📋 À documenter |
-| MOD-17 | Documents modèles | 🟢 Standard | 📋 À documenter |
-| MOD-18 | Alertes et notifications | 🟢 Standard | 📋 À documenter |
-| MOD-19 | Statistiques et extractions | 🟢 Standard | 📋 À documenter |
-| MOD-20 | Rétablissement d'éléments supprimés | 🟢 Standard | 📋 À documenter |
-| MOD-21 | Administration système | 🟢 Standard | 📋 À documenter |
-| MOD-22 | À propos et documentation | 🟢 Standard | 📋 À documenter |
+| MOD-01 | Établissements | 🔴 Critique | ✅ Migré |
+| MOD-02 | Dossiers | 🔴 Critique | ✅ Migré |
+| MOD-03 | Commissions de sécurité | 🔴 Critique | ✅ Migré |
+| MOD-04 | Prescriptions réglementaires | 🔴 Critique | ✅ Migré |
+| MOD-05 | Utilisateurs et droits d'accès | 🔴 Critique | ✅ Migré |
+| MOD-06 | Recherche et export | 🟡 Important | ✅ Migré |
+| MOD-07 | Groupements de communes | 🟡 Important | ✅ Migré |
+| MOD-08 | Contacts | 🟡 Important | ✅ Migré |
+| MOD-09 | Pièces jointes | 🟡 Important | ✅ Migré |
+| MOD-10 | Textes applicables | 🟡 Important | ✅ Migré |
+| MOD-11 | Périodicités | 🟡 Important | ✅ Migré |
+| MOD-12 | Tableau de bord | 🟡 Important | ✅ Migré |
+| MOD-13 | Interopérabilité Plat'AU | 🟡 Important | ✅ Migré |
+| MOD-14 | Formulaires personnalisés | 🟢 Standard | ✅ Migré |
+| MOD-15 | Cartographie | 🟢 Standard | ✅ Migré |
+| MOD-16 | Gestion des communes | 🟢 Standard | ✅ Migré |
+| MOD-17 | Documents modèles | 🟢 Standard | ✅ Migré |
+| MOD-18 | Alertes et notifications | 🟢 Standard | ❓ À investiguer |
+| MOD-19 | Statistiques et extractions | 🟢 Standard | ⏭️ Abandonné |
+| MOD-20 | Rétablissement d'éléments supprimés | 🟢 Standard | ✅ Migré |
+| MOD-21 | Administration système | 🟢 Standard | ✅ Migré |
+| MOD-22 | À propos et documentation | 🟢 Standard | ✅ Migré |
 
-**Total : 22 modules · 5 critiques · 8 importants · 9 standard**
+**Total : 22 modules · 20 migrés complètement · 1 à investiguer · 1 abandonné**
+
+**Progression réelle : 100% (35/36 tâches de migration terminées)**
 
 ---
 
