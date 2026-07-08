@@ -26,7 +26,7 @@
 |---|--------|
 | **Règles** | § 3.4, RG-APR-005 |
 | **Spec** | La page technique doit être présentée comme page « Développeurs ». |
-| **Symfony** | Le `switch` du contrôleur construit le titre `À propos / Dévelopeurs` (`prevarisc-migration/src/Controller/AboutController.php:29-32`). |
+| **Symfony** | ✅ **RÉSOLU** — Le titre est maintenant corrigé : `À propos / Développeurs` (`prevarisc-migration/src/Controller/AboutController.php:32`). |
 | **Legacy** | Le legacy n'ajoutait pas de titre spécifique, il se contentait d'une vue générique `display-text` (`prevarisc/application/controllers/AboutController.php:7-11`). |
 | **Impact** | **Faible** — défaut de libellé visible sur la page technique Symfony. |
 | **Fichiers concernés** | `prevarisc-migration/src/Controller/AboutController.php` |
