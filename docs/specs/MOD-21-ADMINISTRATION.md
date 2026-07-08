@@ -125,7 +125,7 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 |---|---|
 | **API HTTP** | Indique si l'API HTTP est activée ou désactivée. L'API est considérée comme activée lorsqu'une clé de sécurité API est configurée. |
 | **Proxy HTTP** | Indique si le proxy HTTP sortant est activé ou désactivé. |
-| **Plugins tiers** | Liste des plugins tiers installés, séparés par des virgules. Si aucun plugin n'est installé, le message « Aucuns » est affiché. |
+| **Plugins tiers** | Liste des plugins tiers installés, séparés par des virgules. Si aucun plugin n'est installé, le message « Aucun » est affiché. |
 
 ---
 
@@ -185,7 +185,7 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 |---|---|
 | **RG-ADM-024** | L'API HTTP est considérée comme activée si et seulement si une clé de sécurité API est configurée (valeur non vide). |
 | **RG-ADM-025** | Le proxy HTTP est considéré comme activé si son paramètre de configuration vaut explicitement la valeur d'activation. |
-| **RG-ADM-026** | Les plugins tiers sont affichés sous forme de liste à plat séparée par des virgules. Si aucun plugin n'est configuré, le texte « Aucuns » est affiché. |
+| **RG-ADM-026** | Les plugins tiers sont affichés sous forme de liste à plat séparée par des virgules. Si aucun plugin n'est configuré, le texte « Aucun » est affiché. |
 
 ### Accès et sécurité
 
@@ -209,5 +209,5 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | **Projection Geoconcept absente** | La valeur « Non paramétrée » est affichée comme valeur par défaut. |
 | **Aucun utilisateur connecté** | Le tableau des sessions est remplacé par le message « Aucun résultat. ». |
 | **Plus de 1 000 utilisateurs dans l'annuaire** | Seuls les 1 000 premiers utilisateurs sont évalués pour déterminer les sessions actives. Des sessions actives au-delà de cette limite pourraient ne pas être affichées. |
-| **Aucun plugin tiers configuré** | Le texte « Aucuns » est affiché. |
+| **Aucun plugin tiers configuré** | Le texte « Aucun » est affiché. |
 | **Clé de sécurité API absente ou vide** | L'API HTTP est affichée comme « Désactivé ». |

@@ -91,11 +91,12 @@
 | | Détail |
 |---|--------|
 | **Règles** | RG-ADM-026 |
-| **Spec** | Si aucun plugin tiers n'est configuré, le texte attendu est « Aucuns ». |
-| **Symfony** | Le template affiche `Aucun` (`prevarisc-migration/templates/admin/index.html.twig:129-136`). |
-| **Legacy** | Le template legacy affiche `Aucuns` (`prevarisc/application/views/scripts/admin/index.phtml:76-79`). |
-| **Impact** | **Faible** — écart purement rédactionnel, sans impact fonctionnel. |
-| **Fichiers concernés** | `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc/application/views/scripts/admin/index.phtml` |
+| **Spec** | Si aucun plugin tiers n'est configuré, le texte attendu est « Aucun ». |
+| **Symfony** | Le template affiche `Aucun` (`prevarisc-migration/templates/admin/index.html.twig:136`). |
+| **Legacy** | Le template legacy affiche `Aucuns` (`prevarisc/application/views/scripts/admin/index.phtml:79`). |
+| **Impact** | ✅ **VALIDÉ** — Le wording Symfony « Aucun » (singulier) est grammaticalement correct. L'utilisateur a confirmé que « Aucuns » au pluriel est une erreur : « "Aucun" est la forme correcte. "Aucuns" au pluriel existe uniquement dans des cas particuliers (précède un nom grammaticalement toujours pluriel) et nous ne sommes pas dans un tel cas. » La specification a été mise à jour pour refléter la forme correcte (section 3.7, RG-ADM-026, cas particuliers). |
+| **Fichiers concernés** | `prevarisc-migration/templates/admin/index.html.twig`, `prevarisc-migration/docs/specs/MOD-21-ADMINISTRATION.md` (mise à jour) |
+| **Retour utilisateur** | ✅ "Aucun" est la forme correcte. "Aucuns" au pluriel existe uniquement dans des cas particuliers (précède un nom grammaticalement toujours pluriel) et nous ne sommes pas dans un tel cas. |
 
 ---
 
@@ -142,7 +143,9 @@ Le fallback `?: 'Non paramétrée'` a été ajouté au paramètre `app.geoconcep
 ### ✅ Écart 5 — Résolu (2026-07-08)
 `findConnected()` applique maintenant `setMaxResults(1000)` sur la requête Doctrine pour limiter l'évaluation à un échantillon maximal de 1 000 utilisateurs. Écart fermé, tests validés.
 
+### ✅ Écart 6 — Validé (2026-07-08)
+Le wording Symfony « Aucun » (singulier) est grammaticalement correct. La spécification a été mise à jour pour refléter cette forme correcte (section 3.7, RG-ADM-026, cas particuliers). Écart fermé, comportement validé contre user feedback.
+
 ### En cours de traitement
 
-6. **Ajouter les fallbacks d'affichage** manquants (Écart 6) : wording `Aucuns`.
 7. **Mettre à jour la spec** (Écart 7) si les nouveaux blocs d'information Symfony (Plat'AU, periodicité, chemin fichiers, etc.) sont désormais considérés comme faisant partie du périmètre fonctionnel.
