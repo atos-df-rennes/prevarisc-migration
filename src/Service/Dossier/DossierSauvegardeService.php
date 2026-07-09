@@ -200,18 +200,13 @@ class DossierSauvegardeService
             return $target;
         }
 
+        // @fixme: variable non utilisée mais conservée une fois les caches entité implémentés à nouveau
         $etablissementsJson = json_encode($etablissementsIds);
         if (false === $etablissementsJson) {
             throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
         }
 
-        // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
-        return sprintf(
-            '/legacy/dossier/vider-cache?id=%d&etablissements=%s&target=%s',
-            $dossier->getId(),
-            urlencode($etablissementsJson),
-            urlencode($target)
-        );
+        return $target;
     }
 
     /**
