@@ -40,7 +40,6 @@ final class LogoutHandlerTest extends TestCase
     {
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
-        $request->getSession()->set('username', 'jdupont');
 
         return $request;
     }
@@ -75,18 +74,6 @@ final class LogoutHandlerTest extends TestCase
         $this->lastActionUpdater->expects($this->never())->method('update');
 
         $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
-    }
-
-    public function testLogoutRemovesUsernameFromSession(): void
-    {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn(null);
-
-        $request = $this->buildRequest();
-
-        $this->buildHandler()->logout($request, new Response(), $token);
-
-        $this->assertFalse($request->getSession()->has('username'));
     }
 
     public function testLogoutClearsPhpCasSessionWhenCasEnabled(): void

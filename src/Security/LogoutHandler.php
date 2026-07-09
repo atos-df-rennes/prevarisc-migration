@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
  * Gestionnaire de déconnexion Symfony (Symfony 4.4, Guard).
  *
  * Appelé par le LogoutListener du firewall AVANT l'invalidation de la session PHP.
- * Effectue le nettoyage complémentaire : username en session et logout CAS si le SSO CAS est actif.
+ * Effectue le nettoyage complémentaire : logout CAS si le SSO CAS est actif.
  *
  * La mise à jour de LASTACTION_UTILISATEUR est effectuée ici (et non uniquement dans
  * LastActionSubscriber) car kernel.terminate se déclenche APRÈS l'invalidation du token,
@@ -56,10 +56,7 @@ class LogoutHandler implements LogoutHandlerInterface
             $this->lastActionUpdater->update($utilisateur);
         }
 
-        // 1. Effacer le username stocké en session
-        $request->getSession()->remove('username');
-
-        // 2. Nettoyer la session phpCAS si activé.
+        // Nettoyer la session phpCAS si activé.
         // phpCAS::client() n'est pas encore initialisé dans ce contexte (nouveau process mod_php),
         // donc on nettoie directement la clé de session phpCAS sans passer par l'API statique.
         if ($this->casEnabled && isset($_SESSION['phpCAS'])) {

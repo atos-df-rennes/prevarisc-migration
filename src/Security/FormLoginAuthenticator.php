@@ -483,9 +483,6 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
         $this->entityManager->flush();
 
-        // Set session username (identifiant de session Symfony)
-        $request->getSession()->set('username', $utilisateur->getUsername());
-
         $this->logger->info(sprintf("Auth: connexion réussie pour '%s'", $utilisateur->getUsername()));
 
         // Redirection post-login : priorité au target path Symfony (mécanisme natif),
