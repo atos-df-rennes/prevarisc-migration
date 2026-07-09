@@ -1,8 +1,8 @@
 {
     "require": {
-        "phpstan/phpstan": "^2.1",
-        "rector/rector": "^2.0",
-        "friendsofphp/php-cs-fixer": "^3.68",
+        "phpstan/phpstan": "^2.1.40",
+        "rector/rector": "^2.3.8",
+        "friendsofphp/php-cs-fixer": "^3.94",
         "ramsey/conventional-commits": "^1.5",
         "marcocesarato/php-conventional-changelog": "^1.17",
         "phpstan/extension-installer": "^1.4",

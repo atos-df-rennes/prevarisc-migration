@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "52a5b1321ed45c31ea029d2e3e1ad007",
+    "content-hash": "881ce735bd45af9145a67edd8a9ee252",
     "packages": [
         {
             "name": "apereo/phpcas",
@@ -143,6 +143,7 @@
                     "type": "tidelift"
                 }
             ],
+            "abandoned": true,
             "time": "2022-01-17T14:14:24+00:00"
         },
         {
@@ -9209,7 +9210,6 @@
                     "type": "github"
                 }
             ],
-            "abandoned": true,
             "time": "2021-07-26T12:15:06+00:00"
         },
         {
@@ -10504,7 +10504,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "~7.1.0",
+        "php": "~7.2.0",
         "ext-simplexml": "*",
         "ext-ctype": "*",
         "ext-dom": "*",
@@ -10520,5 +10520,5 @@
         "ext-zlib": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.6.0"
 }
