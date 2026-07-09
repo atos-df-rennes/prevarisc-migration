@@ -88,102 +88,172 @@ Then: commit to PR, merge to `develop/` branch.
 
 ## Phase 1 — Remove Zend Legacy (Make Symfony Autonomous) — *Hard blocker for Phase 3 & 4*
 
-Each task below removes a piece of Zend dependency, ending with full autonomy.
+This phase focuses on **core decoupling tasks** only. Cache porting and Plat'AU repatriation are deferred to a later phase.
+
+### Core Tasks (Reduced Scope: ~5–6 Tasks)
 
 | Task | Description | Impact |
 |------|-------------|--------|
-| **p1-port-etab-cache** | Port `/legacy/etablissement/vider-cache` to native Symfony cache | Zend no longer needed for establishment cache clearing |
-| **p1-port-dossier-cache** | Port `/legacy/dossier/vider-cache` to Symfony | Zend no longer needed for dossier cache clearing |
-| **p1-port-matrice-droits** | Port `/legacy/admin/groupes/matrice-des-droits` to Symfony | Admin matrix access via Symfony |
-| **p1-port-user-save** | Port `/legacy/admin/utilisateurs/sauvegarder` to Symfony | User save operations via Symfony |
-| **p1-native-search-cache** | Replace legacy search cache mechanism with native Symfony cache | Eliminate cache search fallback to legacy |
 | **p1-remove-fallback** | Delete Strangler fallback in `public/index.php` and `SymfonyRouteFoundSubscriber` | **Symfony is now autonomous** |
 | **p1-retire-zend-auth** | Remove Zend session bridge (`ZendSessionBridge`, `ZendIdentityBuilder`, `LegacySessionAuthenticator`) | Auth is 100% Symfony |
 | **p1-native-login** | Switch to pure Symfony auth — remove `PREVARISC_SYMFONY_LOGIN=0` fallback | No legacy auth dependency |
-| **p1-repatriate-platau** | Move Plat'AU healthcheck/client into main app | Remove dependency on `prevarisc-passerelle-platau` sidecar |
 | **p1-remove-prevarisc-path** | Remove `PREVARISC_PATH` from config and `.env*` | Clean environment |
-| **p1-clean-compose** | Remove legacy services/mounts from `compose.dev.yaml` | Dev environment simplified |
-| **p1-verify-standalone** | Final verification: zero runtime refs to legacy, all 642 tests passing | **Phase 1 complete** |
+| **p1-clean-compose** | Remove legacy Zend service & auth config from `compose.dev.yaml` (keep platau container) | Dev environment simplified |
+| **p1-verify-standalone** | Final verification: zero runtime refs to legacy, all 642 tests passing, `public/` self-sufficient | **Phase 1 complete** |
+
+### Deferred Tasks (Separate Future Phase)
+
+The following tasks are **not** in Phase 1—they require deeper refactoring and will be scheduled separately:
+
+| Task | Reason for Deferral |
+|------|-------------------|
+| **p1-port-etab-cache** | Full porting to Symfony cache requires significant refactoring; deferral keeps Phase 1 lean |
+| **p1-port-dossier-cache** | Deferred; redirect legacy route to 404 or stub for now |
+| **p1-port-matrice-droits** | Deferred; admin matrix porting is substantial work |
+| **p1-port-user-save** | Deferred; user save operations require DB schema alignment |
+| **p1-native-search-cache** | Review if already using Symfony cache; if not, defer to future phase |
+| **p1-repatriate-platau** | Not feasible without full Plat'AU code migration; keep platau container in compose.dev.yaml |
+
+### Phase 1 Approach to Cache & Legacy Routes
+
+**For cache/admin endpoints that remain in Zend:**
+1. Remove from Zend fallback routing (no legacy route forwarding)
+2. Return 404 or redirects where appropriate
+3. (Later phase:) Implement Symfony equivalents and migrate users
+
+**For Plat'AU:**
+- Keep `platau` container in `compose.dev.yaml` (mounted as-is)
+- No repatriation now—separate chore task for future
 
 **Estimated duration:** 2–3 weeks (1–2 PRs per week)
 
 **Success criteria:**
-- [ ] All 11 porting tasks merged
+- [ ] All 6 core tasks merged
 - [ ] Fallback removed
 - [ ] All tests passing (642)
 - [ ] PHPStan clean (level 10)
 - [ ] Code style clean
-- [ ] Team approval to proceed with Phase 3
+- [ ] Zero runtime Zend dependencies
+- [ ] Team approval to proceed with Phase 2/3
 
 ---
 
-## Phase 2 — Upgrade Tooling
+## Phase 2 — Upgrade Tooling & Tool Execution Planning
 
-Configure Rector, PHPStan, and cs-fixer for incremental PHP/Symfony upgrades.
+Configure Rector, PHPStan, and cs-fixer for incremental PHP/Symfony upgrades. Also plan when tools transition between containers.
 
-| Task | Description |
-|------|-------------|
-| **p2-upgrade-tooling** | Set up Rector rulesets (PHP + Symfony), configure `platform.php` in `composer.json`, align PHPUnit bridge, versioning strategy for tooling |
+### Tool Execution Context
+
+**Current state (PHP 7.1):**
+- All tools run in main container (`php:7.1-apache`)
+  - `castor symfony:analyse` → PHPStan in main
+  - `castor symfony:cs` → cs-fixer in main
+  - `castor symfony:test` → PHPUnit in main
+
+**During PHP 7.2–8.0 upgrades (Phase 3, early):**
+- Tools continue in main container as PHP upgrades in-place
+- No container change needed
+
+**At PHP 8.1 threshold (Phase 3, middle):**
+- Main container reaches PHP 8.1
+- **Tool execution transitions from platau → main container**
+- Document this transition clearly
+- Update tool configs to run from main container
+
+**After Phase 2 completes:**
+- Rector sets configured for incremental upgrades
+- PHPUnit bridge strategy clear (7.5 → 8 → 9 → 10/11)
+- phpstan/php-cs-fixer versions aligned by version milestone
+- Tool execution plan documented for team
 
 **Estimated duration:** 1 week
 
 ---
 
-## Phase 3 — Incremental PHP Upgrades (7.1 → 8.5)
+## Phase 3 & 4 — PHP & Symfony Upgrades (Entangled, Not Sequential)
 
-One task per PHP minor version. Each task:
-1. Bump `platform.php` in `composer.json`
-2. Update Docker image
-3. Run Rector with updated `withPhpVersion` and `withPhpSets`
-4. Fix PHPStan and cs-fixer issues
-5. Run full test suite
-6. Commit and merge PR
+**CRITICAL:** PHP and Symfony upgrades are **entangled**—each Symfony version requires a minimum PHP version. The upgrade order is dictated by these constraints, not a simple sequential path.
 
-| Version | Task | Notes |
-|---------|------|-------|
-| 7.2 | **php-72** | Zend deprecated features removal |
-| 7.3 | **php-73** | — |
-| 7.4 | **php-74** | — |
-| — | **odtphp-fork** | Fork & patch `cybermonde/odtphp` for PHP 8 compatibility. Gate for PHP 8.0. |
-| — | **deps-php8-audit** | Audit critical deps (`apereo/phpcas`, `sabre/*`, `phpoffice/phpspreadsheet`, `imagine/imagine`, `phpdocumentor/reflection-docblock`, PHPUnit). Gate for PHP 8.0. |
-| 8.0 | **php-80** | Named arguments, constructor property promotion, match expressions |
-| 8.1 | **php-81** | Enums, readonly properties, fibers (if applicable) |
-| 8.2 | **php-82** | Disjunctive normal form types, readonly classes |
-| 8.3 | **php-83** | Typed class constants |
-| 8.4 | **php-84** | Property hooks, asymmetric visibility |
-| 8.5 | **php-85** | Final upgrade |
+### Symfony Minimum PHP Requirements
 
-**Estimated duration:** 3–4 weeks (1 PR per week)
+| Symfony Version | Min PHP | Max PHP |
+|-----------------|---------|---------|
+| 4.4 LTS | 7.1 | 8.x |
+| 5.4 LTS | 7.4 | 8.x |
+| 6.4 LTS | 8.1 | 8.x |
+| 7.x LTS | 8.2 | 8.x |
+| 8.x LTS | 8.4 | 8.x |
 
-**Blockers:**
-- `odtphp-fork` must complete before PHP 8.0
-- `deps-php8-audit` must complete before PHP 8.0
+### Correct Entangled Upgrade Path
 
----
+```
+Starting: PHP 7.1, Symfony 4.4
 
-## Phase 4 — Symfony LTS Hops (4.4 → 8.x)
+1. PHP 7.1 → 7.2  (SF 4.4 still compatible)
+2. PHP 7.2 → 7.3  (SF 4.4 still compatible)
+3. PHP 7.3 → 7.4  (SF 4.4 still compatible)
+   
+   [DECISION POINT: PHP 7.4 reached → SF 4.4 → 5.4 LTS now viable]
+   
+4. SF 4.4 → 5.4 LTS  (PHP 7.4+ required, satisfied)
+   
+5. PHP 7.4 → 8.0  (SF 5.4 still compatible)
+6. PHP 8.0 → 8.1  (SF 5.4 still compatible)
+   
+   [DECISION POINT: PHP 8.1 reached → SF 5.4 → 6.4 LTS now viable]
+   [ALSO: Attributes conversion, sensio/framework-extra-bundle removal]
+   [ALSO: Move tool execution from platau to main container]
+   
+7. SF 5.4 → 6.4 LTS  (PHP 8.1+ required, satisfied)
+   
+8. PHP 8.1 → 8.2  (SF 6.4 still compatible)
+   
+   [DECISION POINT: PHP 8.2 reached → SF 6.4 → 7.x LTS now viable]
+   
+9. SF 6.4 → 7.x LTS  (PHP 8.2+ required, satisfied)
+   
+10. PHP 8.2 → 8.3  (SF 7.x still compatible)
+11. PHP 8.3 → 8.4  (SF 7.x still compatible)
+    
+    [DECISION POINT: PHP 8.4 reached → SF 7.x → 8.x LTS now viable]
+    
+12. SF 7.x → 8.x LTS  (PHP 8.4+ required, satisfied)
+    
+13. PHP 8.4 → 8.5  (SF 8.x still compatible) [FINAL]
+```
 
-One task per LTS hop. Each task:
-1. Update constraint (e.g., `symfony/*: "5.4.*"`)
-2. Apply Flex recipes
-3. Fix deprecations (based on `vendor/symfony/deprecation-contracts`)
-4. Run Rector with Symfony sets
-5. Migrate code (`isMasterRequest` → `isMainRequest`, annotations → attributes if 8.0+, etc.)
-6. Run full test suite
-7. Commit and merge PR
+### Phase 3 & 4 Tasks (Integrated List)
 
-| Version | Task | Requires | Notes |
-|---------|------|----------|-------|
-| 5.4 | **sf-54** | PHP 7.4+ | 3–4 weeks of deprecations from 5.0–5.3 |
-| 6.4 | **sf-64** | PHP 8.1+ | Annotations → Attributes, security overhaul, Doctrine ORM 3.0 compat |
-| 7.x | **sf-7x** | PHP 8.2+ | Type system refinements |
-| 8.x | **sf-8x** | PHP 8.4+ | Modern Symfony for PHP 8.4+ |
+| Step | Task | Type | Duration | Notes |
+|------|------|------|----------|-------|
+| 1 | **php-72** | PHP | 2–3h | No Rector sets needed yet (simple deprecations) |
+| 2 | **php-73** | PHP | 2–3h | — |
+| 3 | **php-74** | PHP | 2–3h | — |
+| 4 | **sf-54** | SF | 3–5h | SF 4.4 → 5.4 LTS (decision point reached) |
+| 5 | **odtphp-fork** | Gate | 2–3d | Fork & patch `cybermonde/odtphp` for PHP 8 (blocks php-80) |
+| 6 | **deps-php8-audit** | Gate | 2–3d | Audit critical deps (`apereo/phpcas`, `sabre/*`, etc.) for PHP 8 compat (blocks php-80) |
+| 7 | **php-80** | PHP | 3–4h | Named arguments, constructor properties, match expressions |
+| 8 | **php-81** | PHP | 3–4h | Enums, readonly properties, fibers (if applicable) |
+| 9 | **sf-64** | SF | 4–5h | SF 5.4 → 6.4 LTS + Attributes conversion (decision point reached); also move tools to main container |
+| 10 | **php-82** | PHP | 3–4h | Disjunctive normal form types, readonly classes |
+| 11 | **sf-7x** | SF | 3–5h | SF 6.4 → 7.x LTS (decision point reached) |
+| 12 | **php-83** | PHP | 3–4h | Typed class constants |
+| 13 | **php-84** | PHP | 3–4h | Property hooks, asymmetric visibility |
+| 14 | **sf-8x** | SF | 3–5h | SF 7.x → 8.x LTS (decision point reached) |
+| 15 | **php-85** | PHP | 3–4h | Final PHP version |
 
-**Estimated duration:** 3–4 weeks per hop
+### Estimated Effort
 
-**Attributes conversion note:** Symfony 6.4+ requires PHP 8 attributes for routing, Doctrine mapping, and validation. This will be done as part of **sf-64**, integrated with PHP 8.1.
+- **PHP bumps:** 2–3 hrs each × 9 bumps = 18–27 hours
+- **SF bumps:** 3–5 hrs each × 4 hops = 12–20 hours
+- **Gates (odtphp-fork, deps-php8-audit):** 2–3 days each = 16–24 hours
+- **Total:** ~30–50 hours (4–6 weeks with skill automation + 1–2 PRs per week)
 
----
+### Do NOT:
+- ❌ Upgrade Symfony before its minimum PHP version is reached
+- ❌ Skip gates (odtphp-fork and deps-php8-audit block PHP 8.0)
+- ❌ Use `findAll()` without pagination during upgrades
+- ❌ Modify `prevarisc/` (legacy read-only)
 
 ## Phase 5 — Infrastructure Modernization (Debian 12, MariaDB LTS, Apache 2.4)
 
@@ -193,7 +263,7 @@ Parallel to Phases 3–4 after Phase 1 completion.
 |------|-------------|--------|
 | **infra-mariadb** | Migrate MySQL 5.6 → MariaDB LTS: dump/restore, `my.cnf`, charset `utf8mb4`, Doctrine platform, `compose.*.yaml` | MariaDB 11.x LTS |
 | **infra-apache-debian12** | Upgrade Docker image, Apache 2.4, `php.ini`, opcache, install extensions, Apache configs | PHP 8.5-apache on Debian 12 |
-| **infra-compose-topology** | Simplify `compose.*.yaml`, finalize legacy/Plat'AU removal | Single-app topology |
+| **infra-compose-topology** | Simplify `compose.*.yaml`, finalize legacy Zend removal (platau container remains for now per Phase 1 adjustments) | Single-app topology |
 | **infra-docs** | Update `docs/exploitation.md`, `docs/documentation_installation.md` | Latest prod setup |
 
 **Estimated duration:** 1–2 weeks (can overlap with PHP 8.x work)
@@ -212,34 +282,17 @@ Final steps before tagging `v3.0.0-rc.1`.
 
 ---
 
-# Version Gates & Sequencing Rules
+---
 
-```
-Phase 1 complete (Zend removed)
-  ↓
-PHP 7.2, 7.3, 7.4 (no gate)
-  ↓
-odtphp-fork + deps-php8-audit (GATES for PHP 8.0)
-  ↓
-PHP 8.0, 8.1
-  ↓
-Symfony 5.4 → 6.4 (GATE: PHP 8.1+ required)
-  ↓
-PHP 8.2, 8.3
-  ↓
-Symfony 6.4 → 7.x (GATE: PHP 8.2+ required)
-  ↓
-PHP 8.4, 8.5
-  ↓
-Symfony 7.x → 8.x (GATE: PHP 8.4+ required)
-```
+# Absolute Rules (Applies to All Phases)
 
-## Do NOT:
-- ❌ Upgrade Symfony before its minimum PHP version is reached
-- ❌ Use `findAll()` without pagination
-- ❌ Commit secrets to repo
-- ❌ Modify `prevarisc/` (legacy read-only)
-- ❌ Create `release/3.0` branch until ALL phases (0–6) are complete
+1. **`findAll()` without pagination is forbidden** — always use offset/limit or iterate carefully
+2. **`prevarisc/` (legacy) is read-only** — never modify it in automated runs
+3. **PHP must remain 7.1-compatible through Phase 1** — no PHP 8 features (typed properties, `match`, etc.)
+4. **All work on `develop/` branch via PRs** — release branch created ONLY after all phases complete
+5. **Respect Symfony minimum PHP requirements** — never upgrade Symfony before its minimum PHP is reached
+6. **Gates block upgrades** — odtphp-fork and deps-php8-audit must complete before PHP 8.0
+7. **Keep platau container in compose.dev.yaml** — per Phase 1 adjustments (Plat'AU repatriation deferred)
 
 ---
 
