@@ -1,191 +1,239 @@
-# Tool Execution Plan — Rector, PHPStan, cs-fixer
+# Tool Execution Plan — Rector, PHPStan, cs-fixer, PHPUnit
 
-**Document scope:** Define when and where incremental upgrade tools run across PHP 7.1 → 8.5 / Symfony 4.4 → 8.x journey.
+**Document scope:** Define where and how incremental upgrade tools run across PHP 7.1 → 8.5 / Symfony 4.4 → 8.x journey.
 
 ---
 
-## Current State (PHP 7.1 / Symfony 4.4)
+## Current State (PHP 7.1 Symfony 4.4)
 
-### Tools & Versions
+### Tool Split: Main vs Platau Container
 
-| Tool | Purpose | Version | Container | Config |
-|------|---------|---------|-----------|--------|
-| **Rector** | Auto-refactor code for PHP/SF versions | `0.18.x` (PHP 7.1 compatible) | **platau** (PHP 8.1+) | `rector.php` |
-| **PHPStan** | Static analysis (level 10) | `1.10.x` (PHP 7.1 compatible) | **platau** (PHP 8.1+) | `phpstan.neon.dist` |
-| **php-cs-fixer** | Code style enforcement (Symfony rules) | `3.13.x` (PHP 7.1 compatible) | **platau** (PHP 8.1+) | `.php-cs-fixer.dist.php` |
-| **PHPUnit** | Testing | `9.5.x` (PHP 7.1 compatible) | main | `phpunit.xml.dist` |
+Upgrade tools require **PHP 8.1+** and cannot run in the main container (PHP 7.1). They're isolated in the platau container:
+
+| Tool | Purpose | Version | Location | Manifest |
+|------|---------|---------|----------|----------|
+| **PHPUnit** | Testing | 9.5.x | **main** (PHP 7.1) | `composer.json` (require-dev) |
+| **Rector** | Auto-refactor | 2.0+ | **platau** (PHP 8.1+) | `tools/composer.json` |
+| **PHPStan** | Static analysis | 2.1+ | **platau** (PHP 8.1+) | `tools/composer.json` |
+| **php-cs-fixer** | Code style | 3.68+ | **platau** (PHP 8.1+) | `tools/composer.json` |
+
+### Why the Split?
+
+- **PHPUnit 9.5.x** is compatible with PHP 7.1 and must run in main to test PHP 7.1 code
+- **Rector 2.0+**, **PHPStan 2.1+**, **cs-fixer 3.68+** require PHP 8.1+ and run in platau container
+- Castor tasks route `symfony:analyse` and `symfony:cs` to platau container via Docker compose
 
 ### Execution Flow
 
 ```
-Phase 3 (PHP 7.2–8.0): All tools in platau container (PHP 8.1+)
-├─ castor symfony:analyse   → PHPStan in platau
-├─ castor symfony:cs        → cs-fixer in platau
-├─ castor symfony:test      → PHPUnit in main
-└─ castor symfony:validate  → Symfony in main
+castor symfony:test       → PHPUnit in main container (PHP 7.1)
+castor symfony:analyse    → PHPStan in platau container (PHP 8.1+)
+castor symfony:cs         → cs-fixer in platau container (PHP 8.1+)
+castor symfony:validate   → Symfony validation in main container
 ```
 
 ### Validation Loop (Each Milestone)
 
-After each PHP/Symfony upgrade:
+After each PHP/Symfony upgrade in main container:
 
 ```bash
-castor symfony:analyse      # PHPStan level 10
-castor symfony:cs           # Code style check/fix
-castor symfony:test         # All tests passing
-castor symfony:validate     # Symfony validation
-castor symfony:migrate      # DB migrations (if needed)
+castor symfony:analyse      # PHPStan level 10 (platau: PHP 8.1+)
+castor symfony:cs           # Code style check/fix (platau: PHP 8.1+)
+castor symfony:test         # All tests passing (main: PHP 7.1→8.5)
+castor symfony:validate     # Symfony validation (main)
+castor symfony:migrate      # DB migrations if needed (main)
 ```
 
 ---
 
 ## Tool Evolution Path
 
-### Rector Configuration Strategy
+### Rector Configuration
 
-Rector auto-refactors code but must be configured with **only rules applicable to the current or next target version**. Applying all rules at once introduces unsupported syntax.
+Rector 2.0+ is production-ready for modern PHP and all Symfony versions in the roadmap. Current config in `rector.php` uses prepared sets.
 
-**Configuration approach:**
-- Each PHP/Symfony milestone gets a dedicated Rector profile (environment variable or branch)
-- When upgrading to PHP 7.2, activate `php72` rule set
-- When upgrading to Symfony 5.4, activate `sf54` rule set
-- Rules are cumulative (e.g., `php74` includes all previous PHP rules)
-
-**Current config (PHP 7.1):**
-```php
-->withPhpVersion(PhpVersion::PHP_71)
-->withPhpSets(php71: true)
+**Current versions:**
+```
+tools/composer.json: "rector/rector": "^2.0"
 ```
 
-**Rector version progression:**
-| PHP Target | Rector Version | Notes |
-|------------|----------------|-------|
-| 7.1–7.4 | 0.18.x | Stable for PHP 7.1 |
-| 8.0–8.1 | 0.19.x–0.20.x | PHP 8 support |
-| 8.2+ | 1.0.x | Named arguments, readonly support |
+**Rector version stability:**
+- **2.0+** is the target version and stable for all Phases 3–6
+- No additional Rector version bumps needed during upgrade phases
+- Rule sets evolve with each Rector minor update, but core API remains stable
+
+**Configuration strategy:**
+Each PHP/Symfony milestone may activate new rule profiles in `rector.php`:
+- `php72`, `php73`, `php74`, `php80`, `php81`, etc.
+- `symfony54`, `symfony64`, `symfony7x`, `symfony8x`
+- Rules are cumulative (e.g., `php74` includes all previous PHP rules)
 
 ---
 
-### PHPStan Configuration Strategy
+### PHPStan Configuration
 
-PHPStan level 10 is already set. Version progression is mostly backwards-compatible, but config may need updates for new PHP syntax.
+PHPStan 2.1+ provides excellent PHP 8.1+ support and modern Symfony integration. Runs in platau container.
 
-**Current config (PHP 7.1):**
+**Current versions:**
+```
+tools/composer.json: "phpstan/phpstan": "^2.1"
+tools/composer.json: "phpstan/phpstan-symfony": "^2.0"
+```
+
+**PHPStan version stability:**
+- **2.1+** is target and stable for all Phases 3–6
+- No PHPStan version bumps needed (2.1→2.2→2.3 are backwards-compatible)
+- Symfony extension is already at ^2.0
+
+**Configuration in main container:**
+When main container upgrades PHP, update `phpstan.neon.dist`:
 ```yaml
 parameters:
-    phpVersion: 70100
+    phpVersion: 70100  # Main container PHP version
     level: 10
 ```
 
-**PHPStan version progression:**
-| PHP Target | PHPStan Version | Notes |
-|------------|-----------------|-------|
-| 7.1–7.4 | 1.10.x | Compatible |
-| 8.0–8.2 | 1.11.x–1.12.x | PHP 8 syntax support |
-| 8.3+ | 2.x | Full PHP 8.3+ support (attributes, enums) |
+**Important:** PHPStan analysis runs in platau container (2.1+), but it analyzes code written for main container's PHP version. The `phpVersion` parameter tells PHPStan which PHP version the main container targets.
 
 ---
 
-### PHP-CS-Fixer Configuration Strategy
+### PHP-CS-Fixer Configuration
 
-cs-fixer rules are backwards-compatible across PHP versions. No version bump needed until deprecated rules appear.
+cs-fixer 3.68+ is modern and stable. Runs in platau container.
 
-**Current config (PHP 7.1):**
-```php
-'@Symfony' => true,
-'no_superfluous_phpdoc_tags' => ['allow_mixed' => true, ...],
+**Current versions:**
+```
+tools/composer.json: "friendsofphp/php-cs-fixer": "^3.68"
 ```
 
-**cs-fixer version progression:**
-| PHP Target | cs-fixer Version | Notes |
-|------------|------------------|-------|
-| 7.1–7.4 | 3.13.x | Compatible |
-| 8.0–8.2 | 3.14.x–3.48.x | PHP 8 syntax support |
-| 8.3+ | 3.49.x+ | Full PHP 8.3+ support |
+**cs-fixer version stability:**
+- **3.68+** is target and stable for all Phases 3–6
+- No cs-fixer version bumps needed (3.68→3.69→3.70 are backwards-compatible)
+
+**Configuration in .php-cs-fixer.dist.php:**
+- Current: Symfony rules with `allow_mixed: true` for PHP 7.1 type hints
+- When main container upgrades to PHP 8+, rule set evolves (typed properties, attributes, etc.)
+- cs-fixer applies rules for the main container's target PHP version
 
 ---
 
 ### PHPUnit Version Progression
 
-PHPUnit version is tightly coupled to PHP version. Must upgrade in lockstep with PHP to avoid test syntax errors.
+PHPUnit runs **in main container** and must match main container's PHP version. Versions are tightly coupled.
+
+**Current state:**
+```
+composer.json require-dev: PHPUnit 9.5.x (main: PHP 7.1)
+```
 
 **Required versions by PHP milestone:**
 
-| PHP | Symfony | PHPUnit | Timeline |
-|-----|---------|---------|----------|
-| 7.1–7.3 | 4.4 | 9.5.x | Phase 3 early |
-| 7.4 | 4.4–5.4 | 9.5.x | Phase 3 mid |
-| 8.0–8.1 | 5.4–6.4 | 10.x | Phase 3–4 mid |
-| 8.2–8.3 | 6.4–7.x | 11.x | Phase 4 late |
-| 8.4–8.5 | 8.x | 11.x | Phase 4 final |
+| PHP (main) | Symfony (main) | PHPUnit | Phase | Timeline |
+|------------|-----------------|---------|-------|----------|
+| 7.1–7.3 | 4.4 | 9.5.x | Phase 3 early | ~1 week |
+| 7.4 | 4.4–5.4 | 9.5.x | Phase 3 mid | ~1 week |
+| 8.0–8.1 | 5.4–6.4 | 10.x | Phase 3–4 mid | ~2 weeks |
+| 8.2–8.3 | 6.4–7.x | 11.x | Phase 4 late | ~2 weeks |
+| 8.4–8.5 | 8.x | 11.x | Phase 4 final | ~1 week |
+
+**Upgrade path:**
+1. At PHP 7.4 → 8.0 transition, bump composer.json PHPUnit: `"phpunit/phpunit": "^10.0"`
+2. At PHP 8.2 transition, bump: `"phpunit/phpunit": "^11.0"`
+3. Test suite runs in main container after each PHP bump
 
 ---
 
 ## Container Transitions
 
-### Phase 3 (PHP 7.2–8.0) — All in platau
+### Phase 3 (PHP 7.2–8.0) — Parallel Container Evolution
 
-**Current state:** Rector, PHPStan, cs-fixer run in `platau` container (which has PHP 8.1+)  
-**Main container PHP progression:** 7.1 → 7.2 → 7.3 → 7.4 → 8.0
+**Main container progression:** 7.1 → 7.2 → 7.3 → 7.4 → 8.0
+**Platau container:** Stays at PHP 8.1+ (no change)
 
-Tools remain in `platau` container as main container upgrades. Castor tasks automatically route to platau.
+- PHPUnit tests run in main (evolves with main container)
+- Rector/PHPStan/cs-fixer run in platau (stable at 8.1+)
+- No container transition needed yet
 
-**No change needed.**
+**Per-milestone tool updates in main:**
+- `phpstan.neon.dist`: Update `phpVersion` parameter as main container upgrades
+- `.php-cs-fixer.dist.php`: Evolution rules as PHP evolves (no version bump yet)
+- `composer.json`: Update PHPUnit when reaching PHP 8.0 (bump to 10.x)
 
-### Phase 3–4 Transition (PHP 8.1 decision point)
+### Phase 3→4 Transition (PHP 8.1 decision point)
 
-**When:** Main container reaches PHP 8.1 (after `php-81` task completes)
+**When:** After main container reaches PHP 8.1 (after `php-81` task completes)
 
-**Tool Execution Transitions from platau → main Container:**
-- Main container is now PHP 8.1-capable (same as platau)
-- Castor tasks for `analyse` and `cs` can now run in main (no longer need platau)
-- Update Castor commands to route `symfony:analyse` and `symfony:cs` to main
-- PHPUnit already runs in main (no change)
+**Tool Execution (NO CHANGE):**
+- Rector/PHPStan/cs-fixer continue in platau (already at 8.1+)
+- PHPUnit continues in main (now at PHP 8.1)
+- **No container transition needed**
 
-**Update Dockerfile & Castor:**
-- Main container Dockerfile → PHP 8.1-apache with Rector, PHPStan, cs-fixer
-- Castor tasks → remove platau routing for analyse/cs
-- Keep main container versions in sync with platau versions during Phase 3
+**Reason:** Tools in platau were always at PHP 8.1+, so they're already compatible with main container's PHP 8.1.
 
-### Phase 4 (PHP 8.2–8.5) — Continued in main
+### Phase 4 (PHP 8.2–8.5) — Continued in Current Containers
 
-**Main container PHP progression:** 8.1 → 8.2 → 8.3 → 8.4 → 8.5
+**Main container progression:** 8.1 → 8.2 → 8.3 → 8.4 → 8.5
+**Platau container:** Stays at PHP 8.1+ (optional: can upgrade if new tool features desired)
 
-Tools remain in main container. Continue version updates as needed.
+- PHPUnit continues in main
+- Rector/PHPStan/cs-fixer continue in platau
+- No container migration needed
 
 ---
 
 ## Upgrade Checkpoints
 
-### After Each PHP Minor Upgrade
+### After Each PHP Minor Upgrade (in main container)
 
-1. **Update tool versions** (if listed above)
-2. **Update `rector.php`**:
-   ```php
-   ->withPhpVersion(PhpVersion::PHP_72)  // example
-   ->withPhpSets(php72: true)
-   ```
-3. **Update `phpstan.neon.dist`**:
+1. **Update `phpstan.neon.dist`** with new phpVersion:
    ```yaml
    parameters:
-       phpVersion: 70200  # example
+       phpVersion: 70200  # if PHP 7.2
    ```
-4. **Run validation loop:**
+2. **Update Rector config in `rector.php`** (optional, if new rules needed):
+   ```php
+   ->withPhpVersion(PhpVersion::PHP_72)
+   ->withPhpSets(php72: true)
+   ```
+3. **Run validation loop:**
    ```bash
-   castor symfony:analyse
-   castor symfony:cs
-   castor symfony:test
+   castor symfony:analyse   # PHPStan from platau analyzes main's PHP
+   castor symfony:cs        # cs-fixer from platau fixes main's code
+   castor symfony:test      # PHPUnit in main runs on new PHP
    castor symfony:validate
    ```
 
+### At PHP 8.0 Threshold (PHPUnit Upgrade)
+
+Upgrade PHPUnit from 9.5.x to 10.x in `composer.json`:
+```json
+"require-dev": {
+    "phpunit/phpunit": "^10.0"
+}
+```
+
+Then: `composer install` and `castor symfony:test`
+
+### At PHP 8.2 Threshold (PHPUnit Upgrade)
+
+Upgrade PHPUnit from 10.x to 11.x in `composer.json`:
+```json
+"require-dev": {
+    "phpunit/phpunit": "^11.0"
+}
+```
+
+Then: `composer install` and `castor symfony:test`
+
 ### After Each Symfony LTS Upgrade
 
-1. **Run Rector with SF rule set:**
+1. **Verify main container meets minimum PHP requirement** (see UPGRADE_ROADMAP.md)
+2. **Run Rector with SF rule set** (in platau):
    ```bash
-   ./vendor/bin/rector process --dry-run  # Preview
-   ./vendor/bin/rector process             # Apply
+   ./tools/vendor/bin/rector process --dry-run  # Preview
+   ./tools/vendor/bin/rector process             # Apply
    ```
-2. **Run full validation:**
+3. **Run full validation:**
    ```bash
    castor symfony:analyse
    castor symfony:cs
@@ -246,16 +294,17 @@ composer require --dev rector/rector:^0.19.0  # example
 
 ## Phase 2 Deliverables
 
-- [x] Document current tool configuration (rector.php, phpstan.neon.dist, .php-cs-fixer.dist.php)
-- [x] Define tool version progression across all milestones
-- [x] Clarify when/where tools run (main container throughout)
-- [x] Document Rector rule set strategy
-- [x] Define PHPUnit version requirements per PHP milestone
-- [x] Create upgrade checkpoints and validation loop
-- [x] Document risk mitigation for tool failures
+- [x] Document tool split: PHPUnit in main (7.1), Rector/PHPStan/cs-fixer in platau (8.1+)
+- [x] Clarify version inventory: Rector 2.0+, PHPStan 2.1+, cs-fixer 3.68+
+- [x] Define container routing (Castor tasks automatically route analyse/cs to platau)
+- [x] Document tool version progression during Phases 3–6 (stable at current versions)
+- [x] Clarify PHPUnit upgrade path: 9.5→10 at PHP 8.0, 10→11 at PHP 8.2
+- [x] Document Rector rule set strategy (per PHP/SF milestone)
+- [x] Define upgrade checkpoints and validation loop per milestone
+- [x] Confirm no container transition needed (platau already at 8.1+)
 
 ---
 
 **Created:** Phase 2 (Upgrade Tooling & Tool Execution Planning)  
-**Last updated:** 2024 (Phase 2)  
-**Next:** Execute Phase 2 validation on PHP 7.1 baseline, then proceed to Phase 3 (PHP 7.2)
+**Last updated:** 2024 (Phase 2 corrected)  
+**Next:** Execute Phase 3 (PHP 7.2), continue with planned PHP/Symfony upgrades
