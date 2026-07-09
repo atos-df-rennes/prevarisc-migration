@@ -96,7 +96,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Security\FormLoginAuthenticator')
         ->arg('$tokenStorage', ref('security.token_storage'))
         ->arg('$csrfTokenManager', ref('security.csrf.token_manager'))
-        ->arg('$symfonyLoginEnabled', '%app.symfony_login%')
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$casHost', '%app.cas_host%')
         ->arg('$casPort', '%app.cas_port%')
