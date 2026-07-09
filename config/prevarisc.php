@@ -146,7 +146,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.data_path', '%env(string:PREVARISC_DATA_PATH)%');
 
-    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '/data');
+    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '%kernel.project_dir%/public/data');
 
     $parameters->set('app.files_path', '%env(resolve:PREVARISC_REAL_DATA_PATH)%');
 
@@ -164,7 +164,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_IGN_AUTOCONF)', '');
 
-    $parameters->set('app.carto_autoconf_path', '%app.files_path%%env(string:PREVARISC_IGN_AUTOCONF)%');
+    $parameters->set('app.carto_autoconf_path', '%kernel.project_dir%/public%env(string:PREVARISC_IGN_AUTOCONF)%');
 
     $parameters->set('env(PREVARISC_PLUGIN_GOOGLEMAPKEY)', '');
 
@@ -241,7 +241,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
 
-    $parameters->set('env(LDAP_ACCOUNT_FORM)', '');
+    $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
 
     // Format du compte utilisateur pour le bind direct LDAP (fallback si le bind service-account échoue
     // ou si l'utilisateur n'est pas trouvé via le filtre).
