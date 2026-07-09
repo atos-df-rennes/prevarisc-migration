@@ -88,18 +88,20 @@ Then: commit to PR, merge to `develop/` branch.
 
 ## Phase 1 — Remove Zend Legacy (Make Symfony Autonomous) — *Hard blocker for Phase 3 & 4*
 
-This phase focuses on **core decoupling tasks** only. Cache porting and Plat'AU repatriation are deferred to a later phase.
+**Status:** ✅ Complete
 
-### Core Tasks (Reduced Scope: ~5–6 Tasks)
+This phase focused on **core decoupling tasks** only. Cache porting and Plat'AU repatriation are deferred to a later phase.
 
-| Task | Description | Impact |
-|------|-------------|--------|
-| **p1-remove-fallback** | Delete Strangler fallback in `public/index.php` and `SymfonyRouteFoundSubscriber` | **Symfony is now autonomous** |
-| **p1-retire-zend-auth** | Remove Zend session bridge (`ZendSessionBridge`, `ZendIdentityBuilder`, `LegacySessionAuthenticator`) | Auth is 100% Symfony |
-| **p1-native-login** | Switch to pure Symfony auth — remove `PREVARISC_SYMFONY_LOGIN=0` fallback | No legacy auth dependency |
-| **p1-remove-prevarisc-path** | Remove `PREVARISC_PATH` from config and `.env*` | Clean environment |
-| **p1-clean-compose** | Remove legacy Zend service & auth config from `compose.dev.yaml` (keep platau container) | Dev environment simplified |
-| **p1-verify-standalone** | Final verification: zero runtime refs to legacy, all 642 tests passing, `public/` self-sufficient | **Phase 1 complete** |
+### Core Tasks (Reduced Scope: ~5–6 Tasks) — ✅ ALL COMPLETE
+
+| Task | Description | Impact | Status |
+|------|-------------|--------|--------|
+| **p1-remove-fallback** | Delete Strangler fallback in `public/index.php` and `SymfonyRouteFoundSubscriber` | **Symfony is now autonomous** | ✅ Done |
+| **p1-retire-zend-auth** | Remove Zend session bridge (`ZendSessionBridge`, `ZendIdentityBuilder`, `LegacySessionAuthenticator`) | Auth is 100% Symfony | ✅ Done |
+| **p1-native-login** | Switch to pure Symfony auth — remove `PREVARISC_SYMFONY_LOGIN=0` fallback | No legacy auth dependency | ✅ Done |
+| **p1-remove-prevarisc-path** | Remove `PREVARISC_PATH` from config and `.env*` | Clean environment | ✅ Done |
+| **p1-clean-compose** | Remove legacy Zend service & auth config from `compose.dev.yaml` (keep platau container) | Dev environment simplified | ✅ Done |
+| **p1-verify-standalone** | Final verification: zero runtime refs to legacy, all 642 tests passing, `public/` self-sufficient | **Phase 1 complete** | ✅ Done |
 
 ### Deferred Tasks (Separate Future Phase)
 
@@ -156,14 +158,14 @@ Configure Rector, PHPStan, and cs-fixer for incremental PHP/Symfony upgrades. Pl
 
 **At PHP 8.1 threshold (Phase 3, middle):**
 - Main container reaches PHP 8.1 (same as platau)
-- **Tool execution transitions from platau → main container**
-- Document this transition clearly
-- Update Castor tasks to route `symfony:analyse` and `symfony:cs` to main
+- **No container transition** (Rector/PHPStan/cs-fixer already in platau at 8.1+)
+- Continue validation loop as-is
+- PHPUnit bumped to 10.x at PHP 8.2 (separate step)
 
 **Phase 2 Deliverables (✅ Complete):**
-- ✅ Rector configured for incremental upgrades (profiles for php-72, php-73, ... sf-54, etc.)
-- ✅ PHPUnit bridge strategy defined (9.5→10→11 across PHP milestones)
-- ✅ Tool versions aligned by version milestone
+- ✅ Tool split clarified: PHPUnit 7.5.x in main, Rector/PHPStan/cs-fixer in platau
+- ✅ Tool versions pinned: Rector 2.0+, PHPStan 2.1+, cs-fixer 3.68+ (stable during phases)
+- ✅ PHPUnit upgrade path: 7.5→9 at PHP 8.0, 9→10 at PHP 8.2
 - ✅ Tool execution plan documented: `docs/tech/TOOL_EXECUTION_PLAN.md`
 - ✅ Validation on PHP 7.1 baseline: PHPStan clean, 629 tests passing, cs-fixer OK
 
