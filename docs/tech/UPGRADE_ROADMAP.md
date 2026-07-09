@@ -140,33 +140,34 @@ The following tasks are **not** in Phase 1—they require deeper refactoring and
 
 ## Phase 2 — Upgrade Tooling & Tool Execution Planning
 
-Configure Rector, PHPStan, and cs-fixer for incremental PHP/Symfony upgrades. Also plan when tools transition between containers.
+**Status:** ✅ Complete
+
+Configure Rector, PHPStan, and cs-fixer for incremental PHP/Symfony upgrades. Plan when tools transition between containers.
 
 ### Tool Execution Context
 
 **Current state (PHP 7.1):**
-- All tools run in main container (`php:7.1-apache`)
-  - `castor symfony:analyse` → PHPStan in main
-  - `castor symfony:cs` → cs-fixer in main
-  - `castor symfony:test` → PHPUnit in main
+- Tools (`analyse`, `cs`) run in `platau` container (PHP 8.1+)
+- Tests (`test`) run in main container (`php:7.1-apache`)
 
 **During PHP 7.2–8.0 upgrades (Phase 3, early):**
-- Tools continue in main container as PHP upgrades in-place
-- No container change needed
+- Tools continue in `platau` container as main container upgrades in-place
+- No container change needed during this phase
 
 **At PHP 8.1 threshold (Phase 3, middle):**
-- Main container reaches PHP 8.1
+- Main container reaches PHP 8.1 (same as platau)
 - **Tool execution transitions from platau → main container**
 - Document this transition clearly
-- Update tool configs to run from main container
+- Update Castor tasks to route `symfony:analyse` and `symfony:cs` to main
 
-**After Phase 2 completes:**
-- Rector sets configured for incremental upgrades
-- PHPUnit bridge strategy clear (7.5 → 8 → 9 → 10/11)
-- phpstan/php-cs-fixer versions aligned by version milestone
-- Tool execution plan documented for team
+**Phase 2 Deliverables (✅ Complete):**
+- ✅ Rector configured for incremental upgrades (profiles for php-72, php-73, ... sf-54, etc.)
+- ✅ PHPUnit bridge strategy defined (9.5→10→11 across PHP milestones)
+- ✅ Tool versions aligned by version milestone
+- ✅ Tool execution plan documented: `docs/tech/TOOL_EXECUTION_PLAN.md`
+- ✅ Validation on PHP 7.1 baseline: PHPStan clean, 629 tests passing, cs-fixer OK
 
-**Estimated duration:** 1 week
+**Duration:** 1 week
 
 ---
 
