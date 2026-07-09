@@ -30,14 +30,11 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
 /**
  * Authentificateur Symfony natif pour Prévarisc.
  *
- * Gère quatre mécanismes d'authentification dans l'ordre de priorité du legacy :
+ * Gère quatre mécanismes d'authentification dans l'ordre de priorité :
  *   1. CAS  (phpCAS) — si PREVARISC_CAS_ENABLED=1
  *   2. NTLM ($_SERVER['REMOTE_USER']) — si PREVARISC_NTLM_ENABLED=1
  *   3. LDAP (Symfony\Component\Ldap) — si PREVARISC_LDAP_ENABLED=1 (fallback du dbtable)
  *   4. dbtable MD5 → bcrypt via migrate_from — cas par défaut
- *
- * Activé conditionnellement via PREVARISC_SYMFONY_LOGIN=1.
- * Propage la session Zend_Auth pour compatibilité avec les contrôleurs legacy.
  *
  * @todo SF 5.1+: migrer vers AbstractAuthenticator (Guard supprimé en SF 6.0).
  */
@@ -50,12 +47,6 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var ZendSessionBridge */
-    private $zendSessionBridge;
-
-    /** @var ZendIdentityBuilder */
-    private $zendIdentityBuilder;
-
     /** @var UserPasswordEncoderInterface */
     private $passwordEncoder;
 
@@ -66,8 +57,6 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     private $entityManager;
 
     /** @var bool */
-    private $symfonyLoginEnabled;
-
     /** @var bool */
     private $casEnabled;
 
@@ -166,14 +155,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     public function __construct(
         LoggerInterface $logger,
-        ZendSessionBridge $zendSessionBridge,
-        ZendIdentityBuilder $zendIdentityBuilder,
         UserPasswordEncoderInterface $passwordEncoder,
         RouterInterface $router,
         EntityManagerInterface $entityManager,
         TokenStorageInterface $tokenStorage,
         CsrfTokenManagerInterface $csrfTokenManager,
-        bool $symfonyLoginEnabled,
         bool $casEnabled,
         string $casHost,
         int $casPort,
@@ -196,14 +182,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         ?Ldap $ldap = null
     ) {
         $this->logger = $logger;
-        $this->zendSessionBridge = $zendSessionBridge;
-        $this->zendIdentityBuilder = $zendIdentityBuilder;
         $this->passwordEncoder = $passwordEncoder;
         $this->router = $router;
         $this->entityManager = $entityManager;
         $this->tokenStorage = $tokenStorage;
         $this->csrfTokenManager = $csrfTokenManager;
-        $this->symfonyLoginEnabled = $symfonyLoginEnabled;
         $this->casEnabled = $casEnabled;
         $this->casHost = $casHost;
         $this->casPort = $casPort;
@@ -229,11 +212,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     /**
      * Détermine si cet authentificateur doit prendre en charge la requête.
      *
-     * Priorités (miroir du legacy) :
+     * Priorités :
      *   - CAS activé → true sauf si l'utilisateur est déjà authentifié en session
      *   - NTLM activé + REMOTE_USER présent → true
-     *   - $symfonyLoginEnabled + POST sur /session/login → true
-     *   - Sinon → false (LegacySessionAuthenticator prend le relais)
+     *   - POST sur /session/login → true
+     *   - Sinon → false
      */
     public function supports(Request $request): bool
     {
@@ -259,8 +242,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
             return !$request->getSession()->has('_security_main');
         }
 
-        return $this->symfonyLoginEnabled
-            && $request->isMethod('POST')
+        return $request->isMethod('POST')
             && '/session/login' === $request->getPathInfo();
     }
 
@@ -500,14 +482,6 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $utilisateur->setFailedLoginAttempts(0);
 
         $this->entityManager->flush();
-
-        // Propager vers la session Zend_Auth (compatibilité controllers legacy)
-        $this->zendSessionBridge->writeAuthentication(
-            $this->zendIdentityBuilder->build($utilisateur, $request->getClientIp() ?? '')
-        );
-
-        // Set session username (compatibilité LegacySessionAuthenticator)
-        $request->getSession()->set('username', $utilisateur->getUsername());
 
         $this->logger->info(sprintf("Auth: connexion réussie pour '%s'", $utilisateur->getUsername()));
 

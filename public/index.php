@@ -31,30 +31,5 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
-
-// Strangler Pattern : Fallback vers legacy si route Symfony pas trouvée
-// Note : On vérifie le header X-Symfony-Route-Found pour distinguer :
-// - Route pas trouvée dans Symfony (pas de header) → fallback legacy
-// - Route trouvée mais 404 métier (header présent) → retourner la 404 Symfony
-$isSymfonyRouteFound = $response->headers->has('X-Symfony-Route-Found');
-
-if (!$isSymfonyRouteFound && true === $response->isNotFound()) {
-    // Le firewall Symfony démarre la session PHP sur chaque requête non-login (via
-    // LegacySessionAuthenticator::supports()). Zend_Session::start() appelé par
-    // Bootstrap::_initAuth() lèverait une exception "session has already been started"
-    // si la session PHP est encore ouverte. On la ferme proprement ici : les données
-    // sont écrites en stockage et Zend peut rouvrir la session avec le même identifiant.
-    if (PHP_SESSION_ACTIVE === session_status()) {
-        session_write_close();
-    }
-
-    $prevariscPath = $_SERVER['PREVARISC_PATH'] ?? $_ENV['PREVARISC_PATH'] ?? '/home/prv/current/prevarisc';
-
-    require realpath($prevariscPath.'/public/index.php');
-} else {
-    // Supprimer le header technique avant d'envoyer la réponse
-    $response->headers->remove('X-Symfony-Route-Found');
-    $response->send();
-}
-
+$response->send();
 $kernel->terminate($request, $response);

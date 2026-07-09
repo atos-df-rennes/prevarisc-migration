@@ -1052,6 +1052,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         $user = $this->getUser();
 
         try {
+            // @fixme: variable non utilisée mais conservée une fois les caches entité implémentés à nouveau
             /** @var int[] $etablissementsIds */
             $etablissementsIds = $this->entityManager->wrapInTransaction(
                 function () use ($dossier, $user): array {
@@ -1063,18 +1064,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
             $this->searchCache->invalidateTags(['search']);
 
-            if ([] !== $etablissementsIds) {
-                $idsJson = json_encode($etablissementsIds);
-
-                // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
-                return $this->redirect(sprintf(
-                    '/legacy/etablissement/vider-cache?ids=%s&target=%s',
-                    urlencode(false !== $idsJson ? $idsJson : '[]'),
-                    urlencode($this->generateUrl('search_dossier', ['objet' => '']))
-                ));
-            }
-
-            return $this->redirectToRoute('search_dossier');
+            return $this->redirectToRoute('search_dossier', ['objet' => '']);
         } catch (\Throwable $throwable) {
             $this->logger->error('Erreur lors de la suppression du dossier', [
                 'dossier_id' => $dossier->getId(),

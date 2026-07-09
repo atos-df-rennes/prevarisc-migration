@@ -41,12 +41,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'guard'     => [
                     'authenticators' => [
                         'App\Security\FormLoginAuthenticator',
-                        'App\Security\LegacySessionAuthenticator',
                     ],
                     'entry_point' => 'App\Security\FormLoginAuthenticator',
                 ],
                 // Logout géré par le firewall : invalide le token Symfony et la session PHP.
-                // Le nettoyage complémentaire (Zend_Auth, username, phpCAS) est délégué à LogoutHandler.
+                // Le nettoyage complémentaire (username, phpCAS) est délégué à LogoutHandler.
                 // CSRF non requis pour permettre la déconnexion via lien GET (pages legacy non encore migrées).
                 'logout' => [
                     'path'            => 'session_logout',
