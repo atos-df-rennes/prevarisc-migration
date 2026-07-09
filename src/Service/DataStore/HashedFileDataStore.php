@@ -2,9 +2,9 @@
 
 namespace App\Service\DataStore;
 
+use App\Constant\DataStoreObjectTypes;
 use App\Entity\PieceJointe;
 use App\Repository\EtablissementRepository;
-use App\Constant\DataStoreObjectTypes;
 
 /**
  * This class abstract the data access to the repository.
