@@ -12,21 +12,21 @@ Upgrade tools require **PHP 8.1+** and cannot run in the main container (PHP 7.1
 
 | Tool | Purpose | Version | Location | Manifest |
 |------|---------|---------|----------|----------|
-| **PHPUnit** | Testing | 9.5.x | **main** (PHP 7.1) | `composer.json` (require-dev) |
+| **PHPUnit** | Testing | 7.5.x | **main** (PHP 7.1) | `composer.json` (require-dev) |
 | **Rector** | Auto-refactor | 2.0+ | **platau** (PHP 8.1+) | `tools/composer.json` |
 | **PHPStan** | Static analysis | 2.1+ | **platau** (PHP 8.1+) | `tools/composer.json` |
 | **php-cs-fixer** | Code style | 3.68+ | **platau** (PHP 8.1+) | `tools/composer.json` |
 
 ### Why the Split?
 
-- **PHPUnit 9.5.x** is compatible with PHP 7.1 and must run in main to test PHP 7.1 code
+- **PHPUnit 7.5.x** is compatible with PHP 7.1 and must run in main to test PHP 7.1 code
 - **Rector 2.0+**, **PHPStan 2.1+**, **cs-fixer 3.68+** require PHP 8.1+ and run in platau container
 - Castor tasks route `symfony:analyse` and `symfony:cs` to platau container via Docker compose
 
 ### Execution Flow
 
 ```
-castor symfony:test       → PHPUnit in main container (PHP 7.1)
+castor symfony:test       → PHPUnit 7.5.x in main container (PHP 7.1)
 castor symfony:analyse    → PHPStan in platau container (PHP 8.1+)
 castor symfony:cs         → cs-fixer in platau container (PHP 8.1+)
 castor symfony:validate   → Symfony validation in main container
@@ -130,15 +130,14 @@ composer.json require-dev: PHPUnit 9.5.x (main: PHP 7.1)
 
 | PHP (main) | Symfony (main) | PHPUnit | Phase | Timeline |
 |------------|-----------------|---------|-------|----------|
-| 7.1–7.3 | 4.4 | 9.5.x | Phase 3 early | ~1 week |
-| 7.4 | 4.4–5.4 | 9.5.x | Phase 3 mid | ~1 week |
-| 8.0–8.1 | 5.4–6.4 | 10.x | Phase 3–4 mid | ~2 weeks |
-| 8.2–8.3 | 6.4–7.x | 11.x | Phase 4 late | ~2 weeks |
-| 8.4–8.5 | 8.x | 11.x | Phase 4 final | ~1 week |
+| 7.1–7.4 | 4.4–5.4 | 7.5.x | Phase 3 early–mid | ~2 weeks |
+| 8.0–8.1 | 5.4–6.4 | 9.x | Phase 3–4 mid | ~2 weeks |
+| 8.2–8.3 | 6.4–7.x | 10.x | Phase 4 late | ~2 weeks |
+| 8.4–8.5 | 8.x | 10.x–11.x | Phase 4 final | ~1 week |
 
 **Upgrade path:**
-1. At PHP 7.4 → 8.0 transition, bump composer.json PHPUnit: `"phpunit/phpunit": "^10.0"`
-2. At PHP 8.2 transition, bump: `"phpunit/phpunit": "^11.0"`
+1. At PHP 8.0 transition, bump composer.json PHPUnit: `"phpunit/phpunit": "^9.0"`
+2. At PHP 8.2 transition, bump: `"phpunit/phpunit": "^10.0"`
 3. Test suite runs in main container after each PHP bump
 
 ---
@@ -205,10 +204,10 @@ composer.json require-dev: PHPUnit 9.5.x (main: PHP 7.1)
 
 ### At PHP 8.0 Threshold (PHPUnit Upgrade)
 
-Upgrade PHPUnit from 9.5.x to 10.x in `composer.json`:
+Upgrade PHPUnit from 7.5.x to 9.x in `composer.json`:
 ```json
 "require-dev": {
-    "phpunit/phpunit": "^10.0"
+    "phpunit/phpunit": "^9.0"
 }
 ```
 
@@ -216,10 +215,10 @@ Then: `composer install` and `castor symfony:test`
 
 ### At PHP 8.2 Threshold (PHPUnit Upgrade)
 
-Upgrade PHPUnit from 10.x to 11.x in `composer.json`:
+Upgrade PHPUnit from 9.x to 10.x in `composer.json`:
 ```json
 "require-dev": {
-    "phpunit/phpunit": "^11.0"
+    "phpunit/phpunit": "^10.0"
 }
 ```
 
