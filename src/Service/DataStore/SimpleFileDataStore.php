@@ -112,7 +112,7 @@ class SimpleFileDataStore implements DataStore
                 if ([] !== $dossiers) {
                     foreach ($dossiers as $dossier) {
                         $numero_id = $etablissement->getId() ?: $linkedObjectId;
-                        if (false !== stripos($piece_jointe->getDescription() ?? '', $numero_id)) {
+                        if (false !== stripos($piece_jointe->getDescription() ?? '', (string) $numero_id)) {
                             $tokens['%NUMEROID_ETABLISSEMENT%'] = $numero_id;
                             break;
                         }
